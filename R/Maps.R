@@ -775,13 +775,15 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # create df to assign color based on ATTAINS overall status
     colors <- getATTAINSColorsRef()
 
-    # prep ATTAINS assessment unit features
+    # prep ATTAINS assessment unit features for mapping if they exist
+  #if (!is.null(ATTAINS_lines) || !is.null(ATTAINS_points) || !is.null(ATTAINS_polygons)) {
     au_mapper <- prepAllATTAINSMapper(
       color_ref = colors,
       lines_layer = ATTAINS_lines,
       points_layer = ATTAINS_points,
       polygons_layer = ATTAINS_polygons
     )
+ # }
 
     # CATCHMENT FEATURES - try to pull missing feature AU data if it exists. Otherwise, move on...
     try(
@@ -847,7 +849,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           map = map,
           icons = images,
           icon_labels = img.labels,
-          ref_icons = TRUE,
+          ref_icons = ref_icons,
           overlay_groups = overlay_groups
         )
 
@@ -882,6 +884,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     # add TADA custom legend to map
     map <- addTADAMapLegend(
+      sumdat,
       map = map,
       icons = images,
       icon_labels = img.labels,

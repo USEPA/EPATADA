@@ -804,32 +804,38 @@ prepAllATTAINSMapper <- function(
   # point assessment units
   points_mapper <- NULL
 
+  if(!is.null(points_layer)) {
   points_mapper <- prepATTAINSMapper(
     points_layer,
     geo_type = "points",
     color_ref = color_ref,
     auid_list = auid_list
   )
+  }
 
   # line assessment units
   lines_mapper <- NULL
 
+  if(!is.null(lines_layer)) {
   lines_mapper <- prepATTAINSMapper(
     lines_layer,
     geo_type = "lines",
     color_ref = color_ref,
     auid_list = auid_list
   )
+  }
 
   # polygon assessment units
   polygons_mapper <- NULL
 
+  if(!is.null(polygons_layer)) {
   polygons_mapper <- prepATTAINSMapper(
     polygons_layer,
     geo_type = "polygons",
     color_ref = color_ref,
     auid_list = auid_list
   )
+  }
   # create list of mapper dfs
   au_mapper <- list(points_mapper, lines_mapper, polygons_mapper)
 
@@ -1327,7 +1333,9 @@ addWQPSites <- function(
   }
 
   # set image ref, image label, and icon url lists for WQP monitoring locations
-  if (!"TADA.AURefSource" %in% names(.data) | ref_icons == FALSE) {
+  if (!"TADA.AURefSource" %in% names(.data) |
+      ref_icons == FALSE |
+      (dplyr::n_distinct(.data$TADA.AURefSource) == 1 & .data$TADA.AURefSource[1] == "not provided")) {
     wqp.imgs <- images[8]
     wqp.labels <- img.labels[8]
 
@@ -1386,7 +1394,8 @@ addWQPSites <- function(
 #' @param .data A TADA data frame created with TADA_CreateATTAINSAUMLCrosswalk
 #' or TADA_CreateAUMLCrosswalk (called "TADA_with_ATTAINS" in the list of output dfs)
 #' or a subsetted TADA data frame containing all columns required for building map
-#' and pop up (Note: Add list of required columns (HRM 1/5/26)).
+#' and pop up (Note: Add list of required columns (HRM 1/5/26)). This is used
+#' to verify the type(s) of circle markers that should be used for map.
 #'
 #' @param map A leaflet map of TADA data to add the legend to.
 #'
@@ -1487,14 +1496,14 @@ addTADAMapLegend <- function(
   # add WQP icons to legend
   if (wqp == TRUE) {
     # add ref icons for assessment unit crosswalk sources
-    if (ref_icons == TRUE) {
+    if (ref_icons == TRUE &
+        any(unique(.data$TADA.AURefSource)
+            %in% c("ATTAINS Crosswalk", "User-supplied Ref", "TADA_CreateATTAINSAUMLCrosswalk"))) {
       images.ref <- append(images.ref, images[5:7])
 
       leg.labels <- append(leg.labels, img.labels[5:7])
-    }
-
-    # add solid black circle markers for all WQP sites
-    if (ref_icons == FALSE) {
+    } else {
+      # add solid black circle markers
       images.ref <- append(images.ref, images[8])
 
       leg.labels <- append(leg.labels, img.labels[8])
