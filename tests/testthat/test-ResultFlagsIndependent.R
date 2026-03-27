@@ -133,8 +133,7 @@ test_that("No NAs in independent flag columns", {
 })
 
 test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
-  testdat <- Data_R5_TADAPackageDemo |>
-    dplyr::filter(StateCode == "17")
+  testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
 
   # Skip the test if the test dataframe is empty
   if (dim(testdat)[1] == 0) {
@@ -174,8 +173,7 @@ test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multi
 })
 
 test_that("TADA_FindPotentialDuplicatesMultipleOrgs has non-NA values for each row in columns added in function", {
-  testdat <- Data_R5_TADAPackageDemo |>
-    dplyr::filter(StateCode == "17")
+  testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
 
   testthat::skip_if(
     is.null(testdat) || NROW(testdat) == 0,

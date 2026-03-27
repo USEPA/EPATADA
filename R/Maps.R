@@ -350,10 +350,10 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' }
 #'
 TADA_NearbySitesMap <- function(
-    .data,
-    dist_buffer = 100,
-    attains = TRUE,
-    catchment = FALSE
+  .data,
+  dist_buffer = 100,
+  attains = TRUE,
+  catchment = FALSE
 ) {
   # columns to select for nearby site
   nearby.cols <- c(
@@ -710,7 +710,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         "ATTAINS_lines",
         "ATTAINS_polygons"
       ) %in%
-      names(.data)
+        names(.data)
     )
   ) {
     stop(
