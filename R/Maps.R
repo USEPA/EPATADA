@@ -849,7 +849,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           map = map,
           icons = images,
           icon_labels = img.labels,
-          ref_icons = ref_icons,
+          ref_icons = TRUE,
           overlay_groups = overlay_groups
         )
 
