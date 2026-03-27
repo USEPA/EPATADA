@@ -350,10 +350,10 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' }
 #'
 TADA_NearbySitesMap <- function(
-  .data,
-  dist_buffer = 100,
-  attains = TRUE,
-  catchment = FALSE
+    .data,
+    dist_buffer = 100,
+    attains = TRUE,
+    catchment = FALSE
 ) {
   # columns to select for nearby site
   nearby.cols <- c(
@@ -710,7 +710,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         "ATTAINS_lines",
         "ATTAINS_polygons"
       ) %in%
-        names(.data)
+      names(.data)
     )
   ) {
     stop(
@@ -775,15 +775,13 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # create df to assign color based on ATTAINS overall status
     colors <- getATTAINSColorsRef()
 
-    # prep ATTAINS assessment unit features for mapping if they exist
-  #if (!is.null(ATTAINS_lines) || !is.null(ATTAINS_points) || !is.null(ATTAINS_polygons)) {
+    # prep ATTAINS assessment unit features
     au_mapper <- prepAllATTAINSMapper(
       color_ref = colors,
       lines_layer = ATTAINS_lines,
       points_layer = ATTAINS_points,
       polygons_layer = ATTAINS_polygons
     )
- # }
 
     # CATCHMENT FEATURES - try to pull missing feature AU data if it exists. Otherwise, move on...
     try(
@@ -884,7 +882,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     # add TADA custom legend to map
     map <- addTADAMapLegend(
-      sumdat,
       map = map,
       icons = images,
       icon_labels = img.labels,
