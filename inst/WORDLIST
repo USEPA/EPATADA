@@ -92,6 +92,9 @@ DetectionQuantitationLimitTypeName
 DistanceAway
 DomainValues
 Dumelle
+DurationMethod
+DurationUnit
+DurationValue
 EASP
 EASP's
 EMEF
@@ -122,6 +125,8 @@ FlagResultUnit
 FlagSpeciation
 FlagUseName
 FractionAssumptions
+FreqMethod
+FreqValue
 FullPhysChem
 Geospatial
 GetATTAINSAUMLCrosswalk
@@ -159,9 +164,11 @@ LongitudeMeasure
 LowerFence
 Lvls
 MDE
+MEDEP
 MLSummary
 MLSummaryRef
 MLs
+MPN
 MTDEQ
 MTDEQ's
 MTWTRSHD
@@ -237,6 +244,7 @@ ParameterName
 ParameterNames
 ParametersForAnalysis
 PartB
+Penobscot
 PhysChem
 Pojoaque
 PollutantName
@@ -301,6 +309,8 @@ SampleCollectionEquipmentName
 SampleCollectionMethod
 SampleFraction
 SampleTissueAnatomyName
+SeasonEndDate
+SeasonStartDate
 Signup
 SimpleCensoredMethods
 SingleOrgDup
@@ -417,6 +427,7 @@ checkColNames
 checkForATTAINSGeo
 checkForWQPData
 checkTADAColsForMap
+classB
 cleanNA
 coli
 comid
@@ -446,6 +457,7 @@ dplyr
 du
 eXchange
 ecc
+ecoli
 ecoregions
 endDate
 endDateHi
