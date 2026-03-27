@@ -56,6 +56,9 @@
 
 ### Workshops and Demos
 
+- [An Example TADA Workflow Using Penobscot Nation
+  Data](https://usepa.github.io/EPATADA/articles/PenobscotNationWorkflow.md):
+
 - [TADA: Assessment Unit Use Case
   Demo](https://usepa.github.io/EPATADA/articles/TADAAssessmentUnitUseCase.md):
 
