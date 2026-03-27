@@ -1234,7 +1234,8 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
           TADA_DataRetrieval_data,
           nearby_catchments,
           left = TRUE
-        )
+        ) |>
+          dplyr::mutate(TADA.AURefSource = "TADA_CreateATTAINSAUMLCrosswalk")
       })
     })
 
@@ -3317,7 +3318,9 @@ TADA_CreateAUMLCrosswalk <- function(
 
     attains <- attains[[df.name]]
 
-    if (!is.null(attains) & df.name != "TADA_with_ATTAINS") {
+    if (!is.null(attains) & df.name != "TADA_with_ATTAINS" &
+        inherits(attains, c("sf", "sfc", "sfg"))) {
+
       attains <- sf::st_make_valid(attains)
     }
 
