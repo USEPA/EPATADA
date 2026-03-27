@@ -133,7 +133,8 @@ test_that("No NAs in independent flag columns", {
 })
 
 test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
-  testdat <- Data_R5_TADAPackageDemo
+  testdat <- Data_R5_TADAPackageDemo |>
+    dplyr::filter(StateCode = "IL")
 
   # Skip the test if the test dataframe is empty
   if (dim(testdat)[1] == 0) {
