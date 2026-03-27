@@ -196,8 +196,7 @@ addATTAINS <- function(
 
   # check EPSG and correct if neccessary
   if (!identical(sf::st_crs(.data)$epsg, 4326L)) {
-
-     .data <- sf::st_transform(.data, 4326)
+    .data <- sf::st_transform(.data, 4326)
   }
 
   if (catchment == FALSE) {
@@ -810,37 +809,37 @@ prepAllATTAINSMapper <- function(
   # point assessment units
   points_mapper <- NULL
 
-  if(!is.null(points_layer)) {
-  points_mapper <- prepATTAINSMapper(
-    points_layer,
-    geo_type = "points",
-    color_ref = color_ref,
-    auid_list = auid_list
-  )
+  if (!is.null(points_layer)) {
+    points_mapper <- prepATTAINSMapper(
+      points_layer,
+      geo_type = "points",
+      color_ref = color_ref,
+      auid_list = auid_list
+    )
   }
 
   # line assessment units
   lines_mapper <- NULL
 
-  if(!is.null(lines_layer)) {
-  lines_mapper <- prepATTAINSMapper(
-    lines_layer,
-    geo_type = "lines",
-    color_ref = color_ref,
-    auid_list = auid_list
-  )
+  if (!is.null(lines_layer)) {
+    lines_mapper <- prepATTAINSMapper(
+      lines_layer,
+      geo_type = "lines",
+      color_ref = color_ref,
+      auid_list = auid_list
+    )
   }
 
   # polygon assessment units
   polygons_mapper <- NULL
 
-  if(!is.null(polygons_layer)) {
-  polygons_mapper <- prepATTAINSMapper(
-    polygons_layer,
-    geo_type = "polygons",
-    color_ref = color_ref,
-    auid_list = auid_list
-  )
+  if (!is.null(polygons_layer)) {
+    polygons_mapper <- prepATTAINSMapper(
+      polygons_layer,
+      geo_type = "polygons",
+      color_ref = color_ref,
+      auid_list = auid_list
+    )
   }
   # create list of mapper dfs
   au_mapper <- list(points_mapper, lines_mapper, polygons_mapper)
@@ -1339,9 +1338,12 @@ addWQPSites <- function(
   }
 
   # set image ref, image label, and icon url lists for WQP monitoring locations
-  if (!"TADA.AURefSource" %in% names(.data) |
+  if (
+    !"TADA.AURefSource" %in% names(.data) |
       ref_icons == FALSE |
-      (dplyr::n_distinct(.data$TADA.AURefSource) == 1 & .data$TADA.AURefSource[1] == "not provided")) {
+      (dplyr::n_distinct(.data$TADA.AURefSource) == 1 &
+        .data$TADA.AURefSource[1] == "not provided")
+  ) {
     wqp.imgs <- images[8]
     wqp.labels <- img.labels[8]
 
@@ -1502,9 +1504,17 @@ addTADAMapLegend <- function(
   # add WQP icons to legend
   if (wqp == TRUE) {
     # add ref icons for assessment unit crosswalk sources
-    if (ref_icons == TRUE &
-        any(unique(.data$TADA.AURefSource)
-            %in% c("ATTAINS Crosswalk", "User-supplied Ref", "TADA_CreateATTAINSAUMLCrosswalk"))) {
+    if (
+      ref_icons == TRUE &
+        any(
+          unique(.data$TADA.AURefSource) %in%
+            c(
+              "ATTAINS Crosswalk",
+              "User-supplied Ref",
+              "TADA_CreateATTAINSAUMLCrosswalk"
+            )
+        )
+    ) {
       images.ref <- append(images.ref, images[5:7])
 
       leg.labels <- append(leg.labels, img.labels[5:7])

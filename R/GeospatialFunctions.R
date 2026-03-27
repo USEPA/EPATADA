@@ -3318,9 +3318,11 @@ TADA_CreateAUMLCrosswalk <- function(
 
     attains <- attains[[df.name]]
 
-    if (!is.null(attains) & df.name != "TADA_with_ATTAINS" &
-        inherits(attains, c("sf", "sfc", "sfg"))) {
-
+    if (
+      !is.null(attains) &
+        df.name != "TADA_with_ATTAINS" &
+        inherits(attains, c("sf", "sfc", "sfg"))
+    ) {
       attains <- sf::st_make_valid(attains)
     }
 
