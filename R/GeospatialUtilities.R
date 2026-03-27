@@ -194,6 +194,12 @@ addATTAINS <- function(
     stop("addATTAINS: overlay_groups must be supplied to run this function.")
   }
 
+  # check EPSG and correct if neccessary
+  if (!identical(sf::st_crs(.data)$epsg, 4326L)) {
+
+     .data <- sf::st_transform(.data, 4326)
+  }
+
   if (catchment == FALSE) {
     # get geometry type
     geo.type <- .data$type[1]
