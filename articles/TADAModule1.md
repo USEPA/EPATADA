@@ -1039,8 +1039,8 @@ TADA_FieldCounts(TADAProfileClean3)
 ```
 
     ##                             Fields Count
-    ## 1    TADA.ComparableDataIdentifier    35
-    ## 2          TADA.CharacteristicName    28
+    ## 1    TADA.ComparableDataIdentifier    37
+    ## 2          TADA.CharacteristicName    29
     ## 3             SubjectTaxonomicName    13
     ## 4           OrganizationFormalName     6
     ## 5           TADA.ActivityType.Flag     3
@@ -1048,8 +1048,8 @@ TADA_FieldCounts(TADAProfileClean3)
     ## 7        ActivityRelativeDepthName     3
     ## 8     ActivityMediaSubdivisionName     2
     ## 9           ResultStatusIdentifier     2
-    ## 10          TADA.ActivityMediaName     1
-    ## 11             ResultValueTypeName     1
+    ## 10             ResultValueTypeName     2
+    ## 11          TADA.ActivityMediaName     1
 
 ``` r
 # create object of table
@@ -1067,7 +1067,7 @@ TADA_FieldValuesTable(TADAProfileClean3, field = "ActivityTypeCode")
 
     ##                                    Value Count
     ## 1                          Field Msr/Obs 12935
-    ## 2                         Sample-Routine  1580
+    ## 2                         Sample-Routine  1751
     ## 3 Quality Control Sample-Field Replicate    83
     ## 4 Quality Control Sample-Equipment Blank    20
 
@@ -1193,16 +1193,16 @@ unique(TADAProfileClean3b$TADA.ReplicateSampleID)
     ## [25] "STORET-954146120" "STORET-954146124" "STORET-954146125" "STORET-954146126"
     ## [29] "STORET-954146127" "STORET-954146163" "STORET-954146164" "STORET-954146165"
     ## [33] "STORET-954146168" "STORET-974501819" "STORET-974501818" "STORET-974501815"
-    ## [37] "STORET-974501816" "STORET-974495554" "STORET-974495555" "STORET-974498873"
-    ## [41] "STORET-974498871" "STORET-974498869" "STORET-974498874" "STORET-974510305"
-    ## [45] "STORET-974510304" "STORET-974510301" "STORET-974510303" "STORET-974508583"
-    ## [49] "STORET-974502338" "STORET-974502342" "STORET-974502341" "STORET-974502344"
-    ## [53] "STORET-974502345" "STORET-974502193" "STORET-974502196" "STORET-974502198"
-    ## [57] "STORET-974502199" "STORET-974506891" "STORET-974504800" "STORET-974504801"
-    ## [61] "STORET-974504802" "STORET-974504805" "STORET-974506248" "STORET-974506249"
-    ## [65] "STORET-974506251" "STORET-974506252" "STORET-974512260" "STORET-974512256"
-    ## [69] "STORET-974512258" "STORET-974512261" "STORET-974515119" "STORET-974515115"
-    ## [73] "STORET-974515120" "STORET-974515122" "STORET-974514935" "STORET-974514940"
+    ## [37] "STORET-974501816" "STORET-974495554" "STORET-974498873" "STORET-974498871"
+    ## [41] "STORET-974498869" "STORET-974498874" "STORET-974510305" "STORET-974510304"
+    ## [45] "STORET-974510301" "STORET-974510303" "STORET-974508583" "STORET-974508582"
+    ## [49] "STORET-974502342" "STORET-974502341" "STORET-974502344" "STORET-974502345"
+    ## [53] "STORET-974502193" "STORET-974502196" "STORET-974502198" "STORET-974502199"
+    ## [57] "STORET-974506891" "STORET-974504800" "STORET-974504801" "STORET-974504802"
+    ## [61] "STORET-974504805" "STORET-974506248" "STORET-974506249" "STORET-974506251"
+    ## [65] "STORET-974506252" "STORET-974512260" "STORET-974512256" "STORET-974512258"
+    ## [69] "STORET-974512261" "STORET-974515119" "STORET-974515115" "STORET-974515120"
+    ## [73] "STORET-974515118" "STORET-974515122" "STORET-974514935" "STORET-974514940"
     ## [77] "STORET-974514939" "STORET-974514941"
 
 ``` r
@@ -1226,15 +1226,15 @@ unique(TADAProfileClean3b$TADA.ReplicateSampleID)
     ## [25] "STORET-954146125" "STORET-954146126" "STORET-954146127" "STORET-954146163"
     ## [29] "STORET-954146164" "STORET-954146165" "STORET-954146168" "STORET-974501819"
     ## [33] "STORET-974501818" "STORET-974501815" "STORET-974501816" "STORET-974495554"
-    ## [37] "STORET-974495555" "STORET-974498873" "STORET-974498871" "STORET-974498869"
-    ## [41] "STORET-974498874" "STORET-974510305" "STORET-974510304" "STORET-974510301"
-    ## [45] "STORET-974510303" "STORET-974508583" "STORET-974502338" "STORET-974502342"
-    ## [49] "STORET-974502341" "STORET-974502344" "STORET-974502345" "STORET-974502193"
-    ## [53] "STORET-974502196" "STORET-974502198" "STORET-974502199" "STORET-974506891"
-    ## [57] "STORET-974504800" "STORET-974504801" "STORET-974504802" "STORET-974504805"
-    ## [61] "STORET-974506248" "STORET-974506249" "STORET-974506251" "STORET-974506252"
-    ## [65] "STORET-974512260" "STORET-974512256" "STORET-974512258" "STORET-974512261"
-    ## [69] "STORET-974515119" "STORET-974515115" "STORET-974515120" "STORET-974515122"
+    ## [37] "STORET-974498873" "STORET-974498871" "STORET-974498869" "STORET-974498874"
+    ## [41] "STORET-974510305" "STORET-974510304" "STORET-974510301" "STORET-974510303"
+    ## [45] "STORET-974508583" "STORET-974508582" "STORET-974502342" "STORET-974502341"
+    ## [49] "STORET-974502344" "STORET-974502345" "STORET-974502193" "STORET-974502196"
+    ## [53] "STORET-974502198" "STORET-974502199" "STORET-974506891" "STORET-974504800"
+    ## [57] "STORET-974504801" "STORET-974504802" "STORET-974504805" "STORET-974506248"
+    ## [61] "STORET-974506249" "STORET-974506251" "STORET-974506252" "STORET-974512260"
+    ## [65] "STORET-974512256" "STORET-974512258" "STORET-974512261" "STORET-974515119"
+    ## [69] "STORET-974515115" "STORET-974515120" "STORET-974515118" "STORET-974515122"
     ## [73] "STORET-974514935" "STORET-974514940" "STORET-974514939" "STORET-974514941"
 
 Now, let’s remove QC samples/measurements from the dataframe.
@@ -1251,7 +1251,7 @@ TADA_FieldValuesTable(TADAProfileClean4, "ActivityTypeCode")
 
     ##            Value Count
     ## 1  Field Msr/Obs 12935
-    ## 2 Sample-Routine  1580
+    ## 2 Sample-Routine  1751
 
 ``` r
 TADA_FieldValuesPie(TADAProfileClean4, "ActivityTypeCode")
@@ -1404,7 +1404,7 @@ unique(TADAProfileClean4$ResultDetectionConditionText)
 ```
 
     ## [1] "Not Detected at Reporting Limit"    NA                                  
-    ## [3] "Present Below Quantification Limit"
+    ## [3] "Not Detected"                       "Present Below Quantification Limit"
 
 Also, review the *TADA.ResultMeasureValueDataTypes.Flag* to see if any
 NAs or NDs (non-detects) remain.
@@ -1424,7 +1424,7 @@ Count how many NAs remain in the TADA.ResultMeasureValue.
 sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
-    ## [1] 677
+    ## [1] 688
 
 Filter down to only include data that is numeric in the
 “TADA.ResultMeasureValue” column. This removes data where the
@@ -1447,7 +1447,7 @@ unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
 nrow(TADAProfileClean4) - nrow(TADAProfileClean5)
 ```
 
-    ## [1] 677
+    ## [1] 688
 
 ``` r
 sum(is.na(TADAProfileClean5$TADA.ResultMeasureValue))
@@ -1572,21 +1572,22 @@ TADA_FieldValuesTable(TADAProfileClean6, field = "TADA.CharacteristicName")
     ## 8  TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)   242
     ## 9        TRANSPARENCY, SECCHI TUBE WITH DISK   212
     ## 10               TOTAL NITROGEN, MIXED FORMS   203
-    ## 11   CONDITION CLASS (DISSOLVED OXYGEN (DO))   129
-    ## 12                                   NITRITE   111
-    ## 13                                  AMMONIUM    93
-    ## 14                   DISSOLVED OXYGEN UPTAKE    82
-    ## 15                            ORTHOPHOSPHATE    82
-    ## 16                         NITRATE + NITRITE    71
-    ## 17                            APPARENT COLOR    49
-    ## 18                         DEPTH, SNOW COVER    33
-    ## 19                 VOLATILE SUSPENDED SOLIDS    31
-    ## 20                       HARDNESS, CARBONATE    29
-    ## 21                                     COUNT    20
-    ## 22                                PERIPHYTON     7
-    ## 23                                RADIUM-226     5
-    ## 24                                RADIUM-228     5
-    ## 25                                   TRITIUM     5
+    ## 11                          ESCHERICHIA COLI   160
+    ## 12   CONDITION CLASS (DISSOLVED OXYGEN (DO))   129
+    ## 13                                   NITRITE   111
+    ## 14                                  AMMONIUM    93
+    ## 15                   DISSOLVED OXYGEN UPTAKE    82
+    ## 16                            ORTHOPHOSPHATE    82
+    ## 17                         NITRATE + NITRITE    71
+    ## 18                            APPARENT COLOR    49
+    ## 19                         DEPTH, SNOW COVER    33
+    ## 20                 VOLATILE SUSPENDED SOLIDS    31
+    ## 21                       HARDNESS, CARBONATE    29
+    ## 22                                     COUNT    20
+    ## 23                                PERIPHYTON     7
+    ## 24                                RADIUM-226     5
+    ## 25                                RADIUM-228     5
+    ## 26                                   TRITIUM     5
 
 Next, we can revisit the **TADA_FieldCounts** function at the
 characteristic level to review how many unique allowable values are
@@ -1741,29 +1742,31 @@ unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
     ##  [3] "TEMPERATURE_NONE_NONE_DEG C"                                   
     ##  [4] "AMMONIUM_UNFILTERED_AS N_MG/L"                                 
     ##  [5] "NITRATE_UNFILTERED_AS N_MG/L"                                  
-    ##  [6] "NITRITE_UNFILTERED_AS N_MG/L"                                  
-    ##  [7] "DISSOLVED OXYGEN SATURATION_NONE_NONE_%"                       
-    ##  [8] "HARDNESS, CARBONATE_TOTAL_NONE_UG/L"                           
-    ##  [9] "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"            
-    ## [10] "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"                          
-    ## [11] "TRANSPARENCY, SECCHI TUBE WITH DISK_NONE_NONE_IN"              
-    ## [12] "DEPTH, SNOW COVER_NONE_NONE_IN"                                
-    ## [13] "ORTHOPHOSPHATE_FILTERED_AS P_UG/L"                             
-    ## [14] "COUNT_NONE_NONE_COUNT"                                         
-    ## [15] "HARDNESS, CARBONATE_NONE_AS CACO3_UG/L"                        
-    ## [16] "RADIUM-226_NONE_NONE_PCI/L"                                    
-    ## [17] "TRITIUM_NONE_NONE_PCI/L"                                       
+    ##  [6] "ESCHERICHIA COLI_NONE_NONE_CFU/100ML"                          
+    ##  [7] "ESCHERICHIA COLI_UNFILTERED_NONE_CFU/100ML"                    
+    ##  [8] "NITRITE_UNFILTERED_AS N_MG/L"                                  
+    ##  [9] "DISSOLVED OXYGEN SATURATION_NONE_NONE_%"                       
+    ## [10] "HARDNESS, CARBONATE_TOTAL_NONE_UG/L"                           
+    ## [11] "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"            
+    ## [12] "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"                          
+    ## [13] "TRANSPARENCY, SECCHI TUBE WITH DISK_NONE_NONE_IN"              
+    ## [14] "DEPTH, SNOW COVER_NONE_NONE_IN"                                
+    ## [15] "ORTHOPHOSPHATE_FILTERED_AS P_UG/L"                             
+    ## [16] "COUNT_NONE_NONE_COUNT"                                         
+    ## [17] "HARDNESS, CARBONATE_NONE_AS CACO3_UG/L"                        
     ## [18] "RADIUM-228_NONE_NONE_PCI/L"                                    
-    ## [19] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        
-    ## [20] "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L"
-    ## [21] "NITRATE + NITRITE_FILTERED_AS N_MG/L"                          
-    ## [22] "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"              
-    ## [23] "VOLATILE SUSPENDED SOLIDS_TOTAL_NONE_UG/L"                     
-    ## [24] "CONDITION CLASS (DISSOLVED OXYGEN (DO))_NONE_NONE_%"           
-    ## [25] "DISSOLVED OXYGEN UPTAKE_NONE_NONE_UG/L"                        
-    ## [26] "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"                           
-    ## [27] "APPARENT COLOR_TOTAL_NONE_PCU"                                 
-    ## [28] "PERIPHYTON_NONE_NONE_G/M2"
+    ## [19] "TRITIUM_NONE_NONE_PCI/L"                                       
+    ## [20] "RADIUM-226_NONE_NONE_PCI/L"                                    
+    ## [21] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        
+    ## [22] "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L"
+    ## [23] "NITRATE + NITRITE_FILTERED_AS N_MG/L"                          
+    ## [24] "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"              
+    ## [25] "VOLATILE SUSPENDED SOLIDS_TOTAL_NONE_UG/L"                     
+    ## [26] "CONDITION CLASS (DISSOLVED OXYGEN (DO))_NONE_NONE_%"           
+    ## [27] "DISSOLVED OXYGEN UPTAKE_NONE_NONE_UG/L"                        
+    ## [28] "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"                           
+    ## [29] "APPARENT COLOR_TOTAL_NONE_PCU"                                 
+    ## [30] "PERIPHYTON_NONE_NONE_G/M2"
 
 Filter dataframe and generate scatterplots for each selected
 TADA.ComparableDataIdentifier:
@@ -1818,29 +1821,31 @@ unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
     ##  [3] "TEMPERATURE_NONE_NONE_DEG C"                                   
     ##  [4] "AMMONIUM_UNFILTERED_AS N_MG/L"                                 
     ##  [5] "NITRATE_UNFILTERED_AS N_MG/L"                                  
-    ##  [6] "NITRITE_UNFILTERED_AS N_MG/L"                                  
-    ##  [7] "DISSOLVED OXYGEN SATURATION_NONE_NONE_%"                       
-    ##  [8] "HARDNESS, CARBONATE_TOTAL_NONE_UG/L"                           
-    ##  [9] "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"            
-    ## [10] "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"                          
-    ## [11] "TRANSPARENCY, SECCHI TUBE WITH DISK_NONE_NONE_IN"              
-    ## [12] "DEPTH, SNOW COVER_NONE_NONE_IN"                                
-    ## [13] "ORTHOPHOSPHATE_FILTERED_AS P_UG/L"                             
-    ## [14] "COUNT_NONE_NONE_COUNT"                                         
-    ## [15] "HARDNESS, CARBONATE_NONE_AS CACO3_UG/L"                        
-    ## [16] "RADIUM-226_NONE_NONE_PCI/L"                                    
-    ## [17] "TRITIUM_NONE_NONE_PCI/L"                                       
+    ##  [6] "ESCHERICHIA COLI_NONE_NONE_CFU/100ML"                          
+    ##  [7] "ESCHERICHIA COLI_UNFILTERED_NONE_CFU/100ML"                    
+    ##  [8] "NITRITE_UNFILTERED_AS N_MG/L"                                  
+    ##  [9] "DISSOLVED OXYGEN SATURATION_NONE_NONE_%"                       
+    ## [10] "HARDNESS, CARBONATE_TOTAL_NONE_UG/L"                           
+    ## [11] "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"            
+    ## [12] "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"                          
+    ## [13] "TRANSPARENCY, SECCHI TUBE WITH DISK_NONE_NONE_IN"              
+    ## [14] "DEPTH, SNOW COVER_NONE_NONE_IN"                                
+    ## [15] "ORTHOPHOSPHATE_FILTERED_AS P_UG/L"                             
+    ## [16] "COUNT_NONE_NONE_COUNT"                                         
+    ## [17] "HARDNESS, CARBONATE_NONE_AS CACO3_UG/L"                        
     ## [18] "RADIUM-228_NONE_NONE_PCI/L"                                    
-    ## [19] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        
-    ## [20] "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L"
-    ## [21] "NITRATE + NITRITE_FILTERED_AS N_MG/L"                          
-    ## [22] "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"              
-    ## [23] "VOLATILE SUSPENDED SOLIDS_TOTAL_NONE_UG/L"                     
-    ## [24] "CONDITION CLASS (DISSOLVED OXYGEN (DO))_NONE_NONE_%"           
-    ## [25] "DISSOLVED OXYGEN UPTAKE_NONE_NONE_UG/L"                        
-    ## [26] "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"                           
-    ## [27] "APPARENT COLOR_TOTAL_NONE_PCU"                                 
-    ## [28] "PERIPHYTON_NONE_NONE_G/M2"
+    ## [19] "TRITIUM_NONE_NONE_PCI/L"                                       
+    ## [20] "RADIUM-226_NONE_NONE_PCI/L"                                    
+    ## [21] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        
+    ## [22] "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L"
+    ## [23] "NITRATE + NITRITE_FILTERED_AS N_MG/L"                          
+    ## [24] "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"              
+    ## [25] "VOLATILE SUSPENDED SOLIDS_TOTAL_NONE_UG/L"                     
+    ## [26] "CONDITION CLASS (DISSOLVED OXYGEN (DO))_NONE_NONE_%"           
+    ## [27] "DISSOLVED OXYGEN UPTAKE_NONE_NONE_UG/L"                        
+    ## [28] "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"                           
+    ## [29] "APPARENT COLOR_TOTAL_NONE_PCU"                                 
+    ## [30] "PERIPHYTON_NONE_NONE_G/M2"
 
 ``` r
 # filter dataframe to only "TOTAL PHOSPHORUS, MIXED FORMS"

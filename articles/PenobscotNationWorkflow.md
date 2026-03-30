@@ -216,7 +216,7 @@ df_flag <- EPATADA::TADA_RunKeyFlagFunctions(
 
     ## All characteristic/fraction combinations are valid in your dataframe. Returning input dataframe with TADA.SampleFraction.Flag column for tracking.
 
-    ## TADA_FlagSpeciation: Rows with Suspect speciations have been flagged but retained. Review these rows using the new TADA.MethodSpeciation.Flag column before proceeding and/or set clean = 'suspect_only' or 'both'.
+    ## TADA_FlagSpeciation: All characteristic/method speciation combinations are valid in your dataframe. Returning input dataframe with TADA.MethodSpeciation.Flag column for tracking.
 
     ## TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking.
 
@@ -255,11 +255,6 @@ Harmonize synonyms if found:
 ``` r
 df_clean <- EPATADA::TADA_HarmonizeSynonyms(df_clean)
 ```
-
-    ## Warning: Your dataframe contains suspect metadata combinations in the following flag columns:
-
-    ##                  Flag_Column Result Count
-    ## 1 TADA.MethodSpeciation.Flag         1957
 
 Generate table:
 

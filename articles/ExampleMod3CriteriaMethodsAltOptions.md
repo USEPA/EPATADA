@@ -103,9 +103,8 @@ tada.MT.clean <- tada.MT |>
   TADA_HarmonizeSynonyms()
 ```
 
-    ##                  Flag_Column Result Count
-    ## 1 TADA.MethodSpeciation.Flag          146
-    ## 2   TADA.SampleFraction.Flag          135
+    ##                Flag_Column Result Count
+    ## 1 TADA.SampleFraction.Flag          135
 
 ``` r
 # remove intermediate objects
