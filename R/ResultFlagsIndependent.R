@@ -112,7 +112,7 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     if (
       any("Suspect" %in% unique(check.data$TADA.AnalyticalMethod.Flag)) == FALSE
     ) {
-      print(
+      message(
         "No Suspect method/characteristic combinations in your dataframe. Returning the input dataframe with TADA.AnalyticalMethod.Flag column for tracking."
       )
       check.data <- TADA_OrderCols(check.data)
@@ -149,7 +149,7 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     )
     if (nrow(Suspect.data) == 0) {
       # Suspect.data <- dplyr::select(Suspect.data, -TADA.AnalyticalMethod.Flag)
-      print(
+      message(
         "This dataframe is empty because we did not find any Suspect method/characteristic combinations in your dataframe"
       )
     }
@@ -385,7 +385,7 @@ TADA_FlagContinuousData <- function(
 
   # Combine continuous and non-continuous data
   if (nrow(noncont.data) == 0) {
-    print(
+    message(
       "All data is flagged as continuous in TADA.ContinuousData.Flag column."
     )
     flag.data <- cont.data
@@ -419,7 +419,7 @@ TADA_FlagContinuousData <- function(
     nrow(flag.data[flag.data$TADA.ContinuousData.Flag == "Continuous", ]) == 0
   ) {
     if (flaggedonly == FALSE) {
-      print(
+      message(
         "No evidence of aggregated continuous data in your dataframe. Returning the input dataframe with TADA.ContinuousData.Flag column for tracking."
       )
       .data <- TADA_OrderCols(.data)
@@ -427,7 +427,7 @@ TADA_FlagContinuousData <- function(
     }
 
     if (flaggedonly == TRUE) {
-      print(
+      message(
         "This dataframe is empty because we did not find any aggregated continuous data in your dataframe"
       )
       all.cont.data <- flag.data |>
@@ -1118,20 +1118,20 @@ TADA_FindQAPPApproval <- function(
       )
 
       if (nrow(.data) == 0) {
-        print("All QAPPApprovedIndicator data is N")
+        message("All QAPPApprovedIndicator data is N")
       }
     }
     if (cleanNA == TRUE) {
       .data <- dplyr::filter(.data, is.na(QAPPApprovedIndicator) == FALSE)
 
       if (nrow(.data) == 0 & clean == TRUE) {
-        print("All QAPPApprovedIndicator data is NA or N")
+        message("All QAPPApprovedIndicator data is NA or N")
       } else if (nrow(.data) == 0 & clean == FALSE) {
-        print("All QAPPApprovedIndicator data is NA")
+        message("All QAPPApprovedIndicator data is NA")
       }
     }
     if (clean == FALSE & cleanNA == FALSE) {
-      print(
+      message(
         "Data is flagged but not removed because clean and cleanNA were FALSE"
       )
     }
@@ -1258,14 +1258,14 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
   # if no associated QAPP url data is in the data set
   if (nrow(QAPPdoc.data) == 0) {
     if (clean == FALSE) {
-      print(
+      message(
         "No QAPP document url data found in your dataframe. Returning input dataframe with TADA.QAPPDocAvailable column for tracking."
       )
       .data <- TADA_OrderCols(.data)
       return(.data)
     }
     if (clean == TRUE) {
-      print(
+      message(
         "This dataframe is empty because we did not find any QAPP document url data in your dataframe"
       )
       QAPPdoc.data <- TADA_OrderCols(QAPPdoc.data)
@@ -1471,7 +1471,7 @@ TADA_FlagCoordinates <- function(
 
   # if clean_outsideUSA is "change sign", change the sign of lat/long coordinates outside of USA
   if (clean_outsideUSA == "change sign") {
-    print(
+    message(
       "When clean_outsideUSA == change sign, the sign for any lat/long coordinates flagged as outside of USA are switched. This is a temporary solution. Data owners should fix the raw data to address Suspect coordinates through WQX. For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov)."
     )
     .data <- .data |>
@@ -1496,11 +1496,11 @@ TADA_FlagCoordinates <- function(
 
   if (all(.data$TADA.SuspectCoordinates.Flag %in% c("OK")) == TRUE) {
     if (orig_dim == dim(.data)[1]) {
-      print(
+      message(
         "Your dataframe does not contain monitoring stations with Suspect coordinates. Returning input dataframe with TADA.SuspectCoordinates.Flag column for tracking."
       )
     } else {
-      print(
+      message(
         "All Suspect coordinates were removed. Returning input dataframe with TADA.SuspectCoordinates.Flag column for tracking."
       )
     }
@@ -1664,7 +1664,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
     if (!any(org_hierarchy == "none")) {
       data_orgs <- unique(.data$OrganizationIdentifier)
       if (any(!org_hierarchy %in% data_orgs)) {
-        print(
+        message(
           "TADA_FindPotentialDuplicatesMultipleOrgs: One or more organizations in input hierarchy are not present in the input dataset."
         )
       }
@@ -1743,7 +1743,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
         )
       )
 
-    print(paste0(
+    message(paste0(
       length(dupsdat$TADA.MultipleOrgDuplicate[
         dupsdat$TADA.MultipleOrgDuplicate %in% c("Y")
       ]),
@@ -1753,7 +1753,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
     .data$TADA.MultipleOrgDupGroupID <- "Not a duplicate"
     .data$TADA.MultipleOrgDuplicate <- "N"
     .data$TADA.ResultSelectedMultipleOrgs <- "Y"
-    print(
+    message(
       "No duplicate results detected. Returning input dataframe with duplicate flagging columns set to 'N'."
     )
   }
@@ -1859,7 +1859,7 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
       "Unique",
       .data$TADA.SingleOrgDup.Flag
     )
-    print(paste0(
+    message(paste0(
       "TADA_FindPotentialDuplicatesSingleOrg: ",
       dim(dups_sum_org)[1],
       " groups of potentially duplicated results found in dataset.",
@@ -1888,7 +1888,7 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
       "Unique",
       .data$TADA.SingleOrgDup.Flag
     )
-    print(
+    message(
       "No duplicate results detected. Returning input dataframe with TADA.SingleOrgDup.Flag flag column set to 'Unique'"
     )
   }

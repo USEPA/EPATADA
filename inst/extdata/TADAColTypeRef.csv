@@ -270,3 +270,5 @@ ATTAINS.OtherUse,character
 epsg,character
 Location_Latitude,numeric
 Activity_EndDate,character
+IncludeOrExclude,character
+TADA.AssessmentUnitStatus,character

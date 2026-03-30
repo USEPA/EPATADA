@@ -304,12 +304,12 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 
     # print message listing characteristics/target units
     if (print.message == TRUE) {
-      print(paste(
+      message(
         "TADA.CreateUnitRef: The following characteristics have more than one listed target unit: ",
         mult.target.list,
         ". This may be due to units of different types that cannot be converted to match each other. You may wish to review the output of TADA.CreateUnitRef and edit it.",
         sep = ""
-      ))
+      )
 
       # remove intermediate object
       rm(mult.target.list)
@@ -645,7 +645,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       )
 
       if (all(expected_ref_cols %in% colnames(ref)) == TRUE) {
-        print(
+        message(
           "The reference dataframe contains all fields required for TADA_ConvertResultUnits."
         )
       }
@@ -689,7 +689,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     # if no difference between the two, print message that all combinations are present in unit ref
     if (nrow(compare.ref) == 0) {
-      print(
+      message(
         "All CharacteristicName/Unit combinations in the TADA dataframe are represented in user-supplied unit reference."
       )
       # if there are characteristic/unit combinations in the data that are not in the unit ref, print a warning message listing them

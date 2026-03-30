@@ -12,37 +12,23 @@ TADA_GetATTAINSAUMLCrosswalk(
 )
 }
 \arguments{
-\item{org_id}{Character string. The ATTAINS organization identifier must be
-supplied by the user. More than one org_id may be provided.
-Enter \code{rExpertQuery::EQ_DomainValues("org_id")} into the console to
-get a list of valid organization identifiers. A list of organization identifiers
-can also be found by downloading the ATTAINS Domains Excel file:
-https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-Organization identifiers are listed in the "code" column of the "OrgName" tab.
-When org_id = "all", all assessment unit/monitoring locations matches recorded in
-ATTAINS from all organizations will be returned. The default is org_id = "all".}
+\item{org_id}{Character vector. ATTAINS organization identifier(s). Use "all"
+(default) to retrieve the national extract for all organizations.}
 
-\item{batch_upload}{Boolean argument. When batch_upload = TRUE, the final column
-names in the output will match those required for batch upload to ATTAINS. When
-batch_upload = FALSE, the output column names will be consistent with the TADA
-workflow. Default is batch_upload = FALSE.}
+\item{batch_upload}{Logical. If TRUE, return columns formatted for ATTAINS
+batch upload (ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID, MS_DATA_LINK).
+If FALSE (default), return TADA workflow column names.}
 
-\item{api_key}{Optional character string. An api key for Expert Query web
-services. If not supplied, the default TADA api key will be used. For best
-performance, it is recommended that users obtain and use their own api key.
-Request an api key here: https://owapps.epa.gov/expertquery/api-documentation}
+\item{api_key}{Optional API key for Expert Query. If NULL, the default TADA key
+will be used via .setEQKey().}
 }
 \value{
-When batch_upload = FALSE, A dataframe with six columns:
+A data.frame. When batch_upload = FALSE, columns:
 OrganizationIdentifier, ATTAINS.OrganizationIdentifier,
 ATTAINS.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier,
-ATTAINS.MonitoringDataLinkText, ATTAINS.WaterType is returned.
-When batch_upload = TRUE, A dataframe with four columns:
-MS_ORG_ID, MS_LOCATION_ID, ASSESSMENT_UNIT_ID, MS_DATA_LINK
-is returned. This is the crosswalk between monitoring location identifiers
-and assessment units that the state or tribal organization submitted
-to ATTAINS (optional). If an ATTAINS organization has not submitted this
-information in ATTAINS, the function will not return a dataframe.
+ATTAINS.MonitoringDataLinkText, ATTAINS.WaterType.
+When batch_upload = TRUE, columns:
+MS_ORG_ID, MS_LOCATION_ID, ASSESSMENT_UNIT_ID, MS_DATA_LINK.
 }
 \description{
 Tribes and States who participate in electronic reporting of water quality
@@ -52,26 +38,4 @@ ATTAINS. If an organization has recorded this information in ATTAINS,
 this function can be used to get the ATTAINS user submitted crosswalk of
 known monitoring location identifiers and assessment units. As of 2025, all
 tribal nations record this information in ATTAINS but only a few states.
-}
-\examples{
-\dontrun{
-# Alaska example in
-AK_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(
-  org_id = "AKDECWQ", batch_upload = TRUE
-)
-
-# Alaska example with ATTAINS prefix compatible with TADA Analysis workflow
-AK_crosswalk2 <- TADA_GetATTAINSAUMLCrosswalk(
-  org_id = "AKDECWQ", batch_upload = FALSE
-)
-
-# Pueblo of Tesuque example
-PUEBLOOFTESUQUE_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(
-  org_id = "PUEBLOOFTESUQUE"
-)
-
-# Arizona example, returns an empty df as of 10/17/25
-AZ_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(org_id = "21ARIZ")
-}
-
 }

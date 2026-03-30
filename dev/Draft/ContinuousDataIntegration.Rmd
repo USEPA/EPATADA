@@ -25,7 +25,7 @@ editor_options:
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA).
 TADA is an open-source tool set built in the R programming language.
-This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks
 users through how to download the TADA R package from GitHub, access and
 parameterize several important functions, and create basic
 visualizations with a sample data set.
@@ -62,13 +62,6 @@ prompt, it is recommended to update all of them (enter 1 into the
 console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-```
-
-```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
