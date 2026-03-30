@@ -3,13 +3,8 @@ on:
     branches: [develop]
   pull_request:
     branches: [develop]
-    types: [opened, reopened, synchronize, ready_for_review]
 
 name: spelling-check
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -20,8 +15,6 @@ permissions:
 
 jobs:
   spelling-check:
-    # Skip draft PRs; run on non-PR triggers and non-draft PR events
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
