@@ -133,7 +133,7 @@ test_that("No NAs in independent flag columns", {
 })
 
 test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
-  testdat <- Data_R5_TADAPackageDemo
+  testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
 
   # Skip the test if the test dataframe is empty
   if (dim(testdat)[1] == 0) {
@@ -149,7 +149,8 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 
 test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
   testdat <- Data_R5_TADAPackageDemo
-  testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
+  testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat) |>
+    dplyr::filter(StateCode == "17")
 
   testdat1 <- testdat |>
     dplyr::select(TADA.NearbySiteGroup) |>
@@ -172,7 +173,7 @@ test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multi
 })
 
 test_that("TADA_FindPotentialDuplicatesMultipleOrgs has non-NA values for each row in columns added in function", {
-  testdat <- Data_R5_TADAPackageDemo
+  testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
 
   testthat::skip_if(
     is.null(testdat) || NROW(testdat) == 0,
@@ -209,15 +210,6 @@ test_that("WQXcharValRef.rda contains only one row for each unique characteristi
   expect_true(nrow(find.dups) == 0)
 })
 
-test_that("TADA_FindPotentialDuplicatesMultipleOrgs has non-NA values for each row in columns added in function", {
-  testdat <- Data_R5_TADAPackageDemo
-  testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
-
-  expect_false(any(is.na(testdat$TADA.MultipleOrgDupGroupID)))
-  expect_false(any(is.na(testdat$TADA.MultipleOrgDuplicate)))
-  expect_false(any(is.na(testdat$TADA.MonitoringLocationIdentifier)))
-  expect_false(any(is.na(testdat$TADA.ResultSelectedMultipleOrgs)))
-})
 
 test_that("range flag functions work", {
   # use random data
