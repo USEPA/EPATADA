@@ -1212,11 +1212,11 @@ TADA_ParametersForAnalysis <- function(
       dplyr::distinct()
 
     # Pulls in all domain values of parameter and use names in ATTAINS.
-    load(
-      system.file(
-        "extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"
-      )
-    )
+    load(system.file(
+      "extdata",
+      "ATTAINSParamUseOrgRef.rda",
+      package = "EPATADA"
+    ))
 
     ATTAINS_param <- ATTAINSParamUseOrgRef |>
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
@@ -1551,11 +1551,11 @@ TADA_ParametersForAnalysis <- function(
     )
 
     # Pulls in all domain values of parameter and use names in ATTAINS.
-    load(
-      system.file(
-        "extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"
-        )
-      )
+    load(system.file(
+      "extdata",
+      "ATTAINSParamUseOrgRef.rda",
+      package = "EPATADA"
+    ))
 
     # Filters the full domain value by the specified org_id(s)
     ATTAINS_param <- ATTAINSParamUseOrgRef |>
@@ -2030,11 +2030,11 @@ TADA_UsesForAnalysis <- function(
     .data <- as.data.frame(.data)
 
     # Pulls in all domain values of parameter and use names by orgs in ATTAINS.
-    load(
-      system.file(
-        "extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"
-      )
-    )
+    load(system.file(
+      "extdata",
+      "ATTAINSParamUseOrgRef.rda",
+      package = "EPATADA"
+    ))
 
     # if both AUMLRef and AU_UsesRef are provided
     if (!is.null(AUMLRef) & !is.null(AU_UsesRef)) {
@@ -2220,11 +2220,11 @@ TADA_UsesForAnalysis <- function(
       ))
 
       # load ATTAINSParamUseOrgRef
-      load(
-        system.file(
-          "extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"
-        )
-      )
+      load(system.file(
+        "extdata",
+        "ATTAINSParamUseOrgRef.rda",
+        package = "EPATADA"
+      ))
 
       # pulls in all prior use names from prior assessment cycles for an org
       use.names <- ATTAINSParamUseOrgRef |>
@@ -3039,11 +3039,11 @@ TADA_AssignUsesToAU <- function(
     }
 
     # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
-    load(
-      system.file(
-        "extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"
-      )
-    )
+    load(system.file(
+      "extdata",
+      "ATTAINSParamUseOrgRef.rda",
+      package = "EPATADA"
+    ))
 
     # check to see if user-supplied AUMLRef is a df with appropriate columns and is filled out.
     if (!is.null(AUMLRef) & !is.character(AUMLRef)) {
@@ -3453,11 +3453,7 @@ TADA_AssignUsesToWaterType <- function(
   tadakey <- "EKtgCrmatyP4G8iFgADMIfwlddbpDlSqRxetlN09"
 
   # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
-  load(
-    system.file(
-      "extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"
-    )
-  )
+  load(system.file("extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"))
 
   # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA 304(a)" as that is not an ATTAINS org_id.
   if (
