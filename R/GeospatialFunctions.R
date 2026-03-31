@@ -364,7 +364,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
             catchment_features$assessmentunitidentifier
           ),
           org_filter = org_id
-        ), # Pass org_id directly
+        ) |>
+          sf::st_transform(out_epsg),
         silent = TRUE
       )
 
@@ -375,7 +376,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
             catchment_features$assessmentunitidentifier
           ),
           org_filter = org_id
-        ),
+          )|>
+            sf::st_transform(out_epsg),
         silent = TRUE
       )
 
@@ -386,7 +388,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
             catchment_features$assessmentunitidentifier
           ),
           org_filter = org_id
-        ),
+        ) |>
+          sf::st_transform(out_epsg),
         silent = TRUE
       )
 
@@ -394,7 +397,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         points <- points |>
           dplyr::left_join(
             water_types,
-            by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+            by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
           ),
         silent = TRUE
       )
@@ -403,7 +406,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         lines <- lines |>
           dplyr::left_join(
             water_types,
-            by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+            by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
           ),
         silent = TRUE
       )
@@ -412,20 +415,15 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         polygons <- polygons |>
           dplyr::left_join(
             water_types,
-            by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+            by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
           ),
         silent = TRUE
       )
 
       # if no results in a df, set to NULL
       setNullWhenNoResults <- function(.data) {
-        if (nrow(.data) == 0) {
-          .data <- NULL
-        } else {
-          .data <- .data
-        }
-
-        return(.data)
+        if (is.null(.data) || nrow(.data) == 0) return(NULL)
+        .data
       }
 
       final_features <- list(
@@ -1266,42 +1264,43 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
     }
   }
 
-  # Function to calculate distances between WQP observations and ATTAINS features
-  find_distances <- function(location) {
-    sub_tada <- TADA_with_ATTAINS |>
-      dplyr::filter(as.character(geometry) == location)
-
-    distance <- sub_tada[1, ]
-
     # Function to calculate distances between WQP observations and ATTAINS features
     find_distances <- function(location) {
+
+      # set up for empty result when no ATTAINS features match WQP locations
+      empty <- tibble::tibble(
+        ResultIdentifier = character(),
+        assessmentunitidentifier = character(),
+        TADA.DistanceAway.Meters = numeric()
+      )
+
+      # create TADA subset
       sub_tada <- TADA_with_ATTAINS |>
         dplyr::filter(as.character(geometry) == location)
 
+      # return empty if required
+      if (nrow(sub_tada) == 0) return(empty)
+
+      # select a single record to find distance
       distance <- sub_tada[1, ]
 
+      # create subset for one location to compare against ATTAINS features
       subset <- attains_features[-1] |>
-        purrr::map(
-          ~ tryCatch(
-            dplyr::filter(
-              .,
-              assessmentunitidentifier %in% sub_tada$assessmentunitidentifier
-            ),
-            error = function(e) data.frame(),
-            warning = function(w) data.frame()
-          )
-        ) |>
-        purrr::keep(~ !is.null(.)) |>
-        purrr::keep(~ nrow(.) > 0)
+        purrr::map(~ tryCatch( dplyr::filter(.x, assessmentunitidentifier %in% sub_tada$assessmentunitidentifier),
+                               error = function(e) tibble::tibble(),
+                               warning = function(w) tibble::tibble() )) |>
+        purrr::keep(~ nrow(.x) > 0)
 
-      result <- NULL
+      # return empty if no ATTAINS features match
+      if (length(subset) == 0) return(empty)
+
 
       try(
         distances <- subset |>
           purrr::map(
             ~ dplyr::mutate(
               .,
-              TADA.DistanceAway.Meters = as.character(sf::st_distance(
+              TADA.DistanceAway.Meters = as.numeric(sf::st_distance(
                 .,
                 distance
               ))
@@ -1417,7 +1416,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
         ATTAINS_polygons <- NULL
       }
     }
-  }
+
 
   # create final list for output
   final_list <- list(
