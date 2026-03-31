@@ -1,20 +1,26 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [develop]
   pull_request:
     branches: [develop]
+    types: [opened, reopened, synchronize, ready_for_review]
 
 name: test-coverage
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
   checks: write
+  statuses: read
   pull-requests: write
 
 jobs:
   test-coverage:
+    # Skip draft PRs; run on non-PR triggers and non-draft PR events
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -61,7 +67,6 @@ jobs:
       - name: Show testthat output
         if: always()
         run: |
-          ## --------------------------------------------------------------------
           find '${{ runner.temp }}/package' -name 'testthat.Rout*' -exec cat '{}' \; || true
         shell: bash
 
@@ -71,7 +76,7 @@ jobs:
         with:
           name: coverage-test-failures
           path: ${{ runner.temp }}/package
-          if-no-files-found: ignore  # Suppress warnings if no files are found
+          if-no-files-found: ignore
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v7
@@ -87,3 +92,5 @@ jobs:
           minimum_coverage: 10
           show_missing: true
           link_missing_lines: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
