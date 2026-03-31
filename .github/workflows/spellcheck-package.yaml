@@ -41,7 +41,7 @@ jobs:
           # Create a simple log for PR comment
           log_path <- "spellcheck.log"
           header <- if (has_errors == TRUE) {
-            sprintf("Spelling check failed. Found %d potential misspelling(s). Note: If a word is acceptable project terminology, add it to WORDLIST.", nrow(res))
+            sprintf("Spelling check failed. Found %d potential misspelling(s). Note: Run spelling::spell_check_package() locally and fix any misspellings; add approved project terms to WORDLIST with spelling::update_wordlist().", nrow(res))
           } else {
             "No spelling issues found."
           }
