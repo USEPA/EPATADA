@@ -111,11 +111,11 @@ their decision making processes. Use of EPATADA is not required.
 
 # Introduction to TADA Module 3
 
-This [RMarkdown](https://yihui.org/rmarkdown/) document walks
-users through how to create WQP and ATTAINS crosswalks that are needed
-to define and capture organization specific water quality analysis
-criteria and methodologies. This is a continuation of an example TADA
-workflow which began with ExampleMod2Workflow.Rmd.
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks users
+through how to create WQP and ATTAINS crosswalks that are needed to
+define and capture organization specific water quality analysis criteria
+and methodologies. This is a continuation of an example TADA workflow
+which began with ExampleMod2Workflow.Rmd.
 
 Specifically, this vignette provides an overview of three functions that
 can assist users with:
@@ -736,7 +736,7 @@ TADA_TableExport(MT.UsesRef.manual.AU_UsesRef)
 
 Now, lets show the output when we turn auto_assign = TRUE
 
-```{r usesRef-auto-AU_UsesRef} 
+```{r usesRef-auto-AU_UsesRef}
 MT.UsesRef.auto.AU_UsesRef <- TADA_UsesForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
@@ -836,9 +836,11 @@ TADA_TableExport(MT.UsesRef.auto.MT76F007_010)
 
 #### Option 3B: Both AUMLRef and AU_UsesRef are provided
 
-Now let's supply both an AUMLRef and an AU_UsesRef. We will use the filtered AUMLRef as our input along with the full AU_UsesRef defined earlier.
+Now let's supply both an AUMLRef and an AU_UsesRef. We will use the
+filtered AUMLRef as our input along with the full AU_UsesRef defined
+earlier.
 
-```{r usesRef-with-AUMLRef-river}
+```{r usesRef-with-AUMLRef-and-AU_UsesRef-river}
 MT.UsesRef.manual.3B <- TADA_UsesForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),

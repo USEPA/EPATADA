@@ -1212,18 +1212,18 @@ TADA_ParametersForAnalysis <- function(
       dplyr::distinct()
 
     # Pulls in all domain values of parameter and use names in ATTAINS.
-    ATTAINS_param_all <- utils::read.csv(system.file(
-      "extdata",
-      "ATTAINSParamUseEntityRef.csv",
-      package = "EPATADA"
-    ))
+    load(
+      system.file(
+        "extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"
+      )
+    )
 
-    ATTAINS_param <- ATTAINS_param_all |>
+    ATTAINS_param <- ATTAINSParamUseOrgRef |>
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
       dplyr::arrange(ATTAINS.ParameterName)
 
     if ("" %in% org_id) {
-      ATTAINS_param <- ATTAINS_param_all |>
+      ATTAINS_param <- ATTAINSParamUseOrgRef |>
         dplyr::mutate(ATTAINS.OrganizationIdentifier = "")
     }
 
@@ -1273,7 +1273,7 @@ TADA_ParametersForAnalysis <- function(
 
       TADACharAliasRef <- TADACharAliasRef |>
         dplyr::filter(
-          ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName
+          ATTAINS.ParameterName %in% ATTAINSParamUseOrgRef$ATTAINS.ParameterName
         )
 
       CreateParamRef <- TADA_param |>
@@ -1303,18 +1303,18 @@ TADA_ParametersForAnalysis <- function(
                 ATTAINS.ParameterName
               ) ~ "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
             !ATTAINS.ParameterName %in%
-              ATTAINS_param_all$ATTAINS.ParameterName ~ "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List.",
+              ATTAINSParamUseOrgRef$ATTAINS.ParameterName ~ "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List.",
             ATTAINS.ParameterName %in%
-              ATTAINS_param_all$ATTAINS.ParameterName &
+              ATTAINSParamUseOrgRef$ATTAINS.ParameterName &
               !paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
                 paste(
-                  ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                  ATTAINS_param_all$ATTAINS.ParameterName
+                  ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                  ATTAINSParamUseOrgRef$ATTAINS.ParameterName
                 ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles, but not for this organization.",
             paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
               paste(
-                ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                ATTAINS_param_all$ATTAINS.ParameterName
+                ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.ParameterName
               ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization."
           )
         ) |>
@@ -1372,18 +1372,18 @@ TADA_ParametersForAnalysis <- function(
                 ATTAINS.ParameterName
               ) ~ "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
             !ATTAINS.ParameterName %in%
-              ATTAINS_param_all$ATTAINS.ParameterName ~ "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List.",
+              ATTAINSParamUseOrgRef$ATTAINS.ParameterName ~ "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List.",
             ATTAINS.ParameterName %in%
-              ATTAINS_param_all$ATTAINS.ParameterName &
+              ATTAINSParamUseOrgRef$ATTAINS.ParameterName &
               !paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
                 paste(
-                  ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                  ATTAINS_param_all$ATTAINS.ParameterName
+                  ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                  ATTAINSParamUseOrgRef$ATTAINS.ParameterName
                 ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles, but not for this organization.",
             paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
               paste(
-                ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                ATTAINS_param_all$ATTAINS.ParameterName
+                ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.ParameterName
               ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization."
           )
         ) |>
@@ -1445,18 +1445,18 @@ TADA_ParametersForAnalysis <- function(
                 ATTAINS.ParameterName
               ) ~ "No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
             !ATTAINS.ParameterName %in%
-              ATTAINS_param_all$ATTAINS.ParameterName ~ "Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",
+              ATTAINSParamUseOrgRef$ATTAINS.ParameterName ~ "Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",
             ATTAINS.ParameterName %in%
-              ATTAINS_param_all$ATTAINS.ParameterName &
+              ATTAINSParamUseOrgRef$ATTAINS.ParameterName &
               !paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
                 paste(
-                  ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                  ATTAINS_param_all$ATTAINS.ParameterName
+                  ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                  ATTAINSParamUseOrgRef$ATTAINS.ParameterName
                 ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles, but not for this organization.",
             paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
               paste(
-                ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                ATTAINS_param_all$ATTAINS.ParameterName
+                ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.ParameterName
               ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization"
           )
         ) |>
@@ -1551,14 +1551,14 @@ TADA_ParametersForAnalysis <- function(
     )
 
     # Pulls in all domain values of parameter and use names in ATTAINS.
-    ATTAINS_param_all <- utils::read.csv(system.file(
-      "extdata",
-      "ATTAINSParamUseEntityRef.csv",
-      package = "EPATADA"
-    ))
+    load(
+      system.file(
+        "extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"
+        )
+      )
 
     # Filters the full domain value by the specified org_id(s)
-    ATTAINS_param <- ATTAINS_param_all |>
+    ATTAINS_param <- ATTAINSParamUseOrgRef |>
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
       dplyr::arrange(ATTAINS.ParameterName)
 
@@ -1569,7 +1569,7 @@ TADA_ParametersForAnalysis <- function(
       startCol = 4,
       x = rbind(
         no_match_df,
-        ATTAINS_param_all[, c(
+        ATTAINSParamUseOrgRef[, c(
           "ATTAINS.OrganizationIdentifier",
           "ATTAINS.ParameterName",
           "ATTAINS.UseName"
@@ -1630,7 +1630,7 @@ TADA_ParametersForAnalysis <- function(
     ))
 
     # remove intermediate objects
-    rm(ATTAINS_param, ATTAINS_param_all)
+    rm(ATTAINS_param, ATTAINSParamUseOrgRef)
 
     max_loops <- 0
 
@@ -2030,11 +2030,11 @@ TADA_UsesForAnalysis <- function(
     .data <- as.data.frame(.data)
 
     # Pulls in all domain values of parameter and use names by orgs in ATTAINS.
-    ATTAINS_param_all <- utils::read.csv(system.file(
-      "extdata",
-      "ATTAINSParamUseEntityRef.csv",
-      package = "EPATADA"
-    ))
+    load(
+      system.file(
+        "extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"
+      )
+    )
 
     # if both AUMLRef and AU_UsesRef are provided
     if (!is.null(AUMLRef) & !is.null(AU_UsesRef)) {
@@ -2066,20 +2066,20 @@ TADA_UsesForAnalysis <- function(
     # If a user provides an AU_UsesRef, We will use the uses in this table
     if (!is.null(AU_UsesRef)) {
       # filters the param-use-org ref by the necessary inputs
-      ATTAINS_param_all_overlap <- ATTAINS_param_all |>
+      ATTAINSParamUseOrgRef_overlap <- ATTAINSParamUseOrgRef |>
         dplyr::filter(
           ATTAINS.OrganizationIdentifier %in% org_id,
           ATTAINS.UseName %in% AU_UsesRef$ATTAINS.UseName,
           ATTAINS.WaterType %in% AU_UsesRef$ATTAINS.WaterType
         )
 
-      # identifies all use names not found in the filtered ATTAINS_param_all_overlap
+      # identifies all use names not found in the filtered ATTAINSParamUseOrgRef_overlap
       AU_UsesRef_new <- AU_UsesRef |>
         dplyr::filter(
-          !ATTAINS.UseName %in% ATTAINS_param_all_overlap$ATTAINS.UseName
+          !ATTAINS.UseName %in% ATTAINSParamUseOrgRef_overlap$ATTAINS.UseName
         )
 
-      ATTAINS_param_all <- ATTAINS_param_all_overlap |>
+      ATTAINSParamUseOrgRef <- ATTAINSParamUseOrgRef_overlap |>
         #dplyr::filter(!ATTAINS.UseName %in% AU_UsesRef$ATTAINS.UseName) |>
         dplyr::select(-ATTAINS.UseName) |>
         dplyr::right_join(
@@ -2087,18 +2087,18 @@ TADA_UsesForAnalysis <- function(
           by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.WaterType"),
           relationship = "many-to-many"
         ) |>
-        dplyr::select(names(ATTAINS_param_all_overlap)) |>
-        dplyr::bind_rows(ATTAINS_param_all_overlap) |>
+        dplyr::select(names(ATTAINSParamUseOrgRef_overlap)) |>
+        dplyr::bind_rows(ATTAINSParamUseOrgRef_overlap) |>
         dplyr::distinct()
 
       # prints message to indicate any uses not found in prior assessments for a parameter. Will assign all unique use names to it.
       # print(
       #   paste(
       #     "TADA_UsesForAnalysis: Your user supplied AU_UsesRef contains",
-      #     length(setdiff(ATTAINS_param_all$ATTAINS.ParameterName, ATTAINS_param_all_overlap$ATTAINS.ParameterName)),
+      #     length(setdiff(ATTAINSParamUseOrgRef$ATTAINS.ParameterName, ATTAINSParamUseOrgRef_overlap$ATTAINS.ParameterName)),
       #     "parameters that could not be found in prior assessments for the specified water types of your assessment unit.",
       #     "Assigning all unique use names to these parameters.",
-      #     setdiff(ATTAINS_param_all$ATTAINS.ParameterName, ATTAINS_param_all_overlap$ATTAINS.ParameterName),
+      #     setdiff(ATTAINSParamUseOrgRef$ATTAINS.ParameterName, ATTAINSParamUseOrgRef_overlap$ATTAINS.ParameterName),
       #     "Review and exclude the non-applicable use names as needed."
       #   )
       # )
@@ -2167,7 +2167,7 @@ TADA_UsesForAnalysis <- function(
     }
 
     # Filters the ATTAINS parameter and use names by the org_id in user supplied df.
-    ATTAINS_param <- ATTAINS_param_all |>
+    ATTAINS_param <- ATTAINSParamUseOrgRef |>
       dplyr::select(
         ATTAINS.OrganizationIdentifier,
         ATTAINS.ParameterName,
@@ -2219,12 +2219,15 @@ TADA_UsesForAnalysis <- function(
         "organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
       ))
 
+      # load ATTAINSParamUseOrgRef
+      load(
+        system.file(
+          "extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"
+        )
+      )
+
       # pulls in all prior use names from prior assessment cycles for an org
-      use.names <- utils::read.csv(system.file(
-        "extdata",
-        "ATTAINSParamUseEntityRef.csv",
-        package = "EPATADA"
-      )) |>
+      use.names <- ATTAINSParamUseOrgRef |>
         dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
         dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) |>
         tidyr::drop_na() |>
@@ -2280,9 +2283,9 @@ TADA_UsesForAnalysis <- function(
               ATTAINS.UseName
             ) %in%
               paste(
-                ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                ATTAINS_param_all$ATTAINS.ParameterName,
-                ATTAINS_param_all$ATTAINS.UseName
+                ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.ParameterName,
+                ATTAINSParamUseOrgRef$ATTAINS.UseName
               ) ~ "Use name has been assessed in prior cycles by this organization.",
             !paste(
               ATTAINS.OrganizationIdentifier,
@@ -2290,12 +2293,12 @@ TADA_UsesForAnalysis <- function(
               ATTAINS.UseName
             ) %in%
               paste(
-                ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                ATTAINS_param_all$ATTAINS.ParameterName,
-                ATTAINS_param_all$ATTAINS.UseName
+                ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.ParameterName,
+                ATTAINSParamUseOrgRef$ATTAINS.UseName
               ) &
               ATTAINS.UseName %in%
-                ATTAINS_param_all$ATTAINS.UseName ~ "Use name has been assessed in prior cycles by this organization, but not for this parameter name.",
+                ATTAINSParamUseOrgRef$ATTAINS.UseName ~ "Use name has been assessed in prior cycles by this organization, but not for this parameter name.",
             is.na(
               ATTAINS.UseName
             ) ~ "No use name is provided. Consider choosing an appropriate ATTAINS.UseName."
@@ -2458,9 +2461,9 @@ TADA_UsesForAnalysis <- function(
               ATTAINS.UseName
             ) %in%
               paste(
-                ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                ATTAINS_param_all$ATTAINS.ParameterName,
-                ATTAINS_param_all$ATTAINS.UseName
+                ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.ParameterName,
+                ATTAINSParamUseOrgRef$ATTAINS.UseName
               ) ~ "Use name has been assessed in prior cycles by this organization.",
             !paste(
               ATTAINS.OrganizationIdentifier,
@@ -2468,12 +2471,12 @@ TADA_UsesForAnalysis <- function(
               ATTAINS.UseName
             ) %in%
               paste(
-                ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                ATTAINS_param_all$ATTAINS.ParameterName,
-                ATTAINS_param_all$ATTAINS.UseName
+                ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.ParameterName,
+                ATTAINSParamUseOrgRef$ATTAINS.UseName
               ) &
               ATTAINS.UseName %in%
-                ATTAINS_param_all$ATTAINS.UseName ~ "Use name has been assessed in prior cycles by this organization, but not for this parameter name.",
+                ATTAINSParamUseOrgRef$ATTAINS.UseName ~ "Use name has been assessed in prior cycles by this organization, but not for this parameter name.",
             TRUE ~ "Use name has not been assessed in prior cycles."
           )
         ) |>
@@ -3036,11 +3039,11 @@ TADA_AssignUsesToAU <- function(
     }
 
     # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
-    ATTAINS_param_all <- utils::read.csv(system.file(
-      "extdata",
-      "ATTAINSParamUseEntityRef.csv",
-      package = "EPATADA"
-    ))
+    load(
+      system.file(
+        "extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"
+      )
+    )
 
     # check to see if user-supplied AUMLRef is a df with appropriate columns and is filled out.
     if (!is.null(AUMLRef) & !is.character(AUMLRef)) {
@@ -3450,11 +3453,11 @@ TADA_AssignUsesToWaterType <- function(
   tadakey <- "EKtgCrmatyP4G8iFgADMIfwlddbpDlSqRxetlN09"
 
   # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
-  ATTAINS_param_all <- utils::read.csv(system.file(
-    "extdata",
-    "ATTAINSParamUseEntityRef.csv",
-    package = "EPATADA"
-  ))
+  load(
+    system.file(
+      "extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"
+    )
+  )
 
   # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA 304(a)" as that is not an ATTAINS org_id.
   if (

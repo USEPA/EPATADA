@@ -1400,11 +1400,12 @@ TADA_DefineCriteriaMethodology <- function(
     )
 
     # get list of ATTAINS Water Types from ATTAINS
-    All.WaterTypeList <- utils::read.csv(system.file(
-      "extdata",
-      "ATTAINSParamUseEntityRef.csv",
-      package = "EPATADA"
-    ))
+    load(
+      system.file(
+        "extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"
+      )
+    )
+    All.WaterTypeList <- ATTAINSParamUseOrgRef
 
     Org.WaterTypeList <- dplyr::filter(
       All.WaterTypeList,
