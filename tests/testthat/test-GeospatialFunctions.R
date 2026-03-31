@@ -109,7 +109,7 @@ testthat::test_that("fetchATTAINS handles small areas", {
     result_all_features <- EPATADA:::fetchATTAINS(.data = small_bbox_data)
   )
   testthat::expect_null(result_all_features$ATTAINS_points)
-  testthat::expect_equal(NROW(result_all_features$ATTAINS_lines), 2)
+  testthat::expect_equal(nrow(result_all_features$ATTAINS_lines), 2)
   testthat::expect_null(result_all_features$ATTAINS_polygons)
   testthat::expect_equal(
     NROW(result_all_features$ATTAINS_catchments),
@@ -123,9 +123,9 @@ testthat::test_that("fetchATTAINS handles large areas", {
     result_all_features <- EPATADA:::fetchATTAINS(.data = large_bbox_data)
   )
   testthat::expect_null(result_all_features$ATTAINS_points)
-  testthat::expect_equal(NROW(result_all_features$ATTAINS_lines), 10)
-  testthat::expect_equal(NROW(result_all_features$ATTAINS_polygons), 1)
-  testthat::expect_equal(NROW(result_all_features$ATTAINS_catchments), 45)
+  testthat::expect_equal(nrow(result_all_features$ATTAINS_lines), 10)
+  testthat::expect_equal(nrow(result_all_features$ATTAINS_polygons), 1)
+  testthat::expect_equal(nrow(result_all_features$ATTAINS_catchments), 45)
 })
 
 testthat::test_that("fetchATTAINS catchments_only parameter", {
@@ -135,12 +135,12 @@ testthat::test_that("fetchATTAINS catchments_only parameter", {
       catchments_only = TRUE
     )
   )
-  testthat::expect_null(NROW(result_catchments_only$ATTAINS_points))
-  testthat::expect_null(NROW(result_catchments_only$ATTAINS_lines))
-  testthat::expect_null(NROW(result_catchments_only$ATTAINS_polygons))
+  testthat::expect_null(nrow(result_catchments_only$ATTAINS_points))
+  testthat::expect_null(nrow(result_catchments_only$ATTAINS_lines))
+  testthat::expect_null(nrow(result_catchments_only$ATTAINS_polygons))
   # Compare against catchments_only = FALSE (default)
   testthat::expect_equal(
-    NROW(result_catchments_only$ATTAINS_catchments),
+    nrow(result_catchments_only$ATTAINS_catchments),
     expect_cat_n_small
   )
 })
@@ -177,7 +177,7 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
     result_NHD_small <- EPATADA:::fetchNHD(.data = small_bbox_data)
   )
   # Expect 16 catchments returned
-  testthat::expect_equal(NROW(small_bbox_data), 16)
+  testthat::expect_equal(nrow(small_bbox_data), 16)
 })
 
 testthat::test_that("fetchNHD with valid non-default features params", {
@@ -201,7 +201,7 @@ testthat::test_that("fetchNHD with valid non-default resolution param Med", {
   testthat::expect_no_error(
     med_cat <- EPATADA:::fetchNHD(.data = small_bbox_data, resolution = "Med")
   )
-  expect_equal(NROW(med_cat), 2) # Expected results
+  expect_equal(nrow(med_cat), 2) # Expected results
 })
 
 testthat::test_that("fetchNHD error when invalid features param", {
