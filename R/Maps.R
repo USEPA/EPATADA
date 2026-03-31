@@ -776,14 +776,18 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     colors <- getATTAINSColorsRef()
 
     # prep ATTAINS assessment unit features for mapping if they exist
-    if (!is.null(ATTAINS_lines) || !is.null(ATTAINS_points) || !is.null(ATTAINS_polygons)) {
-    au_mapper <- prepAllATTAINSMapper(
-      color_ref = colors,
-      lines_layer = ATTAINS_lines,
-      points_layer = ATTAINS_points,
-      polygons_layer = ATTAINS_polygons
-    )
-     }
+    if (
+      !is.null(ATTAINS_lines) ||
+        !is.null(ATTAINS_points) ||
+        !is.null(ATTAINS_polygons)
+    ) {
+      au_mapper <- prepAllATTAINSMapper(
+        color_ref = colors,
+        lines_layer = ATTAINS_lines,
+        points_layer = ATTAINS_points,
+        polygons_layer = ATTAINS_polygons
+      )
+    }
 
     # CATCHMENT FEATURES - try to pull missing feature AU data if it exists. Otherwise, move on...
     try(
