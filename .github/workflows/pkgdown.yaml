@@ -1,36 +1,39 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [develop]
   pull_request:
     branches: [develop]
-  # release:
-  #   types: [published]
+    types: [opened, reopened, synchronize, ready_for_review]
   workflow_dispatch:
 
 name: pkgdown
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  checks: read
+  statuses: read
+
 jobs:
   pkgdown:
+    # Skip draft PRs; run on non-PR triggers and non-draft PR events
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
-    # Only restrict concurrency for non-PR jobs
-    concurrency:
-      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       EQ_API_KEY: ${{ secrets.EQ_API_KEY }}
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v6
-
+      
       - uses: r-lib/actions/setup-pandoc@v2
-
+      
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
-
+      
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::pkgdown, local::.
