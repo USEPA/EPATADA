@@ -650,7 +650,7 @@ prepATTAINSMapper <- function(
   auid_list = NULL
 ) {
   # check to see if any data contained in .data
-  if (dim(.data)[1] == 0) {
+  if (NROW(.data) == 0) {
     mapper <- NULL
 
     # return NULL mapper if no data present in .data
@@ -714,7 +714,7 @@ prepATTAINSMapper <- function(
     # extract coordinates and convert to a tibble (to handle point or multipoint)
     coords <- sf::st_coordinates(.data)
 
-    if (dim(coords)[1] > 1) {
+    if (NROW(coords) > 1) {
       coords <- coords |>
         tibble::as_tibble() |>
         tibble::rowid_to_column(var = "index")
@@ -748,10 +748,10 @@ prepATTAINSMapper <- function(
       dplyr::arrange(dplyr::desc(Shape_Area))
   }
 
-  if (!is.null(auid_list) & dim(mapper)[1] > 0) {
+  if (!is.null(auid_list) & NROW(mapper) > 0) {
     mapper <- mapper |> dplyr::filter(assessmentunitidentifier %in% auid_list)
 
-    if (dim(mapper)[1] == 0) {
+    if (NROW(mapper) == 0) {
       mapper <- NULL
     }
   }
@@ -1131,10 +1131,10 @@ showMissingATTAINSAUs <- function(
       dplyr::distinct()
 
     # if any assessment unit ids were assigned by user check to see if they have matching geometry from ATTAINS
-    if (dim(user.refs)[1] > 0) {
+    if (NROW(user.refs) > 0) {
       # internal function to create list of assessment unit ids
       listAUIDs <- function(.data) {
-        if (dim(.data)[1] == 0) {
+        if (NROW(.data) == 0) {
           list <- list()
         } else {
           list <- .data |>
@@ -1168,7 +1168,7 @@ showMissingATTAINSAUs <- function(
       rm(point.aus, line.aus, polygon.aus, all.attains.aus, user.refs)
 
       # if there are any user-assigned assessment unit identifiers without geometry in ATTAINS add to map
-      if (dim(missing.geo)[1] > 0) {
+      if (NROW(missing.geo) > 0) {
         # set up icons for missing geometry
         missingIcon <- leaflet::icons(
           iconUrl = system.file(
@@ -1786,7 +1786,7 @@ findATTAINSMissingRawFeatures <- function(
 #' observations are present.
 # check for WQP data
 checkForWQPData <- function(.data = NULL) {
-  if (is.null(.data) || dim(.data)[1] == 0) {
+  if (is.null(.data) || NROW(.data) == 0) {
     stop("Your WQP dataframe has no observations.")
   }
 }
