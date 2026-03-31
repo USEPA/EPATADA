@@ -376,8 +376,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
             catchment_features$assessmentunitidentifier
           ),
           org_filter = org_id
-          )|>
-            sf::st_transform(out_epsg),
+        ) |>
+          sf::st_transform(out_epsg),
         silent = TRUE
       )
 
@@ -397,7 +397,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         points <- points |>
           dplyr::left_join(
             water_types,
-            by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
+            by = c(
+              "assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier"
+            )
           ),
         silent = TRUE
       )
@@ -406,7 +408,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         lines <- lines |>
           dplyr::left_join(
             water_types,
-            by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
+            by = c(
+              "assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier"
+            )
           ),
         silent = TRUE
       )
@@ -415,14 +419,18 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         polygons <- polygons |>
           dplyr::left_join(
             water_types,
-            by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
+            by = c(
+              "assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier"
+            )
           ),
         silent = TRUE
       )
 
       # if no results in a df, set to NULL
       setNullWhenNoResults <- function(.data) {
-        if (is.null(.data) || nrow(.data) == 0) return(NULL)
+        if (is.null(.data) || nrow(.data) == 0) {
+          return(NULL)
+        }
         .data
       }
 
@@ -1264,159 +1272,163 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
     }
   }
 
-    # Function to calculate distances between WQP observations and ATTAINS features
-    find_distances <- function(location) {
-
-      # set up for empty result when no ATTAINS features match WQP locations
-      empty <- tibble::tibble(
-        ResultIdentifier = character(),
-        assessmentunitidentifier = character(),
-        TADA.DistanceAway.Meters = numeric()
-      )
-
-      # create TADA subset
-      sub_tada <- TADA_with_ATTAINS |>
-        dplyr::filter(as.character(geometry) == location)
-
-      # return empty if required
-      if (nrow(sub_tada) == 0) return(empty)
-
-      # select a single record to find distance
-      distance <- sub_tada[1, ]
-
-      # create subset for one location to compare against ATTAINS features
-      subset <- attains_features[-1] |>
-        purrr::map(~ tryCatch( dplyr::filter(.x, assessmentunitidentifier %in% sub_tada$assessmentunitidentifier),
-                               error = function(e) tibble::tibble(),
-                               warning = function(w) tibble::tibble() )) |>
-        purrr::keep(~ nrow(.x) > 0)
-
-      # return empty if no ATTAINS features match
-      if (length(subset) == 0) return(empty)
-
-
-      try(
-        distances <- subset |>
-          purrr::map(
-            ~ dplyr::mutate(
-              .,
-              TADA.DistanceAway.Meters = as.numeric(sf::st_distance(
-                .,
-                distance
-              ))
-            )
-          ) |>
-          dplyr::bind_rows() |>
-          sf::st_drop_geometry() |>
-          dplyr::select(assessmentunitidentifier, TADA.DistanceAway.Meters) |>
-          dplyr::distinct(),
-        silent = TRUE
-      )
-
-      try(
-        result <- sub_tada |>
-          data.table::data.table() |>
-          dplyr::select(ResultIdentifier, assessmentunitidentifier) |>
-          dplyr::left_join(
-            distances,
-            by = "assessmentunitidentifier",
-            relationship = "many-to-many"
-          ) |>
-          sf::st_drop_geometry() |>
-          dplyr::group_by(ResultIdentifier, assessmentunitidentifier) |>
-          dplyr::filter(
-            TADA.DistanceAway.Meters == min(TADA.DistanceAway.Meters)
-          ) |>
-          dplyr::ungroup(),
-        silent = TRUE
-      )
-
-      return(result)
-    }
-
-    # Create a dataframe of all distances
-    distances_table <- purrr::map_dfr(
-      as.character(unique(TADA_with_ATTAINS$geometry)),
-      find_distances
+  # Function to calculate distances between WQP observations and ATTAINS features
+  find_distances <- function(location) {
+    # set up for empty result when no ATTAINS features match WQP locations
+    empty <- tibble::tibble(
+      ResultIdentifier = character(),
+      assessmentunitidentifier = character(),
+      TADA.DistanceAway.Meters = numeric()
     )
 
-    # Add distance data to TADA dataframe
-    TADA_with_ATTAINS <- TADA_with_ATTAINS |>
-      data.table::data.table() |>
-      dplyr::left_join(
-        distances_table,
-        by = c("ResultIdentifier", "assessmentunitidentifier")
-      ) |>
-      dplyr::distinct() |>
-      sf::st_as_sf()
+    # create TADA subset
+    sub_tada <- TADA_with_ATTAINS |>
+      dplyr::filter(as.character(geometry) == location)
 
-    # If return_nearest is TRUE, keep only the nearest ATTAINS feature
-    if (return_nearest == TRUE) {
-      message("Selecting nearest ATTAINS feature for each WQP observation.")
-      message(
-        "Use `return_nearest = FALSE` to return all features within WQP catchments."
-      )
-      TADA_with_ATTAINS <- TADA_with_ATTAINS |>
-        dplyr::group_by(ResultIdentifier) |>
-        dplyr::slice_min(TADA.DistanceAway.Meters) |>
-        dplyr::ungroup()
+    # return empty if required
+    if (nrow(sub_tada) == 0) {
+      return(empty)
     }
 
-    if (return_sf == TRUE) {
-      # Process catchment features
-      ATTAINS_catchments <- nearby_catchments |>
+    # select a single record to find distance
+    distance <- sub_tada[1, ]
+
+    # create subset for one location to compare against ATTAINS features
+    subset <- attains_features[-1] |>
+      purrr::map(
+        ~ tryCatch(
+          dplyr::filter(
+            .x,
+            assessmentunitidentifier %in% sub_tada$assessmentunitidentifier
+          ),
+          error = function(e) tibble::tibble(),
+          warning = function(w) tibble::tibble()
+        )
+      ) |>
+      purrr::keep(~ nrow(.x) > 0)
+
+    # return empty if no ATTAINS features match
+    if (length(subset) == 0) {
+      return(empty)
+    }
+
+    try(
+      distances <- subset |>
+        purrr::map(
+          ~ dplyr::mutate(
+            .,
+            TADA.DistanceAway.Meters = as.numeric(sf::st_distance(., distance))
+          )
+        ) |>
+        dplyr::bind_rows() |>
+        sf::st_drop_geometry() |>
+        dplyr::select(assessmentunitidentifier, TADA.DistanceAway.Meters) |>
+        dplyr::distinct(),
+      silent = TRUE
+    )
+
+    try(
+      result <- sub_tada |>
+        data.table::data.table() |>
+        dplyr::select(ResultIdentifier, assessmentunitidentifier) |>
+        dplyr::left_join(
+          distances,
+          by = "assessmentunitidentifier",
+          relationship = "many-to-many"
+        ) |>
+        sf::st_drop_geometry() |>
+        dplyr::group_by(ResultIdentifier, assessmentunitidentifier) |>
+        dplyr::filter(
+          TADA.DistanceAway.Meters == min(TADA.DistanceAway.Meters)
+        ) |>
+        dplyr::ungroup(),
+      silent = TRUE
+    )
+
+    return(result)
+  }
+
+  # Create a dataframe of all distances
+  distances_table <- purrr::map_dfr(
+    as.character(unique(TADA_with_ATTAINS$geometry)),
+    find_distances
+  )
+
+  # Add distance data to TADA dataframe
+  TADA_with_ATTAINS <- TADA_with_ATTAINS |>
+    data.table::data.table() |>
+    dplyr::left_join(
+      distances_table,
+      by = c("ResultIdentifier", "assessmentunitidentifier")
+    ) |>
+    dplyr::distinct() |>
+    sf::st_as_sf()
+
+  # If return_nearest is TRUE, keep only the nearest ATTAINS feature
+  if (return_nearest == TRUE) {
+    message("Selecting nearest ATTAINS feature for each WQP observation.")
+    message(
+      "Use `return_nearest = FALSE` to return all features within WQP catchments."
+    )
+    TADA_with_ATTAINS <- TADA_with_ATTAINS |>
+      dplyr::group_by(ResultIdentifier) |>
+      dplyr::slice_min(TADA.DistanceAway.Meters) |>
+      dplyr::ungroup()
+  }
+
+  if (return_sf == TRUE) {
+    # Process catchment features
+    ATTAINS_catchments <- nearby_catchments |>
+      dplyr::filter(
+        assessmentunitidentifier %in% TADA_with_ATTAINS$assessmentunitidentifier
+      ) |>
+      dplyr::distinct(.keep_all = TRUE)
+
+    # Process point features
+    ATTAINS_points <- NULL
+    try(
+      ATTAINS_points <- attains_features[["ATTAINS_points"]] |>
         dplyr::filter(
           assessmentunitidentifier %in%
             TADA_with_ATTAINS$assessmentunitidentifier
         ) |>
-        dplyr::distinct(.keep_all = TRUE)
-
-      # Process point features
+        dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
+      silent = TRUE
+    )
+    if (is.null(ATTAINS_points) || nrow(ATTAINS_points) == 0) {
       ATTAINS_points <- NULL
-      try(
-        ATTAINS_points <- attains_features[["ATTAINS_points"]] |>
-          dplyr::filter(
-            assessmentunitidentifier %in%
-              TADA_with_ATTAINS$assessmentunitidentifier
-          ) |>
-          dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
-        silent = TRUE
-      )
-      if (is.null(ATTAINS_points) || nrow(ATTAINS_points) == 0) {
-        ATTAINS_points <- NULL
-      }
-
-      # Process line features
-      ATTAINS_lines <- NULL
-      try(
-        ATTAINS_lines <- attains_features[["ATTAINS_lines"]] |>
-          dplyr::filter(
-            assessmentunitidentifier %in%
-              TADA_with_ATTAINS$assessmentunitidentifier
-          ) |>
-          dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
-        silent = TRUE
-      )
-      if (is.null(ATTAINS_lines) || nrow(ATTAINS_lines) == 0) {
-        ATTAINS_lines <- NULL
-      }
-
-      # Process polygon features
-      ATTAINS_polygons <- NULL
-      try(
-        ATTAINS_polygons <- attains_features[["ATTAINS_polygons"]] |>
-          dplyr::filter(
-            assessmentunitidentifier %in%
-              TADA_with_ATTAINS$assessmentunitidentifier
-          ) |>
-          dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
-        silent = TRUE
-      )
-      if (is.null(ATTAINS_polygons) || nrow(ATTAINS_polygons) == 0) {
-        ATTAINS_polygons <- NULL
-      }
     }
 
+    # Process line features
+    ATTAINS_lines <- NULL
+    try(
+      ATTAINS_lines <- attains_features[["ATTAINS_lines"]] |>
+        dplyr::filter(
+          assessmentunitidentifier %in%
+            TADA_with_ATTAINS$assessmentunitidentifier
+        ) |>
+        dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
+      silent = TRUE
+    )
+    if (is.null(ATTAINS_lines) || nrow(ATTAINS_lines) == 0) {
+      ATTAINS_lines <- NULL
+    }
+
+    # Process polygon features
+    ATTAINS_polygons <- NULL
+    try(
+      ATTAINS_polygons <- attains_features[["ATTAINS_polygons"]] |>
+        dplyr::filter(
+          assessmentunitidentifier %in%
+            TADA_with_ATTAINS$assessmentunitidentifier
+        ) |>
+        dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
+      silent = TRUE
+    )
+    if (is.null(ATTAINS_polygons) || nrow(ATTAINS_polygons) == 0) {
+      ATTAINS_polygons <- NULL
+    }
+  }
 
   # create final list for output
   final_list <- list(
