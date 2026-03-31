@@ -480,7 +480,8 @@ utils::globalVariables(c(
   "Target.TADA.ResultSampleFractionText",
   "Target.TADA.SpeciationConversionFactor",
   "has_depth_param",
-  "out_epsg"
+  "out_epsg",
+  "ATTAINSParamUseOrgRef"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
