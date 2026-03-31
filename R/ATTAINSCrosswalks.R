@@ -2034,8 +2034,7 @@ TADA_UsesForAnalysis <- function(
       "extdata",
       "ATTAINSParamUseEntityRef.csv",
       package = "EPATADA"
-    )) |>
-      dplyr::select(-ATTAINS.UseGroup)
+    ))
 
     # if both AUMLRef and AU_UsesRef are provided
     if (!is.null(AUMLRef) & !is.null(AU_UsesRef)) {
