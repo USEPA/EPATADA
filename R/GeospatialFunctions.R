@@ -59,6 +59,10 @@ fetch_bbox <- function(baseurl, df) {
 #'     "IL_N-17"))
 #'}
 fetch_au <- function(baseurl, assessment_unit_ids, org_filter = "all") {
+
+  # set out epsg
+  out_epsg <- 4326
+
   # Convert org_filter to SQL WHERE clause
   if (org_filter == "all") {
     sql_org_filter <- "1=1"
@@ -79,7 +83,9 @@ fetch_au <- function(baseurl, assessment_unit_ids, org_filter = "all") {
       "') AND ",
       sql_org_filter
     )
-  )
+  ) |>
+    sf::st_transform(out_epsg)
+
   return(data)
 }
 
@@ -1676,7 +1682,7 @@ TADA_GetATTAINSByAUID <- function(
     silent = TRUE
   )
 
-  if (nrow(lines) == 0 & nrow(points) == 0 & nrow(polygons) == 0) {
+  if (NROW(lines) == 0 & NROW(points) == 0 & NROW(polygons) == 0) {
     final_features <- list(
       "TADA_with_ATTAINS" = TADA_with_ATTAINS,
       "ATTAINS_catchments" = catchments,
@@ -1847,7 +1853,7 @@ TADA_GetATTAINSByAUID <- function(
   }
 
   # add attains data returned from lines query if any exists
-  if (dim(lines)[1] > 0) {
+  if (NROW(lines) > 0) {
     attains.geo <- combineATTAINSGeo(
       .data = TADA_with_ATTAINS,
       geo.data = lines,
@@ -1856,7 +1862,7 @@ TADA_GetATTAINSByAUID <- function(
   }
 
   # add attains data returned from points query if any exists
-  if (dim(points)[1] > 0) {
+  if (NROW(points) > 0) {
     attains.geo <- combineATTAINSGeo(
       .data = TADA_with_ATTAINS,
       geo.data = points,
@@ -1865,7 +1871,7 @@ TADA_GetATTAINSByAUID <- function(
   }
 
   # add attains data returned from polygons query if any exists
-  if (dim(polygons)[1] > 0) {
+  if (NROW(polygons) > 0) {
     attains.geo <- combineATTAINSGeo(
       .data = TADA_with_ATTAINS,
       geo.data = polygons,
