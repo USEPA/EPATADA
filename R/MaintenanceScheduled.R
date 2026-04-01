@@ -398,6 +398,7 @@
       # Generate Data_MT_AU_UsesRef
       # =======================================
       Data_MT_AU_UsesRef <- TADA_AssignUsesToAU(
+        Data_MT_AUMLRef$TADA_with_ATTAINS,
         AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
       )
@@ -417,6 +418,7 @@
       # Generate Data_MT_AU_UsesRef_Water
       # =======================================
       Data_MT_AU_UsesRef_Water <- TADA_AssignUsesToAU(
+        Data_MT_AUMLRef$TADA_with_ATTAINS,
         waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
         AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
