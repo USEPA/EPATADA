@@ -70,12 +70,22 @@ remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
+
+remotes::install_github("USEPA/rExpertQuery")
+```
+
+```{r install_TADA_dev, eval = T, include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "869-incorporate-function-to-read-in-criteria-table-from-tada_communityhub",
+  dependencies = TRUE
+)
 ```
 
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ```{r library, results = 'hide'}
+library(rExpertQuery)
 library(EPATADA)
 ```
 
@@ -115,8 +125,8 @@ Specifically, this vignette provides an overview of three functions that
 can assist users with:
 
 -   Creating a crosswalk (reference table) between ATTAINS parameter
-    names and WQP/TADA characteristic names/TADA comparable data
-    identifier.
+    names, WQP/TADA characteristic names, and TADA comparable data
+    identifiers.
 
 -   Creating a crosswalk (reference table) of all unique combinations of
     ATTAINS uses and parameters applicable to your analysis needs.
@@ -163,7 +173,7 @@ functions, so we will go through some minimal cleaning with an example
 data set from Montana. Get bacteria and pH data from Missoula County,
 Montana.
 
-```{r tada-data}
+```{r tada-data, eval = F}
 # get MT data
 tada.MT <- TADA_DataRetrieval(
   startDate = "2020-01-01",
@@ -186,10 +196,14 @@ tada.MT.clean <- tada.MT |>
 
 # remove intermediate objects
 rm(tada.MT)
+```
 
-# if you cannot run TADA_DataRetrieval query, the example data set can be loaded by uncommenting the code below
+This example data set can be loaded from the EPATADA package: 
 
-# tada.MT.clean <- Data_MT_MissoulaCounty
+```{r load_example_data}
+utils::data("Data_MT_MissoulaCounty", package = "EPATADA")
+
+tada.MT.clean <- Data_MT_MissoulaCounty
 ```
 
 This example will focus only on Montana. The remainder of this vignette
@@ -359,7 +373,7 @@ be modified in R.
 
 # MT.ParamRef_Excel <- TADA_ParametersForAnalysis(
 #   Data_NCTC,
-#   org_names = c("MTDEQ"),
+#   org_id = c("MTDEQ"),
 #   paramRef = ParamRef,
 #   excel = TRUE, overwrite = TRUE
 #   )
@@ -705,7 +719,7 @@ ATTAINS, the associated ATTAINS.ParameterName will be filtered if they
 are only associated with certain ATTAINS.UseName in prior assessment
 cycles.
 
-Note: In the MT.UsesRef.auto.assign example, all use names are found in
+Note: In the MT.UsesRef.auto example, all use names are found in
 prior ATTAINS assessment cycles for MTDEQ, so the tables should be
 identical to MT.UsesRef.with.AU_UsesRef.
 
@@ -881,7 +895,7 @@ MT.UsesRef.Final <- TADA_UsesForAnalysis(
 )
 
 # Test if the two data frames are same or not.
-identical(MT.UsesRef.Final[1:5], MT.UsesRef.manual.user.supplied[1:5])
+identical(MT.UsesRef.Final[, 1:5], MT.UsesRef.manual.user.supplied[, 1:5])
 
 TADA_TableExport(MT.UsesRef.Final)
 ```
@@ -890,7 +904,7 @@ remove intermediate variable, keep only the crosswalk table that we will
 continue to use in the workflow.
 
 ```{r remove-intermediate-variables-useParam}
-rm(MT.UsesRef.auto.assign, user.supplied.MT.data, MT.UsesRef.manual, MT.UsesRef.manual.Update)
+rm(MT.UsesRef.auto, user.supplied.MT.data, MT.UsesRef.manual, MT.UsesRef.manual.Update)
 ```
 
 # TADA_MLSummary(): Create and Define Spatial Reference Tables
@@ -953,7 +967,7 @@ MT.MLSummaryRef.AU <- TADA_MLSummary(
   .data = tada.MT.clean,
   usesRef = MT.UsesRef.Final,
   AU_UsesRef = Data_MT_AU_UsesRef_Water, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
-  AUMLRef = MT.AUMLRef,
+  AUMLRef = MT_AU_MLRef,
   org_id = "MTDEQ",
   displayNA = FALSE,
   excel = FALSE
@@ -993,7 +1007,7 @@ contain that TADA.ComparableDataIdentifier - the ATTAINS.ParameterName?
 This could be included in the final summary table and labeled as NA or
 insufficient data.)
 
-```{r compare-AU-versus-ML-Summary,, eval = FALSE}
+```{r compare-AU-versus-ML-Summary, eval = FALSE}
 nrow(MT.MLSummaryRef.AU)
 nrow(MT.MLSummaryRef.ML)
 ```
@@ -1095,7 +1109,7 @@ TADA_TableExport(MT.CriteriaMethods.Final)
 
 We will supply this final crosswalk table to be reused and validated.
 
-```{r re-use criteria table}
+```{r re-use-criteria-table}
 MT.CriteriaMethods.Final2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "MTDEQ",
