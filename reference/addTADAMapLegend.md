@@ -30,7 +30,8 @@ addTADAMapLegend(
   TADA_CreateAUMLCrosswalk (called "TADA_with_ATTAINS" in the list of
   output dfs) or a subsetted TADA data frame containing all columns
   required for building map and pop up (Note: Add list of required
-  columns (HRM 1/5/26)).
+  columns (HRM 1/5/26)). This is used to verify the type(s) of circle
+  markers that should be used for map.
 
 - map:
 

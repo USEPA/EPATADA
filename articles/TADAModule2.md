@@ -569,6 +569,7 @@ prioritized steps:
 
 ``` r
 MT.UseAURef <- TADA_AssignUsesToAU(
+  MT.AUMLRef$TADA_with_ATTAINS,
   AUMLRef = Final.MT.AUMLRef,
   org_id = "MTDEQ",
   api_key = api_key
@@ -597,6 +598,7 @@ into the R console.
 ``` r
 MT.UseAURef_with_WaterUseRef <-
   TADA_AssignUsesToAU(
+    MT.AUMLRef$TADA_with_ATTAINS
     waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
     AUMLRef = Final.MT.AUMLRef,
     org_id = "MTDEQ",

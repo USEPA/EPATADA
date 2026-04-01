@@ -1050,6 +1050,9 @@ TADA_FieldCounts(TADAProfileClean3)
     ## 9           ResultStatusIdentifier     2
     ## 10             ResultValueTypeName     2
     ## 11          TADA.ActivityMediaName     1
+    ## 12             HydrologicCondition     1
+    ## 13                 HydrologicEvent     1
+    ## 14         SampleTissueAnatomyName     1
 
 ``` r
 # create object of table
@@ -1683,24 +1686,36 @@ TADA_FieldCounts(TADAProfileClean6, display = "most", characteristicName = "TOTA
     ## 21 SampleCollectionMethod.MethodIdentifierContext     2
     ## 22                         ResultStatusIdentifier     2
     ## 23   HorizontalCoordinateReferenceSystemDatumName     2
-    ## 24                  TADA.MeasureQualifierCode.Def     2
-    ## 25                TADA.MonitoringLocationTypeName     2
-    ## 26                               ActivityTypeCode     1
-    ## 27                         TADA.ActivityType.Flag     1
-    ## 28                            ActivityCommentText     1
-    ## 29                            ResultValueTypeName     1
-    ## 30                           SubjectTaxonomicName     1
-    ## 31        ResultAnalyticalMethod.MethodIdentifier     1
-    ## 32 ResultAnalyticalMethod.MethodIdentifierContext     1
-    ## 33              ResultAnalyticalMethod.MethodName     1
-    ## 34   ResultAnalyticalMethod.MethodDescriptionText     1
-    ## 35                                   ProviderName     1
-    ## 36                         TADA.ActivityMediaName     1
-    ## 37                        TADA.CharacteristicName     1
-    ## 38             TADA.CharacteristicNameAssumptions     1
-    ## 39                      TADA.MethodSpeciationName     1
-    ## 40                  TADA.ResultSampleFractionText     1
-    ## 41                  TADA.ComparableDataIdentifier     1
+    ## 24                         SamplingDesignTypeCode     2
+    ## 25                  TADA.MeasureQualifierCode.Def     2
+    ## 26                TADA.MonitoringLocationTypeName     2
+    ## 27                               ActivityTypeCode     1
+    ## 28                         TADA.ActivityType.Flag     1
+    ## 29                            ActivityCommentText     1
+    ## 30                                  SampleAquifer     1
+    ## 31                            HydrologicCondition     1
+    ## 32                                HydrologicEvent     1
+    ## 33                            ResultValueTypeName     1
+    ## 34                                      USGSPCode     1
+    ## 35                           SubjectTaxonomicName     1
+    ## 36                        SampleTissueAnatomyName     1
+    ## 37        ResultAnalyticalMethod.MethodIdentifier     1
+    ## 38 ResultAnalyticalMethod.MethodIdentifierContext     1
+    ## 39              ResultAnalyticalMethod.MethodName     1
+    ## 40   ResultAnalyticalMethod.MethodDescriptionText     1
+    ## 41                    ResultLaboratoryCommentText     1
+    ## 42                                   ProviderName     1
+    ## 43     VerticalCoordinateReferenceSystemDatumName     1
+    ## 44                                    AquiferName     1
+    ## 45                                  LocalAqfrName     1
+    ## 46                              FormationTypeText     1
+    ## 47                                AquiferTypeName     1
+    ## 48                         TADA.ActivityMediaName     1
+    ## 49                        TADA.CharacteristicName     1
+    ## 50             TADA.CharacteristicNameAssumptions     1
+    ## 51                      TADA.MethodSpeciationName     1
+    ## 52                  TADA.ResultSampleFractionText     1
+    ## 53                  TADA.ComparableDataIdentifier     1
 
 Selecting a parameter generates the list above, which is subset by the
 selected parameter. The list includes fields you may want to review, and

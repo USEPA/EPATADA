@@ -220,8 +220,6 @@ df_flag <- EPATADA::TADA_RunKeyFlagFunctions(
 
     ## TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking.
 
-    ## TADA_FlagMeasureQualifierCode: Dataframe does not include any information (all NAs) in MeasureQualifierCode.
-
 Flag results above and below thresholds. Review carefully and consider
 removing.
 
