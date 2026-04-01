@@ -1,17 +1,18 @@
 ---
 title: "Example Module 3 Workflow"
-format: html
-editor: visual
+always_allow_html: yes
 author: "TADA Team"
 date: "`r Sys.Date()`"
-output: 
+output:
   rmarkdown::html_vignette:
+    self_contained: false
     toc: true
     fig_caption: yes
     fig_height: 8
     fig_width: 8
 vignette: >
   %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{EPATADA}
   %\VignetteIndexEntry{Example Module 3 Workflow}
   %\VignetteEngine{knitr::rmarkdown}
 description: Recommended TADA module 3 Criteria and Methodology Table generation (under development) showcasing water quality data analysis functions and example workflows.
@@ -21,14 +22,15 @@ editor_options:
     wrap: 72
 ---
 
-```{r setup-knitr, include = F}
+```{r setup, include = F}
 library(knitr)
 
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
   message = FALSE,
-  eval = TRUE
+  eval = T,
+  dev.args = list(bg = "transparent")
 )
 ```
 
@@ -44,41 +46,30 @@ development, more information is available
 [here](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html). We
 welcome collaboration with external partners!
 
-# Install and load packages
+## Install and Load the EPATADA R Package
 
 First, install and load the remotes package specifying the repo. This is
-needed before installing the EPATADA R package because it is only
-available on GitHub.
+needed before installing EPATADA because it is only available on GitHub
+(not CRAN).
 
-```{r setup-remotes, results = 'hide'}
-install.packages("remotes",
-  repos = "http://cran.us.r-project.org"
-)
+```{r install_remotes, results = 'hide', eval = F}
+install.packages("remotes")
+# Load the remotes library
 library(remotes)
 ```
 
-```{css, include = F}
-pre {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-pre[class] {
-  max-height: 300px;
-}
-```
-
-Next, install and load the EPATADA R Package using the remotes package.
-Dependency packages will also be downloaded automatically from CRAN. You
-may be prompted in the console to update dependencies. It is recommended
-to update all dependencies (enter 1 into the console).
+Next, install and load TADA using the remotes package. TADA R Package
+dependencies will also be downloaded automatically from CRAN with the
+TADA install. You may be prompted in the console to update dependency
+packages that have more recent versions available. If you see this
+prompt, it is recommended to update all of them (enter 1 into the
+console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
-# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
 Finally, use the **library()** function to load the TADA R Package into
@@ -88,15 +79,18 @@ your R session.
 library(EPATADA)
 ```
 
-All EPATADA R package functions have their own individual help pages
-(see [Function
-Reference](https://usepa.github.io/EPATADA/reference/index.html)). Users
-can also access function help pages from RStudio by entering
-`?[name of TADA function]` into the console (example below).
+**Help pages**
 
-```{r help-pages, eval = F}
-# Access help page for TADA_DataRetrieval
-?TADA_DataRetrieval
+All EPATADA R package functions have their own individual help pages,
+listed in the Package index on the
+[Reference](https://usepa.github.io/EPATADA/reference/index.html) tab of
+the GitHub website. Users can also access the help page for a given
+function in R or RStudio using the following format (example below):
+`?[name of TADA function]`
+
+```{r help_pages, eval = F}
+# Access help page for TADA_CreateAUMLCrosswalk
+?TADA_CreateAUMLCrosswalk
 ```
 
 # Module 3 Functions in TADA
