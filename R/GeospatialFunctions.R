@@ -3019,16 +3019,14 @@ TADA_CreateAUMLCrosswalk <- function(
             TADA.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
             UserRef.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier
           ) |>
-          dplyr::mutate(
-            UserRef.OrganizationIdentifier = org_id
-          )
+          dplyr::mutate(UserRef.OrganizationIdentifier = org_id)
 
         # replace NA AUIDs with AUID and NA WaterType with WaterType from user ref where possible
         user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS |>
           dplyr::left_join(
             user.aus,
             by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
-            ) |>
+          ) |>
           dplyr::mutate(
             ATTAINS.AssessmentUnitIdentifier = ifelse(
               is.na(ATTAINS.AssessmentUnitIdentifier) &
@@ -3037,8 +3035,7 @@ TADA_CreateAUMLCrosswalk <- function(
               ATTAINS.AssessmentUnitIdentifier
             ),
             ATTAINS.WaterType = ifelse(
-              is.na(ATTAINS.WaterType) &
-                !is.na(User.WaterType),
+              is.na(ATTAINS.WaterType) & !is.na(User.WaterType),
               User.WaterType,
               ATTAINS.WaterType
             ),
@@ -3049,7 +3046,11 @@ TADA_CreateAUMLCrosswalk <- function(
               ATTAINS.OrganizationIdentifier
             )
           ) |>
-          dplyr::select(-UserRef.AssessmentUnitIdentifier, -User.WaterType, - UserRef.OrganizationIdentifier) |>
+          dplyr::select(
+            -UserRef.AssessmentUnitIdentifier,
+            -User.WaterType,
+            -UserRef.OrganizationIdentifier
+          ) |>
           dplyr::distinct()
 
         # remove intermediate object
