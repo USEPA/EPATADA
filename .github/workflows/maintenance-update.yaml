@@ -41,7 +41,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Commit updated reference files
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           author_name: 'github-actions[bot]'
           author_email: 'github-actions[bot]@users.noreply.github.com'
@@ -55,7 +55,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Commit updated example data
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           author_name: 'github-actions[bot]'
           author_email: 'github-actions[bot]@users.noreply.github.com'
