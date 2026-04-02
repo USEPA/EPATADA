@@ -198,7 +198,7 @@ tada.MT.clean <- tada.MT |>
 rm(tada.MT)
 ```
 
-This example data set can be loaded from the EPATADA package: 
+This example data set can be loaded from the EPATADA package:
 
 ```{r load_example_data}
 utils::data("Data_MT_MissoulaCounty", package = "EPATADA")
@@ -719,9 +719,9 @@ ATTAINS, the associated ATTAINS.ParameterName will be filtered if they
 are only associated with certain ATTAINS.UseName in prior assessment
 cycles.
 
-Note: In the MT.UsesRef.auto example, all use names are found in
-prior ATTAINS assessment cycles for MTDEQ, so the tables should be
-identical to MT.UsesRef.with.AU_UsesRef.
+Note: In the MT.UsesRef.auto example, all use names are found in prior
+ATTAINS assessment cycles for MTDEQ, so the tables should be identical
+to MT.UsesRef.with.AU_UsesRef.
 
 ```{r usesRef-with-AU_UsesRef}
 # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd

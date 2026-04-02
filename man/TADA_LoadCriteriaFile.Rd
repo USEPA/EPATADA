@@ -4,7 +4,12 @@
 \alias{TADA_LoadCriteriaFile}
 \title{Load TADACommunityHub Criteria File}
 \usage{
-TADA_LoadCriteriaFile(org_id = NULL, state_tribe = NULL, ref = NULL)
+TADA_LoadCriteriaFile(
+  org_id = NULL,
+  state_tribe = NULL,
+  ref = NULL,
+  pkg = "TADACommunityHub"
+)
 }
 \arguments{
 \item{org_id}{Character string. The ATTAINS organization identifier should be
@@ -16,6 +21,9 @@ app (note to developers: we should review the spelling of these names to ensure
 consistency with ATTAINS state or tribe names.)}
 
 \item{ref}{a data frame with four columns from \code{\link[=TADA_GetCriteriaFiles]{TADA_GetCriteriaFiles()}}}
+
+\item{pkg}{The GitHub TADACommunityHub package. Ensures the package is downloaded.
+Should not be modified unless package name reference changes.}
 }
 \value{
 a data frame containing the TADACommunityHub TADA criteria table

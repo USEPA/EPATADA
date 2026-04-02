@@ -73,6 +73,7 @@ Imports:
     DT,
     dataRetrieval (>= 2.7.21),
     rExpertQuery,
+    TADACommunityHub,
     readr (>= 1.4.0),
     spsUtil,
     httr,

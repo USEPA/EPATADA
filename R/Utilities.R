@@ -2663,6 +2663,9 @@ TADA_CorrectColType <- function(.data) {
 #'
 #' Retrieves the complete listing of Criteria and Methodologies files from the TADACommunityHub repository.
 #'
+#' @param pkg The GitHub TADACommunityHub package. Ensures the package is downloaded.
+#' Should not be modified unless package name reference changes.
+#' 
 #' @param branch The GitHub TADACommunityHub branch to query. Defaults to "main".
 #' Specify a different branch if needed.
 #'
@@ -2673,89 +2676,101 @@ TADA_CorrectColType <- function(.data) {
 #' @examples
 #' criteriaFiles <- TADA_GetCriteriaFiles()
 #'
-TADA_GetCriteriaFiles <- function(branch = "main") {
-  # GitHub API endpoint for repository contents
-  api_url <- sprintf(
-    "https://api.github.com/repos/USEPA/TADACommunityHub/contents/inst/extdata?ref=%s",
-    branch
-  )
-
-  # Make the API request
-  response <- httr::GET(api_url)
-
-  # Check for errors
-  if (httr::status_code(response) != 200) {
-    stop(
-      "Failed to fetch file list from GitHub. Status code: ",
-      httr::status_code(response)
+# List available criteria files from another installed package's inst/extdata
+TADA_GetCriteriaFiles <- function(pkg = "TADACommunityHub", branch = "main") {
+  # if there is desire to reference TADACommunityHub from a different branch
+  if (!branch == "main") {
+    pkgload::unload("TADACommunityHub")
+    
+    # Install remotes if the package doesn't already have remotes
+    install.packages("remotes")
+    
+    # Install specific branch
+    remotes::install_github("USEPA/TADACommunityHub",
+                            ref = branch,
+                            dependencies = TRUE
     )
   }
-
-  # Parse JSON response
-  content <- httr::content(response, as = "parsed")
-  # name each list of items by it's 'name' element (1st)
-  names(content) <- sapply(content, "[[", 1)
-
-  # extract ATTAINS.OrganizationIdentifier column from the default .xlsx from TADACommunityHub
-  file_url <- content[["default_files.xlsx"]][["download_url"]]
-
-  # Create a temporary file
-  temp_file <- tempfile(fileext = ".xlsx")
-
-  # Download the file (use mode = "wb" for binary files like xlsx)
-  utils::download.file(file_url, temp_file, mode = "wb")
-
-  # Now read it
-  df <- openxlsx::read.xlsx(temp_file)
-
-  # Clean up
-  unlink(temp_file)
-
-  # Filter for xlsx files with "_criteria_crosswalk" pattern
-  criteria_files <- lapply(content, function(file) {
-    if (grepl("_criteria_crosswalk\\.xlsx$", file$name)) {
-      # Extract display name by removing the suffix
-      display_name <- gsub("_criteria_crosswalk\\.xlsx$", "", file$name)
-      # Convert underscores to spaces and title case for nicer display
-      display_name <- gsub("_", " ", display_name)
-      display_name <- tools::toTitleCase(display_name)
-
-      output <- data.frame(
-        display_name = display_name,
-        file_name = file$name,
-        download_url = file$download_url,
+  
+  # checks if the package is installed. 
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    stop("Package '", pkg, "' is not installed. Please install it to use this function.")
+  }
+  
+  ext_dir <- system.file("extdata", package = pkg)
+  if (!nzchar(ext_dir) || !dir.exists(ext_dir)) {
+    stop("No extdata directory found in package '", pkg, "'.")
+  }
+  
+  # The "default_files.xlsx" used to map display names -> ATTAINS org IDs
+  default_path <- file.path(ext_dir, "default_files.xlsx")
+  default_df <- NULL
+  if (file.exists(default_path)) {
+    default_df <- openxlsx::read.xlsx(default_path)
+  } else {
+    warning("default_files.xlsx not found in ", pkg, "/inst/extdata; ",
+            "ATTAINS.OrganizationIdentifier mapping will be NA.")
+  }
+  
+  # Find all TADACommunityHub _criteria_crosswalk.xlsx files
+  xlsx_files <- list.files(
+    ext_dir,
+    pattern = "_criteria_crosswalk\\.xlsx$",
+    full.names = TRUE
+  )
+  
+  # If no files return, return blank data frame and report issue.
+  if (length(xlsx_files) == 0) {
+    warning("No criteria crosswalk files found in ", pkg, "/inst/extdata. Please report issue to TADACommunityHub.")
+    return(
+      data.frame(
+        ATTAINS.OrganizationIdentifier = character(),
+        display_name = character(),
+        file_name = character(),
+        file_path = character(),
         stringsAsFactors = FALSE
       )
-      return(output)
-    }
-    return(NULL)
-  })
-
-  # Combine into a data frame
-  result <- dplyr::bind_rows(criteria_files)
-
-  # retrieve ATTAINS org_id crosswalk from its state_tribe name that is being used in TADAShinyAnalyze
-  result <- result |>
-    dplyr::left_join(df, by = c("display_name" = "Display.Name")) |>
-    dplyr::select(ATTAINS.OrganizationIdentifier, names(result))
-
-  if (is.null(result) || nrow(result) == 0) {
-    warning(
-      "No criteria crosswalk files found in the TADACommunityHub repository."
     )
-
-    result <- data.frame(
-      ATTAINS.OrganizationIdentifier = character(),
-      display_name = character(),
-      file_name = character(),
-      download_url = character(),
+  }
+  
+  # Build the reference table
+  res <- lapply(xlsx_files, function(fp) {
+    fname <- basename(fp)
+    # Display name derived from filename
+    display_name <- gsub("_criteria_crosswalk\\.xlsx$", "", fname)
+    display_name <- gsub("_", " ", display_name)
+    display_name <- tools::toTitleCase(display_name)
+    
+    data.frame(
+      display_name = display_name,
+      file_name = fname,
+      file_path = fp,
       stringsAsFactors = FALSE
     )
-
-    return(result)
+  })
+  
+  result <- do.call(rbind, res)
+  
+  # Join ATTAINS org ID if default_files.xlsx is available
+  if (!is.null(default_df) &&
+      all(c("Display.Name", "ATTAINS.OrganizationIdentifier") %in% names(default_df))) {
+    result <- merge(
+      x = result,
+      y = default_df[, c("Display.Name", "ATTAINS.OrganizationIdentifier")],
+      by.x = "display_name",
+      by.y = "Display.Name",
+      all.x = TRUE,
+      sort = FALSE
+    )
+    # Reorder columns
+    result <- result[, c("ATTAINS.OrganizationIdentifier", "display_name", "file_name", "file_path")]
+  } else {
+    # If the mapping isn't available, fill with NA column
+    result$ATTAINS.OrganizationIdentifier <- NA_character_
+    result <- result[, c("ATTAINS.OrganizationIdentifier", "display_name", "file_name", "file_path")]
   }
-
-  return(result)
+  
+  result
 }
 
 #' Load TADACommunityHub Criteria File
@@ -2771,6 +2786,9 @@ TADA_GetCriteriaFiles <- function(branch = "main") {
 #' consistency with ATTAINS state or tribe names.)
 #'
 #' @param ref a data frame with four columns from [TADA_GetCriteriaFiles()]
+#' 
+#' @param pkg The GitHub TADACommunityHub package. Ensures the package is downloaded.
+#' Should not be modified unless package name reference changes.
 #'
 #' @return a data frame containing the TADACommunityHub TADA criteria table
 #' based on the user supplied org_id or state_tribe name.
@@ -2780,66 +2798,47 @@ TADA_GetCriteriaFiles <- function(branch = "main") {
 #' @examples
 #' loadCriteria_MTDEQ <- TADA_LoadCriteriaFile(org_id = "MTDEQ")
 #'
+# Load a selected criteria file (by org_id or state_tribe display name) from local inst/extdata
 TADA_LoadCriteriaFile <- function(
-  org_id = NULL,
-  state_tribe = NULL,
-  ref = NULL
+    org_id = NULL,
+    state_tribe = NULL,
+    ref = NULL,
+    pkg = "TADACommunityHub"
 ) {
   if (is.null(ref)) {
-    ref <- TADA_GetCriteriaFiles()
+    ref <- TADA_GetCriteriaFiles(pkg = pkg)
   }
-
-  if (all(is.null(org_id) & is.null(state_tribe))) {
-    stop(paste(
-      "loadCriteria: ",
-      "You did not provide either of the required inputs for this function (org_id or state_tribe). "
-    ))
+  
+  # Only one of org_id or state_tribe should be populated
+  if (all(is.null(org_id), is.null(state_tribe))) {
+    stop("loadCriteria: You must provide either org_id or state_tribe.")
   }
-
-  if (all(!is.null(org_id) & !is.null(state_tribe))) {
-    stop(paste(
-      "loadCriteria: ",
-      "Please provide only one of these argument inputs (org_id or state_tribe). "
-    ))
+  if (all(!is.null(org_id), !is.null(state_tribe))) {
+    stop("loadCriteria: Please provide only one of org_id or state_tribe.")
   }
-
-  if (!is.null(state_tribe) & is.null(org_id)) {
-    # checks if the state_tribe is a valid name (and checks for misspells)
+  
+  # Select file_path based on which identifier was provided
+  if (!is.null(state_tribe)) {
     if (!state_tribe %in% ref$display_name) {
-      stop(paste(
-        "loadCriteria: ",
-        "Your state_tribe function input is not found as a valid name (check for spelling errors)."
-      ))
+      stop("loadCriteria: state_tribe not found (check spelling).")
     }
-    # Get the file_url
-    file_url <- ref[ref$display_name %in% state_tribe, "download_url"]
-  }
-
-  if (is.null(state_tribe) & !is.null(org_id)) {
-    # checks if the org_id is a valid name (and checks for misspells)
+    file_path <- ref[ref$display_name == state_tribe, "file_path", drop = TRUE]
+  } else {
     if (!org_id %in% ref$ATTAINS.OrganizationIdentifier) {
-      stop(paste(
-        "loadCriteria: ",
-        "Your state_tribe function input is not found as a valid name (check for spelling errors)."
-      ))
-    } # Get the file_url
-    file_url <- ref[
-      ref$ATTAINS.OrganizationIdentifier %in% org_id,
-      "download_url"
-    ]
+      stop("loadCriteria: org_id not found (check value).")
+    }
+    file_path <- stats::na.omit(ref[ref$ATTAINS.OrganizationIdentifier == org_id, "file_path", drop = TRUE])
   }
-
-  # Create a temporary file
-  temp_file <- tempfile(fileext = ".xlsx")
-
-  # Download the file (use mode = "wb" for binary files like xlsx)
-  utils::download.file(file_url, temp_file, mode = "wb")
-
-  # Now read it
-  df <- openxlsx::read.xlsx(temp_file)
-
-  # Clean up
-  unlink(temp_file)
-
-  return(df)
+  
+  # If multiple matches, take the first but warn if this occurs (should not happen)
+  if (length(file_path) > 1) {
+    warning("Multiple matching files found; using the first.")
+    file_path <- file_path[1]
+  }
+  
+  if (!nzchar(file_path) || !file.exists(file_path)) {
+    stop("Selected file could not be found on disk: ", file_path)
+  }
+  
+  openxlsx::read.xlsx(file_path)
 }
