@@ -420,7 +420,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
           ATTAINS.MonitoringDataLinkText = MS_DATA_LINK
         ) |>
         dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id)
-      
+
       wat.types <- spsUtil::quiet(rExpertQuery::EQ_AUsMLs(
         org_id = org_id,
         api_key = api_key
@@ -431,7 +431,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
           ATTAINS.WaterType = waterType
         ) |>
         dplyr::distinct()
-      
+
       crosswalk <- crosswalk |>
         dplyr::left_join(
           wat.types,
@@ -847,9 +847,11 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
   # Ensure ATTAINS.WaterType exists before final selection
   if (!"ATTAINS.WaterType" %in% names(update.crosswalk)) {
     update.crosswalk$ATTAINS.WaterType <- NA_character_
-    message("ATTAINS.WaterType is required but missing. Adding column and populating with NA")
+    message(
+      "ATTAINS.WaterType is required but missing. Adding column and populating with NA"
+    )
   }
-  
+
   # select relevant column names and ordering for output in TADA workflow format.
   update.crosswalk <- update.crosswalk |>
     dplyr::select(
@@ -2008,14 +2010,21 @@ TADA_UsesForAnalysis <- function(
       if (!is.data.frame(usesRef)) {
         stop("TADA_UsesForAnalysis: 'usesRef' must be a data frame.")
       }
-      required <- c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName")
+      required <- c(
+        "ATTAINS.OrganizationIdentifier",
+        "ATTAINS.ParameterName",
+        "ATTAINS.UseName"
+      )
       missing <- setdiff(required, names(usesRef))
       if (length(missing)) {
-        stop("TADA_UsesForAnalysis: 'usesRef' is missing required column(s): ",
-             paste(missing, collapse = ", "),
-             ". Required: ", paste(required, collapse = ", "),
-             ". IncludeOrExclude is optional (defaults to 'Include'). ",
-             "TADA.ComparableDataIdentifier is optional (will be joined from .data if needed).")
+        stop(
+          "TADA_UsesForAnalysis: 'usesRef' is missing required column(s): ",
+          paste(missing, collapse = ", "),
+          ". Required: ",
+          paste(required, collapse = ", "),
+          ". IncludeOrExclude is optional (defaults to 'Include'). ",
+          "TADA.ComparableDataIdentifier is optional (will be joined from .data if needed)."
+        )
       }
     }
 
@@ -2985,11 +2994,11 @@ TADA_AssignUsesToAU <- function(
 
   # ensure correct column types for any user supplied dfs
   .data <- TADA_CorrectColType(.data)
-  
+
   if (!is.null(AU_UsesRef)) {
     AU_UsesRef <- TADA_CorrectColType(AU_UsesRef)
   }
-  
+
   if (!is.null(waterUseRef)) {
     waterUseRef <- TADA_CorrectColType(waterUseRef)
   }
@@ -3044,7 +3053,7 @@ TADA_AssignUsesToAU <- function(
           "ATTAINS.WaterType, ATTAINS.AssessmentUnitIdentifier, and ATTAINS.OrganizationIdentifier."
         )
       }
-      
+
       required_cols <- c(
         "ATTAINS.WaterType",
         "ATTAINS.AssessmentUnitIdentifier",
@@ -3059,7 +3068,7 @@ TADA_AssignUsesToAU <- function(
           paste(required_cols, collapse = ", ")
         )
       }
-      
+
       AUMLRef <- AUMLRef |>
         dplyr::select(
           ATTAINS.AssessmentUnitIdentifier,
@@ -3158,7 +3167,7 @@ TADA_AssignUsesToAU <- function(
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
       dplyr::distinct() |>
       dplyr::arrange(ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName)
-    
+
     # Guard st_drop_geometry
     if (inherits(CreateAU_UsesRef, "sf")) {
       CreateAU_UsesRef <- sf::st_drop_geometry(CreateAU_UsesRef)
@@ -4154,24 +4163,28 @@ TADA_MLSummary <- function(
       openxlsx::addWorksheet(wb, "Index", visible = FALSE)
       # Seed Include/Exclude list at column I (to match the validation range)
       openxlsx::writeData(
-        wb, "Index", startCol = 9,
+        wb,
+        "Index",
+        startCol = 9,
         x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
       )
       openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
     }
-    
+
     # Load workbook
     wb <- openxlsx::loadWorkbook(downloads_path)
-    
+
     # Ensure "Index" sheet exists and is populated with Include/Exclude
     if (!"Index" %in% openxlsx::sheets(wb)) {
       openxlsx::addWorksheet(wb, "Index", visible = FALSE)
       openxlsx::writeData(
-        wb, "Index", startCol = 9,
+        wb,
+        "Index",
+        startCol = 9,
         x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
       )
     }
-    
+
     # If a user chooses to rerun the function, handle sheet existence
     tryCatch(
       {

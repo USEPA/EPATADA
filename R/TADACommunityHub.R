@@ -22,12 +22,12 @@ TADA_GetCriteriaFiles <- function(pkg = "TADACommunityHub") {
       "' is not installed. Please install it to use this function."
     )
   }
-  
+
   ext_dir <- system.file("extdata", package = pkg)
   if (!nzchar(ext_dir) || !dir.exists(ext_dir)) {
     stop("No extdata directory found in package '", pkg, "'.")
   }
-  
+
   # The "default_files.xlsx" used to map display names -> ATTAINS org IDs
   default_path <- file.path(ext_dir, "default_files.xlsx")
   default_df <- NULL
@@ -41,14 +41,14 @@ TADA_GetCriteriaFiles <- function(pkg = "TADACommunityHub") {
       "ATTAINS.OrganizationIdentifier mapping will be NA."
     )
   }
-  
+
   # Find all TADACommunityHub _criteria_crosswalk.xlsx files
   xlsx_files <- list.files(
     ext_dir,
     pattern = "_criteria_crosswalk\\.xlsx$",
     full.names = TRUE
   )
-  
+
   # If no files return, return blank data frame and report issue.
   if (length(xlsx_files) == 0) {
     warning(
@@ -64,7 +64,7 @@ TADA_GetCriteriaFiles <- function(pkg = "TADACommunityHub") {
       stringsAsFactors = FALSE
     ))
   }
-  
+
   # Build the reference table
   res <- lapply(xlsx_files, function(fp) {
     fname <- basename(fp)
@@ -72,7 +72,7 @@ TADA_GetCriteriaFiles <- function(pkg = "TADACommunityHub") {
     display_name <- gsub("_criteria_crosswalk\\.xlsx$", "", fname)
     display_name <- gsub("_", " ", display_name)
     display_name <- tools::toTitleCase(display_name)
-    
+
     data.frame(
       display_name = display_name,
       file_name = fname,
@@ -80,16 +80,16 @@ TADA_GetCriteriaFiles <- function(pkg = "TADACommunityHub") {
       stringsAsFactors = FALSE
     )
   })
-  
+
   result <- do.call(rbind, res)
-  
+
   # Join ATTAINS org ID if default_files.xlsx is available
   if (
     !is.null(default_df) &&
-    all(
-      c("Display.Name", "ATTAINS.OrganizationIdentifier") %in%
-      names(default_df)
-    )
+      all(
+        c("Display.Name", "ATTAINS.OrganizationIdentifier") %in%
+          names(default_df)
+      )
   ) {
     result <- merge(
       x = result,
@@ -116,7 +116,7 @@ TADA_GetCriteriaFiles <- function(pkg = "TADACommunityHub") {
       "file_path"
     )]
   }
-  
+
   result
 }
 
@@ -147,15 +147,15 @@ TADA_GetCriteriaFiles <- function(pkg = "TADACommunityHub") {
 #'
 # Load a selected criteria file (by org_id or state_tribe display name) from local inst/extdata
 TADA_LoadCriteriaFile <- function(
-    org_id = NULL,
-    state_tribe = NULL,
-    ref = NULL,
-    pkg = "TADACommunityHub"
+  org_id = NULL,
+  state_tribe = NULL,
+  ref = NULL,
+  pkg = "TADACommunityHub"
 ) {
   if (is.null(ref)) {
     ref <- TADA_GetCriteriaFiles(pkg = pkg)
   }
-  
+
   # Only one of org_id or state_tribe should be populated
   if (all(is.null(org_id), is.null(state_tribe))) {
     stop("loadCriteria: You must provide either org_id or state_tribe.")
@@ -163,7 +163,7 @@ TADA_LoadCriteriaFile <- function(
   if (all(!is.null(org_id), !is.null(state_tribe))) {
     stop("loadCriteria: Please provide only one of org_id or state_tribe.")
   }
-  
+
   # Select file_path based on which identifier was provided
   if (!is.null(state_tribe)) {
     if (!state_tribe %in% ref$display_name) {
@@ -180,22 +180,22 @@ TADA_LoadCriteriaFile <- function(
       drop = TRUE
     ])
   }
-  
+
   # If multiple matches, take the first but warn if this occurs (should not happen)
   if (length(file_path) > 1) {
     warning("Multiple matching files found; using the first.")
     file_path <- file_path[1]
   }
-  
+
   if (!nzchar(file_path) || !file.exists(file_path)) {
     stop("Selected file could not be found on disk: ", file_path)
   }
-  
+
   df <- openxlsx::read.xlsx(file_path)
-  
+
   # create a dummy reference to a TADACommunityHub function, Rmd checks will create a warning if no reference to any functions are made from an Imports package.
   temp <- TADACommunityHub::validateATTAINSParam(df)
   rm(temp)
-  
+
   return(df)
 }
