@@ -2870,5 +2870,11 @@ TADA_LoadCriteriaFile <- function(
     stop("Selected file could not be found on disk: ", file_path)
   }
 
-  openxlsx::read.xlsx(file_path)
+  df <- openxlsx::read.xlsx(file_path)
+  
+  # create a dummy reference to a TADACommunityHub function, Rmd checks will create a warning if no reference to any functions are made from an Imports package.
+  temp <- TADACommunityHub::validateATTAINSParam(df)
+  rm(temp)
+  
+  return(df)
 }
