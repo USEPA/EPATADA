@@ -281,7 +281,7 @@ TADA_DefineCriteriaMethodology <- function(
     if (is.null(org_id)) {
       org_id <- ""
     }
-    
+
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
     if (tolower("all") %in% tolower(org_id)) {
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
@@ -966,12 +966,12 @@ TADA_DefineCriteriaMethodology <- function(
       }
 
       # final formatting to ensure all column types are correct
-      DefineCriteriaMethodology <- suppressWarnings(
-        TADA_CorrectColType(DefineCriteriaMethodology)
-      ) |>
+      DefineCriteriaMethodology <- suppressWarnings(TADA_CorrectColType(
+        DefineCriteriaMethodology
+      )) |>
         dplyr::filter(!is.na(TADA.CharacteristicName))
     }
-    
+
     # User wants to populate the criteria table using a user supplied table.
     # This option will prioritize a user-supplied table, but will include
     # all rows for any missing WQP Characteristic (or TADA.ComparableDataIdenftifier)
@@ -1191,23 +1191,23 @@ TADA_DefineCriteriaMethodology <- function(
 
   # User wants to populate the Criteria table using the EPA304(a) criteria
   # joins the EPA304(a) criteria to the current Criteria Table.
-if ("USEPA" %in% org_id) {
-  message(paste0(
-    "TADA_DefineCriteriaMethodology: USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
-  ))
-  epa304a <- utils::read.csv(
-    system.file("extdata", "EPA304a_criteria_table.csv", package = "EPATADA"),
-    fileEncoding = "UTF-8-BOM"
-  )
-  if (displayUniqueId && !missing(.data)) {
-    uniqueID <- unique(.data[, c(
-      "TADA.ComparableDataIdentifier",
-      "TADA.CharacteristicName"
-    )])
-    epa304a <- epa304a |>
-      dplyr::select(-TADA.ComparableDataIdentifier) |>
-      dplyr::left_join(uniqueID, by = dplyr::join_by(TADA.CharacteristicName))
-  }
+  if ("USEPA" %in% org_id) {
+    message(paste0(
+      "TADA_DefineCriteriaMethodology: USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
+    ))
+    epa304a <- utils::read.csv(
+      system.file("extdata", "EPA304a_criteria_table.csv", package = "EPATADA"),
+      fileEncoding = "UTF-8-BOM"
+    )
+    if (displayUniqueId && !missing(.data)) {
+      uniqueID <- unique(.data[, c(
+        "TADA.ComparableDataIdentifier",
+        "TADA.CharacteristicName"
+      )])
+      epa304a <- epa304a |>
+        dplyr::select(-TADA.ComparableDataIdentifier) |>
+        dplyr::left_join(uniqueID, by = dplyr::join_by(TADA.CharacteristicName))
+    }
     # read in ref csv
     coltype.ref <- utils::read.csv(system.file(
       "extdata",
@@ -1304,7 +1304,7 @@ if ("USEPA" %in% org_id) {
     }
     wb <- openxlsx::loadWorkbook(downloads_path)
 
-    sheets <- names(wb)  # openxlsx Workbook method
+    sheets <- names(wb) # openxlsx Workbook method
     if (!("DefineCriteriaMethodology" %in% sheets)) {
       openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
     }
@@ -1318,7 +1318,7 @@ if ("USEPA" %in% org_id) {
     # Set visibility
     sv <- openxlsx::sheetVisibility(wb)
     sn <- names(wb)
-    
+
     idx_dcm <- which(sn == "DefineCriteriaMethodology")
     if (length(idx_dcm) == 1) {
       sv[idx_dcm] <- "visible"
