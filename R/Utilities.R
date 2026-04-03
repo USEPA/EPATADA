@@ -2666,9 +2666,6 @@ TADA_CorrectColType <- function(.data) {
 #' @param pkg The GitHub TADACommunityHub package. Ensures the package is downloaded.
 #' Should not be modified unless package name reference changes.
 #'
-#' @param branch The GitHub TADACommunityHub branch to query. Defaults to "main".
-#' Specify a different branch if needed.
-#'
 #' @return A data frame with four columns.
 #'
 #' @export
@@ -2677,22 +2674,7 @@ TADA_CorrectColType <- function(.data) {
 #' criteriaFiles <- TADA_GetCriteriaFiles()
 #'
 # List available criteria files from another installed package's inst/extdata
-TADA_GetCriteriaFiles <- function(pkg = "TADACommunityHub", branch = "main") {
-  # if there is desire to reference TADACommunityHub from a different branch
-  if (!branch == "main") {
-    pkgload::unload("TADACommunityHub")
-
-    # Install remotes if the package doesn't already have remotes
-    utils::install.packages("remotes")
-
-    # Install specific branch
-    remotes::install_github(
-      "USEPA/TADACommunityHub",
-      ref = branch,
-      dependencies = TRUE
-    )
-  }
-
+TADA_GetCriteriaFiles <- function(pkg = "TADACommunityHub") {
   # checks if the package is installed.
   if (!requireNamespace(pkg, quietly = TRUE)) {
     stop(

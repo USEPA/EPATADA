@@ -4,14 +4,11 @@
 \alias{TADA_GetCriteriaFiles}
 \title{List Criteria and Methodologies Files in TADACommunityHub}
 \usage{
-TADA_GetCriteriaFiles(pkg = "TADACommunityHub", branch = "main")
+TADA_GetCriteriaFiles(pkg = "TADACommunityHub")
 }
 \arguments{
 \item{pkg}{The GitHub TADACommunityHub package. Ensures the package is downloaded.
 Should not be modified unless package name reference changes.}
-
-\item{branch}{The GitHub TADACommunityHub branch to query. Defaults to "main".
-Specify a different branch if needed.}
 }
 \value{
 A data frame with four columns.
