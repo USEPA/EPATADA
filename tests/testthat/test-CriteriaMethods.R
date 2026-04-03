@@ -924,16 +924,13 @@ test_that("auto_assign = TRUE with MLSummaryRef filters to MLSummaryRef identifi
   expect_true(any(res$TADA.ComparableDataIdentifier == "C1"))
 })
 
-test_that("org_id = 'All' without AUMLRef warns and attempts to pull domain orgs", {
-  # This test only checks messaging; to avoid external rExpertQuery calls you may skip on CRAN
-  skip_on_cran()
+test_that("org_id = 'All' without AUMLRef emits a message and attempts to pull domain orgs", {
   df <- data.frame(
     TADA.ComparableDataIdentifier = "C1",
     TADA.CharacteristicName = "CHAR_A",
     TADA.ResultMeasure.MeasureUnitCode = "mg/L",
     stringsAsFactors = FALSE
   )
-  # Minimal MLSummaryRef to avoid calling helper functions
   ml <- data.frame(
     ATTAINS.ParameterName = "PARAM_X",
     ATTAINS.UseName = "USE1",
@@ -946,6 +943,8 @@ test_that("org_id = 'All' without AUMLRef warns and attempts to pull domain orgs
     DepthCategory = NA_character_,
     stringsAsFactors = FALSE
   )
+  
+  # Expect the informational message
   expect_message(
     TADA_DefineCriteriaMethodology(
       .data = df,
@@ -954,6 +953,6 @@ test_that("org_id = 'All' without AUMLRef warns and attempts to pull domain orgs
       displayUniqueId = TRUE,
       excel = FALSE
     ),
-    "All was selected"
+    "org_id == 'All' was selected"
   )
 })

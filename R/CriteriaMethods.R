@@ -311,20 +311,28 @@ TADA_DefineCriteriaMethodology <- function(
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
     if (tolower("all") %in% tolower(org_id)) {
-      # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
       if (is.null(AUMLRef)) {
-        message(paste0(
-          "org_id == 'All' was selected, ",
-          "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
-        ))
-        org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
-      }
-      # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
-      if (!is.null(AUMLRef)) {
-        message(paste0(
-          "org_id == 'All' was selected, ",
-          "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
-        ))
+        # Emit a simple, early message unconditionally
+        message("org_id == 'All' was selected, no AUMLRef provided; attempting to pull domain orgs.")
+        
+        # Attempt to retrieve domain orgs; warn on failure but keep going
+        org_id <- tryCatch(
+          {
+            dv <- rExpertQuery::EQ_DomainValues("org_id")
+            if (!is.null(dv) && "code" %in% names(dv)) {
+              dv[["code"]]
+            } else {
+              warning("EQ_DomainValues('org_id') returned no 'code' column; proceeding with empty org list.")
+              character()
+            }
+          },
+          error = function(e) {
+            warning("Failed to retrieve ATTAINS org domain values: ", conditionMessage(e))
+            character()
+          }
+        )
+      } else {
+        message("org_id == 'All' was selected, AUMLRef provided; using orgs found in AUMLRef.")
         org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
       }
     }
