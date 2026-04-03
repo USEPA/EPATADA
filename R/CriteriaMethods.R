@@ -520,7 +520,10 @@ TADA_DefineCriteriaMethodology <- function(
           "ATTAINS.OrganizationIdentifier",
           "UniqueSpatialCriteria",
           "ATTAINS.WaterType",
-          "ATTAINS.AssessmentUnitIdentifier"
+          "ATTAINS.AssessmentUnitIdentifier",
+          "TADA.ComparableDataIdentifier",
+          "SaltFresh",
+          "DepthCategory"
         )
 
         ref.names <- names(MLSummaryRef)
@@ -649,14 +652,14 @@ TADA_DefineCriteriaMethodology <- function(
             dplyr::mutate(dplyr::across(where(is.character), toupper))
 
           # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
-          message(cat(paste(
+          message(paste(
             "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.",
             "Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.",
             "Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.",
             "If an ATTAINS.ParameterName and ATTAINS.UseName alias was found, populating these rows with the CST magnitude values.",
-            "A many-to-many match is likely. User review is needed to ensure the proper parameter and uses from ATTAINS and CST alias crosswalk was accomplished (remove or add rows as needed).",
+            "A many-to-many match is likely. User review is needed...",
             sep = "\n"
-          )))
+          ))
 
           # pulls in uses alias table between ATTAINS.UseName and CST uses
           uses <- utils::read.csv(system.file(
@@ -941,7 +944,7 @@ TADA_DefineCriteriaMethodology <- function(
                   dplyr::any_of(c(
                     "TADA.CharacteristicName",
                     "CST.StdPollutantName",
-                    "CST.USE"
+                    "CST.Use"
                   )),
                   ~ !is.na(.x)
                 ) &
@@ -1241,7 +1244,7 @@ TADA_DefineCriteriaMethodology <- function(
         !(ATTAINS.OrganizationIdentifier == "USEPA" &
           TADA.CharacteristicName %in% epa304a$TADA.CharacteristicName)
       ) |>
-      plyr::rbind.fill(epa304a) |>
+      dplyr::bind_rows(epa304a) |>
       dplyr::arrange(ATTAINS.OrganizationIdentifier != "USEPA")
   }
 
@@ -1322,14 +1325,16 @@ TADA_DefineCriteriaMethodology <- function(
     openxlsx::activeSheet(wb) <- "DefineCriteriaMethodology"
 
     # Set visibility
-    names(wb)
-    openxlsx::sheetVisibility(wb)[1] <- "hidden"
-    openxlsx::sheetVisibility(wb)[2] <- "hidden"
-    openxlsx::sheetVisibility(wb)[3] <- "hidden"
-    openxlsx::sheetVisibility(wb)[4] <- "hidden"
-    openxlsx::sheetVisibility(wb)[5] <- "hidden"
-    openxlsx::sheetVisibility(wb)[6] <- TRUE
-    openxlsx::sheetVisibility(wb)[7] <- "hidden"
+    sv <- openxlsx::sheetVisibility(wb)
+    sn <- openxlsx::sheetNames(wb)
+    
+    idx_dcm <- which(sn == "DefineCriteriaMethodology")
+    if (length(idx_dcm) == 1) sv[idx_dcm] <- "visible"
+    
+    idx_ic <- which(sn == "Index-Criteria")
+    if (length(idx_ic) == 1) sv[idx_ic] <- "hidden"
+    
+    openxlsx::sheetVisibility(wb) <- sv
 
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
@@ -1597,16 +1602,24 @@ TADA_DefineCriteriaMethodology <- function(
     )
 
     # ParameterName (FIXED: apply to column 2)
+    sheets <- openxlsx::sheetNames(wb)
+    if (!("Index" %in% sheets)) {
+      param_list <- sort(unique(stats::na.omit(DefineCriteriaMethodology$ATTAINS.ParameterName)))
+      openxlsx::writeData(
+        wb, "Index-Criteria",
+        startCol = 16, startRow = 1,  # P
+        x = data.frame(ATTAINS.ParameterName = param_list)
+      )
+      param_validation_ref <- "'Index-Criteria'!$P$2:$P$1000"
+    } else {
+      param_validation_ref <- "'Index'!$E$2:$E$60000"
+    }
+    
     suppressWarnings(openxlsx::dataValidation(
-      wb,
-      sheet = "DefineCriteriaMethodology",
-      cols = 2, # ATTAINS.ParameterName
-      rows = 2:1000,
-      type = "list",
-      value = sprintf("'Index'!$E$2:$E$60000"), # keep as-is if Index exists
-      allowBlank = TRUE,
-      showErrorMsg = TRUE,
-      showInputMsg = TRUE
+      wb, sheet = "DefineCriteriaMethodology",
+      cols = 2, rows = 2:1000, type = "list",
+      value = param_validation_ref,
+      allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE
     ))
 
     # UseName (FIXED: apply to column 3; point to the UseName list we just wrote in column Q)
@@ -1855,6 +1868,7 @@ TADA_DefineCriteriaMethodology <- function(
 
     cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
   }
+  DefineCriteriaMethodology <- suppressWarnings(TADA_CorrectColType(DefineCriteriaMethodology))
   return(DefineCriteriaMethodology)
 }
 
@@ -1892,8 +1906,14 @@ TADA_CriteriaDataDictionary <- function() {
     downloads_path <- default_downloads_path
   }
 
+  if (!file.exists(downloads_path)) {
+    wb <- openxlsx::createWorkbook()
+    openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
+    openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
+    openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
+  }
   wb <- openxlsx::loadWorkbook(downloads_path)
-
+  
   tryCatch(
     {
       openxlsx::addWorksheet(wb, "DataDictionary")
