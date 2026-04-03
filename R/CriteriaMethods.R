@@ -61,7 +61,9 @@
 #' "MonitoringLocationIdentifier", "MonitoringLocationTypeName",
 #' "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
 #' "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
-#' "LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".
+#' "LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria". 
+#' When MLSummaryRef is provided and displayUniqueId is not specified, IDs are
+#' retained by default to support MLSummary-based filtering.
 #'
 #' @param AU_UsesRef An optional data frame input. If provided, the ATTAINS.UseName
 #' will be populated from the ATTAINS.UseName found in this data frame rather
@@ -213,6 +215,12 @@ TADA_DefineCriteriaMethodology <- function(
     "Notes"
   )
 
+  # If MLSummaryRef is provided and user did not explicitly set displayUniqueId,
+  # default to TRUE to retain ComparableDataIdentifier for MLSummary-based filtering/assertions.
+  if (!is.null(MLSummaryRef) && missing(displayUniqueId)) {
+    displayUniqueId <- TRUE
+  }
+  
   # Helper: parse month-day strings to a Date using an anchor year
   .parse_season_date <- function(x, anchor_year = 1972L) {
     if (inherits(x, "Date")) {

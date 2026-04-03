@@ -862,14 +862,37 @@ test_that("All NA org identifiers skip final formatting block safely", {
   expect_true(any(res$TADA.CharacteristicName == "CHAR_A"))
 })
 
-test_that("auto_assign = TRUE with MLSummaryRef filters to MLSummaryRef identifiers only", {
-  df <- data.frame(
-    TADA.ComparableDataIdentifier = c("C1", "C2"),
-    TADA.CharacteristicName = c("CHAR_A", "CHAR_B"),
-    TADA.ResultMeasure.MeasureUnitCode = c("mg/L", "mg/L"),
+make_min_tada_df <- function(n = 1,
+                             char = "CHAR_A",
+                             unit = "mg/L",
+                             cid = "C1") {
+  data.frame(
+    # Core fields used downstream
+    TADA.ComparableDataIdentifier = rep(cid, n),
+    TADA.CharacteristicName = rep(char, n),
+    TADA.ResultMeasure.MeasureUnitCode = rep(unit, n),
+    
+    # WQP/TADA columns required by TADA_AutoClean/TADA_CheckColumns
+    ActivityMediaName = rep("Water", n),
+    ResultMeasureValue = rep(1.0, n),
+    ResultMeasure.MeasureUnitCode = rep(unit, n),
+    CharacteristicName = rep(char, n),
+    ResultSampleFractionText = rep(NA_character_, n),
+    MethodSpeciationName = rep(NA_character_, n),
+    DetectionQuantitationLimitMeasure.MeasureUnitCode = rep(NA_character_, n),
+    ResultDetectionConditionText = rep(NA_character_, n),
+    ResultIdentifier = paste0("RID", seq_len(n)),
+    DetectionQuantitationLimitMeasure.MeasureValue = rep(NA_real_, n),
+    LatitudeMeasure = rep(45.0, n),
+    LongitudeMeasure = rep(-120.0, n),
+    
     stringsAsFactors = FALSE
   )
-  # MLSummaryRef includes only C1
+}
+
+test_that("auto_assign = TRUE with MLSummaryRef filters to MLSummaryRef identifiers only", {
+  df <- make_min_tada_df(n = 2, char = "CHAR_A", unit = "mg/L", cid = c("C1","C2"))
+  
   ml <- data.frame(
     ATTAINS.ParameterName = "PARAM_X",
     ATTAINS.UseName = "USE1",
@@ -882,6 +905,7 @@ test_that("auto_assign = TRUE with MLSummaryRef filters to MLSummaryRef identifi
     DepthCategory = NA_character_,
     stringsAsFactors = FALSE
   )
+  
   res <- TADA_DefineCriteriaMethodology(
     .data = df,
     MLSummaryRef = ml,
@@ -889,7 +913,6 @@ test_that("auto_assign = TRUE with MLSummaryRef filters to MLSummaryRef identifi
     auto_assign = TRUE,
     excel = FALSE
   )
-  # Should not include rows for C2 after MLSummary_params filter
   expect_false(any(res$TADA.ComparableDataIdentifier == "C2"))
   expect_true(any(res$TADA.ComparableDataIdentifier == "C1"))
 })

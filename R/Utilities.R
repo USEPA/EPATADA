@@ -1718,20 +1718,28 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     return(NULL) # Exit the function early
   }
 
-  required_cols <- c(
-    "TADA.CharacteristicName",
-    "TADA.ResultSampleFractionText",
-    "TADA.MethodSpeciationName",
-    "TADA.ResultMeasure.MeasureUnitCode",
-    "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
-  )
-
-  # Ensure required columns exist (run autoclean if any are missing)
-  if (!all(required_cols %in% colnames(.data))) {
+  # Minimal required columns: Characteristic + at least one unit column
+  has_char <- "TADA.CharacteristicName" %in% names(.data)
+  has_unit_pref <- "TADA.ResultMeasure.MeasureUnitCode" %in% names(.data)
+  has_unit_unpref <- "ResultMeasure.MeasureUnitCode" %in% names(.data)
+  
+  if (!(has_char && (has_unit_pref || has_unit_unpref))) {
     message(
-      "The dataframe is missing required fields. Running TADA_AutoClean to create required columns."
+      "Minimal required fields are missing (Characteristic and unit). ",
+      "Running TADA_AutoClean to create required columns."
     )
     .data <- TADA_AutoClean(.data)
+    
+    # Re-check minimal fields post-clean; fail fast with a helpful message if still missing
+    has_char <- "TADA.CharacteristicName" %in% names(.data)
+    has_unit_pref <- "TADA.ResultMeasure.MeasureUnitCode" %in% names(.data)
+    has_unit_unpref <- "ResultMeasure.MeasureUnitCode" %in% names(.data)
+    if (!(has_char && (has_unit_pref || has_unit_unpref))) {
+      stop(
+        "TADA_UniqueCharUnitSpeciation: After TADA_AutoClean, the minimal required fields are still missing. ",
+        "Ensure your input uses the TADA/WQP physical-chemical profile with CharacteristicName and unit columns."
+      )
+    }
   }
 
   # Unique result units/speciation/char
@@ -1809,16 +1817,35 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
   }
 
   # Combine (result + detection-limit) by normalized names
-  if (exists("data.units.det") && ncol(data.units.det) > 0) {
+  if (ncol(data.units.det) > 0) {
+    # Ensure required join columns exist in both frames
+    required_join_cols <- c(
+      "TADA.CharacteristicName",
+      "TADA.ResultMeasure.MeasureUnitCode",
+      "ResultMeasure.MeasureUnitCode",
+      "TADA.MethodSpeciationName"
+    )
+    
+    # Add missing columns to data.units.result as NA
+    missing_in_result <- setdiff(required_join_cols, names(data.units.result))
+    if (length(missing_in_result) > 0) {
+      for (col in missing_in_result) {
+        data.units.result[[col]] <- NA_character_
+      }
+    }
+    
+    # Add missing columns to data.units.det as NA
+    missing_in_det <- setdiff(required_join_cols, names(data.units.det))
+    if (length(missing_in_det) > 0) {
+      for (col in missing_in_det) {
+        data.units.det[[col]] <- NA_character_
+      }
+    }
+    
     data.units <- data.units.result |>
       dplyr::full_join(
         data.units.det,
-        by = c(
-          "TADA.CharacteristicName",
-          "TADA.ResultMeasure.MeasureUnitCode",
-          "ResultMeasure.MeasureUnitCode",
-          "TADA.MethodSpeciationName"
-        )
+        by = required_join_cols
       ) |>
       dplyr::distinct() |>
       dplyr::group_by(TADA.CharacteristicName)
