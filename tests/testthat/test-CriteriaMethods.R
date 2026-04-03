@@ -665,7 +665,11 @@ test_that("criteriaMethods season date strings are parsed to Date class", {
   expect_s3_class(res$SeasonStartDate, "Date")
   expect_s3_class(res$SeasonEndDate, "Date")
   # Parsed dates should not be NA when strings were provided
-  sub <- subset(res, ATTAINS.OrganizationIdentifier == "ORGX" & TADA.CharacteristicName == "CHAR_A")
+  sub <- subset(
+    res,
+    ATTAINS.OrganizationIdentifier == "ORGX" &
+      TADA.CharacteristicName == "CHAR_A"
+  )
   expect_true(any(!is.na(sub$SeasonStartDate)))
   expect_true(any(!is.na(sub$SeasonEndDate)))
 })
@@ -731,11 +735,12 @@ test_that("displayUniqueId = FALSE dedupes multiple IDs into one row", {
   # ComparableDataIdentifier is set to NA and duplicates collapse
   expect_true(all(is.na(res$TADA.ComparableDataIdentifier)))
   # Only one row for the CHAR_A / ORGX / USE1 / PARAM_X combination should remain
-  sub <- subset(res,
-                ATTAINS.OrganizationIdentifier == "ORGX" &
-                  ATTAINS.ParameterName == "PARAM_X" &
-                  ATTAINS.UseName == "USE1" &
-                  TADA.CharacteristicName == "CHAR_A"
+  sub <- subset(
+    res,
+    ATTAINS.OrganizationIdentifier == "ORGX" &
+      ATTAINS.ParameterName == "PARAM_X" &
+      ATTAINS.UseName == "USE1" &
+      TADA.CharacteristicName == "CHAR_A"
   )
   expect_equal(nrow(sub), 1L)
 })
@@ -872,8 +877,12 @@ test_that("Excel save path uses timestamp when overwrite = FALSE", {
   skip_if_not_installed("openxlsx")
   tmp <- withr::local_tempdir()
   withr::local_envvar(USERPROFILE = tmp)
-  dir.create(file.path(tmp, "Downloads"), recursive = TRUE, showWarnings = FALSE)
-  
+  dir.create(
+    file.path(tmp, "Downloads"),
+    recursive = TRUE,
+    showWarnings = FALSE
+  )
+
   df <- data.frame(
     TADA.ComparableDataIdentifier = "C1",
     TADA.CharacteristicName = "CHAR_A",
@@ -892,7 +901,7 @@ test_that("Excel save path uses timestamp when overwrite = FALSE", {
     DepthCategory = NA_character_,
     stringsAsFactors = FALSE
   )
-  
+
   # First write
   res1 <- TADA_DefineCriteriaMethodology(
     .data = df,
@@ -911,6 +920,10 @@ test_that("Excel save path uses timestamp when overwrite = FALSE", {
     excel = TRUE,
     overwrite = FALSE
   )
-  files <- list.files(file.path(tmp, "Downloads"), pattern = "^myfileRef.*\\.xlsx$", full.names = TRUE)
+  files <- list.files(
+    file.path(tmp, "Downloads"),
+    pattern = "^myfileRef.*\\.xlsx$",
+    full.names = TRUE
+  )
   expect_true(length(files) >= 2) # base + at least one timestamped copy
 })
