@@ -679,12 +679,32 @@ TADA_DefineCriteriaMethodology <- function(
 
           # all lines below will focus on joining CST magnitude values to the auto_assign table
           # pulls in alias crosswalk between CST STD.PollutantName and ATTAINS.ParameterName
+          DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+            dplyr::mutate(dplyr::across(where(is.character), toupper))
+
+          # all lines below will focus on joining CST magnitude values to the auto_assign table
+          # pulls in alias crosswalk between CST STD.PollutantName and ATTAINS.ParameterName
           CST_ATTAINS_Param <- utils::read.csv(system.file(
             "extdata",
             "TADACharAliasRef.csv",
             package = "EPATADA"
           )) |>
-            dplyr::mutate(dplyr::across(where(is.character), toupper))
+            dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
+            dplyr::filter(
+              (CharacteristicName %in%
+                stats::na.omit(unique(
+                  DefineCriteriaMethodology$TADA.CharacteristicName
+                )) &
+                ATTAINS.ParameterName %in%
+                  stats::na.omit(unique(
+                    DefineCriteriaMethodology$ATTAINS.ParameterName
+                  ))) |
+                (CharacteristicName %in%
+                  stats::na.omit(unique(
+                    DefineCriteriaMethodology$TADA.CharacteristicName
+                  )) &
+                  is.na(ATTAINS.ParameterName))
+            )
 
           # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
           message(paste(
@@ -765,14 +785,8 @@ TADA_DefineCriteriaMethodology <- function(
           # filter the CST to relevant org, parameters and uses
           CriteriaSearchToolRef_filtered <- CriteriaSearchToolRef |>
             dplyr::right_join(
-              dplyr::filter(
-                CST_ATTAINS_Param,
-                CharacteristicName %in%
-                  stats::na.omit(unique(
-                    DefineCriteriaMethodology$TADA.CharacteristicName
-                  ))
-              ),
-              by = c("STD_POLLUTANT_NAME")
+              CST_ATTAINS_Param,
+              by = c("POLLUTANT_NAME", "STD_POLLUTANT_NAME")
             ) |>
             dplyr::right_join(
               dplyr::filter(
