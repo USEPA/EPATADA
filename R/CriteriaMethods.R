@@ -507,14 +507,22 @@ TADA_DefineCriteriaMethodology <- function(
     # check to see if user-supplied MLSummary ref is a df with appropriate columns and filled out.
     if (!is.null(MLSummaryRef) & !is.character(MLSummaryRef)) {
       if (!is.data.frame(MLSummaryRef)) {
-        stop("TADA_DefineCriteriaMethodology: MLSummaryRef must be a data frame.")
+        stop(
+          "TADA_DefineCriteriaMethodology: MLSummaryRef must be a data frame."
+        )
       }
 
       if (is.data.frame(MLSummaryRef)) {
         required_cols <- c(
-          "ATTAINS.ParameterName","ATTAINS.UseName","ATTAINS.OrganizationIdentifier",
-          "UniqueSpatialCriteria","ATTAINS.WaterType","ATTAINS.AssessmentUnitIdentifier",
-          "TADA.ComparableDataIdentifier","SaltFresh","DepthCategory"
+          "ATTAINS.ParameterName",
+          "ATTAINS.UseName",
+          "ATTAINS.OrganizationIdentifier",
+          "UniqueSpatialCriteria",
+          "ATTAINS.WaterType",
+          "ATTAINS.AssessmentUnitIdentifier",
+          "TADA.ComparableDataIdentifier",
+          "SaltFresh",
+          "DepthCategory"
         )
         missing_cols <- setdiff(required_cols, names(MLSummaryRef))
         if (length(missing_cols) > 0) {
@@ -1295,8 +1303,8 @@ if ("USEPA" %in% org_id) {
       openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
     }
     wb <- openxlsx::loadWorkbook(downloads_path)
-    
-    sheets <- openxlsx::sheetNames(wb)
+
+    sheets <- names(wb)  # openxlsx Workbook method
     if (!("DefineCriteriaMethodology" %in% sheets)) {
       openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
     }
@@ -1306,11 +1314,11 @@ if ("USEPA" %in% org_id) {
 
     # IMPORTANT: Set the "DefineCriteriaMethodology" sheet as the active sheet
     openxlsx::setActiveSheet(wb, sheet = "DefineCriteriaMethodology")
-    
+
     # Set visibility
     sv <- openxlsx::sheetVisibility(wb)
-    sn <- openxlsx::sheetNames(wb)
-
+    sn <- names(wb)
+    
     idx_dcm <- which(sn == "DefineCriteriaMethodology")
     if (length(idx_dcm) == 1) {
       sv[idx_dcm] <- "visible"
@@ -1325,7 +1333,7 @@ if ("USEPA" %in% org_id) {
 
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
-    
+
     # Set zoom size
     set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
     n_sheets <- length(wb$worksheets)
@@ -1574,7 +1582,9 @@ if ("USEPA" %in% org_id) {
 
     # Build an allowed UseName list (non-NA) from the table you’re writing
     # If none are available, you can substitute an org-specific list as a fallback.
-    use_list <- sort(unique(stats::na.omit(DefineCriteriaMethodology$ATTAINS.UseName)))
+    use_list <- sort(unique(stats::na.omit(
+      DefineCriteriaMethodology$ATTAINS.UseName
+    )))
     # Assuming ATTAINSParamUseOrgRef is still in scope from earlier load:
     if (length(use_list) == 0 && exists("ATTAINSParamUseOrgRef")) {
       use_list <- sort(unique(ATTAINSParamUseOrgRef$ATTAINS.UseName[
@@ -1583,14 +1593,16 @@ if ("USEPA" %in% org_id) {
     }
     if (length(use_list) > 0) {
       openxlsx::writeData(
-        wb, "Index-Criteria",
-        startCol = 17, startRow = 1,  # Q
+        wb,
+        "Index-Criteria",
+        startCol = 17,
+        startRow = 1, # Q
         x = data.frame(ATTAINS.UseName = use_list)
       )
     }
 
     # ParameterName (apply validation to column 2)
-    sheets <- openxlsx::sheetNames(wb)
+    sheets <- names(wb)
     if (!("Index" %in% sheets)) {
       param_list <- sort(unique(stats::na.omit(
         DefineCriteriaMethodology$ATTAINS.ParameterName
@@ -1602,8 +1614,14 @@ if ("USEPA" %in% org_id) {
         startRow = 1, # P
         x = data.frame(ATTAINS.ParameterName = param_list)
       )
-      param_len <- length(param_list)
-      param_validation_ref <- sprintf("'Index-Criteria'!$P$2:$P$%d", param_len + 1L)
+      param_len <- nrow(openxlsx::readWorkbook(wb, sheet = "Index-Criteria")[,
+        "ATTAINS.ParameterName",
+        drop = FALSE
+      ])
+      param_validation_ref <- sprintf(
+        "'Index-Criteria'!$P$2:$P$%d",
+        max(2L, param_len + 1L)
+      )
     } else {
       param_validation_ref <- "'Index'!$E$2:$E$60000"
     }
@@ -1627,8 +1645,7 @@ if ("USEPA" %in% org_id) {
       cols = 3, # ATTAINS.UseName
       rows = 2:1000,
       type = "list",
-      value = sprintf("'Index-Criteria'!$Q$2:$Q$%d", 
-                      length(use_list) + 1L), # avoids excess blank items in the dropdown
+      value = sprintf("'Index-Criteria'!$Q$2:$Q$%d", length(use_list) + 1L), # avoids excess blank items in the dropdown
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
