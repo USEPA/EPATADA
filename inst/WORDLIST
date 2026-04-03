@@ -59,8 +59,6 @@ ComparableDataIdentifier's
 ComparableDataIdentifiers
 ConsolidatedDepth
 ContinuousData
-ConversionCoefficient
-ConversionFactor
 ConvertDepthUnits
 ConvertResultUnits
 ConvertSpecialChars
@@ -84,7 +82,6 @@ DefineCriteriaMethodology
 DepthCategory
 DepthProfileAggregation
 DepthProfilePlot
-DetectionQuantitationLimiMeasure
 DetectionQuantitationLimitMeasure
 DetectionQuantitationLimitType
 DetectionQuantitationLimitTypeName
@@ -133,8 +130,10 @@ GetATTAINSByAUID
 GetCharacteristicRef
 GetDetCondRef
 GetDetLimitRef
+GetMeasureUnitRef
 GetNutrientSummationRef
 GetSynonymRef
+GetUSGSSynonymRef
 HMW
 HRM
 HUC
@@ -278,7 +277,6 @@ ResultDetectionConditionText
 ResultIdentifier
 ResultLaboratoryCommentText
 ResultMeasure
-ResultMeasureUnit
 ResultMeasureValue
 ResultMeasureValueDataTypes
 ResultParticleSizeBasisText
@@ -340,6 +338,7 @@ TADAGeospatialRefLayers
 TADAModule
 TADAPackageDemo
 TADAPriorityChar
+TADAPriorityCharConvertRef
 TADAPriorityCharUnitRef
 TADAProfile
 TADAProfileClean
@@ -377,6 +376,7 @@ WQX
 WQX's
 WQXCharacteristicRef
 WQXResultUnitConversion
+WQXUnitConversionCoefficient
 WQXUnitConversionFactor
 WQXVal
 WaterSciCon
@@ -576,6 +576,7 @@ un
 uncomment
 uncommenting
 uniqueDataId
+unprefixed
 useR
 usepa
 usesRef
