@@ -620,7 +620,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
-          ATTAINS.MonitoringDataLinkText = dplyr::ifelse(
+          ATTAINS.MonitoringDataLinkText = dplyr::if_else(
             !is.na(.data$response.code) & .data$response.code == "200",
             .data$ATTAINS.MonitoringDataLinkText,
             NA_character_
@@ -861,8 +861,8 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       dplyr::select(-c(ATTAINS.WaterType, ATTAINS.OrganizationIdentifier)) |>
       dplyr::rename(
         ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
-        MS_ORG_ID = ATTAINS.MonitoringLocationIdentifier,
-        MS_LOCATION_ID = OrganizationIdentifier,
+        MS_ORG_ID = OrganizationIdentifier,
+        MS_LOCATION_ID = ATTAINS.MonitoringLocationIdentifier,
         MS_DATA_LINK = ATTAINS.MonitoringDataLinkText
       )
   }
@@ -3167,9 +3167,13 @@ TADA_AssignUsesToAU <- function(
         IncludeOrExclude
       ) |>
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
-      sf::st_drop_geometry() |>
       dplyr::distinct() |>
       dplyr::arrange(ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName)
+    
+    # Guard st_drop_geometry
+    if (inherits(CreateAU_UsesRef, "sf")) {
+      CreateAU_UsesRef <- sf::st_drop_geometry(CreateAU_UsesRef)
+    }
 
     # User provides a WaterUseRef - specifying the assignment of Uses to AUs not found in ATTAINS by its Water Type.
     if (!is.null(waterUseRef)) {
@@ -3251,7 +3255,7 @@ TADA_AssignUsesToAU <- function(
           TADA.AssessmentUnitStatus = "New",
           IncludeOrExclude = "Include"
         ) |>
-        plyr::rbind.fill(AU_UsesRef_matches)
+        dplyr::bind_rows(AU_UsesRef_matches)
     }
 
     if (excel == TRUE) {
@@ -4203,7 +4207,7 @@ TADA_MLSummary <- function(
       cols = 9,
       rows = 2:1000,
       type = "list",
-      value = sprintf("'Index'!$B$2:$B$5"),
+      value = "'Index'!$I$2:$I$5",
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
