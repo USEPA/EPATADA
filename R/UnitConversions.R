@@ -10,7 +10,7 @@
 #' - Incorporates units observed only in detection-limit fields to support
 #'   censored-data workflows.
 #' - USGS unit synonyms (including units with speciation embedded) are
-#'   normalized via TADA_GetUSGSSynonymRef. This facilitates moving speciation 
+#'   normalized via TADA_GetUSGSSynonymRef. This facilitates moving speciation
 #'   from units to TADA.MethodSpeciationName in TADA_ConvertResultUnits.
 #' - WQX unit reference (TADA_GetMeasureUnitRef) provides default conversions,
 #'   while TADA priority references (TADAPriorityCharUnitRef.csv and
@@ -47,7 +47,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
   # Create dataframe of unique combinations via helper.
   # NOTE: TADA_UniqueCharUnitSpeciation normalizes/guards optional columns.
   data.units <- TADA_UniqueCharUnitSpeciation(.data)
-  
+
   # If helper returns NULL (empty input), return a typed empty df (no error downstream).
   if (is.null(data.units)) {
     return(data.frame(
@@ -60,16 +60,16 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
       stringsAsFactors = FALSE
     ))
   }
-  
+
   # Remove method speciation only if present; not all upstream flows include it.
   if ("TADA.MethodSpeciationName" %in% names(data.units)) {
     data.units <- dplyr::select(data.units, -TADA.MethodSpeciationName)
   }
-  
+
   # USGS synonyms: normalize units where speciation is embedded in the unit code.
   usgs.ref <- TADA_GetUSGSSynonymRef()
   usgs.ref$Target.Unit <- toupper(usgs.ref$Target.Unit)
-  
+
   usgs.unit <- usgs.ref |>
     dplyr::select(Code, CodeNoSpeciation) |>
     dplyr::mutate(
@@ -77,7 +77,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
       CodeNoSpeciation = toupper(CodeNoSpeciation)
     ) |>
     dplyr::select(-Code)
-  
+
   # Add USGS normalization to data units.
   data.units <- data.units |>
     dplyr::left_join(usgs.unit, by = "TADA.ResultMeasure.MeasureUnitCode") |>
@@ -89,12 +89,12 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
       )
     ) |>
     dplyr::select(-CodeNoSpeciation)
-  
+
   rm(usgs.ref, usgs.unit)
-  
+
   # WQX unit reference for default conversions (broad coverage).
   wqx.ref <- TADA_GetMeasureUnitRef()
-  
+
   wqx.ref <- wqx.ref |>
     dplyr::select(
       Code,
@@ -118,7 +118,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
       Conversion.Factor,
       Conversion.Coefficient
     )
-  
+
   # TADA characteristic-specific target units (priority list).
   tada.char.ref <- utils::read.csv(system.file(
     "extdata",
@@ -131,7 +131,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
   tada.char.ref$TADA.CharacteristicName <- toupper(
     tada.char.ref$TADA.CharacteristicName
   )
-  
+
   # TADA-specific conversions overriding WQX where needed (created 4/30/2024).
   file_path <- system.file(
     "extdata",
@@ -153,7 +153,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
   } else {
     stop("File not found: TADAPriorityCharConvertRef.csv")
   }
-  
+
   # Normalize codes and targets for joining.
   tada.unit.ref <- tada.unit.ref |>
     dplyr::mutate(
@@ -162,7 +162,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
     ) |>
     dplyr::rename(MeasureUnitCode.match = TADA.ResultMeasure.MeasureUnitCode) |>
     dplyr::select(-Target.Unit, -Code, -Last.Change.Date)
-  
+
   # Characteristic-specific targets with TADA conversions (preferred over WQX).
   tada.targets <- data.units |>
     dplyr::left_join(
@@ -198,9 +198,9 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
       "Conversion.Coefficient",
       "CharUnit"
     )))
-  
+
   rm(tada.char.ref, tada.unit.ref)
-  
+
   # Remaining pairs with WQX conversions where TADA-specific not provided.
   tada.wqx <- data.units |>
     dplyr::mutate(
@@ -227,7 +227,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
       "Conversion.Coefficient",
       "CharUnit"
     )))
-  
+
   # Combine, rename conversion columns for clarity, and final select (guarded).
   tada.all <- tada.targets |>
     dplyr::full_join(tada.wqx, by = names(tada.targets)) |>
@@ -237,16 +237,16 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
     ) |>
     dplyr::select(dplyr::any_of(c(
       "TADA.CharacteristicName",
-      "ResultMeasure.MeasureUnitCode",               # optional column (unprefixed)
-      "TADA.ResultMeasure.MeasureUnitCode",          # canonical column (prefixed)
+      "ResultMeasure.MeasureUnitCode", # optional column (unprefixed)
+      "TADA.ResultMeasure.MeasureUnitCode", # canonical column (prefixed)
       "TADA.Target.ResultMeasure.MeasureUnitCode",
       "TADA.WQXUnitConversionFactor",
       "TADA.WQXUnitConversionCoefficient",
       "CharUnit"
     )))
-  
+
   rm(tada.targets, tada.wqx)
-  
+
   # Identify characteristics with multiple target units (inform user).
   mult.target.chars <- tada.all |>
     dplyr::select(
@@ -260,7 +260,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
     ) |>
     dplyr::ungroup() |>
     dplyr::filter(NConvert > 1)
-  
+
   if (nrow(mult.target.chars) > 1) {
     mult.target.list <- mult.target.chars |>
       dplyr::group_by(TADA.CharacteristicName) |>
@@ -292,7 +292,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
       dplyr::select(CharList) |>
       dplyr::distinct() |>
       stringi::stri_replace_last(replacement = " and ", fixed = "; ")
-    
+
     if (print.message == TRUE) {
       message(
         "TADA.CreateUnitRef: The following characteristics have more than one listed target unit: ",
@@ -303,17 +303,14 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
       rm(mult.target.list)
     }
   }
-  
+
   rm(mult.target.chars)
-  
+
   # Drop intermediate column, deduplicate, and return.
   tada.all <- tada.all |>
-    dplyr::select(dplyr::any_of(setdiff(
-      names(tada.all),
-      "CharUnit"
-    ))) |>
+    dplyr::select(dplyr::any_of(setdiff(names(tada.all), "CharUnit"))) |>
     dplyr::distinct()
-  
+
   return(tada.all)
 }
 
