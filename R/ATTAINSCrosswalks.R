@@ -2566,8 +2566,22 @@ TADA_UsesForAnalysis <- function(
     par <- data.frame(matrix(nrow = 0, ncol = length(columns)))
     colnames(par) <- columns
 
+    if (!file.exists(downloads_path)) {
+      wb <- openxlsx::createWorkbook()
+      openxlsx::addWorksheet(wb, "Index", visible = FALSE)
+      # Seed Include/Exclude list; and any other sheets you depend on later:
+      openxlsx::writeData(
+        wb,
+        "Index",
+        startCol = 9, # (I) matches dataValidation "'Index'!$I$2:$I$5" used below
+        x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
+      )
+      # Optional: seed ATTAINSOrgNamesParamRef if this sheet is referenced by data validation.
+      # openxlsx::addWorksheet(wb, "ATTAINSOrgNamesParamRef", visible = FALSE)
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
+    }
     wb <- openxlsx::loadWorkbook(downloads_path)
-
+    
     # If a user chooses to rerun the TADA_UsesForAnalysis() function,
     # the sheet will already exist and error.
     tryCatch(
@@ -3437,18 +3451,15 @@ TADA_AssignUsesToWaterType <- function(
   if (tolower("all") %in% tolower(org_id)) {
     # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
     if (is.null(AUMLRef)) {
-      message(paste0(
-        "org_id == 'All' was selected, ",
-        "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
-      ))
+      message(
+        "TADA_AssignUsesToWaterType: org_id == 'All' was selected and no AUMLRef was provided. Returning all unique ATTAINS Organization Identifiers."
+      )
       org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
     }
     # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
     if (!is.null(AUMLRef)) {
-      message(paste0(
-        "org_id == 'All' was selected, ",
-        "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
-      ))
+      message("TADA_AssignUsesToWaterType: org_id == 'All' was selected and an AUMLRef was provided. Returning all unique ATTAINS Organization Identifiers found in your AUMLRef."
+      )
       org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
     }
   }
