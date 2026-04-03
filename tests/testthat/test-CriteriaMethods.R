@@ -185,15 +185,37 @@ test_that("criteriaMethods path fills missing columns and handles missing TADA.C
   )
   # Expect desired columns present
   expected_cols <- c(
-    "ATTAINS.OrganizationIdentifier","ATTAINS.ParameterName","ATTAINS.UseName",
-    "TADA.ComparableDataIdentifier","TADA.CharacteristicName",
-    "TADA.ResultSampleFractionText","TADA.MethodSpeciationName",
-    "ATTAINS.WaterType","SaltFresh","DepthCategory","UniqueSpatialCriteria",
-    "AcuteChronic","EquationBased","MagnitudeValueLower","MagnitudeValueUpper",
-    "MagnitudeUnit","DurationValue","DurationUnit","DurationMethod",
-    "FreqValue","FreqMethod","AssessPeriod","AssessPeriodStartDate",
-    "AssessPeriodEndDate","Season","SeasonStartDate","SeasonEndDate",
-    "DistrCount","DistrPeriod","DistrMinSample","Notes"
+    "ATTAINS.OrganizationIdentifier",
+    "ATTAINS.ParameterName",
+    "ATTAINS.UseName",
+    "TADA.ComparableDataIdentifier",
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName",
+    "ATTAINS.WaterType",
+    "SaltFresh",
+    "DepthCategory",
+    "UniqueSpatialCriteria",
+    "AcuteChronic",
+    "EquationBased",
+    "MagnitudeValueLower",
+    "MagnitudeValueUpper",
+    "MagnitudeUnit",
+    "DurationValue",
+    "DurationUnit",
+    "DurationMethod",
+    "FreqValue",
+    "FreqMethod",
+    "AssessPeriod",
+    "AssessPeriodStartDate",
+    "AssessPeriodEndDate",
+    "Season",
+    "SeasonStartDate",
+    "SeasonEndDate",
+    "DistrCount",
+    "DistrPeriod",
+    "DistrMinSample",
+    "Notes"
   )
   expect_true(all(expected_cols %in% names(res)))
   # Should include at least the CHAR_A row
@@ -204,16 +226,23 @@ test_that("criteriaMethods path fills missing columns and handles missing TADA.C
 
 test_that("USEPA enrichment adds EPA304a rows only when overlapping characteristics exist", {
   # Skip if EPA304a table is not available in the package
-  epa_file <- system.file("extdata", "EPA304a_criteria_table.csv", package = "EPATADA")
-  skip_if_not(nzchar(epa_file) && file.exists(epa_file), "EPA304a table not found")
+  epa_file <- system.file(
+    "extdata",
+    "EPA304a_criteria_table.csv",
+    package = "EPATADA"
+  )
+  skip_if_not(
+    nzchar(epa_file) && file.exists(epa_file),
+    "EPA304a table not found"
+  )
   epa_tbl <- utils::read.csv(epa_file, fileEncoding = "UTF-8-BOM")
   skip_if(nrow(epa_tbl) == 0, "EPA304a table empty")
-  
+
   # Choose one characteristic present in EPA304a
   char_candidates <- unique(epa_tbl$TADA.CharacteristicName)
   skip_if(length(char_candidates) == 0, "No characteristic names in EPA304a")
   char_pick <- char_candidates[1]
-  
+
   df <- data.frame(
     TADA.ComparableDataIdentifier = "C_EPA",
     TADA.CharacteristicName = char_pick,
@@ -232,7 +261,7 @@ test_that("USEPA enrichment adds EPA304a rows only when overlapping characterist
     DepthCategory = NA_character_,
     stringsAsFactors = FALSE
   )
-  
+
   res <- TADA_DefineCriteriaMethodology(
     .data = df,
     MLSummaryRef = ml,
@@ -240,23 +269,29 @@ test_that("USEPA enrichment adds EPA304a rows only when overlapping characterist
     displayUniqueId = TRUE,
     excel = FALSE
   )
-  
+
   # Expect at least some rows for USEPA if overlap exists
   expect_true(any(res$ATTAINS.OrganizationIdentifier == "USEPA"))
   # EPA rows should include the picked characteristic
-  expect_true(any(res$ATTAINS.OrganizationIdentifier == "USEPA" &
-                    res$TADA.CharacteristicName == char_pick))
+  expect_true(any(
+    res$ATTAINS.OrganizationIdentifier == "USEPA" &
+      res$TADA.CharacteristicName == char_pick
+  ))
 })
 
 test_that("Excel output is written to temporary Downloads and DataDictionary can be added", {
   skip_on_cran()
   skip_if_not_installed("openxlsx")
-  
+
   # Create an isolated temp USERPROFILE with a Downloads folder
   tmp <- withr::local_tempdir()
   withr::local_envvar(USERPROFILE = tmp)
-  dir.create(file.path(tmp, "Downloads"), recursive = TRUE, showWarnings = FALSE)
-  
+  dir.create(
+    file.path(tmp, "Downloads"),
+    recursive = TRUE,
+    showWarnings = FALSE
+  )
+
   df <- data.frame(
     TADA.ComparableDataIdentifier = "C1",
     TADA.CharacteristicName = "CHAR_A",
@@ -275,7 +310,7 @@ test_that("Excel output is written to temporary Downloads and DataDictionary can
     DepthCategory = NA_character_,
     stringsAsFactors = FALSE
   )
-  
+
   # Run with excel = TRUE; ensure file is created
   res <- TADA_DefineCriteriaMethodology(
     .data = df,
@@ -286,10 +321,10 @@ test_that("Excel output is written to temporary Downloads and DataDictionary can
     overwrite = TRUE
   )
   expect_true(is.data.frame(res))
-  
+
   xlsx_path <- file.path(tmp, "Downloads", "myfileRef.xlsx")
   expect_true(file.exists(xlsx_path))
-  
+
   # Add DataDictionary to the same workbook
   TADA_CriteriaDataDictionary()
   wb <- openxlsx::loadWorkbook(xlsx_path)

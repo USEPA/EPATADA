@@ -1384,7 +1384,7 @@ TADA_DefineCriteriaMethodology <- function(
       "TADA.ResultSampleFractionText",
       "TADA.MethodSpeciationName"
     )
-    
+
     idx_df <- if (missing(.data)) {
       # fallback already created above when .data is missing
       .data
@@ -1392,10 +1392,12 @@ TADA_DefineCriteriaMethodology <- function(
       # select what exists, then add missing columns as NA, then reorder
       tmp <- .data |> dplyr::select(dplyr::any_of(required_idx_cols))
       miss <- setdiff(required_idx_cols, names(tmp))
-      if (length(miss) > 0) tmp[miss] <- NA_character_
+      if (length(miss) > 0) {
+        tmp[miss] <- NA_character_
+      }
       tmp[required_idx_cols]
     }
-    
+
     openxlsx::writeData(
       wb,
       "Index-Criteria",
@@ -1487,7 +1489,9 @@ TADA_DefineCriteriaMethodology <- function(
       x = data.frame(EquationBased = c("Yes", "No", "NA"))
     )
 
-    units_vec <- if (!missing(.data) && "TADA.ResultMeasure.MeasureUnitCode" %in% names(.data)) {
+    units_vec <- if (
+      !missing(.data) && "TADA.ResultMeasure.MeasureUnitCode" %in% names(.data)
+    ) {
       unique(.data$TADA.ResultMeasure.MeasureUnitCode)
     } else {
       NA_character_
@@ -1632,7 +1636,10 @@ TADA_DefineCriteriaMethodology <- function(
         x = data.frame(ATTAINS.ParameterName = param_list)
       )
       param_len <- length(param_list)
-      param_validation_ref <- sprintf("'Index-Criteria'!$P$2:$P$%d", param_len + 1L)
+      param_validation_ref <- sprintf(
+        "'Index-Criteria'!$P$2:$P$%d",
+        param_len + 1L
+      )
     } else {
       param_validation_ref <- "'Index'!$E$2:$E$60000"
     }
