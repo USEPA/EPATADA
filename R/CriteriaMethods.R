@@ -1103,22 +1103,21 @@ TADA_DefineCriteriaMethodology <- function(
             collapse = ", "
           ),
           "without an ATTAINS.ParameterName crosswalk.\n",
-          "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis.\n"
+          "Please review if these entries are applicable to your analysis or ignore this message if they are not relevant.\n"
         ))
       }
 
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == FALSE) {
-        warning(paste(
-          "Your user supplied criteriaMethods file is missing",
+        warning(paste0(
+          "Your user supplied criteriaMethods file is missing ",
           length(unique(non_definedCriteria$TADA.CharacteristicName)),
-          "unique TADA.CharacteristicName(s)",
-          ":\n",
-          paste(
+          " unique TADA.CharacteristicName(s) :\n",
+          paste0(
             unique(non_definedCriteria$TADA.CharacteristicName),
             collapse = ", "
           ),
           "without an ATTAINS.ParameterName crosswalk.\n",
-          "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
+          "Please review if these entries are applicable to your analysis or ignore this message if they are not relevant.\n"
         ))
       }
 
