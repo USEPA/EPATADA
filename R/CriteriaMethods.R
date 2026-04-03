@@ -1312,8 +1312,10 @@ if ("USEPA" %in% org_id) {
       openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
     }
 
-    # IMPORTANT: Set the "DefineCriteriaMethodology" sheet as the active sheet
-    openxlsx::setActiveSheet(wb, sheet = "DefineCriteriaMethodology")
+    # Make "DefineCriteriaMethodology" the active sheet
+    if ("activateSheet" %in% getNamespaceExports("openxlsx")) {
+      openxlsx::activateSheet(wb, sheet = "DefineCriteriaMethodology")
+    }
 
     # Set visibility
     sv <- openxlsx::sheetVisibility(wb)
@@ -1376,17 +1378,30 @@ if ("USEPA" %in% org_id) {
     }
 
     # Creates the Index-Criteria List of allowable values under each column
+    required_idx_cols <- c(
+      "TADA.ComparableDataIdentifier",
+      "TADA.CharacteristicName",
+      "TADA.ResultSampleFractionText",
+      "TADA.MethodSpeciationName"
+    )
+    
+    idx_df <- if (missing(.data)) {
+      # fallback already created above when .data is missing
+      .data
+    } else {
+      # select what exists, then add missing columns as NA, then reorder
+      tmp <- .data |> dplyr::select(dplyr::any_of(required_idx_cols))
+      miss <- setdiff(required_idx_cols, names(tmp))
+      if (length(miss) > 0) tmp[miss] <- NA_character_
+      tmp[required_idx_cols]
+    }
+    
     openxlsx::writeData(
       wb,
       "Index-Criteria",
       startCol = 6,
       startRow = 1,
-      x = unique(.data[, c(
-        "TADA.ComparableDataIdentifier",
-        "TADA.CharacteristicName",
-        "TADA.ResultSampleFractionText",
-        "TADA.MethodSpeciationName"
-      )])
+      x = unique(idx_df)
     )
 
     openxlsx::writeData(
@@ -1472,15 +1487,17 @@ if ("USEPA" %in% org_id) {
       x = data.frame(EquationBased = c("Yes", "No", "NA"))
     )
 
+    units_vec <- if (!missing(.data) && "TADA.ResultMeasure.MeasureUnitCode" %in% names(.data)) {
+      unique(.data$TADA.ResultMeasure.MeasureUnitCode)
+    } else {
+      NA_character_
+    }
     openxlsx::writeData(
       wb,
       "Index-Criteria",
       startCol = 18,
       startRow = 1,
-      # MagnitudeUnit
-      x = data.frame(
-        MagnitudeUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode)
-      )
+      x = data.frame(MagnitudeUnit = units_vec)
     )
 
     openxlsx::writeData(
@@ -1614,14 +1631,8 @@ if ("USEPA" %in% org_id) {
         startRow = 1, # P
         x = data.frame(ATTAINS.ParameterName = param_list)
       )
-      param_len <- nrow(openxlsx::readWorkbook(wb, sheet = "Index-Criteria")[,
-        "ATTAINS.ParameterName",
-        drop = FALSE
-      ])
-      param_validation_ref <- sprintf(
-        "'Index-Criteria'!$P$2:$P$%d",
-        max(2L, param_len + 1L)
-      )
+      param_len <- length(param_list)
+      param_validation_ref <- sprintf("'Index-Criteria'!$P$2:$P$%d", param_len + 1L)
     } else {
       param_validation_ref <- "'Index'!$E$2:$E$60000"
     }
