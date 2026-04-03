@@ -1030,20 +1030,24 @@ TADA_DefineCriteriaMethodology <- function(
     if (!is.null(criteriaMethods)) {
       # If org_id includes the empty string placeholder, do not overwrite user-supplied orgs.
       # Only add the column if missing; preserve NA values.
-      if ("" %in% org_id && !"ATTAINS.OrganizationIdentifier" %in% names(criteriaMethods)) {
+      if (
+        "" %in%
+          org_id &&
+          !"ATTAINS.OrganizationIdentifier" %in% names(criteriaMethods)
+      ) {
         criteriaMethods$ATTAINS.OrganizationIdentifier <- NA_character_
       }
-      
+
       criteriaMethods$ATTAINS.ParameterName <- toupper(
         criteriaMethods$ATTAINS.ParameterName
       )
-      
+
       # Build a param frame from .data; choose join keys based on org_id presence
       TADA_param <- dplyr::distinct(.data[, c(
         "TADA.CharacteristicName",
         "TADA.ComparableDataIdentifier"
       )])
-      
+
       if (length(org_id) == 1L && identical(org_id, "")) {
         # No org constraint: allow NA org in the join, do not expand by org_id
         join_by_cols <- c("TADA.CharacteristicName")
@@ -1053,16 +1057,16 @@ TADA_DefineCriteriaMethodology <- function(
           TADA_param,
           ATTAINS.OrganizationIdentifier = as.character(org_id)
         )
-        join_by_cols <- c("ATTAINS.OrganizationIdentifier", "TADA.CharacteristicName")
+        join_by_cols <- c(
+          "ATTAINS.OrganizationIdentifier",
+          "TADA.CharacteristicName"
+        )
       }
-      
+
       criteriaMethods <- criteriaMethods |>
         dplyr::select(-dplyr::any_of("TADA.ComparableDataIdentifier")) |>
-        dplyr::full_join(
-          TADA_param,
-          by = join_by_cols
-        )
-      
+        dplyr::full_join(TADA_param, by = join_by_cols)
+
       # Only filter to org_id when org_id is not the empty-string placeholder
       if (!("" %in% org_id)) {
         criteriaMethods <- criteriaMethods |>
