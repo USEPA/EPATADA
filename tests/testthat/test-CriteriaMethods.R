@@ -601,3 +601,316 @@ test_that("final formatting preserves a single NA UseName summary row", {
   )
   expect_true(nrow(sub) <= 1)
 })
+
+test_that("MLSummaryRef numeric (non-data.frame, non-character) errors clearly", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = "C1",
+    TADA.CharacteristicName = "CHAR_A",
+    TADA.ResultMeasure.MeasureUnitCode = "mg/L",
+    stringsAsFactors = FALSE
+  )
+  # numeric will trigger 'must be a data frame' in the type guard
+  expect_error(
+    TADA_DefineCriteriaMethodology(.data = df, MLSummaryRef = 123),
+    "MLSummaryRef must be a data frame"
+  )
+})
+
+test_that("org_id NULL becomes empty string in criteriaMethods path", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = c("C1", "C2"),
+    TADA.CharacteristicName = c("CHAR_A", "CHAR_B"),
+    TADA.ResultMeasure.MeasureUnitCode = c("mg/L", "mg/L"),
+    stringsAsFactors = FALSE
+  )
+  cm <- data.frame(
+    ATTAINS.ParameterName = c("PARAM_X"),
+    ATTAINS.UseName = c("USE1"),
+    TADA.CharacteristicName = c("CHAR_A"),
+    stringsAsFactors = FALSE
+  )
+  # org_id omitted -> becomes ""
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    criteriaMethods = cm,
+    excel = FALSE
+  )
+  expect_true(is.data.frame(res))
+  expect_true(any(res$ATTAINS.OrganizationIdentifier == ""))
+  expect_true(any(res$TADA.CharacteristicName == "CHAR_A"))
+})
+
+test_that("criteriaMethods season date strings are parsed to Date class", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = "C1",
+    TADA.CharacteristicName = "CHAR_A",
+    TADA.ResultMeasure.MeasureUnitCode = "mg/L",
+    stringsAsFactors = FALSE
+  )
+  cm <- data.frame(
+    ATTAINS.OrganizationIdentifier = "ORGX",
+    ATTAINS.ParameterName = "PARAM_X",
+    ATTAINS.UseName = "USE1",
+    TADA.CharacteristicName = "CHAR_A",
+    SeasonStartDate = c("Jun 15"),
+    SeasonEndDate = c("06-30"),
+    stringsAsFactors = FALSE
+  )
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    org_id = "ORGX",
+    criteriaMethods = cm,
+    excel = FALSE
+  )
+  expect_s3_class(res$SeasonStartDate, "Date")
+  expect_s3_class(res$SeasonEndDate, "Date")
+  # Parsed dates should not be NA when strings were provided
+  sub <- subset(res, ATTAINS.OrganizationIdentifier == "ORGX" & TADA.CharacteristicName == "CHAR_A")
+  expect_true(any(!is.na(sub$SeasonStartDate)))
+  expect_true(any(!is.na(sub$SeasonEndDate)))
+})
+
+test_that("auto_assign = TRUE with MLSummaryRef filters to MLSummaryRef identifiers only", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = c("C1", "C2"),
+    TADA.CharacteristicName = c("CHAR_A", "CHAR_B"),
+    TADA.ResultMeasure.MeasureUnitCode = c("mg/L", "mg/L"),
+    stringsAsFactors = FALSE
+  )
+  # MLSummaryRef includes only C1
+  ml <- data.frame(
+    ATTAINS.ParameterName = "PARAM_X",
+    ATTAINS.UseName = "USE1",
+    ATTAINS.OrganizationIdentifier = "ORGX",
+    UniqueSpatialCriteria = NA_character_,
+    ATTAINS.WaterType = "RIVER",
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    TADA.ComparableDataIdentifier = "C1",
+    SaltFresh = "F",
+    DepthCategory = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    MLSummaryRef = ml,
+    org_id = "ORGX",
+    auto_assign = TRUE,
+    excel = FALSE
+  )
+  # Should not include rows for C2 after MLSummary_params filter
+  expect_false(any(res$TADA.ComparableDataIdentifier == "C2"))
+  expect_true(any(res$TADA.ComparableDataIdentifier == "C1"))
+})
+
+test_that("displayUniqueId = FALSE dedupes multiple IDs into one row", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = c("C1", "C2"),
+    TADA.CharacteristicName = c("CHAR_A", "CHAR_A"),
+    TADA.ResultMeasure.MeasureUnitCode = c("mg/L", "mg/L"),
+    stringsAsFactors = FALSE
+  )
+  ml <- data.frame(
+    ATTAINS.ParameterName = c("PARAM_X", "PARAM_X"),
+    ATTAINS.UseName = c("USE1", "USE1"),
+    ATTAINS.OrganizationIdentifier = c("ORGX", "ORGX"),
+    UniqueSpatialCriteria = c(NA_character_, NA_character_),
+    ATTAINS.WaterType = c("RIVER", "RIVER"),
+    ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU1"),
+    TADA.ComparableDataIdentifier = c("C1", "C2"),
+    SaltFresh = c("F", "F"),
+    DepthCategory = c(NA_character_, NA_character_),
+    stringsAsFactors = FALSE
+  )
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    MLSummaryRef = ml,
+    org_id = "ORGX",
+    displayUniqueId = FALSE,
+    excel = FALSE
+  )
+  # ComparableDataIdentifier is set to NA and duplicates collapse
+  expect_true(all(is.na(res$TADA.ComparableDataIdentifier)))
+  # Only one row for the CHAR_A / ORGX / USE1 / PARAM_X combination should remain
+  sub <- subset(res,
+                ATTAINS.OrganizationIdentifier == "ORGX" &
+                  ATTAINS.ParameterName == "PARAM_X" &
+                  ATTAINS.UseName == "USE1" &
+                  TADA.CharacteristicName == "CHAR_A"
+  )
+  expect_equal(nrow(sub), 1L)
+})
+
+test_that("MagnitudeValue columns are numeric in MLSummaryRef path", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = "C1",
+    TADA.CharacteristicName = "CHAR_A",
+    TADA.ResultMeasure.MeasureUnitCode = "mg/L",
+    stringsAsFactors = FALSE
+  )
+  ml <- data.frame(
+    ATTAINS.ParameterName = "PARAM_X",
+    ATTAINS.UseName = "USE1",
+    ATTAINS.OrganizationIdentifier = "ORGX",
+    UniqueSpatialCriteria = NA_character_,
+    ATTAINS.WaterType = "RIVER",
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    TADA.ComparableDataIdentifier = "C1",
+    SaltFresh = "F",
+    DepthCategory = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    MLSummaryRef = ml,
+    org_id = "ORGX",
+    excel = FALSE
+  )
+  expect_type(res$MagnitudeValueLower, "double")
+  expect_type(res$MagnitudeValueUpper, "double")
+})
+
+test_that("USEPA enrichment emits informational message when USEPA included", {
+  # Skip if EPA304a table is not available in the package
+  epa_file <- system.file(
+    "extdata",
+    "EPA304a_criteria_table.csv",
+    package = "EPATADA"
+  )
+  skip_if_not(
+    nzchar(epa_file) && file.exists(epa_file),
+    "EPA304a table not found"
+  )
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = "C1",
+    TADA.CharacteristicName = "ANY_CHAR",
+    TADA.ResultMeasure.MeasureUnitCode = "mg/L",
+    stringsAsFactors = FALSE
+  )
+  ml <- data.frame(
+    ATTAINS.ParameterName = "PARAM_X",
+    ATTAINS.UseName = "USE1",
+    ATTAINS.OrganizationIdentifier = "ORGX",
+    UniqueSpatialCriteria = NA_character_,
+    ATTAINS.WaterType = "RIVER",
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    TADA.ComparableDataIdentifier = "C1",
+    SaltFresh = "F",
+    DepthCategory = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  expect_message(
+    TADA_DefineCriteriaMethodology(
+      .data = df,
+      MLSummaryRef = ml,
+      org_id = c("USEPA", "ORGX"),
+      excel = FALSE
+    ),
+    "USEPA was included"
+  )
+})
+
+test_that("All NA org identifiers skip final formatting block safely", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = c("C1"),
+    TADA.CharacteristicName = c("CHAR_A"),
+    TADA.ResultMeasure.MeasureUnitCode = c("mg/L"),
+    stringsAsFactors = FALSE
+  )
+  cm <- data.frame(
+    ATTAINS.OrganizationIdentifier = NA_character_,
+    ATTAINS.ParameterName = "PARAM_X",
+    ATTAINS.UseName = "USE1",
+    TADA.CharacteristicName = "CHAR_A",
+    stringsAsFactors = FALSE
+  )
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    criteriaMethods = cm,
+    excel = FALSE
+  )
+  expect_true(all(is.na(res$ATTAINS.OrganizationIdentifier)))
+  # Ensure we still have the CHAR_A row and no error occurred
+  expect_true(any(res$TADA.CharacteristicName == "CHAR_A"))
+})
+
+test_that("org_id = 'All' without AUMLRef warns and attempts to pull domain orgs", {
+  # This test only checks messaging; to avoid external rExpertQuery calls you may skip on CRAN
+  skip_on_cran()
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = "C1",
+    TADA.CharacteristicName = "CHAR_A",
+    TADA.ResultMeasure.MeasureUnitCode = "mg/L",
+    stringsAsFactors = FALSE
+  )
+  # Minimal MLSummaryRef to avoid calling helper functions
+  ml <- data.frame(
+    ATTAINS.ParameterName = "PARAM_X",
+    ATTAINS.UseName = "USE1",
+    ATTAINS.OrganizationIdentifier = "ORGX",
+    UniqueSpatialCriteria = NA_character_,
+    ATTAINS.WaterType = "RIVER",
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    TADA.ComparableDataIdentifier = "C1",
+    SaltFresh = "F",
+    DepthCategory = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  expect_message(
+    TADA_DefineCriteriaMethodology(
+      .data = df,
+      MLSummaryRef = ml,
+      org_id = "All",
+      displayUniqueId = TRUE,
+      excel = FALSE
+    ),
+    "All was selected"
+  )
+})
+
+test_that("Excel save path uses timestamp when overwrite = FALSE", {
+  skip_on_cran()
+  skip_if_not_installed("openxlsx")
+  tmp <- withr::local_tempdir()
+  withr::local_envvar(USERPROFILE = tmp)
+  dir.create(file.path(tmp, "Downloads"), recursive = TRUE, showWarnings = FALSE)
+  
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = "C1",
+    TADA.CharacteristicName = "CHAR_A",
+    TADA.ResultMeasure.MeasureUnitCode = "mg/L",
+    stringsAsFactors = FALSE
+  )
+  ml <- data.frame(
+    ATTAINS.ParameterName = "PARAM_X",
+    ATTAINS.UseName = "USE1",
+    ATTAINS.OrganizationIdentifier = "ORGX",
+    UniqueSpatialCriteria = NA_character_,
+    ATTAINS.WaterType = "RIVER",
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    TADA.ComparableDataIdentifier = "C1",
+    SaltFresh = "F",
+    DepthCategory = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  
+  # First write
+  res1 <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    MLSummaryRef = ml,
+    org_id = "ORGX",
+    displayUniqueId = TRUE,
+    excel = TRUE,
+    overwrite = FALSE
+  )
+  # Then write again to ensure timestamped file is created
+  res2 <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    MLSummaryRef = ml,
+    org_id = "ORGX",
+    displayUniqueId = TRUE,
+    excel = TRUE,
+    overwrite = FALSE
+  )
+  files <- list.files(file.path(tmp, "Downloads"), pattern = "^myfileRef.*\\.xlsx$", full.names = TRUE)
+  expect_true(length(files) >= 2) # base + at least one timestamped copy
+})

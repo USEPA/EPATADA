@@ -215,14 +215,12 @@ TADA_DefineCriteriaMethodology <- function(
 
   # Helper: parse month-day strings to a Date using an anchor year
   .parse_season_date <- function(x, anchor_year = 1972L) {
-    if (inherits(x, "Date")) {
-      return(x)
-    }
+    if (inherits(x, "Date")) return(x)
     x <- as.character(x)
+    # Preserve zero-length length explicitly
+    if (length(x) == 0L) return(as.Date(character()))
     x <- ifelse(is.na(x) | trimws(x) == "", NA_character_, x)
-    # try "Mon dd" (e.g., "Jun 15")
     out <- as.Date(paste(x, anchor_year), format = "%b %d %Y")
-    # fallback: "mm-dd" (e.g., "06-15")
     bad <- is.na(out)
     if (any(bad)) {
       out[bad] <- as.Date(paste(x[bad], anchor_year), format = "%m-%d %Y")
@@ -1129,44 +1127,42 @@ TADA_DefineCriteriaMethodology <- function(
       # Must now match the data types. Developer note: can this be modified with TADA TADA_CorrectColType function?
       desired_types <- sapply(DefineCriteriaMethodology, class)
 
-      suppressWarnings(
+      suppressWarnings({
         for (i in seq_len(ncol(non_definedCriteria))) {
           col_name <- names(non_definedCriteria)[i]
-          if (identical(desired_types[[i]], "numeric")) {
-            non_definedCriteria[[col_name]] <- as.numeric(non_definedCriteria[[
-              col_name
-            ]])
-            definedCriteria[[col_name]] <- as.numeric(definedCriteria[[
-              col_name
-            ]])
-          } else if (identical(desired_types[[i]], "Date")) {
-            # For date-like fields, parse appropriately
-            if (col_name %in% c("SeasonStartDate", "SeasonEndDate")) {
-              non_definedCriteria[[
-                col_name
-              ]] <- .parse_season_date(non_definedCriteria[[col_name]])
-              definedCriteria[[
-                col_name
-              ]] <- .parse_season_date(definedCriteria[[col_name]])
+          target_class <- desired_types[[i]]
+          
+          # Coerce non_definedCriteria if it has rows
+          if (nrow(non_definedCriteria) > 0) {
+            if (identical(target_class, "numeric")) {
+              non_definedCriteria[[col_name]] <- suppressWarnings(as.numeric(non_definedCriteria[[col_name]]))
+            } else if (identical(target_class, "Date")) {
+              if (col_name %in% c("SeasonStartDate", "SeasonEndDate")) {
+                non_definedCriteria[[col_name]] <- .parse_season_date(non_definedCriteria[[col_name]])
+              } else {
+                non_definedCriteria[[col_name]] <- suppressWarnings(as.Date(non_definedCriteria[[col_name]]))
+              }
             } else {
-              # Other dates (e.g., AssessPeriodStartDate) may be full dates (YYYY-MM-DD)
-              non_definedCriteria[[col_name]] <- as.Date(non_definedCriteria[[
-                col_name
-              ]])
-              definedCriteria[[col_name]] <- as.Date(definedCriteria[[
-                col_name
-              ]])
+              non_definedCriteria[[col_name]] <- as.character(non_definedCriteria[[col_name]])
             }
-          } else {
-            non_definedCriteria[[
-              col_name
-            ]] <- as.character(non_definedCriteria[[col_name]])
-            definedCriteria[[col_name]] <- as.character(definedCriteria[[
-              col_name
-            ]])
+          }
+          
+          # Coerce definedCriteria if it has rows
+          if (nrow(definedCriteria) > 0) {
+            if (identical(target_class, "numeric")) {
+              definedCriteria[[col_name]] <- suppressWarnings(as.numeric(definedCriteria[[col_name]]))
+            } else if (identical(target_class, "Date")) {
+              if (col_name %in% c("SeasonStartDate", "SeasonEndDate")) {
+                definedCriteria[[col_name]] <- .parse_season_date(definedCriteria[[col_name]])
+              } else {
+                definedCriteria[[col_name]] <- suppressWarnings(as.Date(definedCriteria[[col_name]]))
+              }
+            } else {
+              definedCriteria[[col_name]] <- as.character(definedCriteria[[col_name]])
+            }
           }
         }
-      )
+      })
 
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
         dplyr::select(
