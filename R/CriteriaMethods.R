@@ -212,6 +212,21 @@ TADA_DefineCriteriaMethodology <- function(
     "DistrMinSample",
     "Notes"
   )
+  
+  # Helper: parse month-day strings to a Date using an anchor year
+  .parse_season_date <- function(x, anchor_year = 1972L) {
+    if (inherits(x, "Date")) return(x)
+    x <- as.character(x)
+    x <- ifelse(is.na(x) | trimws(x) == "", NA_character_, x)
+    # try "Mon dd" (e.g., "Jun 15")
+    out <- as.Date(paste(x, anchor_year), format = "%b %d %Y")
+    # fallback: "mm-dd" (e.g., "06-15")
+    bad <- is.na(out)
+    if (any(bad)) {
+      out[bad] <- as.Date(paste(x[bad], anchor_year), format = "%m-%d %Y")
+    }
+    out
+  }
 
   # Return an empty data frame with column names only if a user does not define any arg inputs.
   if (
@@ -1094,15 +1109,26 @@ TADA_DefineCriteriaMethodology <- function(
 
       # Must now match the data types. Developer note: can this be modified with TADA TADA_CorrectColType function?
       desired_types <- sapply(DefineCriteriaMethodology, class)
-
+      
       suppressWarnings(
-        for (i in 1:ncol(non_definedCriteria)) {
-          if (desired_types[[i]] == "numeric") {
-            non_definedCriteria[, i] <- as.numeric(non_definedCriteria[, i])
-            definedCriteria[, i] <- as.numeric(definedCriteria[, i])
+        for (i in seq_len(ncol(non_definedCriteria))) {
+          col_name <- names(non_definedCriteria)[i]
+          if (identical(desired_types[[i]], "numeric")) {
+            non_definedCriteria[[col_name]] <- as.numeric(non_definedCriteria[[col_name]])
+            definedCriteria[[col_name]]     <- as.numeric(definedCriteria[[col_name]])
+          } else if (identical(desired_types[[i]], "Date")) {
+            # For date-like fields, parse appropriately
+            if (col_name %in% c("SeasonStartDate", "SeasonEndDate")) {
+              non_definedCriteria[[col_name]] <- .parse_season_date(non_definedCriteria[[col_name]])
+              definedCriteria[[col_name]]     <- .parse_season_date(definedCriteria[[col_name]])
+            } else {
+              # Other dates (e.g., AssessPeriodStartDate) may be full dates (YYYY-MM-DD)
+              non_definedCriteria[[col_name]] <- as.Date(non_definedCriteria[[col_name]])
+              definedCriteria[[col_name]]     <- as.Date(definedCriteria[[col_name]])
+            }
           } else {
-            non_definedCriteria[, i] <- as.character(non_definedCriteria[, i])
-            definedCriteria[, i] <- as.character(definedCriteria[, i])
+            non_definedCriteria[[col_name]] <- as.character(non_definedCriteria[[col_name]])
+            definedCriteria[[col_name]]     <- as.character(definedCriteria[[col_name]])
           }
         }
       )
@@ -1337,12 +1363,20 @@ TADA_DefineCriteriaMethodology <- function(
 
     # Export DefineCriteriaMethodology dataframe into the excel spreadsheet tab
     openxlsx::writeData(
-      wb,
-      "DefineCriteriaMethodology",
-      startCol = 1,
-      x = DefineCriteriaMethodology,
-      headerStyle = header_st
+      wb, "DefineCriteriaMethodology", startCol = 1,
+      x = DefineCriteriaMethodology, headerStyle = header_st
     )
+    
+    # Apply a month-day display format for season dates
+    date_style <- openxlsx::createStyle(numFmt = "mmm dd")
+    date_cols <- which(names(DefineCriteriaMethodology) %in% c("SeasonStartDate", "SeasonEndDate"))
+    if (length(date_cols) > 0) {
+      openxlsx::addStyle(
+        wb, "DefineCriteriaMethodology", date_style,
+        rows = 2:(nrow(DefineCriteriaMethodology) + 1),
+        cols = date_cols, gridExpand = TRUE
+      )
+    }
 
     if (missing(.data)) {
       .data <- data.frame(
