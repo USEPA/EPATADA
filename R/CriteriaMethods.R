@@ -506,33 +506,20 @@ TADA_DefineCriteriaMethodology <- function(
     # check to see if user-supplied MLSummary ref is a df with appropriate columns and filled out.
     if (!is.null(MLSummaryRef) & !is.character(MLSummaryRef)) {
       if (!is.data.frame(MLSummaryRef)) {
-        stop(
-          "TADA_DefineCriteriaMethodology: 'MLSummaryRef' must be a data frame with six columns:
-          ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, UniqueSpatialCriteria,
-          ATTAINS.WaterType, ATTAINS.AssessmentUnitIdentifier"
-        )
+        stop("TADA_DefineCriteriaMethodology: MLSummaryRef must be a data frame.")
       }
 
       if (is.data.frame(MLSummaryRef)) {
-        col.names <- c(
-          "ATTAINS.ParameterName",
-          "ATTAINS.UseName",
-          "ATTAINS.OrganizationIdentifier",
-          "UniqueSpatialCriteria",
-          "ATTAINS.WaterType",
-          "ATTAINS.AssessmentUnitIdentifier",
-          "TADA.ComparableDataIdentifier",
-          "SaltFresh",
-          "DepthCategory"
+        required_cols <- c(
+          "ATTAINS.ParameterName","ATTAINS.UseName","ATTAINS.OrganizationIdentifier",
+          "UniqueSpatialCriteria","ATTAINS.WaterType","ATTAINS.AssessmentUnitIdentifier",
+          "TADA.ComparableDataIdentifier","SaltFresh","DepthCategory"
         )
-
-        ref.names <- names(MLSummaryRef)
-
-        if (length(setdiff(col.names, ref.names)) > 0) {
+        missing_cols <- setdiff(required_cols, names(MLSummaryRef))
+        if (length(missing_cols) > 0) {
           stop(
-            "TADA_DefineCriteriaMethodology: 'MLSummaryRef' must be a data frame with six columns:
-          ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, UniqueSpatialCriteria,
-          ATTAINS.WaterType, ATTAINS.AssessmentUnitIdentifier"
+            "TADA_DefineCriteriaMethodology: MLSummaryRef is missing required columns: ",
+            paste(missing_cols, collapse = ", ")
           )
         }
       }
@@ -795,7 +782,7 @@ TADA_DefineCriteriaMethodology <- function(
             dplyr::mutate(MagnitudeUnit = UNIT_NAME) |>
             # select relevant columns found in the TADA criteria table, append CST pollutant name and use at the end
             dplyr::select(
-              names(suppressMessages(TADA_DefineCriteriaMethodology())),
+              dplyr::all_of(desired_cols),
               CST.StdPollutantName = STD_POLLUTANT_NAME,
               CST.Use = USE_CLASS_NAME_LOCATION_ETC,
               CST.CriteriaTypeAquaHumHlth = CRITERIATYPEAQUAHUMHLTH,
@@ -1300,30 +1287,25 @@ TADA_DefineCriteriaMethodology <- function(
       downloads_path <- default_downloads_path
     }
 
-    # if a user generates a blank template, the prior blank template must also be generated in excel
-    if (missing(.data)) {
-      suppressMessages(TADA_MLSummary(excel = excel, overwrite = overwrite))
+    if (!file.exists(downloads_path)) {
+      wb <- openxlsx::createWorkbook()
+      openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
+      openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
+    }
+    wb <- openxlsx::loadWorkbook(downloads_path)
+    
+    sheets <- openxlsx::sheetNames(wb)
+    if (!("DefineCriteriaMethodology" %in% sheets)) {
+      openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
+    }
+    if (!("Index-Criteria" %in% sheets)) {
+      openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
     }
 
-    wb <- openxlsx::loadWorkbook(downloads_path)
-
-    tryCatch(
-      {
-        openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
-        openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
-      },
-      error = function(e) {
-        openxlsx::removeWorksheet(wb, "DefineCriteriaMethodology")
-        openxlsx::removeWorksheet(wb, "Index-Criteria")
-        openxlsx::removeWorksheet(wb, "DataDictionary") # gets added at the end.
-        openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
-        openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
-      }
-    )
-
     # IMPORTANT: Set the "DefineCriteriaMethodology" sheet as the active sheet
-    openxlsx::activeSheet(wb) <- "DefineCriteriaMethodology"
-
+    openxlsx::setActiveSheet(wb, sheet = "DefineCriteriaMethodology")
+    
     # Set visibility
     sv <- openxlsx::sheetVisibility(wb)
     sn <- openxlsx::sheetNames(wb)
@@ -1338,7 +1320,8 @@ TADA_DefineCriteriaMethodology <- function(
 
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
-    # set zoom size
+    
+    # Set zoom size
     set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
     n_sheets <- length(wb$worksheets)
     for (i in 1:n_sheets) {
@@ -1346,9 +1329,7 @@ TADA_DefineCriteriaMethodology <- function(
       wb$worksheets[[i]]$sheetViews <- set_zoom(90)
     }
 
-    # Format column header
-    header_st <- openxlsx::createStyle(textDecoration = "Bold")
-    # Format Column widths
+    # Format column widths
     openxlsx::setColWidths(
       wb,
       sheet = "DefineCriteriaMethodology",
@@ -1588,18 +1569,20 @@ TADA_DefineCriteriaMethodology <- function(
 
     # Build an allowed UseName list (non-NA) from the table you’re writing
     # If none are available, you can substitute an org-specific list as a fallback.
-    use_list <- sort(unique(stats::na.omit(
-      DefineCriteriaMethodology$ATTAINS.UseName
-    )))
-
-    # Write the UseName list into Index-Criteria at a free column (Q = startCol 17)
-    openxlsx::writeData(
-      wb,
-      "Index-Criteria",
-      startCol = 17, # Column Q
-      startRow = 1,
-      x = data.frame(ATTAINS.UseName = use_list)
-    )
+    use_list <- sort(unique(stats::na.omit(DefineCriteriaMethodology$ATTAINS.UseName)))
+    # Assuming ATTAINSParamUseOrgRef is still in scope from earlier load:
+    if (length(use_list) == 0 && exists("ATTAINSParamUseOrgRef")) {
+      use_list <- sort(unique(ATTAINSParamUseOrgRef$ATTAINS.UseName[
+        ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier %in% org_id
+      ]))
+    }
+    if (length(use_list) > 0) {
+      openxlsx::writeData(
+        wb, "Index-Criteria",
+        startCol = 17, startRow = 1,  # Q
+        x = data.frame(ATTAINS.UseName = use_list)
+      )
+    }
 
     # ParameterName (FIXED: apply to column 2)
     sheets <- openxlsx::sheetNames(wb)
@@ -1610,7 +1593,8 @@ TADA_DefineCriteriaMethodology <- function(
         startCol = 16, startRow = 1,  # P
         x = data.frame(ATTAINS.ParameterName = param_list)
       )
-      param_validation_ref <- "'Index-Criteria'!$P$2:$P$1000"
+      param_len <- nrow(openxlsx::readWorkbook(wb, sheet = "Index-Criteria")[, "ATTAINS.ParameterName", drop = FALSE])
+      param_validation_ref <- sprintf("'Index-Criteria'!$P$2:$P$%d", max(2L, param_len + 1L))
     } else {
       param_validation_ref <- "'Index'!$E$2:$E$60000"
     }
@@ -1629,7 +1613,8 @@ TADA_DefineCriteriaMethodology <- function(
       cols = 3, # ATTAINS.UseName
       rows = 2:1000,
       type = "list",
-      value = sprintf("'Index-Criteria'!$Q$2:$Q$1000"),
+      value = sprintf("'Index-Criteria'!$Q$2:$Q$%d", 
+                      length(use_list) + 1L), # avoids excess blank items in the dropdown
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
@@ -1871,7 +1856,6 @@ TADA_DefineCriteriaMethodology <- function(
   DefineCriteriaMethodology <- suppressWarnings(TADA_CorrectColType(DefineCriteriaMethodology))
   return(DefineCriteriaMethodology)
 }
-
 
 #' Data Dictionary for Criteria and Methodology
 #'
