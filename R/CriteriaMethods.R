@@ -313,8 +313,10 @@ TADA_DefineCriteriaMethodology <- function(
     if (tolower("all") %in% tolower(org_id)) {
       if (is.null(AUMLRef)) {
         # Emit a simple, early message unconditionally
-        message("org_id == 'All' was selected, no AUMLRef provided; attempting to pull domain orgs.")
-        
+        message(
+          "org_id == 'All' was selected, no AUMLRef provided; attempting to pull domain orgs."
+        )
+
         # Attempt to retrieve domain orgs; warn on failure but keep going
         org_id <- tryCatch(
           {
@@ -322,17 +324,24 @@ TADA_DefineCriteriaMethodology <- function(
             if (!is.null(dv) && "code" %in% names(dv)) {
               dv[["code"]]
             } else {
-              warning("EQ_DomainValues('org_id') returned no 'code' column; proceeding with empty org list.")
+              warning(
+                "EQ_DomainValues('org_id') returned no 'code' column; proceeding with empty org list."
+              )
               character()
             }
           },
           error = function(e) {
-            warning("Failed to retrieve ATTAINS org domain values: ", conditionMessage(e))
+            warning(
+              "Failed to retrieve ATTAINS org domain values: ",
+              conditionMessage(e)
+            )
             character()
           }
         )
       } else {
-        message("org_id == 'All' was selected, AUMLRef provided; using orgs found in AUMLRef.")
+        message(
+          "org_id == 'All' was selected, AUMLRef provided; using orgs found in AUMLRef."
+        )
         org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
       }
     }

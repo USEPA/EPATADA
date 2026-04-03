@@ -943,7 +943,7 @@ test_that("org_id = 'All' without AUMLRef emits a message and attempts to pull d
     DepthCategory = NA_character_,
     stringsAsFactors = FALSE
   )
-  
+
   # Expect the informational message
   expect_message(
     TADA_DefineCriteriaMethodology(
