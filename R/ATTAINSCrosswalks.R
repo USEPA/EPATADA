@@ -185,8 +185,8 @@ TADA_GetATTAINSAUMLCrosswalk <- function(
       ) |>
       dplyr::rename(
         ASSESSMENT_UNIT_ID = .data$ATTAINS.AssessmentUnitIdentifier,
-        MS_ORG_ID = .data$ATTAINS.MonitoringLocationIdentifier,
-        MS_LOCATION_ID = .data$OrganizationIdentifier,
+        MS_ORG_ID = .data$OrganizationIdentifier,
+        MS_LOCATION_ID = .data$ATTAINS.MonitoringLocationIdentifier,
         MS_DATA_LINK = .data$ATTAINS.MonitoringDataLinkText
       )
   }
