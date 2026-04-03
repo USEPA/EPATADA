@@ -1711,13 +1711,13 @@ TADA_addPoints <- function(
 TADA_UniqueCharUnitSpeciation <- function(.data) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
-  
+
   required_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
@@ -1725,7 +1725,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     "TADA.ResultMeasure.MeasureUnitCode",
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
   )
-  
+
   # Ensure required columns exist (run autoclean if any are missing)
   if (!all(required_cols %in% colnames(.data))) {
     message(
@@ -1733,7 +1733,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     )
     .data <- TADA_AutoClean(.data)
   }
-  
+
   # Unique result units/speciation/char
   data.units.result <- .data |>
     dplyr::select(dplyr::any_of(c(
@@ -1743,21 +1743,23 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
       "TADA.MethodSpeciationName"
     ))) |>
     dplyr::distinct()
-  
+
   # Ensure speciation column exists
   if (!"TADA.MethodSpeciationName" %in% names(data.units.result)) {
     data.units.result$TADA.MethodSpeciationName <- NA_character_
   }
-  
+
   # Normalize unprefixed unit column to TADA-prefixed name if needed
-  if (!"TADA.ResultMeasure.MeasureUnitCode" %in% names(data.units.result) &&
-      "ResultMeasure.MeasureUnitCode" %in% names(data.units.result)) {
+  if (
+    !"TADA.ResultMeasure.MeasureUnitCode" %in% names(data.units.result) &&
+      "ResultMeasure.MeasureUnitCode" %in% names(data.units.result)
+  ) {
     data.units.result <- dplyr::rename(
       data.units.result,
       TADA.ResultMeasure.MeasureUnitCode = ResultMeasure.MeasureUnitCode
     )
   }
-  
+
   # Unique detection-limit units/speciation/char (optional; guard filters)
   data.units.det <- .data |>
     dplyr::select(dplyr::any_of(c(
@@ -1766,38 +1768,46 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
       "DetectionQuantitationLimitMeasure.MeasureUnitCode",
       "TADA.MethodSpeciationName"
     )))
-  
+
   if (ncol(data.units.det) > 0) {
     # Filter only when the detection-limit unit column is present
-    if ("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" %in% names(data.units.det)) {
+    if (
+      "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" %in%
+        names(data.units.det)
+    ) {
       data.units.det <- data.units.det |>
-        dplyr::filter(!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode))
+        dplyr::filter(
+          !is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
+        )
     }
-    data.units.det <- data.units.det |>
-      dplyr::distinct()
-    
+    data.units.det <- data.units.det |> dplyr::distinct()
+
     # Ensure speciation column exists
     if (!"TADA.MethodSpeciationName" %in% names(data.units.det)) {
       data.units.det$TADA.MethodSpeciationName <- NA_character_
     }
-    
+
     # Normalize detection-limit names to result-unit names for the join
-    if ("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" %in% names(data.units.det)) {
+    if (
+      "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" %in%
+        names(data.units.det)
+    ) {
       data.units.det <- dplyr::rename(
         data.units.det,
-        TADA.ResultMeasure.MeasureUnitCode =
-          TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
+        TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
       )
     }
-    if ("DetectionQuantitationLimitMeasure.MeasureUnitCode" %in% names(data.units.det)) {
+    if (
+      "DetectionQuantitationLimitMeasure.MeasureUnitCode" %in%
+        names(data.units.det)
+    ) {
       data.units.det <- dplyr::rename(
         data.units.det,
-        ResultMeasure.MeasureUnitCode =
-          DetectionQuantitationLimitMeasure.MeasureUnitCode
+        ResultMeasure.MeasureUnitCode = DetectionQuantitationLimitMeasure.MeasureUnitCode
       )
     }
   }
-  
+
   # Combine (result + detection-limit) by normalized names
   if (exists("data.units.det") && ncol(data.units.det) > 0) {
     data.units <- data.units.result |>
@@ -1817,15 +1827,17 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
       dplyr::distinct() |>
       dplyr::group_by(TADA.CharacteristicName)
   }
-  
+
   # Final validation: required columns for downstream usage
   if (!"TADA.CharacteristicName" %in% names(data.units)) {
     stop("Input .data must contain TADA.CharacteristicName.")
   }
   if (!"TADA.ResultMeasure.MeasureUnitCode" %in% names(data.units)) {
-    stop("Input .data must contain TADA.ResultMeasure.MeasureUnitCode or an alias normalized to it.")
+    stop(
+      "Input .data must contain TADA.ResultMeasure.MeasureUnitCode or an alias normalized to it."
+    )
   }
-  
+
   return(data.units)
 }
 
