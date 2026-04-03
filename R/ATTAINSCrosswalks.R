@@ -2581,7 +2581,7 @@ TADA_UsesForAnalysis <- function(
       openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
     }
     wb <- openxlsx::loadWorkbook(downloads_path)
-    
+
     # If a user chooses to rerun the TADA_UsesForAnalysis() function,
     # the sheet will already exist and error.
     tryCatch(
@@ -3458,7 +3458,8 @@ TADA_AssignUsesToWaterType <- function(
     }
     # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
     if (!is.null(AUMLRef)) {
-      message("TADA_AssignUsesToWaterType: org_id == 'All' was selected and an AUMLRef was provided. Returning all unique ATTAINS Organization Identifiers found in your AUMLRef."
+      message(
+        "TADA_AssignUsesToWaterType: org_id == 'All' was selected and an AUMLRef was provided. Returning all unique ATTAINS Organization Identifiers found in your AUMLRef."
       )
       org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
     }
