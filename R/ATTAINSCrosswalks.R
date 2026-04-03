@@ -621,7 +621,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
           ATTAINS.MonitoringDataLinkText = dplyr::if_else(
-            !is.na(.data$response.code) & .data$response.code == "^200$",
+            !is.na(.data$response.code) & .data$response.code == "200",
             .data$ATTAINS.MonitoringDataLinkText,
             NA_character_
           )
@@ -648,7 +648,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
           ATTAINS.MonitoringDataLinkText = dplyr::if_else(
-            !is.na(.data$response.code) & .data$response.code == "^200$",
+            !is.na(.data$response.code) & .data$response.code == "200",
             .data$ATTAINS.MonitoringDataLinkText,
             NA_character_
           )
@@ -844,6 +844,12 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
     }
   }
 
+  # Ensure ATTAINS.WaterType exists before final selection
+  if (!"ATTAINS.WaterType" %in% names(update.crosswalk)) {
+    update.crosswalk$ATTAINS.WaterType <- NA_character_
+    message("ATTAINS.WaterType is required but missing. Adding column and populating with NA")
+  }
+  
   # select relevant column names and ordering for output in TADA workflow format.
   update.crosswalk <- update.crosswalk |>
     dplyr::select(
@@ -1946,7 +1952,7 @@ TADA_UsesForAnalysis <- function(
 
     # Checks if paramRef argument contains a dataframe and necessary columns to proceed.
     if (is.null(paramRef)) {
-      stop(paste0("TADA.CreateUsesRef: No paramRef argument provided."))
+      stop("TADA_UsesForAnalysis: 'paramRef' is required.")
     }
 
     # If a user does not fill in ANY values for the crosswalk of ATTAINS.ParameterName.
@@ -1998,34 +2004,18 @@ TADA_UsesForAnalysis <- function(
     }
 
     # check to see if user-supplied parameter-use ref is a df with appropriate columns and is filled out.
-    if (!is.null(usesRef) & !is.character(usesRef)) {
+    if (!is.null(usesRef) && !is.character(usesRef)) {
       if (!is.data.frame(usesRef)) {
-        stop(paste0(
-          "TADA_UsesForAnalysis: 'usesRef' must be a data frame with these 3 columns:",
-          "ATTAINS.OrganizationIdentifier",
-          "ATTAINS.ParameterName, ATTAINS.UseName"
-        ))
+        stop("TADA_UsesForAnalysis: 'usesRef' must be a data frame.")
       }
-
-      if (is.data.frame(usesRef)) {
-        col.names <- c(
-          "ATTAINS.OrganizationIdentifier",
-          "ATTAINS.ParameterName",
-          "ATTAINS.UseName"
-        )
-
-        ref.names <- names(usesRef)
-
-        if (
-          length(setdiff(col.names, ref.names)) > 0 &&
-            !("TADA.ComparableDataIdentifier" %in% names(usesRef))
-        ) {
-          stop(paste0(
-            "TADA_UsesForAnalysis: 'usesRef' must be a data frame with these 3 columns:",
-            "ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier, ",
-            "ATTAINS.ParameterName, ATTAINS.UseName"
-          ))
-        }
+      required <- c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName")
+      missing <- setdiff(required, names(usesRef))
+      if (length(missing)) {
+        stop("TADA_UsesForAnalysis: 'usesRef' is missing required column(s): ",
+             paste(missing, collapse = ", "),
+             ". Required: ", paste(required, collapse = ", "),
+             ". IncludeOrExclude is optional (defaults to 'Include'). ",
+             "TADA.ComparableDataIdentifier is optional (will be joined from .data if needed).")
       }
     }
 
@@ -2040,7 +2030,7 @@ TADA_UsesForAnalysis <- function(
 
     # if both AUMLRef and AU_UsesRef are provided
     if (!is.null(AUMLRef) & !is.null(AU_UsesRef)) {
-      print(paste(
+      message(paste(
         "TADA_UsesForAnalysis: Both AUMLRef and AU_UsesRef are supplied.",
         "Filtering you AU_UsesRef by AU found in your AUMLRef if applicable."
       ))
@@ -2054,7 +2044,7 @@ TADA_UsesForAnalysis <- function(
 
     # If a user only provides an AU_MLRef, run TADA_AssignUsesToAU()
     if (!is.null(AUMLRef) & is.null(AU_UsesRef)) {
-      print(paste(
+      message(paste(
         "TADA_UsesForAnalysis: An AUMLRef was provided, pulling in all prior use names for these assessment unit's water type from prior ATTAINS assessment cycles for your defined org_id(s) as the default."
       ))
       # runs TADA_AssignUsesToAU to create the AU_UsesRef for this function
@@ -2094,7 +2084,7 @@ TADA_UsesForAnalysis <- function(
         dplyr::distinct()
 
       # prints message to indicate any uses not found in prior assessments for a parameter. Will assign all unique use names to it.
-      # print(
+      # message(
       #   paste(
       #     "TADA_UsesForAnalysis: Your user supplied AU_UsesRef contains",
       #     length(setdiff(ATTAINSParamUseOrgRef$ATTAINS.ParameterName, ATTAINSParamUseOrgRef_overlap$ATTAINS.ParameterName)),
@@ -2994,15 +2984,13 @@ TADA_AssignUsesToAU <- function(
   }
 
   # ensure correct column types for any user supplied dfs
-  if (exists(".data")) {
-    .data <- TADA_CorrectColType(.data)
-  }
-
-  if (exists("AU_UsesRef")) {
+  .data <- TADA_CorrectColType(.data)
+  
+  if (!is.null(AU_UsesRef)) {
     AU_UsesRef <- TADA_CorrectColType(AU_UsesRef)
   }
-
-  if (exists("waterUseRef")) {
+  
+  if (!is.null(waterUseRef)) {
     waterUseRef <- TADA_CorrectColType(waterUseRef)
   }
 
@@ -3048,35 +3036,36 @@ TADA_AssignUsesToAU <- function(
     ))
 
     # check to see if user-supplied AUMLRef is a df with appropriate columns and is filled out.
-    if (!is.null(AUMLRef) & !is.character(AUMLRef)) {
+    # AUMLRef validation (after)
+    if (!is.null(AUMLRef) && !is.character(AUMLRef)) {
       if (!is.data.frame(AUMLRef)) {
-        stop(paste0(
-          "TADA_AssignUsesToAU: 'AUMLRef' must be a data frame with these 3 columns:",
+        stop(
+          "TADA_AssignUsesToAU: 'AUMLRef' must be a data frame with these 3 columns: ",
           "ATTAINS.WaterType, ATTAINS.AssessmentUnitIdentifier, and ATTAINS.OrganizationIdentifier."
-        ))
-      }
-
-      if (is.data.frame(AUMLRef)) {
-        col.names <- c(
-          "ATTAINS.WaterType",
-          "ATTAINS.AssessmentUnitIdentifier",
-          "ATTAINS.OrganizationIdentifier"
         )
-
-        if (!any(col.names %in% names(AUMLRef))) {
-          stop(paste0(
-            "TADA_AssignUsesToAU: 'AUMLRef' must be a data frame with these 3 columns:",
-            "ATTAINS.WaterType, ATTAINS.OrganizationIdentifier and ATTAINS.AssessmentUnitIdentifier"
-          ))
-        }
-
-        AULMLRef <- AUMLRef |>
-          dplyr::select(
-            ATTAINS.AssessmentUnitIdentifier,
-            ATTAINS.WaterType,
-            ATTAINS.OrganizationIdentifier
-          )
       }
+      
+      required_cols <- c(
+        "ATTAINS.WaterType",
+        "ATTAINS.AssessmentUnitIdentifier",
+        "ATTAINS.OrganizationIdentifier"
+      )
+      missing_cols <- setdiff(required_cols, names(AUMLRef))
+      if (length(missing_cols) > 0) {
+        stop(
+          "TADA_AssignUsesToAU: 'AUMLRef' is missing required column(s): ",
+          paste(missing_cols, collapse = ", "),
+          ". Required columns: ",
+          paste(required_cols, collapse = ", ")
+        )
+      }
+      
+      AUMLRef <- AUMLRef |>
+        dplyr::select(
+          ATTAINS.AssessmentUnitIdentifier,
+          ATTAINS.WaterType,
+          ATTAINS.OrganizationIdentifier
+        )
     }
 
     # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
@@ -4054,7 +4043,6 @@ TADA_MLSummary <- function(
             ATTAINS.WaterType = ATTAINS.WaterType.y,
             SaltFresh,
             DepthCategory,
-            DepthCategory,
             LongitudeMeasure,
             LatitudeMeasure,
             TADA.ParameterInSite.Flag,
@@ -4160,8 +4148,31 @@ TADA_MLSummary <- function(
       ))
     }
 
+    # Create workbook if it doesn't exist yet
+    if (!file.exists(downloads_path)) {
+      wb <- openxlsx::createWorkbook()
+      openxlsx::addWorksheet(wb, "Index", visible = FALSE)
+      # Seed Include/Exclude list at column I (to match the validation range)
+      openxlsx::writeData(
+        wb, "Index", startCol = 9,
+        x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
+      )
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
+    }
+    
+    # Load workbook
     wb <- openxlsx::loadWorkbook(downloads_path)
-
+    
+    # Ensure "Index" sheet exists and is populated with Include/Exclude
+    if (!"Index" %in% openxlsx::sheets(wb)) {
+      openxlsx::addWorksheet(wb, "Index", visible = FALSE)
+      openxlsx::writeData(
+        wb, "Index", startCol = 9,
+        x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
+      )
+    }
+    
+    # If a user chooses to rerun the function, handle sheet existence
     tryCatch(
       {
         openxlsx::addWorksheet(wb, "CreateMLSummaryRef")
