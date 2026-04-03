@@ -1037,6 +1037,9 @@ TADA_DefineCriteriaMethodology <- function(
         }
       }
 
+      # Identify all unique TADA.CharacteristicName present in the data
+      unique_param <- unique(.data$TADA.CharacteristicName)
+      
       # What WQP Characteristic names did the user supplied table miss?
       non_definedCriteria <- criteriaMethods |>
         dplyr::filter(is.na(ATTAINS.ParameterName)) |>
@@ -1133,17 +1136,6 @@ TADA_DefineCriteriaMethodology <- function(
         }
       )
       
-      # Normalize season text (optional)
-      normalize_season <- function(x) {
-        x <- trimws(x)
-        x[x == ""] <- NA_character_
-        x
-      }
-      non_definedCriteria$SeasonStartDate <- normalize_season(non_definedCriteria$SeasonStartDate)
-      non_definedCriteria$SeasonEndDate   <- normalize_season(non_definedCriteria$SeasonEndDate)
-      definedCriteria$SeasonStartDate     <- normalize_season(definedCriteria$SeasonStartDate)
-      definedCriteria$SeasonEndDate       <- normalize_season(definedCriteria$SeasonEndDate)
-
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
         dplyr::select(
           ATTAINS.OrganizationIdentifier,
