@@ -1583,35 +1583,37 @@ TADA_DefineCriteriaMethodology <- function(
 
     # Build an allowed UseName list (non-NA) from the table you’re writing
     # If none are available, you can substitute an org-specific list as a fallback.
-    use_list <- sort(unique(stats::na.omit(DefineCriteriaMethodology$ATTAINS.UseName)))
-    
+    use_list <- sort(unique(stats::na.omit(
+      DefineCriteriaMethodology$ATTAINS.UseName
+    )))
+
     # Write the UseName list into Index-Criteria at a free column (Q = startCol 17)
     openxlsx::writeData(
       wb,
       "Index-Criteria",
-      startCol = 17,  # Column Q
+      startCol = 17, # Column Q
       startRow = 1,
       x = data.frame(ATTAINS.UseName = use_list)
     )
-    
+
     # ParameterName (FIXED: apply to column 2)
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
-      cols = 2,  # ATTAINS.ParameterName
+      cols = 2, # ATTAINS.ParameterName
       rows = 2:1000,
       type = "list",
-      value = sprintf("'Index'!$E$2:$E$60000"),  # keep as-is if Index exists
+      value = sprintf("'Index'!$E$2:$E$60000"), # keep as-is if Index exists
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
-    
+
     # UseName (FIXED: apply to column 3; point to the UseName list we just wrote in column Q)
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
-      cols = 3,  # ATTAINS.UseName
+      cols = 3, # ATTAINS.UseName
       rows = 2:1000,
       type = "list",
       value = sprintf("'Index-Criteria'!$Q$2:$Q$1000"),
@@ -1619,12 +1621,12 @@ TADA_DefineCriteriaMethodology <- function(
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
-    
+
     # TADA.ComparableDataIdentifier (FIXED: apply to column 4)
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
-      cols = 4,  # TADA.ComparableDataIdentifier
+      cols = 4, # TADA.ComparableDataIdentifier
       rows = 2:1000,
       type = "list",
       value = sprintf("'Index-Criteria'!$F$2:$F$1000"),
