@@ -400,8 +400,15 @@ test_that("org_id = 'All' uses AUMLRef orgs without external calls", {
 })
 
 test_that("USEPA only with no .data returns EPA304a rows (when available)", {
-  epa_file <- system.file("extdata", "EPA304a_criteria_table.csv", package = "EPATADA")
-  skip_if_not(nzchar(epa_file) && file.exists(epa_file), "EPA304a table not found")
+  epa_file <- system.file(
+    "extdata",
+    "EPA304a_criteria_table.csv",
+    package = "EPATADA"
+  )
+  skip_if_not(
+    nzchar(epa_file) && file.exists(epa_file),
+    "EPA304a table not found"
+  )
   res <- TADA_DefineCriteriaMethodology(org_id = "USEPA", excel = FALSE)
   expect_true(is.data.frame(res))
   expect_true(nrow(res) >= 0) # not asserting non-empty to be robust to local data
@@ -488,7 +495,8 @@ test_that("criteriaMethods warnings appear for missing crosswalks (displayUnique
     TADA.ResultMeasure.MeasureUnitCode = c("mg/L", "mg/L"),
     stringsAsFactors = FALSE
   )
-  cm <- data.frame(  # only defines CHAR_A; CHAR_B is missing on purpose
+  cm <- data.frame(
+    # only defines CHAR_A; CHAR_B is missing on purpose
     ATTAINS.OrganizationIdentifier = "ORGX",
     ATTAINS.ParameterName = "PARAM_X",
     ATTAINS.UseName = "USE1",
@@ -584,9 +592,12 @@ test_that("final formatting preserves a single NA UseName summary row", {
     excel = FALSE
   )
   # Expect exactly one NA UseName row for this characteristic/param/org
-  sub <- subset(res2, is.na(ATTAINS.UseName) &
-                  ATTAINS.OrganizationIdentifier == "ORGX" &
-                  ATTAINS.ParameterName == "PARAM_X" &
-                  TADA.CharacteristicName == "CHAR_A")
+  sub <- subset(
+    res2,
+    is.na(ATTAINS.UseName) &
+      ATTAINS.OrganizationIdentifier == "ORGX" &
+      ATTAINS.ParameterName == "PARAM_X" &
+      TADA.CharacteristicName == "CHAR_A"
+  )
   expect_true(nrow(sub) <= 1)
 })

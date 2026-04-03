@@ -554,12 +554,14 @@ TADA_DefineCriteriaMethodology <- function(
 
       # Compute safe vectors in the function environment (avoid rlang .data pronoun)
       org_id_vec <- unique(as.character(org_id))
-      ids_vec <- if (!missing(.data) && "TADA.ComparableDataIdentifier" %in% names(.data)) {
+      ids_vec <- if (
+        !missing(.data) && "TADA.ComparableDataIdentifier" %in% names(.data)
+      ) {
         unique(.data[["TADA.ComparableDataIdentifier"]])
       } else {
         unique(MLSummaryRef[["TADA.ComparableDataIdentifier"]])
       }
-      
+
       # Creates the DefineCriteriaMethodology table from the MLSummaryRef.
       DefineCriteriaMethodology <- MLSummaryRef |>
         dplyr::select(
@@ -639,7 +641,10 @@ TADA_DefineCriteriaMethodology <- function(
             TADA.ComparableDataIdentifier = ids_vec,
             ATTAINS.OrganizationIdentifier = org_id_vec
           ),
-          by = c("TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier")
+          by = c(
+            "TADA.ComparableDataIdentifier",
+            "ATTAINS.OrganizationIdentifier"
+          )
         ) |>
         dplyr::distinct()
 
@@ -954,8 +959,17 @@ TADA_DefineCriteriaMethodology <- function(
               ),
               # Don’t infer “Yes” just because magnitudes are missing
               EquationBased = dplyr::if_else(
-                dplyr::if_any(dplyr::any_of(c("CST.StdPollutantName", "CST.Use")), ~ !is.na(.x)) &
-                  dplyr::if_all(dplyr::all_of(c("MagnitudeValueLower", "MagnitudeValueUpper")), ~ is.na(.x)),
+                dplyr::if_any(
+                  dplyr::any_of(c("CST.StdPollutantName", "CST.Use")),
+                  ~ !is.na(.x)
+                ) &
+                  dplyr::if_all(
+                    dplyr::all_of(c(
+                      "MagnitudeValueLower",
+                      "MagnitudeValueUpper"
+                    )),
+                    ~ is.na(.x)
+                  ),
                 "Yes",
                 "No",
                 missing = "No"
@@ -998,7 +1012,7 @@ TADA_DefineCriteriaMethodology <- function(
         "TADA.CharacteristicName",
         "TADA.ComparableDataIdentifier"
       )])
-      
+
       TADA_param <- tidyr::crossing(
         TADA_param,
         ATTAINS.OrganizationIdentifier = as.character(org_id)
@@ -1106,17 +1120,25 @@ TADA_DefineCriteriaMethodology <- function(
           }
         }
       )
-      
+
       # Normalize season text (optional)
       normalize_season <- function(x) {
         x <- trimws(x)
         x[x == ""] <- NA_character_
         x
       }
-      non_definedCriteria$SeasonStartDate <- normalize_season(non_definedCriteria$SeasonStartDate)
-      non_definedCriteria$SeasonEndDate   <- normalize_season(non_definedCriteria$SeasonEndDate)
-      definedCriteria$SeasonStartDate     <- normalize_season(definedCriteria$SeasonStartDate)
-      definedCriteria$SeasonEndDate       <- normalize_season(definedCriteria$SeasonEndDate)
+      non_definedCriteria$SeasonStartDate <- normalize_season(
+        non_definedCriteria$SeasonStartDate
+      )
+      non_definedCriteria$SeasonEndDate <- normalize_season(
+        non_definedCriteria$SeasonEndDate
+      )
+      definedCriteria$SeasonStartDate <- normalize_season(
+        definedCriteria$SeasonStartDate
+      )
+      definedCriteria$SeasonEndDate <- normalize_season(
+        definedCriteria$SeasonEndDate
+      )
 
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
         dplyr::select(
@@ -1268,7 +1290,7 @@ TADA_DefineCriteriaMethodology <- function(
       }
       file.path(base_dir, filename)
     }
-    
+
     downloads_path <- get_downloads_path("myfileRef.xlsx")
 
     if (!file.exists(downloads_path)) {
@@ -1406,9 +1428,16 @@ TADA_DefineCriteriaMethodology <- function(
     )
 
     wt <- unique(Org.WaterTypeList$ATTAINS.WaterType)
-    if (length(wt) == 0) wt <- NA_character_
-    openxlsx::writeData(wb, "Index-Criteria", startCol = 10, startRow = 1,
-                        x = data.frame(ATTAINS.WaterType = wt))
+    if (length(wt) == 0) {
+      wt <- NA_character_
+    }
+    openxlsx::writeData(
+      wb,
+      "Index-Criteria",
+      startCol = 10,
+      startRow = 1,
+      x = data.frame(ATTAINS.WaterType = wt)
+    )
 
     openxlsx::writeData(
       wb,
@@ -1866,8 +1895,8 @@ TADA_DefineCriteriaMethodology <- function(
     } else {
       if (file.exists(downloads_path)) {
         base <- tools::file_path_sans_ext(downloads_path)
-        ext  <- tools::file_ext(downloads_path)
-        ts   <- format(Sys.time(), "%Y%m%d_%H%M%S")
+        ext <- tools::file_ext(downloads_path)
+        ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
         save_path <- sprintf("%s_%s.%s", base, ts, ext)
         openxlsx::saveWorkbook(wb, save_path, overwrite = FALSE)
         message("Saved as: ", save_path)
@@ -1875,10 +1904,10 @@ TADA_DefineCriteriaMethodology <- function(
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = FALSE)
       }
     }
-    
+
     # Write the Data Dictionary to the same workbook
     TADA_CriteriaDataDictionary(save_path)
-    
+
     cat("File saved to:", gsub("/", "\\\\", save_path), "\n")
   }
   DefineCriteriaMethodology <- suppressWarnings(TADA_CorrectColType(
@@ -1902,12 +1931,14 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       od_dir <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads")
       win_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
       base_dir <- if (dir.exists(od_dir)) od_dir else win_dir
-      if (!dir.exists(base_dir)) base_dir <- path.expand("~/Downloads")
+      if (!dir.exists(base_dir)) {
+        base_dir <- path.expand("~/Downloads")
+      }
       file.path(base_dir, filename)
     }
     downloads_path <- get_downloads_path("myfileRef.xlsx")
   }
-  
+
   if (!file.exists(downloads_path)) {
     wb <- openxlsx::createWorkbook()
     openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
@@ -1915,14 +1946,11 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
   }
   wb <- openxlsx::loadWorkbook(downloads_path)
-  
-  tryCatch(
-    openxlsx::addWorksheet(wb, "DataDictionary"),
-    error = function(e) {
-      openxlsx::removeWorksheet(wb, "DataDictionary")
-      openxlsx::addWorksheet(wb, "DataDictionary")
-    }
-  )
+
+  tryCatch(openxlsx::addWorksheet(wb, "DataDictionary"), error = function(e) {
+    openxlsx::removeWorksheet(wb, "DataDictionary")
+    openxlsx::addWorksheet(wb, "DataDictionary")
+  })
 
   # Example data frame
   data_to_write <- data.frame(
