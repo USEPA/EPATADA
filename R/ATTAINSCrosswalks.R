@@ -420,8 +420,8 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
           ATTAINS.MonitoringDataLinkText = MS_DATA_LINK
         ) |>
         dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id)
-
-      wat.types <- au.info <- spsUtil::quiet(rExpertQuery::EQ_AUsMLs(
+      
+      wat.types <- spsUtil::quiet(rExpertQuery::EQ_AUsMLs(
         org_id = org_id,
         api_key = api_key
       )) |>
@@ -431,7 +431,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
           ATTAINS.WaterType = waterType
         ) |>
         dplyr::distinct()
-
+      
       crosswalk <- crosswalk |>
         dplyr::left_join(
           wat.types,
