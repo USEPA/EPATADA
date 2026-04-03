@@ -1962,7 +1962,7 @@ TADA_UsesForAnalysis <- function(
     # therefore we will allow users to proceed in this case.
     if (sum(!is.na(paramRef$ATTAINS.ParameterName)) == 0) {
       warning(paste0(
-        "No values were found in ATTAINS.ParameterName. ",
+        "TADA_UsesForAnalysis: No values were found in ATTAINS.ParameterName. ",
         "Please ensure that you have inputted all field values of interest in the ",
         "ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function."
       ))
@@ -1973,7 +1973,7 @@ TADA_UsesForAnalysis <- function(
     # there is no crosswalk, but leaving it blank will be treated similarly.
     if (sum(is.na(paramRef$ATTAINS.ParameterName)) > 1) {
       message(paste0(
-        "TADA_UsesForAnalysis: NAs were found in ATTAINS.ParameterName. ",
+        "TADA_UsesForAnalysis: NAs were found in ATTAINS.ParameterName. \n",
         "                      Please ensure that you have inputted all field values of interest in \n",
         "                      the ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function."
       ))

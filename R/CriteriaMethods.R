@@ -649,13 +649,13 @@ TADA_DefineCriteriaMethodology <- function(
             dplyr::mutate(dplyr::across(where(is.character), toupper))
 
           # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
-          message(paste(
-            "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.",
-            "Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.",
-            "Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.",
-            "If an ATTAINS.ParameterName and ATTAINS.UseName alias was found, populating these rows with the CST magnitude values.",
-            "A many-to-many match is likely. User review is needed to ensure the proper parameter and uses from ATTAINS and CST alias crosswalk was accomplished (remove or add rows as needed).",
-            sep = "\n"
+          message(paste0(
+            "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.\n",
+            "                                Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.\n",
+            "                                Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.\n",
+            "                                If an ATTAINS.ParameterName and ATTAINS.UseName alias was found, populating these rows with the CST magnitude values.\n",
+            "                                A many-to-many match is likely. User review is needed to ensure the proper parameter and uses \n",
+            "                                from ATTAINS and CST alias crosswalk was accomplished (remove or add rows as needed)."
           ))
 
           # pulls in uses alias table between ATTAINS.UseName and CST uses
