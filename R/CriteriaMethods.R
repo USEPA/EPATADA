@@ -278,9 +278,10 @@ TADA_DefineCriteriaMethodology <- function(
     }
 
     # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
-    if (!is.character(org_id) & is.null(org_id)) {
+    if (is.null(org_id)) {
       org_id <- ""
     }
+    
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
     if (tolower("all") %in% tolower(org_id)) {
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
@@ -771,9 +772,9 @@ TADA_DefineCriteriaMethodology <- function(
             tidyr::separate(
               col = CRITERION_VALUE,
               into = c("MagnitudeValueLower", "MagnitudeValueUpper"),
-              sep = "-", # Split by " - "
+              sep = "\\s*-\\s*", # robust to spaces around the dash
               fill = "left",
-              convert = TRUE, # Automatically convert to the appropriate type (numeric)
+              convert = TRUE,
               extra = "drop"
             ) |>
             # convert CST columns to TADA criteria column name
@@ -961,7 +962,8 @@ TADA_DefineCriteriaMethodology <- function(
         TADA_CorrectColType(DefineCriteriaMethodology)
       ) |>
         dplyr::filter(!is.na(TADA.CharacteristicName))
-
+    }
+    
     # User wants to populate the criteria table using a user supplied table.
     # This option will prioritize a user-supplied table, but will include
     # all rows for any missing WQP Characteristic (or TADA.ComparableDataIdenftifier)
@@ -1169,13 +1171,12 @@ TADA_DefineCriteriaMethodology <- function(
       ))
 
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-        dplyr::mutate(TADA.ComparableDataIdentifier = NA) |>
+        dplyr::mutate(TADA.ComparableDataIdentifier = NA_character_) |>
         dplyr::arrange(
           ATTAINS.OrganizationIdentifier != "USEPA",
           ATTAINS.OrganizationIdentifier,
           ATTAINS.UseName
         ) |>
-        # tidyr::drop_na(ATTAINS.ParameterName) |>
         dplyr::distinct()
     }
   }
@@ -1588,7 +1589,7 @@ if ("USEPA" %in% org_id) {
       )
     }
 
-    # ParameterName (FIXED: apply to column 2)
+    # ParameterName (apply validation to column 2)
     sheets <- openxlsx::sheetNames(wb)
     if (!("Index" %in% sheets)) {
       param_list <- sort(unique(stats::na.omit(
@@ -1601,8 +1602,8 @@ if ("USEPA" %in% org_id) {
         startRow = 1, # P
         x = data.frame(ATTAINS.ParameterName = param_list)
       )
-      param_len <- nrow(openxlsx::readWorkbook(wb, sheet = "Index-Criteria")[, "ATTAINS.ParameterName", drop = FALSE])
-      param_validation_ref <- sprintf("'Index-Criteria'!$P$2:$P$%d", max(2L, param_len + 1L))
+      param_len <- length(param_list)
+      param_validation_ref <- sprintf("'Index-Criteria'!$P$2:$P$%d", param_len + 1L)
     } else {
       param_validation_ref <- "'Index'!$E$2:$E$60000"
     }
@@ -1857,9 +1858,9 @@ if ("USEPA" %in% org_id) {
 
     if (overwrite == FALSE) {
       warning(
-        "If you would like to replace the file, use overwrite = TRUE argument in TADA_ParametersForAnalysis"
+        "If you would like to replace the file, call TADA_DefineCriteriaMethodology(..., overwrite = TRUE)."
       )
-      openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = FALSE)
     }
 
     TADA_CriteriaDataDictionary()
@@ -2079,13 +2080,13 @@ TADA_CriteriaDataDictionary <- function() {
       # TADA.MethodSpeciationName
       "If TADA.ComparableDataIdentifier is blank, this will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified speciation.",
       # ATTAINS.WaterType
-      "The name of the waterbody type associated with an Assessment Unit from the ATTAINS domain value. These values will only be avaialble if a sites to ATTAINS Assessment Units crosswalk is provided.",
+      "The name of the waterbody type associated with an Assessment Unit from the ATTAINS domain value. These values will only be available if a sites-to-ATTAINS Assessment Units crosswalk is provided.",
       # SaltFresh
       "The salt or freshwater classification of the ATTAINS Waterbody Type. Users should specify if a standard only applies to salt or freshwater types.",
       # DepthCategory
       "The depth within water column that a standard applies to if applicable. Users can run TADA.FlagDepthCategory to populate this entry (or can specify a specific unit measurement?).",
       # UniqueSpatialCriteria
-      "Users should specify any monitoring location sites that may contain a unique spatial critieria for a parameter or use in CreateMLSummaryRef.",
+      "Users should specify any monitoring location sites that may contain a unique spatial criteria for a parameter or use in CreateMLSummaryRef.",
       # AcuteChronic
       "If a parameter and use depends depends on differing criteria standards for acute or chronic conditions. Acute is defined as short term while chronic is long term.",
       # EquationBased
@@ -2125,7 +2126,7 @@ TADA_CriteriaDataDictionary <- function() {
       # DistrMinSample
       "How many samples must be collected during each specified DistrPeriod",
       # Notes
-      "Additonal free form notes column for any notes that must be considered for this parameter and use that may not be able to be captured in the TADA criteria table format."
+      "Additional free form notes column for any notes that must be considered for this parameter and use that may not be able to be captured in the TADA criteria table format."
     )
   )
 
