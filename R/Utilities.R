@@ -2683,7 +2683,7 @@ TADA_GetCriteriaFiles <- function(pkg = "TADACommunityHub", branch = "main") {
     pkgload::unload("TADACommunityHub")
 
     # Install remotes if the package doesn't already have remotes
-    install.packages("remotes")
+    utils::install.packages("remotes")
 
     # Install specific branch
     remotes::install_github(
