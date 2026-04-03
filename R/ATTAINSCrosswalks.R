@@ -620,12 +620,13 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
-          ATTAINS.MonitoringDataLinkText = ifelse(
-            stringr::str_detect(response.code, "200"),
-            ATTAINS.MonitoringDataLinkText.New,
-            NA
+          ATTAINS.MonitoringDataLinkText = dplyr::ifelse(
+            !is.na(.data$response.code) & .data$response.code == "200",
+            .data$ATTAINS.MonitoringDataLinkText,
+            NA_character_
           )
-        )
+        ) |>
+        dplyr::select(-dplyr::any_of("response.code"))
     }
   }
 
@@ -646,12 +647,13 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
-          ATTAINS.MonitoringDataLinkText = ifelse(
-            stringr::str_detect(response.code, "200"),
-            ATTAINS.MonitoringDataLinkText.New,
-            NA
+          ATTAINS.MonitoringDataLinkText = dplyr::if_else(
+            !is.na(.data$response.code) & .data$response.code == "200",
+            .data$ATTAINS.MonitoringDataLinkText,
+            NA_character_
           )
-        )
+        ) |>
+        dplyr::select(-dplyr::any_of("response.code"))
     }
   }
 
@@ -2986,8 +2988,8 @@ TADA_AssignUsesToAU <- function(
   overwrite = FALSE,
   api_key = NULL
 ) {
-  # get default api_key if user does not supply one
-  if (is.null(api_key)) {
+  # Resolve API key from options/env, else hard-coded default
+  if (is.null(api_key) || !nzchar(api_key)) {
     api_key <- .setEQKey()
   }
 
@@ -3420,8 +3422,8 @@ TADA_AssignUsesToWaterType <- function(
   AUMLRef = NULL,
   api_key = NULL
 ) {
-  # get default api_key if user does not supply one
-  if (is.null(api_key)) {
+  # Resolve API key from options/env, else hard-coded default
+  if (is.null(api_key) || !nzchar(api_key)) {
     api_key <- .setEQKey()
   }
 
@@ -3448,9 +3450,6 @@ TADA_AssignUsesToWaterType <- function(
       org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
     }
   }
-
-  # rExpertQuery API key for TADA
-  tadakey <- "EKtgCrmatyP4G8iFgADMIfwlddbpDlSqRxetlN09"
 
   # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
   load(system.file("extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"))
