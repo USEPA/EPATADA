@@ -3437,22 +3437,18 @@ TADA_AssignUsesToWaterType <- function(
   if (tolower("all") %in% tolower(org_id)) {
     # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
     if (is.null(AUMLRef)) {
-      message(
-        paste0(
-          "TADA_AssignUsesToWaterType: org_id == 'All' was selected.\n",
-          "  Returning all uses and watertypes from prior ATTAINS assessment cycles for all ATTAINS Organization Identifiers."
-        )
-      )
+      message(paste0(
+        "TADA_AssignUsesToWaterType: org_id == 'All' was selected.\n",
+        "  Returning all uses and watertypes from prior ATTAINS assessment cycles for all ATTAINS Organization Identifiers."
+      ))
       org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
     }
     # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
     if (!is.null(AUMLRef)) {
-      message(
-        paste0(
-          "TADA_AssignUsesToWaterType: org_id == 'All' was selected and an AUMLRef was provided.\n",
-          "  Returning all uses and watertypes from prior ATTAINS assessment cycles for the ATTAINS Organization Identifiers found in your AUMLRef."
-        )
-      )
+      message(paste0(
+        "TADA_AssignUsesToWaterType: org_id == 'All' was selected and an AUMLRef was provided.\n",
+        "  Returning all uses and watertypes from prior ATTAINS assessment cycles for the ATTAINS Organization Identifiers found in your AUMLRef."
+      ))
       org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
     }
   }

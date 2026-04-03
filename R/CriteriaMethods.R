@@ -845,7 +845,9 @@ TADA_DefineCriteriaMethodology <- function(
             dplyr::filter(!is.na(Code))
 
           # identify the unit ref of the .data
-          unitRef <- suppressMessages(suppressWarnings(TADA_CreateUnitRef(.data)))
+          unitRef <- suppressMessages(suppressWarnings(TADA_CreateUnitRef(
+            .data
+          )))
 
           # remove scientific notation in output
           options(scipen = 999)
