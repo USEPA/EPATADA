@@ -621,7 +621,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
           ATTAINS.MonitoringDataLinkText = dplyr::if_else(
-            !is.na(.data$response.code) & .data$response.code == "200",
+            !is.na(.data$response.code) & .data$response.code == "^200$",
             .data$ATTAINS.MonitoringDataLinkText,
             NA_character_
           )
@@ -648,7 +648,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
           ATTAINS.MonitoringDataLinkText = dplyr::if_else(
-            !is.na(.data$response.code) & .data$response.code == "200",
+            !is.na(.data$response.code) & .data$response.code == "^200$",
             .data$ATTAINS.MonitoringDataLinkText,
             NA_character_
           )
@@ -686,7 +686,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
           ATTAINS.MonitoringDataLinkText.New = ifelse(
-            stringr::str_detect(response.code, "200"),
+            stringr::str_detect(response.code, "^200$"),
             ATTAINS.MonitoringDataLinkText.New,
             NA
           )
@@ -775,7 +775,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
           ATTAINS.MonitoringDataLinkText.New = ifelse(
-            stringr::str_detect(response.code, "200"),
+            stringr::str_detect(response.code, "^200$"),
             ATTAINS.MonitoringDataLinkText.New,
             NA
           )
