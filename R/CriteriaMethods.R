@@ -1028,36 +1028,46 @@ TADA_DefineCriteriaMethodology <- function(
     # all rows for any missing WQP Characteristic (or TADA.ComparableDataIdentifier)
     # generated from the auto_assign default values. Users may also append epa 304a values.
     if (!is.null(criteriaMethods)) {
-      # If user specifies org_id = NULL (handled upstream in this function).
-      # Users who may want to do the ATTAINS crosswalk later on in the process, can choose to
-      # specify org_id = NULL and to decide how to populate on their own after analysis.
-      if ("" %in% org_id) {
-        criteriaMethods$ATTAINS.OrganizationIdentifier <- ""
+      # If org_id includes the empty string placeholder, do not overwrite user-supplied orgs.
+      # Only add the column if missing; preserve NA values.
+      if ("" %in% org_id && !"ATTAINS.OrganizationIdentifier" %in% names(criteriaMethods)) {
+        criteriaMethods$ATTAINS.OrganizationIdentifier <- NA_character_
       }
-
+      
       criteriaMethods$ATTAINS.ParameterName <- toupper(
         criteriaMethods$ATTAINS.ParameterName
       )
-
-      # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
-      # Generate all combinations of ComparableDataIdentifier x org_id
+      
+      # Build a param frame from .data; choose join keys based on org_id presence
       TADA_param <- dplyr::distinct(.data[, c(
         "TADA.CharacteristicName",
         "TADA.ComparableDataIdentifier"
       )])
-
-      TADA_param <- tidyr::crossing(
-        TADA_param,
-        ATTAINS.OrganizationIdentifier = as.character(org_id)
-      )
-
+      
+      if (length(org_id) == 1L && identical(org_id, "")) {
+        # No org constraint: allow NA org in the join, do not expand by org_id
+        join_by_cols <- c("TADA.CharacteristicName")
+      } else {
+        # Expand across provided org_id values
+        TADA_param <- tidyr::crossing(
+          TADA_param,
+          ATTAINS.OrganizationIdentifier = as.character(org_id)
+        )
+        join_by_cols <- c("ATTAINS.OrganizationIdentifier", "TADA.CharacteristicName")
+      }
+      
       criteriaMethods <- criteriaMethods |>
         dplyr::select(-dplyr::any_of("TADA.ComparableDataIdentifier")) |>
         dplyr::full_join(
           TADA_param,
-          by = c("ATTAINS.OrganizationIdentifier", "TADA.CharacteristicName")
-        ) |>
-        dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
+          by = join_by_cols
+        )
+      
+      # Only filter to org_id when org_id is not the empty-string placeholder
+      if (!("" %in% org_id)) {
+        criteriaMethods <- criteriaMethods |>
+          dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
+      }
 
       # 2. Identify missing columns
       missing_cols <- setdiff(desired_cols, names(criteriaMethods))
