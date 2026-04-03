@@ -2871,10 +2871,10 @@ TADA_LoadCriteriaFile <- function(
   }
 
   df <- openxlsx::read.xlsx(file_path)
-  
+
   # create a dummy reference to a TADACommunityHub function, Rmd checks will create a warning if no reference to any functions are made from an Imports package.
   temp <- TADACommunityHub::validateATTAINSParam(df)
   rm(temp)
-  
+
   return(df)
 }
