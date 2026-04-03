@@ -1973,9 +1973,9 @@ TADA_UsesForAnalysis <- function(
     # there is no crosswalk, but leaving it blank will be treated similarly.
     if (sum(is.na(paramRef$ATTAINS.ParameterName)) > 1) {
       message(paste0(
-        "NAs were found in ATTAINS.ParameterName. ",
-        "Please ensure that you have inputted all field values of interest in ",
-        "the ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function."
+        "TADA_UsesForAnalysis: NAs were found in ATTAINS.ParameterName. ",
+        "                      Please ensure that you have inputted all field values of interest in \n",
+        "                      the ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function."
       ))
     }
 
@@ -1983,8 +1983,8 @@ TADA_UsesForAnalysis <- function(
     if (!is.null(paramRef) & !is.character(paramRef)) {
       if (!is.data.frame(paramRef)) {
         stop(paste0(
-          "TADA_UsesForAnalysis: 'paramRef' must be a data frame with these 2 columns:",
-          "TADA.ComparableDataIdentifier and ATTAINS.ParameterName."
+          "TADA_UsesForAnalysis: 'paramRef' must be a data frame with these 2 columns:\n",
+          "                      TADA.ComparableDataIdentifier and ATTAINS.ParameterName."
         ))
       }
 

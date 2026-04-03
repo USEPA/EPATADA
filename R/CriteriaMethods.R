@@ -649,14 +649,14 @@ TADA_DefineCriteriaMethodology <- function(
             dplyr::mutate(dplyr::across(where(is.character), toupper))
 
           # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
-          message(cat(paste(
+          message(paste(
             "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.",
             "Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.",
             "Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.",
             "If an ATTAINS.ParameterName and ATTAINS.UseName alias was found, populating these rows with the CST magnitude values.",
             "A many-to-many match is likely. User review is needed to ensure the proper parameter and uses from ATTAINS and CST alias crosswalk was accomplished (remove or add rows as needed).",
             sep = "\n"
-          )))
+          ))
 
           # pulls in uses alias table between ATTAINS.UseName and CST uses
           uses <- utils::read.csv(system.file(
@@ -732,9 +732,13 @@ TADA_DefineCriteriaMethodology <- function(
                 CharacteristicName %in%
                   stats::na.omit(unique(
                     DefineCriteriaMethodology$TADA.CharacteristicName
+                  )) &
+                ATTAINS.ParameterName %in%
+                  stats::na.omit(unique(
+                    DefineCriteriaMethodology$ATTAINS.ParameterName
                   ))
               ),
-              by = c("STD_POLLUTANT_NAME")
+              by = c("POLLUTANT_NAME", "STD_POLLUTANT_NAME")
             ) |>
             dplyr::right_join(
               dplyr::filter(
@@ -846,7 +850,7 @@ TADA_DefineCriteriaMethodology <- function(
             dplyr::filter(!is.na(Code))
 
           # identify the unit ref of the .data
-          unitRef <- suppressWarnings(TADA_CreateUnitRef(.data))
+          unitRef <- suppressMessages(TADA_CreateUnitRef(.data))
 
           # remove scientific notation in output
           options(scipen = 999)
@@ -1031,32 +1035,30 @@ TADA_DefineCriteriaMethodology <- function(
         as.data.frame()
 
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == TRUE) {
-        warning(paste(
-          "Your user supplied criteriaMethods file is missing",
+        message(paste0(
+          "Your user supplied criteriaMethods file is missing ",
           length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
-          "unique TADA.ComparableDataIdentifier(s)",
-          ":\n",
+          " unique TADA.ComparableDataIdentifier(s):\n    ",
           paste(
             unique(non_definedCriteria$TADA.ComparableDataIdentifier),
             collapse = ", "
           ),
-          "without an ATTAINS.ParameterName crosswalk.\n",
-          "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
+          "\n",
+          "without an ATTAINS.ParameterName crosswalk."
         ))
       }
 
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == FALSE) {
-        warning(paste(
-          "Your user supplied criteriaMethods file is missing",
+        message(paste0(
+          "Your user supplied criteriaMethods file is missing ",
           length(unique(non_definedCriteria$TADA.CharacteristicName)),
-          "unique TADA.CharacteristicName(s)",
-          ":\n",
+          " unique TADA.CharacteristicName(s):\n    ",
           paste(
             unique(non_definedCriteria$TADA.CharacteristicName),
             collapse = ", "
           ),
-          "without an ATTAINS.ParameterName crosswalk.\n",
-          "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
+          "\n",
+          "without an ATTAINS.ParameterName crosswalk."
         ))
       }
 
@@ -1064,7 +1066,7 @@ TADA_DefineCriteriaMethodology <- function(
       # NOTE: If criteriaMethods is provided, we are now setting auto_assign = FALSE as default. These code chunks
       # for auto_assign == TRUE may no longer be needed. Leaving it in though for in case we decide otherwise. KW 12/12/25
       if (auto_assign == TRUE & is.null(AU_UsesRef)) {
-        warning(paste0(
+        message(paste0(
           "You selected auto_assign == TRUE. No AU_UsesRef was provided. ",
           "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from the prior ATTAINS Assessment Cycle. ",
           "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
@@ -1072,7 +1074,7 @@ TADA_DefineCriteriaMethodology <- function(
       }
       # If the source of the ATTAINS param and uses is from the user supplied AU_UsesRef.
       if (auto_assign == TRUE & !is.null(AU_UsesRef)) {
-        warning(paste0(
+        message(paste0(
           "You selected auto_assign == TRUE. An AU_UsesRef was provided. ",
           "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from your AU_UsesRef. ",
           "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
