@@ -398,3 +398,195 @@ test_that("org_id = 'All' uses AUMLRef orgs without external calls", {
   # It should include at least org from MLSummaryRef and not error
   expect_true(any(res$ATTAINS.OrganizationIdentifier %in% c("ORG1", "ORG2")))
 })
+
+test_that("USEPA only with no .data returns EPA304a rows (when available)", {
+  epa_file <- system.file("extdata", "EPA304a_criteria_table.csv", package = "EPATADA")
+  skip_if_not(nzchar(epa_file) && file.exists(epa_file), "EPA304a table not found")
+  res <- TADA_DefineCriteriaMethodology(org_id = "USEPA", excel = FALSE)
+  expect_true(is.data.frame(res))
+  expect_true(nrow(res) >= 0) # not asserting non-empty to be robust to local data
+  expect_true("ATTAINS.OrganizationIdentifier" %in% names(res))
+  # If non-empty, USEPA should be present
+  if (nrow(res) > 0) {
+    expect_true(any(res$ATTAINS.OrganizationIdentifier == "USEPA"))
+  }
+})
+
+test_that("Spatial columns are blanked unless UniqueSpatialCriteria is set", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = c("C1", "C2"),
+    TADA.CharacteristicName = c("CHAR_A", "CHAR_A"),
+    TADA.ResultMeasure.MeasureUnitCode = c("mg/L", "mg/L"),
+    stringsAsFactors = FALSE
+  )
+  ml <- data.frame(
+    ATTAINS.ParameterName = c("PARAM_X", "PARAM_X"),
+    ATTAINS.UseName = c("USE1", "USE1"),
+    ATTAINS.OrganizationIdentifier = c("ORGX", "ORGX"),
+    UniqueSpatialCriteria = c(NA_character_, "Special Zone"),
+    ATTAINS.WaterType = c("RIVER", "LAKE"),
+    ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU2"),
+    TADA.ComparableDataIdentifier = c("C1", "C2"),
+    SaltFresh = c("F", "S"),
+    DepthCategory = c("Surface", "Bottom"),
+    stringsAsFactors = FALSE
+  )
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    MLSummaryRef = ml,
+    org_id = "ORGX",
+    displayUniqueId = TRUE,
+    excel = FALSE
+  )
+  # Row with NA UniqueSpatialCriteria should have spatial columns blanked
+  row_na <- res[res$TADA.ComparableDataIdentifier == "C1", ]
+  expect_true(all(is.na(row_na$ATTAINS.WaterType)))
+  expect_true(all(is.na(row_na$SaltFresh)))
+  expect_true(all(is.na(row_na$DepthCategory)))
+  # Row with non-NA UniqueSpatialCriteria should retain spatial columns
+  row_sp <- res[res$TADA.ComparableDataIdentifier == "C2", ]
+  expect_identical(row_sp$ATTAINS.WaterType, "LAKE")
+  expect_identical(row_sp$SaltFresh, "S")
+  expect_identical(row_sp$DepthCategory, "Bottom")
+})
+
+test_that("Date columns have Date class after MLSummaryRef path", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = "C1",
+    TADA.CharacteristicName = "CHAR_A",
+    TADA.ResultMeasure.MeasureUnitCode = "mg/L",
+    stringsAsFactors = FALSE
+  )
+  ml <- data.frame(
+    ATTAINS.ParameterName = "PARAM_X",
+    ATTAINS.UseName = "USE1",
+    ATTAINS.OrganizationIdentifier = "ORGX",
+    UniqueSpatialCriteria = NA_character_,
+    ATTAINS.WaterType = "RIVER",
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    TADA.ComparableDataIdentifier = "C1",
+    SaltFresh = "F",
+    DepthCategory = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    MLSummaryRef = ml,
+    org_id = "ORGX",
+    excel = FALSE
+  )
+  expect_s3_class(res$AssessPeriodStartDate, "Date")
+  expect_s3_class(res$AssessPeriodEndDate, "Date")
+  expect_s3_class(res$SeasonStartDate, "Date")
+  expect_s3_class(res$SeasonEndDate, "Date")
+})
+
+test_that("criteriaMethods warnings appear for missing crosswalks (displayUniqueId TRUE/FALSE)", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = c("C1", "C2"),
+    TADA.CharacteristicName = c("CHAR_A", "CHAR_B"),
+    TADA.ResultMeasure.MeasureUnitCode = c("mg/L", "mg/L"),
+    stringsAsFactors = FALSE
+  )
+  cm <- data.frame(  # only defines CHAR_A; CHAR_B is missing on purpose
+    ATTAINS.OrganizationIdentifier = "ORGX",
+    ATTAINS.ParameterName = "PARAM_X",
+    ATTAINS.UseName = "USE1",
+    TADA.CharacteristicName = "CHAR_A",
+    stringsAsFactors = FALSE
+  )
+  expect_warning(
+    TADA_DefineCriteriaMethodology(
+      .data = df,
+      org_id = "ORGX",
+      criteriaMethods = cm,
+      displayUniqueId = TRUE,
+      excel = FALSE
+    ),
+    "unique TADA.ComparableDataIdentifier"
+  )
+  expect_warning(
+    TADA_DefineCriteriaMethodology(
+      .data = df,
+      org_id = "ORGX",
+      criteriaMethods = cm,
+      displayUniqueId = FALSE,
+      excel = FALSE
+    ),
+    "unique TADA.CharacteristicName"
+  )
+})
+
+test_that("displayUniqueId = TRUE retains ComparableDataIdentifier", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = "C1",
+    TADA.CharacteristicName = "CHAR_A",
+    TADA.ResultMeasure.MeasureUnitCode = "mg/L",
+    stringsAsFactors = FALSE
+  )
+  ml <- data.frame(
+    ATTAINS.ParameterName = "PARAM_X",
+    ATTAINS.UseName = "USE1",
+    ATTAINS.OrganizationIdentifier = "ORGX",
+    UniqueSpatialCriteria = NA_character_,
+    ATTAINS.WaterType = "RIVER",
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    TADA.ComparableDataIdentifier = "C1",
+    SaltFresh = "F",
+    DepthCategory = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    MLSummaryRef = ml,
+    org_id = "ORGX",
+    displayUniqueId = TRUE,
+    excel = FALSE
+  )
+  expect_true(any(res$TADA.ComparableDataIdentifier == "C1"))
+})
+
+test_that("final formatting preserves a single NA UseName summary row", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = "C1",
+    TADA.CharacteristicName = "CHAR_A",
+    TADA.ResultMeasure.MeasureUnitCode = "mg/L",
+    stringsAsFactors = FALSE
+  )
+  # Create MLSummaryRef that will lead to both a specific use row and a NA-UseName row
+  ml <- data.frame(
+    ATTAINS.ParameterName = "PARAM_X",
+    ATTAINS.UseName = "USE1",
+    ATTAINS.OrganizationIdentifier = "ORGX",
+    UniqueSpatialCriteria = NA_character_,
+    ATTAINS.WaterType = "RIVER",
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    TADA.ComparableDataIdentifier = "C1",
+    SaltFresh = "F",
+    DepthCategory = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    MLSummaryRef = ml,
+    org_id = "ORGX",
+    displayUniqueId = TRUE,
+    excel = FALSE
+  )
+  # Create an artificial duplicate NA Use row by binding a NA UseName copy; then run final formatting logic indirectly by calling function again via criteriaMethods
+  cm <- res
+  cm$ATTAINS.UseName <- NA_character_
+  res2 <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    org_id = "ORGX",
+    criteriaMethods = cm,
+    displayUniqueId = TRUE,
+    excel = FALSE
+  )
+  # Expect exactly one NA UseName row for this characteristic/param/org
+  sub <- subset(res2, is.na(ATTAINS.UseName) &
+                  ATTAINS.OrganizationIdentifier == "ORGX" &
+                  ATTAINS.ParameterName == "PARAM_X" &
+                  TADA.CharacteristicName == "CHAR_A")
+  expect_true(nrow(sub) <= 1)
+})

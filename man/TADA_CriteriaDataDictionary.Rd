@@ -4,7 +4,7 @@
 \alias{TADA_CriteriaDataDictionary}
 \title{Data Dictionary for Criteria and Methodology}
 \usage{
-TADA_CriteriaDataDictionary()
+TADA_CriteriaDataDictionary(downloads_path = NULL)
 }
 \value{
 An excel data frame tab
