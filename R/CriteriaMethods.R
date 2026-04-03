@@ -650,10 +650,10 @@ TADA_DefineCriteriaMethodology <- function(
           # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
           message(paste(
             "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.",
-            "Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.",
-            "Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.",
-            "If an ATTAINS.ParameterName and ATTAINS.UseName alias was found, populating these rows with the CST magnitude values.",
-            "A many-to-many match is likely. User review is needed...",
+            "  Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.",
+            "  Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.",
+            "  If an ATTAINS.ParameterName and ATTAINS.UseName alias was found, populating these rows with the CST magnitude values.",
+            "  A many-to-many match is likely. User review is needed to ensure accuracy in crosswalk method.",
             sep = "\n"
           ))
 
@@ -845,7 +845,7 @@ TADA_DefineCriteriaMethodology <- function(
             dplyr::filter(!is.na(Code))
 
           # identify the unit ref of the .data
-          unitRef <- suppressWarnings(TADA_CreateUnitRef(.data))
+          unitRef <- suppressMessages(suppressWarnings(TADA_CreateUnitRef(.data)))
 
           # remove scientific notation in output
           options(scipen = 999)

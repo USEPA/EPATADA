@@ -1973,9 +1973,10 @@ TADA_UsesForAnalysis <- function(
     # there is no crosswalk, but leaving it blank will be treated similarly.
     if (sum(is.na(paramRef$ATTAINS.ParameterName)) > 1) {
       message(paste0(
-        "TADA_UsesForAnalysis: NAs were found in ATTAINS.ParameterName. \n",
-        "                      Please ensure that you have inputted all field values of interest in \n",
-        "                      the ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function."
+        "TADA_UsesForAnalysis: \n",
+        "  NAs were found in ATTAINS.ParameterName. \n",
+        "  Please ensure that you have inputted all field values of interest in \n",
+        "  the ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function."
       ))
     }
 
@@ -1983,8 +1984,9 @@ TADA_UsesForAnalysis <- function(
     if (!is.null(paramRef) & !is.character(paramRef)) {
       if (!is.data.frame(paramRef)) {
         stop(paste0(
-          "TADA_UsesForAnalysis: 'paramRef' must be a data frame with these 2 columns:\n",
-          "                      TADA.ComparableDataIdentifier and ATTAINS.ParameterName."
+          "TADA_UsesForAnalysis: \n",
+          "  'paramRef' must be a data frame with these 2 columns:\n",
+          "  TADA.ComparableDataIdentifier and ATTAINS.ParameterName."
         ))
       }
 
@@ -3436,14 +3438,20 @@ TADA_AssignUsesToWaterType <- function(
     # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
     if (is.null(AUMLRef)) {
       message(
-        "TADA_AssignUsesToWaterType: org_id == 'All' was selected and no AUMLRef was provided. Returning all unique ATTAINS Organization Identifiers."
+        paste0(
+          "TADA_AssignUsesToWaterType: org_id == 'All' was selected.\n",
+          "  Returning all uses and watertypes from prior ATTAINS assessment cycles for all ATTAINS Organization Identifiers."
+        )
       )
       org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
     }
     # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
     if (!is.null(AUMLRef)) {
       message(
-        "TADA_AssignUsesToWaterType: org_id == 'All' was selected and an AUMLRef was provided. Returning all unique ATTAINS Organization Identifiers found in your AUMLRef."
+        paste0(
+          "TADA_AssignUsesToWaterType: org_id == 'All' was selected and an AUMLRef was provided.\n",
+          "  Returning all uses and watertypes from prior ATTAINS assessment cycles for the ATTAINS Organization Identifiers found in your AUMLRef."
+        )
       )
       org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
     }
