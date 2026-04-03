@@ -1722,14 +1722,14 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
   has_char <- "TADA.CharacteristicName" %in% names(.data)
   has_unit_pref <- "TADA.ResultMeasure.MeasureUnitCode" %in% names(.data)
   has_unit_unpref <- "ResultMeasure.MeasureUnitCode" %in% names(.data)
-  
+
   if (!(has_char && (has_unit_pref || has_unit_unpref))) {
     message(
       "Minimal required fields are missing (Characteristic and unit). ",
       "Running TADA_AutoClean to create required columns."
     )
     .data <- TADA_AutoClean(.data)
-    
+
     # Re-check minimal fields post-clean; fail fast with a helpful message if still missing
     has_char <- "TADA.CharacteristicName" %in% names(.data)
     has_unit_pref <- "TADA.ResultMeasure.MeasureUnitCode" %in% names(.data)
@@ -1825,7 +1825,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
       "ResultMeasure.MeasureUnitCode",
       "TADA.MethodSpeciationName"
     )
-    
+
     # Add missing columns to data.units.result as NA
     missing_in_result <- setdiff(required_join_cols, names(data.units.result))
     if (length(missing_in_result) > 0) {
@@ -1833,7 +1833,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
         data.units.result[[col]] <- NA_character_
       }
     }
-    
+
     # Add missing columns to data.units.det as NA
     missing_in_det <- setdiff(required_join_cols, names(data.units.det))
     if (length(missing_in_det) > 0) {
@@ -1841,12 +1841,9 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
         data.units.det[[col]] <- NA_character_
       }
     }
-    
+
     data.units <- data.units.result |>
-      dplyr::full_join(
-        data.units.det,
-        by = required_join_cols
-      ) |>
+      dplyr::full_join(data.units.det, by = required_join_cols) |>
       dplyr::distinct() |>
       dplyr::group_by(TADA.CharacteristicName)
   } else {
