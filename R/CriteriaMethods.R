@@ -681,7 +681,7 @@ TADA_DefineCriteriaMethodology <- function(
           # pulls in alias crosswalk between CST STD.PollutantName and ATTAINS.ParameterName
           DefineCriteriaMethodology <- DefineCriteriaMethodology |>
             dplyr::mutate(dplyr::across(where(is.character), toupper))
-          
+
           # all lines below will focus on joining CST magnitude values to the auto_assign table
           # pulls in alias crosswalk between CST STD.PollutantName and ATTAINS.ParameterName
           CST_ATTAINS_Param <- utils::read.csv(system.file(
@@ -692,21 +692,20 @@ TADA_DefineCriteriaMethodology <- function(
             dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
             dplyr::filter(
               (CharacteristicName %in%
-                 stats::na.omit(unique(
-                   DefineCriteriaMethodology$TADA.CharacteristicName
-                 )) &
-                 ATTAINS.ParameterName %in%
-                 stats::na.omit(unique(
-                   DefineCriteriaMethodology$ATTAINS.ParameterName
-                 ))
-              ) | 
+                stats::na.omit(unique(
+                  DefineCriteriaMethodology$TADA.CharacteristicName
+                )) &
+                ATTAINS.ParameterName %in%
+                  stats::na.omit(unique(
+                    DefineCriteriaMethodology$ATTAINS.ParameterName
+                  ))) |
                 (CharacteristicName %in%
-                   stats::na.omit(unique(
-                     DefineCriteriaMethodology$TADA.CharacteristicName
-                   )) & is.na(ATTAINS.ParameterName))
+                  stats::na.omit(unique(
+                    DefineCriteriaMethodology$TADA.CharacteristicName
+                  )) &
+                  is.na(ATTAINS.ParameterName))
             )
-          
-          
+
           # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
           message(paste(
             "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.",
@@ -716,7 +715,7 @@ TADA_DefineCriteriaMethodology <- function(
             "  A many-to-many match is likely. User review is needed to ensure accuracy in crosswalk method.",
             sep = "\n"
           ))
-          
+
           # pulls in uses alias table between ATTAINS.UseName and CST uses
           uses <- utils::read.csv(system.file(
             "extdata",
@@ -744,7 +743,7 @@ TADA_DefineCriteriaMethodology <- function(
               "Please add this file to the EPATADA package (dev-time: run .TADA_CST_UpdateWorkbook())."
             )
           }
-          
+
           CriteriaSearchToolRef <- .tada_cst_read_sheet(
             internal_path,
             target = "criteria"
@@ -772,21 +771,22 @@ TADA_DefineCriteriaMethodology <- function(
           CriteriaSearchToolRef_Sources <- .tada_cst_prepare_table(
             CriteriaSearchToolRef_Sources
           )
-          
+
           # remove intermediate variable
           rm(internal_path)
-          
+
           # upper case all character columns for consistency
           CriteriaSearchToolRef <- CriteriaSearchToolRef |>
             dplyr::mutate(
               UNIT_NAME = stringr::str_replace_all(UNIT_NAME, "\u00B5", "u"),
               dplyr::across(where(is.character), toupper)
             )
-          
+
           # filter the CST to relevant org, parameters and uses
           CriteriaSearchToolRef_filtered <- CriteriaSearchToolRef |>
             dplyr::right_join(
-              CST_ATTAINS_Param, by = c("POLLUTANT_NAME", "STD_POLLUTANT_NAME")
+              CST_ATTAINS_Param,
+              by = c("POLLUTANT_NAME", "STD_POLLUTANT_NAME")
             ) |>
             dplyr::right_join(
               dplyr::filter(
