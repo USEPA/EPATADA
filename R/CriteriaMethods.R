@@ -1094,17 +1094,16 @@ TADA_DefineCriteriaMethodology <- function(
         as.data.frame()
 
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == TRUE) {
-        warning(paste(
-          "Your user supplied criteriaMethods file is missing",
+        warning(paste0(
+          "Your user supplied criteriaMethods file is missing ",
           length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
-          "unique TADA.ComparableDataIdentifier(s)",
-          ":\n",
-          paste(
+          " unique TADA.ComparableDataIdentifier(s) :\n",
+          paste0(
             unique(non_definedCriteria$TADA.ComparableDataIdentifier),
             collapse = ", "
           ),
           "without an ATTAINS.ParameterName crosswalk.\n",
-          "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
+          "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis.\n"
         ))
       }
 
