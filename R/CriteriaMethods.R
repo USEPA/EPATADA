@@ -259,7 +259,7 @@ TADA_DefineCriteriaMethodology <- function(
     # If auto_assign = TRUE and no MLSummaryRef OR criteriaMethods arg input is provided, this results in error.
     if (auto_assign == TRUE && !is.null(criteriaMethods)) {
       stop(
-        "TADA_DefineCriteriaMethodology: criteriaMethodology is provided and auto_assign = TRUE are not valid function argument input combinations."
+        "TADA_DefineCriteriaMethodology: criteriaMethods is provided and auto_assign = TRUE are not valid function argument input combinations."
       )
     }
 
@@ -957,10 +957,10 @@ TADA_DefineCriteriaMethodology <- function(
       }
 
       # final formatting to ensure all column types are correct
-      DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-        suppressWarnings(TADA_CorrectColType()) |>
+      DefineCriteriaMethodology <- suppressWarnings(
+        TADA_CorrectColType(DefineCriteriaMethodology)
+      ) |>
         dplyr::filter(!is.na(TADA.CharacteristicName))
-    }
 
     # User wants to populate the criteria table using a user supplied table.
     # This option will prioritize a user-supplied table, but will include
@@ -996,7 +996,7 @@ TADA_DefineCriteriaMethodology <- function(
         )
 
       criteriaMethods <- criteriaMethods |>
-        dplyr::select(-TADA.ComparableDataIdentifier) |> # we will join by TADA.CharacteristicName from our TADA dataframe to ensure accurate crosswalk
+        dplyr::select(-dplyr::any_of("TADA.ComparableDataIdentifier")) |>
         dplyr::full_join(
           TADA_param,
           by = c("ATTAINS.OrganizationIdentifier", "TADA.CharacteristicName")
@@ -1182,23 +1182,23 @@ TADA_DefineCriteriaMethodology <- function(
 
   # User wants to populate the Criteria table using the EPA304(a) criteria
   # joins the EPA304(a) criteria to the current Criteria Table.
-  if ("USEPA" %in% org_id) {
-    message(paste0(
-      "TADA_DefineCriteriaMethodology: USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
-    ))
-    epa304a <- utils::read.csv(
-      system.file("extdata", "EPA304a_criteria_table.csv", package = "EPATADA"),
-      fileEncoding = "UTF-8-BOM"
-    )
-    if (displayUniqueId == TRUE) {
-      uniqueID <- unique(.data[, c(
-        "TADA.ComparableDataIdentifier",
-        "TADA.CharacteristicName"
-      )])
-      epa304a <- epa304a |>
-        dplyr::select(-TADA.ComparableDataIdentifier) |>
-        dplyr::left_join(uniqueID, by = dplyr::join_by(TADA.CharacteristicName))
-    }
+if ("USEPA" %in% org_id) {
+  message(paste0(
+    "TADA_DefineCriteriaMethodology: USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
+  ))
+  epa304a <- utils::read.csv(
+    system.file("extdata", "EPA304a_criteria_table.csv", package = "EPATADA"),
+    fileEncoding = "UTF-8-BOM"
+  )
+  if (displayUniqueId && !missing(.data)) {
+    uniqueID <- unique(.data[, c(
+      "TADA.ComparableDataIdentifier",
+      "TADA.CharacteristicName"
+    )])
+    epa304a <- epa304a |>
+      dplyr::select(-TADA.ComparableDataIdentifier) |>
+      dplyr::left_join(uniqueID, by = dplyr::join_by(TADA.CharacteristicName))
+  }
     # read in ref csv
     coltype.ref <- utils::read.csv(system.file(
       "extdata",
