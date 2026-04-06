@@ -1369,6 +1369,12 @@ TADA_DefineCriteriaMethodology <- function(
       dplyr::bind_rows(DefineCriteriaMethodology_dups)
   }
 
+  # ensure the first n columns are shown in TADA criteria table format. Additional columns are allowed for notes etc.
+  DefineCriteriaMethodology <- dplyr::relocate(
+    DefineCriteriaMethodology,
+    dplyr::any_of(desired_cols) # NOTE: 12/16/25 changed from dplyr::select to relocate. Allow additional columns from user supplied table.
+  )
+  
   # Generates the excel function (HIGHLY Recommended for users to export)
   if (excel == TRUE) {
     # Excel ref files to be stored in the Downloads folder location.
@@ -1756,37 +1762,10 @@ TADA_DefineCriteriaMethodology <- function(
       param_validation_ref <- "'Index'!$E$2:$E$60000"
     }
 
-    # TADA.CharacteristicName
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
       cols = 2,
-      rows = 2:1000,
-      type = "list",
-      value = sprintf("'Index-Criteria'!$G$2:$G$1000"),
-      allowBlank = TRUE,
-      showErrorMsg = TRUE,
-      showInputMsg = TRUE
-    ))
-
-    # TADA.ComparableDataIdentifier
-    suppressWarnings(openxlsx::dataValidation(
-      wb,
-      sheet = "DefineCriteriaMethodology",
-      cols = 3,
-      rows = 2:1000,
-      type = "list",
-      value = sprintf("'Index-Criteria'!$F$2:$F$1000"),
-      allowBlank = TRUE,
-      showErrorMsg = TRUE,
-      showInputMsg = TRUE
-    ))
-
-    # ATTAINS.ParameterName
-    suppressWarnings(openxlsx::dataValidation(
-      wb,
-      sheet = "DefineCriteriaMethodology",
-      cols = 4, # ATTAINS.ParameterName
       rows = 2:1000,
       type = "list",
       value = param_validation_ref,
@@ -1795,14 +1774,27 @@ TADA_DefineCriteriaMethodology <- function(
       showInputMsg = TRUE
     ))
     
-    # UseName (FIXED: apply to column 5; point to the UseName list we just wrote in column Q)
+    # UseName (FIXED: apply to column 3; point to the UseName list we just wrote in column Q)
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
-      cols = 5, # ATTAINS.UseName
+      cols = 3, # ATTAINS.UseName
       rows = 2:1000,
       type = "list",
       value = sprintf("'Index-Criteria'!$Q$2:$Q$%d", length(use_list) + 1L), # avoids excess blank items in the dropdown
+      allowBlank = TRUE,
+      showErrorMsg = TRUE,
+      showInputMsg = TRUE
+    ))
+    
+    # TADA.ComparableDataIdentifier (FIXED: apply to column 4)
+    suppressWarnings(openxlsx::dataValidation(
+      wb,
+      sheet = "DefineCriteriaMethodology",
+      cols = 4, # TADA.ComparableDataIdentifier
+      rows = 2:1000,
+      type = "list",
+      value = sprintf("'Index-Criteria'!$F$2:$F$1000"),
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
