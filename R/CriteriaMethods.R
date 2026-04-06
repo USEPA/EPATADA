@@ -1374,7 +1374,7 @@ TADA_DefineCriteriaMethodology <- function(
     DefineCriteriaMethodology,
     dplyr::any_of(desired_cols) # NOTE: 12/16/25 changed from dplyr::select to relocate. Allow additional columns from user supplied table.
   )
-  
+
   # Generates the excel function (HIGHLY Recommended for users to export)
   if (excel == TRUE) {
     # Excel ref files to be stored in the Downloads folder location.
@@ -1773,7 +1773,7 @@ TADA_DefineCriteriaMethodology <- function(
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
-    
+
     # UseName (FIXED: apply to column 3; point to the UseName list we just wrote in column Q)
     suppressWarnings(openxlsx::dataValidation(
       wb,
@@ -1786,7 +1786,7 @@ TADA_DefineCriteriaMethodology <- function(
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
-    
+
     # TADA.ComparableDataIdentifier (FIXED: apply to column 4)
     suppressWarnings(openxlsx::dataValidation(
       wb,
@@ -1799,7 +1799,7 @@ TADA_DefineCriteriaMethodology <- function(
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
-    
+
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
