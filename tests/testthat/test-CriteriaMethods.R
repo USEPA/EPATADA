@@ -666,7 +666,9 @@ test_that("org_id 'all' correctly filters by organizations found in user supplie
     )
   )
   expect_true(is.data.frame(res))
-  expect_true(all(res$ATTAINS.OrganizationIdentifier %in% cm$ATTAINS.OrganizationIdentifier))
+  expect_true(all(
+    res$ATTAINS.OrganizationIdentifier %in% cm$ATTAINS.OrganizationIdentifier
+  ))
   expect_true(any(res$TADA.CharacteristicName == "CHAR_A"))
 })
 
