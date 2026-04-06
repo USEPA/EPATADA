@@ -1404,7 +1404,7 @@ TADA_DefineCriteriaMethodology <- function(
 
     # Make "DefineCriteriaMethodology" the active sheet
     if ("activeSheet" %in% getNamespaceExports("openxlsx")) {
-      openxlsx::activeSheet(wb, sheet = "DefineCriteriaMethodology")
+      openxlsx::activeSheet(wb) <- "DefineCriteriaMethodology"
     }
 
     # Set visibility
@@ -1756,36 +1756,24 @@ TADA_DefineCriteriaMethodology <- function(
       param_validation_ref <- "'Index'!$E$2:$E$60000"
     }
 
+    # TADA.CharacteristicName
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
       cols = 2,
       rows = 2:1000,
       type = "list",
-      value = param_validation_ref,
+      value = sprintf("'Index-Criteria'!$G$2:$G$1000"),
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
 
-    # UseName (FIXED: apply to column 3; point to the UseName list we just wrote in column Q)
+    # TADA.ComparableDataIdentifier
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
-      cols = 3, # ATTAINS.UseName
-      rows = 2:1000,
-      type = "list",
-      value = sprintf("'Index-Criteria'!$Q$2:$Q$%d", length(use_list) + 1L), # avoids excess blank items in the dropdown
-      allowBlank = TRUE,
-      showErrorMsg = TRUE,
-      showInputMsg = TRUE
-    ))
-
-    # TADA.ComparableDataIdentifier (FIXED: apply to column 4)
-    suppressWarnings(openxlsx::dataValidation(
-      wb,
-      sheet = "DefineCriteriaMethodology",
-      cols = 4, # TADA.ComparableDataIdentifier
+      cols = 3,
       rows = 2:1000,
       type = "list",
       value = sprintf("'Index-Criteria'!$F$2:$F$1000"),
@@ -1793,6 +1781,33 @@ TADA_DefineCriteriaMethodology <- function(
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
+
+    # ATTAINS.ParameterName
+    suppressWarnings(openxlsx::dataValidation(
+      wb,
+      sheet = "DefineCriteriaMethodology",
+      cols = 4, # ATTAINS.ParameterName
+      rows = 2:1000,
+      type = "list",
+      value = param_validation_ref,
+      allowBlank = TRUE,
+      showErrorMsg = TRUE,
+      showInputMsg = TRUE
+    ))
+    
+    # UseName (FIXED: apply to column 5; point to the UseName list we just wrote in column Q)
+    suppressWarnings(openxlsx::dataValidation(
+      wb,
+      sheet = "DefineCriteriaMethodology",
+      cols = 5, # ATTAINS.UseName
+      rows = 2:1000,
+      type = "list",
+      value = sprintf("'Index-Criteria'!$Q$2:$Q$%d", length(use_list) + 1L), # avoids excess blank items in the dropdown
+      allowBlank = TRUE,
+      showErrorMsg = TRUE,
+      showInputMsg = TRUE
+    ))
+    
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
