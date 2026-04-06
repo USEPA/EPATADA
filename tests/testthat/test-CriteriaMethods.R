@@ -630,11 +630,13 @@ test_that("org_id NULL becomes empty string in criteriaMethods path", {
     stringsAsFactors = FALSE
   )
   # org_id omitted -> becomes ""
-  expect_warning(res <- TADA_DefineCriteriaMethodology(
-    .data = df,
-    criteriaMethods = cm,
-    excel = FALSE
-  ))
+  expect_warning(
+    res <- TADA_DefineCriteriaMethodology(
+      .data = df,
+      criteriaMethods = cm,
+      excel = FALSE
+    )
+  )
   expect_true(is.data.frame(res))
   expect_true(any(res$ATTAINS.OrganizationIdentifier == ""))
   expect_true(any(res$TADA.CharacteristicName == "CHAR_A"))
@@ -655,12 +657,14 @@ test_that("org_id 'all' correctly filters by organizations found in user supplie
     stringsAsFactors = FALSE
   )
   # org_id omitted -> becomes ""
-  expect_warning(res <- TADA_DefineCriteriaMethodology(
-    .data = df,
-    criteriaMethods = cm,
-    org_id = "all",
-    excel = FALSE
-  ))
+  expect_warning(
+    res <- TADA_DefineCriteriaMethodology(
+      .data = df,
+      criteriaMethods = cm,
+      org_id = "all",
+      excel = FALSE
+    )
+  )
   expect_true(is.data.frame(res))
   #expect_true(any(res$ATTAINS.OrganizationIdentifier == ""))
   expect_true(any(res$TADA.CharacteristicName == "CHAR_A"))

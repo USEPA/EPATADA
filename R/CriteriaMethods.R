@@ -305,7 +305,7 @@ TADA_DefineCriteriaMethodology <- function(
           message(
             "org_id == 'All' was selected, no AUMLRef provided; attempting to pull domain orgs."
           )
-  
+
           # Attempt to retrieve domain orgs; warn on failure but keep going
           org_id <- tryCatch(
             {
@@ -331,10 +331,14 @@ TADA_DefineCriteriaMethodology <- function(
           message(
             "org_id == 'All' was selected, AUMLRef provided; using orgs found in AUMLRef."
           )
-          org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
+          org_id <- unique(stats::na.omit(
+            AUMLRef$ATTAINS.OrganizationIdentifier
+          ))
         }
       } else {
-        org_id <- unique(stats::na.omit(criteriaMethods$ATTAINS.OrganizationIdentifier))
+        org_id <- unique(stats::na.omit(
+          criteriaMethods$ATTAINS.OrganizationIdentifier
+        ))
       }
     }
 

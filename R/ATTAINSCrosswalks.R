@@ -1129,7 +1129,7 @@ TADA_ParametersForAnalysis <- function(
         message(
           "org_id == 'All' was selected, no AUMLRef provided; attempting to pull domain orgs."
         )
-        
+
         # Attempt to retrieve domain orgs; warn on failure but keep going
         org_id <- tryCatch(
           {
@@ -1257,7 +1257,8 @@ TADA_ParametersForAnalysis <- function(
     # Checks if org_id(s) are found in ATTAINS
     if (
       sum(
-        !org_id[!org_id %in% c("EPA304a","")] %in% TADA_GetATTAINSOrgIDsRef()[, "code"]
+        !org_id[!org_id %in% c("EPA304a", "")] %in%
+          TADA_GetATTAINSOrgIDsRef()[, "code"]
       ) >
         0
     ) {
@@ -2159,7 +2160,7 @@ TADA_UsesForAnalysis <- function(
         message(
           "org_id == 'All' was selected, no AUMLRef provided; attempting to pull domain orgs."
         )
-        
+
         # Attempt to retrieve domain orgs; warn on failure but keep going
         org_id <- tryCatch(
           {
@@ -2193,7 +2194,8 @@ TADA_UsesForAnalysis <- function(
     # 5/14/25 KW: We should use separate columns for CST organization/pollutant/use names in the future.
     if (
       sum(
-        !org_id[!org_id %in% c("EPA304a","")] %in% TADA_GetATTAINSOrgIDsRef()[, "code"]
+        !org_id[!org_id %in% c("EPA304a", "")] %in%
+          TADA_GetATTAINSOrgIDsRef()[, "code"]
       ) >
         0
     ) {
@@ -3123,7 +3125,7 @@ TADA_AssignUsesToAU <- function(
         message(
           "org_id == 'All' was selected, no AUMLRef provided; attempting to pull domain orgs."
         )
-        
+
         # Attempt to retrieve domain orgs; warn on failure but keep going
         org_id <- tryCatch(
           {
@@ -3159,7 +3161,8 @@ TADA_AssignUsesToAU <- function(
     # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA 304(a)" as that is not an ATTAINS org_id.
     if (
       sum(
-        !org_id[!org_id %in% c("EPA304a","")] %in% TADA_GetATTAINSOrgIDsRef()[, "code"]
+        !org_id[!org_id %in% c("EPA304a", "")] %in%
+          TADA_GetATTAINSOrgIDsRef()[, "code"]
       ) >
         0
     ) {
@@ -3493,7 +3496,7 @@ TADA_AssignUsesToWaterType <- function(
       message(
         "org_id == 'All' was selected, no AUMLRef provided; attempting to pull domain orgs."
       )
-      
+
       # Attempt to retrieve domain orgs; warn on failure but keep going
       org_id <- tryCatch(
         {
@@ -3529,7 +3532,8 @@ TADA_AssignUsesToWaterType <- function(
   # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA 304(a)" as that is not an ATTAINS org_id.
   if (
     sum(
-      !org_id[!org_id %in% c("EPA304a","")] %in% TADA_GetATTAINSOrgIDsRef()[, "code"]
+      !org_id[!org_id %in% c("EPA304a", "")] %in%
+        TADA_GetATTAINSOrgIDsRef()[, "code"]
     ) >
       0
   ) {
