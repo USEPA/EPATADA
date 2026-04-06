@@ -270,18 +270,6 @@ TADA_DefineCriteriaMethodology <- function(
         "TADA_DefineCriteriaMethodology: auto_assign must be a boolean (TRUE/FALSE) value."
       )
     }
-    # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
-    # # Ensures users have entered a valid input to updateRef
-    # if (!updateRef %in% c("none", "paramRef", "usesRef", "MLSummaryRef")) {
-    #   stop(paste0(
-    #     "TADA_DefineCriteriaMethodology: ",
-    #     "argument input ", updateRef, " is not a valid entry for updateRef. Please type one of 'None', 'paramRef', 'usesRef', 'MLSummaryRef' as a value."
-    #   ))
-    # }
-    # # Invalid function input combos - can only use updateRef = none with auto_assign = FALSE
-    # if (auto_assign == FALSE && updateRef != "none") {
-    #   stop("TADA_DefineCriteriaMethodology: auto_assign = FALSE. The updateRef function input must be none. If you have updated a reference table, use auto_assign == TRUE")
-    # }
 
     # If auto_assign = TRUE and no MLSummaryRef OR criteriaMethods arg input is provided, this results in error.
     if (auto_assign == TRUE && !is.null(criteriaMethods)) {
@@ -311,38 +299,42 @@ TADA_DefineCriteriaMethodology <- function(
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
     if (tolower("all") %in% tolower(org_id)) {
-      if (is.null(AUMLRef)) {
-        # Emit a simple, early message unconditionally
-        message(
-          "org_id == 'All' was selected, no AUMLRef provided; attempting to pull domain orgs."
-        )
-
-        # Attempt to retrieve domain orgs; warn on failure but keep going
-        org_id <- tryCatch(
-          {
-            dv <- rExpertQuery::EQ_DomainValues("org_id")
-            if (!is.null(dv) && "code" %in% names(dv)) {
-              dv[["code"]]
-            } else {
+      if (is.null(criteriaMethods)) {
+        if (is.null(AUMLRef)) {
+          # Emit a simple, early message unconditionally
+          message(
+            "org_id == 'All' was selected, no AUMLRef provided; attempting to pull domain orgs."
+          )
+  
+          # Attempt to retrieve domain orgs; warn on failure but keep going
+          org_id <- tryCatch(
+            {
+              dv <- rExpertQuery::EQ_DomainValues("org_id")
+              if (!is.null(dv) && "code" %in% names(dv)) {
+                dv[["code"]]
+              } else {
+                warning(
+                  "EQ_DomainValues('org_id') returned no 'code' column; proceeding with empty org list."
+                )
+                character()
+              }
+            },
+            error = function(e) {
               warning(
-                "EQ_DomainValues('org_id') returned no 'code' column; proceeding with empty org list."
+                "Failed to retrieve ATTAINS org domain values: ",
+                conditionMessage(e)
               )
               character()
             }
-          },
-          error = function(e) {
-            warning(
-              "Failed to retrieve ATTAINS org domain values: ",
-              conditionMessage(e)
-            )
-            character()
-          }
-        )
+          )
+        } else {
+          message(
+            "org_id == 'All' was selected, AUMLRef provided; using orgs found in AUMLRef."
+          )
+          org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
+        }
       } else {
-        message(
-          "org_id == 'All' was selected, AUMLRef provided; using orgs found in AUMLRef."
-        )
-        org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
+        org_id <- unique(stats::na.omit(criteriaMethods$ATTAINS.OrganizationIdentifier))
       }
     }
 
@@ -401,8 +393,6 @@ TADA_DefineCriteriaMethodology <- function(
           dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
 
         # default, runs all reference tables with no user edits
-        # commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
-        # if (updateRef == "none") {
         message(paste0(
           "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_ParametersForAnalysis with default assignment."
         ))
@@ -672,7 +662,7 @@ TADA_DefineCriteriaMethodology <- function(
           Notes = as.character(NA)
         )) |>
         dplyr::select(
-          desired_cols # defined in beginning of code
+          dplyr::all_of(desired_cols) # defined in beginning of code
         ) |>
         dplyr::arrange(ATTAINS.UseName) |>
         tidyr::complete(
@@ -1053,14 +1043,14 @@ TADA_DefineCriteriaMethodology <- function(
     # all rows for any missing WQP Characteristic (or TADA.ComparableDataIdentifier)
     # generated from the auto_assign default values. Users may also append epa 304a values.
     if (!is.null(criteriaMethods)) {
-      # If org_id includes the empty string placeholder, do not overwrite user-supplied orgs.
-      # Only add the column if missing; preserve NA values.
+      # If org_id includes the empty string placeholder (which is generated if org_id = NULL or ""), do not overwrite user-supplied orgs in criteriaMethods.
+      # Only add the column if missing; preserve "" blank values.
       if (
         "" %in%
           org_id &&
           !"ATTAINS.OrganizationIdentifier" %in% names(criteriaMethods)
       ) {
-        criteriaMethods$ATTAINS.OrganizationIdentifier <- NA_character_
+        criteriaMethods$ATTAINS.OrganizationIdentifier <- "" # KW: replaced NA with ""for consistency? Other wise change back to NA_character_
       }
 
       criteriaMethods$ATTAINS.ParameterName <- toupper(
@@ -1122,13 +1112,14 @@ TADA_DefineCriteriaMethodology <- function(
         warning(paste0(
           "Your user supplied criteriaMethods file is missing ",
           length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
-          " unique TADA.ComparableDataIdentifier(s) :\n",
+          " unique TADA.ComparableDataIdentifier(s):\n  ",
           paste0(
             unique(non_definedCriteria$TADA.ComparableDataIdentifier),
             collapse = ", "
           ),
-          "without an ATTAINS.ParameterName crosswalk.\n",
-          "Please review if these entries are applicable to your analysis or ignore this message if they are not relevant.\n"
+          "\n",
+          "  without an ATTAINS.ParameterName crosswalk.\n",
+          "  Please review if these entries are applicable to your analysis or ignore this message if they are not relevant.\n"
         ))
       }
 
@@ -1136,13 +1127,14 @@ TADA_DefineCriteriaMethodology <- function(
         warning(paste0(
           "Your user supplied criteriaMethods file is missing ",
           length(unique(non_definedCriteria$TADA.CharacteristicName)),
-          " unique TADA.CharacteristicName(s) :\n",
+          " unique TADA.CharacteristicName(s) :\n  ",
           paste0(
             unique(non_definedCriteria$TADA.CharacteristicName),
             collapse = ", "
           ),
-          "without an ATTAINS.ParameterName crosswalk.\n",
-          "Please review if these entries are applicable to your analysis or ignore this message if they are not relevant.\n"
+          "\n",
+          "  without an ATTAINS.ParameterName crosswalk.\n",
+          "  Please review if these entries are applicable to your analysis or ignore this message if they are not relevant.\n"
         ))
       }
 

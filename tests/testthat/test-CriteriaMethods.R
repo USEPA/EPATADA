@@ -630,13 +630,39 @@ test_that("org_id NULL becomes empty string in criteriaMethods path", {
     stringsAsFactors = FALSE
   )
   # org_id omitted -> becomes ""
-  res <- TADA_DefineCriteriaMethodology(
+  expect_warning(res <- TADA_DefineCriteriaMethodology(
     .data = df,
     criteriaMethods = cm,
     excel = FALSE
-  )
+  ))
   expect_true(is.data.frame(res))
   expect_true(any(res$ATTAINS.OrganizationIdentifier == ""))
+  expect_true(any(res$TADA.CharacteristicName == "CHAR_A"))
+})
+
+test_that("org_id 'all' correctly filters by organizations found in user supplied criteriaMethods.", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = c("C1", "C2", "C3"),
+    TADA.CharacteristicName = c("CHAR_A", "CHAR_B", "CHAR_C"),
+    TADA.ResultMeasure.MeasureUnitCode = c("mg/L", "mg/L", "mg/L"),
+    stringsAsFactors = FALSE
+  )
+  cm <- data.frame(
+    ATTAINS.ParameterName = c("PARAM_X", "PARAM_Z"),
+    ATTAINS.UseName = c("USE1", "USE2"),
+    TADA.CharacteristicName = c("CHAR_A", "CHAR_B"),
+    ATTAINS.OrganizationIdentifier = c("MTDEQ", "ORG_B"),
+    stringsAsFactors = FALSE
+  )
+  # org_id omitted -> becomes ""
+  expect_warning(res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    criteriaMethods = cm,
+    org_id = "all",
+    excel = FALSE
+  ))
+  expect_true(is.data.frame(res))
+  #expect_true(any(res$ATTAINS.OrganizationIdentifier == ""))
   expect_true(any(res$TADA.CharacteristicName == "CHAR_A"))
 })
 
