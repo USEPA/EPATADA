@@ -1257,7 +1257,7 @@ TADA_DefineCriteriaMethodology <- function(
       # ensure the first n columns are shown in TADA criteria table format. Additional columns are allowed for notes etc.
       DefineCriteriaMethodology <- dplyr::relocate(
         DefineCriteriaMethodology,
-        desired_cols # NOTE: 12/16/25 changed from dplyr::select to relocate. Allow additional columns from user supplied table.
+        dplyr::any_of(desired_cols) # NOTE: 12/16/25 changed from dplyr::select to relocate. Allow additional columns from user supplied table.
       )
     }
 
@@ -1403,8 +1403,8 @@ TADA_DefineCriteriaMethodology <- function(
     }
 
     # Make "DefineCriteriaMethodology" the active sheet
-    if ("activateSheet" %in% getNamespaceExports("openxlsx")) {
-      openxlsx::activateSheet(wb, sheet = "DefineCriteriaMethodology")
+    if ("activeSheet" %in% getNamespaceExports("openxlsx")) {
+      openxlsx::activeSheet(wb, sheet = "DefineCriteriaMethodology")
     }
 
     # Set visibility
@@ -2030,6 +2030,10 @@ TADA_DefineCriteriaMethodology <- function(
 #'
 #' Defines and summarizes the column names found in the TADA format for the
 #' Criteria and Methodology table for users to fill out.
+#'
+#' @param downloads_path A character string to define the location of the
+#' 'myfileRef.xlsx' file to include the data dictionary to. Default is
+#' null to find the path in the Downloads folder path.
 #'
 #' @return An excel data frame tab
 #'
