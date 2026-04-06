@@ -1794,7 +1794,7 @@ TADA_DefineCriteriaMethodology <- function(
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
-    
+
     # UseName (FIXED: apply to column 5; point to the UseName list we just wrote in column Q)
     suppressWarnings(openxlsx::dataValidation(
       wb,
@@ -1807,7 +1807,7 @@ TADA_DefineCriteriaMethodology <- function(
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
-    
+
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
