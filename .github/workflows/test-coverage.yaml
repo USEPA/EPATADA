@@ -94,3 +94,53 @@ jobs:
           link_missing_lines: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+        # Generate a detailed comment file
+      - name: Build detailed coverage comment
+        run: |
+          Rscript -e '
+          suppressPackageStartupMessages({
+            if (!requireNamespace("xml2", quietly = TRUE)) install.packages("xml2", repos = "https://packagemanager.posit.co/cran/__linux__/noble/latest")
+            if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr", repos = "https://packagemanager.posit.co/cran/__linux__/noble/latest")
+            if (!requireNamespace("purrr", quietly = TRUE)) install.packages("purrr", repos = "https://packagemanager.posit.co/cran/__linux__/noble/latest")
+          })
+          library(xml2); library(dplyr); library(purrr)
+          doc <- read_xml("cobertura.xml")
+          classes <- xml_find_all(doc, "//class")
+          misses <- map_df(classes, function(cls) {
+            file <- xml_attr(cls, "filename")
+            lines <- xml_find_all(cls, ".//lines/line")
+            tibble(
+              file = file,
+              number = as.integer(xml_attr(lines, "number")),
+              hits = as.integer(xml_attr(lines, "hits"))
+            )
+          }) %>% filter(hits == 0)
+          # Build markdown, grouped by file
+          md <- c("# Coverage details (missed lines)",
+                  dplyr::group_split(misses, file) %>% purrr::map_chr(function(df) {
+                    paste0("## ", unique(df$file), "\n- Missed lines: ", paste(df$number, collapse = ", "))
+                  })
+          )
+          writeLines(md, "coverage_missing.md")
+          '
+      
+      # Post the markdown in chunks (multiple comments)
+      - uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('coverage_missing.md', 'utf8');
+            const maxLen = 64000; // safe chunk size below GitHub's 65,535 limit
+      
+            const issue_number = context.payload.pull_request.number;
+            for (let i = 0; i < body.length; i += maxLen) {
+              const chunk = body.slice(i, i + maxLen);
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                body: chunk
+              });
+            }
