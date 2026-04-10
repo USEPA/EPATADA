@@ -1834,7 +1834,7 @@ TADA_DefineCriteriaMethodology <- function(
       openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
     }
 
-    TADA_CriteriaDataDictionary()
+    .TADA_CriteriaDataDictionary()
 
     cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
   }
@@ -1845,13 +1845,14 @@ TADA_DefineCriteriaMethodology <- function(
 #' Data Dictionary for Criteria and Methodology
 #'
 #' Defines and summarizes the column names found in the TADA format for the
-#' Criteria and Methodology table for users to fill out.
+#' Criteria and Methodology table for users to fill out. Internal function
+#' that runs automatically in TADA_DefineCriteriaMethodology
 #'
 #' @return An excel data frame tab
 #'
 #' @export
 #'
-TADA_CriteriaDataDictionary <- function() {
+.TADA_CriteriaDataDictionary <- function() {
   # Excel ref files to be stored in the Downloads folder location.
   # Define the OneDrive Downloads path
   onedrive_downloads_path <- file.path(
@@ -1880,10 +1881,14 @@ TADA_CriteriaDataDictionary <- function() {
   tryCatch(
     {
       openxlsx::addWorksheet(wb, "DataDictionary")
+      openxlsx::addWorksheet(wb, "AllowableValues")
     },
     error = function(e) {
       openxlsx::removeWorksheet(wb, "DataDictionary")
       openxlsx::addWorksheet(wb, "DataDictionary")
+      
+      openxlsx::removeWorksheet(wb, "AllowableValues")
+      openxlsx::addWorksheet(wb, "AllowableValues")
     }
   )
 
@@ -1920,7 +1925,18 @@ TADA_CriteriaDataDictionary <- function() {
       "DistrCount",
       "DistrPeriod",
       "DistrMinSample",
-      "Notes"
+      "Notes",
+      "EquationType",
+      "Equation",
+      "hardness_param_1",
+      "hardness_param_2",
+      "hardness_param_3",
+      "hardness_param_4",
+      "hardness_param_5",
+      "pH_param_1",
+      "pH_param_2",
+      "pH_param_3",
+      "pH_param_4"
     ),
     Requirement = c(
       "Required",
@@ -1953,6 +1969,17 @@ TADA_CriteriaDataDictionary <- function() {
       "Optional",
       "Optional",
       "Optional",
+      "Optional",
+      "Optional",
+      "Optional",
+      "Optional",
+      "Optional",
+      "Optional",
+      "Optional",
+      "Optional",
+      "Optional",
+      "Optional",
+      "Optional",
       "Optional"
     ),
     Source = c(
@@ -1963,6 +1990,17 @@ TADA_CriteriaDataDictionary <- function() {
       "TADA",
       "TADA",
       "TADA",
+      "User Supplied",
+      "User Supplied",
+      "User Supplied",
+      "User Supplied",
+      "User Supplied",
+      "User Supplied",
+      "User Supplied",
+      "User Supplied",
+      "User Supplied",
+      "User Supplied",
+      "User Supplied",
       "User Supplied",
       "User Supplied",
       "User Supplied",
@@ -2019,6 +2057,17 @@ TADA_CriteriaDataDictionary <- function() {
       "Methodology",
       "Methodology",
       "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
       "Methodology"
     ),
     Description = c(
@@ -2027,10 +2076,11 @@ TADA_CriteriaDataDictionary <- function() {
       # ATTAINS.ParameterName
       "The name of the parameter that gets submitted to ATTAINS. These do not need to be unique to your organization.",
       # ATTAINS.UseName
-      "The name of the use of a waterbody that gets submitted to ATTAINS. These use names should be specific to your organization.",
+      "The name of the waterbody use that gets submitted to ATTAINS. These use names should be specific to your organization.",
       # TADA.ComparableDataIdentifier
       paste0(
-        "To populate this field, specify displayUniqueId = TRUE. Concatenates the WQP Characteristic, Fraction and speciation into one string.",
+        "To populate this field, specify displayUniqueId = TRUE as an input into TADA_DefineCriteriaMethodology function. ",
+        "Concatenates the WQP Characteristic, Fraction and speciation into one string. ",
         "If provided, this will crosswalk an ATTAINS.ParameterName to this TADA.ComparableDataIdentifier. ",
         "It is recommended to have performed this crosswalk in TADA_ParametersForAnalysis to avoid any duplicated ",
         "definition of your organization's criteria if they are the same for multiple TADA.ComparableDataIdentifiers.",
@@ -2039,7 +2089,7 @@ TADA_CriteriaDataDictionary <- function() {
       # TADA.CharacteristicName
       "Name of TADA characteristic in the WQP that gets matched to an ATTAINS parameter.",
       # TADA.ResultSampleFractionText
-      "If TADA.ComparableDataIdentifier is blank, this will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified Fraction Type.",
+      "If TADA.ComparableDataIdentifier is blank, this will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified fraction type.",
       # TADA.MethodSpeciationName
       "If TADA.ComparableDataIdentifier is blank, this will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified speciation.",
       # ATTAINS.WaterType
@@ -2047,9 +2097,9 @@ TADA_CriteriaDataDictionary <- function() {
       # SaltFresh
       "The salt or freshwater classification of the ATTAINS Waterbody Type. Users should specify if a standard only applies to salt or freshwater types.",
       # DepthCategory
-      "The depth within water column that a standard applies to if applicable. Users can run TADA.FlagDepthCategory to populate this entry (or can specify a specific unit measurement?).",
+      "The depth within water column that a standard applies to if applicable.",
       # UniqueSpatialCriteria
-      "Users should specify any monitoring location sites that may contain a unique spatial critieria for a parameter or use in CreateMLSummaryRef.",
+      "Users should specify any monitoring location sites that may contain a unique spatial criteria for a parameter or use in CreateMLSummaryRef.",
       # AcuteChronic
       "If a parameter and use depends depends on differing criteria standards for acute or chronic conditions. Acute is defined as short term while chronic is long term.",
       # EquationBased
@@ -2079,9 +2129,9 @@ TADA_CriteriaDataDictionary <- function() {
       # Season
       "Labels the season in which the standards apply for this parameter and use. Specify the start and end dates of your season in the proceeding two columns.",
       # SeasonStartDate
-      "The start date of the season in which assessments are done for during a calendar year.",
+      "The start date of the season in which assessments are done for during a calendar year (ex. Apr 1).",
       # SeasonEndDate
-      "The end date of the season in which assessments are done for during a calendar year.",
+      "The end date of the season in which assessments are done for during a calendar year (ex. Sep 30).",
       # DistrCount
       "A numeric value specifying the minimum number of sampling events (consecutive) over a distribution period.",
       # DistrPeriod
@@ -2089,7 +2139,29 @@ TADA_CriteriaDataDictionary <- function() {
       # DistrMinSample
       "How many samples must be collected during each specified DistrPeriod",
       # Notes
-      "Additonal free form notes column for any notes that must be considered for this parameter and use that may not be able to be captured in the TADA criteria table format."
+      "Additonal free form notes column for any notes that must be considered for this parameter and use that may not be able to be captured in the TADA criteria table format.",
+      # EquationType
+      "What parameters are dependent for the equation. NOTE: Equation handling in TADA is still in development.",
+      # Equation
+      "Magnitude equation typed out. NOTE: Equation handling in TADA is still in development.",
+      # hardness_param_1
+      "First coefficient in the conversion factor in a typical hardness-dependent equation format: CF*e^(param_4(ln(hardness)) + param_5); CF = param_1 - ln(hardness)*param_2 OR CF = param_3. NOTE: Equation handling in TADA is still in development.",
+      # hardness_param_2
+      "Second coefficient in the conversion factor in a typical hardness-dependent equation format: CF*e^(param_4(ln(hardness)) + param_5); CF = param_1 - ln(hardness)*param_2 OR CF = param_3. NOTE: Equation handling in TADA is still in development.",
+      # hardness_param_3
+      "Conversion factor coefficient in a typical hardness-dependent equation format: CF*e^(param_4(ln(hardness)) + param_5); CF = param_3. NOTE: Equation handling in TADA is still in development.",
+      # hardness_param_4
+      "First coefficient in the main chunk of a typical hardness-dependent equation format: CF*e^(param_4(ln(hardness)) + param_5); CF = param_1 - ln(hardness)*param_2 OR CF = param_3. NOTE: Equation handling in TADA is still in development.",
+      # hardness_param_5
+      "Second coefficient in the main chunk of a typical hardness-dependent equation format: CF*e^(param_4(ln(hardness)) + param_5); CF = param_1 - ln(hardness)*param_2 OR CF = param_3. NOTE: Equation handling in TADA is still in development.",
+      # pH_param_1
+      "First coefficient in the typical pH-dependent equation format: param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). NOTE: Equation handling in TADA is still in development.",
+      # pH_param_2
+      "Second coefficient in the typical pH-dependent equation format: param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). NOTE: Equation handling in TADA is still in development.",
+      # pH_param_3
+      "Third coefficient in the typical pH-dependent equation format: param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). NOTE: Equation handling in TADA is still in development.",
+      # pH_param_4
+      "Fourth coefficient in the typical pH-dependent equation format: param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). NOTE: Equation handling in TADA is still in development."
     )
   )
 
@@ -2119,9 +2191,80 @@ TADA_CriteriaDataDictionary <- function() {
     header_style,
     rows = 2,
     cols = 2:(ncol(data_to_write) + 1),
-    gridExpand = TRUE
+    gridExpand = TRUE,
+    stack = TRUE
   )
-
+  # add blue shading to ColumnType == Crosswalk rows
+  crosswalk_style <- openxlsx::createStyle(
+    fgFill = "#DAEEF3", # Light blue background
+  )
+  
+  crosswalk_loc <- which(data_to_write$ColumnType == "Crosswalk") + 2
+  
+  # apply Crosswalk blue shading
+  openxlsx::addStyle(
+    wb,
+    "DataDictionary",
+    crosswalk_style,
+    rows = crosswalk_loc,
+    cols = 2:6,
+    gridExpand = TRUE,
+    stack = TRUE
+  )
+  
+  # add orange shading to ColumnType == Spatial rows
+  spatial_style <- openxlsx::createStyle(
+    fgFill = "#FDE9D9", # Light orange background
+  )
+  
+  spatial_loc <- which(data_to_write$ColumnType == "Spatial") + 2
+  
+  # apply Spatial orange shading
+  openxlsx::addStyle(
+    wb,
+    "DataDictionary",
+    spatial_style,
+    rows = spatial_loc,
+    cols = 2:6,
+    gridExpand = TRUE,
+    stack = TRUE
+  )
+  
+  # add green shading to ColumnType == Criteria rows
+  criteria_style <- openxlsx::createStyle(
+    fgFill = "#EBF1DE", # Light green background
+  )
+  
+  criteria_loc <- which(data_to_write$ColumnType == "Criteria") + 2
+  
+  # apply criteria green shading
+  openxlsx::addStyle(
+    wb,
+    "DataDictionary",
+    criteria_style,
+    rows = criteria_loc,
+    cols = 2:6,
+    gridExpand = TRUE,
+    stack = TRUE
+  )
+  
+  # add red shading to ColumnType == Methodology rows
+  method_style <- openxlsx::createStyle(
+    fgFill = "#F2DCDB", # Light red background
+  )
+  
+  method_loc <- which(data_to_write$ColumnType == "Methodology") + 2
+  
+  # apply Methodology red shading
+  openxlsx::addStyle(
+    wb,
+    "DataDictionary",
+    method_style,
+    rows = method_loc,
+    cols = 2:6,
+    gridExpand = TRUE,
+    stack = TRUE
+  )
   # Create a style for borders on all data cells
   data_border_style <- openxlsx::createStyle(
     border = "TopBottomLeftRight",
@@ -2135,7 +2278,8 @@ TADA_CriteriaDataDictionary <- function() {
     data_border_style,
     rows = 3:(nrow(data_to_write) + 2),
     cols = 2:(ncol(data_to_write) + 1),
-    gridExpand = TRUE
+    gridExpand = TRUE,
+    stack = TRUE
   )
 
   # Define description text that gets wrapped
@@ -2151,7 +2295,8 @@ TADA_CriteriaDataDictionary <- function() {
     "DataDictionary",
     wrapStyle,
     rows = 3:(nrow(data_to_write) + 2),
-    cols = ncol(data_to_write) + 1
+    cols = ncol(data_to_write) + 1,
+    stack = TRUE
   )
 
   openxlsx::setColWidths(
@@ -2165,10 +2310,424 @@ TADA_CriteriaDataDictionary <- function() {
   openxlsx::setColWidths(
     wb,
     "DataDictionary",
-    cols = 1:(ncol(data_to_write) - 1),
+    cols = 1:ncol(data_to_write),
     widths = "auto"
   )
 
+  # Example data frame
+  data_to_write_allow <- data.frame(
+    ColumnName = c(
+      "ATTAINS.OrganizationIdentifier",
+      "ATTAINS.ParameterName",
+      "ATTAINS.UseName",
+      "TADA.ComparableDataIdentifier",
+      "TADA.CharacteristicName",
+      "TADA.ResultSampleFractionText",
+      "TADA.MethodSpeciationName",
+      "ATTAINS.WaterType",
+      "SaltFresh",
+      "DepthCategory",
+      "UniqueSpatialCriteria",
+      "AcuteChronic",
+      "EquationBased",
+      "MagnitudeValueLower",
+      "MagnitudeValueUpper",
+      "MagnitudeUnit",
+      "DurationValue",
+      "DurationUnit",
+      "DurationMethod",
+      "FreqValue",
+      "FreqMethod",
+      "AssessPeriod",
+      "AssessPeriodStartDate",
+      "AssessPeriodEndDate",
+      "Season",
+      "SeasonStartDate",
+      "SeasonEndDate",
+      "DistrCount",
+      "DistrPeriod",
+      "DistrMinSample",
+      "Notes",
+      "EquationType",
+      "Equation",
+      "hardness_param_1",
+      "hardness_param_2",
+      "hardness_param_3",
+      "hardness_param_4",
+      "hardness_param_5",
+      "pH_param_1",
+      "pH_param_2",
+      "pH_param_3",
+      "pH_param_4"
+    ),
+    ColumnType = c(
+      "Crosswalk",
+      "Crosswalk",
+      "Crosswalk",
+      "Crosswalk",
+      "Crosswalk",
+      "Crosswalk",
+      "Crosswalk",
+      "Spatial",
+      "Spatial",
+      "Spatial",
+      "Spatial",
+      "Criteria",
+      "Criteria",
+      "Criteria",
+      "Criteria",
+      "Criteria",
+      "Criteria",
+      "Criteria",
+      "Criteria",
+      "Criteria",
+      "Criteria",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology",
+      "Methodology"
+    ),
+    AllowableValues = c(
+      # ATTAINS.OrganizationIdentifier
+      "https://owapps.epa.gov/expertquery/attains/assessments?assessmentUnitStatus=A",
+      # ATTAINS.ParameterName
+      "https://owapps.epa.gov/expertquery/attains/assessments?assessmentUnitStatus=A",
+      # ATTAINS.UseName
+      "https://owapps.epa.gov/expertquery/attains/assessments?assessmentUnitStatus=A",
+      # TADA.ComparableDataIdentifier
+      "",
+      # TADA.CharacteristicName
+      "https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads",
+      # TADA.ResultSampleFractionText
+      "",
+      # TADA.MethodSpeciationName
+      "",
+      # ATTAINS.WaterType
+      "https://owapps.epa.gov/expertquery/attains/assessments?assessmentUnitStatus=A",
+      # SaltFresh
+      "S; F; NA",
+      # DepthCategory
+      "No depth info; Epilimnion-surface; Surface; Bottom; Middle",
+      # UniqueSpatialCriteria
+      "NA",
+      # AcuteChronic
+      "A; C; NA",
+      # EquationBased
+      "Yes; No; NA",
+      # MagnitudeValueLower
+      "",
+      # MagnitudeValueUpper
+      "",
+      # MagnitudeUnit
+      "",
+      # DurationValue
+      "",
+      # DurationUnit
+      "n-hour; n-day; n-week; n-month; n-quarter",
+      # DurationMethod
+      "arithmetic mean; arithmetic median; arithmetic max; arithmetic min; arithmetic extremes; geometric mean; rolling geometric mean; rolling arithmetic mean; mean of daily minima; mean of daily maxima",
+      # FreqValue
+      "",
+      # FreqMethod
+      "Percent of samples not meeting; percentile; n-samples in 3 years; n-samples in 4 years; n-samples in 5 years; binomial test; NumberNotMeeting",
+      # AssessPeriod
+      "Last 30 years; Last 10 years; Last 5 years; Last 3 years; Last year; NA",
+      # AssessPeriodStartDate
+      "",
+      # AssessPeriodEndDate
+      "",
+      # Season
+      "Summer; Fall; Spring; Winter",
+      # SeasonStartDate
+      "",
+      # SeasonEndDate
+      "",
+      # DistrCount
+      "",
+      # DistrPeriod
+      "Seasonal; Annual; Semi-Annual; Quarterly; Monthly; Bi-weekly; Weekly; 10 days; NA",
+      # DistrMinSample
+      "",
+      # Notes
+      "",
+      # EquationType
+      "Additional Information; Hardness; pH; pH and Temperature; pH and Hardness",
+      # Equation
+      "",
+      # hardness_param_1
+      "",
+      # hardness_param_2
+      "",
+      # hardness_param_3
+      "",
+      # hardness_param_4
+      "",
+      # hardness_param_5
+      "",
+      # pH_param_1
+      "",
+      # pH_param_2
+      "",
+      # pH_param_3
+      "",
+      # pH_param_4
+      ""
+    ),
+    ExampleValues = c(
+      # ATTAINS.OrganizationIdentifier
+      "21COL001",
+      # ATTAINS.ParameterName
+      "DISSOLVED OXYGEN; TURBIDITY; ZINC, TOTAL; ZINC, DISSOLVED",
+      # ATTAINS.UseName
+      "Aquatic Life; Agriculture; Domestic Water Supply; Aquatic Life Coldwater",
+      # TADA.ComparableDataIdentifier
+      "TEMPERATURE, WATER_NA_NA_DEG C; ENTEROCOCCUS_TOTAL_NA_MPN/100ML; HARDNESS, NON-CARBONATE_DISSOLVED_NA_MG/L CACO3; AMMONIA-NITROGEN_UNFILTERED, FIELD_AS N_MG/L",
+      # TADA.CharacteristicName
+      "DISSOLVED OXYGEN (DO); TURBIDITY; ZINC; CHROMIUM(III)",
+      # TADA.ResultSampleFractionText
+      "DISSOLVED; TOTAL; TOTAL RECOVERABLE",
+      # TADA.MethodSpeciationName
+      "AS N; AS NH3",
+      # ATTAINS.WaterType
+      "Creek; Estuary; River; Stream",
+      # SaltFresh
+      "",
+      # DepthCategory
+      "",
+      # UniqueSpatialCriteria
+      "",
+      # AcuteChronic
+      "",
+      # EquationBased
+      "",
+      # MagnitudeValueLower
+      "5.2",
+      # MagnitudeValueUpper
+      "98.5",
+      # MagnitudeUnit
+      "MG/L; UG/L; NTU",
+      # DurationValue
+      "4",
+      # DurationUnit
+      "",
+      # DurationMethod
+      "",
+      # FreqValue
+      "10",
+      # FreqMethod
+      "",
+      # AssessPeriod
+      "",
+      # AssessPeriodStartDate
+      "2024-10-01",
+      # AssessPeriodEndDate
+      "2025-09-30",
+      # Season
+      "",
+      # SeasonStartDate
+      "Apr 01",
+      # SeasonEndDate
+      "Jul 15",
+      # DistrCount
+      "5",
+      # DistrPeriod
+      "",
+      # DistrMinSample
+      "10",
+      # Notes
+      "New addition to ATTAINS in FY2026",
+      # EquationType
+      "",
+      # Equation
+      "1.101672 - ln(hardness) (0.041838) * e(0.7977*ln(hardness)-3.909) or 0.275/(1+10^(7.204-pH)) + 39/(1+10^(pH-7.204))",
+      # hardness_param_1
+      "1.101672",
+      # hardness_param_2
+      "0.041838",
+      # hardness_param_3
+      "1",
+      # hardness_param_4
+      "0.7977",
+      # hardness_param_5
+      "-3.909",
+      # pH_param_1
+      "0.275",
+      # pH_param_2
+      "7.204",
+      # pH_param_3
+      "39",
+      # pH_param_4
+      "7.204"
+    )
+  )
+  
+  # Write the data frame to the worksheet, starting at cell B2
+  openxlsx::writeData(
+    wb,
+    "AllowableValues",
+    data_to_write_allow,
+    startCol = 2,
+    startRow = 2
+  )
+  
+  # Create a style for the header row
+  header_style <- openxlsx::createStyle(
+    fontSize = 12,
+    textDecoration = "bold",
+    halign = "center",
+    fgFill = "#DCE6F1", # Light blue background
+    border = "TopBottomLeftRight",
+    borderColour = "#000000"
+  )
+  
+  # Apply the header style to the second row (header)
+  openxlsx::addStyle(
+    wb,
+    "AllowableValues",
+    header_style,
+    rows = 2,
+    cols = 2:(ncol(data_to_write_allow) + 1),
+    gridExpand = TRUE,
+    stack = TRUE
+  )
+  # add blue shading to ColumnType == Crosswalk rows
+  crosswalk_style <- openxlsx::createStyle(
+    fgFill = "#DAEEF3", # Light blue background
+  )
+  
+  crosswalk_loc <- which(data_to_write_allow$ColumnType == "Crosswalk") + 2
+  
+  # apply Crosswalk blue shading
+  openxlsx::addStyle(
+    wb,
+    "AllowableValues",
+    crosswalk_style,
+    rows = crosswalk_loc,
+    cols = 2:5,
+    gridExpand = TRUE,
+    stack = TRUE
+  )
+  
+  # add orange shading to ColumnType == Spatial rows
+  spatial_style <- openxlsx::createStyle(
+    fgFill = "#FDE9D9", # Light orange background
+  )
+  
+  spatial_loc <- which(data_to_write_allow$ColumnType == "Spatial") + 2
+  
+  # apply Spatial orange shading
+  openxlsx::addStyle(
+    wb,
+    "AllowableValues",
+    spatial_style,
+    rows = spatial_loc,
+    cols = 2:5,
+    gridExpand = TRUE,
+    stack = TRUE
+  )
+  
+  # add green shading to ColumnType == Criteria rows
+  criteria_style <- openxlsx::createStyle(
+    fgFill = "#EBF1DE", # Light green background
+  )
+  
+  criteria_loc <- which(data_to_write_allow$ColumnType == "Criteria") + 2
+  
+  # apply criteria green shading
+  openxlsx::addStyle(
+    wb,
+    "AllowableValues",
+    criteria_style,
+    rows = criteria_loc,
+    cols = 2:5,
+    gridExpand = TRUE,
+    stack = TRUE
+  )
+  
+  # add red shading to ColumnType == Methodology rows
+  method_style <- openxlsx::createStyle(
+    fgFill = "#F2DCDB", # Light red background
+  )
+  
+  method_loc <- which(data_to_write_allow$ColumnType == "Methodology") + 2
+  
+  # apply Methodology red shading
+  openxlsx::addStyle(
+    wb,
+    "AllowableValues",
+    method_style,
+    rows = method_loc,
+    cols = 2:5,
+    gridExpand = TRUE,
+    stack = TRUE
+  )
+  # Create a style for borders on all data cells
+  data_border_style <- openxlsx::createStyle(
+    border = "TopBottomLeftRight",
+    borderColour = "#000000" # Light grey border
+  )
+  
+  # Apply data border style to all data rows and columns besides header
+  openxlsx::addStyle(
+    wb,
+    "AllowableValues",
+    data_border_style,
+    rows = 3:(nrow(data_to_write_allow) + 2),
+    cols = 2:(ncol(data_to_write_allow) + 1),
+    gridExpand = TRUE,
+    stack = TRUE
+  )
+  
+  # Define description text that gets wrapped
+  wrapStyle <- openxlsx::createStyle(
+    border = "TopBottomLeftRight",
+    borderColour = "#000000", # Light grey border
+    wrapText = TRUE
+  )
+  
+  # only applies to the last column. We shifted the table to B2, adjust accordingly
+  openxlsx::addStyle(
+    wb,
+    "AllowableValues",
+    wrapStyle,
+    rows = 3:(nrow(data_to_write_allow) + 2),
+    cols = ncol(data_to_write_allow) + 1,
+    stack = TRUE
+  )
+  
+  openxlsx::setColWidths(
+    wb,
+    "AllowableValues",
+    cols = ncol(data_to_write_allow):(ncol(data_to_write_allow) + 1),
+    widths = 80
+  ) # Adjust width as needed
+  
+  # Set column widths to automatically fit content, except last column
+  openxlsx::setColWidths(
+    wb,
+    "AllowableValues",
+    cols = 1:(ncol(data_to_write_allow) - 1),
+    widths = "auto"
+  )
+  
+  
   # Save the workbook to an Excel file
   openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
 }
