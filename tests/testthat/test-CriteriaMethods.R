@@ -177,12 +177,12 @@ test_that("criteriaMethods path fills missing columns and handles missing TADA.C
     TADA.CharacteristicName = c("CHAR_A"),
     stringsAsFactors = FALSE
   )
-  res <- TADA_DefineCriteriaMethodology(
+  expect_warning(res <- TADA_DefineCriteriaMethodology(
     .data = df,
     org_id = c("ORGX"),
     criteriaMethods = cm,
     excel = FALSE
-  )
+  ))
   # Expect desired columns present
   expected_cols <- c(
     "ATTAINS.OrganizationIdentifier",
