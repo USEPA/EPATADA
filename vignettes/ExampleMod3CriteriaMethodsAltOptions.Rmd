@@ -164,7 +164,6 @@ API key to the "api_key" variable. Otherwise, the default EPATADA
 package key will be used.
 
 ```{r api_key}
-
 # api_key <- "paste your key here"
 
 # is user does not provide key, set api_key as NULL

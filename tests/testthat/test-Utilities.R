@@ -336,15 +336,15 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
 
 # Mock characteristic reference table with a variety of cases
 char_ref <- tibble::tribble(
-  ~CharacteristicName                                                  , ~Char_Flag   , ~Comparable.Name                     , ~ExtraCol ,
-  "Inorganic nitrogen (nitrate and nitrite)"                           , "Deprecated" , "Total Nitrogen (nitrate + nitrite)" , "X"       ,
-  "Phosphate-phosphorus***retired***use Total Phosphorus, mixed forms" , "Deprecated" , "Total Phosphorus"                   , "Y"       ,
+  ~CharacteristicName, ~Char_Flag, ~Comparable.Name, ~ExtraCol,
+  "Inorganic nitrogen (nitrate and nitrite)", "Deprecated", "Total Nitrogen (nitrate + nitrite)", "X",
+  "Phosphate-phosphorus***retired***use Total Phosphorus, mixed forms", "Deprecated", "Total Phosphorus", "Y",
   # Duplicate key to test de-duplication and no row multiplication
-  "Inorganic nitrogen (nitrate and nitrite)"                           , "Deprecated" , "Total Nitrogen (nitrate + nitrite)" , "Z"       ,
+  "Inorganic nitrogen (nitrate and nitrite)", "Deprecated", "Total Nitrogen (nitrate + nitrite)", "Z",
   # Deprecated but blank Comparable.Name
-  "Old Thing"                                                          , "Deprecated" , ""                                   , "W"       ,
+  "Old Thing", "Deprecated", "", "W",
   # Active (non-deprecated)
-  "Nitrate"                                                            , "Active"     , NA_character_                        , "A"
+  "Nitrate", "Active", NA_character_, "A"
 )
 
 # Helper to run the function with mocked dependencies
@@ -359,11 +359,11 @@ run_with_mocks <- function(df, quiet = FALSE) {
 
 test_that("preserves row count and order, and does not duplicate rows", {
   df <- tibble::tribble(
-    ~CharacteristicName                        , ~OtherCol ,
-    "Inorganic nitrogen (nitrate and nitrite)" ,         1 ,
-    "Nitrate"                                  ,         2 ,
-    "Phosphate-phosphorus"                     ,         3 ,
-    "Old Thing"                                ,         4
+    ~CharacteristicName, ~OtherCol,
+    "Inorganic nitrogen (nitrate and nitrite)", 1,
+    "Nitrate", 2,
+    "Phosphate-phosphorus", 3,
+    "Old Thing", 4
   )
 
   result <- run_with_mocks(df, quiet = TRUE)
@@ -374,11 +374,11 @@ test_that("preserves row count and order, and does not duplicate rows", {
 
 test_that("uppercases TADA.CharacteristicName for all rows", {
   df <- tibble::tribble(
-    ~CharacteristicName                        , ~OtherCol ,
-    "Inorganic nitrogen (nitrate and nitrite)" ,         1 ,
-    "Nitrate"                                  ,         2 ,
-    "Phosphate-phosphorus"                     ,         3 ,
-    "Old Thing"                                ,         4
+    ~CharacteristicName, ~OtherCol,
+    "Inorganic nitrogen (nitrate and nitrite)", 1,
+    "Nitrate", 2,
+    "Phosphate-phosphorus", 3,
+    "Old Thing", 4
   )
 
   result <- run_with_mocks(df, quiet = TRUE)
@@ -389,9 +389,9 @@ test_that("uppercases TADA.CharacteristicName for all rows", {
 
 test_that("substitutions occur where Comparable.Name is present; blanks/NA do not produce NA", {
   df <- tibble::tribble(
-    ~CharacteristicName                        , ~OtherCol ,
-    "Inorganic nitrogen (nitrate and nitrite)" ,         1 ,
-    "Old Thing"                                ,         2
+    ~CharacteristicName, ~OtherCol,
+    "Inorganic nitrogen (nitrate and nitrite)", 1,
+    "Old Thing", 2
   )
   result <- run_with_mocks(df, quiet = TRUE)
 
@@ -407,8 +407,8 @@ test_that("substitutions occur where Comparable.Name is present; blanks/NA do no
 
 test_that("NWIS retired trimming works for WQX names containing '***retired***'", {
   df <- tibble::tribble(
-    ~CharacteristicName    , ~OtherCol ,
-    "Phosphate-phosphorus" ,         1
+    ~CharacteristicName, ~OtherCol,
+    "Phosphate-phosphorus", 1
   )
   result <- run_with_mocks(df, quiet = TRUE)
 
@@ -417,11 +417,11 @@ test_that("NWIS retired trimming works for WQX names containing '***retired***'"
 
 test_that("respects quiet = TRUE (no messages), and reports detailed mapping when quiet = FALSE", {
   df <- tibble::tribble(
-    ~CharacteristicName                        , ~OtherCol ,
-    "Inorganic nitrogen (nitrate and nitrite)" ,         1 ,
-    "Phosphate-phosphorus"                     ,         2 ,
-    "Old Thing"                                ,         3 ,
-    "Nitrate"                                  ,         4
+    ~CharacteristicName, ~OtherCol,
+    "Inorganic nitrogen (nitrate and nitrite)", 1,
+    "Phosphate-phosphorus", 2,
+    "Old Thing", 3,
+    "Nitrate", 4
   )
 
   # No messages when quiet = TRUE
@@ -440,9 +440,9 @@ test_that("respects quiet = TRUE (no messages), and reports detailed mapping whe
 
 test_that("does not leak extra columns from ref and removes ref join columns", {
   df <- tibble::tribble(
-    ~CharacteristicName                        , ~OtherCol ,
-    "Inorganic nitrogen (nitrate and nitrite)" ,         1 ,
-    "Phosphate-phosphorus"                     ,         2
+    ~CharacteristicName, ~OtherCol,
+    "Inorganic nitrogen (nitrate and nitrite)", 1,
+    "Phosphate-phosphorus", 2
   )
   result <- run_with_mocks(df, quiet = TRUE)
 
@@ -455,8 +455,8 @@ test_that("does not leak extra columns from ref and removes ref join columns", {
 
 test_that("when no deprecated names found, message indicates so", {
   df <- tibble::tribble(
-    ~CharacteristicName , ~OtherCol ,
-    "Nitrate"           ,         1
+    ~CharacteristicName, ~OtherCol,
+    "Nitrate", 1
   )
   expect_message(
     run_with_mocks(df, quiet = FALSE),
@@ -466,8 +466,8 @@ test_that("when no deprecated names found, message indicates so", {
 
 test_that("existing TADA.CharacteristicName is preserved (and uppercased) when no substitution applies", {
   df <- tibble::tribble(
-    ~CharacteristicName , ~OtherCol , ~TADA.CharacteristicName ,
-    "Nitrate"           ,         1 , "bar"
+    ~CharacteristicName, ~OtherCol, ~TADA.CharacteristicName,
+    "Nitrate", 1, "bar"
   )
   result <- run_with_mocks(df, quiet = TRUE)
 
@@ -493,8 +493,8 @@ test_that("handles empty input gracefully and respects quiet", {
 
 test_that("does not change non-deprecated names except for uppercasing", {
   df <- tibble::tribble(
-    ~CharacteristicName , ~OtherCol ,
-    "Nitrate"           ,         1
+    ~CharacteristicName, ~OtherCol,
+    "Nitrate", 1
   )
   result <- run_with_mocks(df, quiet = TRUE)
 

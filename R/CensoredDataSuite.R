@@ -83,21 +83,25 @@
 #'
 #' # Review Non-Detects and confirm the detection limit value was copied
 #' nd <- subset(dat_flagged, TADA.CensoredData.Flag == "Non-Detect")
-#' head(nd[, c("ResultIdentifier",
+#' head(nd[, c(
+#'   "ResultIdentifier",
 #'   "ResultDetectionConditionText",
 #'   "DetectionQuantitationLimitTypeName",
 #'   "TADA.ResultMeasureValue",
 #'   "TADA.ResultMeasure.MeasureUnitCode",
-#'   "TADA.ResultMeasureValueDataTypes.Flag")])
+#'   "TADA.ResultMeasureValueDataTypes.Flag"
+#' )])
 #'
 #' # Review conflicts (values/units set to NA)
 #' conf <- subset(dat_flagged, TADA.CensoredData.Flag == "Conflict between Condition and Limit")
-#' head(conf[, c("ResultIdentifier",
+#' head(conf[, c(
+#'   "ResultIdentifier",
 #'   "ResultDetectionConditionText",
 #'   "DetectionQuantitationLimitTypeName",
 #'   "TADA.ResultMeasureValue",
 #'   "TADA.ResultMeasure.MeasureUnitCode",
-#'   "TADA.ResultMeasureValueDataTypes.Flag")])
+#'   "TADA.ResultMeasureValueDataTypes.Flag"
+#' )])
 #'
 #' # Example 2: Ensure measure qualifier flags are present (optional)
 #' # This can improve censored result identification via user-supplied codes.
@@ -583,8 +587,10 @@ TADA_IDCensoredData <- function(.data) {
 #' )
 #' table(dat_simple$TADA.CensoredData.Flag)
 #' head(subset(dat_simple, TADA.CensoredData.Flag == "Non-Detect")[
-#'   , c("ResultIdentifier", "TADA.ResultMeasureValue",
-#'     "TADA.ResultMeasure.MeasureUnitCode", "TADA.CensoredMethod")
+#'   , c(
+#'     "ResultIdentifier", "TADA.ResultMeasureValue",
+#'     "TADA.ResultMeasure.MeasureUnitCode", "TADA.CensoredMethod"
+#'   )
 #' ])
 #'
 #' # Example 2: Randomize Non-Detects below the detection limit, keep Over-Detects as-is
@@ -613,7 +619,7 @@ TADA_IDCensoredData <- function(.data) {
 #' ])
 #'
 #' # Example 4: If no censored data are present, the function returns the input
-#' dat_unc <- subset(Data_Nutrients_UT, FALSE)  # empty subset for illustration
+#' dat_unc <- subset(Data_Nutrients_UT, FALSE) # empty subset for illustration
 #' res <- TADA_SimpleCensoredMethods(dat_unc)
 #' # message: "Cannot apply simple censored methods to dataframe with no censored
 #' # data results. Returning input dataframe."

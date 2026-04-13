@@ -67,7 +67,8 @@ df <- TADA_DataRetrieval(
 )
 
 df2 <- TADA_SimpleCensoredMethods(
-  df, nd_method = "multiplier", nd_multiplier = 0.5,
+  df,
+  nd_method = "multiplier", nd_multiplier = 0.5,
   od_method = "as-is", od_multiplier = "null"
 )
 

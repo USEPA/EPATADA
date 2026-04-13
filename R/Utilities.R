@@ -2605,8 +2605,7 @@ TADA_CorrectColType <- function(.data) {
 
   # Converter per type
   convert <- function(x, type) {
-    switch(
-      type,
+    switch(type,
       character = as.character(x),
       numeric = suppressWarnings(as.numeric(x)),
       integer = suppressWarnings(as.integer(x)),
@@ -2742,5 +2741,7 @@ TADA_CorrectColType <- function(.data) {
 
   # if neither exist
   def <- "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
-  if (nzchar(def)) return(def)
+  if (nzchar(def)) {
+    return(def)
+  }
 }

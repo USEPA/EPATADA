@@ -921,7 +921,6 @@ make_min_tada_df <- function(
     DetectionQuantitationLimitMeasure.MeasureValue = rep(NA_real_, n),
     LatitudeMeasure = rep(45.0, n),
     LongitudeMeasure = rep(-120.0, n),
-
     stringsAsFactors = FALSE
   )
 }

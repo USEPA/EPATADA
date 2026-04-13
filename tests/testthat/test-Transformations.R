@@ -118,12 +118,10 @@ make_dummy_non_np_df <- function() {
     ActivityMediaSubdivisionName = c(NA, NA),
     TADA.ComparableDataIdentifier = c(NA, NA),
     TADA.ResultMeasureValueDataTypes.Flag = c("Numeric", "Numeric"),
-
     TADA.ActivityType.Flag = c("Non_QC", "Non_QC"),
     TADA.ResultUnit.Flag = c("Pass", "Pass"),
     TADA.SampleFraction.Flag = c("Pass", "Pass"),
     TADA.MethodSpeciation.Flag = c("Pass", "Pass"),
-
     ResultIdentifier = c("RID-A", "RID-B"),
     stringsAsFactors = FALSE
   )

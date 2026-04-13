@@ -447,11 +447,15 @@ TADA_ListCacheKeys <- function() {
 
   if (!is.null(object_name) && object_name %in% objs) {
     df <- pick_df(e[[object_name]])
-    if (!is.null(df)) return(df)
+    if (!is.null(df)) {
+      return(df)
+    }
   }
   for (nm in objs) {
     df <- pick_df(e[[nm]])
-    if (!is.null(df)) return(df)
+    if (!is.null(df)) {
+      return(df)
+    }
   }
 }
 
@@ -1259,7 +1263,9 @@ TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
 TADA_GetWQXCharValRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
     cached <- .tada_cache_get(.WQXCharValRef_cache_key)
-    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+    if (!is.null(cached) && !isTRUE(refresh)) {
+      return(cached)
+    }
   }
   if (download_only) {
     df <- .tada_read_csv_url(
@@ -1318,7 +1324,9 @@ TADA_GetWQXCharValRef <- function(download_only = FALSE, refresh = FALSE) {
 TADA_GetMeasureUnitRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
     cached <- .tada_cache_get(.WQXUnitRef_cache_key)
-    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+    if (!is.null(cached) && !isTRUE(refresh)) {
+      return(cached)
+    }
   }
 
   if (download_only) {
@@ -1431,7 +1439,9 @@ TADA_GetDetCondRef <- function(
 ) {
   if (!download_only) {
     cached <- .tada_cache_get(.WQXDetCondRef_cache_key)
-    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+    if (!is.null(cached) && !isTRUE(refresh)) {
+      return(cached)
+    }
   }
   msg <- if (quiet) {
     NULL
@@ -1506,7 +1516,9 @@ TADA_GetDetCondRef <- function(
 TADA_GetDetLimitRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
     cached <- .tada_cache_get(.WQXDetLimitRef_cache_key)
-    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+    if (!is.null(cached) && !isTRUE(refresh)) {
+      return(cached)
+    }
   }
   if (download_only) {
     df <- .tada_read_csv_url(
@@ -1565,7 +1577,9 @@ TADA_GetDetLimitRef <- function(download_only = FALSE, refresh = FALSE) {
 TADA_GetActivityTypeRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
     cached <- .tada_cache_get(.WQXActivityTypeRef_cache_key)
-    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+    if (!is.null(cached) && !isTRUE(refresh)) {
+      return(cached)
+    }
   }
 
   if (download_only) {
@@ -1626,7 +1640,9 @@ TADA_GetActivityTypeRef <- function(download_only = FALSE, refresh = FALSE) {
 TADA_GetMonLocTypeRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
     cached <- .tada_cache_get(.WQXMonLocTypeRef_cache_key)
-    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+    if (!is.null(cached) && !isTRUE(refresh)) {
+      return(cached)
+    }
   }
   if (download_only) {
     df <- .tada_read_csv_url(
@@ -1685,7 +1701,9 @@ TADA_GetMonLocTypeRef <- function(download_only = FALSE, refresh = FALSE) {
 TADA_GetWQPOrganizationRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
     cached <- .tada_cache_get(.WQPProviderRef_cache_key)
-    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+    if (!is.null(cached) && !isTRUE(refresh)) {
+      return(cached)
+    }
   }
   if (download_only) {
     df <- .tada_read_csv_url(.WQP_URLS$Organization, stringsAsFactors = FALSE)
@@ -2054,7 +2072,9 @@ TADA_GetMeasureQualifierCodeRef <- function(
 ) {
   if (!download_only) {
     cached <- .tada_cache_get(.WQXMeasureQualifierCodeRef_cache_key)
-    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+    if (!is.null(cached) && !isTRUE(refresh)) {
+      return(cached)
+    }
   }
   if (download_only) {
     # Verbose TRUE to print the underlying cause if it fails
@@ -2122,7 +2142,9 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
   # Return cached table unless refresh is requested
   if (!download_only) {
     cached <- .tada_cache_get(.WQXCharAliasRef_cache_key)
-    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+    if (!is.null(cached) && !isTRUE(refresh)) {
+      return(cached)
+    }
   }
 
   # Helper: download ZIP, unzip, locate CSV, read it, preserving row order
@@ -2378,7 +2400,9 @@ TADA_GetATTAINSOrgIDsRef <- function(
 ) {
   if (!download_only) {
     cached <- .tada_cache_get(.ATTAINSOrgIDsRef_cache_key)
-    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+    if (!is.null(cached) && !isTRUE(refresh)) {
+      return(cached)
+    }
   }
 
   # Attempt live download via rExpertQuery if present
@@ -2485,7 +2509,9 @@ TADA_GetATTAINSParamUseOrgRef <- function(
   )
   if (!download_only) {
     cached <- .tada_cache_get(cache_key)
-    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+    if (!is.null(cached) && !isTRUE(refresh)) {
+      return(cached)
+    }
   }
 
   # Live retrieval via rExpertQuery if available
@@ -2931,8 +2957,7 @@ if (!exists(".tada_cst_get_report_datetime", inherits = FALSE)) {
   }
 
   # 1) Classic names: anchored, case-insensitive
-  classic_pat <- switch(
-    target,
+  classic_pat <- switch(target,
     legend = "(?i)^\\s*legend",
     sources = "(?i)^\\s*sources?",
     criteria = "(?i)^\\s*criteria"
@@ -2959,8 +2984,7 @@ if (!exists(".tada_cst_get_report_datetime", inherits = FALSE)) {
     ends_with_n <- function(x, n) grepl(sprintf("\\(\\s*%d\\s*\\)\\s*$", n), x)
     ends_with_any_num <- function(x) grepl("\\(\\s*\\d+\\s*\\)\\s*$", x)
 
-    sheet_to_read <- switch(
-      target,
+    sheet_to_read <- switch(target,
       criteria = {
         pick <- candidates[ends_with_n(candidates, 3)]
         if (length(pick) >= 1) pick[1] else NULL
@@ -3128,7 +3152,9 @@ if (!exists(".tada_cst_make_normalized_copy", inherits = FALSE)) {
 TADA_CST_GetCriteria <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
     cached <- .tada_cache_get(.CST_CRITERIA_CACHE_KEY)
-    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+    if (!is.null(cached) && !isTRUE(refresh)) {
+      return(cached)
+    }
   }
 
   path <- .tada_cst_get_workbook_path(
@@ -3180,7 +3206,9 @@ TADA_CST_GetCriteria <- function(download_only = FALSE, refresh = FALSE) {
 TADA_CST_GetLegend <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
     cached <- .tada_cache_get(.CST_LEGEND_CACHE_KEY)
-    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+    if (!is.null(cached) && !isTRUE(refresh)) {
+      return(cached)
+    }
   }
   path <- .tada_cst_get_workbook_path(
     download_only = download_only,
@@ -3230,7 +3258,9 @@ TADA_CST_GetLegend <- function(download_only = FALSE, refresh = FALSE) {
 TADA_CST_GetSources <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
     cached <- .tada_cache_get(.CST_SOURCES_CACHE_KEY)
-    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+    if (!is.null(cached) && !isTRUE(refresh)) {
+      return(cached)
+    }
   }
 
   path <- .tada_cst_get_workbook_path(

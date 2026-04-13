@@ -544,7 +544,9 @@ TADA_RetainRequired <- function(.data) {
   )
 
   # create list of columns containing all NA values.
-  na.cols <- .data |> purrr::keep(~ all(is.na(.x))) |> names()
+  na.cols <- .data |>
+    purrr::keep(~ all(is.na(.x))) |>
+    names()
 
   # create list of columns to be removed by comparing columns containing all NA
   # values to required columns.

@@ -14,7 +14,7 @@
 #' baseurl <- "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3"
 #'
 #' df <- Data_MT_MissoulaCounty |>
-#'       TADA_MakeSpatial()
+#'   TADA_MakeSpatial()
 #'
 #' features <- fetch_bbox(baseurl, df)
 #' }
@@ -52,12 +52,16 @@ fetch_bbox <- function(baseurl, df) {
 #'   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
 #'   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
 #' )
-#' line.features <- fetch_au(baseurl = baseurls[[3]],
-#'   assessment_unit_ids = c("IL_N-99",
+#' line.features <- fetch_au(
+#'   baseurl = baseurls[[3]],
+#'   assessment_unit_ids = c(
+#'     "IL_N-99",
 #'     "IL_N-12",
 #'     "IL_N-16",
-#'     "IL_N-17"))
-#'}
+#'     "IL_N-17"
+#'   )
+#' )
+#' }
 fetch_au <- function(baseurl, assessment_unit_ids, org_filter = "all") {
   # set out epsg
   out_epsg <- 4326
@@ -140,25 +144,25 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
   suppressMessages(suppressWarnings({
     # Create a reference table for CRS and EPSG codes using `tribble`
     epsg_codes <- tidyr::tribble(
-      ~HorizontalCoordinateReferenceSystemDatumName , ~epsg ,
-      "NAD83"                                       ,  4269 ,
-      "WGS84"                                       ,  4326 ,
-      "NAD27"                                       ,  4267 ,
-      "UNKWN"                                       , crs   ,
-      "Unknown"                                     , crs   ,
-      "OTHER"                                       , crs   ,
-      "OLDHI"                                       ,  4135 ,
-      "AMSMA"                                       ,  4169 ,
-      "ASTRO"                                       ,  4727 ,
-      "GUAM"                                        ,  4675 ,
-      "JHNSN"                                       ,  4725 ,
-      "PR"                                          ,  6139 ,
-      "SGEOR"                                       ,  4138 ,
-      "SLAWR"                                       ,  4136 ,
-      "SPAUL"                                       ,  4137 ,
-      "WAKE"                                        ,  6732 ,
-      "WGS72"                                       ,  6322 ,
-      "HARN"                                        ,  4152
+      ~HorizontalCoordinateReferenceSystemDatumName, ~epsg,
+      "NAD83", 4269,
+      "WGS84", 4326,
+      "NAD27", 4267,
+      "UNKWN", crs,
+      "Unknown", crs,
+      "OTHER", crs,
+      "OLDHI", 4135,
+      "AMSMA", 4169,
+      "ASTRO", 4727,
+      "GUAM", 4675,
+      "JHNSN", 4725,
+      "PR", 6139,
+      "SGEOR", 4138,
+      "SLAWR", 4136,
+      "SPAUL", 4137,
+      "WAKE", 6732,
+      "WGS72", 6322,
+      "HARN", 4152
     )
 
     # Handle missing or unknown CRS values

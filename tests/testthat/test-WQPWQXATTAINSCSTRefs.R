@@ -492,12 +492,10 @@ testthat::test_that("Getters read, normalize, and cache results (classic and fuz
 
   # Inline mock_resolver_to_path
   testthat::local_mocked_bindings(
-    .tada_cst_get_workbook_path = function(
-      download_only = FALSE,
-      refresh = FALSE,
-      pkg = "EPATADA",
-      on_fail_message = NULL
-    ) {
+    .tada_cst_get_workbook_path = function(download_only = FALSE,
+                                           refresh = FALSE,
+                                           pkg = "EPATADA",
+                                           on_fail_message = NULL) {
       if (!download_only) {
         get(".tada_cache_set", envir = ns)("CST_workbook_path", wb_path)
       }
@@ -551,11 +549,9 @@ testthat::test_that("download_only = TRUE returns data but does not populate cac
   openxlsx::write.xlsx(x, file = wb_path, asTable = FALSE, overwrite = TRUE)
 
   testthat::local_mocked_bindings(
-    .tada_cst_get_workbook_path = function(
-      download_only = FALSE,
-      refresh = FALSE,
-      ...
-    ) {
+    .tada_cst_get_workbook_path = function(download_only = FALSE,
+                                           refresh = FALSE,
+                                           ...) {
       if (!download_only) {
         get(".tada_cache_set", envir = ns)("CST_workbook_path", wb_path)
       }
@@ -598,11 +594,9 @@ testthat::test_that("refresh = TRUE bypasses cached data and updates it", {
 
   current_path <- wb1
   testthat::local_mocked_bindings(
-    .tada_cst_get_workbook_path = function(
-      download_only = FALSE,
-      refresh = FALSE,
-      ...
-    ) {
+    .tada_cst_get_workbook_path = function(download_only = FALSE,
+                                           refresh = FALSE,
+                                           ...) {
       if (!download_only) {
         get(".tada_cache_set", envir = ns)("CST_workbook_path", current_path)
       }
@@ -645,11 +639,9 @@ testthat::test_that("Resolves new CST naming: base=(legend), (2)=(sources), (3)=
   openxlsx::write.xlsx(x, file = wb, asTable = FALSE, overwrite = TRUE)
 
   testthat::local_mocked_bindings(
-    .tada_cst_get_workbook_path = function(
-      download_only = FALSE,
-      refresh = FALSE,
-      ...
-    ) {
+    .tada_cst_get_workbook_path = function(download_only = FALSE,
+                                           refresh = FALSE,
+                                           ...) {
       if (!download_only) {
         get(".tada_cache_set", envir = ns)("CST_workbook_path", wb)
       }
@@ -694,11 +686,9 @@ testthat::test_that("Errors when sheet names are unrecognized (no index fallback
   openxlsx::write.xlsx(x, file = wb, asTable = FALSE, overwrite = TRUE)
 
   testthat::local_mocked_bindings(
-    .tada_cst_get_workbook_path = function(
-      download_only = FALSE,
-      refresh = FALSE,
-      ...
-    ) {
+    .tada_cst_get_workbook_path = function(download_only = FALSE,
+                                           refresh = FALSE,
+                                           ...) {
       if (!download_only) {
         get(".tada_cache_set", envir = ns)("CST_workbook_path", wb)
       }
@@ -736,19 +726,15 @@ testthat::test_that(".TADA_CST_UpdateWorkbook delegates to write helper", {
   captured_norm <- NULL
 
   testthat::local_mocked_bindings(
-    .tada_cst_get_workbook_path = function(
-      download_only = TRUE,
-      refresh = TRUE,
-      ...
-    ) {
+    .tada_cst_get_workbook_path = function(download_only = TRUE,
+                                           refresh = TRUE,
+                                           ...) {
       fake_src
     },
-    .tada_cst_write_ext_workbook_if_changed = function(
-      src_path,
-      pkg = "EPATADA",
-      filename = "cst-workbook.xlsx",
-      normalize_tabs = TRUE
-    ) {
+    .tada_cst_write_ext_workbook_if_changed = function(src_path,
+                                                       pkg = "EPATADA",
+                                                       filename = "cst-workbook.xlsx",
+                                                       normalize_tabs = TRUE) {
       called <<- TRUE
       captured_src <<- src_path
       captured_norm <<- normalize_tabs
@@ -821,11 +807,9 @@ testthat::test_that("Workbook path is cached and reused when refresh = FALSE", {
 
   # First resolution caches the path
   testthat::local_mocked_bindings(
-    .tada_cst_get_workbook_path = function(
-      download_only = FALSE,
-      refresh = FALSE,
-      ...
-    ) {
+    .tada_cst_get_workbook_path = function(download_only = FALSE,
+                                           refresh = FALSE,
+                                           ...) {
       get(".tada_cache_set", envir = ns)("CST_workbook_path", wb)
       wb
     },

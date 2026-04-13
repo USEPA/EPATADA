@@ -427,7 +427,9 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       dplyr::slice_sample(n = 1)
 
     # combine paired dfs
-    all.pairs <- pair.activityid |> rbind(pair.ml.time) |> dplyr::distinct()
+    all.pairs <- pair.activityid |>
+      rbind(pair.ml.time) |>
+      dplyr::distinct()
 
     return(all.pairs)
   }

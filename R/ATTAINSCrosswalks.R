@@ -1432,7 +1432,7 @@ TADA_ParametersForAnalysis <- function(
             "No crosswalk was provided and no alias matches were found for this organization."
           )
         ) |>
-        #dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
+        # dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
         dplyr::distinct()
     }
 
@@ -2101,7 +2101,7 @@ TADA_UsesForAnalysis <- function(
         )
 
       ATTAINSParamUseOrgRef <- ATTAINSParamUseOrgRef_overlap |>
-        #dplyr::filter(!ATTAINS.UseName %in% AU_UsesRef$ATTAINS.UseName) |>
+        # dplyr::filter(!ATTAINS.UseName %in% AU_UsesRef$ATTAINS.UseName) |>
         dplyr::select(-ATTAINS.UseName) |>
         dplyr::right_join(
           AU_UsesRef_new,
@@ -2740,23 +2740,23 @@ TADA_UsesForAnalysis <- function(
           i + 1,
           '="Exclude",',
           '"Use name does not apply for this ATTAINS.ParameterName. Excluding this use name from analysis.",',
-          'IF(ISBLANK(D',
+          "IF(ISBLANK(D",
           i + 1,
-          '),',
+          "),",
           '"No use name is provided. Consider choosing an appropriate ATTAINS.UseName.",',
-          'IF(ISNA(MATCH(1,(D',
+          "IF(ISNA(MATCH(1,(D",
           i + 1,
-          '=ATTAINSOrgNamesParamRef!E:E)*(B',
+          "=ATTAINSOrgNamesParamRef!E:E)*(B",
           i + 1,
-          '=ATTAINSOrgNamesParamRef!A:A),0)),',
+          "=ATTAINSOrgNamesParamRef!A:A),0)),",
           '"Use name has not been assessed in prior cycles.",',
-          'IF(ISNA(MATCH(1,(C',
+          "IF(ISNA(MATCH(1,(C",
           i + 1,
-          '=ATTAINSOrgNamesParamRef!D:D)*(D',
+          "=ATTAINSOrgNamesParamRef!D:D)*(D",
           i + 1,
-          '=ATTAINSOrgNamesParamRef!E:E)*(B',
+          "=ATTAINSOrgNamesParamRef!E:E)*(B",
           i + 1,
-          '=ATTAINSOrgNamesParamRef!A:A),0)),',
+          "=ATTAINSOrgNamesParamRef!A:A),0)),",
           '"Use name has been assessed in prior cycles by this organization, but not for this parameter name.",',
           '"Use name has been assessed in prior cycles by this organization."))))'
         )
