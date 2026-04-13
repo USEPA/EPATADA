@@ -4,7 +4,12 @@
 \alias{TADA_CriteriaDataDictionary}
 \title{Data Dictionary for Criteria and Methodology}
 \usage{
-TADA_CriteriaDataDictionary()
+TADA_CriteriaDataDictionary(downloads_path = NULL)
+}
+\arguments{
+\item{downloads_path}{A character string to define the location of the
+'myfileRef.xlsx' file to include the data dictionary to. Default is
+null to find the path in the Downloads folder path.}
 }
 \value{
 An excel data frame tab

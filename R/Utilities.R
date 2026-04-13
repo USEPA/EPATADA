@@ -480,7 +480,8 @@ utils::globalVariables(c(
   "Target.TADA.ResultSampleFractionText",
   "Target.TADA.SpeciationConversionFactor",
   "has_depth_param",
-  "out_epsg"
+  "out_epsg",
+  "ATTAINSParamUseOrgRef"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -1693,14 +1694,14 @@ TADA_addPoints <- function(
 #' Create Characteristic/MeasureUnitCode/MethodSpeciation Ref
 #'
 #' Creates data frame of unique combinations of TADA.CharacteristicName,
-#' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
-#' TADA.MethodSpeciationName in a TADA data frame.
+#' TADA.ResultMeasure.MeasureUnitCode (normalized), optional ResultMeasure.MeasureUnitCode,
+#' and TADA.MethodSpeciationName in a TADA data frame.
 #'
 #' @param .data A TADA data frame.
 #'
 #' @return A data frame with unique combinations of TADA.CharacteristicName,
-#' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
-#' TADA.MethodSpeciationName
+#' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode (if present),
+#' and TADA.MethodSpeciationName
 #'
 #' @export
 #'
@@ -1717,66 +1718,152 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     return(NULL) # Exit the function early
   }
 
-  required_cols <- c(
-    "TADA.CharacteristicName",
-    "TADA.ResultSampleFractionText",
-    "TADA.MethodSpeciationName",
-    "TADA.ResultMeasure.MeasureUnitCode",
-    "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
-  )
+  # Minimal required columns: Characteristic + at least one unit column
+  has_char <- "TADA.CharacteristicName" %in% names(.data)
+  has_unit_pref <- "TADA.ResultMeasure.MeasureUnitCode" %in% names(.data)
+  has_unit_unpref <- "ResultMeasure.MeasureUnitCode" %in% names(.data)
 
-  # Check to see if TADA_Autoclean has been run
-  if (any(required_cols %in% colnames(.data)) == FALSE) {
-    print(
-      "The dataframe does not contain the required fields. Running TADA_AutoClean to create required columns."
+  if (!(has_char && (has_unit_pref || has_unit_unpref))) {
+    message(
+      "Minimal required fields are missing (Characteristic and unit). ",
+      "Running TADA_AutoClean to create required columns."
     )
     .data <- TADA_AutoClean(.data)
+
+    # Re-check minimal fields post-clean; fail fast with a helpful message if still missing
+    has_char <- "TADA.CharacteristicName" %in% names(.data)
+    has_unit_pref <- "TADA.ResultMeasure.MeasureUnitCode" %in% names(.data)
+    has_unit_unpref <- "ResultMeasure.MeasureUnitCode" %in% names(.data)
+    if (!(has_char && (has_unit_pref || has_unit_unpref))) {
+      stop(
+        "TADA_UniqueCharUnitSpeciation: After TADA_AutoClean, the minimal required fields are still missing. ",
+        "Ensure your input uses the TADA/WQP physical-chemical profile with CharacteristicName and unit columns."
+      )
+    }
   }
 
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
+  # Unique result units/speciation/char
   data.units.result <- .data |>
-    dplyr::select(
-      TADA.CharacteristicName,
-      TADA.ResultMeasure.MeasureUnitCode,
-      ResultMeasure.MeasureUnitCode,
-      TADA.MethodSpeciationName
-    ) |>
+    dplyr::select(dplyr::any_of(c(
+      "TADA.CharacteristicName",
+      "TADA.ResultMeasure.MeasureUnitCode",
+      "ResultMeasure.MeasureUnitCode",
+      "TADA.MethodSpeciationName"
+    ))) |>
     dplyr::distinct()
 
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
+  # Ensure speciation column exists
+  if (!"TADA.MethodSpeciationName" %in% names(data.units.result)) {
+    data.units.result$TADA.MethodSpeciationName <- NA_character_
+  }
+
+  # Normalize unprefixed unit column to TADA-prefixed name if needed
+  if (
+    !"TADA.ResultMeasure.MeasureUnitCode" %in% names(data.units.result) &&
+      "ResultMeasure.MeasureUnitCode" %in% names(data.units.result)
+  ) {
+    data.units.result <- dplyr::rename(
+      data.units.result,
+      TADA.ResultMeasure.MeasureUnitCode = ResultMeasure.MeasureUnitCode
+    )
+  }
+
+  # Unique detection-limit units/speciation/char (optional; guard filters)
   data.units.det <- .data |>
-    dplyr::select(
-      TADA.CharacteristicName,
-      TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
-      DetectionQuantitationLimitMeasure.MeasureUnitCode,
-      TADA.MethodSpeciationName
-    ) |>
-    dplyr::filter(
-      !is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
-    ) |>
-    dplyr::distinct() |>
-    dplyr::rename(
-      TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
-      ResultMeasure.MeasureUnitCode = DetectionQuantitationLimitMeasure.MeasureUnitCode
+    dplyr::select(dplyr::any_of(c(
+      "TADA.CharacteristicName",
+      "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+      "DetectionQuantitationLimitMeasure.MeasureUnitCode",
+      "TADA.MethodSpeciationName"
+    )))
+
+  if (ncol(data.units.det) > 0) {
+    # Filter only when the detection-limit unit column is present
+    if (
+      "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" %in%
+        names(data.units.det)
+    ) {
+      data.units.det <- data.units.det |>
+        dplyr::filter(
+          !is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
+        )
+    }
+    data.units.det <- data.units.det |> dplyr::distinct()
+
+    # Ensure speciation column exists
+    if (!"TADA.MethodSpeciationName" %in% names(data.units.det)) {
+      data.units.det$TADA.MethodSpeciationName <- NA_character_
+    }
+
+    # Normalize detection-limit names to result-unit names for the join
+    if (
+      "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" %in%
+        names(data.units.det)
+    ) {
+      data.units.det <- dplyr::rename(
+        data.units.det,
+        TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
+      )
+    }
+    if (
+      "DetectionQuantitationLimitMeasure.MeasureUnitCode" %in%
+        names(data.units.det)
+    ) {
+      data.units.det <- dplyr::rename(
+        data.units.det,
+        ResultMeasure.MeasureUnitCode = DetectionQuantitationLimitMeasure.MeasureUnitCode
+      )
+    }
+  }
+
+  # Combine (result + detection-limit) by normalized names
+  if (ncol(data.units.det) > 0) {
+    # Ensure required join columns exist in both frames
+    required_join_cols <- c(
+      "TADA.CharacteristicName",
+      "TADA.ResultMeasure.MeasureUnitCode",
+      "ResultMeasure.MeasureUnitCode",
+      "TADA.MethodSpeciationName"
     )
 
-  # Create combined df with all unique codes (both result and det units) and characteristic names
-  data.units <- data.units.result |>
-    dplyr::full_join(
-      data.units.det,
-      by = c(
-        "TADA.CharacteristicName",
-        "TADA.ResultMeasure.MeasureUnitCode",
-        "ResultMeasure.MeasureUnitCode",
-        "TADA.MethodSpeciationName"
-      )
-    ) |>
-    dplyr::distinct() |>
-    dplyr::group_by(TADA.CharacteristicName)
+    # Add missing columns to data.units.result as NA
+    missing_in_result <- setdiff(required_join_cols, names(data.units.result))
+    if (length(missing_in_result) > 0) {
+      for (col in missing_in_result) {
+        data.units.result[[col]] <- NA_character_
+      }
+    }
+
+    # Add missing columns to data.units.det as NA
+    missing_in_det <- setdiff(required_join_cols, names(data.units.det))
+    if (length(missing_in_det) > 0) {
+      for (col in missing_in_det) {
+        data.units.det[[col]] <- NA_character_
+      }
+    }
+
+    data.units <- data.units.result |>
+      dplyr::full_join(data.units.det, by = required_join_cols) |>
+      dplyr::distinct() |>
+      dplyr::group_by(TADA.CharacteristicName)
+  } else {
+    data.units <- data.units.result |>
+      dplyr::distinct() |>
+      dplyr::group_by(TADA.CharacteristicName)
+  }
+
+  # Final validation: required columns for downstream usage
+  if (!"TADA.CharacteristicName" %in% names(data.units)) {
+    stop("Input .data must contain TADA.CharacteristicName.")
+  }
+  if (!"TADA.ResultMeasure.MeasureUnitCode" %in% names(data.units)) {
+    stop(
+      "Input .data must contain TADA.ResultMeasure.MeasureUnitCode or an alias normalized to it."
+    )
+  }
 
   return(data.units)
 }
-
 
 #' Create Color Palette For Use in Graphs and Maps
 #'
@@ -2655,5 +2742,7 @@ TADA_CorrectColType <- function(.data) {
 
   # if neither exist
   def <- "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
-  if (nzchar(def)) return(def)
+  if (nzchar(def)) {
+    return(def)
+  }
 }

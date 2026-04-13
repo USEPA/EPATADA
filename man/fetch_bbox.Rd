@@ -23,7 +23,7 @@ This function gets ATTAINS data for the bounding box of a feature.
 baseurl <- "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3"
 
 df <- Data_MT_MissoulaCounty |>
-      TADA_MakeSpatial()
+  TADA_MakeSpatial()
 
 features <- fetch_bbox(baseurl, df)
 }

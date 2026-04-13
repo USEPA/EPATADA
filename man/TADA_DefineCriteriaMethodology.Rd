@@ -45,7 +45,9 @@ these columns:
 "MonitoringLocationIdentifier", "MonitoringLocationTypeName",
 "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
 "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
-"LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".}
+"LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".
+When MLSummaryRef is provided and displayUniqueId is not specified, IDs are
+retained by default to support MLSummary-based filtering.}
 
 \item{criteriaMethods}{An optional data frame which contains the completed
 criteria and methodology table. This will be a user supplied table and any
