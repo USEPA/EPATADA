@@ -274,9 +274,7 @@ TADA_AutoClean <- function(.data) {
         TADA.ResultMeasure.MeasureUnitCode = "%"
       )
 
-    do.list <- do.data |>
-      dplyr::select(ResultIdentifier) |>
-      dplyr::pull()
+    do.list <- do.data |> dplyr::select(ResultIdentifier) |> dplyr::pull()
 
     other.data <- .data |> dplyr::filter(!ResultIdentifier %in% do.list)
 

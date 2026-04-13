@@ -182,7 +182,8 @@ testthat::test_that("URLs are not broken", {
 
   # Fail set: non-transient bad statuses
   df_false <- df[
-    (is.na(df$status) | !(df$status %in% c(200L, 301L, 302L))) & !is_transient, ,
+    (is.na(df$status) | !(df$status %in% c(200L, 301L, 302L))) & !is_transient,
+    ,
     drop = FALSE
   ]
   # Warn-only set: transient outages

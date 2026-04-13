@@ -46,7 +46,8 @@ test_that("No combos were missed in NP key from harmonization table", {
     }
     add_na <- df[
       !is.na(df$TADA.ResultSampleFractionText) &
-        toupper(df$TADA.ResultSampleFractionText) == "UNFILTERED", ,
+        toupper(df$TADA.ResultSampleFractionText) == "UNFILTERED",
+      ,
       drop = FALSE
     ]
     if (nrow(add_na) > 0) {
@@ -61,7 +62,8 @@ test_that("No combos were missed in NP key from harmonization table", {
     out <- df
     add_na_spec <- df[
       !is.na(df$TADA.MethodSpeciationName) &
-        toupper(df$TADA.MethodSpeciationName) %in% c("AS N", "AS P"), ,
+        toupper(df$TADA.MethodSpeciationName) %in% c("AS N", "AS P"),
+      ,
       drop = FALSE
     ]
     if (nrow(add_na_spec) > 0) {

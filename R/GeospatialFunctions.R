@@ -144,25 +144,25 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
   suppressMessages(suppressWarnings({
     # Create a reference table for CRS and EPSG codes using `tribble`
     epsg_codes <- tidyr::tribble(
-      ~HorizontalCoordinateReferenceSystemDatumName, ~epsg,
-      "NAD83", 4269,
-      "WGS84", 4326,
-      "NAD27", 4267,
-      "UNKWN", crs,
-      "Unknown", crs,
-      "OTHER", crs,
-      "OLDHI", 4135,
-      "AMSMA", 4169,
-      "ASTRO", 4727,
-      "GUAM", 4675,
-      "JHNSN", 4725,
-      "PR", 6139,
-      "SGEOR", 4138,
-      "SLAWR", 4136,
-      "SPAUL", 4137,
-      "WAKE", 6732,
-      "WGS72", 6322,
-      "HARN", 4152
+      ~HorizontalCoordinateReferenceSystemDatumName , ~epsg ,
+      "NAD83"                                       ,  4269 ,
+      "WGS84"                                       ,  4326 ,
+      "NAD27"                                       ,  4267 ,
+      "UNKWN"                                       , crs   ,
+      "Unknown"                                     , crs   ,
+      "OTHER"                                       , crs   ,
+      "OLDHI"                                       ,  4135 ,
+      "AMSMA"                                       ,  4169 ,
+      "ASTRO"                                       ,  4727 ,
+      "GUAM"                                        ,  4675 ,
+      "JHNSN"                                       ,  4725 ,
+      "PR"                                          ,  6139 ,
+      "SGEOR"                                       ,  4138 ,
+      "SLAWR"                                       ,  4136 ,
+      "SPAUL"                                       ,  4137 ,
+      "WAKE"                                        ,  6732 ,
+      "WGS72"                                       ,  6322 ,
+      "HARN"                                        ,  4152
     )
 
     # Handle missing or unknown CRS values

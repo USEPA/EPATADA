@@ -2957,7 +2957,8 @@ if (!exists(".tada_cst_get_report_datetime", inherits = FALSE)) {
   }
 
   # 1) Classic names: anchored, case-insensitive
-  classic_pat <- switch(target,
+  classic_pat <- switch(
+    target,
     legend = "(?i)^\\s*legend",
     sources = "(?i)^\\s*sources?",
     criteria = "(?i)^\\s*criteria"
@@ -2984,7 +2985,8 @@ if (!exists(".tada_cst_get_report_datetime", inherits = FALSE)) {
     ends_with_n <- function(x, n) grepl(sprintf("\\(\\s*%d\\s*\\)\\s*$", n), x)
     ends_with_any_num <- function(x) grepl("\\(\\s*\\d+\\s*\\)\\s*$", x)
 
-    sheet_to_read <- switch(target,
+    sheet_to_read <- switch(
+      target,
       criteria = {
         pick <- candidates[ends_with_n(candidates, 3)]
         if (length(pick) >= 1) pick[1] else NULL

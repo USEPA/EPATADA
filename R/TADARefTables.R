@@ -79,9 +79,7 @@ TADA_GetNutrientSummationRef <- function() {
   }
 
   # Normalize and de-duplicate
-  ref <- ref |>
-    normalize_keys(keys) |>
-    dplyr::distinct()
+  ref <- ref |> normalize_keys(keys) |> dplyr::distinct()
 
   ref
 }

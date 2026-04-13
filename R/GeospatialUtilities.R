@@ -204,13 +204,15 @@ addATTAINS <- function(
     geo.type <- .data$type[1]
 
     # set group name
-    group.name <- switch(geo.type,
+    group.name <- switch(
+      geo.type,
       "Point Feature" = "ATTAINS point features",
       "Line Feature" = "ATTAINS line features",
       "Polygon Feature" = "ATTAINS polygon features"
     )
   } else {
-    group.name <- switch(catchment_type,
+    group.name <- switch(
+      catchment_type,
       "attains_au" = "ATTAINS catchments",
       "missing_raw" = "ATTAINS outlines",
       "wo_attains" = "missing ATTAINS catchment outlines"

@@ -1199,9 +1199,7 @@ TADA_GroupedScatterplot <- function(
     "MonitoringLocationName",
     "OrganizationFormalName"
   )
-  required_cols <- required_cols |>
-    append(group_col) |>
-    unique()
+  required_cols <- required_cols |> append(group_col) |> unique()
   TADA_CheckColumns(.data, required_cols)
 
   # only allows for 1 column selection in id_cols
