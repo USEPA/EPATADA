@@ -13,9 +13,8 @@ spelling::get_wordlist()
 
 ###########################################################
 
-library(styler)
-style_pkg()
 # # Recommended styler setup to approximate air.toml (not needed)
+# library(styler)
 # style_pkg(
 #   transformers = tidyverse_style(
 #     scope = I(c("tokens", "indention")), # let air handle the rest
@@ -28,7 +27,7 @@ style_pkg()
 
 library(devtools)
 # Run devtools check and test
-# devtools::test()
+devtools::test()
 # devtools::check()
 # more robust test for releases (includes broken link check)
 devtools::check(manual = FALSE, remote = TRUE, incoming = TRUE)
