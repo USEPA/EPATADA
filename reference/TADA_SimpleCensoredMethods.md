@@ -147,8 +147,10 @@ dat_simple <- TADA_SimpleCensoredMethods(
 )
 table(dat_simple$TADA.CensoredData.Flag)
 head(subset(dat_simple, TADA.CensoredData.Flag == "Non-Detect")[
-  , c("ResultIdentifier", "TADA.ResultMeasureValue",
-    "TADA.ResultMeasure.MeasureUnitCode", "TADA.CensoredMethod")
+  , c(
+    "ResultIdentifier", "TADA.ResultMeasureValue",
+    "TADA.ResultMeasure.MeasureUnitCode", "TADA.CensoredMethod"
+  )
 ])
 
 # Example 2: Randomize Non-Detects below the detection limit, keep Over-Detects as-is
@@ -177,7 +179,7 @@ head(subset(dat_both, TADA.CensoredData.Flag %in% c("Non-Detect", "Over-Detect")
 ])
 
 # Example 4: If no censored data are present, the function returns the input
-dat_unc <- subset(Data_Nutrients_UT, FALSE)  # empty subset for illustration
+dat_unc <- subset(Data_Nutrients_UT, FALSE) # empty subset for illustration
 res <- TADA_SimpleCensoredMethods(dat_unc)
 # message: "Cannot apply simple censored methods to dataframe with no censored
 # data results. Returning input dataframe."

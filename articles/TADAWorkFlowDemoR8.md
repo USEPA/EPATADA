@@ -498,8 +498,7 @@ and states/tribes.
 
 ``` r
 # Load the example R8 criteria table for MTDEQ
-criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
-load(criteria_table)
+criteria_table <- TADA_ListCriteriaFile(org_id = "MTDEQ")
 
 MT_criteria <- TADA_DefineCriteriaMethodology(
   tada.MT.clean.DO,

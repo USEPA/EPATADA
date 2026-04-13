@@ -187,14 +187,16 @@ Select a small number of columns to review duplicates:
 TADA_TableExport(subset(
   df_flag,
   TADA.SingleOrgDupGroupID != "Not a duplicate",
-  select = c(ResultIdentifier,
-             ActivityStartDate,
-             TADA.ActivityMediaName,
-             TADA.MonitoringLocationIdentifier,
-             TADA.CharacteristicName,
-             TADA.ResultMeasureValue,
-             TADA.ResultMeasure.MeasureUnitCode,
-             ResultAnalyticalMethod.MethodName)
+  select = c(
+    ResultIdentifier,
+    ActivityStartDate,
+    TADA.ActivityMediaName,
+    TADA.MonitoringLocationIdentifier,
+    TADA.CharacteristicName,
+    TADA.ResultMeasureValue,
+    TADA.ResultMeasure.MeasureUnitCode,
+    ResultAnalyticalMethod.MethodName
+  )
 ))
 ```
 
@@ -290,9 +292,12 @@ EPATADA::TADA_TableExport(EPATADA::TADA_SummarizeColumn(df_clean, col = "TADA.Ch
 Generate statistics for each Monitoring Location:
 
 ``` r
-EPATADA::TADA_TableExport(EPATADA::TADA_Stats(df_clean, 
-                                     group_cols = c("TADA.ComparableDataIdentifier",
-                                                    "TADA.MonitoringLocationIdentifier")))
+EPATADA::TADA_TableExport(EPATADA::TADA_Stats(df_clean,
+  group_cols = c(
+    "TADA.ComparableDataIdentifier",
+    "TADA.MonitoringLocationIdentifier"
+  )
+))
 ```
 
     ## TADA_IDCensoredData: No censored data detected in your dataframe. Returning input dataframe with new column TADA.CensoredData.Flag set to Uncensored
@@ -301,8 +306,9 @@ Generate scatter plot for E. coli (top four monitoring location by
 number of results will be displayed):
 
 ``` r
-EPATADA::TADA_GroupedScatterplot(df_clean, 
-                                 group_col = "MonitoringLocationName")
+EPATADA::TADA_GroupedScatterplot(df_clean,
+  group_col = "MonitoringLocationName"
+)
 ```
 
     ## TADA_GroupedScatterplot: No 'groups' selected for MonitoringLocationName. There are 65 MonitoringLocationNames in the TADA dataframe. The top four MonitoringLocationNames by number of results will be plotted: West Branch Penobscot River - Dolby Pond Impoundment - Near Dam; West Branch Penobscot River - Upriver of Route 11 Bridge; Penobscot River - Great Works Impoundment - Below French Island and Penobscot River - Upriver of Mahockanock Island.
@@ -430,7 +436,7 @@ We can pull this information into R using the
 TADA_DefineCriteriaMethodology() function:
 
 ``` r
-ME_criteria_ecoli = TADA_DefineCriteriaMethodology(df_singleML, org_id = "MEDEP", auto_assign = TRUE)
+ME_criteria_ecoli <- TADA_DefineCriteriaMethodology(df_singleML, org_id = "MEDEP", auto_assign = TRUE)
 ```
 
     ## TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected but no MLSummaryRef. Generating TADA_MLSummary with default assignment.
@@ -441,7 +447,11 @@ ME_criteria_ecoli = TADA_DefineCriteriaMethodology(df_singleML, org_id = "MEDEP"
 
     ## TADA_UsesForAnalysis: auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.
 
-    ## 
+    ## TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.
+    ##   Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.
+    ##   Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.
+    ##   If an ATTAINS.ParameterName and ATTAINS.UseName alias was found, populating these rows with the CST magnitude values.
+    ##   A many-to-many match is likely. User review is needed to ensure accuracy in crosswalk method.
 
     ## Warning in TADA_DefineCriteriaMethodology:  There are 1 TADA.CharacteristicName units that do not match with the CST autoassign MagnitudeUnit values. Converting these MagnitudeUnit Values from the CST to match the TADA.ResultMeasure.MeasureUnitCode in your dataframe. Please review these conversions.
 
@@ -450,8 +460,10 @@ ME_criteria_ecoli = TADA_DefineCriteriaMethodology(df_singleML, org_id = "MEDEP"
 Filter output to include only Class B waters:
 
 ``` r
-ME_criteria_ecoli_classB = unique(subset(ME_criteria_ecoli,
-       CST.Use == "FRESH SURFACE WATERS - CLASS B"))
+ME_criteria_ecoli_classB <- unique(subset(
+  ME_criteria_ecoli,
+  CST.Use == "FRESH SURFACE WATERS - CLASS B"
+))
 
 TADA_TableExport(ME_criteria_ecoli_classB)
 ```
@@ -498,13 +510,13 @@ FreqMethod, SeasonStartDate, and SeasonEndDate.
 ``` r
 ME_criteria_ecoli_classB_final <- ME_criteria_ecoli_classB |>
   dplyr::mutate(
-    DurationValue  = 90,
-    DurationUnit   = "n-day",
+    DurationValue = 90,
+    DurationUnit = "n-day",
     DurationMethod = dplyr::if_else(dplyr::row_number() <= 2, "geometric mean", "arithmetic max"),
-    FreqValue      = dplyr::if_else(dplyr::row_number() <= 2, NA_real_, 10),
-    FreqMethod     = dplyr::if_else(dplyr::row_number() <= 2, NA_character_, "percentile"),
+    FreqValue = dplyr::if_else(dplyr::row_number() <= 2, NA_real_, 10),
+    FreqMethod = dplyr::if_else(dplyr::row_number() <= 2, NA_character_, "percentile"),
     SeasonStartDate = "4/15/2025",
-    SeasonEndDate   = "10/31/2025"
+    SeasonEndDate = "10/31/2025"
   )
 
 TADA_TableExport(ME_criteria_ecoli_classB_final)
@@ -550,24 +562,24 @@ available in any 90-day period for each year.
 # -----------------------------------------------------------------------------
 assess_ecoli_classB <- function(
   data,
-  gm_limit           = 64,   # geometric mean limit (per 100 mL)
-  single_limit       = 236,  # threshold for percentile check
+  gm_limit = 64, # geometric mean limit (per 100 mL)
+  single_limit = 236, # threshold for percentile check
   season_start_month = 4,
-  season_start_day   = 15,
-  season_end_month   = 10,
-  season_end_day     = 31,
-  window_days        = 90,
-  min_n_geomean      = 3,    # minimum samples for criterion A
-  min_n_exceed       = 3,    # minimum samples for criterion B (p90)
-  zero_offset        = 0.5,  # offset for zeros -> log transform
-  quantile_type      = 1     # quantile type for p90 (type=1 is order-statistic)
+  season_start_day = 15,
+  season_end_month = 10,
+  season_end_day = 31,
+  window_days = 90,
+  min_n_geomean = 3, # minimum samples for criterion A
+  min_n_exceed = 3, # minimum samples for criterion B (p90)
+  zero_offset = 0.5, # offset for zeros -> log transform
+  quantile_type = 1 # quantile type for p90 (type=1 is order-statistic)
 ) {
   df <- data |>
     dplyr::filter(`TADA.CharacteristicName` == "ESCHERICHIA COLI") |>
     dplyr::transmute(
       site       = as.character(`TADA.MonitoringLocationIdentifier`),
       site_name  = `TADA.MonitoringLocationName`,
-      date       = as.Date(ActivityStartDate),  # strictly ActivityStartDate
+      date       = as.Date(ActivityStartDate), # strictly ActivityStartDate
       value      = suppressWarnings(as.numeric(`TADA.ResultMeasureValue`))
     ) |>
     dplyr::filter(!is.na(site), !is.na(date), !is.na(value)) |>
@@ -587,14 +599,16 @@ assess_ecoli_classB <- function(
   windows <- df |>
     dplyr::mutate(season_year = lubridate::year(date)) |>
     dplyr::group_by(site, site_name, season_year) |>
-    dplyr::group_modify(~{
-      y  <- .y$season_year[[1]]
+    dplyr::group_modify(~ {
+      y <- .y$season_year[[1]]
       sb <- season_bounds(y)
       wd <- as.integer(window_days)
 
       # All window end dates fully inside the season
       w_end_seq <- seq(sb$start + lubridate::days(wd - 1), sb$end, by = "day")
-      if (length(w_end_seq) == 0) return(tibble::tibble())
+      if (length(w_end_seq) == 0) {
+        return(tibble::tibble())
+      }
 
       # Season-filtered data for this group
       season_dat <- .x |>
@@ -614,16 +628,16 @@ assess_ecoli_classB <- function(
         ))
       }
 
-      dts  <- season_dat$date
+      dts <- season_dat$date
       vals <- season_dat$value
       logs <- log(pmax(vals, zero_offset))
 
-      m       <- length(w_end_seq)
-      n_vec   <- integer(m)
-      gm_vec  <- rep(NA_real_, m)
+      m <- length(w_end_seq)
+      n_vec <- integer(m)
+      gm_vec <- rep(NA_real_, m)
       p90_vec <- rep(NA_real_, m)
-      pass_A  <- rep(NA, m)
-      pass_B  <- rep(NA, m)
+      pass_A <- rep(NA, m)
+      pass_B <- rep(NA, m)
 
       # Two-pointer over sample rows [L..R]
       L <- 1L
@@ -631,7 +645,7 @@ assess_ecoli_classB <- function(
       n_samples <- length(dts)
 
       for (i in seq_len(m)) {
-        w_end   <- w_end_seq[i]
+        w_end <- w_end_seq[i]
         w_start <- w_end - lubridate::days(wd - 1)
 
         while (R < n_samples && dts[R + 1L] <= w_end) R <- R + 1L
@@ -662,7 +676,7 @@ assess_ecoli_classB <- function(
             pass_B[i] <- NA
           }
         } else {
-          n_vec[i]  <- 0L
+          n_vec[i] <- 0L
           gm_vec[i] <- NA_real_
           p90_vec[i] <- NA_real_
           pass_A[i] <- NA
@@ -685,25 +699,25 @@ assess_ecoli_classB <- function(
   summary <- windows |>
     dplyr::group_by(site, site_name, season_year) |>
     dplyr::summarise(
-      n_windows    = dplyr::n(),
-      n_eval_A     = sum(!is.na(pass_A)),
-      n_eval_B     = sum(!is.na(pass_B)),
-      any_fail_A   = any(pass_A == FALSE, na.rm = TRUE),
-      any_fail_B   = any(pass_B == FALSE, na.rm = TRUE),
-      attain_A     = ifelse(n_eval_A > 0, !any_fail_A, NA),
-      attain_B     = ifelse(n_eval_B > 0, !any_fail_B, NA),
+      n_windows = dplyr::n(),
+      n_eval_A = sum(!is.na(pass_A)),
+      n_eval_B = sum(!is.na(pass_B)),
+      any_fail_A = any(pass_A == FALSE, na.rm = TRUE),
+      any_fail_B = any(pass_B == FALSE, na.rm = TRUE),
+      attain_A = ifelse(n_eval_A > 0, !any_fail_A, NA),
+      attain_B = ifelse(n_eval_B > 0, !any_fail_B, NA),
       overall_bool = dplyr::case_when(
         is.na(attain_A) & is.na(attain_B) ~ NA,
-        is.na(attain_A)                   ~ attain_B,
-        is.na(attain_B)                   ~ attain_A,
-        TRUE                              ~ (attain_A & attain_B)
+        is.na(attain_A) ~ attain_B,
+        is.na(attain_B) ~ attain_A,
+        TRUE ~ (attain_A & attain_B)
       ),
       overall_attainment = ifelse(
         is.na(overall_bool), NA_character_,
         ifelse(overall_bool, "meeting", "not meeting")
       ),
       worst_geomean = if (all(is.na(geomean))) NA_real_ else max(geomean, na.rm = TRUE),
-      worst_p90     = if (all(is.na(p90)))     NA_real_ else max(p90,     na.rm = TRUE),
+      worst_p90 = if (all(is.na(p90))) NA_real_ else max(p90, na.rm = TRUE),
       .groups = "drop"
     ) |>
     dplyr::select(-overall_bool)

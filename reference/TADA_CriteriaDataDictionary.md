@@ -6,8 +6,16 @@ Criteria and Methodology table for users to fill out.
 ## Usage
 
 ``` r
-TADA_CriteriaDataDictionary()
+TADA_CriteriaDataDictionary(downloads_path = NULL)
 ```
+
+## Arguments
+
+- downloads_path:
+
+  A character string to define the location of the 'myfileRef.xlsx' file
+  to include the data dictionary to. Default is null to find the path in
+  the Downloads folder path.
 
 ## Value
 

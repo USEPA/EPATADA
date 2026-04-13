@@ -216,6 +216,10 @@
 - [`TADA_GetCharacteristicRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetCharacteristicRef.md)
   : Get WQX Characteristic Domain Table (internal-only)
 
+- [`TADA_GetCriteriaFile()`](https://usepa.github.io/EPATADA/reference/TADA_GetCriteriaFile.md)
+  : Load any Criteria and Methodologies File Available in the
+  TADACommunityHub
+
 - [`TADA_GetDetCondRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetDetCondRef.md)
   : Get WQX Result Detection Condition Reference Table
 
@@ -284,6 +288,10 @@
 
 - [`TADA_ListCacheKeys()`](https://usepa.github.io/EPATADA/reference/TADA_ListCacheKeys.md)
   : List keys in the EPATADA cache
+
+- [`TADA_ListCriteriaFiles()`](https://usepa.github.io/EPATADA/reference/TADA_ListCriteriaFiles.md)
+  : List Criteria and Methodologies Files Available in the
+  TADACommunityHub
 
 - [`TADA_MLSummary()`](https://usepa.github.io/EPATADA/reference/TADA_MLSummary.md)
   : Review and Apply Any Site-specific Criteria to Monitoring Location

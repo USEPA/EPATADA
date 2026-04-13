@@ -208,8 +208,10 @@ numeric before applying multipliers or randomness.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">dat_simple</span><span class="op">$</span><span class="va">TADA.CensoredData.Flag</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">dat_simple</span>, <span class="va">TADA.CensoredData.Flag</span> <span class="op">==</span> <span class="st">"Non-Detect"</span><span class="op">)</span><span class="op">[</span></span></span>
-<span class="r-in"><span>  , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ResultIdentifier"</span>, <span class="st">"TADA.ResultMeasureValue"</span>,</span></span>
-<span class="r-in"><span>    <span class="st">"TADA.ResultMeasure.MeasureUnitCode"</span>, <span class="st">"TADA.CensoredMethod"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">"ResultIdentifier"</span>, <span class="st">"TADA.ResultMeasureValue"</span>,</span></span>
+<span class="r-in"><span>    <span class="st">"TADA.ResultMeasure.MeasureUnitCode"</span>, <span class="st">"TADA.CensoredMethod"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example 2: Randomize Non-Detects below the detection limit, keep Over-Detects as-is</span></span></span>
@@ -238,7 +240,7 @@ numeric before applying multipliers or randomness.</p>
 <span class="r-in"><span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example 4: If no censored data are present, the function returns the input</span></span></span>
-<span class="r-in"><span><span class="va">dat_unc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, <span class="cn">FALSE</span><span class="op">)</span>  <span class="co"># empty subset for illustration</span></span></span>
+<span class="r-in"><span><span class="va">dat_unc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, <span class="cn">FALSE</span><span class="op">)</span> <span class="co"># empty subset for illustration</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">TADA_SimpleCensoredMethods</span><span class="op">(</span><span class="va">dat_unc</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># message: "Cannot apply simple censored methods to dataframe with no censored</span></span></span>
 <span class="r-in"><span><span class="co"># data results. Returning input dataframe."</span></span></span>

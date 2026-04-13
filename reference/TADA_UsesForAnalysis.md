@@ -175,8 +175,7 @@ prior cycles by this organization, but not for this parameter name'.
 ``` r
 # First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
 paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
-#> TADA_ParametersForAnalysis: auto_assign == 'All' was selected, 
-#> finding an ATTAINS.ParameterName alias match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName, if one is found.
+#> TADA_ParametersForAnalysis: auto_assign == 'All' was selected, finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
@@ -186,15 +185,13 @@ paramRef_UT3 <- TADA_ParametersForAnalysis(
   Data_Nutrients_UT,
   paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
 )
-#> TADA_ParametersForAnalysis: auto_assign == 'All' was selected, 
-#> finding an ATTAINS.ParameterName alias match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName, if one is found.
+#> TADA_ParametersForAnalysis: auto_assign == 'All' was selected, finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.
 
 paramRef_UT4 <- TADA_ParametersForAnalysis(
   Data_Nutrients_UT,
   org_id = "UTAHDWQ", auto_assign = "All", excel = FALSE
 )
-#> TADA_ParametersForAnalysis: auto_assign == 'All' was selected, 
-#> finding an ATTAINS.ParameterName alias match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName, if one is found.
+#> TADA_ParametersForAnalysis: auto_assign == 'All' was selected, finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.
 
 # Next, enter the crosswalk generated above as the paramRef function input
 # for TADA_UsesForAnalysis():

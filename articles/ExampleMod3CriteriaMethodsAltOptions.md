@@ -255,15 +255,7 @@ MT.Criteria.auto <- TADA_DefineCriteriaMethodology(
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
-```
 
-    ## TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.
-    ## Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.
-    ## Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.
-    ## If an ATTAINS.ParameterName and ATTAINS.UseName alias was found, populating these rows with the CST magnitude values.
-    ## A many-to-many match is likely. User review is needed to ensure the proper parameter and uses from ATTAINS and CST alias crosswalk was accomplished (remove or add rows as needed).
-
-``` r
 TADA_TableExport(MT.Criteria.auto)
 ```
 
@@ -284,15 +276,7 @@ MT.Criteria.auto2 <- TADA_DefineCriteriaMethodology(
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
-```
 
-    ## TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.
-    ## Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.
-    ## Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.
-    ## If an ATTAINS.ParameterName and ATTAINS.UseName alias was found, populating these rows with the CST magnitude values.
-    ## A many-to-many match is likely. User review is needed to ensure the proper parameter and uses from ATTAINS and CST alias crosswalk was accomplished (remove or add rows as needed).
-
-``` r
 TADA_TableExport(MT.Criteria.auto2)
 ```
 
@@ -310,15 +294,7 @@ MT.Criteria.auto3 <- TADA_DefineCriteriaMethodology(
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
-```
 
-    ## TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.
-    ## Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.
-    ## Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.
-    ## If an ATTAINS.ParameterName and ATTAINS.UseName alias was found, populating these rows with the CST magnitude values.
-    ## A many-to-many match is likely. User review is needed to ensure the proper parameter and uses from ATTAINS and CST alias crosswalk was accomplished (remove or add rows as needed).
-
-``` r
 TADA_TableExport(MT.Criteria.auto3)
 ```
 
@@ -331,7 +307,13 @@ missing WQP Char to consider that isn’t defined in their criteria and
 methods table that they have supplied. Users will be warned how many WQP
 Char values are not defined from their user supplied table.
 
-In this first example, a user supplies their own criteria table.
+In this example, let’s use a filled out criteria table for MTDEQ and
+extract the use and parameters from the crosswalk. TADA has created the
+TADACommunityHub in which TADA users can submit, share and maintain
+user-contributed criteria and methodologies templates to support
+reproducible and efficient analyses. We will use
+**`TADA_GetCriteriaFile`** to pull in this criteria table from the
+TADACommunityHub GitHub repository.
 
 Note: If a user has an updated list of use names that have been applied
 to an assessment unit, they should also provide a AU_UsesRef input.
@@ -340,8 +322,7 @@ cycle.
 
 ``` r
 # Load the example R8 criteria table
-criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
-load(criteria_table)
+criteria_table <- TADA_GetCriteriaFile(org_id = "MTDEQ")
 # Load example uses to AU Ref table
 utils::data(Data_MT_AU_UsesRef)
 

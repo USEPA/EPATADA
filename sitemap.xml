@@ -91,6 +91,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetATTAINSParamUseOrgRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetActivityTypeRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetCharacteristicRef.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetCriteriaFile.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetDetCondRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetDetLimitRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetMeasureQualifierCodeRef.html</loc></url>
@@ -113,6 +114,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_IDDepthProfiles.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_JoinWQPProfiles.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_ListCacheKeys.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_ListCriteriaFiles.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_MLSummary.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_MakeSpatial.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_MediaFilter.html</loc></url>

@@ -238,12 +238,16 @@ If you have your own crosswalk, this step can be skipped.
 ATTAINS_orgs <- rExpertQuery::EQ_DomainValues("org_id")
 
 # get crosswalk from ATTAINS
-attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ",
-  api_key = api_key)
+attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(
+  org_id = "MTDEQ",
+  api_key = api_key
+)
 
 # clean existing crosswalk from ATTAINS to make sure WQP monitoring location IDs pulled from ATTAINS are WQP compatible (adds org ID if missing)
-clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ",
-  api_key = api_key)
+clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(
+  org_id = "MTDEQ",
+  api_key = api_key
+)
 
 # create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)
 user.supplied.cw <- clean.existing.attains.MT |>
@@ -598,7 +602,7 @@ into the R console.
 ``` r
 MT.UseAURef_with_WaterUseRef <-
   TADA_AssignUsesToAU(
-    MT.AUMLRef$TADA_with_ATTAINS
+    MT.AUMLRef$TADA_with_ATTAINS,
     waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
     AUMLRef = Final.MT.AUMLRef,
     org_id = "MTDEQ",

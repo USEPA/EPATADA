@@ -97,7 +97,7 @@
       <h1>TADA Module 2: Geospatial Functions</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2026-04-01</h4>
+            <h4 data-toc-skip class="date">2026-04-13</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule2.Rmd" class="external-link"><code>vignettes/TADAModule2.Rmd</code></a></small>
       <div class="d-none name"><code>TADAModule2.Rmd</code></div>
@@ -322,12 +322,16 @@ your own crosswalk, this step can be skipped.</p>
 <span><span class="va">ATTAINS_orgs</span> <span class="op">&lt;-</span> <span class="fu">rExpertQuery</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rExpertQuery/man/EQ_DomainValues.html" class="external-link">EQ_DomainValues</a></span><span class="op">(</span><span class="st">"org_id"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># get crosswalk from ATTAINS</span></span>
-<span><span class="va">attains.existing.MT</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_GetATTAINSAUMLCrosswalk.html">TADA_GetATTAINSAUMLCrosswalk</a></span><span class="op">(</span>org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
-<span>  api_key <span class="op">=</span> <span class="va">api_key</span><span class="op">)</span></span>
+<span><span class="va">attains.existing.MT</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_GetATTAINSAUMLCrosswalk.html">TADA_GetATTAINSAUMLCrosswalk</a></span><span class="op">(</span></span>
+<span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
+<span>  api_key <span class="op">=</span> <span class="va">api_key</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># clean existing crosswalk from ATTAINS to make sure WQP monitoring location IDs pulled from ATTAINS are WQP compatible (adds org ID if missing)</span></span>
-<span><span class="va">clean.existing.attains.MT</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_UpdateATTAINSAUMLCrosswalk.html">TADA_UpdateATTAINSAUMLCrosswalk</a></span><span class="op">(</span>org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
-<span>  api_key <span class="op">=</span> <span class="va">api_key</span><span class="op">)</span></span>
+<span><span class="va">clean.existing.attains.MT</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_UpdateATTAINSAUMLCrosswalk.html">TADA_UpdateATTAINSAUMLCrosswalk</a></span><span class="op">(</span></span>
+<span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
+<span>  api_key <span class="op">=</span> <span class="va">api_key</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)</span></span>
 <span><span class="va">user.supplied.cw</span> <span class="op">&lt;-</span> <span class="va">clean.existing.attains.MT</span> <span class="op">|&gt;</span></span>
@@ -650,14 +654,15 @@ new AUs into existing frameworks.</p>
 <p>For more information on how to customize this function to suit your
 needs, enter <strong><code><a href="../reference/TADA_AssignUsesToWaterType.html">?TADA_AssignUsesToWaterType</a></code></strong>
 into the R console.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>MT.UseAURef_with_WaterUseRef <span class="ot">&lt;-</span></span>
-<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>  <span class="fu">TADA_AssignUsesToAU</span>(</span>
-<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>    MT.AUMLRef<span class="sc">$</span>TADA_with_ATTAINS</span>
-<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>    <span class="at">waterUseRef =</span> <span class="fu">TADA_AssignUsesToWaterType</span>(<span class="at">org_id =</span> <span class="st">"MTDEQ"</span>),</span>
-<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>    <span class="at">AUMLRef =</span> Final.MT.AUMLRef,</span>
-<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a>    <span class="at">org_id =</span> <span class="st">"MTDEQ"</span>,</span>
-<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a>    <span class="at">api_key =</span> api_key</span>
-<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">MT.UseAURef_with_WaterUseRef</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="../reference/TADA_AssignUsesToAU.html">TADA_AssignUsesToAU</a></span><span class="op">(</span></span>
+<span>    <span class="va">MT.AUMLRef</span><span class="op">$</span><span class="va">TADA_with_ATTAINS</span>,</span>
+<span>    waterUseRef <span class="op">=</span> <span class="fu"><a href="../reference/TADA_AssignUsesToWaterType.html">TADA_AssignUsesToWaterType</a></span><span class="op">(</span>org_id <span class="op">=</span> <span class="st">"MTDEQ"</span><span class="op">)</span>,</span>
+<span>    AUMLRef <span class="op">=</span> <span class="va">Final.MT.AUMLRef</span>,</span>
+<span>    org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
+<span>    api_key <span class="op">=</span> <span class="va">api_key</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="va">MT.UseAURef_with_WaterUseRef</span><span class="op">)</span></span></code></pre></div>
 <div class="datatables html-widget html-fill-item" id="htmlwidget-4018eef1a407a0df6b52" style="width:100%;height:auto;"></div>

@@ -40,10 +40,14 @@ baseurls <- c(
   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
 )
-line.features <- fetch_au(baseurl = baseurls[[3]],
-  assessment_unit_ids = c("IL_N-99",
+line.features <- fetch_au(
+  baseurl = baseurls[[3]],
+  assessment_unit_ids = c(
+    "IL_N-99",
     "IL_N-12",
     "IL_N-16",
-    "IL_N-17"))
+    "IL_N-17"
+  )
+)
 } # }
 ```

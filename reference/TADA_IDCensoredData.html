@@ -177,21 +177,25 @@ TADA.ResultMeasureValueDataTypes.Flag is set to "Result Value/Unit Copied from D
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Review Non-Detects and confirm the detection limit value was copied</span></span></span>
 <span class="r-in"><span><span class="va">nd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">dat_flagged</span>, <span class="va">TADA.CensoredData.Flag</span> <span class="op">==</span> <span class="st">"Non-Detect"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">nd</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ResultIdentifier"</span>,</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">nd</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"ResultIdentifier"</span>,</span></span>
 <span class="r-in"><span>  <span class="st">"ResultDetectionConditionText"</span>,</span></span>
 <span class="r-in"><span>  <span class="st">"DetectionQuantitationLimitTypeName"</span>,</span></span>
 <span class="r-in"><span>  <span class="st">"TADA.ResultMeasureValue"</span>,</span></span>
 <span class="r-in"><span>  <span class="st">"TADA.ResultMeasure.MeasureUnitCode"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"TADA.ResultMeasureValueDataTypes.Flag"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="st">"TADA.ResultMeasureValueDataTypes.Flag"</span></span></span>
+<span class="r-in"><span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Review conflicts (values/units set to NA)</span></span></span>
 <span class="r-in"><span><span class="va">conf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">dat_flagged</span>, <span class="va">TADA.CensoredData.Flag</span> <span class="op">==</span> <span class="st">"Conflict between Condition and Limit"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">conf</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ResultIdentifier"</span>,</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">conf</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"ResultIdentifier"</span>,</span></span>
 <span class="r-in"><span>  <span class="st">"ResultDetectionConditionText"</span>,</span></span>
 <span class="r-in"><span>  <span class="st">"DetectionQuantitationLimitTypeName"</span>,</span></span>
 <span class="r-in"><span>  <span class="st">"TADA.ResultMeasureValue"</span>,</span></span>
 <span class="r-in"><span>  <span class="st">"TADA.ResultMeasure.MeasureUnitCode"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"TADA.ResultMeasureValueDataTypes.Flag"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="st">"TADA.ResultMeasureValueDataTypes.Flag"</span></span></span>
+<span class="r-in"><span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example 2: Ensure measure qualifier flags are present (optional)</span></span></span>
 <span class="r-in"><span><span class="co"># This can improve censored result identification via user-supplied codes.</span></span></span>

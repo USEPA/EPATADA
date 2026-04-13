@@ -99,7 +99,7 @@
       <h1>TADA R8 Demo January 2026</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2026-04-01</h4>
+            <h4 data-toc-skip class="date">2026-04-13</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAWorkFlowDemoR8.Rmd" class="external-link"><code>vignettes/TADAWorkFlowDemoR8.Rmd</code></a></small>
       <div class="d-none name"><code>TADAWorkFlowDemoR8.Rmd</code></div>
@@ -547,8 +547,7 @@ MTDEQ (draft). The reference tables may need additional review by the
 region and states/tribes.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load the example R8 criteria table for MTDEQ</span></span>
-<span><span class="va">criteria_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"criteria_table.rda"</span>, package <span class="op">=</span> <span class="st">"EPATADA"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="va">criteria_table</span><span class="op">)</span></span>
+<span><span class="va">criteria_table</span> <span class="op">&lt;-</span> <span class="fu">TADA_ListCriteriaFile</span><span class="op">(</span>org_id <span class="op">=</span> <span class="st">"MTDEQ"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">MT_criteria</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
 <span>  <span class="va">tada.MT.clean.DO</span>,</span>
