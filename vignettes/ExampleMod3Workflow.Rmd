@@ -681,7 +681,7 @@ you may need to consider for analysis.
 
 ```{r usesRef-User-Supplied}
 # Load the example MTDEQ criteria table
-criteria_table <- TADA_LoadCriteriaFile(org_id = "MTDEQ")
+criteria_table <- TADA_ListCriteriaFile(org_id = "MTDEQ")
 
 # extract the parameter and uses from this table
 user.supplied.MT.data <- dplyr::select(criteria_table, ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier, TADA.CharacteristicName, ATTAINS.ParameterName, ATTAINS.UseName)

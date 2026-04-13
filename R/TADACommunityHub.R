@@ -5,9 +5,6 @@
 #' returned can be used as function inputs in the TADA_GetCriteriaFile() function to
 #' retrieve a Criteria and Methodologies File.
 #'
-#' @param pkg The GitHub TADACommunityHub package. Ensures the package is downloaded.
-#' Should not be modified unless package name reference changes.
-#'
 #' @return A data frame with four columns:
 #' - ATTAINS.OrganizationIdentifier
 #' - display_name
@@ -20,19 +17,17 @@
 #' criteriaFiles <- TADA_ListCriteriaFiles()
 #'
 # List available criteria files from another installed package's inst/extdata
-TADA_ListCriteriaFiles <- function(pkg = "TADACommunityHub") {
+TADA_ListCriteriaFiles <- function() {
   # checks if the package is installed.
-  if (!requireNamespace(pkg, quietly = TRUE)) {
+  if (!requireNamespace("TADACommunityHub", quietly = TRUE)) {
     stop(
-      "Package '",
-      pkg,
-      "' is not installed. Please install it to use this function."
+      "Package 'TADACommunityHub' is not installed. Please install it to use this function."
     )
   }
 
-  ext_dir <- system.file("extdata", package = pkg)
+  ext_dir <- system.file("extdata", package = "TADACommunityHub")
   if (!nzchar(ext_dir) || !dir.exists(ext_dir)) {
-    stop("No extdata directory found in package '", pkg, "'.")
+    stop("No extdata directory found in package 'TADACommunityHub'.")
   }
 
   # The "default_files.xlsx" used to map display names -> ATTAINS org IDs
@@ -42,9 +37,7 @@ TADA_ListCriteriaFiles <- function(pkg = "TADACommunityHub") {
     default_df <- openxlsx::read.xlsx(default_path)
   } else {
     warning(
-      "default_files.xlsx not found in ",
-      pkg,
-      "/inst/extdata; ",
+      "default_files.xlsx not found in 'TADACommunityHub/inst/extdata'; ",
       "ATTAINS.OrganizationIdentifier mapping will be NA."
     )
   }
@@ -60,7 +53,7 @@ TADA_ListCriteriaFiles <- function(pkg = "TADACommunityHub") {
   if (length(xlsx_files) == 0) {
     warning(
       "No criteria crosswalk files found in ",
-      pkg,
+      "TADACommunityHub",
       "/inst/extdata. Please report issue to TADACommunityHub."
     )
     return(data.frame(
@@ -142,11 +135,6 @@ TADA_ListCriteriaFiles <- function(pkg = "TADACommunityHub") {
 #' Run TADA_ListCriteriaFiles() for a list of options. Users can enter either the
 #' org_id or display_name into this function to retrieve a Criteria and Methods file.
 #'
-#' @param ref A data frame with four columns from [TADA_ListCriteriaFiles()].
-#'
-#' @param pkg The GitHub TADACommunityHub R package. Ensures the package is downloaded.
-#' Should not be modified unless package name reference changes.
-#'
 #' @return A data frame containing the Criteria and Methodologies File retrieved
 #' from the TADACommunityHub based on the user supplied org_id or display_name name.
 #'
@@ -159,13 +147,12 @@ TADA_ListCriteriaFiles <- function(pkg = "TADACommunityHub") {
 # Load a selected criteria file (by org_id or display_name) from local inst/extdata
 TADA_GetCriteriaFile <- function(
   org_id = NULL,
-  display_name = NULL,
-  ref = NULL,
-  pkg = "TADACommunityHub"
+  display_name = NULL
 ) {
-  if (is.null(ref)) {
-    ref <- TADA_ListCriteriaFiles(pkg = pkg)
-  }
+  # package name should not be modified
+  pkg = "TADACommunityHub"
+
+  ref <- TADA_ListCriteriaFiles(pkg = pkg)
 
   # Only one of org_id or display_name should be populated
   if (all(is.null(org_id), is.null(display_name))) {

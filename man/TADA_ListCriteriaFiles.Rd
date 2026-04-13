@@ -4,11 +4,7 @@
 \alias{TADA_ListCriteriaFiles}
 \title{List Criteria and Methodologies Files Available in the TADACommunityHub}
 \usage{
-TADA_ListCriteriaFiles(pkg = "TADACommunityHub")
-}
-\arguments{
-\item{pkg}{The GitHub TADACommunityHub package. Ensures the package is downloaded.
-Should not be modified unless package name reference changes.}
+TADA_ListCriteriaFiles()
 }
 \value{
 A data frame with four columns:

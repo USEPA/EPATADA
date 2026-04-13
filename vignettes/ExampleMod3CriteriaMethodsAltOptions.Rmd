@@ -345,7 +345,7 @@ cycle.
 
 ```{r user.supplied.w.epa304a}
 # Load the example R8 criteria table
-criteria_table <- TADA_LoadCriteriaFile(org_id = "MTDEQ")
+criteria_table <- TADA_ListCriteriaFile(org_id = "MTDEQ")
 # Load example uses to AU Ref table
 utils::data(Data_MT_AU_UsesRef)
 

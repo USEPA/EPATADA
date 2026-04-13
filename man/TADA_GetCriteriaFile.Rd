@@ -4,12 +4,7 @@
 \alias{TADA_GetCriteriaFile}
 \title{Load any Criteria and Methodologies File Available in the TADACommunityHub}
 \usage{
-TADA_GetCriteriaFile(
-  org_id = NULL,
-  display_name = NULL,
-  ref = NULL,
-  pkg = "TADACommunityHub"
-)
+TADA_GetCriteriaFile(org_id = NULL, display_name = NULL)
 }
 \arguments{
 \item{org_id}{Character string. The ATTAINS organization identifier.
@@ -20,11 +15,6 @@ org_id or display_name into this function to retrieve a Criteria and Methods fil
 TADA Module 3 R Shiny App user interface (https://github.com/USEPA/TADAShinyAnalyze).
 Run TADA_ListCriteriaFiles() for a list of options. Users can enter either the
 org_id or display_name into this function to retrieve a Criteria and Methods file.}
-
-\item{ref}{A data frame with four columns from \code{\link[=TADA_ListCriteriaFiles]{TADA_ListCriteriaFiles()}}.}
-
-\item{pkg}{The GitHub TADACommunityHub R package. Ensures the package is downloaded.
-Should not be modified unless package name reference changes.}
 }
 \value{
 A data frame containing the Criteria and Methodologies File retrieved
