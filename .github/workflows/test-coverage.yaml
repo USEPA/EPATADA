@@ -90,6 +90,7 @@ jobs:
           report_name: coverage-report
           path: ./cobertura.xml
           minimum_coverage: 10
+          only_changed_files: true   # limit to files modified in the PR
           show_missing: true
           link_missing_lines: true
         env:
