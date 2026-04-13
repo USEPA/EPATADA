@@ -152,7 +152,7 @@ TADA_GetCriteriaFile <- function(
   # package name should not be modified
   pkg = "TADACommunityHub"
 
-  ref <- TADA_ListCriteriaFiles(pkg = pkg)
+  ref <- TADA_ListCriteriaFiles()
 
   # Only one of org_id or display_name should be populated
   if (all(is.null(org_id), is.null(display_name))) {
