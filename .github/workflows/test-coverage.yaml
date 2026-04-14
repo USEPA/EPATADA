@@ -39,17 +39,21 @@ jobs:
       - name: Capture Environment Info
         run: |
           Rscript -e '
-            env_vars <- Sys.getenv()
+            all <- Sys.getenv()
+            keep <- !grepl("(TOKEN|KEY|SECRET|PASSWORD|PAT)", names(all), ignore.case = TRUE)
+            env_vars <- all[keep]
             pkg_versions <- installed.packages()[, c("Package", "Version")]
             sys_info <- Sys.info()
             save(env_vars, pkg_versions, sys_info, file = "ci_env_info.RData")
           '
 
       - name: Upload Environment Info
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: ci_env_info
           path: ci_env_info.RData
+          if-no-files-found: ignore
 
       - name: Test coverage
         run: |
@@ -77,19 +81,21 @@ jobs:
           if-no-files-found: ignore # Suppress warnings if no files are found
 
       - name: Upload coverage report
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: ./cobertura.xml
+          if-no-files-found: error
 
       - name: Comment coverage
-        if: github.event_name == 'pull_request'
-        uses: 5monkeys/cobertura-action@master
+        if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork }}
+        uses: 5monkeys/cobertura-action@v2
         with:
           report_name: coverage-report
           path: ./cobertura.xml
           minimum_coverage: 20
-          only_changed_files: true # limit to files modified in the PR
+          only_changed_files: true
           show_missing: true
           link_missing_lines: true
         env:
