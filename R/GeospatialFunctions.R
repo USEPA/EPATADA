@@ -14,7 +14,7 @@
 #' baseurl <- "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3"
 #'
 #' df <- Data_MT_MissoulaCounty |>
-#'       TADA_MakeSpatial()
+#'   TADA_MakeSpatial()
 #'
 #' features <- fetch_bbox(baseurl, df)
 #' }
@@ -52,12 +52,16 @@ fetch_bbox <- function(baseurl, df) {
 #'   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
 #'   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
 #' )
-#' line.features <- fetch_au(baseurl = baseurls[[3]],
-#'   assessment_unit_ids = c("IL_N-99",
+#' line.features <- fetch_au(
+#'   baseurl = baseurls[[3]],
+#'   assessment_unit_ids = c(
+#'     "IL_N-99",
 #'     "IL_N-12",
 #'     "IL_N-16",
-#'     "IL_N-17"))
-#'}
+#'     "IL_N-17"
+#'   )
+#' )
+#' }
 fetch_au <- function(baseurl, assessment_unit_ids, org_filter = "all") {
   # set out epsg
   out_epsg <- 4326
@@ -3007,30 +3011,50 @@ TADA_CreateAUMLCrosswalk <- function(
           api_key = api_key
         ))
 
-        # add AUIDs if user ref contained AUs not found in ATTAINS
+        # add AUIDs and water type if user ref contained AUs and water type not found in ATTAINS
         # set up user ref for join
         user.aus <- au_ref |>
           dplyr::select(
             ATTAINS.MonitoringLocationIdentifier,
-            ATTAINS.AssessmentUnitIdentifier
+            ATTAINS.AssessmentUnitIdentifier,
+            User.WaterType
           ) |>
           dplyr::rename(
             TADA.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
             UserRef.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier
-          )
+          ) |>
+          dplyr::mutate(UserRef.OrganizationIdentifier = org_id)
 
-        # replace NA AUIDs with AUID from user ref where possible
+        # replace NA AUIDs with AUID and NA WaterType with WaterType from user ref where possible
         user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS |>
-          dplyr::left_join(user.aus) |>
+          dplyr::left_join(
+            user.aus,
+            by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
+          ) |>
           dplyr::mutate(
             ATTAINS.AssessmentUnitIdentifier = ifelse(
               is.na(ATTAINS.AssessmentUnitIdentifier) &
                 !is.na(UserRef.AssessmentUnitIdentifier),
               UserRef.AssessmentUnitIdentifier,
               ATTAINS.AssessmentUnitIdentifier
+            ),
+            ATTAINS.WaterType = ifelse(
+              is.na(ATTAINS.WaterType) & !is.na(User.WaterType),
+              User.WaterType,
+              ATTAINS.WaterType
+            ),
+            ATTAINS.OrganizationIdentifier = ifelse(
+              is.na(ATTAINS.OrganizationIdentifier) &
+                !is.na(UserRef.OrganizationIdentifier),
+              UserRef.OrganizationIdentifier,
+              ATTAINS.OrganizationIdentifier
             )
           ) |>
-          dplyr::select(-UserRef.AssessmentUnitIdentifier) |>
+          dplyr::select(
+            -UserRef.AssessmentUnitIdentifier,
+            -User.WaterType,
+            -UserRef.OrganizationIdentifier
+          ) |>
           dplyr::distinct()
 
         # remove intermediate object
@@ -3123,7 +3147,7 @@ TADA_CreateAUMLCrosswalk <- function(
       # remove intermediate object
       rm(tada.mls)
 
-      # if au_ref was provided  by user, remove any records with monitoring locations matching user ref
+      # if au_ref was provided by user, remove any records with monitoring locations matching user ref
       if (!is.null(au_ref)) {
         attains.cw.mls <- .data |>
           dplyr::filter(
@@ -3134,7 +3158,7 @@ TADA_CreateAUMLCrosswalk <- function(
           )
       }
 
-      # if au_ref was not provided  by user, retain all records that match ATTAINS ref
+      # if au_ref was not provided by user, retain all records that match ATTAINS ref
       if (is.null(au_ref)) {
         attains.cw.mls <- .data |>
           dplyr::filter(

@@ -73,6 +73,7 @@ Imports:
     DT,
     dataRetrieval (>= 2.7.21),
     rExpertQuery,
+    TADACommunityHub,
     readr (>= 1.4.0),
     spsUtil,
     httr,
@@ -107,7 +108,8 @@ Suggests:
     roxygen2,
     withr
 Remotes:
-    USEPA/rExpertQuery@develop
+    USEPA/rExpertQuery@develop,
+    USEPA/TADACommunityHub@main
 VignetteBuilder: knitr, rmarkdown
 BuildVignettes: true
 Language: en-US

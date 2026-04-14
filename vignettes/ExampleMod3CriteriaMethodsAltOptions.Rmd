@@ -36,9 +36,9 @@ knitr::opts_chunk$set(
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA).
 TADA is an open-source tool set built in the R programming language.
-This [RMarkdown](https://yihui.org/rmarkdown/) document walks
-users through how to download the EPATADA R package from GitHub, access
-and parameterize several important functions, and create basic
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks users
+through how to download the EPATADA R package from GitHub, access and
+parameterize several important functions, and create basic
 visualizations with a sample data set.
 
 **Note: EPATADA is still under development. New functionality is added
@@ -164,7 +164,6 @@ API key to the "api_key" variable. Otherwise, the default EPATADA
 package key will be used.
 
 ```{r api_key}
-
 # api_key <- "paste your key here"
 
 # is user does not provide key, set api_key as NULL
@@ -331,7 +330,13 @@ missing WQP Char to consider that isn't defined in their criteria and
 methods table that they have supplied. Users will be warned how many WQP
 Char values are not defined from their user supplied table.
 
-In this first example, a user supplies their own criteria table.
+In this example, let's use a filled out criteria table for MTDEQ and
+extract the use and parameters from the crosswalk. TADA has created the
+TADACommunityHub in which TADA users can submit, share and maintain
+user-contributed criteria and methodologies templates to support
+reproducible and efficient analyses. We will use
+**`TADA_GetCriteriaFile`** to pull in this criteria table from the
+TADACommunityHub GitHub repository.
 
 Note: If a user has an updated list of use names that have been applied
 to an assessment unit, they should also provide a AU_UsesRef input.
@@ -340,8 +345,7 @@ cycle.
 
 ```{r user.supplied.w.epa304a}
 # Load the example R8 criteria table
-criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
-load(criteria_table)
+criteria_table <- TADA_GetCriteriaFile(org_id = "MTDEQ")
 # Load example uses to AU Ref table
 utils::data(Data_MT_AU_UsesRef)
 
