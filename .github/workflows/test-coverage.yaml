@@ -90,7 +90,7 @@ jobs:
 
       - name: Comment coverage
         if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork }}
-        uses: 5monkeys/cobertura-action@v2
+        uses: 5monkeys/cobertura-action@master
         with:
           report_name: coverage-report
           path: ./cobertura.xml
