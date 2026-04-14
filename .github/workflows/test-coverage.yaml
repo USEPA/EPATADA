@@ -19,8 +19,6 @@ permissions:
 
 jobs:
   test-coverage:
-    # Skip draft PRs; run on non-PR triggers and non-draft PR events
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -61,7 +59,7 @@ jobs:
             install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
           )
           print(cov)
-          covr::to_cobertura(cov)
+          covr::to_cobertura(cov, filename = "cobertura.xml")
         shell: Rscript {0}
 
       - name: Show testthat output
@@ -76,7 +74,7 @@ jobs:
         with:
           name: coverage-test-failures
           path: ${{ runner.temp }}/package
-          if-no-files-found: ignore
+          if-no-files-found: ignore # Suppress warnings if no files are found
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v7
@@ -85,12 +83,13 @@ jobs:
           path: ./cobertura.xml
 
       - name: Comment coverage
+        if: github.event_name == 'pull_request'
         uses: 5monkeys/cobertura-action@master
         with:
           report_name: coverage-report
           path: ./cobertura.xml
-          minimum_coverage: 10
-          only_changed_files: true   # limit to files modified in the PR
+          minimum_coverage: 20
+          only_changed_files: true # limit to files modified in the PR
           show_missing: true
           link_missing_lines: true
         env:
