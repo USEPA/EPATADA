@@ -370,6 +370,9 @@ key_counts
     ## 8        ActivityRelativeDepthName     3
     ## 9              ResultValueTypeName     3
     ## 10          ResultStatusIdentifier     2
+    ## 11             HydrologicCondition     1
+    ## 12                 HydrologicEvent     1
+    ## 13         SampleTissueAnatomyName     1
 
 ``` r
 all_counts <- TADA_FieldCounts(dataset_0, display = "all")
@@ -478,14 +481,47 @@ all_counts
     ## 98                      ActivityTopDepthHeightMeasure.MeasureUnitCode      2
     ## 99                   ActivityBottomDepthHeightMeasure.MeasureUnitCode      2
     ## 100                                            ResultStatusIdentifier      2
-    ## 101                                ActivityConductingOrganizationText      2
-    ## 102                                             SourceMapScaleNumeric      2
-    ## 103                                    HorizontalCollectionMethodName      2
-    ## 104                     TADA.ResultDepthHeightMeasure.MeasureUnitCode      1
-    ## 105                   TADA.ActivityDepthHeightMeasure.MeasureUnitCode      1
-    ## 106                TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode      1
-    ## 107             TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode      1
-    ## 108                                                      ProviderName      1
+    ## 101                                            SamplingDesignTypeCode      2
+    ## 102                                                    ProjectFileUrl      2
+    ## 103                                ActivityConductingOrganizationText      2
+    ## 104                                             SourceMapScaleNumeric      2
+    ## 105                                    HorizontalCollectionMethodName      2
+    ## 106                             ProjectMonitoringLocationWeightingUrl      2
+    ## 107                                           SampleTissueAnatomyName      1
+    ## 108                     TADA.ResultDepthHeightMeasure.MeasureUnitCode      1
+    ## 109                             ResultDepthAltitudeReferencePointText      1
+    ## 110                   TADA.ActivityDepthHeightMeasure.MeasureUnitCode      1
+    ## 111                TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode      1
+    ## 112             TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode      1
+    ## 113                                               ResultTimeBasisText      1
+    ## 114                                                     ResultFileUrl      1
+    ## 115                                  ResultAnalyticalMethod.MethodUrl      1
+    ## 116                                               HydrologicCondition      1
+    ## 117                                                   HydrologicEvent      1
+    ## 118                                       ResultLaboratoryCommentText      1
+    ## 119                                                       AquiferName      1
+    ## 120                                                   AquiferTypeName      1
+    ## 121                                                     LocalAqfrName      1
+    ## 122                                  WellDepthMeasure.MeasureUnitCode      1
+    ## 123                              WellHoleDepthMeasure.MeasureUnitCode      1
+    ## 124                           ActivityDepthAltitudeReferencePointText      1
+    ## 125                                                     SampleAquifer      1
+    ## 126                                             ResultWeightBasisText      1
+    ## 127                                        ResultTemperatureBasisText      1
+    ## 128                                       ResultParticleSizeBasisText      1
+    ## 129                                                         USGSPCode      1
+    ## 130                                              BinaryObjectFileName      1
+    ## 131                                          BinaryObjectFileTypeCode      1
+    ## 132                                           LabSamplePreparationUrl      1
+    ## 133                         HorizontalAccuracyMeasure.MeasureUnitCode      1
+    ## 134                                   VerticalMeasure.MeasureUnitCode      1
+    ## 135                           VerticalAccuracyMeasure.MeasureUnitCode      1
+    ## 136                                      VerticalCollectionMethodName      1
+    ## 137                        VerticalCoordinateReferenceSystemDatumName      1
+    ## 138                                                 FormationTypeText      1
+    ## 139                               DrainageAreaMeasure.MeasureUnitCode      1
+    ## 140                   ContributingDrainageAreaMeasure.MeasureUnitCode      1
+    ## 141                                                      ProviderName      1
 
 **Question 3: How many unique ‘TADA.ActivityMediaName’ values exist in
 your dataframe? Are there any media types that are not water?**
