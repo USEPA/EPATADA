@@ -256,8 +256,8 @@ testthat::test_that("Get ATTAINS by Assessment Unit ID", {
       test_au_ref_MTDEQ
     )
   )
-  # Check .data was updated by adding 83 cols (161+83=244)
-  expect_equal(ncol(actual_default$TADA_with_ATTAINS), 244)
+  # Check .data was updated by adding 83 cols (163+83=246)
+  expect_equal(ncol(actual_default$TADA_with_ATTAINS), 246)
   # Check results based on number of rows
   expected_rows <- c(0, 5, 1)
   expect_equal(NROW(actual_default$ATTAINS_points), expected_rows[1])

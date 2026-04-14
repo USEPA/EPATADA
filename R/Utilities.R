@@ -416,6 +416,7 @@ utils::globalVariables(c(
   "ATTAINS.WaterType.y",
   "DepthCategory",
   "User.WaterType",
+  "UserRef.OrganizationIdentifier",
   "ATTAINS.OrganizationId",
   "MatchMessage",
   "Mismatch",
