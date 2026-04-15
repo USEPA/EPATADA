@@ -1491,7 +1491,7 @@ TADA_DefineCriteriaMethodology <- function(
       x = DefineCriteriaMethodology,
       headerStyle = header_st
     )
-    
+
     # Format column widths
     openxlsx::setColWidths(
       wb,
@@ -1756,14 +1756,14 @@ TADA_DefineCriteriaMethodology <- function(
           "Weekly",
           "10 days",
           "NA"
-          )
         )
       )
-      
+    )
+
     openxlsx::writeData(
       wb,
       "Index-Criteria",
-      startCol = 32,  # AF
+      startCol = 32, # AF
       startRow = 1,
       x = data.frame(
         EquationType = c(
@@ -1774,27 +1774,22 @@ TADA_DefineCriteriaMethodology <- function(
         )
       )
     )
-    
+
     openxlsx::writeData(
       wb,
       "Index-Criteria",
-      startCol = 33,  # AG
+      startCol = 33, # AG
       startRow = 1,
-      x = data.frame(
-        pHDirection = c("Above", "Below", "NA")
-      )
+      x = data.frame(pHDirection = c("Above", "Below", "NA"))
     )
-    
+
     openxlsx::writeData(
       wb,
       "Index-Criteria",
-      startCol = 34,  # AH
+      startCol = 34, # AH
       startRow = 1,
-      x = data.frame(
-        TemperatureExtreme = c("Min", "Max", "NA")
-      )
+      x = data.frame(TemperatureExtreme = c("Min", "Max", "NA"))
     )
-    
 
     # Build an allowed UseName list (non-NA) from the table you’re writing
     # If none are available, you can substitute an org-specific list as a fallback.
@@ -2048,11 +2043,11 @@ TADA_DefineCriteriaMethodology <- function(
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
-    
+
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
-      cols = 32,  # EquationType
+      cols = 32, # EquationType
       rows = 2:1000,
       type = "list",
       value = "'Index-Criteria'!$AF$2:$AF$5",
@@ -2060,11 +2055,11 @@ TADA_DefineCriteriaMethodology <- function(
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
-    
+
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
-      cols = 35,  # pHDirection
+      cols = 35, # pHDirection
       rows = 2:1000,
       type = "list",
       value = "'Index-Criteria'!$AG$2:$AG$4",
@@ -2072,11 +2067,11 @@ TADA_DefineCriteriaMethodology <- function(
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
-    
+
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
-      cols = 40,  # TemperatureExtreme
+      cols = 40, # TemperatureExtreme
       rows = 2:1000,
       type = "list",
       value = "'Index-Criteria'!$AH$2:$AH$4",
@@ -2120,30 +2115,30 @@ TADA_DefineCriteriaMethodology <- function(
 
     # Determine actual save path
     save_path <- downloads_path
-    
+
     if (!overwrite && file.exists(downloads_path)) {
       base <- tools::file_path_sans_ext(downloads_path)
       ext <- tools::file_ext(downloads_path)
       ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
       save_path <- sprintf("%s_%s.%s", base, ts, ext)
     }
-    
+
     # Save current workbook structure first so file exists at final path
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
-    
+
     # Add dictionary tabs to the final file
     TADA_CriteriaDataDictionary(save_path)
-    
+
     # Reload the updated workbook so wb now includes those tabs
     wb <- openxlsx::loadWorkbook(save_path)
-    
+
     # now continue any remaining edits if needed, then final save
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
-    
+
     if (!overwrite && save_path != downloads_path) {
       message("Saved as: ", save_path)
     }
-    
+
     cat("File saved to:", gsub("/", "\\\\", save_path), "\n")
   }
 
@@ -2189,17 +2184,15 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
   }
   wb <- openxlsx::loadWorkbook(downloads_path)
 
-
   tryCatch(openxlsx::addWorksheet(wb, "DataDictionary"), error = function(e) {
     openxlsx::removeWorksheet(wb, "DataDictionary")
     openxlsx::addWorksheet(wb, "DataDictionary")
   })
-  
+
   tryCatch(openxlsx::addWorksheet(wb, "AllowableValues"), error = function(e) {
     openxlsx::removeWorksheet(wb, "AllowableValues")
     openxlsx::addWorksheet(wb, "AllowableValues")
   })
-
 
   # Example data frame
   data_to_write <- data.frame(
@@ -2358,7 +2351,7 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       "User Supplied",
       "User Supplied",
       "User Supplied",
-      "User Supplied", 
+      "User Supplied",
       "User Supplied",
       "User Supplied"
     ),
@@ -2423,12 +2416,14 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       # ATTAINS.UseName
       "The name of the waterbody use that gets submitted to ATTAINS. These use names should be specific to your organization.",
       # TADA.ComparableDataIdentifier
-      paste0(c(
-        "To populate this field, specify displayUniqueId = TRUE as an input into TADA_DefineCriteriaMethodology function. ",
-        "Concatenates the WQP Characteristic, Fraction and speciation into one string. ",
-        "If provided, this will crosswalk an ATTAINS.ParameterName to this TADA.ComparableDataIdentifier. ",
-        "It is recommended to have performed this crosswalk in TADA_ParametersForAnalysis to avoid any duplicated ",
-        "definition of your organization's criteria if they are the same for multiple TADA.ComparableDataIdentifiers."),
+      paste0(
+        c(
+          "To populate this field, specify displayUniqueId = TRUE as an input into TADA_DefineCriteriaMethodology function. ",
+          "Concatenates the WQP Characteristic, Fraction and speciation into one string. ",
+          "If provided, this will crosswalk an ATTAINS.ParameterName to this TADA.ComparableDataIdentifier. ",
+          "It is recommended to have performed this crosswalk in TADA_ParametersForAnalysis to avoid any duplicated ",
+          "definition of your organization's criteria if they are the same for multiple TADA.ComparableDataIdentifiers."
+        ),
         collapse = " "
       ),
       # TADA.CharacteristicName
@@ -2494,75 +2489,140 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       #pHDirection
       "Whether the equation is applied for pH values above or below the pHThreshold value",
       # hardness_param_1
-      paste0(c("First coefficient in the conversion factor in a typical hardness-dependent equation format: ",
-             "CF*e^(param_4(ln(hardness)) + param_5); CF = param_1 - ln(hardness)*param_2. ",
-             "NOTE: Equation handling in TADA is still in development."), collapse = "\r\n"),
+      paste0(
+        c(
+          "First coefficient in the conversion factor in a typical hardness-dependent equation format: ",
+          "CF*e^(param_4(ln(hardness)) + param_5); CF = param_1 - ln(hardness)*param_2. ",
+          "NOTE: Equation handling in TADA is still in development."
+        ),
+        collapse = "\r\n"
+      ),
       # hardness_param_2
-      paste0(c("Second coefficient in the conversion factor in a typical hardness-dependent equation format: ", 
-             "CF*e^(param_4(ln(hardness)) + param_5); CF = param_1 - ln(hardness)*param_2. ", "
-             NOTE: Equation handling in TADA is still in development."),
-             collapse = "\r\n"),
+      paste0(
+        c(
+          "Second coefficient in the conversion factor in a typical hardness-dependent equation format: ",
+          "CF*e^(param_4(ln(hardness)) + param_5); CF = param_1 - ln(hardness)*param_2. ",
+          "
+             NOTE: Equation handling in TADA is still in development."
+        ),
+        collapse = "\r\n"
+      ),
       # hardness_param_3
-      paste0(c("First coefficient in the main chunk of a typical hardness-dependent equation format: ", 
-             "CF*e^(param_3(ln(hardness)) + param_4); CF = param_1 - ln(hardness)*param_2. ", 
-             "NOTE: Equation handling in TADA is still in development."), collapse = "\r\n"),
+      paste0(
+        c(
+          "First coefficient in the main chunk of a typical hardness-dependent equation format: ",
+          "CF*e^(param_3(ln(hardness)) + param_4); CF = param_1 - ln(hardness)*param_2. ",
+          "NOTE: Equation handling in TADA is still in development."
+        ),
+        collapse = "\r\n"
+      ),
       # hardness_param_4
-      paste0(c("Second coefficient in the main chunk of a typical hardness-dependent equation format: ", 
-             "CF*e^(param_3(ln(hardness)) + param_4); CF = param_1 - ln(hardness)*param_2. ", 
-             "NOTE: Equation handling in TADA is still in development."), collapse = "\r\n"),
+      paste0(
+        c(
+          "Second coefficient in the main chunk of a typical hardness-dependent equation format: ",
+          "CF*e^(param_3(ln(hardness)) + param_4); CF = param_1 - ln(hardness)*param_2. ",
+          "NOTE: Equation handling in TADA is still in development."
+        ),
+        collapse = "\r\n"
+      ),
       #TemperatureExtreme
       "For pH and Temperature equations only. Defines if the equation considers the minimum value or maximum value of the temperature component of the equation.",
       # pH_param_1
-      paste0(c("First coefficient in the typical pH-dependent equation format: ",
-      "param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). ",
-      "NOTE: Equation handling in TADA is still in development."), collapse = "\r\n"),
+      paste0(
+        c(
+          "First coefficient in the typical pH-dependent equation format: ",
+          "param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). ",
+          "NOTE: Equation handling in TADA is still in development."
+        ),
+        collapse = "\r\n"
+      ),
       # pH_param_2
-      paste0(c("Second coefficient in the typical pH-dependent equation format: ",
-             "param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). ",
-             "NOTE: Equation handling in TADA is still in development."), collapse = "\r\n"),
+      paste0(
+        c(
+          "Second coefficient in the typical pH-dependent equation format: ",
+          "param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). ",
+          "NOTE: Equation handling in TADA is still in development."
+        ),
+        collapse = "\r\n"
+      ),
       # pH_param_3
-      paste0(c("Third coefficient in the typical pH-dependent equation format: ",
-             "param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). ",
-             "NOTE: Equation handling in TADA is still in development."), collapse = "\r\n"),
+      paste0(
+        c(
+          "Third coefficient in the typical pH-dependent equation format: ",
+          "param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). ",
+          "NOTE: Equation handling in TADA is still in development."
+        ),
+        collapse = "\r\n"
+      ),
       # pH_param_4
-      paste0(c("Fourth coefficient in the typical pH-dependent equation format: ",
-             "param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). ",
-             "NOTE: Equation handling in TADA is still in development."), collapse = "\r\n"),
+      paste0(
+        c(
+          "Fourth coefficient in the typical pH-dependent equation format: ",
+          "param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). ",
+          "NOTE: Equation handling in TADA is still in development."
+        ),
+        collapse = "\r\n"
+      ),
       # pH_param_5
-      paste0(c("Fifth coefficient in the typical pH- & temperature-dependent equation format: ",
-      "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
-      "OR ",
-      "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
-      "NOTE: Equation handling in TADA is still in development."), collapse = "\r\n"),
+      paste0(
+        c(
+          "Fifth coefficient in the typical pH- & temperature-dependent equation format: ",
+          "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+          "OR ",
+          "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+          "NOTE: Equation handling in TADA is still in development."
+        ),
+        collapse = "\r\n"
+      ),
       # pH_param_6
-      paste0(c("Sixth coefficient in the typical pH- & temperature-dependent equation format: ",
-             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
-             "OR ",
-             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
-             "NOTE: Equation handling in TADA is still in development."), collapse = "\r\n"),
+      paste0(
+        c(
+          "Sixth coefficient in the typical pH- & temperature-dependent equation format: ",
+          "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+          "OR ",
+          "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+          "NOTE: Equation handling in TADA is still in development."
+        ),
+        collapse = "\r\n"
+      ),
       # pH_param_7
-      paste0(c("Seventh coefficient in the typical pH- & temperature-dependent equation format: ",
-             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
-             "OR ",
-             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
-             "NOTE: Equation handling in TADA is still in development."), collapse = "\r\n"),
+      paste0(
+        c(
+          "Seventh coefficient in the typical pH- & temperature-dependent equation format: ",
+          "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+          "OR ",
+          "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+          "NOTE: Equation handling in TADA is still in development."
+        ),
+        collapse = "\r\n"
+      ),
       # pH_param_8
-      paste0(c("Eigth coefficient in the typical pH- & temperature-dependent equation format: ",
-             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
-             "OR ",
-             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
-             "NOTE: Equation handling in TADA is still in development."), collapse = "\r\n"),
+      paste0(
+        c(
+          "Eigth coefficient in the typical pH- & temperature-dependent equation format: ",
+          "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+          "OR ",
+          "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+          "NOTE: Equation handling in TADA is still in development."
+        ),
+        collapse = "\r\n"
+      ),
       # pH_param_9
-      paste0(c("Ninth coefficient in the typical pH- & temperature-dependent equation format: ",
-             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
-             "OR ",
-             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
-             "NOTE: Equation handling in TADA is still in development."), collapse = "\r\n"),
+      paste0(
+        c(
+          "Ninth coefficient in the typical pH- & temperature-dependent equation format: ",
+          "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+          "OR ",
+          "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+          "NOTE: Equation handling in TADA is still in development."
+        ),
+        collapse = "\r\n"
+      ),
       # MinEqMagnitude
       "Numeric value that represents a minimum value that should replace a calculated value that falls below this.",
       # MaxEqMagnitude
       "Numeric value that represents a maximum value that should replace a calculated value that falls above this."
-      )
+    )
   )
 
   # Write the data frame to the worksheet, starting at cell B2
@@ -2598,9 +2658,9 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
   crosswalk_style <- openxlsx::createStyle(
     fgFill = "#DAEEF3", # Light blue background
   )
-  
+
   crosswalk_loc <- which(data_to_write$ColumnType == "Crosswalk") + 2
-  
+
   # apply Crosswalk blue shading
   openxlsx::addStyle(
     wb,
@@ -2611,14 +2671,14 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     gridExpand = TRUE,
     stack = TRUE
   )
-  
+
   # add orange shading to ColumnType == Spatial rows
   spatial_style <- openxlsx::createStyle(
     fgFill = "#FDE9D9", # Light orange background
   )
-  
+
   spatial_loc <- which(data_to_write$ColumnType == "Spatial") + 2
-  
+
   # apply Spatial orange shading
   openxlsx::addStyle(
     wb,
@@ -2629,14 +2689,14 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     gridExpand = TRUE,
     stack = TRUE
   )
-  
+
   # add green shading to ColumnType == Criteria rows
   criteria_style <- openxlsx::createStyle(
     fgFill = "#EBF1DE", # Light green background
   )
-  
+
   criteria_loc <- which(data_to_write$ColumnType == "Criteria") + 2
-  
+
   # apply criteria green shading
   openxlsx::addStyle(
     wb,
@@ -2647,14 +2707,14 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     gridExpand = TRUE,
     stack = TRUE
   )
-  
+
   # add red shading to ColumnType == Methodology rows
   method_style <- openxlsx::createStyle(
     fgFill = "#F2DCDB", # Light red background
   )
-  
+
   method_loc <- which(data_to_write$ColumnType == "Methodology") + 2
-  
+
   # apply Methodology red shading
   openxlsx::addStyle(
     wb,
@@ -2665,14 +2725,14 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     gridExpand = TRUE,
     stack = TRUE
   )
-  
+
   # add purple shading to ColumnType == Equation rows
   eq_style <- openxlsx::createStyle(
     fgFill = "#E9E1F2", # Light purple background
   )
-  
+
   eq_loc <- which(data_to_write$ColumnType == "Equation") + 2
-  
+
   # apply Methodology purple shading
   openxlsx::addStyle(
     wb,
@@ -2683,7 +2743,7 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     gridExpand = TRUE,
     stack = TRUE
   )
-  
+
   # Create a style for borders on all data cells
   data_border_style <- openxlsx::createStyle(
     border = "TopBottomLeftRight",
@@ -2732,7 +2792,7 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     cols = 1:ncol(data_to_write),
     widths = "auto"
   )
-  
+
   openxlsx::setRowHeights(
     wb,
     "DataDictionary",
@@ -2934,16 +2994,20 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       "10",
       "New addition to ATTAINS in FY2026",
       "",
-      paste0(c("Hardness: 1.101672 - ln(hardness) (0.041838) * e(0.7977*ln(hardness)-3.909) ",
-             "OR ",
-             "pH: 0.275/(1+10^(7.204-pH)) + 39/(1+10^(pH-7.204)) ",
-             "OR ",
-             "pH-Temp: 0.8876*(((0.0278/(1+10^(7.688-pH)))+(1.1994/(1+10^(pH-7.688))))*(2.126*10^(0.028*(20-max(Temperature,7)))))",
-             "OR ",
-             "pH-Temp: 0.7249*(((0.0114/(1+10^(7.204-pH)))+(1.6181/(1+10^(pH-7.204))))*min(51.93,23.12*10^(0.036*(20-Temperature))))",
-             "OR ",
-             "pH-Hardess: pH above 7; e^(1.3695*ln(hardness)-0.1158); pH below 7; min(87, e^(1.3695*ln(hardness)-0.1158))"),
-             collapse = "\r\n"),
+      paste0(
+        c(
+          "Hardness: 1.101672 - ln(hardness) (0.041838) * e(0.7977*ln(hardness)-3.909) ",
+          "OR ",
+          "pH: 0.275/(1+10^(7.204-pH)) + 39/(1+10^(pH-7.204)) ",
+          "OR ",
+          "pH-Temp: 0.8876*(((0.0278/(1+10^(7.688-pH)))+(1.1994/(1+10^(pH-7.688))))*(2.126*10^(0.028*(20-max(Temperature,7)))))",
+          "OR ",
+          "pH-Temp: 0.7249*(((0.0114/(1+10^(7.204-pH)))+(1.6181/(1+10^(pH-7.204))))*min(51.93,23.12*10^(0.036*(20-Temperature))))",
+          "OR ",
+          "pH-Hardess: pH above 7; e^(1.3695*ln(hardness)-0.1158); pH below 7; min(87, e^(1.3695*ln(hardness)-0.1158))"
+        ),
+        collapse = "\r\n"
+      ),
       "7",
       "",
       "1.101672",
@@ -2965,10 +3029,10 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     ),
     stringsAsFactors = FALSE
   )
-  
+
   start_col <- 2
   start_row <- 2
-  
+
   openxlsx::writeData(
     wb,
     "AllowableValues",
@@ -2976,13 +3040,15 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     startCol = start_col,
     startRow = start_row
   )
-  
+
   # Excel column number for AllowableValues
-  allowable_col_excel <- start_col + which(names(data_to_write_allow) == "AllowableValues") - 1
-  
+  allowable_col_excel <- start_col +
+    which(names(data_to_write_allow) == "AllowableValues") -
+    1
+
   # Identify rows with URLs
   link_rows <- which(grepl("^https?://", data_to_write_allow$AllowableValues))
-  
+
   # Create simple labels
   link_labels <- ifelse(
     grepl("domains_.*\\.xlsx$", data_to_write_allow$AllowableValues),
@@ -2993,7 +3059,7 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       "Link"
     )
   )
-  
+
   # Build formulas only for hyperlink rows
   hyperlink_formulas <- paste0(
     'HYPERLINK("',
@@ -3002,7 +3068,7 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     link_labels[link_rows],
     '")'
   )
-  
+
   # Write each hyperlink formula into its specific row
   for (i in seq_along(link_rows)) {
     openxlsx::writeFormula(
@@ -3013,7 +3079,7 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       startRow = start_row + link_rows[i]
     )
   }
-  
+
   # Create a style for the header row
   header_style <- openxlsx::createStyle(
     fontSize = 12,
@@ -3023,7 +3089,7 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     border = "TopBottomLeftRight",
     borderColour = "#000000"
   )
-  
+
   # Apply the header style to the second row (header)
   openxlsx::addStyle(
     wb,
@@ -3038,9 +3104,9 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
   crosswalk_style <- openxlsx::createStyle(
     fgFill = "#DAEEF3", # Light blue background
   )
-  
+
   crosswalk_loc <- which(data_to_write_allow$ColumnType == "Crosswalk") + 2
-  
+
   # apply Crosswalk blue shading
   openxlsx::addStyle(
     wb,
@@ -3051,14 +3117,14 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     gridExpand = TRUE,
     stack = TRUE
   )
-  
+
   # add orange shading to ColumnType == Spatial rows
   spatial_style <- openxlsx::createStyle(
     fgFill = "#FDE9D9", # Light orange background
   )
-  
+
   spatial_loc <- which(data_to_write_allow$ColumnType == "Spatial") + 2
-  
+
   # apply Spatial orange shading
   openxlsx::addStyle(
     wb,
@@ -3069,14 +3135,14 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     gridExpand = TRUE,
     stack = TRUE
   )
-  
+
   # add green shading to ColumnType == Criteria rows
   criteria_style <- openxlsx::createStyle(
     fgFill = "#EBF1DE", # Light green background
   )
-  
+
   criteria_loc <- which(data_to_write_allow$ColumnType == "Criteria") + 2
-  
+
   # apply criteria green shading
   openxlsx::addStyle(
     wb,
@@ -3087,14 +3153,14 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     gridExpand = TRUE,
     stack = TRUE
   )
-  
+
   # add red shading to ColumnType == Methodology rows
   method_style <- openxlsx::createStyle(
     fgFill = "#F2DCDB", # Light red background
   )
-  
+
   method_loc <- which(data_to_write_allow$ColumnType == "Methodology") + 2
-  
+
   # apply Methodology red shading
   openxlsx::addStyle(
     wb,
@@ -3105,14 +3171,14 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     gridExpand = TRUE,
     stack = TRUE
   )
-  
+
   # add purple shading to ColumnType == Equation rows
   eq_style <- openxlsx::createStyle(
     fgFill = "#E9E1F2", # Light purple background
   )
-  
+
   eq_loc <- which(data_to_write_allow$ColumnType == "Equation") + 2
-  
+
   # apply Methodology purple shading
   openxlsx::addStyle(
     wb,
@@ -3128,7 +3194,7 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     border = "TopBottomLeftRight",
     borderColour = "#000000" # Light grey border
   )
-  
+
   # Apply data border style to all data rows and columns besides header
   openxlsx::addStyle(
     wb,
@@ -3139,14 +3205,14 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     gridExpand = TRUE,
     stack = TRUE
   )
-  
+
   # Define description text that gets wrapped
   wrapStyle <- openxlsx::createStyle(
     border = "TopBottomLeftRight",
     borderColour = "#000000", # Light grey border
     wrapText = TRUE
   )
-  
+
   # only applies to the last column. We shifted the table to B2, adjust accordingly
   openxlsx::addStyle(
     wb,
@@ -3156,14 +3222,14 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     cols = ncol(data_to_write_allow) + 1,
     stack = TRUE
   )
-  
+
   openxlsx::setColWidths(
     wb,
     "AllowableValues",
     cols = ncol(data_to_write_allow):(ncol(data_to_write_allow) + 1),
     widths = 80
   ) # Adjust width as needed
-  
+
   # Set column widths to automatically fit content, except last column
   openxlsx::setColWidths(
     wb,
@@ -3171,14 +3237,14 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     cols = 1:(ncol(data_to_write_allow) - 1),
     widths = "auto"
   )
-  
+
   openxlsx::setRowHeights(
     wb,
     "AllowableValues",
     rows = 3:(nrow(data_to_write_allow) + 2),
     heights = "auto"
   )
-  
+
   # Save the workbook to an Excel file
   openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
 }
