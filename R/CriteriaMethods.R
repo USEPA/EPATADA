@@ -2075,6 +2075,11 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     openxlsx::removeWorksheet(wb, "DataDictionary")
     openxlsx::addWorksheet(wb, "DataDictionary")
   })
+  
+  tryCatch(openxlsx::addWorksheet(wb, "AllowableValues"), error = function(e) {
+    openxlsx::removeWorksheet(wb, "AllowableValues")
+    openxlsx::addWorksheet(wb, "AllowableValues")
+  })
 
 
   # Example data frame
@@ -2113,15 +2118,24 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       "Notes",
       "EquationType",
       "Equation",
+      "pHThreshold",
+      "pHExtreme",
       "hardness_param_1",
       "hardness_param_2",
       "hardness_param_3",
       "hardness_param_4",
-      "hardness_param_5",
+      "TemperatureExtreme",
       "pH_param_1",
       "pH_param_2",
       "pH_param_3",
-      "pH_param_4"
+      "pH_param_4",
+      "pH_param_5",
+      "pH_param_6",
+      "pH_param_7",
+      "pH_param_8",
+      "pH_param_9",
+      "MinEqMagnitude",
+      "MaxEqMagnitude"
     ),
     Requirement = c(
       "Required",
@@ -2140,6 +2154,15 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       "Required",
       "Required",
       "Required",
+      "Optional",
+      "Optional",
+      "Optional",
+      "Optional",
+      "Optional",
+      "Optional",
+      "Optional",
+      "Optional",
+      "Optional",
       "Optional",
       "Optional",
       "Optional",
@@ -2209,6 +2232,15 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       "User Supplied",
       "User Supplied",
       "User Supplied",
+      "User Supplied",
+      "User Supplied",
+      "User Supplied",
+      "User Supplied",
+      "User Supplied",
+      "User Supplied",
+      "User Supplied",
+      "User Supplied", 
+      "User Supplied",
       "User Supplied"
     ),
     ColumnType = c(
@@ -2243,17 +2275,26 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       "Methodology",
       "Methodology",
       "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology"
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation"
     ),
     Description = c(
       # ATTAINS.OrganizationIdentifier
@@ -2329,25 +2370,80 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       "What parameters are dependent for the equation. NOTE: Equation handling in TADA is still in development.",
       # Equation
       "Magnitude equation typed out. NOTE: Equation handling in TADA is still in development.",
+      #pHThreshold
+      "For pH and Hardness equations only. PH threshold at which the hardness-dependent equation changes.",
+      #pHDirection
+      "Whether the equation is applied for pH values above or below the pHThreshold value",
       # hardness_param_1
-      "First coefficient in the conversion factor in a typical hardness-dependent equation format: CF*e^(param_4(ln(hardness)) + param_5); CF = param_1 - ln(hardness)*param_2 OR CF = param_3. NOTE: Equation handling in TADA is still in development.",
+      paste0("First coefficient in the conversion factor in a typical hardness-dependent equation format: ",
+             "CF*e^(param_4(ln(hardness)) + param_5); CF = param_1 - ln(hardness)*param_2. ",
+             "NOTE: Equation handling in TADA is still in development.", collapse = " "),
       # hardness_param_2
-      "Second coefficient in the conversion factor in a typical hardness-dependent equation format: CF*e^(param_4(ln(hardness)) + param_5); CF = param_1 - ln(hardness)*param_2 OR CF = param_3. NOTE: Equation handling in TADA is still in development.",
+      paste0("Second coefficient in the conversion factor in a typical hardness-dependent equation format: ", 
+             "CF*e^(param_4(ln(hardness)) + param_5); CF = param_1 - ln(hardness)*param_2. ", "
+             NOTE: Equation handling in TADA is still in development.",
+             collapse = " "),
       # hardness_param_3
-      "Conversion factor coefficient in a typical hardness-dependent equation format: CF*e^(param_4(ln(hardness)) + param_5); CF = param_3. NOTE: Equation handling in TADA is still in development.",
+      paste0("First coefficient in the main chunk of a typical hardness-dependent equation format: ", 
+             "CF*e^(param_3(ln(hardness)) + param_4); CF = param_1 - ln(hardness)*param_2. ", 
+             "NOTE: Equation handling in TADA is still in development.", collapse = " "),
       # hardness_param_4
-      "First coefficient in the main chunk of a typical hardness-dependent equation format: CF*e^(param_4(ln(hardness)) + param_5); CF = param_1 - ln(hardness)*param_2 OR CF = param_3. NOTE: Equation handling in TADA is still in development.",
-      # hardness_param_5
-      "Second coefficient in the main chunk of a typical hardness-dependent equation format: CF*e^(param_4(ln(hardness)) + param_5); CF = param_1 - ln(hardness)*param_2 OR CF = param_3. NOTE: Equation handling in TADA is still in development.",
+      paste0("Second coefficient in the main chunk of a typical hardness-dependent equation format: ", 
+             "CF*e^(param_3(ln(hardness)) + param_4); CF = param_1 - ln(hardness)*param_2. ", 
+             "NOTE: Equation handling in TADA is still in development.", collapse = " "),
+      #TemperatureExtreme
+      "For pH and Temperature equations only. Defines if the equation considers the minimum value or maximum value of the temperature component of the equation.",
       # pH_param_1
-      "First coefficient in the typical pH-dependent equation format: param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). NOTE: Equation handling in TADA is still in development.",
+      paste0("First coefficient in the typical pH-dependent equation format: ",
+      "param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). ",
+      "NOTE: Equation handling in TADA is still in development.", collapse = " "),
       # pH_param_2
-      "Second coefficient in the typical pH-dependent equation format: param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). NOTE: Equation handling in TADA is still in development.",
+      paste0("Second coefficient in the typical pH-dependent equation format: ",
+             "param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). ",
+             "NOTE: Equation handling in TADA is still in development.", collapse = " "),
       # pH_param_3
-      "Third coefficient in the typical pH-dependent equation format: param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). NOTE: Equation handling in TADA is still in development.",
+      paste0("Third coefficient in the typical pH-dependent equation format: ",
+             "param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). ",
+             "NOTE: Equation handling in TADA is still in development.", collapse = " "),
       # pH_param_4
-      "Fourth coefficient in the typical pH-dependent equation format: param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). NOTE: Equation handling in TADA is still in development."
-    )
+      paste0("Fourth coefficient in the typical pH-dependent equation format: ",
+             "param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)). ",
+             "NOTE: Equation handling in TADA is still in development.", collapse = " "),
+      # pH_param_5
+      paste0("Fifth coefficient in the typical pH- & temperature-dependent equation format: ",
+      "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+      "OR ",
+      "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+      "NOTE: Equation handling in TADA is still in development.", collapse = " "),
+      # pH_param_6
+      paste0("Sixth coefficient in the typical pH- & temperature-dependent equation format: ",
+             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+             "OR ",
+             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+             "NOTE: Equation handling in TADA is still in development.", collapse = " "),
+      # pH_param_7
+      paste0("Seventh coefficient in the typical pH- & temperature-dependent equation format: ",
+             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+             "OR ",
+             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+             "NOTE: Equation handling in TADA is still in development.", collapse = " "),
+      # pH_param_8
+      paste0("Eigth coefficient in the typical pH- & temperature-dependent equation format: ",
+             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+             "OR ",
+             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+             "NOTE: Equation handling in TADA is still in development.", collapse = " "),
+      # pH_param_9
+      paste0("Ninth coefficient in the typical pH- & temperature-dependent equation format: ",
+             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+             "OR ",
+             "param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+             "NOTE: Equation handling in TADA is still in development.", collapse = " "),
+      # MinEqMagnitude
+      "Numeric value that represents a minimum value that should replace a calculated value that falls below this.",
+      # MaxEqMagnitude
+      "Numeric value that represents a maximum value that should replace a calculated value that falls above this."
+      )
   )
 
   # Write the data frame to the worksheet, starting at cell B2
@@ -2399,7 +2495,7 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
   
   # add orange shading to ColumnType == Spatial rows
   spatial_style <- openxlsx::createStyle(
-    fgFill = "#FDE9D9", # Light orange background
+    fgFill = "#EBF1DE", # Light orange background
   )
   
   spatial_loc <- which(data_to_write$ColumnType == "Spatial") + 2
@@ -2450,6 +2546,25 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     gridExpand = TRUE,
     stack = TRUE
   )
+  
+  # add purple shading to ColumnType == Equation rows
+  eq_style <- openxlsx::createStyle(
+    fgFill = "#E9E1F2", # Light purple background
+  )
+  
+  eq_loc <- which(data_to_write$ColumnType == "Equation") + 2
+  
+  # apply Methodology purple shading
+  openxlsx::addStyle(
+    wb,
+    "DataDictionary",
+    eq_style,
+    rows = eq_loc,
+    cols = 2:6,
+    gridExpand = TRUE,
+    stack = TRUE
+  )
+  
   # Create a style for borders on all data cells
   data_border_style <- openxlsx::createStyle(
     border = "TopBottomLeftRight",
@@ -2499,7 +2614,7 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     widths = "auto"
   )
 
-  # Example data frame
+  # Build the data frame with plain URLs, not =HYPERLINK(...)
   data_to_write_allow <- data.frame(
     ColumnName = c(
       "ATTAINS.OrganizationIdentifier",
@@ -2535,15 +2650,24 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       "Notes",
       "EquationType",
       "Equation",
+      "pHThreshold",
+      "pHDirection",
       "hardness_param_1",
       "hardness_param_2",
       "hardness_param_3",
       "hardness_param_4",
-      "hardness_param_5",
+      "TemperatureExtreme",
       "pH_param_1",
       "pH_param_2",
       "pH_param_3",
-      "pH_param_4"
+      "pH_param_4",
+      "pH_param_5",
+      "pH_param_6",
+      "pH_param_7",
+      "pH_param_8",
+      "pH_param_9",
+      "MinEqMagnitude",
+      "MaxEqMagnitude"
     ),
     ColumnType = c(
       "Crosswalk",
@@ -2577,200 +2701,192 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       "Methodology",
       "Methodology",
       "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology",
-      "Methodology"
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation",
+      "Equation"
     ),
     AllowableValues = c(
-      # ATTAINS.OrganizationIdentifier
-      "https://owapps.epa.gov/expertquery/attains/assessments?assessmentUnitStatus=A",
-      # ATTAINS.ParameterName
-      "https://owapps.epa.gov/expertquery/attains/assessments?assessmentUnitStatus=A",
-      # ATTAINS.UseName
-      "https://owapps.epa.gov/expertquery/attains/assessments?assessmentUnitStatus=A",
-      # TADA.ComparableDataIdentifier
+      "https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx",
+      "https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx",
+      "https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx",
       "",
-      # TADA.CharacteristicName
-      "https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads",
-      # TADA.ResultSampleFractionText
+      "https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV",
       "",
-      # TADA.MethodSpeciationName
       "",
-      # ATTAINS.WaterType
-      "https://owapps.epa.gov/expertquery/attains/assessments?assessmentUnitStatus=A",
-      # SaltFresh
+      "https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx",
       "S; F; NA",
-      # DepthCategory
       "No depth info; Epilimnion-surface; Surface; Bottom; Middle",
-      # UniqueSpatialCriteria
       "NA",
-      # AcuteChronic
       "A; C; NA",
-      # EquationBased
       "Yes; No; NA",
-      # MagnitudeValueLower
       "",
-      # MagnitudeValueUpper
       "",
-      # MagnitudeUnit
       "",
-      # DurationValue
       "",
-      # DurationUnit
       "n-hour; n-day; n-week; n-month; n-quarter",
-      # DurationMethod
       "arithmetic mean; arithmetic median; arithmetic max; arithmetic min; arithmetic extremes; geometric mean; rolling geometric mean; rolling arithmetic mean; mean of daily minima; mean of daily maxima",
-      # FreqValue
       "",
-      # FreqMethod
       "Percent of samples not meeting; percentile; n-samples in 3 years; n-samples in 4 years; n-samples in 5 years; binomial test; NumberNotMeeting",
-      # AssessPeriod
       "Last 30 years; Last 10 years; Last 5 years; Last 3 years; Last year; NA",
-      # AssessPeriodStartDate
       "",
-      # AssessPeriodEndDate
       "",
-      # Season
       "Summer; Fall; Spring; Winter",
-      # SeasonStartDate
       "",
-      # SeasonEndDate
       "",
-      # DistrCount
       "",
-      # DistrPeriod
       "Seasonal; Annual; Semi-Annual; Quarterly; Monthly; Bi-weekly; Weekly; 10 days; NA",
-      # DistrMinSample
       "",
-      # Notes
       "",
-      # EquationType
-      "Additional Information; Hardness; pH; pH and Temperature; pH and Hardness",
-      # Equation
+      "Hardness; pH; pH and Temperature; pH and Hardness",
       "",
-      # hardness_param_1
       "",
-      # hardness_param_2
+      "Above; Below; NA",
       "",
-      # hardness_param_3
       "",
-      # hardness_param_4
       "",
-      # hardness_param_5
       "",
-      # pH_param_1
+      "Min; Max; NA",
       "",
-      # pH_param_2
       "",
-      # pH_param_3
       "",
-      # pH_param_4
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
       ""
     ),
     ExampleValues = c(
-      # ATTAINS.OrganizationIdentifier
       "21COL001",
-      # ATTAINS.ParameterName
       "DISSOLVED OXYGEN; TURBIDITY; ZINC, TOTAL; ZINC, DISSOLVED",
-      # ATTAINS.UseName
       "Aquatic Life; Agriculture; Domestic Water Supply; Aquatic Life Coldwater",
-      # TADA.ComparableDataIdentifier
       "TEMPERATURE, WATER_NA_NA_DEG C; ENTEROCOCCUS_TOTAL_NA_MPN/100ML; HARDNESS, NON-CARBONATE_DISSOLVED_NA_MG/L CACO3; AMMONIA-NITROGEN_UNFILTERED, FIELD_AS N_MG/L",
-      # TADA.CharacteristicName
       "DISSOLVED OXYGEN (DO); TURBIDITY; ZINC; CHROMIUM(III)",
-      # TADA.ResultSampleFractionText
       "DISSOLVED; TOTAL; TOTAL RECOVERABLE",
-      # TADA.MethodSpeciationName
       "AS N; AS NH3",
-      # ATTAINS.WaterType
       "Creek; Estuary; River; Stream",
-      # SaltFresh
       "",
-      # DepthCategory
       "",
-      # UniqueSpatialCriteria
       "",
-      # AcuteChronic
       "",
-      # EquationBased
       "",
-      # MagnitudeValueLower
       "5.2",
-      # MagnitudeValueUpper
       "98.5",
-      # MagnitudeUnit
       "MG/L; UG/L; NTU",
-      # DurationValue
       "4",
-      # DurationUnit
       "",
-      # DurationMethod
       "",
-      # FreqValue
       "10",
-      # FreqMethod
       "",
-      # AssessPeriod
       "",
-      # AssessPeriodStartDate
       "2024-10-01",
-      # AssessPeriodEndDate
       "2025-09-30",
-      # Season
       "",
-      # SeasonStartDate
       "Apr 01",
-      # SeasonEndDate
       "Jul 15",
-      # DistrCount
       "5",
-      # DistrPeriod
       "",
-      # DistrMinSample
       "10",
-      # Notes
       "New addition to ATTAINS in FY2026",
-      # EquationType
       "",
-      # Equation
-      "1.101672 - ln(hardness) (0.041838) * e(0.7977*ln(hardness)-3.909) or 0.275/(1+10^(7.204-pH)) + 39/(1+10^(pH-7.204))",
-      # hardness_param_1
+      paste0("Hardness: 1.101672 - ln(hardness) (0.041838) * e(0.7977*ln(hardness)-3.909) ",
+             "OR ",
+             "pH: 0.275/(1+10^(7.204-pH)) + 39/(1+10^(pH-7.204)) ",
+             "OR ",
+             "pH-Temp: 0.8876*(((0.0278/(1+10^(7.688-pH)))+(1.1994/(1+10^(pH-7.688))))*(2.126*10^(0.028*(20-max(Temperature,7)))))",
+             "OR ",
+             "pH-Temp: 0.7249*(((0.0114/(1+10^(7.204-pH)))+(1.6181/(1+10^(pH-7.204))))*min(51.93,23.12*10^(0.036*(20-Temperature))))",
+             "OR ",
+             "pH-Hardess: pH above 7; e^(1.3695*ln(hardness)-0.1158); pH below 7; min(87, e^(1.3695*ln(hardness)-0.1158))",
+             collapse = " "),
+      "7",
+      "",
       "1.101672",
-      # hardness_param_2
       "0.041838",
-      # hardness_param_3
       "1",
-      # hardness_param_4
       "0.7977",
-      # hardness_param_5
-      "-3.909",
-      # pH_param_1
+      "Max",
       "0.275",
-      # pH_param_2
       "7.204",
-      # pH_param_3
       "39",
-      # pH_param_4
-      "7.204"
-    )
+      "0.8876",
+      "7.204",
+      "2.216",
+      "0.028",
+      "20",
+      "7",
+      "87",
+      "900"
+    ),
+    stringsAsFactors = FALSE
   )
   
-  # Write the data frame to the worksheet, starting at cell B2
+  start_col <- 2
+  start_row <- 2
+  
   openxlsx::writeData(
     wb,
     "AllowableValues",
     data_to_write_allow,
-    startCol = 2,
-    startRow = 2
+    startCol = start_col,
+    startRow = start_row
   )
+  
+  # Excel column number for AllowableValues
+  allowable_col_excel <- start_col + which(names(data_to_write_allow) == "AllowableValues") - 1
+  
+  # Identify rows with URLs
+  link_rows <- which(grepl("^https?://", data_to_write_allow$AllowableValues))
+  
+  # Create simple labels
+  link_labels <- ifelse(
+    grepl("domains_.*\\.xlsx$", data_to_write_allow$AllowableValues),
+    "EPA ATTAINS",
+    ifelse(
+      grepl("Characteristic\\.CSV$", data_to_write_allow$AllowableValues),
+      "WQX Characteristics",
+      "Link"
+    )
+  )
+  
+  # Build formulas only for hyperlink rows
+  hyperlink_formulas <- paste0(
+    'HYPERLINK("',
+    data_to_write_allow$AllowableValues[link_rows],
+    '", "',
+    link_labels[link_rows],
+    '")'
+  )
+  
+  # Write each hyperlink formula into its specific row
+  for (i in seq_along(link_rows)) {
+    openxlsx::writeFormula(
+      wb,
+      sheet = "AllowableValues",
+      x = hyperlink_formulas[i],
+      startCol = allowable_col_excel,
+      startRow = start_row + link_rows[i]
+    )
+  }
   
   # Create a style for the header row
   header_style <- openxlsx::createStyle(
@@ -2859,6 +2975,24 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     "AllowableValues",
     method_style,
     rows = method_loc,
+    cols = 2:5,
+    gridExpand = TRUE,
+    stack = TRUE
+  )
+  
+  # add purple shading to ColumnType == Equation rows
+  eq_style <- openxlsx::createStyle(
+    fgFill = "#E9E1F2", # Light purple background
+  )
+  
+  eq_loc <- which(data_to_write$ColumnType == "Equation") + 2
+  
+  # apply Methodology purple shading
+  openxlsx::addStyle(
+    wb,
+    "AllowableValues",
+    eq_style,
+    rows = eq_loc,
     cols = 2:5,
     gridExpand = TRUE,
     stack = TRUE
