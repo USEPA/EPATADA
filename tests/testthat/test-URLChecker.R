@@ -48,8 +48,6 @@ testthat::test_that("URLs are not broken", {
 
   # Exclude only truly non-testable URLs (incomplete or non-deterministic)
   exclude.urls <- c(
-    # Incomplete endpoint; needs a parameter to be valid
-    "https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=",
     # External mirror with inconsistent status behavior; not relevant to package
     "http://cran.us.r-project.org"
   )

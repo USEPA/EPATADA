@@ -112,7 +112,7 @@ testthat::test_that("fetchATTAINS handles small areas", {
   testthat::expect_equal(nrow(result_all_features$ATTAINS_lines), 2)
   testthat::expect_null(result_all_features$ATTAINS_polygons)
   testthat::expect_equal(
-    nrow(result_all_features$ATTAINS_catchments),
+    NROW(result_all_features$ATTAINS_catchments),
     expect_cat_n_small
   )
 })
@@ -165,8 +165,8 @@ testthat::test_that("fetchATTAINS org_id parameter", {
   ]
   # Compare the two sets of results (should be same)
   testthat::expect_equal(
-    nrow(org_results$ATTAINS_catchments),
-    nrow(all_orgs_filtered)
+    NROW(org_results$ATTAINS_catchments),
+    NROW(all_orgs_filtered)
   )
 })
 
@@ -187,14 +187,14 @@ testthat::test_that("fetchNHD with valid non-default features params", {
       features = "flowlines"
     )
   )
-  expect_equal(nrow(flines), 6) # Expected results
+  expect_equal(NROW(flines), 6) # Expected results
   testthat::expect_no_error(
     waterbodies <- EPATADA:::fetchNHD(
       .data = small_bbox_data,
       features = "waterbodies"
     )
   )
-  expect_equal(nrow(waterbodies), 0) # Expected results
+  expect_equal(NROW(waterbodies), 0) # Expected results
 })
 
 testthat::test_that("fetchNHD with valid non-default resolution param Med", {
@@ -240,14 +240,14 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk handles empty datasets appr
   )
 
   result <- TADA_CreateATTAINSAUMLCrosswalk(.data = empty_df, return_sf = FALSE)
-  testthat::expect_true(nrow(result) == 0)
+  testthat::expect_true(NROW(result) == 0)
   testthat::expect_true("ResultIdentifier" %in% names(result))
   testthat::expect_true(any(grepl("^ATTAINS\\.", names(result))))
 })
 
 
 testthat::test_that("Get ATTAINS by Assessment Unit ID", {
-  #au_id_list <- test_au_ref_MTDEQ$ATTAINS.AssessmentUnitIdentifier
+  # au_id_list <- test_au_ref_MTDEQ$ATTAINS.AssessmentUnitIdentifier
 
   # When run with defaults (no ExpertQuery fields)
   testthat::expect_no_error(
@@ -256,13 +256,13 @@ testthat::test_that("Get ATTAINS by Assessment Unit ID", {
       test_au_ref_MTDEQ
     )
   )
-  # Check .data was updated by adding 83 cols (161+83=244)
-  expect_equal(ncol(actual_default$TADA_with_ATTAINS), 244)
+  # Check .data was updated by adding 83 cols (163+83=246)
+  expect_equal(ncol(actual_default$TADA_with_ATTAINS), 246)
   # Check results based on number of rows
   expected_rows <- c(0, 5, 1)
-  expect_equal(nrow(actual_default$ATTAINS_points), expected_rows[1])
-  expect_equal(nrow(actual_default$ATTAINS_lines), expected_rows[2])
-  expect_equal(nrow(actual_default$ATTAINS_polygons), expected_rows[3])
+  expect_equal(NROW(actual_default$ATTAINS_points), expected_rows[1])
+  expect_equal(NROW(actual_default$ATTAINS_lines), expected_rows[2])
+  expect_equal(NROW(actual_default$ATTAINS_polygons), expected_rows[3])
   # When default fill_ATTAINS_catch = FALSE, catchments are NULL
   expect_null(actual_default$ATTAINS_catchments)
 
@@ -276,10 +276,10 @@ testthat::test_that("Get ATTAINS by Assessment Unit ID", {
   )
   # Check results based on number of rows (only catchments change from default)
   expected_rows <- c(11, expected_rows)
-  expect_equal(nrow(actual_catchments$ATTAINS_catchments), expected_rows[1])
-  expect_equal(nrow(actual_catchments$ATTAINS_points), expected_rows[2])
-  expect_equal(nrow(actual_catchments$ATTAINS_lines), expected_rows[3])
-  expect_equal(nrow(actual_catchments$ATTAINS_polygons), expected_rows[4])
+  expect_equal(NROW(actual_catchments$ATTAINS_catchments), expected_rows[1])
+  expect_equal(NROW(actual_catchments$ATTAINS_points), expected_rows[2])
+  expect_equal(NROW(actual_catchments$ATTAINS_lines), expected_rows[3])
+  expect_equal(NROW(actual_catchments$ATTAINS_polygons), expected_rows[4])
 })
 
 # new TADA_CreateAUMLCrosswalk tests

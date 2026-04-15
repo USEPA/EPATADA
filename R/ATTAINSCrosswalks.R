@@ -185,8 +185,8 @@ TADA_GetATTAINSAUMLCrosswalk <- function(
       ) |>
       dplyr::rename(
         ASSESSMENT_UNIT_ID = .data$ATTAINS.AssessmentUnitIdentifier,
-        MS_ORG_ID = .data$ATTAINS.MonitoringLocationIdentifier,
-        MS_LOCATION_ID = .data$OrganizationIdentifier,
+        MS_ORG_ID = .data$OrganizationIdentifier,
+        MS_LOCATION_ID = .data$ATTAINS.MonitoringLocationIdentifier,
         MS_DATA_LINK = .data$ATTAINS.MonitoringDataLinkText
       )
   }
@@ -421,7 +421,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
         ) |>
         dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id)
 
-      wat.types <- au.info <- spsUtil::quiet(rExpertQuery::EQ_AUsMLs(
+      wat.types <- spsUtil::quiet(rExpertQuery::EQ_AUsMLs(
         org_id = org_id,
         api_key = api_key
       )) |>
@@ -620,12 +620,13 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
-          ATTAINS.MonitoringDataLinkText = ifelse(
-            stringr::str_detect(response.code, "200"),
-            ATTAINS.MonitoringDataLinkText.New,
-            NA
+          ATTAINS.MonitoringDataLinkText = dplyr::if_else(
+            !is.na(.data$response.code) & .data$response.code == "200",
+            .data$ATTAINS.MonitoringDataLinkText,
+            NA_character_
           )
-        )
+        ) |>
+        dplyr::select(-dplyr::any_of("response.code"))
     }
   }
 
@@ -646,12 +647,13 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
-          ATTAINS.MonitoringDataLinkText = ifelse(
-            stringr::str_detect(response.code, "200"),
-            ATTAINS.MonitoringDataLinkText.New,
-            NA
+          ATTAINS.MonitoringDataLinkText = dplyr::if_else(
+            !is.na(.data$response.code) & .data$response.code == "200",
+            .data$ATTAINS.MonitoringDataLinkText,
+            NA_character_
           )
-        )
+        ) |>
+        dplyr::select(-dplyr::any_of("response.code"))
     }
   }
 
@@ -669,9 +671,9 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
           ATTAINS.MonitoringDataLinkText = ifelse(
-            stringr::str_detect(response.code, "200"),
-            ATTAINS.MonitoringDataLinkText.New,
-            NA
+            stringr::str_detect(response.code, "^200$"),
+            ATTAINS.MonitoringDataLinkText,
+            NA_character_
           )
         ) |>
         dplyr::select(-response.code)
@@ -684,7 +686,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
           ATTAINS.MonitoringDataLinkText.New = ifelse(
-            stringr::str_detect(response.code, "200"),
+            stringr::str_detect(response.code, "^200$"),
             ATTAINS.MonitoringDataLinkText.New,
             NA
           )
@@ -758,9 +760,9 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
           ATTAINS.MonitoringDataLinkText = ifelse(
-            stringr::str_detect(response.code, "200"),
-            ATTAINS.MonitoringDataLinkText.New,
-            NA
+            stringr::str_detect(response.code, "^200$"),
+            ATTAINS.MonitoringDataLinkText,
+            NA_character_
           )
         ) |>
         dplyr::select(-response.code)
@@ -773,7 +775,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
           ATTAINS.MonitoringDataLinkText.New = ifelse(
-            stringr::str_detect(response.code, "200"),
+            stringr::str_detect(response.code, "^200$"),
             ATTAINS.MonitoringDataLinkText.New,
             NA
           )
@@ -842,6 +844,14 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
     }
   }
 
+  # Ensure ATTAINS.WaterType exists before final selection
+  if (!"ATTAINS.WaterType" %in% names(update.crosswalk)) {
+    update.crosswalk$ATTAINS.WaterType <- NA_character_
+    message(
+      "ATTAINS.WaterType is required but missing. Adding column and populating with NA"
+    )
+  }
+
   # select relevant column names and ordering for output in TADA workflow format.
   update.crosswalk <- update.crosswalk |>
     dplyr::select(
@@ -859,8 +869,8 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       dplyr::select(-c(ATTAINS.WaterType, ATTAINS.OrganizationIdentifier)) |>
       dplyr::rename(
         ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
-        MS_ORG_ID = ATTAINS.MonitoringLocationIdentifier,
-        MS_LOCATION_ID = OrganizationIdentifier,
+        MS_ORG_ID = OrganizationIdentifier,
+        MS_LOCATION_ID = ATTAINS.MonitoringLocationIdentifier,
         MS_DATA_LINK = ATTAINS.MonitoringDataLinkText
       )
   }
@@ -1113,21 +1123,38 @@ TADA_ParametersForAnalysis <- function(
     }
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
-    if ("all" %in% tolower(org_id)) {
-      # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
+    if (tolower("all") %in% tolower(org_id)) {
       if (is.null(AUMLRef)) {
-        message(paste0(
-          "TADA_ParametersForAnalysis: org_id == 'All' was selected. ",
-          "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
-        ))
-        org_id <- TADA_GetATTAINSOrgIDsRef()[, "code"]
-      }
-      # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
-      if (!is.null(AUMLRef)) {
-        message(paste0(
-          "TADA_ParametersForAnalysis: org_id == 'All' was selected. ",
-          "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
-        ))
+        # Emit a simple, early message unconditionally
+        message(
+          "org_id == 'All' was selected, no AUMLRef provided; attempting to pull domain orgs."
+        )
+
+        # Attempt to retrieve domain orgs; warn on failure but keep going
+        org_id <- tryCatch(
+          {
+            dv <- rExpertQuery::EQ_DomainValues("org_id")
+            if (!is.null(dv) && "code" %in% names(dv)) {
+              dv[["code"]]
+            } else {
+              warning(
+                "EQ_DomainValues('org_id') returned no 'code' column; proceeding with empty org list."
+              )
+              character()
+            }
+          },
+          error = function(e) {
+            warning(
+              "Failed to retrieve ATTAINS org domain values: ",
+              conditionMessage(e)
+            )
+            character()
+          }
+        )
+      } else {
+        message(
+          "org_id == 'All' was selected, AUMLRef provided; using orgs found in AUMLRef."
+        )
         org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
       }
     }
@@ -1212,25 +1239,26 @@ TADA_ParametersForAnalysis <- function(
       dplyr::distinct()
 
     # Pulls in all domain values of parameter and use names in ATTAINS.
-    ATTAINS_param_all <- utils::read.csv(system.file(
+    load(system.file(
       "extdata",
-      "ATTAINSParamUseEntityRef.csv",
+      "ATTAINSParamUseOrgRef.rda",
       package = "EPATADA"
     ))
 
-    ATTAINS_param <- ATTAINS_param_all |>
+    ATTAINS_param <- ATTAINSParamUseOrgRef |>
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
       dplyr::arrange(ATTAINS.ParameterName)
 
     if ("" %in% org_id) {
-      ATTAINS_param <- ATTAINS_param_all |>
+      ATTAINS_param <- ATTAINSParamUseOrgRef |>
         dplyr::mutate(ATTAINS.OrganizationIdentifier = "")
     }
 
     # Checks if org_id(s) are found in ATTAINS
     if (
       sum(
-        !org_id[org_id != "EPA304a"] %in% TADA_GetATTAINSOrgIDsRef()[, "code"]
+        !org_id[!org_id %in% c("EPA304a", "")] %in%
+          TADA_GetATTAINSOrgIDsRef()[, "code"]
       ) >
         0
     ) {
@@ -1262,8 +1290,8 @@ TADA_ParametersForAnalysis <- function(
 
     if (tolower(auto_assign) == tolower("All")) {
       message(paste0(
-        "TADA_ParametersForAnalysis: auto_assign == 'All' was selected, \n",
-        "finding an ATTAINS.ParameterName alias match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName, if one is found."
+        "TADA_ParametersForAnalysis: auto_assign == 'All' was selected, ",
+        "finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
       TADACharAliasRef <- utils::read.csv(system.file(
         "extdata",
@@ -1273,7 +1301,7 @@ TADA_ParametersForAnalysis <- function(
 
       TADACharAliasRef <- TADACharAliasRef |>
         dplyr::filter(
-          ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName
+          ATTAINS.ParameterName %in% ATTAINSParamUseOrgRef$ATTAINS.ParameterName
         )
 
       CreateParamRef <- TADA_param |>
@@ -1303,26 +1331,26 @@ TADA_ParametersForAnalysis <- function(
                 ATTAINS.ParameterName
               ) ~ "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
             !ATTAINS.ParameterName %in%
-              ATTAINS_param_all$ATTAINS.ParameterName ~ "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List.",
+              ATTAINSParamUseOrgRef$ATTAINS.ParameterName ~ "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List.",
             ATTAINS.ParameterName %in%
-              ATTAINS_param_all$ATTAINS.ParameterName &
+              ATTAINSParamUseOrgRef$ATTAINS.ParameterName &
               !paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
                 paste(
-                  ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                  ATTAINS_param_all$ATTAINS.ParameterName
+                  ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                  ATTAINSParamUseOrgRef$ATTAINS.ParameterName
                 ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles, but not for this organization.",
             paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
               paste(
-                ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                ATTAINS_param_all$ATTAINS.ParameterName
+                ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.ParameterName
               ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization."
           )
         ) |>
         dplyr::mutate(
           Flag.ParameterInput = dplyr::if_else(
             !is.na(ATTAINS.ParameterName),
-            "This crosswalk was provided through an exact match auto_assign = 'All', between ATTAINS.ParameterName and TADA.CharacteristicName.",
-            "No crosswalk was provided and no exact matches were found."
+            "This crosswalk was provided through an alias match auto_assign = 'All', between ATTAINS.ParameterName and TADA.CharacteristicName.",
+            "No crosswalk was provided and no alias matches were found."
           )
         ) |>
         dplyr::distinct()
@@ -1331,7 +1359,7 @@ TADA_ParametersForAnalysis <- function(
     if (tolower(auto_assign) == tolower("Org")) {
       message(paste0(
         "TADA_ParametersForAnalysis: auto_assign == 'Org' was selected, ",
-        "finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+        "finding an alias ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
 
       TADACharAliasRef <- utils::read.csv(system.file(
@@ -1372,18 +1400,18 @@ TADA_ParametersForAnalysis <- function(
                 ATTAINS.ParameterName
               ) ~ "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
             !ATTAINS.ParameterName %in%
-              ATTAINS_param_all$ATTAINS.ParameterName ~ "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List.",
+              ATTAINSParamUseOrgRef$ATTAINS.ParameterName ~ "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List.",
             ATTAINS.ParameterName %in%
-              ATTAINS_param_all$ATTAINS.ParameterName &
+              ATTAINSParamUseOrgRef$ATTAINS.ParameterName &
               !paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
                 paste(
-                  ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                  ATTAINS_param_all$ATTAINS.ParameterName
+                  ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                  ATTAINSParamUseOrgRef$ATTAINS.ParameterName
                 ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles, but not for this organization.",
             paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
               paste(
-                ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                ATTAINS_param_all$ATTAINS.ParameterName
+                ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.ParameterName
               ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization."
           )
         ) |>
@@ -1400,11 +1428,11 @@ TADA_ParametersForAnalysis <- function(
         dplyr::mutate(
           Flag.ParameterInput = dplyr::if_else(
             !is.na(ATTAINS.ParameterName),
-            "This crosswalk was provided through an exact match auto_assign = 'Org', between ATTAINS.ParameterName and TADA.CharacteristicName.",
-            "No crosswalk was provided and no exact matches were found for this organization."
+            "This crosswalk was provided through an alias match auto_assign = 'Org', between ATTAINS.ParameterName and TADA.CharacteristicName.",
+            "No crosswalk was provided and no alias matches were found for this organization."
           )
         ) |>
-        #dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
+        # dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
         dplyr::distinct()
     }
 
@@ -1445,18 +1473,18 @@ TADA_ParametersForAnalysis <- function(
                 ATTAINS.ParameterName
               ) ~ "No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
             !ATTAINS.ParameterName %in%
-              ATTAINS_param_all$ATTAINS.ParameterName ~ "Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",
+              ATTAINSParamUseOrgRef$ATTAINS.ParameterName ~ "Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",
             ATTAINS.ParameterName %in%
-              ATTAINS_param_all$ATTAINS.ParameterName &
+              ATTAINSParamUseOrgRef$ATTAINS.ParameterName &
               !paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
                 paste(
-                  ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                  ATTAINS_param_all$ATTAINS.ParameterName
+                  ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                  ATTAINSParamUseOrgRef$ATTAINS.ParameterName
                 ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles, but not for this organization.",
             paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
               paste(
-                ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                ATTAINS_param_all$ATTAINS.ParameterName
+                ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.ParameterName
               ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization"
           )
         ) |>
@@ -1551,14 +1579,14 @@ TADA_ParametersForAnalysis <- function(
     )
 
     # Pulls in all domain values of parameter and use names in ATTAINS.
-    ATTAINS_param_all <- utils::read.csv(system.file(
+    load(system.file(
       "extdata",
-      "ATTAINSParamUseEntityRef.csv",
+      "ATTAINSParamUseOrgRef.rda",
       package = "EPATADA"
     ))
 
     # Filters the full domain value by the specified org_id(s)
-    ATTAINS_param <- ATTAINS_param_all |>
+    ATTAINS_param <- ATTAINSParamUseOrgRef |>
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
       dplyr::arrange(ATTAINS.ParameterName)
 
@@ -1569,7 +1597,7 @@ TADA_ParametersForAnalysis <- function(
       startCol = 4,
       x = rbind(
         no_match_df,
-        ATTAINS_param_all[, c(
+        ATTAINSParamUseOrgRef[, c(
           "ATTAINS.OrganizationIdentifier",
           "ATTAINS.ParameterName",
           "ATTAINS.UseName"
@@ -1630,7 +1658,7 @@ TADA_ParametersForAnalysis <- function(
     ))
 
     # remove intermediate objects
-    rm(ATTAINS_param, ATTAINS_param_all)
+    rm(ATTAINS_param, ATTAINSParamUseOrgRef)
 
     max_loops <- 0
 
@@ -1944,7 +1972,7 @@ TADA_UsesForAnalysis <- function(
 
     # Checks if paramRef argument contains a dataframe and necessary columns to proceed.
     if (is.null(paramRef)) {
-      stop(paste0("TADA.CreateUsesRef: No paramRef argument provided."))
+      stop("TADA_UsesForAnalysis: 'paramRef' is required.")
     }
 
     # If a user does not fill in ANY values for the crosswalk of ATTAINS.ParameterName.
@@ -1952,7 +1980,7 @@ TADA_UsesForAnalysis <- function(
     # therefore we will allow users to proceed in this case.
     if (sum(!is.na(paramRef$ATTAINS.ParameterName)) == 0) {
       warning(paste0(
-        "No values were found in ATTAINS.ParameterName. ",
+        "TADA_UsesForAnalysis: No values were found in ATTAINS.ParameterName. ",
         "Please ensure that you have inputted all field values of interest in the ",
         "ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function."
       ))
@@ -1963,9 +1991,10 @@ TADA_UsesForAnalysis <- function(
     # there is no crosswalk, but leaving it blank will be treated similarly.
     if (sum(is.na(paramRef$ATTAINS.ParameterName)) > 1) {
       message(paste0(
-        "NAs were found in ATTAINS.ParameterName. ",
-        "Please ensure that you have inputted all field values of interest in ",
-        "the ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function."
+        "TADA_UsesForAnalysis: \n",
+        "  NAs were found in ATTAINS.ParameterName. \n",
+        "  Please ensure that you have inputted all field values of interest in \n",
+        "  the ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function."
       ))
     }
 
@@ -1973,8 +2002,9 @@ TADA_UsesForAnalysis <- function(
     if (!is.null(paramRef) & !is.character(paramRef)) {
       if (!is.data.frame(paramRef)) {
         stop(paste0(
-          "TADA_UsesForAnalysis: 'paramRef' must be a data frame with these 2 columns:",
-          "TADA.ComparableDataIdentifier and ATTAINS.ParameterName."
+          "TADA_UsesForAnalysis: \n",
+          "  'paramRef' must be a data frame with these 2 columns:\n",
+          "  TADA.ComparableDataIdentifier and ATTAINS.ParameterName."
         ))
       }
 
@@ -1996,55 +2026,103 @@ TADA_UsesForAnalysis <- function(
     }
 
     # check to see if user-supplied parameter-use ref is a df with appropriate columns and is filled out.
-    if (!is.null(usesRef) & !is.character(usesRef)) {
+    if (!is.null(usesRef) && !is.character(usesRef)) {
       if (!is.data.frame(usesRef)) {
-        stop(paste0(
-          "TADA_UsesForAnalysis: 'usesRef' must be a data frame with these 3 columns:",
-          "ATTAINS.OrganizationIdentifier",
-          "ATTAINS.ParameterName, ATTAINS.UseName"
-        ))
+        stop("TADA_UsesForAnalysis: 'usesRef' must be a data frame.")
       }
-
-      if (is.data.frame(usesRef)) {
-        col.names <- c(
-          "ATTAINS.OrganizationIdentifier",
-          "ATTAINS.ParameterName",
-          "ATTAINS.UseName"
+      required <- c(
+        "ATTAINS.OrganizationIdentifier",
+        "ATTAINS.ParameterName",
+        "ATTAINS.UseName"
+      )
+      missing <- setdiff(required, names(usesRef))
+      if (length(missing)) {
+        stop(
+          "TADA_UsesForAnalysis: 'usesRef' is missing required column(s): ",
+          paste(missing, collapse = ", "),
+          ". Required: ",
+          paste(required, collapse = ", "),
+          ". IncludeOrExclude is optional (defaults to 'Include'). ",
+          "TADA.ComparableDataIdentifier is optional (will be joined from .data if needed)."
         )
-
-        ref.names <- names(usesRef)
-
-        if (
-          length(setdiff(col.names, ref.names)) > 0 &&
-            !("TADA.ComparableDataIdentifier" %in% names(usesRef))
-        ) {
-          stop(paste0(
-            "TADA_UsesForAnalysis: 'usesRef' must be a data frame with these 3 columns:",
-            "ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier, ",
-            "ATTAINS.ParameterName, ATTAINS.UseName"
-          ))
-        }
       }
     }
 
     .data <- as.data.frame(.data)
 
     # Pulls in all domain values of parameter and use names by orgs in ATTAINS.
-    ATTAINS_param_all <- utils::read.csv(system.file(
+    load(system.file(
       "extdata",
-      "ATTAINSParamUseEntityRef.csv",
+      "ATTAINSParamUseOrgRef.rda",
       package = "EPATADA"
     ))
 
-    # If a user provides a AU_UsesRef, We will use the uses in this table
+    # if both AUMLRef and AU_UsesRef are provided
+    if (!is.null(AUMLRef) & !is.null(AU_UsesRef)) {
+      message(paste(
+        "TADA_UsesForAnalysis: Both AUMLRef and AU_UsesRef are supplied.",
+        "Filtering you AU_UsesRef by AU found in your AUMLRef if applicable."
+      ))
+
+      AU_UsesRef <- dplyr::filter(
+        AU_UsesRef,
+        ATTAINS.AssessmentUnitIdentifier %in%
+          AUMLRef$ATTAINS.AssessmentUnitIdentifier
+      )
+    }
+
+    # If a user only provides an AU_MLRef, run TADA_AssignUsesToAU()
+    if (!is.null(AUMLRef) & is.null(AU_UsesRef)) {
+      message(paste(
+        "TADA_UsesForAnalysis: An AUMLRef was provided, pulling in all prior use names for these assessment unit's water type from prior ATTAINS assessment cycles for your defined org_id(s) as the default."
+      ))
+      # runs TADA_AssignUsesToAU to create the AU_UsesRef for this function
+      AU_UsesRef <- TADA_AssignUsesToAU(
+        .data = .data,
+        org_id = org_id,
+        AUMLRef = AUMLRef
+      )
+    }
+
+    # If a user provides an AU_UsesRef, We will use the uses in this table
     if (!is.null(AU_UsesRef)) {
-      ATTAINS_param_all <- ATTAINS_param_all |>
-        dplyr::select(-ATTAINS.UseName) |>
-        dplyr::distinct() |>
-        dplyr::left_join(
-          AU_UsesRef,
-          by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.WaterType")
+      # filters the param-use-org ref by the necessary inputs
+      ATTAINSParamUseOrgRef_overlap <- ATTAINSParamUseOrgRef |>
+        dplyr::filter(
+          ATTAINS.OrganizationIdentifier %in% org_id,
+          ATTAINS.UseName %in% AU_UsesRef$ATTAINS.UseName,
+          ATTAINS.WaterType %in% AU_UsesRef$ATTAINS.WaterType
         )
+
+      # identifies all use names not found in the filtered ATTAINSParamUseOrgRef_overlap
+      AU_UsesRef_new <- AU_UsesRef |>
+        dplyr::filter(
+          !ATTAINS.UseName %in% ATTAINSParamUseOrgRef_overlap$ATTAINS.UseName
+        )
+
+      ATTAINSParamUseOrgRef <- ATTAINSParamUseOrgRef_overlap |>
+        # dplyr::filter(!ATTAINS.UseName %in% AU_UsesRef$ATTAINS.UseName) |>
+        dplyr::select(-ATTAINS.UseName) |>
+        dplyr::right_join(
+          AU_UsesRef_new,
+          by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.WaterType"),
+          relationship = "many-to-many"
+        ) |>
+        dplyr::select(names(ATTAINSParamUseOrgRef_overlap)) |>
+        dplyr::bind_rows(ATTAINSParamUseOrgRef_overlap) |>
+        dplyr::distinct()
+
+      # prints message to indicate any uses not found in prior assessments for a parameter. Will assign all unique use names to it.
+      # message(
+      #   paste(
+      #     "TADA_UsesForAnalysis: Your user supplied AU_UsesRef contains",
+      #     length(setdiff(ATTAINSParamUseOrgRef$ATTAINS.ParameterName, ATTAINSParamUseOrgRef_overlap$ATTAINS.ParameterName)),
+      #     "parameters that could not be found in prior assessments for the specified water types of your assessment unit.",
+      #     "Assigning all unique use names to these parameters.",
+      #     setdiff(ATTAINSParamUseOrgRef$ATTAINS.ParameterName, ATTAINSParamUseOrgRef_overlap$ATTAINS.ParameterName),
+      #     "Review and exclude the non-applicable use names as needed."
+      #   )
+      # )
     }
 
     # Considers if we want to separate speciation, fraction, units as separate columns in the future for crosswalk.
@@ -2077,20 +2155,37 @@ TADA_UsesForAnalysis <- function(
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
     if (tolower("all") %in% tolower(org_id)) {
-      # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
       if (is.null(AUMLRef)) {
-        message(paste0(
-          "org_id == 'All' was selected, ",
-          "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
-        ))
-        org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
-      }
-      # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
-      if (!is.null(AUMLRef)) {
-        message(paste0(
-          "org_id == 'All' was selected, ",
-          "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
-        ))
+        # Emit a simple, early message unconditionally
+        message(
+          "org_id == 'All' was selected, no AUMLRef provided; attempting to pull domain orgs."
+        )
+
+        # Attempt to retrieve domain orgs; warn on failure but keep going
+        org_id <- tryCatch(
+          {
+            dv <- rExpertQuery::EQ_DomainValues("org_id")
+            if (!is.null(dv) && "code" %in% names(dv)) {
+              dv[["code"]]
+            } else {
+              warning(
+                "EQ_DomainValues('org_id') returned no 'code' column; proceeding with empty org list."
+              )
+              character()
+            }
+          },
+          error = function(e) {
+            warning(
+              "Failed to retrieve ATTAINS org domain values: ",
+              conditionMessage(e)
+            )
+            character()
+          }
+        )
+      } else {
+        message(
+          "org_id == 'All' was selected, AUMLRef provided; using orgs found in AUMLRef."
+        )
         org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
       }
     }
@@ -2099,7 +2194,8 @@ TADA_UsesForAnalysis <- function(
     # 5/14/25 KW: We should use separate columns for CST organization/pollutant/use names in the future.
     if (
       sum(
-        !org_id[org_id != "EPA304a"] %in% TADA_GetATTAINSOrgIDsRef()[, "code"]
+        !org_id[!org_id %in% c("EPA304a", "")] %in%
+          TADA_GetATTAINSOrgIDsRef()[, "code"]
       ) >
         0
     ) {
@@ -2110,7 +2206,7 @@ TADA_UsesForAnalysis <- function(
     }
 
     # Filters the ATTAINS parameter and use names by the org_id in user supplied df.
-    ATTAINS_param <- ATTAINS_param_all |>
+    ATTAINS_param <- ATTAINSParamUseOrgRef |>
       dplyr::select(
         ATTAINS.OrganizationIdentifier,
         ATTAINS.ParameterName,
@@ -2162,10 +2258,28 @@ TADA_UsesForAnalysis <- function(
         "organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
       ))
 
-      use.names <- CreateUsesRef |>
+      # load ATTAINSParamUseOrgRef
+      load(system.file(
+        "extdata",
+        "ATTAINSParamUseOrgRef.rda",
+        package = "EPATADA"
+      ))
+
+      # pulls in all prior use names from prior assessment cycles for an org
+      use.names <- ATTAINSParamUseOrgRef |>
+        dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
         dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) |>
         tidyr::drop_na() |>
         dplyr::distinct()
+
+      # if AU_UsesRef is provided, pulls in all prior use names from this source
+      if (!is.null(AU_UsesRef)) {
+        use.names <- AU_UsesRef |>
+          dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
+          dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) |>
+          tidyr::drop_na() |>
+          dplyr::distinct()
+      }
 
       CreateUsesRef_temp <- CreateUsesRef |>
         dplyr::filter(is.na(ATTAINS.UseName)) |>
@@ -2208,9 +2322,9 @@ TADA_UsesForAnalysis <- function(
               ATTAINS.UseName
             ) %in%
               paste(
-                ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                ATTAINS_param_all$ATTAINS.ParameterName,
-                ATTAINS_param_all$ATTAINS.UseName
+                ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.ParameterName,
+                ATTAINSParamUseOrgRef$ATTAINS.UseName
               ) ~ "Use name has been assessed in prior cycles by this organization.",
             !paste(
               ATTAINS.OrganizationIdentifier,
@@ -2218,12 +2332,12 @@ TADA_UsesForAnalysis <- function(
               ATTAINS.UseName
             ) %in%
               paste(
-                ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                ATTAINS_param_all$ATTAINS.ParameterName,
-                ATTAINS_param_all$ATTAINS.UseName
+                ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.ParameterName,
+                ATTAINSParamUseOrgRef$ATTAINS.UseName
               ) &
               ATTAINS.UseName %in%
-                ATTAINS_param_all$ATTAINS.UseName ~ "Use name has been assessed in prior cycles by this organization, but not for this parameter name.",
+                ATTAINSParamUseOrgRef$ATTAINS.UseName ~ "Use name has been assessed in prior cycles by this organization, but not for this parameter name.",
             is.na(
               ATTAINS.UseName
             ) ~ "No use name is provided. Consider choosing an appropriate ATTAINS.UseName."
@@ -2386,9 +2500,9 @@ TADA_UsesForAnalysis <- function(
               ATTAINS.UseName
             ) %in%
               paste(
-                ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                ATTAINS_param_all$ATTAINS.ParameterName,
-                ATTAINS_param_all$ATTAINS.UseName
+                ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.ParameterName,
+                ATTAINSParamUseOrgRef$ATTAINS.UseName
               ) ~ "Use name has been assessed in prior cycles by this organization.",
             !paste(
               ATTAINS.OrganizationIdentifier,
@@ -2396,12 +2510,12 @@ TADA_UsesForAnalysis <- function(
               ATTAINS.UseName
             ) %in%
               paste(
-                ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
-                ATTAINS_param_all$ATTAINS.ParameterName,
-                ATTAINS_param_all$ATTAINS.UseName
+                ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.ParameterName,
+                ATTAINSParamUseOrgRef$ATTAINS.UseName
               ) &
               ATTAINS.UseName %in%
-                ATTAINS_param_all$ATTAINS.UseName ~ "Use name has been assessed in prior cycles by this organization, but not for this parameter name.",
+                ATTAINSParamUseOrgRef$ATTAINS.UseName ~ "Use name has been assessed in prior cycles by this organization, but not for this parameter name.",
             TRUE ~ "Use name has not been assessed in prior cycles."
           )
         ) |>
@@ -2464,36 +2578,75 @@ TADA_UsesForAnalysis <- function(
       downloads_path <- default_downloads_path
     }
 
-    # Print message if there are many combinations of TADA Characteristic as it may slow run time.
-    n <- nrow(CreateUsesRef)
-    if (n > 100) {
-      message(paste0(
-        "There are ",
-        n,
-        " rows in your CreateUsesRef.
-    This may result in slow runtime for TADA_UsesForAnalysis() when generating the excel spreadsheet.
-    Excel formulas will only be generated for the first 100 rows. Please fill down on Cells F1 and Cells G1 in excel
-    to make all rows function dynamically (automatically updates the flag if a change was made to a crosswalk)."
-      ))
+    # Create workbook if it doesn't exist (seed Index with Include/Exclude list)
+    if (!file.exists(downloads_path)) {
+      wb <- openxlsx::createWorkbook()
+      openxlsx::addWorksheet(wb, "Index", visible = FALSE)
+      openxlsx::writeData(
+        wb,
+        "Index",
+        startCol = 9,
+        x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
+      )
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
     }
 
-    # Create column names for an empty dataframe
-    columns <- c(
-      "ATTAINS.OrganizationIdentifier",
-      "ATTAINS.ParameterName",
-      "ATTAINS.UseName",
-      "ATTAINS.FlagParameterName",
-      "ATTAINS.FlagUseName"
-    )
-
-    # empty dataframe with just column names
-    par <- data.frame(matrix(nrow = 0, ncol = length(columns)))
-    colnames(par) <- columns
-
+    # Load or reuse workbook
     wb <- openxlsx::loadWorkbook(downloads_path)
 
-    # If a user chooses to rerun the TADA_UsesForAnalysis() function,
-    # the sheet will already exist and error.
+    # Ensure Index sheet exists and has Include/Exclude list at column I
+    if (!"Index" %in% openxlsx::sheets(wb)) {
+      openxlsx::addWorksheet(wb, "Index", visible = FALSE)
+    }
+    openxlsx::writeData(
+      wb,
+      "Index",
+      startCol = 9,
+      x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
+    )
+
+    # Ensure the ATTAINSOrgNamesParamRef sheet exists and contains
+    # org-filtered parameter and use names in the expected columns:
+    # A = ATTAINS.OrganizationIdentifier, D = ATTAINS.ParameterName, E = ATTAINS.UseName
+    load(system.file(
+      "extdata",
+      "ATTAINSParamUseOrgRef.rda",
+      package = "EPATADA"
+    ))
+    # If org_id is empty, include all orgs; otherwise filter
+    org_filter <- org_id
+    if (is.null(org_filter)) {
+      org_filter <- ""
+    }
+    if (length(org_filter) == 1 && org_filter == "") {
+      ATTAINS_param <- ATTAINSParamUseOrgRef
+    } else {
+      ATTAINS_param <- ATTAINSParamUseOrgRef |>
+        dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_filter)
+    }
+    ATTAINS_param <- ATTAINS_param |>
+      dplyr::select(
+        ATTAINS.OrganizationIdentifier,
+        .colB = ATTAINS.OrganizationIdentifier, # filler to keep D/E positions stable
+        .colC = ATTAINS.OrganizationIdentifier, # filler to keep D/E positions stable
+        ATTAINS.ParameterName,
+        ATTAINS.UseName
+      ) |>
+      dplyr::arrange(ATTAINS.ParameterName, ATTAINS.UseName) |>
+      dplyr::distinct()
+
+    if ("ATTAINSOrgNamesParamRef" %in% openxlsx::sheets(wb)) {
+      openxlsx::removeWorksheet(wb, "ATTAINSOrgNamesParamRef")
+    }
+    openxlsx::addWorksheet(wb, "ATTAINSOrgNamesParamRef", visible = FALSE)
+    openxlsx::writeData(
+      wb,
+      "ATTAINSOrgNamesParamRef",
+      startCol = 1,
+      x = ATTAINS_param
+    )
+
+    # If a user reruns, re-create CreateUsesRef sheet
     tryCatch(
       {
         openxlsx::addWorksheet(wb, "CreateUsesRef")
@@ -2504,18 +2657,24 @@ TADA_UsesForAnalysis <- function(
       }
     )
 
-    # set zoom size
-    set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
+    # Set zoom on all sheets (guarded)
+    set_zoom <- function(x) {
+      if (!is.null(sV)) {
+        gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
+      } else {
+        NULL
+      }
+    }
     n_sheets <- length(wb$worksheets)
     for (i in 1:n_sheets) {
       sV <- wb$worksheets[[i]]$sheetViews
       wb$worksheets[[i]]$sheetViews <- set_zoom(90)
     }
 
-    # Format column header
+    # Format header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
 
-    # Format Column widths
+    # Column widths
     openxlsx::setColWidths(
       wb,
       "CreateUsesRef",
@@ -2523,7 +2682,7 @@ TADA_UsesForAnalysis <- function(
       widths = "auto"
     )
 
-    # Export CreateUsesRef dataframe into the excel spreadsheet tab
+    # Write CreateUsesRef to sheet
     openxlsx::writeData(
       wb,
       "CreateUsesRef",
@@ -2532,14 +2691,7 @@ TADA_UsesForAnalysis <- function(
       headerStyle = header_st
     )
 
-    # Index of allowable values for drop-down lists
-    openxlsx::writeData(
-      wb,
-      "Index",
-      startCol = 9,
-      x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
-    )
-
+    # Index: keep per-row flags in columns G and H to support the formulas below
     openxlsx::writeData(
       wb,
       "Index",
@@ -2547,63 +2699,36 @@ TADA_UsesForAnalysis <- function(
       x = CreateUsesRef[, c("ATTAINS.FlagUseName", "Flag.UseInput")]
     )
 
-    # Data validation drop down list created below.
-    # Note: ATTAINSOrgNamesParamRef contains the list of prior param and use cause by org names specific.
-    # Since Use Names are individual to each Organization.
-    if (!missing(.data)) {
-      suppressWarnings(
-        # Data validation for ATTAINS.UseName.
-        openxlsx::dataValidation(
-          wb,
-          sheet = "CreateUsesRef",
-          cols = 4,
-          rows = 2:10000,
-          type = "list",
-          value = sprintf("'ATTAINSOrgNamesParamRef'!$E$2:$E$50000"),
-          allowBlank = TRUE,
-          showErrorMsg = TRUE,
-          showInputMsg = TRUE
-        )
-      )
-    }
+    # Data validation for ATTAINS.UseName (column 4) from ATTAINSOrgNamesParamRef column E
+    suppressWarnings(openxlsx::dataValidation(
+      wb,
+      sheet = "CreateUsesRef",
+      cols = 4,
+      rows = 2:10000,
+      type = "list",
+      value = "'ATTAINSOrgNamesParamRef'!$E$2:$E$50000",
+      allowBlank = TRUE,
+      showErrorMsg = TRUE,
+      showInputMsg = TRUE
+    ))
 
-    # For case in which a blank template is generated, allowable use_name = entire ATTAINS domain value.
-    if (missing(.data)) {
-      suppressWarnings(
-        # Data validation for ATTAINS.UseName.
-        openxlsx::dataValidation(
-          wb,
-          sheet = "CreateUsesRef",
-          cols = 4,
-          rows = 2:10000,
-          type = "list",
-          value = sprintf("'Index'!$F$2:$F$50000"),
-          allowBlank = TRUE,
-          showErrorMsg = TRUE,
-          showInputMsg = TRUE
-        )
-      )
-    }
+    # Data validation for IncludeOrExclude (column 5) from Index column I
+    suppressWarnings(openxlsx::dataValidation(
+      wb,
+      sheet = "CreateUsesRef",
+      cols = 5,
+      rows = 2:10000,
+      type = "list",
+      value = "'Index'!$I$2:$I$5",
+      allowBlank = TRUE,
+      showErrorMsg = TRUE,
+      showInputMsg = TRUE
+    ))
 
-    suppressWarnings(
-      # Data validation for "Include" or "Exclude" values.
-      openxlsx::dataValidation(
-        wb,
-        sheet = "CreateUsesRef",
-        cols = 5,
-        rows = 2:1000,
-        type = "list",
-        value = sprintf("'Index'!$I$2:$I$5"),
-        allowBlank = TRUE,
-        showErrorMsg = TRUE,
-        showInputMsg = TRUE
-      )
-    )
-
-    max_loops <- 0
-
-    for (i in 1:nrow(CreateUsesRef)) {
-      # Formula based cell values in excel.
+    # Write formulas for ATTAINS.FlagUseName (col 6) and Flag.UseInput (col 7)
+    max_loops <- min(nrow(CreateUsesRef), 100L)
+    for (i in 1:max_loops) {
+      # F (col 6): ATTAINS.FlagUseName
       openxlsx::writeFormula(
         wb,
         "CreateUsesRef",
@@ -2613,30 +2738,30 @@ TADA_UsesForAnalysis <- function(
         x = paste0(
           "=IF(E",
           i + 1,
-          '="Exclude",
-            "Use name does not apply for this ATTAINS.ParameterName. Excluding this use name from analysis.",
-          IF(ISBLANK(D',
+          '="Exclude",',
+          '"Use name does not apply for this ATTAINS.ParameterName. Excluding this use name from analysis.",',
+          "IF(ISBLANK(D",
           i + 1,
-          '),
-            "No use name is provided. Consider choosing an appropriate ATTAINS.UseName.",
-          IF(ISNA(MATCH(1,(D',
+          "),",
+          '"No use name is provided. Consider choosing an appropriate ATTAINS.UseName.",',
+          "IF(ISNA(MATCH(1,(D",
           i + 1,
           "=ATTAINSOrgNamesParamRef!E:E)*(B",
           i + 1,
-          '=ATTAINSOrgNamesParamRef!A:A),0)),
-            "Use name has not been assessed in prior cycles.",
-          IF(ISNA(MATCH(1,(C',
+          "=ATTAINSOrgNamesParamRef!A:A),0)),",
+          '"Use name has not been assessed in prior cycles.",',
+          "IF(ISNA(MATCH(1,(C",
           i + 1,
           "=ATTAINSOrgNamesParamRef!D:D)*(D",
           i + 1,
           "=ATTAINSOrgNamesParamRef!E:E)*(B",
           i + 1,
-          '=ATTAINSOrgNamesParamRef!A:A),0)),
-            "Use name has been assessed in prior cycles by this organization, but not for this parameter name.",
-            "Use name has been assessed in prior cycles by this organization."))))'
+          "=ATTAINSOrgNamesParamRef!A:A),0)),",
+          '"Use name has been assessed in prior cycles by this organization, but not for this parameter name.",',
+          '"Use name has been assessed in prior cycles by this organization."))))'
         )
       )
-
+      # G (col 7): Flag.UseInput
       openxlsx::writeFormula(
         wb,
         "CreateUsesRef",
@@ -2653,13 +2778,9 @@ TADA_UsesForAnalysis <- function(
           ',"This row was MODIFIED by your input(s).")'
         )
       )
-      max_loops <- max_loops + 1
-      if (max_loops > 100) break
     }
 
-    # Conditional formatting created below.
-
-    # If a user has left an ATTAINS.UseName blank, flag as a red cell.
+    # Conditional formatting for UseName column (D=4)
     openxlsx::conditionalFormatting(
       wb,
       "CreateUsesRef",
@@ -2668,8 +2789,6 @@ TADA_UsesForAnalysis <- function(
       type = "blanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     )
-
-    # If a user has an ATTAINS.UseName filled out, flag as a yellow cell.
     openxlsx::conditionalFormatting(
       wb,
       "CreateUsesRef",
@@ -2679,41 +2798,34 @@ TADA_UsesForAnalysis <- function(
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     )
 
-    # If a user has chose to Exclude a use name for a parameter, flag as a red cell.
+    # Conditional formatting for IncludeOrExclude column (E=5)
     openxlsx::conditionalFormatting(
       wb,
       "CreateUsesRef",
       cols = 5,
       rows = 1:nrow(CreateUsesRef) + 1,
       type = "contains",
-      rule = c("Exclude"),
+      rule = "Exclude",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     )
-
-    # If a user has chose to Include a use name for a parameter, flag as a yellow cell.
     openxlsx::conditionalFormatting(
       wb,
       "CreateUsesRef",
       cols = 5,
       rows = 1:nrow(CreateUsesRef) + 1,
       type = "contains",
-      rule = c("Include"),
+      rule = "Include",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     )
 
-    # Format Formula Based Column widths
-    openxlsx::setColWidths(wb, "CreateUsesRef", cols = 6:7, widths = 16)
-
-    # Handles overwriting the excel file.
+    # Save workbook
     if (overwrite == TRUE) {
-      openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
-    }
-
-    if (overwrite == FALSE) {
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
+    } else {
       warning(
-        "If you would like to replace [CreateUsesRef], use overwrite = TRUE argument in TADA_UsesForAnalysis"
+        "If you would like to replace [CreateUsesRef], use overwrite = TRUE in TADA_UsesForAnalysis"
       )
-      openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = FALSE)
     }
 
     cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
@@ -2911,21 +3023,19 @@ TADA_AssignUsesToAU <- function(
   overwrite = FALSE,
   api_key = NULL
 ) {
-  # get default api_key if user does not supply one
-  if (is.null(api_key)) {
+  # Resolve API key from options/env, else hard-coded default
+  if (is.null(api_key) || !nzchar(api_key)) {
     api_key <- .setEQKey()
   }
 
   # ensure correct column types for any user supplied dfs
-  if (exists(".data")) {
-    .data <- TADA_CorrectColType(.data)
-  }
+  .data <- TADA_CorrectColType(.data)
 
-  if (exists("AU_UsesRef")) {
+  if (!is.null(AU_UsesRef)) {
     AU_UsesRef <- TADA_CorrectColType(AU_UsesRef)
   }
 
-  if (exists("waterUseRef")) {
+  if (!is.null(waterUseRef)) {
     waterUseRef <- TADA_CorrectColType(waterUseRef)
   }
 
@@ -2964,64 +3074,83 @@ TADA_AssignUsesToAU <- function(
     }
 
     # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
-    ATTAINS_param_all <- utils::read.csv(system.file(
+    load(system.file(
       "extdata",
-      "ATTAINSParamUseEntityRef.csv",
+      "ATTAINSParamUseOrgRef.rda",
       package = "EPATADA"
     ))
 
     # check to see if user-supplied AUMLRef is a df with appropriate columns and is filled out.
-    if (!is.null(AUMLRef) & !is.character(AUMLRef)) {
+    # AUMLRef validation (after)
+    if (!is.null(AUMLRef) && !is.character(AUMLRef)) {
       if (!is.data.frame(AUMLRef)) {
-        stop(paste0(
-          "TADA_AssignUsesToAU: 'AUMLRef' must be a data frame with these 3 columns:",
+        stop(
+          "TADA_AssignUsesToAU: 'AUMLRef' must be a data frame with these 3 columns: ",
           "ATTAINS.WaterType, ATTAINS.AssessmentUnitIdentifier, and ATTAINS.OrganizationIdentifier."
-        ))
-      }
-
-      if (is.data.frame(AUMLRef)) {
-        col.names <- c(
-          "ATTAINS.WaterType",
-          "ATTAINS.AssessmentUnitIdentifier",
-          "ATTAINS.OrganizationIdentifier"
         )
-
-        if (!any(col.names %in% names(AUMLRef))) {
-          stop(paste0(
-            "TADA_AssignUsesToAU: 'AUMLRef' must be a data frame with these 3 columns:",
-            "ATTAINS.WaterType, ATTAINS.OrganizationIdentifier and ATTAINS.AssessmentUnitIdentifier"
-          ))
-        }
-
-        AULMLRef <- AUMLRef |>
-          dplyr::select(
-            ATTAINS.AssessmentUnitIdentifier,
-            ATTAINS.WaterType,
-            ATTAINS.OrganizationIdentifier
-          )
       }
+
+      required_cols <- c(
+        "ATTAINS.WaterType",
+        "ATTAINS.AssessmentUnitIdentifier",
+        "ATTAINS.OrganizationIdentifier"
+      )
+      missing_cols <- setdiff(required_cols, names(AUMLRef))
+      if (length(missing_cols) > 0) {
+        stop(
+          "TADA_AssignUsesToAU: 'AUMLRef' is missing required column(s): ",
+          paste(missing_cols, collapse = ", "),
+          ". Required columns: ",
+          paste(required_cols, collapse = ", ")
+        )
+      }
+
+      AUMLRef <- AUMLRef |>
+        dplyr::select(
+          ATTAINS.AssessmentUnitIdentifier,
+          ATTAINS.WaterType,
+          ATTAINS.OrganizationIdentifier
+        )
     }
 
     # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
     if (!is.character(org_id) & is.null(org_id)) {
       org_id <- ""
     }
+
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
     if (tolower("all") %in% tolower(org_id)) {
-      # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
       if (is.null(AUMLRef)) {
-        message(paste0(
-          "org_id == 'All' was selected, ",
-          "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
-        ))
-        org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
-      }
-      # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
-      if (!is.null(AUMLRef)) {
-        message(paste0(
-          "org_id == 'All' was selected, ",
-          "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
-        ))
+        # Emit a simple, early message unconditionally
+        message(
+          "org_id == 'All' was selected, no AUMLRef provided; attempting to pull domain orgs."
+        )
+
+        # Attempt to retrieve domain orgs; warn on failure but keep going
+        org_id <- tryCatch(
+          {
+            dv <- rExpertQuery::EQ_DomainValues("org_id")
+            if (!is.null(dv) && "code" %in% names(dv)) {
+              dv[["code"]]
+            } else {
+              warning(
+                "EQ_DomainValues('org_id') returned no 'code' column; proceeding with empty org list."
+              )
+              character()
+            }
+          },
+          error = function(e) {
+            warning(
+              "Failed to retrieve ATTAINS org domain values: ",
+              conditionMessage(e)
+            )
+            character()
+          }
+        )
+      } else {
+        message(
+          "org_id == 'All' was selected, AUMLRef provided; using orgs found in AUMLRef."
+        )
         org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
       }
     }
@@ -3032,11 +3161,12 @@ TADA_AssignUsesToAU <- function(
     # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA 304(a)" as that is not an ATTAINS org_id.
     if (
       sum(
-        !org_id[org_id != "EPA304a"] %in% TADA_GetATTAINSOrgIDsRef()[, "code"]
+        !org_id[!org_id %in% c("EPA304a", "")] %in%
+          TADA_GetATTAINSOrgIDsRef()[, "code"]
       ) >
         0
     ) {
-      warning(paste0(
+      stop(paste0(
         "TADA_AssignUsesToAU: ",
         "One or more organization identifiers entered by user is not found in ATTAINS. "
       ))
@@ -3090,9 +3220,13 @@ TADA_AssignUsesToAU <- function(
         IncludeOrExclude
       ) |>
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
-      sf::st_drop_geometry() |>
       dplyr::distinct() |>
       dplyr::arrange(ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName)
+
+    # Guard st_drop_geometry
+    if (inherits(CreateAU_UsesRef, "sf")) {
+      CreateAU_UsesRef <- sf::st_drop_geometry(CreateAU_UsesRef)
+    }
 
     # User provides a WaterUseRef - specifying the assignment of Uses to AUs not found in ATTAINS by its Water Type.
     if (!is.null(waterUseRef)) {
@@ -3174,7 +3308,7 @@ TADA_AssignUsesToAU <- function(
           TADA.AssessmentUnitStatus = "New",
           IncludeOrExclude = "Include"
         ) |>
-        plyr::rbind.fill(AU_UsesRef_matches)
+        dplyr::bind_rows(AU_UsesRef_matches)
     }
 
     if (excel == TRUE) {
@@ -3345,8 +3479,8 @@ TADA_AssignUsesToWaterType <- function(
   AUMLRef = NULL,
   api_key = NULL
 ) {
-  # get default api_key if user does not supply one
-  if (is.null(api_key)) {
+  # Resolve API key from options/env, else hard-coded default
+  if (is.null(api_key) || !nzchar(api_key)) {
     api_key <- .setEQKey()
   }
 
@@ -3354,40 +3488,52 @@ TADA_AssignUsesToWaterType <- function(
   if (!is.character(org_id) & is.null(org_id)) {
     org_id <- ""
   }
+
   # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
   if (tolower("all") %in% tolower(org_id)) {
-    # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
     if (is.null(AUMLRef)) {
-      message(paste0(
-        "org_id == 'All' was selected, ",
-        "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
-      ))
-      org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
-    }
-    # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
-    if (!is.null(AUMLRef)) {
-      message(paste0(
-        "org_id == 'All' was selected, ",
-        "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
-      ))
+      # Emit a simple, early message unconditionally
+      message(
+        "org_id == 'All' was selected, no AUMLRef provided; attempting to pull domain orgs."
+      )
+
+      # Attempt to retrieve domain orgs; warn on failure but keep going
+      org_id <- tryCatch(
+        {
+          dv <- rExpertQuery::EQ_DomainValues("org_id")
+          if (!is.null(dv) && "code" %in% names(dv)) {
+            dv[["code"]]
+          } else {
+            warning(
+              "EQ_DomainValues('org_id') returned no 'code' column; proceeding with empty org list."
+            )
+            character()
+          }
+        },
+        error = function(e) {
+          warning(
+            "Failed to retrieve ATTAINS org domain values: ",
+            conditionMessage(e)
+          )
+          character()
+        }
+      )
+    } else {
+      message(
+        "org_id == 'All' was selected, AUMLRef provided; using orgs found in AUMLRef."
+      )
       org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
     }
   }
 
-  # rExpertQuery API key for TADA
-  tadakey <- "EKtgCrmatyP4G8iFgADMIfwlddbpDlSqRxetlN09"
-
   # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
-  ATTAINS_param_all <- utils::read.csv(system.file(
-    "extdata",
-    "ATTAINSParamUseEntityRef.csv",
-    package = "EPATADA"
-  ))
+  load(system.file("extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"))
 
   # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA 304(a)" as that is not an ATTAINS org_id.
   if (
     sum(
-      !org_id[org_id != "EPA304a"] %in% TADA_GetATTAINSOrgIDsRef()[, "code"]
+      !org_id[!org_id %in% c("EPA304a", "")] %in%
+        TADA_GetATTAINSOrgIDsRef()[, "code"]
     ) >
       0
   ) {
@@ -3980,7 +4126,6 @@ TADA_MLSummary <- function(
             ATTAINS.WaterType = ATTAINS.WaterType.y,
             SaltFresh,
             DepthCategory,
-            DepthCategory,
             LongitudeMeasure,
             LatitudeMeasure,
             TADA.ParameterInSite.Flag,
@@ -4050,7 +4195,6 @@ TADA_MLSummary <- function(
   }
   # Only run if user wants to create an excel guided spreadsheet.
   if (excel == TRUE) {
-    # default Downloads file location.
     # Define the OneDrive Downloads path
     onedrive_downloads_path <- file.path(
       Sys.getenv("USERPROFILE"),
@@ -4073,21 +4217,46 @@ TADA_MLSummary <- function(
       downloads_path <- default_downloads_path
     }
 
-    # if a user generates a blank template, the prior blank template must also be generated in excel
+    # If a user generates a blank template, also generate the prior templates
     if (missing(.data)) {
       suppressMessages(TADA_ParametersForAnalysis(
         excel = excel,
         overwrite = overwrite
       ))
-
       suppressMessages(TADA_UsesForAnalysis(
         excel = excel,
         overwrite = overwrite
       ))
     }
 
+    # Create workbook if needed
+    if (!file.exists(downloads_path)) {
+      wb <- openxlsx::createWorkbook()
+      openxlsx::addWorksheet(wb, "Index", visible = FALSE)
+      openxlsx::writeData(
+        wb,
+        "Index",
+        startCol = 9,
+        x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
+      )
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
+    }
+
+    # Load workbook
     wb <- openxlsx::loadWorkbook(downloads_path)
 
+    # Ensure Index sheet exists and has Include/Exclude list
+    if (!"Index" %in% openxlsx::sheets(wb)) {
+      openxlsx::addWorksheet(wb, "Index", visible = FALSE)
+    }
+    openxlsx::writeData(
+      wb,
+      "Index",
+      startCol = 9,
+      x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
+    )
+
+    # Recreate the sheet to avoid duplicate content
     tryCatch(
       {
         openxlsx::addWorksheet(wb, "CreateMLSummaryRef")
@@ -4098,10 +4267,10 @@ TADA_MLSummary <- function(
       }
     )
 
-    # Format column header
+    # Header style
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
 
-    # Format Column widths
+    # Column widths (widen from col 8 onward as before)
     openxlsx::setColWidths(
       wb,
       "CreateMLSummaryRef",
@@ -4109,15 +4278,21 @@ TADA_MLSummary <- function(
       widths = "auto"
     )
 
-    # set zoom size
-    set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
+    # Set zoom (guarded)
+    set_zoom <- function(x) {
+      if (!is.null(sV)) {
+        gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
+      } else {
+        NULL
+      }
+    }
     n_sheets <- length(wb$worksheets)
     for (i in 1:n_sheets) {
       sV <- wb$worksheets[[i]]$sheetViews
       wb$worksheets[[i]]$sheetViews <- set_zoom(90)
     }
 
-    # writes CreateMLSummaryRef dataframe
+    # Write data
     openxlsx::writeData(
       wb,
       "CreateMLSummaryRef",
@@ -4126,72 +4301,70 @@ TADA_MLSummary <- function(
       headerStyle = header_st
     )
 
-    # data validation drop down list created below.
+    # Data validation for IncludeOrExclude: column 14 (Index column I)
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "CreateMLSummaryRef",
-      cols = 9,
+      cols = 14,
       rows = 2:1000,
       type = "list",
-      value = sprintf("'Index'!$B$2:$B$5"),
+      value = "'Index'!$I$2:$I$5",
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
 
-    # Conditional Formatting
+    # Conditional formatting for IncludeOrExclude (col 14)
     openxlsx::conditionalFormatting(
       wb,
       "CreateMLSummaryRef",
-      cols = 16,
+      cols = 14,
       rows = 2:(nrow(CreateMLSummaryRef) + 1),
       type = "contains",
       rule = "Include",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])
-    ) # default values or indicates good to go cells.
-
+    )
     openxlsx::conditionalFormatting(
       wb,
       "CreateMLSummaryRef",
-      cols = 16,
+      cols = 14,
       rows = 2:(nrow(CreateMLSummaryRef) + 1),
       type = "contains",
       rule = "Exclude",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
-    ) # using yellow to indicate modified cell
-    # conditionalFormatting(wb, "CreateMLSummaryRef",
-    #                       cols = 8, rows = 2:(nrow(CreateMLSummaryRef) + 1),
-    #                       type = "notContains", rule = c("Exclude","Include"), style = createStyle(bgFill = "red")) # Likely error. Invalid value is possible here.
+    )
+
+    # Conditional formatting for UniqueSpatialCriteria (col 15)
     openxlsx::conditionalFormatting(
       wb,
       "CreateMLSummaryRef",
-      cols = 17,
+      cols = 15,
       rows = 2:(nrow(CreateMLSummaryRef) + 1),
       type = "blanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])
-    ) # green is default values or indicates good to go cells.
+    )
     openxlsx::conditionalFormatting(
       wb,
       "CreateMLSummaryRef",
-      cols = 17,
+      cols = 15,
       rows = 2:(nrow(CreateMLSummaryRef) + 1),
       type = "notBlanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
-    ) # using yellow to indicate modified cell
+    )
 
+    # Save
     if (overwrite == TRUE) {
-      openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
-    }
-
-    if (overwrite == FALSE) {
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
+    } else {
       warning(
-        "If you would like to replace the file, use overwrite = TRUE argument in TADA_ParametersForAnalysis"
+        "If you would like to replace the file, use overwrite = TRUE in TADA_MLSummary"
       )
-      openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = FALSE)
     }
 
     cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
 
+    # Optional: re-read into R (to match your current pattern)
     CreateMLSummaryRef <- openxlsx::read.xlsx(
       downloads_path,
       sheet = "CreateMLSummaryRef"

@@ -329,7 +329,6 @@ API key to the "api_key" variable. Otherwise, the default EPATADA
 package key will be used.
 
 ```{r api_key}
-
 # api_key <- "paste your key here"
 
 # is user does not provide key, set api_key as NULL
@@ -513,8 +512,7 @@ For this demo, We will load in a pre-filled criteria template for MTDEQ (draft).
 
 ```{r TADA_DefineCriteriaMethodology, eval = F}
 # Load the example R8 criteria table for MTDEQ
-criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
-load(criteria_table)
+criteria_table <- TADA_ListCriteriaFile(org_id = "MTDEQ")
 
 MT_criteria <- TADA_DefineCriteriaMethodology(
   tada.MT.clean.DO,
