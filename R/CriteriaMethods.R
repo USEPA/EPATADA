@@ -2835,7 +2835,7 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       "DistrMinSample",
       "Notes",
       "EquationType",
-      "Equation",
+      "EquationCustom",
       "pHThreshold",
       "pHDirection",
       "hardness_param_1",

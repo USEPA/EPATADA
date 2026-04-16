@@ -33,7 +33,27 @@ test_that("returns empty dataframe (names only) when all args missing", {
     "DistrCount",
     "DistrPeriod",
     "DistrMinSample",
-    "Notes"
+    "Notes",
+    "EquationType",
+    "EquationCustom",
+    "pHThreshold",
+    "pHDirection",
+    "hardness_param_1",
+    "hardness_param_2",
+    "hardness_param_3",
+    "hardness_param_4",
+    "TemperatureExtreme",
+    "pH_param_1",
+    "pH_param_2",
+    "pH_param_3",
+    "pH_param_4",
+    "pH_param_5",
+    "pH_param_6",
+    "pH_param_7",
+    "pH_param_8",
+    "pH_param_9",
+    "MinEqMagnitude",
+    "MaxEqMagnitude"
   )
   expect_identical(names(res), expected_cols)
   expect_equal(nrow(res), 0)

@@ -16,5 +16,6 @@ An excel data frame tab
 }
 \description{
 Defines and summarizes the column names found in the TADA format for the
-Criteria and Methodology table for users to fill out.
+Criteria and Methodology table for users to fill out. Internal function
+that runs automatically in TADA_DefineCriteriaMethodology
 }
