@@ -215,7 +215,7 @@ TADA_DefineCriteriaMethodology <- function(
     "Notes",
     # Equation Columns
     "EquationType",
-    "Equation",
+    "EquationFormula",
     "pHThreshold",
     "pHDirection",
     "hardness_param_1",
@@ -686,7 +686,7 @@ TADA_DefineCriteriaMethodology <- function(
           DistrMinSample = as.numeric(NA),
           Notes = as.character(NA),
           EquationType = as.character(NA),
-          Equation = as.character(NA),
+          EquationFormula = as.character(NA),
           pHThreshold = as.numeric(NA),
           pHDirection = as.character(NA),
           hardness_param_1 = as.numeric(NA),
