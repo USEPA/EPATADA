@@ -426,8 +426,8 @@ TADA_DefineCriteriaMethodology <- function(
             .data,
             org_id = org_id,
             auto_assign = "Org", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
-            excel = excel,
-            overwrite = T # Changed to TRUE when auto_assign = T KW 4/17/26
+            excel = F,
+            overwrite = F # Changed to FALSE when auto_assign = T KW 4/17/26
           )
         )
 
@@ -442,8 +442,8 @@ TADA_DefineCriteriaMethodology <- function(
             AU_UsesRef = AU_UsesRef,
             AUMLRef = AUMLRef,
             auto_assign = TRUE,
-            excel = excel,
-            overwrite = T # Changed to TRUE when auto_assign = T KW 4/17/26
+            excel = F,
+            overwrite = F # Changed to FALSE when auto_assign = T KW 4/17/26
           )
         )
 
@@ -455,8 +455,8 @@ TADA_DefineCriteriaMethodology <- function(
             usesRef = TADA_usesRef,
             AUMLRef = AUMLRef,
             AU_UsesRef = AU_UsesRef,
-            excel = excel,
-            overwrite = T # Changed to TRUE when auto_assign = T KW 4/17/26
+            excel = F,
+            overwrite = F # Changed to FALSE when auto_assign = T KW 4/17/26
           )
         )
 
@@ -1437,7 +1437,7 @@ TADA_DefineCriteriaMethodology <- function(
     if (!file.exists(downloads_path)) {
       wb <- openxlsx::createWorkbook()
       openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
-      openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
+      openxlsx::addWorksheet(wb, "Index-Criteria")
       openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
     }
     # Open the excel file
@@ -1445,24 +1445,21 @@ TADA_DefineCriteriaMethodology <- function(
 
     # if the sheets exist, remove them then re-add them. Must do so to avoid stacking data validation rules.
     sheets <- names(wb) # openxlsx Workbook method
-    if (("DefineCriteriaMethodology" %in% sheets)) {
+    tryCatch(openxlsx::addWorksheet(wb, "DefineCriteriaMethodology"), error = function(e) {
       openxlsx::removeWorksheet(wb, "DefineCriteriaMethodology")
-    }
-    if (!("DefineCriteriaMethodology" %in% sheets)) {
       openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
-    }
-    if (("Index-Criteria" %in% sheets)) {
+    })
+    
+    tryCatch(openxlsx::addWorksheet(wb, "Index-Criteria"), error = function(e) {
       openxlsx::removeWorksheet(wb, "Index-Criteria")
-    }
-    if (!("Index-Criteria" %in% sheets)) {
-      openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
-    }
+      openxlsx::addWorksheet(wb, "Index-Criteria")
+    })
 
     # Set visibility
     sv <- openxlsx::sheetVisibility(wb)
     sn <- names(wb)
 
-    idx_dcm <- which(sn == "DefineCriteriaMethodology")
+    idx_dcm <- which(sheets == "DefineCriteriaMethodology")
     if (length(idx_dcm) == 1) {
       sv[idx_dcm] <- "visible"
     }
@@ -2127,6 +2124,15 @@ TADA_DefineCriteriaMethodology <- function(
       ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
       save_path <- sprintf("%s_%s.%s", base, ts, ext)
     }
+    
+    if (!isTRUE(overwrite) && !file.exists(downloads_path)) {
+      message("TADA_DefineCriteriaMethodology: overwrite = FALSE was selected but you have not created myfileRef.xlsx yet. No duplicate excel file will be created in this run.")
+    }
+
+    # Make "DefineCriteriaMethodology" the active sheet
+    if ("activeSheet" %in% getNamespaceExports("openxlsx")) {
+      openxlsx::activeSheet(wb) <- "DefineCriteriaMethodology"
+    }
 
     # Save current workbook structure first so file exists at final path
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
@@ -2136,11 +2142,6 @@ TADA_DefineCriteriaMethodology <- function(
 
     # Reload the updated workbook so wb now includes those tabs
     wb <- openxlsx::loadWorkbook(save_path)
-
-    # Make "DefineCriteriaMethodology" the active sheet
-    if ("activeSheet" %in% getNamespaceExports("openxlsx")) {
-      openxlsx::activeSheet(wb) <- "DefineCriteriaMethodology"
-    }
 
     # now continue any remaining edits if needed, then final save
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
