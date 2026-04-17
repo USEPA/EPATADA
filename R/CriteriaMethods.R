@@ -1445,11 +1445,14 @@ TADA_DefineCriteriaMethodology <- function(
 
     # if the sheets exist, remove them then re-add them. Must do so to avoid stacking data validation rules.
     sheets <- names(wb) # openxlsx Workbook method
-    tryCatch(openxlsx::addWorksheet(wb, "DefineCriteriaMethodology"), error = function(e) {
-      openxlsx::removeWorksheet(wb, "DefineCriteriaMethodology")
-      openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
-    })
-    
+    tryCatch(
+      openxlsx::addWorksheet(wb, "DefineCriteriaMethodology"),
+      error = function(e) {
+        openxlsx::removeWorksheet(wb, "DefineCriteriaMethodology")
+        openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
+      }
+    )
+
     tryCatch(openxlsx::addWorksheet(wb, "Index-Criteria"), error = function(e) {
       openxlsx::removeWorksheet(wb, "Index-Criteria")
       openxlsx::addWorksheet(wb, "Index-Criteria")
@@ -2124,9 +2127,11 @@ TADA_DefineCriteriaMethodology <- function(
       ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
       save_path <- sprintf("%s_%s.%s", base, ts, ext)
     }
-    
+
     if (!isTRUE(overwrite) && !file.exists(downloads_path)) {
-      message("TADA_DefineCriteriaMethodology: overwrite = FALSE was selected but you have not created myfileRef.xlsx yet. No duplicate excel file will be created in this run.")
+      message(
+        "TADA_DefineCriteriaMethodology: overwrite = FALSE was selected but you have not created myfileRef.xlsx yet. No duplicate excel file will be created in this run."
+      )
     }
 
     # Make "DefineCriteriaMethodology" the active sheet
