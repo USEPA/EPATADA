@@ -35,7 +35,7 @@ test_that("returns empty dataframe (names only) when all args missing", {
     "DistrMinSample",
     "Notes",
     "EquationType",
-    "EquationCustom",
+    "EquationFormula",
     "pHThreshold",
     "pHDirection",
     "hardness_param_1",

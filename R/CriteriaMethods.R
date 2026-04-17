@@ -427,7 +427,7 @@ TADA_DefineCriteriaMethodology <- function(
             org_id = org_id,
             auto_assign = "Org", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
             excel = excel,
-            overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+            overwrite = T # Changed to TRUE when auto_assign = T KW 4/17/26
           )
         )
 
@@ -443,7 +443,7 @@ TADA_DefineCriteriaMethodology <- function(
             AUMLRef = AUMLRef,
             auto_assign = TRUE,
             excel = excel,
-            overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+            overwrite = T # Changed to TRUE when auto_assign = T KW 4/17/26
           )
         )
 
@@ -456,7 +456,7 @@ TADA_DefineCriteriaMethodology <- function(
             AUMLRef = AUMLRef,
             AU_UsesRef = AU_UsesRef,
             excel = excel,
-            overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+            overwrite = T # Changed to TRUE when auto_assign = T KW 4/17/26
           )
         )
 
@@ -1433,25 +1433,29 @@ TADA_DefineCriteriaMethodology <- function(
 
     downloads_path <- get_downloads_path("myfileRef.xlsx")
 
+    # If file does not yet exist, create the workbook and add a blank DefineCriteriaMethodology tab with a blank Index-Criteria tab
     if (!file.exists(downloads_path)) {
       wb <- openxlsx::createWorkbook()
       openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
       openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
       openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
     }
+    # Open the excel file
     wb <- openxlsx::loadWorkbook(downloads_path)
 
+    # if the sheets exist, remove them then re-add them. Must do so to avoid stacking data validation rules.
     sheets <- names(wb) # openxlsx Workbook method
+    if (("DefineCriteriaMethodology" %in% sheets)) {
+      openxlsx::removeWorksheet(wb, "DefineCriteriaMethodology")
+    }
     if (!("DefineCriteriaMethodology" %in% sheets)) {
       openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
     }
+    if (("Index-Criteria" %in% sheets)) {
+      openxlsx::removeWorksheet(wb, "Index-Criteria")
+    }
     if (!("Index-Criteria" %in% sheets)) {
       openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
-    }
-
-    # Make "DefineCriteriaMethodology" the active sheet
-    if ("activeSheet" %in% getNamespaceExports("openxlsx")) {
-      openxlsx::activeSheet(wb) <- "DefineCriteriaMethodology"
     }
 
     # Set visibility
@@ -2116,7 +2120,8 @@ TADA_DefineCriteriaMethodology <- function(
     # Determine actual save path
     save_path <- downloads_path
 
-    if (!overwrite && file.exists(downloads_path)) {
+    # If overwrite = F, and if myfileRef does not already exist
+    if (!isTRUE(overwrite) && file.exists(downloads_path)) {
       base <- tools::file_path_sans_ext(downloads_path)
       ext <- tools::file_ext(downloads_path)
       ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
@@ -2131,6 +2136,11 @@ TADA_DefineCriteriaMethodology <- function(
 
     # Reload the updated workbook so wb now includes those tabs
     wb <- openxlsx::loadWorkbook(save_path)
+
+    # Make "DefineCriteriaMethodology" the active sheet
+    if ("activeSheet" %in% getNamespaceExports("openxlsx")) {
+      openxlsx::activeSheet(wb) <- "DefineCriteriaMethodology"
+    }
 
     # now continue any remaining edits if needed, then final save
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
@@ -2229,7 +2239,7 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       "DistrMinSample",
       "Notes",
       "EquationType",
-      "Equation",
+      "EquationFormula",
       "pHThreshold",
       "pHDirection",
       "hardness_param_1",
@@ -2793,13 +2803,6 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     widths = "auto"
   )
 
-  openxlsx::setRowHeights(
-    wb,
-    "DataDictionary",
-    rows = 3:(nrow(data_to_write) + 2),
-    heights = "auto"
-  )
-
   # Build the data frame with plain URLs, not =HYPERLINK(...)
   data_to_write_allow <- data.frame(
     ColumnName = c(
@@ -2835,7 +2838,7 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       "DistrMinSample",
       "Notes",
       "EquationType",
-      "EquationCustom",
+      "EquationFormula",
       "pHThreshold",
       "pHDirection",
       "hardness_param_1",
@@ -3236,13 +3239,6 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
     "AllowableValues",
     cols = 1:(ncol(data_to_write_allow) - 1),
     widths = "auto"
-  )
-
-  openxlsx::setRowHeights(
-    wb,
-    "AllowableValues",
-    rows = 3:(nrow(data_to_write_allow) + 2),
-    heights = "auto"
   )
 
   # Save the workbook to an Excel file
