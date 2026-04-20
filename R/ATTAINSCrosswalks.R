@@ -3990,8 +3990,7 @@ TADA_MLSummary <- function(
       ))
 
       # Applies all unique combos of param and uses to each monitoring location.
-      MLSummaryRef <- usesRef |>
-        tidyr::uncount(weights = length(unique_ML))
+      MLSummaryRef <- usesRef |> tidyr::uncount(weights = length(unique_ML))
 
       MLSummaryRef <- MLSummaryRef |>
         dplyr::mutate(
