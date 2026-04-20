@@ -3863,7 +3863,7 @@ TADA_MLSummary <- function(
       "All arguments are blank, returning an empty dataframe with column names only."
     )
 
-    CreateMLSummaryRef <- data.frame(
+    MLSummaryRef <- data.frame(
       ATTAINS.OrganizationIdentifier = character(0),
       ATTAINS.AssessmentUnitIdentifier = character(0),
       MonitoringLocationIdentifier = character(0),
@@ -3889,7 +3889,7 @@ TADA_MLSummary <- function(
     }
 
     # Creates the data frame.
-    CreateMLSummaryRef <- data.frame()
+    MLSummaryRef <- data.frame()
     # This allows a user to provide the mod 2 function TADA_CreateATTAINSAUMLCrosswalk() as the .data data frame.
     # In this case, the ML to AU crosswalk is generated from TADA_CreateATTAINSAUMLCrosswalk().
     if (!is.data.frame(.data)) {
@@ -3990,14 +3990,14 @@ TADA_MLSummary <- function(
       ))
 
       # Applies all unique combos of param and uses to each monitoring location.
-      CreateMLSummaryRef <- usesRef |>
+      MLSummaryRef <- usesRef |>
         tidyr::uncount(weights = length(unique_ML))
 
-      CreateMLSummaryRef <- CreateMLSummaryRef |>
+      MLSummaryRef <- MLSummaryRef |>
         dplyr::mutate(
           MonitoringLocationIdentifier = as.character(rep(
             unique_ML,
-            nrow(CreateMLSummaryRef) / length(unique_ML)
+            nrow(MLSummaryRef) / length(unique_ML)
           ))
         ) |>
         dplyr::full_join(
@@ -4031,7 +4031,7 @@ TADA_MLSummary <- function(
         dplyr::distinct()
 
       # data frame to only display sites that contains the parameter
-      CreateMLSummaryRef2 <- usesRef |>
+      MLSummaryRef2 <- usesRef |>
         tidyr::uncount(weights = length(unique_ML)) |>
         dplyr::full_join(
           .data,
@@ -4067,9 +4067,9 @@ TADA_MLSummary <- function(
         dplyr::distinct()
 
       # joins the table back together and flag appropriately
-      CreateMLSummaryRef <- CreateMLSummaryRef |>
-        # dplyr::bind_rows(CreateMLSummaryRef2)
-        dplyr::left_join(CreateMLSummaryRef2) |>
+      MLSummaryRef <- MLSummaryRef |>
+        # dplyr::bind_rows(MLSummaryRef2)
+        dplyr::left_join(MLSummaryRef2) |>
         dplyr::mutate(
           TADA.ParameterInSite.Flag = dplyr::if_else(
             is.na(TADA.ParameterInSite.Flag),
@@ -4104,7 +4104,7 @@ TADA_MLSummary <- function(
         "This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
       ))
 
-      CreateMLSummaryRef2 <- usesRef |>
+      MLSummaryRef2 <- usesRef |>
         dplyr::full_join(
           .data,
           by = c("TADA.ComparableDataIdentifier"),
@@ -4138,7 +4138,7 @@ TADA_MLSummary <- function(
         ) |>
         dplyr::distinct()
 
-      CreateMLSummaryRef <- CreateMLSummaryRef2 |>
+      MLSummaryRef <- MLSummaryRef2 |>
         dplyr::arrange(MonitoringLocationIdentifier)
     }
 
@@ -4216,14 +4216,14 @@ TADA_MLSummary <- function(
           ATTAINS.WaterType
         )
 
-      # Only join the AU to the CreateMLSummaryRef
+      # Only join the AU to the MLSummaryRef
       if (displayNA == TRUE) {
         message(paste0(
           "TADA_MLSummary: displayNA = TRUE was selected:",
           "This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
         ))
 
-        CreateMLSummaryRef <- CreateMLSummaryRef |>
+        MLSummaryRef <- MLSummaryRef |>
           dplyr::left_join(
             useParamAUMLRef,
             by = dplyr::join_by(
@@ -4266,7 +4266,7 @@ TADA_MLSummary <- function(
           "This MLSummaryRef table will only display parameters and uses for a ML/AU if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
         ))
 
-        CreateMLSummaryRef <- CreateMLSummaryRef |>
+        MLSummaryRef <- MLSummaryRef |>
           dplyr::right_join(
             useParamAUMLRef,
             by = dplyr::join_by(
@@ -4305,7 +4305,7 @@ TADA_MLSummary <- function(
       }
     }
 
-    if (!"ATTAINS.AssessmentUnitIdentifier" %in% colnames(CreateMLSummaryRef)) {
+    if (!"ATTAINS.AssessmentUnitIdentifier" %in% colnames(MLSummaryRef)) {
       message(paste0(
         "TADA_MLSummary: No Monitoring Location to Assessment Unit crosswalk provided. ",
         "Consider providing this crosswalk if you would like to summarize WQP data on an Assessment Unit level."
@@ -4378,11 +4378,11 @@ TADA_MLSummary <- function(
     # if the sheets exist, remove them then re-add them. Must do so to avoid stacking data validation rules.
     tryCatch(
       {
-        openxlsx::addWorksheet(wb, "CreateMLSummaryRef")
+        openxlsx::addWorksheet(wb, "MLSummaryRef")
       },
       error = function(e) {
-        openxlsx::removeWorksheet(wb, "CreateMLSummaryRef")
-        openxlsx::addWorksheet(wb, "CreateMLSummaryRef")
+        openxlsx::removeWorksheet(wb, "MLSummaryRef")
+        openxlsx::addWorksheet(wb, "MLSummaryRef")
       }
     )
 
@@ -4390,7 +4390,7 @@ TADA_MLSummary <- function(
     sv <- openxlsx::sheetVisibility(wb)
     sn <- names(wb)
 
-    idx_dcm <- which(sn == "CreateMLSummaryRef")
+    idx_dcm <- which(sn == "MLSummaryRef")
     if (length(idx_dcm) == 1) {
       sv[idx_dcm] <- "visible"
     }
@@ -4408,8 +4408,8 @@ TADA_MLSummary <- function(
     # Column widths (widen from col 8 onward as before)
     openxlsx::setColWidths(
       wb,
-      "CreateMLSummaryRef",
-      cols = 8:ncol(CreateMLSummaryRef),
+      "MLSummaryRef",
+      cols = 8:ncol(MLSummaryRef),
       widths = "auto"
     )
 
@@ -4430,17 +4430,17 @@ TADA_MLSummary <- function(
     # Write data
     openxlsx::writeData(
       wb,
-      "CreateMLSummaryRef",
+      "MLSummaryRef",
       startCol = 1,
-      x = CreateMLSummaryRef,
+      x = MLSummaryRef,
       headerStyle = header_st
     )
 
-    # Data validation for IncludeOrExclude: column 13 (Index column I)
+    # Data validation for IncludeOrExclude: column 14 (Index column I)
     suppressWarnings(openxlsx::dataValidation(
       wb,
-      sheet = "CreateMLSummaryRef",
-      cols = 13,
+      sheet = "MLSummaryRef",
+      cols = 14,
       rows = 2:1000,
       type = "list",
       value = "'Index'!$I$2:$I$5",
@@ -4449,21 +4449,21 @@ TADA_MLSummary <- function(
       showInputMsg = TRUE
     ))
 
-    # Conditional formatting for IncludeOrExclude (col 13)
+    # Conditional formatting for IncludeOrExclude (col 14)
     openxlsx::conditionalFormatting(
       wb,
-      "CreateMLSummaryRef",
-      cols = 13,
-      rows = 2:(nrow(CreateMLSummaryRef) + 1),
+      "MLSummaryRef",
+      cols = 14,
+      rows = 2:(nrow(MLSummaryRef) + 1),
       type = "contains",
       rule = "Include",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])
     )
     openxlsx::conditionalFormatting(
       wb,
-      "CreateMLSummaryRef",
-      cols = 13,
-      rows = 2:(nrow(CreateMLSummaryRef) + 1),
+      "MLSummaryRef",
+      cols = 14,
+      rows = 2:(nrow(MLSummaryRef) + 1),
       type = "contains",
       rule = "Exclude",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
@@ -4472,17 +4472,17 @@ TADA_MLSummary <- function(
     # Conditional formatting for UniqueSpatialCriteria (col 15)
     openxlsx::conditionalFormatting(
       wb,
-      "CreateMLSummaryRef",
-      cols = 14,
-      rows = 2:(nrow(CreateMLSummaryRef) + 1),
+      "MLSummaryRef",
+      cols = 15,
+      rows = 2:(nrow(MLSummaryRef) + 1),
       type = "blanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])
     )
     openxlsx::conditionalFormatting(
       wb,
-      "CreateMLSummaryRef",
-      cols = 14,
-      rows = 2:(nrow(CreateMLSummaryRef) + 1),
+      "MLSummaryRef",
+      cols = 15,
+      rows = 2:(nrow(MLSummaryRef) + 1),
       type = "notBlanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     )
@@ -4518,7 +4518,7 @@ TADA_MLSummary <- function(
 
     # Make "DefineCriteriaMethodology" the active sheet
     if ("activeSheet" %in% getNamespaceExports("openxlsx")) {
-      openxlsx::activeSheet(wb) <- "UsesCrosswalk"
+      openxlsx::activeSheet(wb) <- "MLSummaryRef"
     }
 
     # now continue any remaining edits if needed, then final save
@@ -4530,5 +4530,5 @@ TADA_MLSummary <- function(
 
     cat("File saved to:", gsub("/", "\\\\", save_path), "\n")
   }
-  return(CreateMLSummaryRef)
+  return(MLSummaryRef)
 }
