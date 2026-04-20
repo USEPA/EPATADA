@@ -4326,9 +4326,9 @@ TADA_MLSummary <- function(
       }
       file.path(base_dir, filename)
     }
-    
+
     downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
-    
+
     # Create workbook if it doesn't exist (seed Index with Include/Exclude list)
     if (!file.exists(downloads_path)) {
       message(
@@ -4349,10 +4349,15 @@ TADA_MLSummary <- function(
           excel = excel,
           overwrite = T # to avoid creating two duplicate timestamp files.
         )
-      } 
+      }
       if (!missing(usesRef)) {
-        paramRef <- dplyr::select(usesRef, ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, TADA.ComparableDataIdentifier)
-        
+        paramRef <- dplyr::select(
+          usesRef,
+          ATTAINS.OrganizationIdentifier,
+          ATTAINS.ParameterName,
+          TADA.ComparableDataIdentifier
+        )
+
         TADA_UsesForAnalysis(
           .data = .data,
           org_id = org_id,
@@ -4366,10 +4371,10 @@ TADA_MLSummary <- function(
         )
       }
     }
-    
+
     # Load or reuse workbook
     wb <- openxlsx::loadWorkbook(downloads_path)
-    
+
     # if the sheets exist, remove them then re-add them. Must do so to avoid stacking data validation rules.
     tryCatch(
       {
@@ -4380,21 +4385,21 @@ TADA_MLSummary <- function(
         openxlsx::addWorksheet(wb, "CreateMLSummaryRef")
       }
     )
-    
+
     # Set visibility
     sv <- openxlsx::sheetVisibility(wb)
     sn <- names(wb)
-    
+
     idx_dcm <- which(sn == "CreateMLSummaryRef")
     if (length(idx_dcm) == 1) {
       sv[idx_dcm] <- "visible"
     }
-    
+
     idx_ic <- which(sn == "Index")
     if (length(idx_ic) == 1) {
       sv[idx_ic] <- "hidden"
     }
-    
+
     openxlsx::sheetVisibility(wb) <- sv
 
     # Header style
@@ -4482,14 +4487,13 @@ TADA_MLSummary <- function(
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     )
 
-    
     # Determine actual save path
     save_path <- downloads_path
-    
+
     # If overwrite = F, check if original exists yet. If not, save it as an original and create a copy.
     # Note: file should always exist now at this point. See beginning of excel = T in this function for this file generation.
     if (!isTRUE(overwrite)) {
-      if (!file.exists(downloads_path)){
+      if (!file.exists(downloads_path)) {
         openxlsx::activeSheet(wb) <- "UsesCrosswalk"
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
         message(
@@ -4498,32 +4502,32 @@ TADA_MLSummary <- function(
         )
         wb <- openxlsx::loadWorkbook(downloads_path)
       }
-      if (file.exists(downloads_path)){
+      if (file.exists(downloads_path)) {
         base <- tools::file_path_sans_ext(downloads_path)
         ext <- tools::file_ext(downloads_path)
         ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
         save_path <- sprintf("%s_%s.%s", base, ts, ext)
       }
     }
-    
+
     # Save current workbook structure first so file exists at final path
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
-    
+
     # Reload the updated workbook so wb now includes those tabs
     wb <- openxlsx::loadWorkbook(save_path)
-    
+
     # Make "DefineCriteriaMethodology" the active sheet
     if ("activeSheet" %in% getNamespaceExports("openxlsx")) {
       openxlsx::activeSheet(wb) <- "UsesCrosswalk"
     }
-    
+
     # now continue any remaining edits if needed, then final save
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
-    
+
     if (!overwrite && save_path != downloads_path) {
       message("Saved as: ", save_path)
     }
-    
+
     cat("File saved to:", gsub("/", "\\\\", save_path), "\n")
   }
   return(CreateMLSummaryRef)
