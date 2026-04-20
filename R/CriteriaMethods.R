@@ -1433,18 +1433,10 @@ TADA_DefineCriteriaMethodology <- function(
 
     downloads_path <- get_downloads_path("CriteriaMethodology.xlsx")
 
-    # If file does not yet exist, create the workbook and add a blank DefineCriteriaMethodology tab with a blank Index-Criteria tab
-    if (!file.exists(downloads_path)) {
-      wb <- openxlsx::createWorkbook()
-      openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
-      openxlsx::addWorksheet(wb, "Index-Criteria")
-      openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
-    }
-    # Open the excel file
-    wb <- openxlsx::loadWorkbook(downloads_path)
+    # create a brand new workbook and decide on save path at the end.
+    wb <- openxlsx::createWorkbook()
 
     # if the sheets exist, remove them then re-add them. Must do so to avoid stacking data validation rules.
-    sheets <- names(wb) # openxlsx Workbook method
     tryCatch(
       openxlsx::addWorksheet(wb, "DefineCriteriaMethodology"),
       error = function(e) {
@@ -1453,10 +1445,13 @@ TADA_DefineCriteriaMethodology <- function(
       }
     )
 
-    tryCatch(openxlsx::addWorksheet(wb, "Index-Criteria"), error = function(e) {
-      openxlsx::removeWorksheet(wb, "Index-Criteria")
-      openxlsx::addWorksheet(wb, "Index-Criteria")
-    })
+    tryCatch(
+      openxlsx::addWorksheet(wb, "Index-Criteria"),
+      error = function(e) {
+        openxlsx::removeWorksheet(wb, "Index-Criteria")
+        openxlsx::addWorksheet(wb, "Index-Criteria")
+      }
+    )
 
     # Set visibility
     sv <- openxlsx::sheetVisibility(wb)
@@ -2120,12 +2115,23 @@ TADA_DefineCriteriaMethodology <- function(
     # Determine actual save path
     save_path <- downloads_path
 
-    # If overwrite = F, and if CriteriaMethodology does not already exist
-    if (!isTRUE(overwrite) && file.exists(downloads_path)) {
-      base <- tools::file_path_sans_ext(downloads_path)
-      ext <- tools::file_ext(downloads_path)
-      ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
-      save_path <- sprintf("%s_%s.%s", base, ts, ext)
+    # If overwrite = F, check if original exists yet. If not, save it as an original and create a copy.
+    if (!isTRUE(overwrite)) {
+      if (!file.exists(downloads_path)){
+        openxlsx::activeSheet(wb) <- "DefineCriteriaMethodology"
+        openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
+        message(
+          "TADA_DefineCriteriaMethodology: ",
+          "overwrite = F selected but no original CriteriaMethodology.xlsx was found. Creating original version as well as a copy with timestamp."
+        )
+        wb <- openxlsx::loadWorkbook(downloads_path)
+      }
+      if (file.exists(downloads_path)){
+        base <- tools::file_path_sans_ext(downloads_path)
+        ext <- tools::file_ext(downloads_path)
+        ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
+        save_path <- sprintf("%s_%s.%s", base, ts, ext)
+      }
     }
 
     # Save current workbook structure first so file exists at final path

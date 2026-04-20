@@ -344,7 +344,7 @@ test_that("Excel output is written to temporary Downloads and DataDictionary can
   )
   expect_true(is.data.frame(res))
 
-  xlsx_path <- file.path(tmp, "Downloads", "myfileRef.xlsx")
+  xlsx_path <- file.path(tmp, "Downloads", "CriteriaMethodology.xlsx")
   expect_true(file.exists(xlsx_path))
 
   # Add DataDictionary to the same workbook
@@ -886,7 +886,7 @@ test_that("Excel save path uses timestamp when overwrite = FALSE", {
   )
   files <- list.files(
     file.path(tmp, "Downloads"),
-    pattern = "^myfileRef.*\\.xlsx$",
+    pattern = "^CriteriaMethodology.*\\.xlsx$",
     full.names = TRUE
   )
   expect_true(length(files) >= 2) # base + at least one timestamped copy
