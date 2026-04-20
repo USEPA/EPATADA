@@ -992,7 +992,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 #' If you have any trouble locating the file, please type the following into
 #' your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-#' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
+#' The file will be named "CriteriaCrosswalks.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
 #' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
@@ -1505,14 +1505,14 @@ TADA_ParametersForAnalysis <- function(
       Sys.getenv("USERPROFILE"),
       "OneDrive",
       "Downloads",
-      "myfileRef.xlsx"
+      "CriteriaCrosswalks.xlsx"
     )
 
     # Define the default Downloads path
     default_downloads_path <- file.path(
       Sys.getenv("USERPROFILE"),
       "Downloads",
-      "myfileRef.xlsx"
+      "CriteriaCrosswalks.xlsx"
     )
 
     # Check if the OneDrive Downloads path exists, and prioritize it
@@ -1872,7 +1872,7 @@ TADA_ParametersForAnalysis <- function(
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 #' If you have any trouble locating the file, please type the following into
 #' your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-#' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
+#' The file will be named "CriteriaCrosswalks.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
 #' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
@@ -2561,14 +2561,14 @@ TADA_UsesForAnalysis <- function(
       Sys.getenv("USERPROFILE"),
       "OneDrive",
       "Downloads",
-      "myfileRef.xlsx"
+      "CriteriaCrosswalks.xlsx"
     )
 
     # Define the default Downloads path
     default_downloads_path <- file.path(
       Sys.getenv("USERPROFILE"),
       "Downloads",
-      "myfileRef.xlsx"
+      "CriteriaCrosswalks.xlsx"
     )
 
     # Check if the OneDrive Downloads path exists, and prioritize it
@@ -2909,7 +2909,7 @@ TADA_UsesForAnalysis <- function(
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 #' If you have any trouble locating the file, please type the following into
 #' your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-#' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
+#' The file will be named "CriteriaCrosswalks.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
 #' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
@@ -3662,13 +3662,14 @@ TADA_AssignUsesToWaterType <- function(
 #' @param displayNA A boolean value. If TRUE, this allows user to view MLSummaryRef
 #' for all uses and parameter assigned to a ML or AU regardless if that site contains
 #' WQP data for that parameter. This is useful if a user is interested in an explicit
-#' list of everything that will be analyzed. Default is FALSE.
+#' list of parameters and uses for assessment and show NAs for sites without data.
+#' Default is FALSE.
 #'
 #' @param excel A Boolean value that returns an excel spreadsheet if
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 #' If you have any trouble locating the file, please type the following into
 #' your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-#' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
+#' The file will be named "CriteriaCrosswalks.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
 #' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
@@ -4200,14 +4201,14 @@ TADA_MLSummary <- function(
       Sys.getenv("USERPROFILE"),
       "OneDrive",
       "Downloads",
-      "myfileRef.xlsx"
+      "CriteriaCrosswalks.xlsx"
     )
 
     # Define the default Downloads path
     default_downloads_path <- file.path(
       Sys.getenv("USERPROFILE"),
       "Downloads",
-      "myfileRef.xlsx"
+      "CriteriaCrosswalks.xlsx"
     )
 
     # Check if the OneDrive Downloads path exists, and prioritize it

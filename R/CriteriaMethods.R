@@ -104,7 +104,7 @@
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 #' If you have any trouble locating the file, please type the following into
 #' your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-#' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
+#' The file will be named "CriteriaMethodology.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
 #' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
@@ -1420,7 +1420,7 @@ TADA_DefineCriteriaMethodology <- function(
   if (excel == TRUE) {
     # Excel ref files to be stored in the Downloads folder location.
     # Define the OneDrive Downloads path
-    get_downloads_path <- function(filename = "myfileRef.xlsx") {
+    get_downloads_path <- function(filename = "CriteriaMethodology.xlsx") {
       od_dir <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads")
       win_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
       base_dir <- if (dir.exists(od_dir)) od_dir else win_dir
@@ -1431,7 +1431,7 @@ TADA_DefineCriteriaMethodology <- function(
       file.path(base_dir, filename)
     }
 
-    downloads_path <- get_downloads_path("myfileRef.xlsx")
+    downloads_path <- get_downloads_path("CriteriaMethodology.xlsx")
 
     # If file does not yet exist, create the workbook and add a blank DefineCriteriaMethodology tab with a blank Index-Criteria tab
     if (!file.exists(downloads_path)) {
@@ -1462,7 +1462,7 @@ TADA_DefineCriteriaMethodology <- function(
     sv <- openxlsx::sheetVisibility(wb)
     sn <- names(wb)
 
-    idx_dcm <- which(sheets == "DefineCriteriaMethodology")
+    idx_dcm <- which(sn == "DefineCriteriaMethodology")
     if (length(idx_dcm) == 1) {
       sv[idx_dcm] <- "visible"
     }
@@ -2120,23 +2120,12 @@ TADA_DefineCriteriaMethodology <- function(
     # Determine actual save path
     save_path <- downloads_path
 
-    # If overwrite = F, and if myfileRef does not already exist
+    # If overwrite = F, and if CriteriaMethodology does not already exist
     if (!isTRUE(overwrite) && file.exists(downloads_path)) {
       base <- tools::file_path_sans_ext(downloads_path)
       ext <- tools::file_ext(downloads_path)
       ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
       save_path <- sprintf("%s_%s.%s", base, ts, ext)
-    }
-
-    if (!isTRUE(overwrite) && !file.exists(downloads_path)) {
-      message(
-        "TADA_DefineCriteriaMethodology: overwrite = FALSE was selected but you have not created myfileRef.xlsx yet. No duplicate excel file will be created in this run."
-      )
-    }
-
-    # Make "DefineCriteriaMethodology" the active sheet
-    if ("activeSheet" %in% getNamespaceExports("openxlsx")) {
-      openxlsx::activeSheet(wb) <- "DefineCriteriaMethodology"
     }
 
     # Save current workbook structure first so file exists at final path
@@ -2147,6 +2136,11 @@ TADA_DefineCriteriaMethodology <- function(
 
     # Reload the updated workbook so wb now includes those tabs
     wb <- openxlsx::loadWorkbook(save_path)
+
+    # Make "DefineCriteriaMethodology" the active sheet
+    if ("activeSheet" %in% getNamespaceExports("openxlsx")) {
+      openxlsx::activeSheet(wb) <- "DefineCriteriaMethodology"
+    }
 
     # now continue any remaining edits if needed, then final save
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
@@ -2171,7 +2165,7 @@ TADA_DefineCriteriaMethodology <- function(
 #' that runs automatically in TADA_DefineCriteriaMethodology
 #'
 #' @param downloads_path A character string to define the location of the
-#' 'myfileRef.xlsx' file to include the data dictionary to. Default is
+#' 'CriteriaMethodology.xlsx' file to include the data dictionary to. Default is
 #' null to find the path in the Downloads folder path.
 #'
 #' @return An excel data frame tab
@@ -2180,7 +2174,7 @@ TADA_DefineCriteriaMethodology <- function(
 #'
 TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
   if (is.null(downloads_path)) {
-    get_downloads_path <- function(filename = "myfileRef.xlsx") {
+    get_downloads_path <- function(filename = "CriteriaMethodology.xlsx") {
       od_dir <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads")
       win_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
       base_dir <- if (dir.exists(od_dir)) od_dir else win_dir
@@ -2189,7 +2183,7 @@ TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
       }
       file.path(base_dir, filename)
     }
-    downloads_path <- get_downloads_path("myfileRef.xlsx")
+    downloads_path <- get_downloads_path("CriteriaMethodology.xlsx")
   }
 
   if (!file.exists(downloads_path)) {
