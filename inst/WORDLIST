@@ -70,6 +70,8 @@ CreateComparableID
 CreatePairRef
 CreateUnitRef
 CreateWaterusesRef
+CriteriaCrosswalks
+CriteriaMethodology
 CriteriaMethods
 Cybertown
 DEV
@@ -506,7 +508,6 @@ maxrecs
 mimeType
 mlid
 mlt
-myfileRef
 nd
 nhd
 nhdplus

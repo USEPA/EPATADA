@@ -1090,7 +1090,7 @@ TADA_ParametersForAnalysis <- function(
       TADA.ComparableDataIdentifier = NA_character_
     )
 
-    ParamCrosswalk <- data.frame(
+    ParametersCrosswalk <- data.frame(
       TADA.ComparableDataIdentifier = character(0),
       ATTAINS.OrganizationIdentifier = character(0),
       ATTAINS.ParameterName = character(0),
@@ -1270,7 +1270,7 @@ TADA_ParametersForAnalysis <- function(
 
     # If no paramRef is provided, the ATTAINS.ParameterName returns a blank column of NA that will need user input.
     if (tolower(auto_assign) == tolower("None")) {
-      ParamCrosswalk <- TADA_param |>
+      ParametersCrosswalk <- TADA_param |>
         dplyr::mutate(ATTAINS.ParameterName = as.character(NA)) |>
         dplyr::select(
           TADA.ComparableDataIdentifier,
@@ -1290,8 +1290,8 @@ TADA_ParametersForAnalysis <- function(
 
     if (tolower(auto_assign) == tolower("All")) {
       message(paste0(
-        "TADA_ParametersForAnalysis: auto_assign == 'All' was selected, ",
-        "finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+        "TADA_ParametersForAnalysis: auto_assign == 'All' was selected,
+  finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
       TADACharAliasRef <- utils::read.csv(system.file(
         "extdata",
@@ -1304,7 +1304,7 @@ TADA_ParametersForAnalysis <- function(
           ATTAINS.ParameterName %in% ATTAINSParamUseOrgRef$ATTAINS.ParameterName
         )
 
-      ParamCrosswalk <- TADA_param |>
+      ParametersCrosswalk <- TADA_param |>
         dplyr::mutate(ATTAINS.ParameterName = as.character(NA)) |>
         dplyr::select(
           TADA.CharacteristicName,
@@ -1373,7 +1373,7 @@ TADA_ParametersForAnalysis <- function(
           ATTAINS.ParameterName %in% ATTAINS_param$ATTAINS.ParameterName
         )
 
-      ParamCrosswalk <- TADA_param |>
+      ParametersCrosswalk <- TADA_param |>
         dplyr::mutate(ATTAINS.ParameterName = as.character(NA)) |>
         dplyr::select(
           TADA.CharacteristicName,
@@ -1449,7 +1449,7 @@ TADA_ParametersForAnalysis <- function(
         ) |>
         dplyr::filter(!is.na(ATTAINS.ParameterName))
 
-      ParamCrosswalk <- ParamCrosswalk |>
+      ParametersCrosswalk <- ParametersCrosswalk |>
         dplyr::select(
           ATTAINS.OrganizationIdentifier,
           TADA.ComparableDataIdentifier,
@@ -1527,10 +1527,10 @@ TADA_ParametersForAnalysis <- function(
     )
 
     tryCatch(
-      openxlsx::addWorksheet(wb, "ParamCrosswalk"),
+      openxlsx::addWorksheet(wb, "ParametersCrosswalk"),
       error = function(e) {
-        openxlsx::removeWorksheet(wb, "ParamCrosswalk")
-        openxlsx::addWorksheet(wb, "ParamCrosswalk")
+        openxlsx::removeWorksheet(wb, "ParametersCrosswalk")
+        openxlsx::addWorksheet(wb, "ParametersCrosswalk")
       }
     )
    
@@ -1546,7 +1546,7 @@ TADA_ParametersForAnalysis <- function(
     sv <- openxlsx::sheetVisibility(wb)
     sn <- names(wb)
     
-    idx_dcm <- which(sn == "ParamCrosswalk")
+    idx_dcm <- which(sn == "ParametersCrosswalk")
     if (length(idx_dcm) == 1) {
       sv[idx_dcm] <- "visible"
     }
@@ -1564,7 +1564,7 @@ TADA_ParametersForAnalysis <- function(
     openxlsx::sheetVisibility(wb) <- sv    # Excel ref files to be stored in the Downloads folder location.
 
     # Print message if there are many combinations of TADA Characteristic as it may slow run time.
-    n <- nrow(ParamCrosswalk)
+    n <- nrow(ParametersCrosswalk)
     if (n > 100 & excel == TRUE) {
       message(paste(
         "There are",
@@ -1602,8 +1602,8 @@ TADA_ParametersForAnalysis <- function(
     # Format Column widths
     openxlsx::setColWidths(
       wb,
-      "ParamCrosswalk",
-      cols = 1:ncol(ParamCrosswalk),
+      "ParametersCrosswalk",
+      cols = 1:ncol(ParametersCrosswalk),
       widths = "auto"
     )
 
@@ -1646,7 +1646,7 @@ TADA_ParametersForAnalysis <- function(
       wb,
       "Index",
       startCol = 2,
-      x = ParamCrosswalk[, c("ATTAINS.ParameterName", "Flag.ParameterInput")]
+      x = ParametersCrosswalk[, c("ATTAINS.ParameterName", "Flag.ParameterInput")]
     )
 
     openxlsx::writeData(
@@ -1660,9 +1660,9 @@ TADA_ParametersForAnalysis <- function(
 
     openxlsx::writeData(
       wb,
-      "ParamCrosswalk",
+      "ParametersCrosswalk",
       startCol = 1,
-      x = ParamCrosswalk,
+      x = ParametersCrosswalk,
       headerStyle = header_st
     )
 
@@ -1675,7 +1675,7 @@ TADA_ParametersForAnalysis <- function(
       headerStyle = header_st
     )
 
-    # The list of allowable values for each column in excel tab [ParamCrosswalk] will be defined by the [Index] tab
+    # The list of allowable values for each column in excel tab [ParametersCrosswalk] will be defined by the [Index] tab
 
     # Note: If we make edits to the data validation, please ensure the entire
     # data frame column is being referenced.
@@ -1683,7 +1683,7 @@ TADA_ParametersForAnalysis <- function(
 
     suppressWarnings(openxlsx::dataValidation(
       wb,
-      sheet = "ParamCrosswalk",
+      sheet = "ParametersCrosswalk",
       cols = 3,
       rows = 2:1000,
       type = "list",
@@ -1698,7 +1698,7 @@ TADA_ParametersForAnalysis <- function(
 
     max_loops <- 0
 
-    for (i in 1:nrow(ParamCrosswalk)) {
+    for (i in 1:nrow(ParametersCrosswalk)) {
       max_loops <- max_loops + 1
       if (max_loops > 100) {
         break
@@ -1706,7 +1706,7 @@ TADA_ParametersForAnalysis <- function(
 
       openxlsx::writeFormula(
         wb,
-        "ParamCrosswalk",
+        "ParametersCrosswalk",
         startCol = 4,
         startRow = i + 1,
         array = TRUE,
@@ -1732,7 +1732,7 @@ TADA_ParametersForAnalysis <- function(
 
       openxlsx::writeFormula(
         wb,
-        "ParamCrosswalk",
+        "ParametersCrosswalk",
         startCol = 5,
         startRow = i + 1,
         array = TRUE,
@@ -1750,18 +1750,18 @@ TADA_ParametersForAnalysis <- function(
 
     openxlsx::conditionalFormatting(
       wb,
-      "ParamCrosswalk",
+      "ParametersCrosswalk",
       cols = 3,
-      rows = 1:nrow(ParamCrosswalk) + 1,
+      rows = 1:nrow(ParametersCrosswalk) + 1,
       type = "blanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     )
 
     openxlsx::conditionalFormatting(
       wb,
-      "ParamCrosswalk",
+      "ParametersCrosswalk",
       cols = 3,
-      rows = 1:nrow(ParamCrosswalk) + 1,
+      rows = 1:nrow(ParametersCrosswalk) + 1,
       type = "notBlanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     )
@@ -1769,9 +1769,9 @@ TADA_ParametersForAnalysis <- function(
     # If a user has chose to Exclude a use name for a parameter, flag as a red cell.
     openxlsx::conditionalFormatting(
       wb,
-      "ParamCrosswalk",
+      "ParametersCrosswalk",
       cols = 3,
-      rows = 1:nrow(ParamCrosswalk) + 1,
+      rows = 1:nrow(ParametersCrosswalk) + 1,
       type = "contains",
       rule = c("Not Applicable for Analysis."),
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
@@ -1780,11 +1780,11 @@ TADA_ParametersForAnalysis <- function(
     # remove intermediate objects
     rm(max_loops)
 
-    # Format column widths in ParamCrosswalk - for future considerations of formatting
+    # Format column widths in ParametersCrosswalk - for future considerations of formatting
     openxlsx::setColWidths(
       wb,
-      "ParamCrosswalk",
-      cols = 1:ncol(ParamCrosswalk) + 2,
+      "ParametersCrosswalk",
+      cols = 1:ncol(ParametersCrosswalk) + 2,
       widths = "auto"
     )
 
@@ -1794,11 +1794,11 @@ TADA_ParametersForAnalysis <- function(
     # If overwrite = F, check if original exists yet. If not, save it as an original and create a copy.
     if (!isTRUE(overwrite)) {
       if (!file.exists(downloads_path)){
-        openxlsx::activeSheet(wb) <- "ParamCrosswalk"
+        openxlsx::activeSheet(wb) <- "ParametersCrosswalk"
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
         message(
-          "TADA_ParametersForAnalysis: ",
-          "overwrite = F selected but no original CriteriaCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
+          "TADA_ParametersForAnalysis: 
+  overwrite = F selected but no original CriteriaCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
           )
         wb <- openxlsx::loadWorkbook(downloads_path)
       }
@@ -1818,7 +1818,7 @@ TADA_ParametersForAnalysis <- function(
     
     # Make "DefineCriteriaMethodology" the active sheet
     if ("activeSheet" %in% getNamespaceExports("openxlsx")) {
-      openxlsx::activeSheet(wb) <- "ParamCrosswalk"
+      openxlsx::activeSheet(wb) <- "ParametersCrosswalk"
     }
     
     # now continue any remaining edits if needed, then final save
@@ -1830,7 +1830,7 @@ TADA_ParametersForAnalysis <- function(
     
     cat("File saved to:", gsub("/", "\\\\", save_path), "\n")
   }
-  return(ParamCrosswalk)
+  return(ParametersCrosswalk)
 }
 
 #' Create or Update ATTAINS Parameter and Use crosswalk
@@ -2016,7 +2016,7 @@ TADA_UsesForAnalysis <- function(
       "All arguments are blank, returning an empty dataframe with column names only."
     )
 
-    CreateUsesRef <- data.frame(
+    UsesCrosswalk <- data.frame(
       TADA.ComparableDataIdentifier = character(0),
       ATTAINS.OrganizationIdentifier = character(0),
       ATTAINS.ParameterName = character(0),
@@ -2282,7 +2282,7 @@ TADA_UsesForAnalysis <- function(
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
 
     # Create the parameter-use reference table for validation
-    CreateUsesRef <- paramRef |>
+    UsesCrosswalk <- paramRef |>
       dplyr::left_join(
         ATTAINS_param,
         by = c("ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier"),
@@ -2345,7 +2345,7 @@ TADA_UsesForAnalysis <- function(
           dplyr::distinct()
       }
 
-      CreateUsesRef_temp <- CreateUsesRef |>
+      UsesCrosswalk_temp <- UsesCrosswalk |>
         dplyr::filter(is.na(ATTAINS.UseName)) |>
         dplyr::left_join(
           use.names,
@@ -2364,11 +2364,11 @@ TADA_UsesForAnalysis <- function(
         dplyr::mutate(IncludeOrExclude = "Include") |>
         dplyr::mutate(Flag.UseInput = "This row was MODIFIED by your input(s).")
 
-      CreateUsesRef <- CreateUsesRef |>
+      UsesCrosswalk <- UsesCrosswalk |>
         # dplyr::select(TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.OrganizationIdentifier) |>
         dplyr::filter(!is.na(ATTAINS.UseName)) |>
         dplyr::full_join(
-          CreateUsesRef_temp,
+          UsesCrosswalk_temp,
           by = c(
             "ATTAINS.ParameterName",
             "ATTAINS.UseName",
@@ -2485,7 +2485,7 @@ TADA_UsesForAnalysis <- function(
       # identifies if a user has excluded any useParam rows. This row is showing up as a new entry but has not been defined.
       # This should flag users that they need to review this entry and if they
       # truly want to exclude it or not. What should the default be?
-      Flag1 <- CreateUsesRef |>
+      Flag1 <- UsesCrosswalk |>
         dplyr::anti_join(
           usesRef,
           by = c(
@@ -2503,7 +2503,7 @@ TADA_UsesForAnalysis <- function(
       # identifies if a user has MODIFIED any useParam rows.
       Flag2 <- usesRef |>
         dplyr::anti_join(
-          CreateUsesRef,
+          UsesCrosswalk,
           by = c(
             "TADA.ComparableDataIdentifier",
             "ATTAINS.OrganizationIdentifier",
@@ -2523,7 +2523,7 @@ TADA_UsesForAnalysis <- function(
           "ATTAINS.UseName"
         )
 
-      CreateUsesRef <- usesRef |>
+      UsesCrosswalk <- usesRef |>
         dplyr::select(
           "TADA.ComparableDataIdentifier",
           "ATTAINS.OrganizationIdentifier",
@@ -2620,54 +2620,83 @@ TADA_UsesForAnalysis <- function(
     rm(ATTAINS_param)
   }
   if (excel == TRUE) {
+    # Excel ref files to be stored in the Downloads folder location.
     # Define the OneDrive Downloads path
-    onedrive_downloads_path <- file.path(
-      Sys.getenv("USERPROFILE"),
-      "OneDrive",
-      "Downloads",
-      "CriteriaCrosswalks.xlsx"
-    )
-
-    # Define the default Downloads path
-    default_downloads_path <- file.path(
-      Sys.getenv("USERPROFILE"),
-      "Downloads",
-      "CriteriaCrosswalks.xlsx"
-    )
-
-    # Check if the OneDrive Downloads path exists, and prioritize it
-    if (file.exists(onedrive_downloads_path)) {
-      downloads_path <- onedrive_downloads_path
-    } else {
-      downloads_path <- default_downloads_path
+    get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
+      od_dir <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads")
+      win_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
+      base_dir <- if (dir.exists(od_dir)) od_dir else win_dir
+      if (!dir.exists(base_dir)) {
+        # cross-platform fallback
+        base_dir <- path.expand("~/Downloads")
+      }
+      file.path(base_dir, filename)
     }
+
+    downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
 
     # Create workbook if it doesn't exist (seed Index with Include/Exclude list)
     if (!file.exists(downloads_path)) {
-      wb <- openxlsx::createWorkbook()
-      openxlsx::addWorksheet(wb, "Index", visible = FALSE)
-      openxlsx::writeData(
-        wb,
-        "Index",
-        startCol = 9,
-        x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
+      message(
+        "TADA_UsesForAnalysis:
+  CriteriaCrosswalks.xlsx does not exist yet. Generating the excel file using your paramRef input (or NULL input if generating a blank sheet)."
       )
-      openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
+      if (!isTRUE(overwrite)) {
+        message(
+          "TADA_UsesForAnalysis:
+  overwrite = F selected, creating original version as well as a copy with timestamp."
+        )
+      }
+      # if no file exists yet, use the paramRef as the input from this function to generate the paramRef tabs from TADA_ParametersForAnalysis
+      # but if generating a blank file, run TADA_ParametersForAnalysis with no inputs
+      if (missing(paramRef)) {
+        TADA_ParametersForAnalysis(
+          excel = excel,
+          overwrite = T
+        )
+      } 
+      if (!missing(paramRef)) {
+        TADA_ParametersForAnalysis(
+          .data = .data,
+          org_id = org_id,
+          paramRef = paramRef,
+          AUMLRef = AUMLRef,
+          auto_assign = "All", # this input shouldn't matter if the user supplies a paramRef
+          excel = excel,
+          overwrite = T # to avoid creating two duplicate timestamp files.
+        )
+      }
     }
 
     # Load or reuse workbook
     wb <- openxlsx::loadWorkbook(downloads_path)
 
-    # Ensure Index sheet exists and has Include/Exclude list at column I
-    if (!"Index" %in% openxlsx::sheets(wb)) {
-      openxlsx::addWorksheet(wb, "Index", visible = FALSE)
-    }
-    openxlsx::writeData(
-      wb,
-      "Index",
-      startCol = 9,
-      x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
+    # if the sheets exist, remove them then re-add them. Must do so to avoid stacking data validation rules.
+    tryCatch(
+      {
+        openxlsx::addWorksheet(wb, "UsesCrosswalk")
+      },
+      error = function(e) {
+        openxlsx::removeWorksheet(wb, "UsesCrosswalk")
+        openxlsx::addWorksheet(wb, "UsesCrosswalk")
+      }
     )
+    
+    # Set visibility
+    sv <- openxlsx::sheetVisibility(wb)
+    sn <- names(wb)
+    
+    idx_dcm <- which(sn == "UsesCrosswalk")
+    if (length(idx_dcm) == 1) {
+      sv[idx_dcm] <- "visible"
+    }
+    
+    idx_ic <- which(sn == "Index")
+    if (length(idx_ic) == 1) {
+      sv[idx_ic] <- "hidden"
+    }
+    
+    openxlsx::sheetVisibility(wb) <- sv
 
     # Ensure the ATTAINS.PriorOrgParamUseRef sheet exists and contains
     # org-filtered parameter and use names in the expected columns:
@@ -2710,17 +2739,6 @@ TADA_UsesForAnalysis <- function(
       x = ATTAINS_param
     )
 
-    # If a user reruns, re-create CreateUsesRef sheet
-    tryCatch(
-      {
-        openxlsx::addWorksheet(wb, "CreateUsesRef")
-      },
-      error = function(e) {
-        openxlsx::removeWorksheet(wb, "CreateUsesRef")
-        openxlsx::addWorksheet(wb, "CreateUsesRef")
-      }
-    )
-
     # Set zoom on all sheets (guarded)
     set_zoom <- function(x) {
       if (!is.null(sV)) {
@@ -2738,20 +2756,12 @@ TADA_UsesForAnalysis <- function(
     # Format header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
 
-    # Column widths
-    openxlsx::setColWidths(
-      wb,
-      "CreateUsesRef",
-      cols = 1:ncol(CreateUsesRef),
-      widths = "auto"
-    )
-
-    # Write CreateUsesRef to sheet
+    # Write UsesCrosswalk to sheet
     openxlsx::writeData(
       wb,
-      "CreateUsesRef",
+      "UsesCrosswalk",
       startCol = 1,
-      x = CreateUsesRef,
+      x = UsesCrosswalk,
       headerStyle = header_st
     )
 
@@ -2760,17 +2770,25 @@ TADA_UsesForAnalysis <- function(
       wb,
       "Index",
       startCol = 7,
-      x = CreateUsesRef[, c("ATTAINS.FlagUseName", "Flag.UseInput")]
+      x = UsesCrosswalk[, c("ATTAINS.FlagUseName", "Flag.UseInput")]
     )
 
-    # Data validation for ATTAINS.UseName (column 4) from ATTAINS.PriorOrgParamUseRef column E
+    # Index: IncludeOrExclude column added to the sheet.
+    openxlsx::writeData(
+      wb,
+      "Index",
+      startCol = 9,
+      x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
+    )
+   
+    # Data validation for ATTAINS.UseName (column 4) from ATTAINS.PriorOrgParamUseRef column D
     suppressWarnings(openxlsx::dataValidation(
       wb,
-      sheet = "CreateUsesRef",
+      sheet = "UsesCrosswalk",
       cols = 4,
       rows = 2:10000,
       type = "list",
-      value = "'ATTAINS.PriorOrgParamUseRef'!$E$2:$E$50000",
+      value = "'ATTAINS.PriorOrgParamUseRef'!$D$2:$D$50000",
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
@@ -2779,7 +2797,7 @@ TADA_UsesForAnalysis <- function(
     # Data validation for IncludeOrExclude (column 5) from Index column I
     suppressWarnings(openxlsx::dataValidation(
       wb,
-      sheet = "CreateUsesRef",
+      sheet = "UsesCrosswalk",
       cols = 5,
       rows = 2:10000,
       type = "list",
@@ -2790,12 +2808,12 @@ TADA_UsesForAnalysis <- function(
     ))
 
     # Write formulas for ATTAINS.FlagUseName (col 6) and Flag.UseInput (col 7)
-    max_loops <- min(nrow(CreateUsesRef), 100L)
+    max_loops <- min(nrow(UsesCrosswalk), 100L)
     for (i in 1:max_loops) {
       # F (col 6): ATTAINS.FlagUseName
       openxlsx::writeFormula(
         wb,
-        "CreateUsesRef",
+        "UsesCrosswalk",
         startCol = 6,
         startRow = i + 1,
         array = TRUE,
@@ -2828,7 +2846,7 @@ TADA_UsesForAnalysis <- function(
       # G (col 7): Flag.UseInput
       openxlsx::writeFormula(
         wb,
-        "CreateUsesRef",
+        "UsesCrosswalk",
         startCol = 7,
         startRow = i + 1,
         array = TRUE,
@@ -2847,17 +2865,17 @@ TADA_UsesForAnalysis <- function(
     # Conditional formatting for UseName column (D=4)
     openxlsx::conditionalFormatting(
       wb,
-      "CreateUsesRef",
+      "UsesCrosswalk",
       cols = 4,
-      rows = 1:nrow(CreateUsesRef) + 1,
+      rows = 1:nrow(UsesCrosswalk) + 1,
       type = "blanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     )
     openxlsx::conditionalFormatting(
       wb,
-      "CreateUsesRef",
+      "UsesCrosswalk",
       cols = 4,
-      rows = 1:nrow(CreateUsesRef) + 1,
+      rows = 1:nrow(UsesCrosswalk) + 1,
       type = "notBlanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     )
@@ -2865,36 +2883,75 @@ TADA_UsesForAnalysis <- function(
     # Conditional formatting for IncludeOrExclude column (E=5)
     openxlsx::conditionalFormatting(
       wb,
-      "CreateUsesRef",
+      "UsesCrosswalk",
       cols = 5,
-      rows = 1:nrow(CreateUsesRef) + 1,
+      rows = 1:nrow(UsesCrosswalk) + 1,
       type = "contains",
       rule = "Exclude",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     )
     openxlsx::conditionalFormatting(
       wb,
-      "CreateUsesRef",
+      "UsesCrosswalk",
       cols = 5,
-      rows = 1:nrow(CreateUsesRef) + 1,
+      rows = 1:nrow(UsesCrosswalk) + 1,
       type = "contains",
       rule = "Include",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     )
 
-    # Save workbook
-    if (overwrite == TRUE) {
-      openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
-    } else {
-      warning(
-        "If you would like to replace [CreateUsesRef], use overwrite = TRUE in TADA_UsesForAnalysis"
-      )
-      openxlsx::saveWorkbook(wb, downloads_path, overwrite = FALSE)
-    }
+    # Column widths
+    openxlsx::setColWidths(
+      wb,
+      "UsesCrosswalk",
+      cols = 1:ncol(UsesCrosswalk) + 2,
+      widths = "auto"
+    )
 
-    cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
+    # Determine actual save path
+    save_path <- downloads_path
+    
+    # If overwrite = F, check if original exists yet. If not, save it as an original and create a copy.
+    # Note: file should always exist now at this point. See beginning of excel = T in this function for this file generation.
+    if (!isTRUE(overwrite)) {
+      if (!file.exists(downloads_path)){
+        openxlsx::activeSheet(wb) <- "UsesCrosswalk"
+        openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
+        message(
+          "TADA_UsesForAnalysis: ",
+          "overwrite = F selected but no original CriteriaCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
+        )
+        wb <- openxlsx::loadWorkbook(downloads_path)
+      }
+      if (file.exists(downloads_path)){
+        base <- tools::file_path_sans_ext(downloads_path)
+        ext <- tools::file_ext(downloads_path)
+        ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
+        save_path <- sprintf("%s_%s.%s", base, ts, ext)
+      }
+    }
+    
+    # Save current workbook structure first so file exists at final path
+    openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
+    
+    # Reload the updated workbook so wb now includes those tabs
+    wb <- openxlsx::loadWorkbook(save_path)
+    
+    # Make "DefineCriteriaMethodology" the active sheet
+    if ("activeSheet" %in% getNamespaceExports("openxlsx")) {
+      openxlsx::activeSheet(wb) <- "UsesCrosswalk"
+    }
+    
+    # now continue any remaining edits if needed, then final save
+    openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
+    
+    if (!overwrite && save_path != downloads_path) {
+      message("Saved as: ", save_path)
+    }
+    
+    cat("File saved to:", gsub("/", "\\\\", save_path), "\n")
   }
-  return(CreateUsesRef)
+  return(UsesCrosswalk)
 }
 
 #' ATTAINS Assessment Unit and Use Name Crosswalk

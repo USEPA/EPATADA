@@ -156,3 +156,61 @@ testthat::test_that("TADA_DefineCriteriaMethodology ", {
         length(unique(Criteria_autofill$TADA.CharacteristicName))
   )
 })
+
+test_that("Excel file generation works correctly with overwrite = F in TADA_UsesForAnalysis when the CriteriaCrosswalks.xlsx does not exist yet.", {
+  get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
+    od_dir <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads")
+    win_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
+    base_dir <- if (dir.exists(od_dir)) od_dir else win_dir
+    if (!dir.exists(base_dir)) {
+      # cross-platform fallback
+      base_dir <- path.expand("~/Downloads")
+    }
+    file.path(base_dir, filename)
+  }
+  
+  downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
+  
+  # 1. Remove the file if it already exists
+  if (file.exists(downloads_path)) {
+    file.remove(downloads_path)
+  }
+  
+  # 2. Run the function being tested (example: writing a dataframe to Excel)
+  paramTest <- TADA_ParametersForAnalysis(Data_MT_MissoulaCounty, org_id = "MTDEQ")
+  usesTest <- TADA_UsesForAnalysis(Data_MT_MissoulaCounty, org_id = "MTDEQ", paramRef = paramTest, excel = T, overwrite = F)
+  # 3. Assertions
+  expect_true(file.exists(downloads_path))
+  
+  # Optional: Clean up after test completes
+  on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
+})
+
+test_that("Excel file generation works correctly with overwrite = T in TADA_UsesForAnalysis when the CriteriaCrosswalks.xlsx does not exist yet.", {
+  get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
+    od_dir <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads")
+    win_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
+    base_dir <- if (dir.exists(od_dir)) od_dir else win_dir
+    if (!dir.exists(base_dir)) {
+      # cross-platform fallback
+      base_dir <- path.expand("~/Downloads")
+    }
+    file.path(base_dir, filename)
+  }
+  
+  downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
+  
+  # 1. Remove the file if it already exists
+  if (file.exists(downloads_path)) {
+    file.remove(downloads_path)
+  }
+  
+  # 2. Run the function being tested (example: writing a dataframe to Excel)
+  paramTest <- TADA_ParametersForAnalysis(Data_MT_MissoulaCounty, org_id = "MTDEQ")
+  usesTest <- TADA_UsesForAnalysis(Data_MT_MissoulaCounty, org_id = "MTDEQ", paramRef = paramTest, excel = T, overwrite = T)
+  # 3. Assertions
+  expect_true(file.exists(downloads_path))
+  
+  # Optional: Clean up after test completes
+  on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
+})
