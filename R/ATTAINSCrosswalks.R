@@ -1511,12 +1511,12 @@ TADA_ParametersForAnalysis <- function(
       }
       file.path(base_dir, filename)
     }
-    
+
     downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
 
     # create a brand new workbook and decide on save path at the end.
     wb <- openxlsx::createWorkbook()
-    
+
     # if the sheets exist, remove them then re-add them. Must do so to avoid stacking data validation rules.
     tryCatch(
       openxlsx::addWorksheet(wb, "ATTAINS.PriorOrgParamUseRef"),
@@ -1533,19 +1533,16 @@ TADA_ParametersForAnalysis <- function(
         openxlsx::addWorksheet(wb, "ParametersCrosswalk")
       }
     )
-   
-    tryCatch(
-      openxlsx::addWorksheet(wb, "Index"),
-      error = function(e) {
-        openxlsx::removeWorksheet(wb, "Index")
-        openxlsx::addWorksheet(wb, "Index")
-      }
-    )
-    
+
+    tryCatch(openxlsx::addWorksheet(wb, "Index"), error = function(e) {
+      openxlsx::removeWorksheet(wb, "Index")
+      openxlsx::addWorksheet(wb, "Index")
+    })
+
     # Set visibility
     sv <- openxlsx::sheetVisibility(wb)
     sn <- names(wb)
-    
+
     idx_dcm <- which(sn == "ParametersCrosswalk")
     if (length(idx_dcm) == 1) {
       sv[idx_dcm] <- "visible"
@@ -1560,8 +1557,8 @@ TADA_ParametersForAnalysis <- function(
     if (length(idx_ic) == 1) {
       sv[idx_ic] <- "visible"
     }
-    
-    openxlsx::sheetVisibility(wb) <- sv    # Excel ref files to be stored in the Downloads folder location.
+
+    openxlsx::sheetVisibility(wb) <- sv # Excel ref files to be stored in the Downloads folder location.
 
     # Print message if there are many combinations of TADA Characteristic as it may slow run time.
     n <- nrow(ParametersCrosswalk)
@@ -1646,7 +1643,10 @@ TADA_ParametersForAnalysis <- function(
       wb,
       "Index",
       startCol = 2,
-      x = ParametersCrosswalk[, c("ATTAINS.ParameterName", "Flag.ParameterInput")]
+      x = ParametersCrosswalk[, c(
+        "ATTAINS.ParameterName",
+        "Flag.ParameterInput"
+      )]
     )
 
     openxlsx::writeData(
@@ -1790,44 +1790,44 @@ TADA_ParametersForAnalysis <- function(
 
     # Determine actual save path
     save_path <- downloads_path
-    
+
     # If overwrite = F, check if original exists yet. If not, save it as an original and create a copy.
     if (!isTRUE(overwrite)) {
-      if (!file.exists(downloads_path)){
+      if (!file.exists(downloads_path)) {
         openxlsx::activeSheet(wb) <- "ParametersCrosswalk"
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
         message(
           "TADA_ParametersForAnalysis: 
   overwrite = F selected but no original CriteriaCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
-          )
+        )
         wb <- openxlsx::loadWorkbook(downloads_path)
       }
-      if (file.exists(downloads_path)){
+      if (file.exists(downloads_path)) {
         base <- tools::file_path_sans_ext(downloads_path)
         ext <- tools::file_ext(downloads_path)
         ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
         save_path <- sprintf("%s_%s.%s", base, ts, ext)
       }
     }
-    
+
     # Save current workbook structure first so file exists at final path
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
 
     # Reload the updated workbook so wb now includes those tabs
     wb <- openxlsx::loadWorkbook(save_path)
-    
+
     # Make "DefineCriteriaMethodology" the active sheet
     if ("activeSheet" %in% getNamespaceExports("openxlsx")) {
       openxlsx::activeSheet(wb) <- "ParametersCrosswalk"
     }
-    
+
     # now continue any remaining edits if needed, then final save
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
-    
+
     if (!overwrite && save_path != downloads_path) {
       message("Saved as: ", save_path)
     }
-    
+
     cat("File saved to:", gsub("/", "\\\\", save_path), "\n")
   }
   return(ParametersCrosswalk)
@@ -2650,11 +2650,8 @@ TADA_UsesForAnalysis <- function(
       # if no file exists yet, use the paramRef as the input from this function to generate the paramRef tabs from TADA_ParametersForAnalysis
       # but if generating a blank file, run TADA_ParametersForAnalysis with no inputs
       if (missing(paramRef)) {
-        TADA_ParametersForAnalysis(
-          excel = excel,
-          overwrite = T
-        )
-      } 
+        TADA_ParametersForAnalysis(excel = excel, overwrite = T)
+      }
       if (!missing(paramRef)) {
         TADA_ParametersForAnalysis(
           .data = .data,
@@ -2681,21 +2678,21 @@ TADA_UsesForAnalysis <- function(
         openxlsx::addWorksheet(wb, "UsesCrosswalk")
       }
     )
-    
+
     # Set visibility
     sv <- openxlsx::sheetVisibility(wb)
     sn <- names(wb)
-    
+
     idx_dcm <- which(sn == "UsesCrosswalk")
     if (length(idx_dcm) == 1) {
       sv[idx_dcm] <- "visible"
     }
-    
+
     idx_ic <- which(sn == "Index")
     if (length(idx_ic) == 1) {
       sv[idx_ic] <- "hidden"
     }
-    
+
     openxlsx::sheetVisibility(wb) <- sv
 
     # Ensure the ATTAINS.PriorOrgParamUseRef sheet exists and contains
@@ -2780,7 +2777,7 @@ TADA_UsesForAnalysis <- function(
       startCol = 9,
       x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
     )
-   
+
     # Data validation for ATTAINS.UseName (column 4) from ATTAINS.PriorOrgParamUseRef column D
     suppressWarnings(openxlsx::dataValidation(
       wb,
@@ -2910,11 +2907,11 @@ TADA_UsesForAnalysis <- function(
 
     # Determine actual save path
     save_path <- downloads_path
-    
+
     # If overwrite = F, check if original exists yet. If not, save it as an original and create a copy.
     # Note: file should always exist now at this point. See beginning of excel = T in this function for this file generation.
     if (!isTRUE(overwrite)) {
-      if (!file.exists(downloads_path)){
+      if (!file.exists(downloads_path)) {
         openxlsx::activeSheet(wb) <- "UsesCrosswalk"
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
         message(
@@ -2923,32 +2920,32 @@ TADA_UsesForAnalysis <- function(
         )
         wb <- openxlsx::loadWorkbook(downloads_path)
       }
-      if (file.exists(downloads_path)){
+      if (file.exists(downloads_path)) {
         base <- tools::file_path_sans_ext(downloads_path)
         ext <- tools::file_ext(downloads_path)
         ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
         save_path <- sprintf("%s_%s.%s", base, ts, ext)
       }
     }
-    
+
     # Save current workbook structure first so file exists at final path
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
-    
+
     # Reload the updated workbook so wb now includes those tabs
     wb <- openxlsx::loadWorkbook(save_path)
-    
+
     # Make "DefineCriteriaMethodology" the active sheet
     if ("activeSheet" %in% getNamespaceExports("openxlsx")) {
       openxlsx::activeSheet(wb) <- "UsesCrosswalk"
     }
-    
+
     # now continue any remaining edits if needed, then final save
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
-    
+
     if (!overwrite && save_path != downloads_path) {
       message("Saved as: ", save_path)
     }
-    
+
     cat("File saved to:", gsub("/", "\\\\", save_path), "\n")
   }
   return(UsesCrosswalk)

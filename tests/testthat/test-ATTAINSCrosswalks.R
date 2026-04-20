@@ -168,20 +168,29 @@ test_that("Excel file generation works correctly with overwrite = F in TADA_Uses
     }
     file.path(base_dir, filename)
   }
-  
+
   downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
-  
+
   # 1. Remove the file if it already exists
   if (file.exists(downloads_path)) {
     file.remove(downloads_path)
   }
-  
+
   # 2. Run the function being tested (example: writing a dataframe to Excel)
-  paramTest <- TADA_ParametersForAnalysis(Data_MT_MissoulaCounty, org_id = "MTDEQ")
-  usesTest <- TADA_UsesForAnalysis(Data_MT_MissoulaCounty, org_id = "MTDEQ", paramRef = paramTest, excel = T, overwrite = F)
+  paramTest <- TADA_ParametersForAnalysis(
+    Data_MT_MissoulaCounty,
+    org_id = "MTDEQ"
+  )
+  usesTest <- TADA_UsesForAnalysis(
+    Data_MT_MissoulaCounty,
+    org_id = "MTDEQ",
+    paramRef = paramTest,
+    excel = T,
+    overwrite = F
+  )
   # 3. Assertions
   expect_true(file.exists(downloads_path))
-  
+
   # Optional: Clean up after test completes
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
@@ -197,20 +206,29 @@ test_that("Excel file generation works correctly with overwrite = T in TADA_Uses
     }
     file.path(base_dir, filename)
   }
-  
+
   downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
-  
+
   # 1. Remove the file if it already exists
   if (file.exists(downloads_path)) {
     file.remove(downloads_path)
   }
-  
+
   # 2. Run the function being tested (example: writing a dataframe to Excel)
-  paramTest <- TADA_ParametersForAnalysis(Data_MT_MissoulaCounty, org_id = "MTDEQ")
-  usesTest <- TADA_UsesForAnalysis(Data_MT_MissoulaCounty, org_id = "MTDEQ", paramRef = paramTest, excel = T, overwrite = T)
+  paramTest <- TADA_ParametersForAnalysis(
+    Data_MT_MissoulaCounty,
+    org_id = "MTDEQ"
+  )
+  usesTest <- TADA_UsesForAnalysis(
+    Data_MT_MissoulaCounty,
+    org_id = "MTDEQ",
+    paramRef = paramTest,
+    excel = T,
+    overwrite = T
+  )
   # 3. Assertions
   expect_true(file.exists(downloads_path))
-  
+
   # Optional: Clean up after test completes
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })

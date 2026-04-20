@@ -1445,13 +1445,10 @@ TADA_DefineCriteriaMethodology <- function(
       }
     )
 
-    tryCatch(
-      openxlsx::addWorksheet(wb, "Index-Criteria"),
-      error = function(e) {
-        openxlsx::removeWorksheet(wb, "Index-Criteria")
-        openxlsx::addWorksheet(wb, "Index-Criteria")
-      }
-    )
+    tryCatch(openxlsx::addWorksheet(wb, "Index-Criteria"), error = function(e) {
+      openxlsx::removeWorksheet(wb, "Index-Criteria")
+      openxlsx::addWorksheet(wb, "Index-Criteria")
+    })
 
     # Set visibility
     sv <- openxlsx::sheetVisibility(wb)
@@ -2117,7 +2114,7 @@ TADA_DefineCriteriaMethodology <- function(
 
     # If overwrite = F, check if original exists yet. If not, save it as an original and create a copy.
     if (!isTRUE(overwrite)) {
-      if (!file.exists(downloads_path)){
+      if (!file.exists(downloads_path)) {
         openxlsx::activeSheet(wb) <- "DefineCriteriaMethodology"
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
         message(
@@ -2126,7 +2123,7 @@ TADA_DefineCriteriaMethodology <- function(
         )
         wb <- openxlsx::loadWorkbook(downloads_path)
       }
-      if (file.exists(downloads_path)){
+      if (file.exists(downloads_path)) {
         base <- tools::file_path_sans_ext(downloads_path)
         ext <- tools::file_ext(downloads_path)
         ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
