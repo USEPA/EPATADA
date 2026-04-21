@@ -2,7 +2,7 @@
 
 Required 
 
--   [ ] UUpdate your branch from the latest `develop` and resolve any merge conflicts
+-   [ ] Update your branch from the latest `develop` and resolve any merge conflicts
 
 -   [ ] Run devtools::test(), devtools::check(), and devtools::document() locally; ensure tests pass and fix any errors, warnings, or notes. Add new dependencies to `DESCRIPTION` and document appropriately
 
