@@ -36,25 +36,6 @@ jobs:
           extra-packages: any::covr, any::xml2
           needs: coverage
 
-      - name: Capture Environment Info
-        run: |
-          Rscript -e '
-            all <- Sys.getenv()
-            keep <- !grepl("(TOKEN|KEY|SECRET|PASSWORD|PAT)", names(all), ignore.case = TRUE)
-            env_vars <- all[keep]
-            pkg_versions <- installed.packages()[, c("Package", "Version")]
-            sys_info <- Sys.info()
-            save(env_vars, pkg_versions, sys_info, file = "ci_env_info.RData")
-          '
-
-      - name: Upload Environment Info
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: ci_env_info
-          path: ci_env_info.RData
-          if-no-files-found: ignore
-
       - name: Test coverage
         run: |
           cov <- covr::package_coverage(
