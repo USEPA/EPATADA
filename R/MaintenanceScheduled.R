@@ -452,10 +452,10 @@
         dataProfile = "fullPhysChem",
         ignore_attributes = TRUE
       )
-      
+
       message("wqx3_fullPhysChem")
       dim(wqx3_fullPhysChem)
-      
+
       usethis::use_data(
         wqx3_fullPhysChem,
         internal = FALSE,
