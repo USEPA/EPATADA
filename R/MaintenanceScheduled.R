@@ -442,6 +442,30 @@
         MT_AUMLRef
       )
       # =======================================
+      # Generate wqx3_fullPhysChem for use in WQX3-Migration.Rmd
+      # =======================================
+      wqx3_fullPhysChem <- dataRetrieval::readWQPdata(
+        statecode = "Illinois",
+        countycode = "DeWitt",
+        characteristicName = "Nitrogen",
+        service = "ResultWQX3",
+        dataProfile = "fullPhysChem",
+        ignore_attributes = TRUE
+      )
+      
+      message("wqx3_fullPhysChem")
+      dim(wqx3_fullPhysChem)
+      
+      usethis::use_data(
+        wqx3_fullPhysChem,
+        internal = FALSE,
+        overwrite = TRUE,
+        compress = "xz",
+        version = 3,
+        ascii = FALSE
+      )
+      rm(wqx3_fullPhysChem)
+      # =======================================
       # Generate Data_Participatory_Scientists
       # =======================================
       selected_orgs <- c(
