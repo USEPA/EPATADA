@@ -1,6 +1,60 @@
 # get random data
 test_dat <- TADA_RandomTestingData()
 
+# specify downloads path
+get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
+  # Test/CI override as test-coverage does not have Downloads
+  override <- Sys.getenv("DOWNLOADS_DIR", "")
+  if (nzchar(override)) {
+    base_dir <- normalizePath(override, winslash = "/", mustWork = FALSE)
+    return(file.path(base_dir, filename))
+  }
+  
+  sys <- tolower(Sys.info()[["sysname"]])
+  candidates <- character()
+  
+  if (identical(sys, "windows")) {
+    # Try Windows Known Folder (Downloads) via PowerShell/.NET
+    downloads_known <- tryCatch(
+      suppressWarnings(system2(
+        "powershell",
+        c("-NoProfile", "-Command", "[Environment]::GetFolderPath('Downloads')"),
+        stdout = TRUE
+      )),
+      error = function(e) character()
+    )
+    up <- Sys.getenv("USERPROFILE", "")
+    candidates <- c(
+      downloads_known,
+      if (nzchar(up)) file.path(up, "OneDrive", "Downloads") else character(),
+      if (nzchar(up)) file.path(up, "Downloads") else character()
+    )
+  } else if (identical(sys, "darwin")) {
+    # macOS
+    candidates <- file.path(path.expand("~"), "Downloads")
+  } else {
+    # Linux/Unix: XDG + ~/Downloads
+    xdg_conf <- file.path(path.expand("~"), ".config", "user-dirs.dirs")
+    if (file.exists(xdg_conf)) {
+      lines <- readLines(xdg_conf, warn = FALSE)
+      x <- grep("^XDG_DOWNLOAD_DIR", lines, value = TRUE)
+      if (length(x)) {
+        val <- sub('^XDG_DOWNLOAD_DIR="?(.+?)"?$', "\\1", x[1])
+        val <- gsub('^\\$HOME', path.expand("~"), val)
+        val <- gsub('"', "", val, fixed = TRUE)
+        candidates <- c(candidates, val)
+      }
+    }
+    candidates <- c(candidates, file.path(path.expand("~"), "Downloads"))
+  }
+  
+  # Pick the first existing candidate, else fallback to tempdir()
+  existing <- candidates[dir.exists(candidates)]
+  base_dir <- if (length(existing)) existing[1] else tempdir()
+  
+  file.path(base_dir, filename)
+}
+
 # Test: Check for potential duplicates during criteria methods table generation
 testthat::test_that("TADA_ParametersForAnalysis ", {
   param_ref_none <- TADA_ParametersForAnalysis(
@@ -158,17 +212,7 @@ testthat::test_that("TADA_DefineCriteriaMethodology ", {
 })
 
 test_that("Excel file generation works correctly with overwrite = F in TADA_UsesForAnalysis when the CriteriaCrosswalks.xlsx does not exist yet.", {
-  get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
-    od_dir <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads")
-    win_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
-    base_dir <- if (dir.exists(od_dir)) od_dir else win_dir
-    if (!dir.exists(base_dir)) {
-      # cross-platform fallback
-      base_dir <- path.expand("~/Downloads")
-    }
-    file.path(base_dir, filename)
-  }
-
+  # specify downloads path
   downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
 
   # 1. Remove the file if it already exists
@@ -196,17 +240,7 @@ test_that("Excel file generation works correctly with overwrite = F in TADA_Uses
 })
 
 test_that("Excel file generation works correctly with overwrite = T in TADA_UsesForAnalysis when the CriteriaCrosswalks.xlsx does not exist yet.", {
-  get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
-    od_dir <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads")
-    win_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
-    base_dir <- if (dir.exists(od_dir)) od_dir else win_dir
-    if (!dir.exists(base_dir)) {
-      # cross-platform fallback
-      base_dir <- path.expand("~/Downloads")
-    }
-    file.path(base_dir, filename)
-  }
-
+  # specify downloads path
   downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
 
   # 1. Remove the file if it already exists
@@ -234,17 +268,7 @@ test_that("Excel file generation works correctly with overwrite = T in TADA_Uses
 })
 
 test_that("Excel file generation works correctly with overwrite = F in TADA_MLSummaryRef when the CriteriaCrosswalks.xlsx does not exist yet.", {
-  get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
-    od_dir <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads")
-    win_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
-    base_dir <- if (dir.exists(od_dir)) od_dir else win_dir
-    if (!dir.exists(base_dir)) {
-      # cross-platform fallback
-      base_dir <- path.expand("~/Downloads")
-    }
-    file.path(base_dir, filename)
-  }
-
+  # specify downloads path
   downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
 
   # 1. Remove the file if it already exists
@@ -277,17 +301,7 @@ test_that("Excel file generation works correctly with overwrite = F in TADA_MLSu
 })
 
 test_that("Excel file generation works correctly with overwrite = T in TADA_MLSummaryRef when the CriteriaCrosswalks.xlsx does not exist yet.", {
-  get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
-    od_dir <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads")
-    win_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
-    base_dir <- if (dir.exists(od_dir)) od_dir else win_dir
-    if (!dir.exists(base_dir)) {
-      # cross-platform fallback
-      base_dir <- path.expand("~/Downloads")
-    }
-    file.path(base_dir, filename)
-  }
-
+  # specify downloads path
   downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
 
   # 1. Remove the file if it already exists
@@ -320,17 +334,7 @@ test_that("Excel file generation works correctly with overwrite = T in TADA_MLSu
 })
 
 test_that("Excel file generation works with blank inputs in TADA_ParametersForAnalysis even when excel file does not exist yet.", {
-  get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
-    od_dir <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads")
-    win_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
-    base_dir <- if (dir.exists(od_dir)) od_dir else win_dir
-    if (!dir.exists(base_dir)) {
-      # cross-platform fallback
-      base_dir <- path.expand("~/Downloads")
-    }
-    file.path(base_dir, filename)
-  }
-
+  # specify downloads path
   downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
 
   # 1. Remove the file if it already exists
@@ -369,17 +373,7 @@ test_that("Excel file generation works with blank inputs in TADA_ParametersForAn
 })
 
 test_that("Excel file generation works with blank inputs in TADA_UsesForAnalysis even when excel file does not exist yet.", {
-  get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
-    od_dir <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads")
-    win_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
-    base_dir <- if (dir.exists(od_dir)) od_dir else win_dir
-    if (!dir.exists(base_dir)) {
-      # cross-platform fallback
-      base_dir <- path.expand("~/Downloads")
-    }
-    file.path(base_dir, filename)
-  }
-
+  # specify downloads path
   downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
 
   # 1. Remove the file if it already exists
@@ -419,17 +413,7 @@ test_that("Excel file generation works with blank inputs in TADA_UsesForAnalysis
 })
 
 test_that("Excel file generation works with blank inputs in TADA_MLSummary even when excel file does not exist yet.", {
-  get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
-    od_dir <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads")
-    win_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
-    base_dir <- if (dir.exists(od_dir)) od_dir else win_dir
-    if (!dir.exists(base_dir)) {
-      # cross-platform fallback
-      base_dir <- path.expand("~/Downloads")
-    }
-    file.path(base_dir, filename)
-  }
-
+  # specify downloads path
   downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
 
   # 1. Remove the file if it already exists
