@@ -11,6 +11,8 @@
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="WQX 3.0 Migration">
+<meta name="description" content="An overview of TADA Module 2 functions and a recommended workflow focused on A) creating an ATTAINS assessment unit/WQP monitoring location crosswalk, B) reviewing assessment units and monitoring locations on a map, C) submitting an up to date assessment unit/WQP monitoring location crosswalk to ATTAINS, and D) assigning uses to assessment units.">
+<meta property="og:description" content="An overview of TADA Module 2 functions and a recommended workflow focused on A) creating an ATTAINS assessment unit/WQP monitoring location crosswalk, B) reviewing assessment units and monitoring locations on a map, C) submitting an up to date assessment unit/WQP monitoring location crosswalk to ATTAINS, and D) assigning uses to assessment units.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -84,7 +86,7 @@
       <h1>WQX 3.0 Migration</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2026-04-14</h4>
+            <h4 data-toc-skip class="date">2026-04-22</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/WQX3-Migration.Rmd" class="external-link"><code>vignettes/WQX3-Migration.Rmd</code></a></small>
       <div class="d-none name"><code>WQX3-Migration.Rmd</code></div>
@@ -92,6 +94,9 @@
 
     
     
+<div class="section level3">
+<h3 id="wqx-3-0-data-is-now-live-on-the-water-quality-portal-beta">WQX 3.0 data is now live on the Water Quality Portal Beta<a class="anchor" aria-label="anchor" href="#wqx-3-0-data-is-now-live-on-the-water-quality-portal-beta"></a>
+</h3>
 <p>This vignette walks through how to download WQX 3.0 data from the WQP
 and rename the columns back to their WQX 2.0 equivalents. Check out the
 <a href="https://waterdata.usgs.gov/blog/wqx3/" class="external-link">WQX3.0 Data Now
@@ -99,21 +104,40 @@ Available on the Water Quality Portal</a> blog for more information
 about the new WQX 3.0 profiles and WQP beta web services! In addition,
 USGS provides a summary of the current status of WQP functions in
 dataRetrieval <a href="https://doi-usgs.github.io/dataRetrieval/articles/Status.html" class="external-link">here</a>.</p>
+</div>
+<div class="section level2">
+<h2 id="overview-and-setup">Overview and Setup<a class="anchor" aria-label="anchor" href="#overview-and-setup"></a>
+</h2>
+<p><strong>Welcome!</strong></p>
+<p>Thank you for your interest in Tools for Automated Data Analysis
+(TADA). TADA is an open-source tool set built in the R programming
+language. This <a href="https://yihui.org/rmarkdown/" class="external-link">RMarkdown</a>
+document walks users through how to download the TADA R package from
+GitHub, access and parameterize several important functions, and create
+basic visualizations with a sample data set.</p>
+<p><strong>Note:</strong> TADA is still under development. New
+functionality is added weekly, and sometimes we need to make bug fixes
+in response to tester and user feedback. We appreciate your feedback,
+patience, and interest in these helpful tools.</p>
+<p>If you are interested in contributing to TADA development, more
+information is available at:</p>
+<p><a href="https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html">Contributing</a></p>
+<p>We welcome collaboration with external partners.</p>
+<div class="section level3">
+<h3 id="install-and-load-the-epatada-r-package">Install and Load the EPATADA R Package<a class="anchor" aria-label="anchor" href="#install-and-load-the-epatada-r-package"></a>
+</h3>
 <p>First, install and load the remotes package specifying the repo. This
 is needed before installing EPATADA because it is only available on
 GitHub (not CRAN).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span>, repos <span class="op">=</span> <span class="st">"http://cran.us.r-project.org"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Installing package into '/home/runner/work/_temp/Library'</span></span>
-<span><span class="co">## (as 'lib' is unspecified)</span></span></code></pre>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span>, repos <span class="op">=</span> <span class="st">"http://cran.us.r-project.org"</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span></span></code></pre></div>
 <p>Next, install and load EPATADA using the remotes package. USGS’s
 dataRetrieval and other TADA R Package dependencies will also be
 downloaded automatically from CRAN with the TADA install. If desired,
 the development version of dataRetrieval can be downloaded directly from
 GitHub (un-comment).</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"USEPA/EPATADA"</span>,</span>
 <span>  ref <span class="op">=</span> <span class="st">"develop"</span>,</span>
 <span>  dependencies <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -121,11 +145,15 @@ GitHub (un-comment).</p>
 <span><span class="co"># remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)</span></span></code></pre></div>
 <p>Finally, use the <strong>library()</strong> function to load the TADA
 R Package into your R session.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/EPATADA/">EPATADA</a></span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="retrieve-wqx-3-0-data-from-wqp-beta">Retrieve WQX 3.0 Data from WQP Beta<a class="anchor" aria-label="anchor" href="#retrieve-wqx-3-0-data-from-wqp-beta"></a>
+</h3>
 <p>Let’s use USGS’s dataRetrieval R package to query the <a href="https://www.waterqualitydata.us/beta/" class="external-link">WQP beta</a> web services
 and retrieve the new WQX 3.0 full physical chemical profile.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wqx3_fullPhysChem</span> <span class="op">&lt;-</span> <span class="fu">dataRetrieval</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dataRetrieval/man/readWQPdata.html" class="external-link">readWQPdata</a></span><span class="op">(</span></span>
 <span>  statecode <span class="op">=</span> <span class="st">"Illinois"</span>,</span>
 <span>  countycode <span class="op">=</span> <span class="st">"DeWitt"</span>,</span>
@@ -134,12 +162,6 @@ and retrieve the new WQX 3.0 full physical chemical profile.</p>
 <span>  dataProfile <span class="op">=</span> <span class="st">"fullPhysChem"</span>,</span>
 <span>  ignore_attributes <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## GET: https://api.waterdata.usgs.gov/samples-data/codeservice/states?mimeType=application%2Fjson</span></span></code></pre>
-<pre><code><span><span class="co">## GET: https://api.waterdata.usgs.gov/samples-data/codeservice/counties?mimeType=application%2Fjson</span></span></code></pre>
-<pre><code><span><span class="co">## GET: https://api.waterdata.usgs.gov/samples-data/codeservice/states?mimeType=application%2Fjson</span></span>
-<span><span class="co">## GET: https://api.waterdata.usgs.gov/samples-data/codeservice/states?mimeType=application%2Fjson</span></span></code></pre>
-<pre><code><span><span class="co">## GET: https://www.waterqualitydata.us/wqx3/Result/search?countycode=US%3A17%3A039&amp;characteristicName=Nitrogen&amp;dataProfile=fullPhysChem&amp;mimeType=csv</span></span></code></pre>
-<pre><code><span><span class="co">## WQX3 services are in-development, use with caution.</span></span></code></pre>
 <p>We use the <code>readWQPdata</code> and <code>whatWQPsites</code>
 functions from the USGS <code>dataRetrieval</code> R package within
 <code>TADA_DataRetrieval</code>. Currently,
@@ -147,6 +169,10 @@ functions from the USGS <code>dataRetrieval</code> R package within
 legacy profiles). We are evaluating the new WQX 3.0 beta services and
 planning to transition the EPATADA R package to utilize these services
 soon.</p>
+</div>
+<div class="section level3">
+<h3 id="review-column-name-changes">Review Column Name Changes<a class="anchor" aria-label="anchor" href="#review-column-name-changes"></a>
+</h3>
 <p>To facilitate this transition, we have developed a function that
 converts all column headers in a WQX 3.0 profile back to their WQX 2.2
 equivalents. This enables us to effectively test for backward
@@ -154,26 +180,17 @@ compatibility. This new EPATADA function,
 <code>TADA_RenametoLegacy</code>, leverages a crosswalk file that is
 available on the <a href="https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide" class="external-link">Water
 Quality Portal Quick Reference Guide</a>.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wqx3schema</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="st">"https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv"</span>, show_col_types <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>After retrieving the WQX 3.0 full physical chemical profile, we can
 use <code>TADA_RenametoLegacy</code> to change the column names back to
 WQX 2.2 where applicable.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wqx3_legacynames</span> <span class="op">&lt;-</span> <span class="fu">EPATADA</span><span class="fu">::</span><span class="fu"><a href="../reference/TADA_RenametoLegacy.html">TADA_RenametoLegacy</a></span><span class="op">(</span><span class="va">wqx3_fullPhysChem</span><span class="op">)</span></span></code></pre></div>
 <p>Now, we can test other EPATADA package functions as usual, for
 example, we can run <code>TADA_AutoClean</code>:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wqx3_legacynames</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_AutoClean.html">TADA_AutoClean</a></span><span class="op">(</span><span class="va">wqx3_legacynames</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## TADA_Autoclean: creating TADA-specific columns.</span></span></code></pre>
-<pre><code><span><span class="co">## TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric.</span></span></code></pre>
-<pre><code><span><span class="co">## TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric.</span></span></code></pre>
-<pre><code><span><span class="co">## TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m.</span></span></code></pre>
-<pre><code><span><span class="co">## TADA_Autoclean: updating deprecated (i.e. retired) characteristic names.</span></span></code></pre>
-<pre><code><span><span class="co">## No deprecated characteristic names found in dataset.</span></span></code></pre>
-<pre><code><span><span class="co">## TADA_Autoclean: harmonizing result and depth units.</span></span></code></pre>
-<pre><code><span><span class="co">## TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses.</span></span></code></pre>
-<pre><code><span><span class="co">## NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')</span></span></code></pre>
 <p>The WQP and WQX teams (USGS and EPA) are interested in hearing
 feedback from users on the new WQX 3.0 schema (data profiles) and WQP
 beta web services (Contact WQX Helpdesk <a href="mailto:WQX@epa.gov" class="email">WQX@epa.gov</a>). In addition, please reach out if you run
@@ -185,6 +202,8 @@ R package function, , <code>TADA_RenametoLegacy</code>, is provided for
 WQX 3.0 schema and WQP beta service testing purposes only. We plan to
 transition the EPATADA R Package to use the WQX 3.0 schema and new WQP
 services soon. Stay tuned.</p>
+</div>
+</div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>

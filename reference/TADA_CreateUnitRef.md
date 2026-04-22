@@ -8,7 +8,7 @@ characteristic.
 ## Usage
 
 ``` r
-TADA_CreateUnitRef(.data, print.message = TRUE)
+TADA_CreateUnitRef(.data, message = TRUE)
 ```
 
 ## Arguments
@@ -17,7 +17,7 @@ TADA_CreateUnitRef(.data, print.message = TRUE)
 
   TADA dataframe
 
-- print.message:
+- message:
 
   Logical. If TRUE (default), prints a message listing any
   characteristics (TADA.CharacteristicName) that have more than one
@@ -63,8 +63,8 @@ Notes:
   defaults when necessary.
 
 - For characteristics with multiple target units (e.g., fundamentally
-  different unit families), an informational message is printed to
-  prompt user review.
+  different unit families), an informational message is displayed in the
+  console.
 
 The columns created by TADA_AutoClean are required to run this function.
 If they are not present in the dataframe, TADA_AutoClean is

@@ -96,11 +96,11 @@ utils::data(Data_Nutrients_UT)
 ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT,
   transform = FALSE
 )
-#> [1] "TADA_ConvertResultUnits: When Transform = FALSE, result values and units are NOT converted. Conversions are required for many other TADA functions to work properly (such as result value range checks)."
+#> TADA_ConvertResultUnits: When Transform = FALSE, result values and units are NOT converted. Conversions are required for many other TADA functions to work properly (such as result value range checks).
 
 # Convert values and units for results and detection limits:
 ResultUnitsConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT,
   transform = TRUE
 )
-#> [1] "NOTE: Dataset contains 391 USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."
+#> NOTE: Dataset contains 391 USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column.
 ```

@@ -60,33 +60,24 @@
     </div>
 
 <div class="section level3">
-<h3 id="pull-request-checklist">Pull Request Checklist<a class="anchor" aria-label="anchor" href="#pull-request-checklist"></a></h3>
-<p>Preparation</p>
+<h3 id="pull-request-checklist-convert-pr-to-draft-if-in-progress">Pull Request Checklist (convert PR to draft if in progress)<a class="anchor" aria-label="anchor" href="#pull-request-checklist-convert-pr-to-draft-if-in-progress"></a></h3>
+<p>Required</p>
 <ul class="task-list"><li><p><label><input type="checkbox">Update your branch from the latest <code>develop</code> and resolve any merge conflicts</label></p></li>
-<li><p><label><input type="checkbox">Before creating a pull request trigger the <a href="https://github.com/USEPA/EPATADA/actions/workflows/format-batch-update.yaml" class="external-link">format-update</a> GitHub Action on your branch to format the code</label></p></li>
-</ul><p>Documentation</p>
-<ul class="task-list"><li><p><label><input type="checkbox">Add/update inline and/or block comments to clarify complexity, context and intent</label></p></li>
-<li><p><label><input type="checkbox">Add/update function documentation (roxygen), include working examples, build docs locally using devtools::document(), and inspect added/updated help pages for content and format</label></p></li>
+<li><p><label><input type="checkbox">Run devtools::test(), devtools::check(), and devtools::document() locally; ensure tests pass and fix any errors, warnings, or notes. Add new dependencies to <code>DESCRIPTION</code> and document appropriately</label></p></li>
 <li><p><label><input type="checkbox">Add/update vignettes for corresponding changes in functionality, list these under articles in _pkgdown.yml, and ensure added/updated vignettes run and build with proper formatting locally</label></p></li>
-</ul><p>Maintenance &amp; Data Refresh</p>
-<ul class="task-list"><li><p><label><input type="checkbox">Add new dependencies to <code>DESCRIPTION</code> and document appropriately</label></p></li>
-<li><p><label><input type="checkbox">Run spelling maintenance in <code>requiredMaintenance.R</code></label></p></li>
-<li><p><label><input type="checkbox">If changes affect other package or the shiny app functions, update those impacted functions accordingly</label></p></li>
-<li><p><label><input type="checkbox">If columns were added/updated, add/update them in <code>RequiredCols.R</code></label></p></li>
-<li><p><label><input type="checkbox">Run <code><a href="reference/dot-TADA_UpdateRefFiles.html">.TADA_UpdateRefFiles()</a></code> and <code><a href="reference/dot-TADA_UpdateExampleData.html">.TADA_UpdateExampleData()</a></code> locally via <code>MaintenanceScheduled.R</code> or trigger the <a href="https://github.com/USEPA/EPATADA/actions/workflows/maintenance-update.yaml" class="external-link">Component File Update</a> GitHub Action</label></p></li>
+<li><p><label><input type="checkbox">Request review from at least one developer team member (convert PR to ready for review if it was designated as in progress)</label></p></li>
+</ul><p>Best practices</p>
+<ul class="task-list"><li><p><label><input type="checkbox">Include a summary of the changes made and relevant context/motivation</label></p></li>
+<li><p><label><input type="checkbox">Link issues to auto-close on merge (use Development sidebar or include “Closes #<issue-number>” in the PR)</issue-number></label></p></li>
+<li><p><label><input type="checkbox">Refresh inline/block comments for clarity</label></p></li>
+<li><p><label><input type="checkbox">Update roxygen docs and include examples; review help pages</label></p></li>
+<li><p><label><input type="checkbox">Add/update tests in <code>tests/testthat</code>; review the bot’s coverage report from <a href="https://github.com/USEPA/EPATADA/blob/develop/.github/workflows/test-coverage.yaml" class="external-link">test-coverage</a> and confirm all changes are covered</label></p></li>
+</ul><p>Conditional</p>
+<ul class="task-list"><li><p><label><input type="checkbox">If there is a bot spelling comment, run spelling::spell_check_package() locally and fix any misspellings; add approved project terms to WORDLIST with spelling::update_wordlist()</label></p></li>
+<li><p><label><input type="checkbox">If tests fail suggesting internal reference files need a refresh, run <code><a href="reference/dot-TADA_UpdateRefFiles.html">.TADA_UpdateRefFiles()</a></code> and <code><a href="reference/dot-TADA_UpdateExampleData.html">.TADA_UpdateExampleData()</a></code> locally via <code>MaintenanceScheduled.R</code> or trigger the <a href="https://github.com/USEPA/EPATADA/actions/workflows/maintenance-update.yaml" class="external-link">Component File Update</a> GitHub Action</label></p></li>
 <li><p><label><input type="checkbox">If new example data files were added, document them in <code>ExampleData.R</code> and include them in <code>MaintenanceScheduled.R</code> for regular refresh</label></p></li>
-</ul><p>Tests and checks</p>
-<ul class="task-list"><li><p><label><input type="checkbox">Add/update tests in <code>tests/testthat</code> to cover changes</label></p></li>
-<li><p><label><input type="checkbox">Run <code><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">devtools::test()</a></code> to verify new and existing tests pass</label></p></li>
-<li><p><label><input type="checkbox">Run <code><a href="https://devtools.r-lib.org/reference/check.html" class="external-link">devtools::check()</a></code> and address any errors, warnings or notes</label></p></li>
-</ul><p>Pull Request Description</p>
-<ul class="task-list"><li><p><label><input type="checkbox">Includes a summary of the changes made</label></p></li>
-<li><p><label><input type="checkbox">Includes relevant context/motivation</label></p></li>
-<li><p><label><input type="checkbox">Includes links to related issues or pull requests (keywords like “Closes #issue_number” automatically close related issues when pull request is merged)</label></p></li>
-</ul><p>Review</p>
-<ul class="task-list"><li><p><label><input type="checkbox">Review the bot-commented coverage-report generated by <a href="https://github.com/USEPA/EPATADA/blob/develop/.github/workflows/test-coverage.yaml" class="external-link">test-coverage</a> to confirm all changes are covered by tests</label></p></li>
-<li><p><label><input type="checkbox">Review/accept any bot-suggested format changes</label></p></li>
-<li><p><label><input type="checkbox">Request review from at least one developer team member</label></p></li>
+<li><p><label><input type="checkbox">If columns were added/updated, update <code>RequiredCols.R</code></label></p></li>
+<li><p><label><input type="checkbox">If changes affect other package or the shiny app functions, update those impacted functions accordingly</label></p></li>
 </ul></div>
 
   </main></div>

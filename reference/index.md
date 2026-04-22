@@ -518,6 +518,9 @@
   assessment unit assignment which does not have corresponding geometry
   in ATTAINS.
 
+- [`wqx3_fullPhysChem`](https://usepa.github.io/EPATADA/reference/wqx3_fullPhysChem.md)
+  : wqx3_fullPhysChem
+
 - [`writeLayer()`](https://usepa.github.io/EPATADA/reference/writeLayer.md)
   : Download a shapefile from an API and save it to a local folder,
   overwriting existing file if it exists writeLayer is used by

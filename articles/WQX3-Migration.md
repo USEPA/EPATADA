@@ -1,5 +1,7 @@
 # WQX 3.0 Migration
 
+### WQX 3.0 data is now live on the Water Quality Portal Beta
+
 This vignette walks through how to download WQX 3.0 data from the WQP
 and rename the columns back to their WQX 2.0 equivalents. Check out the
 [WQX3.0 Data Now Available on the Water Quality
@@ -9,18 +11,37 @@ USGS provides a summary of the current status of WQP functions in
 dataRetrieval
 [here](https://doi-usgs.github.io/dataRetrieval/articles/Status.html).
 
+## Overview and Setup
+
+**Welcome!**
+
+Thank you for your interest in Tools for Automated Data Analysis (TADA).
+TADA is an open-source tool set built in the R programming language.
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks users
+through how to download the TADA R package from GitHub, access and
+parameterize several important functions, and create basic
+visualizations with a sample data set.
+
+**Note:** TADA is still under development. New functionality is added
+weekly, and sometimes we need to make bug fixes in response to tester
+and user feedback. We appreciate your feedback, patience, and interest
+in these helpful tools.
+
+If you are interested in contributing to TADA development, more
+information is available at:
+
+[Contributing](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
+
+We welcome collaboration with external partners.
+
+### Install and Load the EPATADA R Package
+
 First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub
 (not CRAN).
 
 ``` r
 install.packages("remotes", repos = "http://cran.us.r-project.org")
-```
-
-    ## Installing package into '/home/runner/work/_temp/Library'
-    ## (as 'lib' is unspecified)
-
-``` r
 library(remotes)
 ```
 
@@ -45,6 +66,8 @@ your R session.
 library(EPATADA)
 ```
 
+### Retrieve WQX 3.0 Data from WQP Beta
+
 Let’s use USGS’s dataRetrieval R package to query the [WQP
 beta](https://www.waterqualitydata.us/beta/) web services and retrieve
 the new WQX 3.0 full physical chemical profile.
@@ -60,22 +83,13 @@ wqx3_fullPhysChem <- dataRetrieval::readWQPdata(
 )
 ```
 
-    ## GET: https://api.waterdata.usgs.gov/samples-data/codeservice/states?mimeType=application%2Fjson
-
-    ## GET: https://api.waterdata.usgs.gov/samples-data/codeservice/counties?mimeType=application%2Fjson
-
-    ## GET: https://api.waterdata.usgs.gov/samples-data/codeservice/states?mimeType=application%2Fjson
-    ## GET: https://api.waterdata.usgs.gov/samples-data/codeservice/states?mimeType=application%2Fjson
-
-    ## GET: https://www.waterqualitydata.us/wqx3/Result/search?countycode=US%3A17%3A039&characteristicName=Nitrogen&dataProfile=fullPhysChem&mimeType=csv
-
-    ## WQX3 services are in-development, use with caution.
-
 We use the `readWQPdata` and `whatWQPsites` functions from the USGS
 `dataRetrieval` R package within `TADA_DataRetrieval`. Currently,
 `TADA_DataRetrieval` supports only WQX 2.2 (most recent legacy
 profiles). We are evaluating the new WQX 3.0 beta services and planning
 to transition the EPATADA R package to utilize these services soon.
+
+### Review Column Name Changes
 
 To facilitate this transition, we have developed a function that
 converts all column headers in a WQX 3.0 profile back to their WQX 2.2
@@ -103,24 +117,6 @@ we can run `TADA_AutoClean`:
 ``` r
 wqx3_legacynames <- TADA_AutoClean(wqx3_legacynames)
 ```
-
-    ## TADA_Autoclean: creating TADA-specific columns.
-
-    ## TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric.
-
-    ## TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric.
-
-    ## TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m.
-
-    ## TADA_Autoclean: updating deprecated (i.e. retired) characteristic names.
-
-    ## No deprecated characteristic names found in dataset.
-
-    ## TADA_Autoclean: harmonizing result and depth units.
-
-    ## TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses.
-
-    ## NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')
 
 The WQP and WQX teams (USGS and EPA) are interested in hearing feedback
 from users on the new WQX 3.0 schema (data profiles) and WQP beta web

@@ -72,7 +72,7 @@ by TADA_ConvertResultUnits to standardize units by characteristic.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_CreateUnitRef</span><span class="op">(</span><span class="va">.data</span>, print.message <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_CreateUnitRef</span><span class="op">(</span><span class="va">.data</span>, message <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -83,7 +83,7 @@ by TADA_ConvertResultUnits to standardize units by characteristic.</p>
 <dd><p>TADA dataframe</p></dd>
 
 
-<dt id="arg-print-message">print.message<a class="anchor" aria-label="anchor" href="#arg-print-message"></a></dt>
+<dt id="arg-message">message<a class="anchor" aria-label="anchor" href="#arg-message"></a></dt>
 <dd><p>Logical. If TRUE (default), prints a message listing any
 characteristics (TADA.CharacteristicName) that have more than one target unit.</p></dd>
 
@@ -111,8 +111,7 @@ while TADA priority references (TADAPriorityCharUnitRef.csv and
 TADAPriorityCharConvertRef.csv) allow characteristic-specific targets and
 conversions that can override WQX defaults when necessary.</p></li>
 <li><p>For characteristics with multiple target units (e.g., fundamentally
-different unit families), an informational message is printed to prompt
-user review.</p></li>
+different unit families), an informational message is displayed in the console.</p></li>
 </ul><p>The columns created by TADA_AutoClean are required to run this function. If
 they are not present in the dataframe, TADA_AutoClean is automatically run
 before the unit reference dataframe is created.</p>

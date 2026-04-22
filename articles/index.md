@@ -67,6 +67,13 @@
 - [WQX 3.0
   Migration](https://usepa.github.io/EPATADA/articles/WQX3-Migration.md):
 
+  An overview of TADA Module 2 functions and a recommended workflow
+  focused on A) creating an ATTAINS assessment unit/WQP monitoring
+  location crosswalk, B) reviewing assessment units and monitoring
+  locations on a map, C) submitting an up to date assessment unit/WQP
+  monitoring location crosswalk to ATTAINS, and D) assigning uses to
+  assessment units.
+
 - [WQX QAQC Service User
   Guide](https://usepa.github.io/EPATADA/articles/WQXValidationService.md):
 
