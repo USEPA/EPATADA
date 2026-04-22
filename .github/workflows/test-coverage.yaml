@@ -19,8 +19,6 @@ permissions:
 
 jobs:
   test-coverage:
-    # Skip draft PRs; run on non-PR triggers and non-draft PR events
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -38,21 +36,6 @@ jobs:
           extra-packages: any::covr, any::xml2
           needs: coverage
 
-      - name: Capture Environment Info
-        run: |
-          Rscript -e '
-            env_vars <- Sys.getenv()
-            pkg_versions <- installed.packages()[, c("Package", "Version")]
-            sys_info <- Sys.info()
-            save(env_vars, pkg_versions, sys_info, file = "ci_env_info.RData")
-          '
-
-      - name: Upload Environment Info
-        uses: actions/upload-artifact@v7
-        with:
-          name: ci_env_info
-          path: ci_env_info.RData
-
       - name: Test coverage
         run: |
           cov <- covr::package_coverage(
@@ -61,7 +44,7 @@ jobs:
             install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
           )
           print(cov)
-          covr::to_cobertura(cov)
+          covr::to_cobertura(cov, filename = "cobertura.xml")
         shell: Rscript {0}
 
       - name: Show testthat output
@@ -76,21 +59,24 @@ jobs:
         with:
           name: coverage-test-failures
           path: ${{ runner.temp }}/package
-          if-no-files-found: ignore
+          if-no-files-found: ignore # Suppress warnings if no files are found
 
       - name: Upload coverage report
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: ./cobertura.xml
+          if-no-files-found: error
 
       - name: Comment coverage
+        if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork }}
         uses: 5monkeys/cobertura-action@master
         with:
           report_name: coverage-report
           path: ./cobertura.xml
-          minimum_coverage: 10
-          only_changed_files: true   # limit to files modified in the PR
+          minimum_coverage: 20
+          only_changed_files: true
           show_missing: true
           link_missing_lines: true
         env:

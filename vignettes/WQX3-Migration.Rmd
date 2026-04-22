@@ -1,19 +1,21 @@
 ---
 title: "WQX 3.0 Migration"
-format: html
-editor: visual
+always_allow_html: yes
 author: "TADA Team"
 date: "`r Sys.Date()`"
-output: 
+output:
   rmarkdown::html_vignette:
+    self_contained: false
     toc: true
     fig_caption: yes
     fig_height: 8
     fig_width: 8
 vignette: >
   %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{EPATADA}
   %\VignetteIndexEntry{WQX 3.0 Migration}
   %\VignetteEngine{knitr::rmarkdown}
+description: An overview of TADA Module 2 functions and a recommended workflow focused on A) creating an ATTAINS assessment unit/WQP monitoring location crosswalk, B) reviewing assessment units and monitoring locations on a map, C) submitting an up to date assessment unit/WQP monitoring location crosswalk to ATTAINS, and D) assigning uses to assessment units.
 editor_options:
   chunk_output_type: console
   markdown:
@@ -21,22 +23,18 @@ editor_options:
 ---
 
 ```{r setup, include = F}
+library(knitr)
+
 knitr::opts_chunk$set(
   echo = TRUE,
-  warning = FALSE
+  warning = FALSE,
+  message = FALSE,
+  eval = T,
+  dev.args = list(bg = "transparent")
 )
 ```
 
-```{css, include = F}
-pre {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-pre[class] {
-  max-height: 300px;
-}
-```
+## WQX 3.0 data is now live on the Water Quality Portal Beta
 
 This vignette walks through how to download WQX 3.0 data from the WQP
 and rename the columns back to their WQX 2.0 equivalents. Check out the
@@ -46,6 +44,31 @@ about the new WQX 3.0 profiles and WQP beta web services! In addition,
 USGS provides a summary of the current status of WQP functions in
 dataRetrieval
 [here](https://doi-usgs.github.io/dataRetrieval/articles/Status.html).
+
+# Overview and Setup
+
+**Welcome!**
+
+Thank you for your interest in Tools for Automated Data Analysis (TADA).
+TADA is an open-source tool set built in the R programming language.
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks
+users through how to download the TADA R package from GitHub, access and
+parameterize several important functions, and create basic
+visualizations with a sample data set.
+
+**Note:** TADA is still under development. New functionality is added
+weekly, and sometimes we need to make bug fixes in response to tester
+and user feedback. We appreciate your feedback, patience, and interest
+in these helpful tools.
+
+If you are interested in contributing to TADA development, more
+information is available at:
+
+[Contributing](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
+
+We welcome collaboration with external partners.
+
+## Install and Load the EPATADA R Package
 
 First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub
@@ -77,11 +100,13 @@ your R session.
 library(EPATADA)
 ```
 
+## Retrieve WQX 3.0 Data from WQP Beta
+
 Let's use USGS's dataRetrieval R package to query the [WQP
 beta](https://www.waterqualitydata.us/beta/) web services and retrieve
 the new WQX 3.0 full physical chemical profile.
 
-```{r WQPquery}
+```{r WQPquery, eval = F}
 wqx3_fullPhysChem <- dataRetrieval::readWQPdata(
   statecode = "Illinois",
   countycode = "DeWitt",
@@ -92,11 +117,17 @@ wqx3_fullPhysChem <- dataRetrieval::readWQPdata(
 )
 ```
 
+```{r use-example-data, include = F}
+utils::data("wqx3_fullPhysChem", package = "EPATADA")
+```
+
 We use the `readWQPdata` and `whatWQPsites` functions from the USGS
 `dataRetrieval` R package within `TADA_DataRetrieval`. Currently,
 `TADA_DataRetrieval` supports only WQX 2.2 (most recent legacy
 profiles). We are evaluating the new WQX 3.0 beta services and planning
 to transition the EPATADA R package to utilize these services soon.
+
+## Review Column Name Changes
 
 To facilitate this transition, we have developed a function that
 converts all column headers in a WQX 3.0 profile back to their WQX 2.2
@@ -106,7 +137,7 @@ leverages a crosswalk file that is available on the [Water Quality
 Portal Quick Reference
 Guide](https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide).
 
-```{r WQX3schemafile}
+```{r WQX3schemafile, eval = F}
 wqx3schema <- readr::read_csv("https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv", show_col_types = FALSE)
 ```
 
