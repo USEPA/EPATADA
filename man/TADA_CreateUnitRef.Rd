@@ -4,12 +4,12 @@
 \alias{TADA_CreateUnitRef}
 \title{Generate A DataFrame of Units and Target by Characteristic Name}
 \usage{
-TADA_CreateUnitRef(.data, print.message = TRUE)
+TADA_CreateUnitRef(.data, message = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{print.message}{Logical. If TRUE (default), prints a message listing any
+\item{message}{Logical. If TRUE (default), prints a message listing any
 characteristics (TADA.CharacteristicName) that have more than one target unit.}
 }
 \value{
@@ -43,8 +43,7 @@ while TADA priority references (TADAPriorityCharUnitRef.csv and
 TADAPriorityCharConvertRef.csv) allow characteristic-specific targets and
 conversions that can override WQX defaults when necessary.
 \item For characteristics with multiple target units (e.g., fundamentally
-different unit families), an informational message is printed to prompt
-user review.
+different unit families), an informational message is displayed in the console.
 }
 
 The columns created by TADA_AutoClean are required to run this function. If

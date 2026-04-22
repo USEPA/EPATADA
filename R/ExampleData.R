@@ -134,6 +134,16 @@ NULL
 #' @format A data frame with 48 rows and 6 variables.
 NULL
 
+#' wqx3_fullPhysChem
+#'
+#' Generate wqx3_fullPhysChem used in
+#' WQX3-Migration.Rmd
+#'
+#' @docType data
+#' @name wqx3_fullPhysChem
+#' @format A data frame with 44 rows and 193 variables.
+NULL
+
 #' Data_Participatory_Scientists
 #'
 #' Generate Data_Participatory_Scientists used in

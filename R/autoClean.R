@@ -309,11 +309,16 @@ TADA_AutoClean <- function(.data) {
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
 
   # CountyCode should either be NA or 3 digits
-  x <- as.character(.data$CountyCode)
-  i <- !is.na(x)
-  x[i] <- sprintf("%03d", as.integer(x[i]))
-  .data$CountyCode <- x
-  rm(x, i)
+  .data <- .data |>
+    dplyr::mutate(
+      CountyCode = as.character(CountyCode),
+      CountyCode = dplyr::if_else(
+        stringr::str_detect(CountyCode, "^[0-9]{1,2}$"),
+        stringr::str_pad(CountyCode, 3, pad = "0"),
+        CountyCode,
+        missing = CountyCode
+      )
+    )
 
   # Automatically convert USGS only unit "meters" to "m"
   message(
