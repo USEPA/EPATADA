@@ -9,10 +9,10 @@ get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
     base_dir <- normalizePath(override, winslash = "/", mustWork = FALSE)
     return(file.path(base_dir, filename))
   }
-  
+
   sys <- tolower(Sys.info()[["sysname"]])
   candidates <- character()
-  
+
   if (identical(sys, "windows")) {
     # Try Windows Known Folder (Downloads)
     candidates <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
@@ -34,11 +34,11 @@ get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
     }
     candidates <- c(candidates, file.path(path.expand("~"), "Downloads"))
   }
-  
+
   # Pick the first existing candidate, else fallback to tempdir()
   existing <- candidates[dir.exists(candidates)]
   base_dir <- if (length(existing)) existing[1] else tempdir()
-  
+
   file.path(base_dir, filename)
 }
 

@@ -1508,10 +1508,10 @@ TADA_ParametersForAnalysis <- function(
         base_dir <- normalizePath(override, winslash = "/", mustWork = FALSE)
         return(file.path(base_dir, filename))
       }
-      
+
       sys <- tolower(Sys.info()[["sysname"]])
       candidates <- character()
-      
+
       if (identical(sys, "windows")) {
         # Try Windows Known Folder (Downloads)
         candidates <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
@@ -1533,11 +1533,11 @@ TADA_ParametersForAnalysis <- function(
         }
         candidates <- c(candidates, file.path(path.expand("~"), "Downloads"))
       }
-      
+
       # Pick the first existing candidate, else fallback to tempdir()
       existing <- candidates[dir.exists(candidates)]
       base_dir <- if (length(existing)) existing[1] else tempdir()
-      
+
       file.path(base_dir, filename)
     }
 
@@ -2658,10 +2658,10 @@ TADA_UsesForAnalysis <- function(
         base_dir <- normalizePath(override, winslash = "/", mustWork = FALSE)
         return(file.path(base_dir, filename))
       }
-      
+
       sys <- tolower(Sys.info()[["sysname"]])
       candidates <- character()
-      
+
       if (identical(sys, "windows")) {
         # Try Windows Known Folder (Downloads)
         candidates <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
@@ -2683,11 +2683,11 @@ TADA_UsesForAnalysis <- function(
         }
         candidates <- c(candidates, file.path(path.expand("~"), "Downloads"))
       }
-      
+
       # Pick the first existing candidate, else fallback to tempdir()
       existing <- candidates[dir.exists(candidates)]
       base_dir <- if (length(existing)) existing[1] else tempdir()
-      
+
       file.path(base_dir, filename)
     }
 
@@ -4379,10 +4379,10 @@ TADA_MLSummary <- function(
         base_dir <- normalizePath(override, winslash = "/", mustWork = FALSE)
         return(file.path(base_dir, filename))
       }
-      
+
       sys <- tolower(Sys.info()[["sysname"]])
       candidates <- character()
-      
+
       if (identical(sys, "windows")) {
         # Try Windows Known Folder (Downloads)
         candidates <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
@@ -4404,11 +4404,11 @@ TADA_MLSummary <- function(
         }
         candidates <- c(candidates, file.path(path.expand("~"), "Downloads"))
       }
-      
+
       # Pick the first existing candidate, else fallback to tempdir()
       existing <- candidates[dir.exists(candidates)]
       base_dir <- if (length(existing)) existing[1] else tempdir()
-      
+
       file.path(base_dir, filename)
     }
 
