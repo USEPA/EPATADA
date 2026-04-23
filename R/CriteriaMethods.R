@@ -2198,15 +2198,15 @@ TADA_DefineCriteriaMethodology <- function(
 #'     Criteria/Methodology template (name, requirement, source, type, description).
 #'   - AllowableValues: curated domain references and example values for each column,
 #'     including labeled hyperlinks to EPA ATTAINS domain values and WQX Characteristics.
-#'     
+#'
 #' The function is primarily called by TADA_DefineCriteriaMethodology() to
 #' ensure the workbook includes up-to-date guidance for users who fill out criteria,
 #' methodology, and (optionally) equation parameterization.
-#' 
+#'
 #' If the target Excel file does not exist, a new workbook is created at that path
 #' with base sheets "DefineCriteriaMethodology" and hidden "Index-Criteria", then the
 #' two documentation tabs are added (or replaced if already present).
-#' 
+#'
 #' @param downloads_path Character string path to the Excel workbook to update
 #'   (e.g., "CriteriaMethodology.xlsx"). If NULL (default), the function
 #'   attempts to locate the user's Downloads folder.
@@ -2221,7 +2221,7 @@ TADA_DefineCriteriaMethodology <- function(
 #'     ColumnName, Requirement, Source, ColumnType, Description.
 #'   - "AllowableValues" worksheet with columns:
 #'     ColumnName, ColumnType, AllowableValues, ExampleValues.
-#'     
+#'
 #' @seealso [TADA_DefineCriteriaMethodology()] [TADA_ParametersForAnalysis()]
 #'
 #' @examples
@@ -2236,7 +2236,7 @@ TADA_DefineCriteriaMethodology <- function(
 #' # \dontrun{
 #' # .TADA_CriteriaDataDictionary()
 #' # }
-#' 
+#'
 .TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
   if (is.null(downloads_path)) {
     get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
