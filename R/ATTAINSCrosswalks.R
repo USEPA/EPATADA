@@ -1502,13 +1502,42 @@ TADA_ParametersForAnalysis <- function(
     # Excel ref files to be stored in the Downloads folder location.
     # Define the OneDrive Downloads path
     get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
-      od_dir <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads")
-      win_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
-      base_dir <- if (dir.exists(od_dir)) od_dir else win_dir
-      if (!dir.exists(base_dir)) {
-        # cross-platform fallback
-        base_dir <- path.expand("~/Downloads")
+      # Test/CI override as test-coverage does not have Downloads
+      override <- Sys.getenv("DOWNLOADS_DIR", "")
+      if (nzchar(override)) {
+        base_dir <- normalizePath(override, winslash = "/", mustWork = FALSE)
+        return(file.path(base_dir, filename))
       }
+      
+      sys <- tolower(Sys.info()[["sysname"]])
+      candidates <- character()
+      
+      if (identical(sys, "windows")) {
+        # Try Windows Known Folder (Downloads)
+        candidates <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
+      } else if (identical(sys, "darwin")) {
+        # macOS
+        candidates <- file.path(path.expand("~"), "Downloads")
+      } else {
+        # Linux/Unix: XDG + ~/Downloads
+        xdg_conf <- file.path(path.expand("~"), ".config", "user-dirs.dirs")
+        if (file.exists(xdg_conf)) {
+          lines <- readLines(xdg_conf, warn = FALSE)
+          x <- grep("^XDG_DOWNLOAD_DIR", lines, value = TRUE)
+          if (length(x)) {
+            val <- sub('^XDG_DOWNLOAD_DIR="?(.+?)"?$', "\\1", x[1])
+            val <- gsub('^\\$HOME', path.expand("~"), val)
+            val <- gsub('"', "", val, fixed = TRUE)
+            candidates <- c(candidates, val)
+          }
+        }
+        candidates <- c(candidates, file.path(path.expand("~"), "Downloads"))
+      }
+      
+      # Pick the first existing candidate, else fallback to tempdir()
+      existing <- candidates[dir.exists(candidates)]
+      base_dir <- if (length(existing)) existing[1] else tempdir()
+      
       file.path(base_dir, filename)
     }
 
@@ -2634,21 +2663,8 @@ TADA_UsesForAnalysis <- function(
       candidates <- character()
       
       if (identical(sys, "windows")) {
-        # Try Windows Known Folder (Downloads) via PowerShell/.NET
-        downloads_known <- tryCatch(
-          suppressWarnings(system2(
-            "powershell",
-            c("-NoProfile", "-Command", "[Environment]::GetFolderPath('Downloads')"),
-            stdout = TRUE
-          )),
-          error = function(e) character()
-        )
-        up <- Sys.getenv("USERPROFILE", "")
-        candidates <- c(
-          downloads_known,
-          if (nzchar(up)) file.path(up, "OneDrive", "Downloads") else character(),
-          if (nzchar(up)) file.path(up, "Downloads") else character()
-        )
+        # Try Windows Known Folder (Downloads)
+        candidates <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
       } else if (identical(sys, "darwin")) {
         # macOS
         candidates <- file.path(path.expand("~"), "Downloads")
@@ -4368,21 +4384,8 @@ TADA_MLSummary <- function(
       candidates <- character()
       
       if (identical(sys, "windows")) {
-        # Try Windows Known Folder (Downloads) via PowerShell/.NET
-        downloads_known <- tryCatch(
-          suppressWarnings(system2(
-            "powershell",
-            c("-NoProfile", "-Command", "[Environment]::GetFolderPath('Downloads')"),
-            stdout = TRUE
-          )),
-          error = function(e) character()
-        )
-        up <- Sys.getenv("USERPROFILE", "")
-        candidates <- c(
-          downloads_known,
-          if (nzchar(up)) file.path(up, "OneDrive", "Downloads") else character(),
-          if (nzchar(up)) file.path(up, "Downloads") else character()
-        )
+        # Try Windows Known Folder (Downloads)
+        candidates <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
       } else if (identical(sys, "darwin")) {
         # macOS
         candidates <- file.path(path.expand("~"), "Downloads")

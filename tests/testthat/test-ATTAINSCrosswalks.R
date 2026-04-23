@@ -14,21 +14,8 @@ get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
   candidates <- character()
   
   if (identical(sys, "windows")) {
-    # Try Windows Known Folder (Downloads) via PowerShell/.NET
-    downloads_known <- tryCatch(
-      suppressWarnings(system2(
-        "powershell",
-        c("-NoProfile", "-Command", "[Environment]::GetFolderPath('Downloads')"),
-        stdout = TRUE
-      )),
-      error = function(e) character()
-    )
-    up <- Sys.getenv("USERPROFILE", "")
-    candidates <- c(
-      downloads_known,
-      if (nzchar(up)) file.path(up, "OneDrive", "Downloads") else character(),
-      if (nzchar(up)) file.path(up, "Downloads") else character()
-    )
+    # Try Windows Known Folder (Downloads)
+    candidates <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
   } else if (identical(sys, "darwin")) {
     # macOS
     candidates <- file.path(path.expand("~"), "Downloads")
