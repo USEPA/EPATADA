@@ -348,7 +348,7 @@ test_that("Excel output is written to temporary Downloads and DataDictionary can
   expect_true(file.exists(xlsx_path))
 
   # Add DataDictionary to the same workbook
-  TADA_CriteriaDataDictionary()
+  .TADA_CriteriaDataDictionary()
   wb <- openxlsx::loadWorkbook(xlsx_path)
   expect_true("DataDictionary" %in% names(wb))
 })

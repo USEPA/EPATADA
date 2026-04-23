@@ -2164,7 +2164,7 @@ TADA_DefineCriteriaMethodology <- function(
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
 
     # Add dictionary tabs to the final file
-    TADA_CriteriaDataDictionary(save_path)
+    .TADA_CriteriaDataDictionary(save_path)
 
     # Reload the updated workbook so wb now includes those tabs
     wb <- openxlsx::loadWorkbook(save_path)
@@ -2190,21 +2190,54 @@ TADA_DefineCriteriaMethodology <- function(
   return(DefineCriteriaMethodology)
 }
 
-#' Data Dictionary for Criteria and Methodology
+#' Data Dictionary for Criteria and Methodology Workbook
 #'
-#' Defines and summarizes the column names found in the TADA format for the
-#' Criteria and Methodology table for users to fill out. Internal function
-#' that runs automatically in TADA_DefineCriteriaMethodology
+#' Create or refresh documentation tabs for the Criteria and Methodology workbook
+#' used by TADA. This helper builds two worksheets:
+#'   - DataDictionary: human-readable definitions for each column in the
+#'     Criteria/Methodology template (name, requirement, source, type, description).
+#'   - AllowableValues: curated domain references and example values for each column,
+#'     including labeled hyperlinks to EPA ATTAINS domain values and WQX Characteristics.
+#'     
+#' The function is primarily called by TADA_DefineCriteriaMethodology() to
+#' ensure the workbook includes up-to-date guidance for users who fill out criteria,
+#' methodology, and (optionally) equation parameterization.
+#' 
+#' If the target Excel file does not exist, a new workbook is created at that path
+#' with base sheets "DefineCriteriaMethodology" and hidden "Index-Criteria", then the
+#' two documentation tabs are added (or replaced if already present).
+#' 
+#' @param downloads_path Character string path to the Excel workbook to update
+#'   (e.g., "CriteriaMethodology.xlsx"). If NULL (default), the function
+#'   attempts to locate the user's Downloads folder.
 #'
 #' @param downloads_path A character string to define the location of the
-#' 'CriteriaMethodology.xlsx' file to include the data dictionary to. Default is
+#' 'CriteriaMethodology.xlsx' file to include the data dictionary. Default is
 #' null to find the path in the Downloads folder path.
 #'
-#' @return An excel data frame tab
+#' @return No return value; called for its side effects of creating or updating
+#'   an Excel workbook in the downloads_path. The function writes or refreshes:
+#'   - "DataDictionary" worksheet with columns:
+#'     ColumnName, Requirement, Source, ColumnType, Description.
+#'   - "AllowableValues" worksheet with columns:
+#'     ColumnName, ColumnType, AllowableValues, ExampleValues.
+#'     
+#' @seealso [TADA_DefineCriteriaMethodology()] [TADA_ParametersForAnalysis()]
 #'
-#' @export
+#' @examples
+#' # Example 1: Write to a temporary path (recommended for reproducible scripts/tests)
+#' tmp_xlsx <- file.path(tempdir(), "CriteriaMethodology.xlsx")
+#' .TADA_CriteriaDataDictionary(tmp_xlsx)
 #'
-TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
+#' # Inspect created sheet names
+#' openxlsx::getSheetNames(tmp_xlsx)
+#'
+#' # Example 2: Use the default Downloads location (may vary by OS/user)
+#' # \dontrun{
+#' # .TADA_CriteriaDataDictionary()
+#' # }
+#' 
+.TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
   if (is.null(downloads_path)) {
     get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
       # Test/CI override as test-coverage does not have Downloads
