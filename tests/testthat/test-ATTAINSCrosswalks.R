@@ -1,47 +1,6 @@
 # get random data
 test_dat <- TADA_RandomTestingData()
 
-# specify downloads path
-get_downloads_path <- function(filename = "ParamUseMLCrosswalks.xlsx") {
-  # Test/CI override as test-coverage does not have Downloads
-  override <- Sys.getenv("DOWNLOADS_DIR", "")
-  if (nzchar(override)) {
-    base_dir <- normalizePath(override, winslash = "/", mustWork = FALSE)
-    return(file.path(base_dir, filename))
-  }
-
-  sys <- tolower(Sys.info()[["sysname"]])
-  candidates <- character()
-
-  if (identical(sys, "windows")) {
-    # Try Windows Known Folder (Downloads)
-    candidates <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
-  } else if (identical(sys, "darwin")) {
-    # macOS
-    candidates <- file.path(path.expand("~"), "Downloads")
-  } else {
-    # Linux/Unix: XDG + ~/Downloads
-    xdg_conf <- file.path(path.expand("~"), ".config", "user-dirs.dirs")
-    if (file.exists(xdg_conf)) {
-      lines <- readLines(xdg_conf, warn = FALSE)
-      x <- grep("^XDG_DOWNLOAD_DIR", lines, value = TRUE)
-      if (length(x)) {
-        val <- sub('^XDG_DOWNLOAD_DIR="?(.+?)"?$', "\\1", x[1])
-        val <- gsub('^\\$HOME', path.expand("~"), val)
-        val <- gsub('"', "", val, fixed = TRUE)
-        candidates <- c(candidates, val)
-      }
-    }
-    candidates <- c(candidates, file.path(path.expand("~"), "Downloads"))
-  }
-
-  # Pick the first existing candidate, else fallback to tempdir()
-  existing <- candidates[dir.exists(candidates)]
-  base_dir <- if (length(existing)) existing[1] else tempdir()
-
-  file.path(base_dir, filename)
-}
-
 # Test: Check for potential duplicates during criteria methods table generation
 testthat::test_that("TADA_ParametersForAnalysis ", {
   param_ref_none <- TADA_ParametersForAnalysis(
