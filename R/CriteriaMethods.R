@@ -3082,7 +3082,10 @@ TADA_DefineCriteriaMethodology <- function(
       grepl("Characteristic\\.CSV$", data_to_write_allow$AllowableValues),
       "WQX Characteristics",
       ifelse(
-        grepl("ResultSampleFraction\\.CSV$", data_to_write_allow$AllowableValues),
+        grepl(
+          "ResultSampleFraction\\.CSV$",
+          data_to_write_allow$AllowableValues
+        ),
         "WQX ResultSampleFraction",
         ifelse(
           grepl("MethodSpeciation\\.CSV$", data_to_write_allow$AllowableValues),
