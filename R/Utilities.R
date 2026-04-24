@@ -2884,8 +2884,8 @@ get_downloads_path <- function(filename = NULL) {
     }
   }
 
-  # now if none exists, use the temp_dir(): GitHub env does not contain the Downloads path and should be using this.
-  if (!file.exists(base_dir)) {
+  # If target downloads dir doesn't exist (e.g., CI/GitHub), fall back to tempdir
+  if (!dir.exists(base_dir)) {
     base_dir <- tempdir()
   }
 

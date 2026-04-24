@@ -2939,8 +2939,8 @@ TADA_DefineCriteriaMethodology <- function(
       "https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx",
       "",
       "https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV",
-      "",
-      "",
+      "https://cdx.epa.gov/wqx/download/DomainValues/ResultSampleFraction.CSV",
+      "https://cdx.epa.gov/wqx/download/DomainValues/MethodSpeciation.CSV",
       "https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx",
       "S; F; NA",
       "No depth info; Epilimnion-surface; Surface; Bottom; Middle",
@@ -3081,7 +3081,15 @@ TADA_DefineCriteriaMethodology <- function(
     ifelse(
       grepl("Characteristic\\.CSV$", data_to_write_allow$AllowableValues),
       "WQX Characteristics",
-      "Link"
+      ifelse(
+        grepl("ResultSampleFraction\\.CSV$", data_to_write_allow$AllowableValues),
+        "WQX ResultSampleFraction",
+        ifelse(
+          grepl("MethodSpeciation\\.CSV$", data_to_write_allow$AllowableValues),
+          "WQX MethodSpeciation",
+          "Link"
+        )
+      )
     )
   )
 
