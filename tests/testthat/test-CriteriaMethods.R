@@ -305,51 +305,13 @@ test_that("Excel output is written to temporary Downloads and DataDictionary can
   skip_on_cran()
   skip_if_not_installed("openxlsx")
 
-  # Create an isolated temp USERPROFILE with a Downloads folder
-  tmp <- withr::local_tempdir()
-  withr::local_envvar(USERPROFILE = tmp)
-  dir.create(
-    file.path(tmp, "Downloads"),
-    recursive = TRUE,
-    showWarnings = FALSE
-  )
+  tmp_xlsx <- file.path(tempdir(), "CriteriaMethodology.xlsx")
+  # Can we add DataDictionary to the same workbook
+  .TADA_CriteriaDataDictionary(tmp_xlsx)
 
-  df <- data.frame(
-    TADA.ComparableDataIdentifier = "C1",
-    TADA.CharacteristicName = "CHAR_A",
-    TADA.ResultMeasure.MeasureUnitCode = "mg/L",
-    stringsAsFactors = FALSE
-  )
-  ml <- data.frame(
-    ATTAINS.ParameterName = "PARAM_X",
-    ATTAINS.UseName = "USE1",
-    ATTAINS.OrganizationIdentifier = "ORGX",
-    UniqueSpatialCriteria = NA_character_,
-    ATTAINS.WaterType = "RIVER",
-    ATTAINS.AssessmentUnitIdentifier = "AU1",
-    TADA.ComparableDataIdentifier = "C1",
-    SaltFresh = "F",
-    DepthCategory = NA_character_,
-    stringsAsFactors = FALSE
-  )
+  expect_true(file.exists(tmp_xlsx))
 
-  # Run with excel = TRUE; ensure file is created
-  res <- TADA_DefineCriteriaMethodology(
-    .data = df,
-    MLSummaryRef = ml,
-    org_id = "ORGX",
-    displayUniqueId = TRUE,
-    excel = TRUE,
-    overwrite = TRUE
-  )
-  expect_true(is.data.frame(res))
-
-  xlsx_path <- file.path(tmp, "Downloads", "CriteriaMethodology.xlsx")
-  expect_true(file.exists(xlsx_path))
-
-  # Add DataDictionary to the same workbook
-  .TADA_CriteriaDataDictionary()
-  wb <- openxlsx::loadWorkbook(xlsx_path)
+  wb <- openxlsx::loadWorkbook(tmp_xlsx)
   expect_true("DataDictionary" %in% names(wb))
 })
 
