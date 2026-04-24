@@ -5,10 +5,16 @@
 \title{Get the excel downloads path for criteria files}
 \usage{
 get_downloads_path(filename = NULL)
+
+get_downloads_path(filename = NULL)
 }
 \value{
 the downloads path depending on a user's operating system
+
+the downloads path depending on a user's operating system
 }
 \description{
+Get the excel downloads path for criteria files
+
 Get the excel downloads path for criteria files
 }
