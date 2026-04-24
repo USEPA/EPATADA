@@ -168,7 +168,7 @@ MLSummaryRef_UT <- TADA_MLSummary(
 DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
   Data_Nutrients_UT,
   MLSummaryRef = MLSummaryRef_UT,
-  org_id = "UTAHDWQ"
+  org_id = "UTAHDWQ",
   displayUniqueId = TRUE,
   excel = FALSE
 )
