@@ -2828,12 +2828,12 @@ get_downloads_path <- function(filename = NULL) {
   if (is.null(filename)) {
     stop("get_downloads_path: No filename was provided.")
   }
-
+  
   # find OneDrive directory if present
   find_onedrive_root <- function() {
     os <- Sys.info()[["sysname"]]
     home <- path.expand("~")
-
+    
     if (os == "Windows") {
       # look for official Windows env vars
       for (v in c("OneDriveCommercial", "OneDriveConsumer", "OneDrive")) {
@@ -2857,7 +2857,7 @@ get_downloads_path <- function(filename = NULL) {
       cand <- cand[dir.exists(cand)]
       if (length(cand)) return(cand[1])
     } else {
-      # Linux/other: common community client locations
+      # Linux/other
       cand <- c(
         Sys.glob(file.path(home, "OneDrive*")),
         Sys.glob(file.path(home, "onedrive*"))
@@ -2867,27 +2867,40 @@ get_downloads_path <- function(filename = NULL) {
     }
     NA_character_
   }
-
+  
+  # default Downloads directory (return a string)
+  default_downloads_dir <- function() {
+    os <- Sys.info()[["sysname"]]
+    home <- path.expand("~")
+    if (os == "Windows") {
+      up <- Sys.getenv("USERPROFILE", unset = home)
+      return(file.path(up, "Downloads"))
+    }
+    # On Linux/macOS
+    # Try xdg-user-dir on Linux if available
+    if (os == "Linux") {
+      xdg <- tryCatch(
+        system("xdg-user-dir DOWNLOAD", intern = TRUE),
+        error = function(e) NA_character_
+      )
+      if (!is.na(xdg) && nzchar(xdg)) return(xdg)
+    }
+    file.path(home, "Downloads")
+  }
+  
+  # Choose base_dir
   od_root <- find_onedrive_root()
-
-  # If one drive exist, prioritize. Else, use default downloads folder path
-  if (file.exists(od_root)) {
+  if (!is.na(od_root) && dir.exists(od_root)) {
     base_dir <- file.path(od_root, "Downloads")
   } else {
-    default_downloads_dir <- function() {
-      os <- Sys.info()[["sysname"]]
-      if (os == "Windows") {
-        base_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
-      } else {
-        base_dir <- file.path(path.expand("~"), "Downloads")
-      }
-    }
+    base_dir <- default_downloads_dir()
   }
-
-  # If target downloads dir doesn't exist (e.g., CI/GitHub), fall back to tempdir
+  
+  # Fallback for CI/GitHub or if Downloads doesn't exist
   if (!dir.exists(base_dir)) {
     base_dir <- tempdir()
   }
-
+  
   file.path(base_dir, filename)
 }
+
