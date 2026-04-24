@@ -30,12 +30,12 @@ Criteria/Methodology template (name, requirement, source, type, description).
 \item AllowableValues: curated domain references and example values for each column,
 including labeled hyperlinks to EPA ATTAINS domain values and WQX Characteristics.
 }
-
+}
+\details{
 The function is primarily called by TADA_DefineCriteriaMethodology() to
 ensure the workbook includes up-to-date guidance for users who fill out criteria,
 methodology, and (optionally) equation parameterization.
-}
-\details{
+
 If the target Excel file does not exist, a new workbook is created at that path
 with base sheets "DefineCriteriaMethodology" and hidden "Index-Criteria", then the
 two documentation tabs are added (or replaced if already present).

@@ -2747,3 +2747,80 @@ TADA_CorrectColType <- function(.data) {
     return(def)
   }
 }
+
+#' Get the excel downloads path for criteria files
+#' 
+#' @return the downloads path depending on a user's operating system
+get_downloads_path <- function(filename = NULL) {
+  # filename arg input must be provided.
+  if (is.null(filename)){
+    stop("get_downloads_path: No filename was provided.")
+  }
+  
+  # find OneDrive directory if present
+  find_onedrive_root <- function() {
+    os <- Sys.info()[["sysname"]]
+    home <- path.expand("~")
+    
+    if (os == "Windows") {
+      # look for official Windows env vars
+      for (v in c("OneDriveCommercial", "OneDriveConsumer", "OneDrive")) {
+        p <- Sys.getenv(v, unset = NA)
+        if (!is.na(p) && nzchar(p) && dir.exists(p)) return(p)
+      }
+      # fallback: look for OneDrive* folders directly under USERPROFILE
+      up <- Sys.getenv("USERPROFILE", unset = NA)
+      if (!is.na(up) && nzchar(up) && dir.exists(up)) {
+        cand <- list.dirs(up, recursive = FALSE, full.names = TRUE)
+        cand <- cand[grepl("^OneDrive", basename(cand))]
+        cand <- cand[dir.exists(cand)]
+        if (length(cand)) return(cand[1])
+      }
+    } else if (os == "Darwin") {
+      # macOS: File Provider locations and legacy paths
+      cand <- c(
+        Sys.glob(file.path(home, "Library", "CloudStorage", "OneDrive*")),
+        Sys.glob(file.path(home, "OneDrive*"))
+      )
+      cand <- cand[dir.exists(cand)]
+      if (length(cand)) return(cand[1])
+    } else {
+      # Linux/other: common community client locations
+      cand <- c(
+        Sys.glob(file.path(home, "OneDrive*")),
+        Sys.glob(file.path(home, "onedrive*"))
+      )
+      cand <- cand[dir.exists(cand)]
+      if (length(cand)) return(cand[1])
+    }
+    NA_character_
+  }
+
+  od_root <- find_onedrive_root()
+
+  # If one drive exist, prioritize. Else, use default downloads folder path
+  if (file.exists(od_root)) {
+    base_dir <- od_root
+  } else {
+    default_downloads_dir <- function() {
+      os <- Sys.info()[["sysname"]]
+      if (os == "Windows") {
+        base_dir <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
+      } else {
+        base_dir <- file.path(path.expand("~"), "Downloads")
+      }
+    }
+  }
+
+  # now if none exists, use the temp_dir(): GitHub env does not contain the Downloads path and should be using this.
+  if (!file.exists(base_dir)) {
+    override <- Sys.getenv("DOWNLOADS_DIR", "")
+    if (nzchar(override)) {
+      base_dir <- normalizePath(override, winslash = "/", mustWork = FALSE)
+      return(file.path(base_dir, filename))
+    }
+    base_dir <- tempdir()
+  }
+
+  file.path(base_dir, filename)
+}

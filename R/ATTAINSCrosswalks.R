@@ -1499,48 +1499,7 @@ TADA_ParametersForAnalysis <- function(
     rm(TADA_param)
   }
   if (excel == TRUE) {
-    # Excel ref files to be stored in the Downloads folder location.
-    # Define the OneDrive Downloads path
-    get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
-      # Test/CI override as test-coverage does not have Downloads
-      override <- Sys.getenv("DOWNLOADS_DIR", "")
-      if (nzchar(override)) {
-        base_dir <- normalizePath(override, winslash = "/", mustWork = FALSE)
-        return(file.path(base_dir, filename))
-      }
-
-      sys <- tolower(Sys.info()[["sysname"]])
-      candidates <- character()
-
-      if (identical(sys, "windows")) {
-        # Try Windows Known Folder (Downloads)
-        candidates <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
-      } else if (identical(sys, "darwin")) {
-        # macOS
-        candidates <- file.path(path.expand("~"), "Downloads")
-      } else {
-        # Linux/Unix: XDG + ~/Downloads
-        xdg_conf <- file.path(path.expand("~"), ".config", "user-dirs.dirs")
-        if (file.exists(xdg_conf)) {
-          lines <- readLines(xdg_conf, warn = FALSE)
-          x <- grep("^XDG_DOWNLOAD_DIR", lines, value = TRUE)
-          if (length(x)) {
-            val <- sub('^XDG_DOWNLOAD_DIR="?(.+?)"?$', "\\1", x[1])
-            val <- gsub('^\\$HOME', path.expand("~"), val)
-            val <- gsub('"', "", val, fixed = TRUE)
-            candidates <- c(candidates, val)
-          }
-        }
-        candidates <- c(candidates, file.path(path.expand("~"), "Downloads"))
-      }
-
-      # Pick the first existing candidate, else fallback to tempdir()
-      existing <- candidates[dir.exists(candidates)]
-      base_dir <- if (length(existing)) existing[1] else tempdir()
-
-      file.path(base_dir, filename)
-    }
-
+    # get downloads path
     downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
 
     # create a brand new workbook and decide on save path at the end.
@@ -2649,48 +2608,7 @@ TADA_UsesForAnalysis <- function(
     rm(ATTAINS_param)
   }
   if (excel == TRUE) {
-    # Excel ref files to be stored in the Downloads folder location.
-    # Define the OneDrive Downloads path
-    get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
-      # Test/CI override as test-coverage does not have Downloads
-      override <- Sys.getenv("DOWNLOADS_DIR", "")
-      if (nzchar(override)) {
-        base_dir <- normalizePath(override, winslash = "/", mustWork = FALSE)
-        return(file.path(base_dir, filename))
-      }
-
-      sys <- tolower(Sys.info()[["sysname"]])
-      candidates <- character()
-
-      if (identical(sys, "windows")) {
-        # Try Windows Known Folder (Downloads)
-        candidates <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
-      } else if (identical(sys, "darwin")) {
-        # macOS
-        candidates <- file.path(path.expand("~"), "Downloads")
-      } else {
-        # Linux/Unix: XDG + ~/Downloads
-        xdg_conf <- file.path(path.expand("~"), ".config", "user-dirs.dirs")
-        if (file.exists(xdg_conf)) {
-          lines <- readLines(xdg_conf, warn = FALSE)
-          x <- grep("^XDG_DOWNLOAD_DIR", lines, value = TRUE)
-          if (length(x)) {
-            val <- sub('^XDG_DOWNLOAD_DIR="?(.+?)"?$', "\\1", x[1])
-            val <- gsub('^\\$HOME', path.expand("~"), val)
-            val <- gsub('"', "", val, fixed = TRUE)
-            candidates <- c(candidates, val)
-          }
-        }
-        candidates <- c(candidates, file.path(path.expand("~"), "Downloads"))
-      }
-
-      # Pick the first existing candidate, else fallback to tempdir()
-      existing <- candidates[dir.exists(candidates)]
-      base_dir <- if (length(existing)) existing[1] else tempdir()
-
-      file.path(base_dir, filename)
-    }
-
+    # get downloads path
     downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
 
     # Create workbook if it doesn't exist (seed Index with Include/Exclude list)
@@ -4371,47 +4289,7 @@ TADA_MLSummary <- function(
   }
   # Only run if user wants to create an excel guided spreadsheet.
   if (excel == TRUE) {
-    # Excel ref files to be stored in the Downloads folder location.
-    get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
-      # Test/CI override as test-coverage does not have Downloads
-      override <- Sys.getenv("DOWNLOADS_DIR", "")
-      if (nzchar(override)) {
-        base_dir <- normalizePath(override, winslash = "/", mustWork = FALSE)
-        return(file.path(base_dir, filename))
-      }
-
-      sys <- tolower(Sys.info()[["sysname"]])
-      candidates <- character()
-
-      if (identical(sys, "windows")) {
-        # Try Windows Known Folder (Downloads)
-        candidates <- file.path(Sys.getenv("USERPROFILE"), "Downloads")
-      } else if (identical(sys, "darwin")) {
-        # macOS
-        candidates <- file.path(path.expand("~"), "Downloads")
-      } else {
-        # Linux/Unix: XDG + ~/Downloads
-        xdg_conf <- file.path(path.expand("~"), ".config", "user-dirs.dirs")
-        if (file.exists(xdg_conf)) {
-          lines <- readLines(xdg_conf, warn = FALSE)
-          x <- grep("^XDG_DOWNLOAD_DIR", lines, value = TRUE)
-          if (length(x)) {
-            val <- sub('^XDG_DOWNLOAD_DIR="?(.+?)"?$', "\\1", x[1])
-            val <- gsub('^\\$HOME', path.expand("~"), val)
-            val <- gsub('"', "", val, fixed = TRUE)
-            candidates <- c(candidates, val)
-          }
-        }
-        candidates <- c(candidates, file.path(path.expand("~"), "Downloads"))
-      }
-
-      # Pick the first existing candidate, else fallback to tempdir()
-      existing <- candidates[dir.exists(candidates)]
-      base_dir <- if (length(existing)) existing[1] else tempdir()
-
-      file.path(base_dir, filename)
-    }
-
+    # get downloads path
     downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
 
     # Create workbook if it doesn't exist (seed Index with Include/Exclude list)
@@ -4441,7 +4319,8 @@ TADA_MLSummary <- function(
           ATTAINS.OrganizationIdentifier,
           ATTAINS.ParameterName,
           TADA.ComparableDataIdentifier
-        )
+        ) |>
+          dplyr::distinct()
 
         TADA_UsesForAnalysis(
           .data = .data,
