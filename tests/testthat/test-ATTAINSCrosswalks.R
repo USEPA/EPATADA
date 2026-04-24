@@ -2,7 +2,7 @@
 test_dat <- TADA_RandomTestingData()
 
 # specify downloads path
-get_downloads_path <- function(filename = "CriteriaCrosswalks.xlsx") {
+get_downloads_path <- function(filename = "ParamUseMLCrosswalks.xlsx") {
   # Test/CI override as test-coverage does not have Downloads
   override <- Sys.getenv("DOWNLOADS_DIR", "")
   if (nzchar(override)) {
@@ -198,9 +198,9 @@ testthat::test_that("TADA_DefineCriteriaMethodology ", {
   )
 })
 
-test_that("Excel file generation works correctly with overwrite = F in TADA_UsesForAnalysis when the CriteriaCrosswalks.xlsx does not exist yet.", {
+test_that("Excel file generation works correctly with overwrite = F in TADA_UsesForAnalysis when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
   # specify downloads path
-  downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
+  downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
   # 1. Remove the file if it already exists
   if (file.exists(downloads_path)) {
@@ -212,23 +212,34 @@ test_that("Excel file generation works correctly with overwrite = F in TADA_Uses
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ"
   )
-  usesTest <- TADA_UsesForAnalysis(
-    Data_MT_MissoulaCounty,
-    org_id = "MTDEQ",
-    paramRef = paramTest,
-    excel = T,
-    overwrite = F
+  msg <- utils::capture.output(
+    usesTest <- TADA_UsesForAnalysis(
+      Data_MT_MissoulaCounty,
+      org_id = "MTDEQ",
+      paramRef = paramTest,
+      excel = T,
+      overwrite = F
+    )
   )
   # 3. Assertions
   expect_true(file.exists(downloads_path))
 
+  # find the timestamped copy index name
+  idx_pat <- which(grepl("ParamUseMLCrosswalks_", msg, fixed = TRUE))
+  
+  # find timestamped path
+  timestamp_path <- gsub("File saved to: ", "", msg[idx_pat])
+  
+  # remove time stamped path
+  if (file.exists(timestamp_path)) file.remove(timestamp_path)
+  
   # Optional: Clean up after test completes
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-test_that("Excel file generation works correctly with overwrite = T in TADA_UsesForAnalysis when the CriteriaCrosswalks.xlsx does not exist yet.", {
+test_that("Excel file generation works correctly with overwrite = T in TADA_UsesForAnalysis when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
   # specify downloads path
-  downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
+  downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
   # 1. Remove the file if it already exists
   if (file.exists(downloads_path)) {
@@ -254,9 +265,9 @@ test_that("Excel file generation works correctly with overwrite = T in TADA_Uses
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-test_that("Excel file generation works correctly with overwrite = F in TADA_MLSummaryRef when the CriteriaCrosswalks.xlsx does not exist yet.", {
+test_that("Excel file generation works correctly with overwrite = F in TADA_MLSummaryRef when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
   # specify downloads path
-  downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
+  downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
   # 1. Remove the file if it already exists
   if (file.exists(downloads_path)) {
@@ -273,23 +284,34 @@ test_that("Excel file generation works correctly with overwrite = F in TADA_MLSu
     org_id = "MTDEQ",
     paramRef = paramTest
   )
-  final <- TADA_MLSummary(
-    Data_MT_MissoulaCounty,
-    org_id = "MTDEQ",
-    usesRef = usesTest,
-    excel = T,
-    overwrite = F
+  msg <- utils::capture.output(
+    final <- TADA_MLSummary(
+      Data_MT_MissoulaCounty,
+      org_id = "MTDEQ",
+      usesRef = usesTest,
+      excel = T,
+      overwrite = F
+    )
   )
   # 3. Assertions
   expect_true(file.exists(downloads_path))
+
+  # find the timestamped copy index name
+  idx_pat <- which(grepl("ParamUseMLCrosswalks_", msg, fixed = TRUE))
+  
+  # find timestamped path
+  timestamp_path <- gsub("File saved to: ", "", msg[idx_pat])
+  
+  # remove time stamped path
+  if (file.exists(timestamp_path)) file.remove(timestamp_path)
 
   # Optional: Clean up after test completes
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-test_that("Excel file generation works correctly with overwrite = T in TADA_MLSummaryRef when the CriteriaCrosswalks.xlsx does not exist yet.", {
+test_that("Excel file generation works correctly with overwrite = T in TADA_MLSummaryRef when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
   # specify downloads path
-  downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
+  downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
   # 1. Remove the file if it already exists
   if (file.exists(downloads_path)) {
@@ -322,9 +344,9 @@ test_that("Excel file generation works correctly with overwrite = T in TADA_MLSu
 
 test_that("Excel file generation works with blank inputs in TADA_ParametersForAnalysis even when excel file does not exist yet.", {
   # specify downloads path
-  downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
+  downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
-  # 1. Remove the file if it already exists
+  # Remove the file if it already exists
   if (file.exists(downloads_path)) {
     file.remove(downloads_path)
   }
@@ -344,97 +366,130 @@ test_that("Excel file generation works with blank inputs in TADA_ParametersForAn
   if (file.exists(downloads_path)) {
     file.remove(downloads_path)
   }
-  # Run the function being tested
-  paramTest2 <- TADA_ParametersForAnalysis(excel = T, overwrite = F)
+  # Run the function with overwrite = F now
+  msg <- utils::capture.output(
+    paramTest2 <- TADA_ParametersForAnalysis(excel = T, overwrite = F)
+  )
   # Reload the updated workbook so wb now includes those tabs
   wb <- openxlsx::loadWorkbook(downloads_path)
   nsheets2 <- length(names(wb))
+  expect_true(nsheets2 == 3)
   # now continue any remaining edits if needed, then final save
   openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
+  # find the timestamped copy index
+  idx_pat <- which(grepl("ParamUseMLCrosswalks_", msg, fixed = TRUE))
+  
+  # find timestamped path
+  timestamp_path <- msg[idx_pat]
+  
+  # remove time stamped path
+  if (file.exists(timestamp_path)) file.remove(timestamp_path)
 
-  expect_true(file.exists(downloads_path))
-  expect_true(nsheets2 == 3)
-
-  # Optional: Clean up after test completes
+  # Clean up after test completes
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
 test_that("Excel file generation works with blank inputs in TADA_UsesForAnalysis even when excel file does not exist yet.", {
   # specify downloads path
-  downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
+  downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
-  # 1. Remove the file if it already exists
+  # Remove the file if it already exists
   if (file.exists(downloads_path)) {
     file.remove(downloads_path)
   }
 
-  # 2. Run the function being tested
+  # Run the function being tested
   usesTest <- TADA_UsesForAnalysis(excel = T, overwrite = T)
   # Reload the updated workbook so wb now includes those tabs
   wb <- openxlsx::loadWorkbook(downloads_path)
   nsheets <- length(names(wb))
+  expect_true(nsheets == 4)
   # now continue any remaining edits if needed, then final save
   openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
 
   expect_true(file.exists(downloads_path))
-  expect_true(nsheets == 4)
 
   # Remove the file and test with overwrite = F
   if (file.exists(downloads_path)) {
     file.remove(downloads_path)
   }
-  # Run the function being tested
-  usesTest2 <- TADA_UsesForAnalysis(excel = T, overwrite = F)
+  # Run the function with overwrite = F now
+  msg <- utils::capture.output(
+    usesTest2 <- TADA_UsesForAnalysis(excel = T, overwrite = F)
+  )
   # Reload the updated workbook so wb now includes those tabs
   wb <- openxlsx::loadWorkbook(downloads_path)
   nsheets2 <- length(names(wb))
-  # now continue any remaining edits if needed, then final save
-  openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
-
-  expect_true(file.exists(downloads_path))
   # When excel file doesn't exist yet, it will only contain Parameter crosswalk in this file. So it is 1 less than nsheets
   expect_true(nsheets2 == 3)
+  # now save again
+  openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
+  
+  # find the timestamped copy index
+  idx_pat <- which(grepl("ParamUseMLCrosswalks_", msg, fixed = TRUE))
+  
+  # find timestamped path
+  timestamp_path <- gsub("File saved to: ", "", msg[idx_pat])
+  
+  # remove time stamped path
+  if (file.exists(timestamp_path)) file.remove(timestamp_path)
+  
+  expect_true(file.exists(downloads_path))
 
-  # Optional: Clean up after test completes
+  # Clean up after test completes
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
 test_that("Excel file generation works with blank inputs in TADA_MLSummary even when excel file does not exist yet.", {
   # specify downloads path
-  downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
+  downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
-  # 1. Remove the file if it already exists
+  # Remove the file if it already exists
   if (file.exists(downloads_path)) {
     file.remove(downloads_path)
   }
 
-  # 2. Run the function being tested
+  # Run test
   ML_Test <- TADA_MLSummary(excel = T, overwrite = T)
   # Reload the updated workbook so wb now includes those tabs
   wb <- openxlsx::loadWorkbook(downloads_path)
+  
   nsheets <- length(names(wb))
-  # now continue any remaining edits if needed, then final save
-  openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
-
-  expect_true(file.exists(downloads_path))
   expect_true(nsheets == 5)
+  # now save again
+  openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
+  # file should exist
+  expect_true(file.exists(downloads_path))
 
-  # Remove the file and test with overwrite = F
+  # Remove the file
   if (file.exists(downloads_path)) {
     file.remove(downloads_path)
   }
-  # Run the function being tested
-  ML_Test2 <- TADA_MLSummary(excel = T, overwrite = F)
+  
+  # Run the function with overwrite = F now
+  msg <- utils::capture.output(
+    ML_Test2 <- TADA_MLSummary(excel = T, overwrite = F)
+  )
   # Reload the updated workbook so wb now includes those tabs
   wb <- openxlsx::loadWorkbook(downloads_path)
   nsheets2 <- length(names(wb))
-  # now continue any remaining edits if needed, then final save
+  # When excel file doesn't exist yet, it will only contain Parameter & uses crosswalk in this file. So it is 1 less than nsheets
+  expect_true(nsheets2 == 4)
+  # now save again
   openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
 
+  # find the timestamped copy index name
+  idx_pat <- which(grepl("ParamUseMLCrosswalks_", msg, fixed = TRUE))
+  
+  # find timestamped path
+  timestamp_path <- gsub("File saved to: ", "", msg[idx_pat])
+  
+  # remove time stamped path
+  if (file.exists(timestamp_path)) file.remove(timestamp_path)
+  
+  # orginal copy still exists check
   expect_true(file.exists(downloads_path))
-  # When excel file doesn't exist yet, it will only contain Parameter crosswalk in this file. So it is 1 less than nsheets
-  expect_true(nsheets2 == 4)
-
-  # Optional: Clean up after test completes
+  
+  # Clean up after test completes
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })

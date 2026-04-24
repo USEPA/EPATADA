@@ -2105,6 +2105,8 @@ TADA_DefineCriteriaMethodology <- function(
       if (!file.exists(downloads_path)) {
         openxlsx::activeSheet(wb) <- "DefineCriteriaMethodology"
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
+        # Add dictionary tabs to the final file
+        .TADA_CriteriaDataDictionary(save_path)
         message(
           "TADA_DefineCriteriaMethodology: ",
           "overwrite = F selected but no original CriteriaMethodology.xlsx was found. Creating original version as well as a copy with timestamp."
