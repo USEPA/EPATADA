@@ -2828,12 +2828,12 @@ get_downloads_path <- function(filename = NULL) {
   if (is.null(filename)) {
     stop("get_downloads_path: No filename was provided.")
   }
-  
+
   # find OneDrive directory if present
   find_onedrive_root <- function() {
     os <- Sys.info()[["sysname"]]
     home <- path.expand("~")
-    
+
     if (os == "Windows") {
       # look for official Windows env vars
       for (v in c("OneDriveCommercial", "OneDriveConsumer", "OneDrive")) {
@@ -2867,7 +2867,7 @@ get_downloads_path <- function(filename = NULL) {
     }
     NA_character_
   }
-  
+
   # default Downloads directory (return a string)
   default_downloads_dir <- function() {
     os <- Sys.info()[["sysname"]]
@@ -2887,7 +2887,7 @@ get_downloads_path <- function(filename = NULL) {
     }
     file.path(home, "Downloads")
   }
-  
+
   # Choose base_dir
   od_root <- find_onedrive_root()
   if (!is.na(od_root) && dir.exists(od_root)) {
@@ -2895,12 +2895,11 @@ get_downloads_path <- function(filename = NULL) {
   } else {
     base_dir <- default_downloads_dir()
   }
-  
+
   # Fallback for CI/GitHub or if Downloads doesn't exist
   if (!dir.exists(base_dir)) {
     base_dir <- tempdir()
   }
-  
+
   file.path(base_dir, filename)
 }
-
