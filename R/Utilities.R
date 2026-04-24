@@ -2749,19 +2749,19 @@ TADA_CorrectColType <- function(.data) {
 }
 
 #' Get the excel downloads path for criteria files
-#' 
+#'
 #' @return the downloads path depending on a user's operating system
 get_downloads_path <- function(filename = NULL) {
   # filename arg input must be provided.
-  if (is.null(filename)){
+  if (is.null(filename)) {
     stop("get_downloads_path: No filename was provided.")
   }
-  
+
   # find OneDrive directory if present
   find_onedrive_root <- function() {
     os <- Sys.info()[["sysname"]]
     home <- path.expand("~")
-    
+
     if (os == "Windows") {
       # look for official Windows env vars
       for (v in c("OneDriveCommercial", "OneDriveConsumer", "OneDrive")) {
