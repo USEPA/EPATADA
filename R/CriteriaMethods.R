@@ -317,7 +317,9 @@ TADA_DefineCriteriaMethodology <- function(
     # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
     if (is.null(org_id)) {
       org_id <- ""
-      message("Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'.")
+      message(
+        "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+      )
     }
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.

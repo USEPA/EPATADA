@@ -1120,7 +1120,9 @@ TADA_ParametersForAnalysis <- function(
     # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
     if (!is.character(org_id) & is.null(org_id)) {
       org_id <- ""
-      message("Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'.")
+      message(
+        "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+      )
     }
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
@@ -2204,7 +2206,9 @@ TADA_UsesForAnalysis <- function(
     # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
     if (!is.character(org_id) & is.null(org_id)) {
       org_id <- ""
-      message("Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'.")
+      message(
+        "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+      )
     }
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
@@ -2685,7 +2689,9 @@ TADA_UsesForAnalysis <- function(
     org_filter <- org_id
     if (is.null(org_filter)) {
       org_filter <- ""
-      message("Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'.")
+      message(
+        "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+      )
     }
     if (length(org_filter) == 1 && org_filter == "") {
       ATTAINS_param <- ATTAINSParamUseOrgRef
@@ -3213,7 +3219,9 @@ TADA_AssignUsesToAU <- function(
     # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
     if (!is.character(org_id) & is.null(org_id)) {
       org_id <- ""
-      message("Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'.")
+      message(
+        "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+      )
     }
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
@@ -3585,7 +3593,9 @@ TADA_AssignUsesToWaterType <- function(
   # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
   if (!is.character(org_id) & is.null(org_id)) {
     org_id <- ""
-    message("Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'.")
+    message(
+      "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+    )
   }
 
   # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
@@ -4501,4 +4511,3 @@ TADA_MLSummary <- function(
   }
   return(MLSummaryRef)
 }
-

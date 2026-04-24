@@ -226,13 +226,15 @@ test_that("Excel file generation works correctly with overwrite = F in TADA_Uses
 
   # find the timestamped copy index name
   idx_pat <- which(grepl("ParamUseMLCrosswalks_", msg, fixed = TRUE))
-  
+
   # find timestamped path
   timestamp_path <- gsub("File saved to: ", "", msg[idx_pat])
-  
+
   # remove time stamped path
-  if (file.exists(timestamp_path)) file.remove(timestamp_path)
-  
+  if (file.exists(timestamp_path)) {
+    file.remove(timestamp_path)
+  }
+
   # Optional: Clean up after test completes
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
@@ -298,12 +300,14 @@ test_that("Excel file generation works correctly with overwrite = F in TADA_MLSu
 
   # find the timestamped copy index name
   idx_pat <- which(grepl("ParamUseMLCrosswalks_", msg, fixed = TRUE))
-  
+
   # find timestamped path
   timestamp_path <- gsub("File saved to: ", "", msg[idx_pat])
-  
+
   # remove time stamped path
-  if (file.exists(timestamp_path)) file.remove(timestamp_path)
+  if (file.exists(timestamp_path)) {
+    file.remove(timestamp_path)
+  }
 
   # Optional: Clean up after test completes
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
@@ -378,12 +382,14 @@ test_that("Excel file generation works with blank inputs in TADA_ParametersForAn
   openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
   # find the timestamped copy index
   idx_pat <- which(grepl("ParamUseMLCrosswalks_", msg, fixed = TRUE))
-  
+
   # find timestamped path
   timestamp_path <- msg[idx_pat]
-  
+
   # remove time stamped path
-  if (file.exists(timestamp_path)) file.remove(timestamp_path)
+  if (file.exists(timestamp_path)) {
+    file.remove(timestamp_path)
+  }
 
   # Clean up after test completes
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
@@ -424,16 +430,18 @@ test_that("Excel file generation works with blank inputs in TADA_UsesForAnalysis
   expect_true(nsheets2 == 3)
   # now save again
   openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
-  
+
   # find the timestamped copy index
   idx_pat <- which(grepl("ParamUseMLCrosswalks_", msg, fixed = TRUE))
-  
+
   # find timestamped path
   timestamp_path <- gsub("File saved to: ", "", msg[idx_pat])
-  
+
   # remove time stamped path
-  if (file.exists(timestamp_path)) file.remove(timestamp_path)
-  
+  if (file.exists(timestamp_path)) {
+    file.remove(timestamp_path)
+  }
+
   expect_true(file.exists(downloads_path))
 
   # Clean up after test completes
@@ -453,7 +461,7 @@ test_that("Excel file generation works with blank inputs in TADA_MLSummary even 
   ML_Test <- TADA_MLSummary(excel = T, overwrite = T)
   # Reload the updated workbook so wb now includes those tabs
   wb <- openxlsx::loadWorkbook(downloads_path)
-  
+
   nsheets <- length(names(wb))
   expect_true(nsheets == 5)
   # now save again
@@ -465,7 +473,7 @@ test_that("Excel file generation works with blank inputs in TADA_MLSummary even 
   if (file.exists(downloads_path)) {
     file.remove(downloads_path)
   }
-  
+
   # Run the function with overwrite = F now
   msg <- utils::capture.output(
     ML_Test2 <- TADA_MLSummary(excel = T, overwrite = F)
@@ -480,16 +488,18 @@ test_that("Excel file generation works with blank inputs in TADA_MLSummary even 
 
   # find the timestamped copy index name
   idx_pat <- which(grepl("ParamUseMLCrosswalks_", msg, fixed = TRUE))
-  
+
   # find timestamped path
   timestamp_path <- gsub("File saved to: ", "", msg[idx_pat])
-  
+
   # remove time stamped path
-  if (file.exists(timestamp_path)) file.remove(timestamp_path)
-  
+  if (file.exists(timestamp_path)) {
+    file.remove(timestamp_path)
+  }
+
   # orginal copy still exists check
   expect_true(file.exists(downloads_path))
-  
+
   # Clean up after test completes
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
