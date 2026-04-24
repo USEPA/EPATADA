@@ -2800,7 +2800,7 @@ get_downloads_path <- function(filename = NULL) {
 
   # If one drive exist, prioritize. Else, use default downloads folder path
   if (file.exists(od_root)) {
-    base_dir <- od_root
+    base_dir <- file.path(od_root, "Downloads")
   } else {
     default_downloads_dir <- function() {
       os <- Sys.info()[["sysname"]]
@@ -2814,11 +2814,6 @@ get_downloads_path <- function(filename = NULL) {
 
   # now if none exists, use the temp_dir(): GitHub env does not contain the Downloads path and should be using this.
   if (!file.exists(base_dir)) {
-    override <- Sys.getenv("DOWNLOADS_DIR", "")
-    if (nzchar(override)) {
-      base_dir <- normalizePath(override, winslash = "/", mustWork = FALSE)
-      return(file.path(base_dir, filename))
-    }
     base_dir <- tempdir()
   }
 

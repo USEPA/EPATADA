@@ -992,7 +992,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 #' If you have any trouble locating the file, please type the following into
 #' your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-#' The file will be named "CriteriaCrosswalks.xlsx". The excel spreadsheet will highlight
+#' The file will be named "ParamUseMLCrosswalks.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
 #' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
@@ -1500,7 +1500,7 @@ TADA_ParametersForAnalysis <- function(
   }
   if (excel == TRUE) {
     # get downloads path
-    downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
+    downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
     # create a brand new workbook and decide on save path at the end.
     wb <- openxlsx::createWorkbook()
@@ -1786,7 +1786,7 @@ TADA_ParametersForAnalysis <- function(
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
         message(
           "TADA_ParametersForAnalysis: 
-  overwrite = F selected but no original CriteriaCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
+  overwrite = F selected but no original ParamUseMLCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
         )
         wb <- openxlsx::loadWorkbook(downloads_path)
       }
@@ -1924,7 +1924,7 @@ TADA_ParametersForAnalysis <- function(
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 #' If you have any trouble locating the file, please type the following into
 #' your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-#' The file will be named "CriteriaCrosswalks.xlsx". The excel spreadsheet will highlight
+#' The file will be named "ParamUseMLCrosswalks.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
 #' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
@@ -2609,13 +2609,13 @@ TADA_UsesForAnalysis <- function(
   }
   if (excel == TRUE) {
     # get downloads path
-    downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
+    downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
     # Create workbook if it doesn't exist (seed Index with Include/Exclude list)
     if (!file.exists(downloads_path)) {
       message(
         "TADA_UsesForAnalysis:
-  CriteriaCrosswalks.xlsx does not exist yet. Generating the excel file using your paramRef input (or NULL input if generating a blank sheet)."
+  ParamUseMLCrosswalks.xlsx does not exist yet. Generating the excel file using your paramRef input (or NULL input if generating a blank sheet)."
       )
       if (!isTRUE(overwrite)) {
         message(
@@ -2892,7 +2892,7 @@ TADA_UsesForAnalysis <- function(
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
         message(
           "TADA_UsesForAnalysis: ",
-          "overwrite = F selected but no original CriteriaCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
+          "overwrite = F selected but no original ParamUseMLCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
         )
         wb <- openxlsx::loadWorkbook(downloads_path)
       }
@@ -3003,7 +3003,7 @@ TADA_UsesForAnalysis <- function(
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 #' If you have any trouble locating the file, please type the following into
 #' your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-#' The file will be named "CriteriaCrosswalks.xlsx". The excel spreadsheet will highlight
+#' The file will be named "ParamUseMLCrosswalks.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
 #' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
@@ -3763,7 +3763,7 @@ TADA_AssignUsesToWaterType <- function(
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 #' If you have any trouble locating the file, please type the following into
 #' your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-#' The file will be named "CriteriaCrosswalks.xlsx". The excel spreadsheet will highlight
+#' The file will be named "ParamUseMLCrosswalks.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
 #' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
@@ -4290,13 +4290,13 @@ TADA_MLSummary <- function(
   # Only run if user wants to create an excel guided spreadsheet.
   if (excel == TRUE) {
     # get downloads path
-    downloads_path <- get_downloads_path("CriteriaCrosswalks.xlsx")
+    downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
     # Create workbook if it doesn't exist (seed Index with Include/Exclude list)
     if (!file.exists(downloads_path)) {
       message(
         "TADA_MLSummary:
-  CriteriaCrosswalks.xlsx does not exist yet. Generating the excel file using your usesRef input (or NULL input if generating a blank sheet)."
+  ParamUseMLCrosswalks.xlsx does not exist yet. Generating the excel file using your usesRef input (or NULL input if generating a blank sheet)."
       )
       if (!isTRUE(overwrite)) {
         message(
@@ -4307,7 +4307,7 @@ TADA_MLSummary <- function(
       # if no file exists yet, use the paramRef as the input from this function to generate the paramRef tabs from TADA_ParametersForAnalysis
       # but if generating a blank file, run TADA_ParametersForAnalysis with no inputs
       if (missing(usesRef)) {
-        # TADA_UsesForAnalysis will run TADA_ParametersForAnalysis too if the CriteriaCrosswalks.xlsx does not exist yet
+        # TADA_UsesForAnalysis will run TADA_ParametersForAnalysis too if the ParamUseMLCrosswalks.xlsx does not exist yet
         TADA_UsesForAnalysis(
           excel = excel,
           overwrite = T # to avoid creating two duplicate timestamp files.
@@ -4462,7 +4462,7 @@ TADA_MLSummary <- function(
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
         message(
           "TADA_UsesForAnalysis: ",
-          "overwrite = F selected but no original CriteriaCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
+          "overwrite = F selected but no original ParamUseMLCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
         )
         wb <- openxlsx::loadWorkbook(downloads_path)
       }
