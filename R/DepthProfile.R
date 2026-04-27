@@ -1668,7 +1668,7 @@ TADA_DepthProfilePlot <- function(
           paste0(
             param1$TADA.ResultMeasureValue,
             " ",
-            param3$TADA.ResultMeasure.MeasureUnitCode
+            param1$TADA.ResultMeasure.MeasureUnitCode
           ),
           "<br>",
           "Activity Start Date:",
