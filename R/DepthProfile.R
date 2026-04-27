@@ -986,13 +986,14 @@ TADA_DepthProfilePlot <- function(
         .data,
         surfacevalue = 2,
         bottomvalue = bottomvalue
-      ) |> dplyr::mutate(
-        TADA.DepthCategory.Flag = ifelse(
-          TADA.DepthCategory.Flag %in% c("Surface", "Middle"),
-          NA,
-          TADA.DepthCategory.Flag
+      ) |>
+        dplyr::mutate(
+          TADA.DepthCategory.Flag = ifelse(
+            TADA.DepthCategory.Flag %in% c("Surface", "Middle"),
+            NA,
+            TADA.DepthCategory.Flag
+          )
         )
-      )
     }
 
     if (bottomvalue == "null" & is.numeric(surfacevalue)) {
@@ -1000,13 +1001,14 @@ TADA_DepthProfilePlot <- function(
         .data,
         surfacevalue = surfacevalue,
         bottomvalue = 2
-      ) |> dplyr::mutate(
-        TADA.DepthCategory.Flag = ifelse(
-          TADA.DepthCategory.Flag %in% c("Bottom", "Middle"),
-          NA,
-          TADA.DepthCategory.Flag
+      ) |>
+        dplyr::mutate(
+          TADA.DepthCategory.Flag = ifelse(
+            TADA.DepthCategory.Flag %in% c("Bottom", "Middle"),
+            NA,
+            TADA.DepthCategory.Flag
+          )
         )
-      )
     }
 
     if (is.numeric(bottomvalue) & is.numeric(surfacevalue)) {
