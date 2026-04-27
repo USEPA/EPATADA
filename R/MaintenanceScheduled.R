@@ -7,7 +7,7 @@
 #' @details
 #' The function sequentially calls several internal functions that update different sets
 #' of reference data. Some updates may take longer than others, particularly the
-#' `TADA_UpdateATTAINSParamUseOrgRef()` function.
+#' `.TADA_UpdateATTAINSParamUseOrgRef()` function.
 #'
 #' The specific reference files updated by this function include:
 #' \itemize{
@@ -36,14 +36,13 @@
 #' .TADA_UpdateRefFiles()
 #' }
 .TADA_UpdateRefFiles <- function() {
-  # Update All TADA Reference Files
+  # Update All Reference Files
 
   # ATTAINSRefTables.R
   tryCatch(
     {
-      TADA_UpdateATTAINSOrgIDsRef()
-      TADA_UpdateATTAINSParamUseOrgRef() # takes a long time
-      TADA_UpdateATTAINSParamToWQPCharRef()
+      .TADA_UpdateATTAINSOrgIDsRef()
+      .TADA_UpdateATTAINSParamUseOrgRef() # takes a long time, this is the Assessments Profile (Expert Query National Extract)
     },
     error = function(e) {
       message("Error updating ATTAINS reference tables: ", e$message)
@@ -62,6 +61,7 @@
       .TADA_UpdateMeasureQualifierCodeRef()
       .TADA_UpdateMonLocTypeRef()
       .TADA_UpdateWQPOrganizationRef()
+      .TADA_UpdateWQXCharAliasRef()
     },
     error = function(e) {
       message("Error updating WQPWQX reference tables: ", e$message)
@@ -88,6 +88,20 @@
     },
     error = function(e) {
       message("Error updating tribal geospatial layers: ", e$message)
+    }
+  )
+
+  # TADARefTables.R
+  tryCatch(
+    {
+      .TADA_UpdateTADACharAliasRef()
+      .TADA_UpdateTADAUsesAliasRef()
+    },
+    error = function(e) {
+      message(
+        "Error updating TADA characteristic or use alias reference files: ",
+        e$message
+      )
     }
   )
 }
@@ -122,7 +136,7 @@
         ask = FALSE
       )
       message("Data_Nutrients_UT")
-      message(dim(Data_Nutrients_UT))
+      dim(Data_Nutrients_UT)
       usethis::use_data(
         Data_Nutrients_UT,
         internal = FALSE,
@@ -150,7 +164,7 @@
         ask = FALSE
       )
       message("Data_6Tribes_5y")
-      message(dim(Data_6Tribes_5y))
+      dim(Data_6Tribes_5y)
       usethis::use_data(
         Data_6Tribes_5y,
         internal = FALSE,
@@ -167,10 +181,9 @@
         Data_6Tribes_5y,
         Data_6Tribes_5y$TADA.ActivityMediaName %in% c("WATER")
       )
-      harmonized_data <- TADA_RunKeyFlagFunctions(
-        harmonized_data,
-        clean = "both"
-      )
+
+      harmonized_data <- TADA_RunKeyFlagFunctions(harmonized_data, clean = TRUE)
+
       rm(Data_6Tribes_5y)
 
       harmonized_data <- harmonized_data |>
@@ -194,7 +207,7 @@
 
       Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(harmonized_data)
       message("Data_6Tribes_5y_Harmonized")
-      message(dim(Data_6Tribes_5y_Harmonized))
+      dim(Data_6Tribes_5y_Harmonized)
       usethis::use_data(
         Data_6Tribes_5y_Harmonized,
         internal = FALSE,
@@ -215,7 +228,7 @@
         ask = FALSE
       )
       message("Data_R5_TADAPackageDemo")
-      message(dim(Data_R5_TADAPackageDemo))
+      dim(Data_R5_TADAPackageDemo)
       usethis::use_data(
         Data_R5_TADAPackageDemo,
         internal = FALSE,
@@ -284,7 +297,7 @@
       # Save example data
       Data_HUC8_02070004_Mod1Output <- Data_WV
       message("Data_HUC8_02070004_Mod1Output")
-      message(dim(Data_HUC8_02070004_Mod1Output))
+      dim(Data_HUC8_02070004_Mod1Output)
       usethis::use_data(
         Data_HUC8_02070004_Mod1Output,
         internal = FALSE,
@@ -311,7 +324,7 @@
         TADA_HarmonizeSynonyms()
 
       message("Data_MT_MissoulaCounty")
-      message(dim(Data_MT_MissoulaCounty))
+      dim(Data_MT_MissoulaCounty)
       usethis::use_data(
         Data_MT_MissoulaCounty,
         internal = FALSE,
@@ -371,7 +384,7 @@
       Data_MT_AUMLRef <- MT_AUMLRef
 
       message("Data_MT_AUMLRef")
-      message(dim(Data_MT_AUMLRef))
+      dim(Data_MT_AUMLRef)
       usethis::use_data(
         Data_MT_AUMLRef,
         internal = FALSE,
@@ -385,12 +398,13 @@
       # Generate Data_MT_AU_UsesRef
       # =======================================
       Data_MT_AU_UsesRef <- TADA_AssignUsesToAU(
+        Data_MT_AUMLRef$TADA_with_ATTAINS,
         AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
       )
 
       message("Data_MT_AU_UsesRef")
-      message(dim(Data_MT_AU_UsesRef))
+      dim(Data_MT_AU_UsesRef)
       usethis::use_data(
         Data_MT_AU_UsesRef,
         internal = FALSE,
@@ -404,13 +418,14 @@
       # Generate Data_MT_AU_UsesRef_Water
       # =======================================
       Data_MT_AU_UsesRef_Water <- TADA_AssignUsesToAU(
+        Data_MT_AUMLRef$TADA_with_ATTAINS,
         waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
         AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
       )
 
       message("Data_MT_AU_UsesRef_Water")
-      message(dim(Data_MT_AU_UsesRef_Water))
+      dim(Data_MT_AU_UsesRef_Water)
 
       usethis::use_data(
         Data_MT_AU_UsesRef_Water,
@@ -425,6 +440,58 @@
         clean.existing.attains.MT,
         user_supplied_cw,
         MT_AUMLRef
+      )
+      # =======================================
+      # Generate wqx3_fullPhysChem for use in WQX3-Migration.Rmd
+      # =======================================
+      wqx3_fullPhysChem <- dataRetrieval::readWQPdata(
+        statecode = "Illinois",
+        countycode = "DeWitt",
+        characteristicName = "Nitrogen",
+        service = "ResultWQX3",
+        dataProfile = "fullPhysChem",
+        ignore_attributes = TRUE
+      )
+
+      message("wqx3_fullPhysChem")
+      dim(wqx3_fullPhysChem)
+
+      usethis::use_data(
+        wqx3_fullPhysChem,
+        internal = FALSE,
+        overwrite = TRUE,
+        compress = "xz",
+        version = 3,
+        ascii = FALSE
+      )
+      rm(wqx3_fullPhysChem)
+      # =======================================
+      # Generate Data_Participatory_Scientists
+      # =======================================
+      selected_orgs <- c(
+        "CONNRIVERCONSERVANCY",
+        "CT_NERR",
+        "BANTAMLAKE_WQX",
+        "CTVOLMON",
+        "CT_NERR"
+      )
+
+      Data_Participatory_Scientists <- EPATADA::TADA_DataRetrieval(
+        organization = selected_orgs,
+        ask = FALSE,
+        applyautoclean = TRUE
+      )
+
+      message("Data_Participatory_Scientists")
+      dim(Data_Participatory_Scientists)
+
+      usethis::use_data(
+        Data_Participatory_Scientists,
+        internal = FALSE,
+        overwrite = TRUE,
+        compress = "xz",
+        version = 3,
+        ascii = FALSE
       )
     },
     error = function(e) {

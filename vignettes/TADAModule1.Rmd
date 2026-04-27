@@ -50,34 +50,26 @@ harmonize) [Water Quality Portal
 (WQP)](https://www.waterqualitydata.us/) data from multiple
 organizations.
 
-## Install and load packages
+## Install and Load the EPATADA R Package
 
 First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub
 (not CRAN).
 
-```{r install_remotes, results = 'hide'}
-install.packages("remotes",
-  repos = "http://cran.us.r-project.org"
-)
+```{r install_remotes, results = 'hide', eval = F}
+install.packages("remotes")
+# Load the remotes library
 library(remotes)
 ```
 
-Next, install and load EPATADA using the remotes package. USGS's
-dataRetrieval and other TADA R Package dependencies will also be
-downloaded automatically from CRAN with the TADA install. If desired,
-the development version of dataRetrieval can be downloaded directly from
-GitHub (un-comment).
+Next, install and load TADA using the remotes package. TADA R Package
+dependencies will also be downloaded automatically from CRAN with the
+TADA install. You may be prompted in the console to update dependency
+packages that have more recent versions available. If you see this
+prompt, it is recommended to update all of them (enter 1 into the
+console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-```
-
-```{r dev_install, eval = F, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -1309,7 +1301,7 @@ This section covers summing nutrient subspecies to estimate total
 nitrogen and phosphorus. This can be a challenging endeavor because some
 subspecies/compounds overlap in total nutrient calculations. Thus,
 **TADA_CalculateTotalNP** uses the [Nutrient Aggregation
-logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation)
+logic](https://echo.epa.gov/trends/loading-tool/resources/technical-background-methodology/nutrient-aggregation)
 to add together specific subspecies to obtain a total. TADA adds one
 more equation to the mix: total particulate nitrogen + total dissolved
 nitrogen. The function uses as many subspecies as possible to calculate
@@ -1416,7 +1408,7 @@ included within each of the following fields:
 -   *DetectionQuantitationLimitTypeName*
 
 ```{r TADA_FieldCounts_char}
-TADA_FieldCounts(TADAProfileClean6, display = "most", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+TADA_FieldCounts(TADAProfileClean6, display = "most", characteristicName = "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)")
 ```
 
 Selecting a parameter generates the list above, which is subset by the
@@ -1433,9 +1425,9 @@ the characteristic-level to review a column of interest.
 
 ```{r TADA_FieldValuesTable_Pie_char, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # In this example we review values from the SampleCollectionMethod.MethodName field
-TADA_FieldValuesTable(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+TADA_FieldValuesTable(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)")
 
-TADA_FieldValuesPie(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+TADA_FieldValuesPie(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)")
 ```
 
 Review unique TADA.ComparableDataIdentifier's.
@@ -1451,14 +1443,19 @@ TADA.ComparableDataIdentifier:
 TADAProfileClean6_filtered <- TADAProfileClean6[
   TADAProfileClean6$TADA.ComparableDataIdentifier %in%
     c(
-      "ARSENIC_TOTAL_NA_UG/L",
-      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-      "PH_NONE_NONE_NONE",
-      "TEMPERATURE_NA_NA_DEG C",
-      "IRON_TOTAL_NA_UG/L",
+      "BIOCHEMICAL OXYGEN DEMAND, STANDARD CONDITIONS_TOTAL_NA_UG/L",
+      "CHEMICAL OXYGEN DEMAND_TOTAL_NA_UG/L",
+      "SULFATE_TOTAL_NA_UG/L",
+      "NICKEL_TOTAL_NA_UG/L",
+      "COPPER_TOTAL_NA_UG/L",
+      "ZINC_TOTAL_NA_UG/L",
+      "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L",
       "SELENIUM_TOTAL_NA_UG/L",
-      "MERCURY_DISSOLVED_NA_UG/L",
-      "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"
+      "LEAD_TOTAL_NA_UG/L",
+      "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L",
+      "CHLORIDE_TOTAL_NA_UG/L",
+      "ARSENIC_TOTAL_NA_UG/L",
+      "CHROMIUM_TOTAL_NA_UG/L"
     ),
 ]
 
@@ -1468,7 +1465,7 @@ TADA_Scatterplot(TADAProfileClean6_filtered, id_cols = c("TADA.ComparableDataIde
 Choose two from TADAProfileClean6 and generate scatterplot:
 
 ```{r}
-TADA_TwoCharacteristicScatterplot(TADAProfileClean6, id_cols = "TADA.ComparableDataIdentifier", groups = c("TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L", "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"))
+TADA_TwoCharacteristicScatterplot(TADAProfileClean6, id_cols = "TADA.ComparableDataIdentifier", groups = c("TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L", "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"))
 ```
 
 Now we will summarize results for a single comparable data group using
@@ -1485,7 +1482,7 @@ unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
 # filter dataframe to only "TOTAL PHOSPHORUS, MIXED FORMS"
 TADAProfileCleanTP <- dplyr::filter(
   TADAProfileClean6,
-  TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
+  TADA.ComparableDataIdentifier == "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"
 )
 
 # generate stats table

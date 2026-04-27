@@ -1,181 +1,32 @@
-name: R-CMD-check
 on:
   push:
     branches: [develop]
   pull_request:
     branches: [develop]
     types: [opened, reopened, synchronize, ready_for_review]
-  # Kick PR-based run after Prerequisites completes
-  workflow_run:
-    workflows: ["Prerequisites"]
-    types: [completed]
+  workflow_dispatch:
 
-# Concurrency:
-# - Pushes: one active run per branch
-# - PR runs: one active run per PR number (older runs get cancelled when new commits arrive)
-# - workflow_run: unique per "Prerequisites" run id
+name: R-CMD-check
+
 concurrency:
-  group: R-CMD-check-${{ github.event_name == 'push' && github.ref || github.event_name == 'pull_request' && github.event.pull_request.number || github.event.workflow_run.head_sha }}-${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
-  actions: write
-  pull-requests: read
-
-env:
-  GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-  R_KEEP_PKG_SOURCE: yes
-  EQ_API_KEY: ${{ secrets.EQ_API_KEY }}
+  checks: read
+  statuses: read
 
 jobs:
-  gate-prereqs:
-    name: gate
-    runs-on: ubuntu-latest
-    outputs:
-      run_check: ${{ steps.gate.outputs.run_check }}
-    steps:
-      - name: Decide whether to run R-CMD-check (and kick PR re-run after prerequisites)
-        id: gate
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { owner, repo } = context.repo;
-
-            // Pushes to develop always run
-            if (context.eventName === 'push') {
-              core.setOutput('run_check', 'true');
-              return;
-            }
-
-            // For PR runs:
-            // - Only run the matrix if this run's commit is still the PR's current head
-            // - And only after "Prerequisites" succeeded for this exact commit
-            if (context.eventName === 'pull_request') {
-              const prNum = context.payload?.pull_request?.number;
-              if (!prNum) {
-                core.setOutput('run_check', 'false');
-                return;
-              }
-
-              // Current PR head (latest commit on the PR)
-              const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNum });
-              const currentHeadSha = pr?.head?.sha || '';
-              const runSha = context.sha;
-
-              // If this run's commit is not the latest PR head, do not run.
-              // This avoids running on the initial commit when a formatter commit has been pushed.
-              if (!currentHeadSha || currentHeadSha !== runSha) {
-                core.info(`Skipping: run sha ${runSha} is not current PR head ${currentHeadSha}`);
-                core.setOutput('run_check', 'false');
-                return;
-              }
-
-              // Find "Prerequisites" workflow
-              const wfs = await github.rest.actions.listRepoWorkflows({ owner, repo });
-              const prereq = wfs.data.workflows.find(w => w.name === 'Prerequisites');
-              if (!prereq) {
-                core.setOutput('run_check', 'false');
-                return;
-              }
-
-              // Require a successful "Prerequisites" run for this exact commit
-              const runs = await github.rest.actions.listWorkflowRuns({
-                owner, repo, workflow_id: prereq.id, event: 'pull_request', head_sha: runSha, status: 'completed', per_page: 1
-              });
-              const run = runs.data.workflow_runs?.[0];
-              const ok = !!(run && run.conclusion === 'success');
-
-              core.info(`Prerequisites for ${runSha}: ${ok ? 'success' : 'not successful'}`);
-              core.setOutput('run_check', ok ? 'true' : 'false');
-              return;
-            }
-
-            // After "Prerequisites" completes successfully, re-run the latest PR-based R-CMD-check
-            // so the PR-attached run executes. Only when the Prerequisites run head_sha is still
-            // the PR's current head (e.g., formatter commit case).
-            if (context.eventName === 'workflow_run') {
-              const wr = context.payload.workflow_run;
-
-              // Only respond to successful "Prerequisites" runs that were PR-triggered
-              if ((wr.name || '') !== 'Prerequisites' || wr.conclusion !== 'success') {
-                core.setOutput('run_check', 'false');
-                return;
-              }
-              const isPR = wr.event === 'pull_request' || wr.event === 'pull_request_target';
-              if (!isPR) {
-                core.setOutput('run_check', 'false');
-                return;
-              }
-
-              // Determine the associated PR for this commit
-              // Use the "list pull requests associated with a commit" API
-              let prNum = 0;
-              try {
-                const prsForCommit = await github.request('GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls', {
-                  owner, repo, commit_sha: wr.head_sha,
-                  mediaType: { previews: ['groot'] } // compatibility for this endpoint
-                });
-                const pr = prsForCommit.data?.[0];
-                prNum = pr?.number || 0;
-              } catch (e) {
-                core.info(`Could not find PR for commit ${wr.head_sha}: ${e?.message || e}`);
-              }
-
-              if (!prNum) {
-                core.setOutput('run_check', 'false');
-                return;
-              }
-
-              // Check current PR head; only re-run when the Prerequisites head_sha is still the PR's head
-              const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNum });
-              const currentHeadSha = pr?.head?.sha || '';
-              if (!currentHeadSha || currentHeadSha !== wr.head_sha) {
-                core.info(`Skipping rerun: Prerequisites head ${wr.head_sha} != current PR head ${currentHeadSha}`);
-                core.setOutput('run_check', 'false');
-                return;
-              }
-
-              // Find this workflow (R-CMD-check)
-              const wfs = await github.rest.actions.listRepoWorkflows({ owner, repo });
-              const self = wfs.data.workflows.find(w => w.name === 'R-CMD-check');
-              if (!self) {
-                core.setOutput('run_check', 'false');
-                return;
-              }
-
-              // Find the latest PR-based run of R-CMD-check for the same head SHA
-              const prRuns = await github.rest.actions.listWorkflowRuns({
-                owner, repo, workflow_id: self.id, event: 'pull_request', head_sha: wr.head_sha, per_page: 1
-              });
-              const prRun = prRuns.data.workflow_runs?.[0];
-
-              if (prRun) {
-                // Request a re-run so the PR-attached run executes after prerequisites finished
-                await github.request('POST /repos/{owner}/{repo}/actions/runs/{run_id}/rerun', {
-                  owner, repo, run_id: prRun.id
-                });
-                core.info(`Requested rerun of PR-based R-CMD-check run ${prRun.id} for ${wr.head_sha}`);
-              } else {
-                core.info(`No PR-based R-CMD-check run found for ${wr.head_sha}`);
-              }
-
-              // Skip performing the matrix on this workflow_run
-              core.setOutput('run_check', 'false');
-              return;
-            }
-
-            core.setOutput('run_check', 'false');
-
   R-CMD-check:
-    needs: gate-prereqs
-    if: needs.gate-prereqs.outputs.run_check == 'true'
+    # Skip draft PRs; run on non-PR triggers and non-draft PR events
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
+
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
     strategy:
       fail-fast: false
-      max-parallel: 5
       matrix:
         config:
           - {os: macos-latest,   r: 'release'}
@@ -184,19 +35,13 @@ jobs:
           - {os: ubuntu-latest,  r: 'release'}
           - {os: ubuntu-latest,  r: 'oldrel-1'}
 
-    steps:
-      # Checkout the right commit depending on the trigger
-      - name: Checkout (push)
-        if: github.event_name == 'push'
-        uses: actions/checkout@v6
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      EQ_API_KEY: ${{ secrets.EQ_API_KEY }}
 
-      - name: Checkout (pull_request)
-        if: github.event_name == 'pull_request'
-        uses: actions/checkout@v6
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
+    steps:
+      - uses: actions/checkout@v6
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -210,7 +55,6 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
-          install-system-requirements: true
 
       - uses: r-lib/actions/check-r-package@v2
         with:

@@ -562,7 +562,7 @@ TADA_DataRetrieval <- function(
 
       # Act on input
       if (user_decision == "yes") {
-        print("Proceeding with download.")
+        message("Proceeding with download.")
       } else {
         stop("Cancelled by user.", call. = FALSE)
       }
@@ -597,7 +597,7 @@ TADA_DataRetrieval <- function(
 
       # Check if any results were returned
       if ((nrow(results.DR) > 0) == FALSE) {
-        print(paste0(
+        message(paste0(
           "Returning empty results dataframe: ",
           "Your WQP query returned no results (no data available). ",
           "Try a different query. ",
@@ -653,7 +653,7 @@ TADA_DataRetrieval <- function(
 
         # run TADA_AutoClean function
         if (applyautoclean == TRUE) {
-          print(
+          message(
             "Data successfully downloaded. Running TADA_AutoClean function."
           )
 
@@ -668,10 +668,10 @@ TADA_DataRetrieval <- function(
       # Doesn't meet "big data" threshold:
     } else {
       # Retrieve all 3 profiles
-      print(
+      message(
         "Downloading WQP query results. This may take some time depending upon the query size."
       )
-      print(WQPquery)
+      message(WQPquery)
 
       # Get results
       results.DR <- suppressMessages(dataRetrieval::readWQPdata(
@@ -738,7 +738,7 @@ TADA_DataRetrieval <- function(
 
         # Run TADA_AutoClean function
         if (applyautoclean == TRUE) {
-          print(
+          message(
             "Data successfully downloaded. Running TADA_AutoClean function."
           )
 
@@ -928,7 +928,7 @@ TADA_DataRetrieval <- function(
 
       # Act on input
       if (user_decision == "yes") {
-        print("Proceeding with download.")
+        message("Proceeding with download.")
       } else {
         stop("Cancelled by user.", call. = FALSE)
       }
@@ -1024,7 +1024,9 @@ TADA_DataRetrieval <- function(
 
       # Run TADA_AutoClean function
       if (applyautoclean == TRUE) {
-        print("Data successfully downloaded. Running TADA_AutoClean function.")
+        message(
+          "Data successfully downloaded. Running TADA_AutoClean function."
+        )
 
         TADAprofile.clean <- TADA_AutoClean(TADAprofile)
       } else {
@@ -1036,10 +1038,10 @@ TADA_DataRetrieval <- function(
       # If not a "big data" pull:
     } else {
       # Retrieve all 3 profiles
-      print(
+      message(
         "Downloading WQP query results. This may take some time depending upon the query size."
       )
-      print(WQPquery)
+      message(WQPquery)
       results.DR <- suppressMessages(dataRetrieval::readWQPdata(
         WQPquery,
         dataProfile = "resultPhysChem",
@@ -1048,7 +1050,7 @@ TADA_DataRetrieval <- function(
 
       # Check if any results are available
       if ((nrow(results.DR) > 0) == FALSE) {
-        print(
+        message(
           "Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help."
         )
         TADAprofile.clean <- results.DR
@@ -1070,7 +1072,7 @@ TADA_DataRetrieval <- function(
 
         # run TADA_AutoClean function
         if (applyautoclean == TRUE) {
-          print(
+          message(
             "Data successfully downloaded. Running TADA_AutoClean function."
           )
 
@@ -1322,7 +1324,7 @@ TADA_BigDataHelper <- function(
       )
 
     # Status update to user
-    print(paste0(
+    message(paste0(
       "Downloading data from sites with fewer than ",
       maxrecs,
       " results by grouping them together."
@@ -1366,7 +1368,7 @@ TADA_BigDataHelper <- function(
 
   # Large sites (>= maxrecs) next:
   if (dim(bigsites)[1] > 0) {
-    print(paste0(
+    message(paste0(
       "Downloading data from sites with greater than ",
       maxrecs,
       " results, chunking queries by site."

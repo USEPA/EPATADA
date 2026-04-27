@@ -45,8 +45,8 @@ utils::data(Data_Nutrients_UT)
 
 
 # Create maps:
-TADA_FlaggedSitesMap(Data_Nutrients_UT)
-TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
+TADA_NearbySitesMap(Data_Nutrients_UT)
+TADA_NearbySitesMap(Data_6Tribes_5y_Harmonized)
 }
 
 }

@@ -416,6 +416,7 @@ utils::globalVariables(c(
   "ATTAINS.WaterType.y",
   "DepthCategory",
   "User.WaterType",
+  "UserRef.OrganizationIdentifier",
   "ATTAINS.OrganizationId",
   "MatchMessage",
   "Mismatch",
@@ -459,7 +460,29 @@ utils::globalVariables(c(
   "attains.labels",
   "icon.labels",
   "ATTAINS.ParameterName.x",
-  "Ref.AssessmentUnitIdentifier"
+  "Ref.AssessmentUnitIdentifier",
+  "Alias.Name",
+  "CST.SourceLink",
+  "CST.StdPollutantName",
+  "CST_CAS_NO",
+  "PDFPGNO",
+  "SOURCE",
+  "WQXCharAliasRef",
+  "WQX_CAS_NO",
+  "percent_match_CST_ATTAINS",
+  "percent_match_CST_WQX",
+  "percent_match_WQX_ATTAINS",
+  "percent_match_WQX_CST",
+  "review",
+  "source.y",
+  ".data",
+  "Target.TADA.CharacteristicName",
+  "Target.TADA.MethodSpeciationName",
+  "Target.TADA.ResultSampleFractionText",
+  "Target.TADA.SpeciationConversionFactor",
+  "has_depth_param",
+  "out_epsg",
+  "ATTAINSParamUseOrgRef"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -1012,17 +1035,50 @@ TADA_SubstituteDeprecatedChars <- function(.data, quiet = FALSE) {
 
 #' Create TADA.ComparableDataIdentifier Column
 #'
-#' This utility function creates the TADA.ComparableDataIdentifier column by pasting
-#' together TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
-#' and TADA.ResultMeasure.MeasureUnitCode.
+#' Create a comparable identifier by concatenating:
+#' - TADA.CharacteristicName
+#' - TADA.ResultSampleFractionText
+#' - TADA.MethodSpeciationName
+#' - TADA.ResultMeasure.MeasureUnitCode
 #'
-#' @param .data TADA dataframe
+#' Harmonization:
+#' - TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
+#'   TADA.ResultMeasure.MeasureUnitCode are first normalized so any blank, NULL/NA,
+#'   or any case variant of "none" are set to the literal "NONE".
 #'
-#' @return Input TADA dataframe with added TADA.ComparableDataIdentifier column.
+#' Identifier construction:
+#' - Each component is trimmed. For the characteristic name only, blanks/NA are
+#'   converted to the literal "NA". For fraction/speciation/unit, the normalized
+#'   values are used (i.e., "NONE" where missing).
+#' - Example: "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+#'
+#' @param .data A TADA dataframe (data.frame or tibble) with the required columns:
+#'   TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
+#'   and TADA.ResultMeasure.MeasureUnitCode.
+#'
+#' @return The input dataframe with:
+#'   - harmonized fields (fraction/speciation/unit) where missing/"none" -> "NONE"
+#'   - a character column TADA.ComparableDataIdentifier
+#'
+#' @examples
+#' df <- data.frame(
+#'   TADA.CharacteristicName = c("DISSOLVED OXYGEN (DO)", "pH", "Nitrate"),
+#'   TADA.ResultSampleFractionText = c("", NA, "Dissolved"),
+#'   TADA.MethodSpeciationName = c(" ", NA, ""),
+#'   TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "none", NA),
+#'   stringsAsFactors = FALSE
+#' )
+#'
+#' out <- TADA_CreateComparableID(df)
+#' out$TADA.ComparableDataIdentifier
+#' # Expected:
+#' # [1] "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+#' # [2] "pH_NONE_NONE_NONE"
+#' # [3] "Nitrate_Dissolved_NONE_NONE"
 #'
 #' @export
 TADA_CreateComparableID <- function(.data) {
-  # check .data is data.frame and has required columns
+  # required columns
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
@@ -1030,20 +1086,45 @@ TADA_CreateComparableID <- function(.data) {
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
-  # Check if the input data frame is empty
+
+  # handle empty input
   if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
+    .data$TADA.ComparableDataIdentifier <- character(0)
+    return(.data)
   }
 
+  # helper: normalize to "NONE" for fraction/speciation/unit
+  to_NONE <- function(x) {
+    y <- trimws(as.character(x))
+    y[is.na(y) | y == "" | toupper(y) == "NONE"] <- "NONE"
+    y
+  }
+  # helper: normalize characteristic name; keep "NA" token for missing
+  to_NA <- function(x) {
+    y <- trimws(as.character(x))
+    y[is.na(y) | y == ""] <- "NA"
+    y
+  }
+
+  # harmonize the three metadata fields in-place
+  .data$TADA.ResultSampleFractionText <- to_NONE(
+    .data$TADA.ResultSampleFractionText
+  )
+  .data$TADA.MethodSpeciationName <- to_NONE(.data$TADA.MethodSpeciationName)
+  .data$TADA.ResultMeasure.MeasureUnitCode <- to_NONE(
+    .data$TADA.ResultMeasure.MeasureUnitCode
+  )
+
+  # build the comparable ID
   .data$TADA.ComparableDataIdentifier <- paste(
-    .data$TADA.CharacteristicName,
+    to_NA(.data$TADA.CharacteristicName),
     .data$TADA.ResultSampleFractionText,
     .data$TADA.MethodSpeciationName,
     .data$TADA.ResultMeasure.MeasureUnitCode,
     sep = "_"
   )
-  return(.data)
+
+  .data
 }
 
 #' Convert a delimited string to the format used by WQX 3.0 profiles for
@@ -1614,14 +1695,14 @@ TADA_addPoints <- function(
 #' Create Characteristic/MeasureUnitCode/MethodSpeciation Ref
 #'
 #' Creates data frame of unique combinations of TADA.CharacteristicName,
-#' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
-#' TADA.MethodSpeciationName in a TADA data frame.
+#' TADA.ResultMeasure.MeasureUnitCode (normalized), optional ResultMeasure.MeasureUnitCode,
+#' and TADA.MethodSpeciationName in a TADA data frame.
 #'
 #' @param .data A TADA data frame.
 #'
 #' @return A data frame with unique combinations of TADA.CharacteristicName,
-#' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
-#' TADA.MethodSpeciationName
+#' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode (if present),
+#' and TADA.MethodSpeciationName
 #'
 #' @export
 #'
@@ -1638,66 +1719,152 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     return(NULL) # Exit the function early
   }
 
-  required_cols <- c(
-    "TADA.CharacteristicName",
-    "TADA.ResultSampleFractionText",
-    "TADA.MethodSpeciationName",
-    "TADA.ResultMeasure.MeasureUnitCode",
-    "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
-  )
+  # Minimal required columns: Characteristic + at least one unit column
+  has_char <- "TADA.CharacteristicName" %in% names(.data)
+  has_unit_pref <- "TADA.ResultMeasure.MeasureUnitCode" %in% names(.data)
+  has_unit_unpref <- "ResultMeasure.MeasureUnitCode" %in% names(.data)
 
-  # Check to see if TADA_Autoclean has been run
-  if (any(required_cols %in% colnames(.data)) == FALSE) {
-    print(
-      "The dataframe does not contain the required fields. Running TADA_AutoClean to create required columns."
+  if (!(has_char && (has_unit_pref || has_unit_unpref))) {
+    message(
+      "Minimal required fields are missing (Characteristic and unit). ",
+      "Running TADA_AutoClean to create required columns."
     )
     .data <- TADA_AutoClean(.data)
+
+    # Re-check minimal fields post-clean; fail fast with a helpful message if still missing
+    has_char <- "TADA.CharacteristicName" %in% names(.data)
+    has_unit_pref <- "TADA.ResultMeasure.MeasureUnitCode" %in% names(.data)
+    has_unit_unpref <- "ResultMeasure.MeasureUnitCode" %in% names(.data)
+    if (!(has_char && (has_unit_pref || has_unit_unpref))) {
+      stop(
+        "TADA_UniqueCharUnitSpeciation: After TADA_AutoClean, the minimal required fields are still missing. ",
+        "Ensure your input uses the TADA/WQP physical-chemical profile with CharacteristicName and unit columns."
+      )
+    }
   }
 
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
+  # Unique result units/speciation/char
   data.units.result <- .data |>
-    dplyr::select(
-      TADA.CharacteristicName,
-      TADA.ResultMeasure.MeasureUnitCode,
-      ResultMeasure.MeasureUnitCode,
-      TADA.MethodSpeciationName
-    ) |>
+    dplyr::select(dplyr::any_of(c(
+      "TADA.CharacteristicName",
+      "TADA.ResultMeasure.MeasureUnitCode",
+      "ResultMeasure.MeasureUnitCode",
+      "TADA.MethodSpeciationName"
+    ))) |>
     dplyr::distinct()
 
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
+  # Ensure speciation column exists
+  if (!"TADA.MethodSpeciationName" %in% names(data.units.result)) {
+    data.units.result$TADA.MethodSpeciationName <- NA_character_
+  }
+
+  # Normalize unprefixed unit column to TADA-prefixed name if needed
+  if (
+    !"TADA.ResultMeasure.MeasureUnitCode" %in% names(data.units.result) &&
+      "ResultMeasure.MeasureUnitCode" %in% names(data.units.result)
+  ) {
+    data.units.result <- dplyr::rename(
+      data.units.result,
+      TADA.ResultMeasure.MeasureUnitCode = ResultMeasure.MeasureUnitCode
+    )
+  }
+
+  # Unique detection-limit units/speciation/char (optional; guard filters)
   data.units.det <- .data |>
-    dplyr::select(
-      TADA.CharacteristicName,
-      TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
-      DetectionQuantitationLimitMeasure.MeasureUnitCode,
-      TADA.MethodSpeciationName
-    ) |>
-    dplyr::filter(
-      !is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
-    ) |>
-    dplyr::distinct() |>
-    dplyr::rename(
-      TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
-      ResultMeasure.MeasureUnitCode = DetectionQuantitationLimitMeasure.MeasureUnitCode
+    dplyr::select(dplyr::any_of(c(
+      "TADA.CharacteristicName",
+      "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+      "DetectionQuantitationLimitMeasure.MeasureUnitCode",
+      "TADA.MethodSpeciationName"
+    )))
+
+  if (ncol(data.units.det) > 0) {
+    # Filter only when the detection-limit unit column is present
+    if (
+      "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" %in%
+        names(data.units.det)
+    ) {
+      data.units.det <- data.units.det |>
+        dplyr::filter(
+          !is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
+        )
+    }
+    data.units.det <- data.units.det |> dplyr::distinct()
+
+    # Ensure speciation column exists
+    if (!"TADA.MethodSpeciationName" %in% names(data.units.det)) {
+      data.units.det$TADA.MethodSpeciationName <- NA_character_
+    }
+
+    # Normalize detection-limit names to result-unit names for the join
+    if (
+      "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" %in%
+        names(data.units.det)
+    ) {
+      data.units.det <- dplyr::rename(
+        data.units.det,
+        TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
+      )
+    }
+    if (
+      "DetectionQuantitationLimitMeasure.MeasureUnitCode" %in%
+        names(data.units.det)
+    ) {
+      data.units.det <- dplyr::rename(
+        data.units.det,
+        ResultMeasure.MeasureUnitCode = DetectionQuantitationLimitMeasure.MeasureUnitCode
+      )
+    }
+  }
+
+  # Combine (result + detection-limit) by normalized names
+  if (ncol(data.units.det) > 0) {
+    # Ensure required join columns exist in both frames
+    required_join_cols <- c(
+      "TADA.CharacteristicName",
+      "TADA.ResultMeasure.MeasureUnitCode",
+      "ResultMeasure.MeasureUnitCode",
+      "TADA.MethodSpeciationName"
     )
 
-  # Create combined df with all unique codes (both result and det units) and characteristic names
-  data.units <- data.units.result |>
-    dplyr::full_join(
-      data.units.det,
-      by = c(
-        "TADA.CharacteristicName",
-        "TADA.ResultMeasure.MeasureUnitCode",
-        "ResultMeasure.MeasureUnitCode",
-        "TADA.MethodSpeciationName"
-      )
-    ) |>
-    dplyr::distinct() |>
-    dplyr::group_by(TADA.CharacteristicName)
+    # Add missing columns to data.units.result as NA
+    missing_in_result <- setdiff(required_join_cols, names(data.units.result))
+    if (length(missing_in_result) > 0) {
+      for (col in missing_in_result) {
+        data.units.result[[col]] <- NA_character_
+      }
+    }
+
+    # Add missing columns to data.units.det as NA
+    missing_in_det <- setdiff(required_join_cols, names(data.units.det))
+    if (length(missing_in_det) > 0) {
+      for (col in missing_in_det) {
+        data.units.det[[col]] <- NA_character_
+      }
+    }
+
+    data.units <- data.units.result |>
+      dplyr::full_join(data.units.det, by = required_join_cols) |>
+      dplyr::distinct() |>
+      dplyr::group_by(TADA.CharacteristicName)
+  } else {
+    data.units <- data.units.result |>
+      dplyr::distinct() |>
+      dplyr::group_by(TADA.CharacteristicName)
+  }
+
+  # Final validation: required columns for downstream usage
+  if (!"TADA.CharacteristicName" %in% names(data.units)) {
+    stop("Input .data must contain TADA.CharacteristicName.")
+  }
+  if (!"TADA.ResultMeasure.MeasureUnitCode" %in% names(data.units)) {
+    stop(
+      "Input .data must contain TADA.ResultMeasure.MeasureUnitCode or an alias normalized to it."
+    )
+  }
 
   return(data.units)
 }
-
 
 #' Create Color Palette For Use in Graphs and Maps
 #'
@@ -1859,7 +2026,7 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 }
 
 
-#' Remove NAs in Strings for Figure Titles and Axis Labels
+#' Remove NAs and NONEs in Strings for Figure Titles and Axis Labels
 #'
 #' Returns a vector of string(s) that removes common NA strings
 #' found in columns such as TADA.ComparableDataIdentifier. Can also
@@ -1881,9 +2048,9 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 #' # Removes NAs based on each TADA.ComparableDataIdentifier found in a dataset.
 #' utils::data(Data_Nutrients_UT)
 #' unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier)
-#' UT_Titles <- TADA_CharStringRemoveNA(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
+#' UT_Titles <- TADA_CharStringRemoveNANone(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
 #' unique(UT_Titles)
-TADA_CharStringRemoveNA <- function(char_string) {
+TADA_CharStringRemoveNANone <- function(char_string) {
   # Checks if data type is a character string.
   if (!is.character(char_string)) {
     stop(paste0(
@@ -1894,14 +2061,14 @@ TADA_CharStringRemoveNA <- function(char_string) {
   # Converts character string to a vector.
   title_string <- as.vector(char_string)
 
-  # Looks through each item in the vector and removes NAs from each.
-  labs <- c()
-  for (i in 1:length(char_string)) {
-    labs[i] <- paste0(char_string[i], collapse = " ")
-    labs[i] <- gsub("_NA|\\(NA|\\(NA)", "", labs[i])
-    labs[i] <- gsub("_", " ", labs[i])
-    labs[i] <- gsub("\\s+", " ", labs[i])
-    labs <- as.vector(labs)
+  labs <- character(length(char_string))
+  for (i in seq_along(char_string)) {
+    x <- char_string[i]
+    x <- gsub("_", " ", x)
+    x <- gsub("\\b(?:NA|NONE)\\b", "", x, perl = TRUE, ignore.case = TRUE)
+    x <- gsub("\\(\\s*\\)", "", x)
+    x <- gsub("\\s+", " ", x)
+    labs[i] <- trimws(x)
   }
 
   return(labs)
@@ -2576,5 +2743,7 @@ TADA_CorrectColType <- function(.data) {
 
   # if neither exist
   def <- "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
-  if (nzchar(def)) return(def)
+  if (nzchar(def)) {
+    return(def)
+  }
 }

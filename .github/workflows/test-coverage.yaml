@@ -1,0 +1,101 @@
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+    types: [opened, reopened, synchronize, ready_for_review]
+
+name: test-coverage
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      EQ_API_KEY: ${{ secrets.EQ_API_KEY }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::covr, any::xml2
+          needs: coverage
+
+      - name: Capture Environment Info
+        run: |
+          Rscript -e '
+            all <- Sys.getenv()
+            keep <- !grepl("(TOKEN|KEY|SECRET|PASSWORD|PAT)", names(all), ignore.case = TRUE)
+            env_vars <- all[keep]
+            pkg_versions <- installed.packages()[, c("Package", "Version")]
+            sys_info <- Sys.info()
+            save(env_vars, pkg_versions, sys_info, file = "ci_env_info.RData")
+          '
+
+      - name: Upload Environment Info
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci_env_info
+          path: ci_env_info.RData
+          if-no-files-found: ignore
+          
+      - name: Test coverage
+        run: |
+          cov <- covr::package_coverage(
+            quiet = FALSE,
+            clean = FALSE,
+            install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
+          )
+          print(cov)
+          covr::to_cobertura(cov, filename = "cobertura.xml")
+        shell: Rscript {0}
+
+      - name: Show testthat output
+        if: always()
+        run: |
+          find '${{ runner.temp }}/package' -name 'testthat.Rout*' -exec cat '{}' \; || true
+        shell: bash
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-test-failures
+          path: ${{ runner.temp }}/package
+          if-no-files-found: ignore # Suppress warnings if no files are found
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: ./cobertura.xml
+          if-no-files-found: error
+
+      - name: Comment coverage
+        if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork }}
+        uses: 5monkeys/cobertura-action@master
+        with:
+          report_name: coverage-report
+          path: ./cobertura.xml
+          minimum_coverage: 20
+          only_changed_files: true
+          show_missing: true
+          link_missing_lines: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

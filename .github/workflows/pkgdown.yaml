@@ -1,203 +1,39 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
-name: pkgdown
-
 on:
-  # Always run on pushes to develop
   push:
     branches: [develop]
-
-  # Attach runs to PRs to develop
   pull_request:
     branches: [develop]
     types: [opened, reopened, synchronize, ready_for_review]
+  workflow_dispatch:
 
-  # Kick PR-based run after prerequisites complete
-  workflow_run:
-    workflows: ["Prerequisites"]
-    types: [completed]
+name: pkgdown
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
-  contents: read
-  actions: write
-  pull-requests: read
+  contents: write
+  checks: read
+  statuses: read
 
 jobs:
-  gate:
-    runs-on: ubuntu-latest
-    outputs:
-      ok: ${{ steps.verify.outputs.ok }}
-      note: ${{ steps.verify.outputs.note }}
-    steps:
-      - name: Verify prerequisites and routing
-        id: verify
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { owner, repo } = context.repo;
-            const event = context.eventName;
-
-            // Pushes to develop are always allowed
-            if (event === 'push') {
-              const ref = context.ref || '';
-              const isDevelop = ref.endsWith('/develop');
-              core.setOutput('ok', isDevelop ? 'true' : 'false');
-              core.setOutput('note', `Push event; ref=${ref}; allow=${isDevelop}`);
-              return;
-            }
-
-            // PR runs: proceed only after Prerequisites succeeded and base is develop
-            if (event === 'pull_request') {
-              const pr = context.payload.pull_request;
-              const baseIsDevelop = (pr.base?.ref || '') === 'develop';
-              if (!baseIsDevelop) {
-                core.setOutput('ok', 'false');
-                core.setOutput('note', `PR base=${pr.base?.ref}; require develop`);
-                return;
-              }
-
-              // Locate "Prerequisites" workflow
-              const wfs = await github.rest.actions.listRepoWorkflows({ owner, repo });
-              const prereq = wfs.data.workflows.find(w => w.name === 'Prerequisites');
-              if (!prereq) {
-                core.setOutput('ok', 'false');
-                core.setOutput('note', 'Prerequisites workflow not found');
-                return;
-              }
-
-              // Latest completed Prerequisites run for this head SHA
-              const headSha = pr.head.sha;
-              const runs = await github.rest.actions.listWorkflowRuns({
-                owner, repo, workflow_id: prereq.id, event: 'pull_request', head_sha: headSha, status: 'completed', per_page: 1
-              });
-              const run = runs.data.workflow_runs?.[0];
-              if (!run || run.conclusion !== 'success') {
-                core.setOutput('ok', 'false');
-                core.setOutput('note', `Prerequisites conclusion=${run?.conclusion || 'none'}`);
-                return;
-              }
-
-              // Verify Format success and Spelling success or skipped
-              const jobs = await github.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: run.id });
-              const byName = n => jobs.data.jobs.find(j => (j.name || '').toLowerCase() === n);
-              const fmt = byName('format');    // job name: "Format"
-              const spl = byName('spelling');  // job name: "Spelling"
-              const fmtOk = fmt && fmt.conclusion === 'success';
-              const splOk = spl && (spl.conclusion === 'success' || spl.conclusion === 'skipped');
-
-              const ok = fmtOk && splOk;
-              const note = `baseDevelopOk=${baseIsDevelop}; format=${fmt?.conclusion}; spelling=${spl?.conclusion}; headSha=${headSha}`;
-              core.setOutput('ok', ok ? 'true' : 'false');
-              core.setOutput('note', note);
-              return;
-            }
-
-            // workflow_run: rerun latest PR-based pkgdown run so it attaches to the PR
-            if (event === 'workflow_run') {
-              const wr = context.payload.workflow_run;
-
-              if ((wr.name || '') !== 'Prerequisites' || wr.conclusion !== 'success') {
-                core.setOutput('ok', 'false');
-                core.setOutput('note', `Ignore workflow_run: name=${wr.name} conclusion=${wr.conclusion}`);
-                return;
-              }
-              const isPR = wr.event === 'pull_request' || wr.event === 'pull_request_target';
-              if (!isPR) {
-                core.setOutput('ok', 'false');
-                core.setOutput('note', `Ignore workflow_run: trigger=${wr.event}`);
-                return;
-              }
-
-              // Confirm PR base is develop
-              let prs = wr.pull_requests || [];
-              if (!prs || prs.length === 0) {
-                const assoc = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                  owner, repo, commit_sha: wr.head_sha
-                });
-                prs = assoc.data;
-              }
-              const baseDevelop = prs.some(pr => pr?.base?.ref === 'develop');
-              if (!baseDevelop) {
-                core.setOutput('ok', 'false');
-                core.setOutput('note', 'Base is not develop');
-                return;
-              }
-
-              // Find this workflow (pkgdown)
-              const wfs = await github.rest.actions.listRepoWorkflows({ owner, repo });
-              const self = wfs.data.workflows.find(w => w.name === 'pkgdown');
-              if (!self) {
-                core.setOutput('ok', 'false');
-                core.setOutput('note', 'pkgdown workflow not found');
-                return;
-              }
-
-              // Find the latest PR-based run for same head SHA and rerun it
-              const prRuns = await github.rest.actions.listWorkflowRuns({
-                owner, repo, workflow_id: self.id, event: 'pull_request', head_sha: wr.head_sha, per_page: 1
-              });
-              const prRun = prRuns.data.workflow_runs?.[0];
-              if (prRun) {
-                await github.request('POST /repos/{owner}/{repo}/actions/runs/{run_id}/rerun', {
-                  owner, repo, run_id: prRun.id
-                });
-                core.setOutput('note', `Requested rerun of pkgdown run ${prRun.id} for ${wr.head_sha}`);
-              } else {
-                core.setOutput('note', `No existing PR-based pkgdown run found for ${wr.head_sha}`);
-              }
-
-              // Do not run pkgdown on workflow_run; we rerun the PR-attached run instead
-              core.setOutput('ok', 'false');
-              return;
-            }
-
-            core.setOutput('ok', 'false');
-            core.setOutput('note', `Unsupported event: ${event}`);
-
   pkgdown:
-    needs: gate
-    if: needs.gate.outputs.ok == 'true'
+    # Skip draft PRs; run on non-PR triggers and non-draft PR events
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
-
-    # Concurrency:
-    # - PR runs: one active run per PR number (older runs get cancelled when new commits arrive)
-    # - Push runs: one active run per branch
-    # - workflow_run: unique per workflow_run id (used only to request reruns)
-    concurrency:
-      group: pkgdown-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.event_name == 'push' && github.ref || github.event.workflow_run.head_sha }}-${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || github.run_id }}
-      cancel-in-progress: true
-
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       EQ_API_KEY: ${{ secrets.EQ_API_KEY }}
-
-    permissions:
-      contents: write
-      actions: write
-
     steps:
-      # Checkout per event type
-      - name: Checkout (pull_request)
-        if: github.event_name == 'pull_request'
-        uses: actions/checkout@v6
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-
-      - name: Checkout (push)
-        if: github.event_name == 'push'
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 0
-
+      - uses: actions/checkout@v6
+      
       - uses: r-lib/actions/setup-pandoc@v2
-
+      
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
-
+      
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::pkgdown, local::.
@@ -207,9 +43,8 @@ jobs:
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
-      # Deploy only on pushes to develop
       - name: Deploy to GitHub pages 🚀
-        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.8.0
         with:
           clean: false

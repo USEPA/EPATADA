@@ -40,22 +40,18 @@ Create A Two-Characteristic Scatterplot
 }
 \examples{
 # Load example dataset:
-utils::data(Data_Nutrients_UT)
-# Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT,
-  id_cols = "TADA.ComparableDataIdentifier",
-  groups = c(
-    "AMMONIA_UNFILTERED_AS N_MG/L",
-    "NITRATE_UNFILTERED_AS N_MG/L"
-  )
-)
-
-# Load example dataset:
 utils::data(Data_6Tribes_5y_Harmonized)
+# Review monitoring location and result counts for each TADA.ComparableDataIdentifier
+TADA_SummarizeColumn(Data_6Tribes_5y_Harmonized, col = "TADA.ComparableDataIdentifier")
+
 # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
+# These two have the most results in the example data
 TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized,
   id_cols = "TADA.ComparableDataIdentifier",
-  groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NONE_NONE_NONE")
+  groups = c(
+    "TEMPERATURE_NONE_NONE_DEG C",
+    "PH_NONE_NONE_NONE"
+  )
 )
 
 }
