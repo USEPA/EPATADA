@@ -102,11 +102,13 @@ TADA_FlagDepthCategory <- function(
   expected_cols <- c(
     "TADA.ActivityDepthHeightMeasure.MeasureValue",
     "TADA.ResultDepthHeightMeasure.MeasureValue",
+    "TADA.ActivityBottomDepthHeightMeasure.MeasureValue",
     "ActivityRelativeDepthName",
     "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
     "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
     "TADA.CharacteristicName",
     "TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.ResultMeasureValue",
     "ResultIdentifier",
     "TADA.MonitoringLocationIdentifier",
     "OrganizationIdentifier",
@@ -668,7 +670,8 @@ TADA_IDDepthProfiles <- function(
   flag.func.cols <- c(
     "TADA.ConsolidatedDepth",
     "TADA.ConsolidatedDepth.Unit",
-    "TADA.ConsolidatedDepth.Bottom, TADA.DepthCategory.Flag",
+    "TADA.ConsolidatedDepth.Bottom",
+    "TADA.DepthCategory.Flag",
     "TADA.DepthProfileAggregation.Flag"
   )
 
@@ -939,16 +942,10 @@ TADA_DepthProfilePlot <- function(
   unit = "m"
 ) {
   # check to see if TADA.ComparableDataIdentifier column is present
-  if ("TADA.ComparableDataIdentifier" %in% colnames(.data)) {
-    .data <- .data
-
-    if (!"TADA.ComparableDataIdentifier" %in% colnames(.data)) {
-      message(
-        "TADA.ComparableDataIdentifier column not present in data set. Run TADA_CreateComparableID to create TADA.ComparableDataIdentifier."
-      )
-
-      stop()
-    }
+  if (!"TADA.ComparableDataIdentifier" %in% colnames(.data)) {
+    stop(
+      "TADA.ComparableDataIdentifier column not present in data set. Run TADA_CreateComparableID to create TADA.ComparableDataIdentifier."
+    )
   }
 
   # check .data is data.frame
@@ -958,7 +955,8 @@ TADA_DepthProfilePlot <- function(
   flag.func.cols <- c(
     "TADA.ConsolidatedDepth",
     "TADA.ConsolidatedDepth.Unit",
-    "TADA.ConsolidatedDepth.Bottom, TADA.DepthCategory.Flag"
+    "TADA.ConsolidatedDepth.Bottom",
+    "TADA.DepthCategory.Flag"
   )
 
   if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
@@ -988,14 +986,13 @@ TADA_DepthProfilePlot <- function(
         .data,
         surfacevalue = 2,
         bottomvalue = bottomvalue
-      ) |>
-        dplyr::mutate(
-          TADA.DepthCatgeory.Flag = ifelse(
-            TADA.DepthCategory.Flag %in% c("Surface", "Middle"),
-            NA,
-            TADA.DepthCategory.Flag
-          )
+      ) |> dplyr::mutate(
+        TADA.DepthCategory.Flag = ifelse(
+          TADA.DepthCategory.Flag %in% c("Surface", "Middle"),
+          NA,
+          TADA.DepthCategory.Flag
         )
+      )
     }
 
     if (bottomvalue == "null" & is.numeric(surfacevalue)) {
@@ -1003,14 +1000,13 @@ TADA_DepthProfilePlot <- function(
         .data,
         surfacevalue = surfacevalue,
         bottomvalue = 2
-      ) |>
-        dplyr::mutate(
-          TADA.DepthCatgeory.Flag = ifelse(
-            TADA.DepthCategory.Flag %in% c("Bottom", "Middle"),
-            NA,
-            TADA.DepthCategory.Flag
-          )
+      ) |> dplyr::mutate(
+        TADA.DepthCategory.Flag = ifelse(
+          TADA.DepthCategory.Flag %in% c("Bottom", "Middle"),
+          NA,
+          TADA.DepthCategory.Flag
         )
+      )
     }
 
     if (is.numeric(bottomvalue) & is.numeric(surfacevalue)) {
@@ -1029,14 +1025,10 @@ TADA_DepthProfilePlot <- function(
     message(
       "TADA_DepthProfilePlot: Depth unit in data set matches depth unit specified by user for plot. No conversion necessary."
     )
-
-    .data <- .data
-
-    if (.data$TADA.ConsolidatedDepth.Unit[1] != unit) {
-      stop(
-        "TADA_DepthProfilePlot: Depth unit in data set does not match depth unit specified by user for plot. Convert units in data or specify correct unit in TADA_DepthProfilePlot function."
-      )
-    }
+  } else {
+    stop(
+      "TADA_DepthProfilePlot: Depth unit in data set does not match depth unit specified by user for plot. Convert units in data or specify correct unit in TADA_DepthProfilePlot function."
+    )
   }
 
   # create ID Depth Profiles data.frame to check against params
@@ -1214,7 +1206,9 @@ TADA_DepthProfilePlot <- function(
     "ActivityStartDateTime",
     "TADA.ConsolidatedDepth",
     "TADA.ConsolidatedDepth.Unit",
-    "TADA.ConsolidatedDepth.Bottom"
+    "TADA.ConsolidatedDepth.Bottom",
+    "TADA.ActivityMediaName",
+    "TADA.ComparableDataIdentifier"
   )
 
   # check .data has required columns
@@ -1278,8 +1272,7 @@ TADA_DepthProfilePlot <- function(
   # if any depth parameter (ex: secchi) data
 
   if (length(intersect(groups, depth.params.groups)) == 0) {
-    depth.params.string <- toString(depth.params, sep = "; ") |>
-      stringi::stri_replace_last(" or ", fixed = "; ")
+    depth.params.string <- paste(depth.params, collapse = "; ")
 
     profile.data <- depthprofile.avail
 
@@ -1288,8 +1281,7 @@ TADA_DepthProfilePlot <- function(
 
   if (length(intersect(groups, depth.params.groups)) > 0) {
     # add depth param (ex: secchi) results
-    depth.params.string <- toString(depth.params, sep = "; ") |>
-      stringi::stri_replace_last(" or ", fixed = "; ")
+    depth.params.string <- paste(depth.params, collapse = "; ")
 
     depth.units <- c(
       "m",
@@ -1417,18 +1409,14 @@ TADA_DepthProfilePlot <- function(
       }
     }
 
-    profile.data <- depthprofile.avail |>
-      dplyr::full_join(depth.params.avail, by = c(names(depthprofile.avail)))
+    profile.data <- dplyr::bind_rows(depthprofile.avail, depth.params.avail)
 
     rm(depth.params.avail, depthprofile.avail)
   }
 
   # this subset must include all fields included in plot hover below
   plot.data <- profile.data |>
-    dplyr::filter(dplyr::if_any(
-      TADA.ComparableDataIdentifier,
-      ~ .x %in% groups
-    )) |>
+    dplyr::filter(TADA.ComparableDataIdentifier %in% groups) |>
     dplyr::select(
       dplyr::all_of(required_cols),
       "TADA.ComparableDataIdentifier",
@@ -1453,22 +1441,11 @@ TADA_DepthProfilePlot <- function(
 
   # break into subsets for each parameter
   param1 <- plot.data |>
-    dplyr::filter(dplyr::if_any(
-      TADA.ComparableDataIdentifier,
-      ~ .x %in% groups[1]
-    ))
-
+    dplyr::filter(TADA.ComparableDataIdentifier %in% groups[1])
   param2 <- plot.data |>
-    dplyr::filter(dplyr::if_any(
-      TADA.ComparableDataIdentifier,
-      ~ .x %in% groups[2]
-    ))
-
+    dplyr::filter(TADA.ComparableDataIdentifier %in% groups[2])
   param3 <- plot.data |>
-    dplyr::filter(dplyr::if_any(
-      TADA.ComparableDataIdentifier,
-      ~ .x %in% groups[3]
-    ))
+    dplyr::filter(TADA.ComparableDataIdentifier %in% groups[3])
 
   # create title for figure, conditional on number of groups/characteristics selected
 
@@ -1830,7 +1807,7 @@ TADA_DepthProfilePlot <- function(
           paste0(
             param3$TADA.ResultMeasureValue,
             " ",
-            param2$TADA.ResultMeasure.MeasureUnitCode
+            param3$TADA.ResultMeasure.MeasureUnitCode
           ),
           "<br>",
           "Activity Start Date:",
