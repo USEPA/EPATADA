@@ -18,6 +18,7 @@ articles:
 - title: Workshops and Demos
   navbar: Workshops
   contents:
+  - PenobscotNationWorkflow
   - TADAAssessmentUnitUseCase
   - WQX3-Migration
   - WQXValidationService

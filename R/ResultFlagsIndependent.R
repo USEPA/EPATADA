@@ -1331,22 +1331,22 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #'     "Imprecise"
 #'   ),
 #'   TADA.LatitudeMeasure = c(
-#'     38.8977,   # Pass (USA mainland-like)
-#'     -5.0000,   # LAT_OutsideUSA
-#'     40.0000,   # LONG_OutsideUSA (long between 0 and 145)
-#'     -13.5000,  # American Samoa (excluded from outside flags)
-#'     15.0000,   # Northern Mariana Islands (excluded)
-#'     13.4000,   # Guam (excluded)
-#'     35.12      # Imprecise (< 3 decimal places)
+#'     38.8977, # Pass (USA mainland-like)
+#'     -5.0000, # LAT_OutsideUSA
+#'     40.0000, # LONG_OutsideUSA (long between 0 and 145)
+#'     -13.5000, # American Samoa (excluded from outside flags)
+#'     15.0000, # Northern Mariana Islands (excluded)
+#'     13.4000, # Guam (excluded)
+#'     35.12 # Imprecise (< 3 decimal places)
 #'   ),
 #'   TADA.LongitudeMeasure = c(
-#'     -77.0365,  # Pass
+#'     -77.0365, # Pass
 #'     -120.0000, # LAT_OutsideUSA
-#'     10.0000,   # LONG_OutsideUSA
+#'     10.0000, # LONG_OutsideUSA
 #'     -170.0000, # American Samoa
-#'     145.5000,  # Northern Mariana Islands
-#'     144.8500,  # Guam
-#'     -120.0     # Imprecise (<= 1 decimal place)
+#'     145.5000, # Northern Mariana Islands
+#'     144.8500, # Guam
+#'     -120.0 # Imprecise (<= 1 decimal place)
 #'   ),
 #'   stringsAsFactors = FALSE
 #' )

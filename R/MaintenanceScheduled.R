@@ -398,6 +398,7 @@
       # Generate Data_MT_AU_UsesRef
       # =======================================
       Data_MT_AU_UsesRef <- TADA_AssignUsesToAU(
+        Data_MT_AUMLRef$TADA_with_ATTAINS,
         AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
       )
@@ -417,6 +418,7 @@
       # Generate Data_MT_AU_UsesRef_Water
       # =======================================
       Data_MT_AU_UsesRef_Water <- TADA_AssignUsesToAU(
+        Data_MT_AUMLRef$TADA_with_ATTAINS,
         waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
         AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
@@ -439,6 +441,30 @@
         user_supplied_cw,
         MT_AUMLRef
       )
+      # =======================================
+      # Generate wqx3_fullPhysChem for use in WQX3-Migration.Rmd
+      # =======================================
+      wqx3_fullPhysChem <- dataRetrieval::readWQPdata(
+        statecode = "Illinois",
+        countycode = "DeWitt",
+        characteristicName = "Nitrogen",
+        service = "ResultWQX3",
+        dataProfile = "fullPhysChem",
+        ignore_attributes = TRUE
+      )
+
+      message("wqx3_fullPhysChem")
+      dim(wqx3_fullPhysChem)
+
+      usethis::use_data(
+        wqx3_fullPhysChem,
+        internal = FALSE,
+        overwrite = TRUE,
+        compress = "xz",
+        version = 3,
+        ascii = FALSE
+      )
+      rm(wqx3_fullPhysChem)
       # =======================================
       # Generate Data_Participatory_Scientists
       # =======================================
