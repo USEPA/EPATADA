@@ -579,7 +579,7 @@ TADA_FlagDepthCategory <- function(
       # combine original and aggregate data
       comb.data <- orig.data |>
         dplyr::filter(!ResultIdentifier %in% agg.list) |>
-        plyr::rbind.fill(agg.data) |>
+        dplyr::bind_rows(agg.data) |>
         dplyr::ungroup() |>
         dplyr::select(-DepthsByGroup) |>
         TADA_OrderCols()
@@ -592,8 +592,8 @@ TADA_FlagDepthCategory <- function(
 
   if ((dailyagg == "max")) {
     message("TADA_FlagDepthCategory: Selecting maximum aggregate value.")
-
-    # add TADA.ResultValue.Aggregation.Flag and remove unnecessary columns in original data set
+    
+    # Flag all rows (in groups with >1 depth) as considered/not selected by default
     orig.data <- .data |>
       dplyr::group_by_at(group.list) |>
       dplyr::mutate(DepthsByGroup = length(unique(TADA.ConsolidatedDepth))) |>
@@ -606,10 +606,16 @@ TADA_FlagDepthCategory <- function(
             "but not selected"
           ),
           "No aggregation needed"
+        ),
+        # If a row is outside depth categories, mark as "No aggregation needed"
+        TADA.DepthProfileAggregation.Flag = ifelse(
+          !TADA.DepthCategory.Flag %in% depthcat.list,
+          "No aggregation needed",
+          TADA.DepthProfileAggregation.Flag
         )
       )
-
-    # add TADA.ResultValue.Aggregation.Flag, remove necessary columns, and select maximum result value per group.
+    
+    # Select the maximum result per group (only rows in depth categories)
     agg.data <- orig.data |>
       dplyr::filter(
         DepthsByGroup > 1,
@@ -622,38 +628,35 @@ TADA_FlagDepthCategory <- function(
       ) |>
       dplyr::mutate(
         TADA.DepthProfileAggregation.Flag = paste0(
-          "TADA_FlagDepthCategory: Selecting maximum aggregate value.",
+          "Selected as max aggregate value ",
           cattype
         )
       ) |>
-      dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier)) |>
       dplyr::select(-DepthsByGroup) |>
       dplyr::ungroup()
-
+    
     if (aggregatedonly == TRUE) {
       rm(orig.data)
-
       return(agg.data)
     }
-
+    
     if (aggregatedonly == FALSE) {
-      # create list of result identifiers for selected aggregate data
+      # Remove the selected rows from the original so they are not duplicated,
+      # then add them back with the "selected" flag applied above
       agg.list <- agg.data |>
         dplyr::ungroup() |>
         dplyr::select(ResultIdentifier) |>
         unique() |>
         dplyr::pull()
-
-      # combine original and aggregate data
+      
       comb.data <- orig.data |>
         dplyr::filter(!ResultIdentifier %in% agg.list) |>
-        plyr::rbind.fill(agg.data) |>
+        dplyr::bind_rows(agg.data) |>
         dplyr::ungroup() |>
         dplyr::select(-DepthsByGroup) |>
         TADA_OrderCols()
-
+      
       rm(agg.data, orig.data, agg.list)
-
       return(comb.data)
     }
   }
