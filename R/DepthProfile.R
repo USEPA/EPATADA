@@ -262,15 +262,20 @@ TADA_FlagDepthCategory <- function(
       ) |>
       # determine the number of Depths per group
       dplyr::mutate(
-        DepthsPerGroup = length(unique(TADA.ConsolidatedDepth)),
+        DepthsPerGroup = dplyr::n_distinct(TADA.ConsolidatedDepth, na.rm = TRUE),
         # determine bottom value using TADA.ActivityBottomDepthHeightMeasure.MeasureValue or the max depth record for profile data
-        TADA.ConsolidatedDepth.Bottom = ifelse(
+        has_depths = any(!is.na(TADA.ConsolidatedDepth)),
+        TADA.ConsolidatedDepth.Bottom = dplyr::case_when(
           DepthsPerGroup > 1 &
-            is.na(TADA.ActivityBottomDepthHeightMeasure.MeasureValue),
-          max(TADA.ConsolidatedDepth, na.rm = TRUE),
-          TADA.ActivityBottomDepthHeightMeasure.MeasureValue
+            is.na(TADA.ActivityBottomDepthHeightMeasure.MeasureValue) &
+            has_depths ~ max(TADA.ConsolidatedDepth, na.rm = TRUE),
+          DepthsPerGroup > 1 &
+            is.na(TADA.ActivityBottomDepthHeightMeasure.MeasureValue) &
+            !has_depths ~ NA_real_,
+          TRUE ~ TADA.ActivityBottomDepthHeightMeasure.MeasureValue
         )
       ) |>
+      dplyr::select(-has_depths) |>
       dplyr::ungroup() |>
       dplyr::mutate(
         # Only assign depth categories when the needed thresholds are available
@@ -430,7 +435,7 @@ TADA_FlagDepthCategory <- function(
     # add TADA.ResultValue.Aggregation.Flag, remove unecessary columns, and order columns
     orig.data <- .data |>
       dplyr::group_by_at(group.list) |>
-      dplyr::mutate(DepthsByGroup = length(unique(TADA.ConsolidatedDepth))) |>
+      dplyr::mutate(DepthsByGroup = dplyr::n_distinct(TADA.ConsolidatedDepth, na.rm = TRUE)) |>
       dplyr::mutate(
         TADA.DepthProfileAggregation.Flag = ifelse(
           DepthsByGroup > 1,
@@ -460,7 +465,7 @@ TADA_FlagDepthCategory <- function(
     # add TADA.ResultValue.Aggregation.Flag and remove unnecessary columns in original data set
     orig.data <- .data |>
       dplyr::group_by_at(group.list) |>
-      dplyr::mutate(DepthsByGroup = length(unique(TADA.ConsolidatedDepth))) |>
+      dplyr::mutate(DepthsByGroup = dplyr::n_distinct(TADA.ConsolidatedDepth, na.rm = TRUE)) |>
       dplyr::mutate(
         TADA.DepthProfileAggregation.Flag = ifelse(
           DepthsByGroup > 1,
@@ -524,7 +529,7 @@ TADA_FlagDepthCategory <- function(
     # add TADA.ResultValue.Aggregation.Flag and remove unnecessary columns in original data set
     orig.data <- .data |>
       dplyr::group_by_at(group.list) |>
-      dplyr::mutate(DepthsByGroup = length(unique(TADA.ConsolidatedDepth))) |>
+      dplyr::mutate(DepthsByGroup = dplyr::n_distinct(TADA.ConsolidatedDepth, na.rm = TRUE)) |>
       dplyr::mutate(
         TADA.DepthProfileAggregation.Flag = ifelse(
           DepthsByGroup > 1,
@@ -596,7 +601,7 @@ TADA_FlagDepthCategory <- function(
     # Flag all rows (in groups with >1 depth) as considered/not selected by default
     orig.data <- .data |>
       dplyr::group_by_at(group.list) |>
-      dplyr::mutate(DepthsByGroup = length(unique(TADA.ConsolidatedDepth))) |>
+      dplyr::mutate(DepthsByGroup = dplyr::n_distinct(TADA.ConsolidatedDepth, na.rm = TRUE)) |>
       dplyr::mutate(
         TADA.DepthProfileAggregation.Flag = ifelse(
           DepthsByGroup > 1,
@@ -765,24 +770,9 @@ TADA_IDDepthProfiles <- function(
     "THALWEG DEPTH"
   )
 
-  if (aggregates == FALSE) {
-    if ("TADA.DepthProfileAggregation.Flag" %in% names(.data) == TRUE) {
-      .data <- .data |>
-        dplyr::filter(
-          TADA.DepthProfileAggregation.Flag !=
-            c(
-              "Calculated mean aggregate value, with randomly selected metadata from a row in the aggregate group"
-            )
-        )
-
-      if ("TADA.DepthProfileAggregation.Flag" %in% names(.data) == FALSE) {
-        .data <- .data
-      }
-    }
-
-    if (aggregates == TRUE) {
-      .data <- .data
-    }
+  # when aggregates == FALSE, robust removal of mean-aggregated rows (created by avg) 
+  if (!aggregates && "ResultIdentifier" %in% names(.data)) {
+    .data <- dplyr::filter(.data, !grepl("^TADA-", ResultIdentifier))
   }
 
   if (nresults == TRUE) {
@@ -879,7 +869,7 @@ TADA_IDDepthProfiles <- function(
         ActivityStartDate,
         TADA.ComparableDataIdentifier
       ) |>
-      dplyr::mutate(TADA.NResults = length(unique(TADA.ConsolidatedDepth))) |>
+      dplyr::mutate(TADA.NResults = dplyr::n_distinct(TADA.ConsolidatedDepth, na.rm = TRUE)) |>
       dplyr::filter(
         TADA.NResults >= nvalue | TADA.CharacteristicName %in% depth.params
       ) |>
