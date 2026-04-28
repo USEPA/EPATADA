@@ -597,7 +597,7 @@ TADA_FlagDepthCategory <- function(
 
   if ((dailyagg == "max")) {
     message("TADA_FlagDepthCategory: Selecting maximum aggregate value.")
-    
+
     # Flag all rows (in groups with >1 depth) as considered/not selected by default
     orig.data <- .data |>
       dplyr::group_by_at(group.list) |>
@@ -619,7 +619,7 @@ TADA_FlagDepthCategory <- function(
           TADA.DepthProfileAggregation.Flag
         )
       )
-    
+
     # Select the maximum result per group (only rows in depth categories)
     agg.data <- orig.data |>
       dplyr::filter(
@@ -639,12 +639,12 @@ TADA_FlagDepthCategory <- function(
       ) |>
       dplyr::select(-DepthsByGroup) |>
       dplyr::ungroup()
-    
+
     if (aggregatedonly == TRUE) {
       rm(orig.data)
       return(agg.data)
     }
-    
+
     if (aggregatedonly == FALSE) {
       # Remove the selected rows from the original so they are not duplicated,
       # then add them back with the "selected" flag applied above
@@ -653,14 +653,14 @@ TADA_FlagDepthCategory <- function(
         dplyr::select(ResultIdentifier) |>
         unique() |>
         dplyr::pull()
-      
+
       comb.data <- orig.data |>
         dplyr::filter(!ResultIdentifier %in% agg.list) |>
         dplyr::bind_rows(agg.data) |>
         dplyr::ungroup() |>
         dplyr::select(-DepthsByGroup) |>
         TADA_OrderCols()
-      
+
       rm(agg.data, orig.data, agg.list)
       return(comb.data)
     }
