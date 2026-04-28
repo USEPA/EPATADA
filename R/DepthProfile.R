@@ -1003,6 +1003,9 @@ TADA_DepthProfilePlot <- function(
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
+  if (is.character(surfacevalue) && tolower(surfacevalue) == "null") surfacevalue <- NA_real_
+  if (is.character(bottomvalue) && tolower(bottomvalue) == "null") bottomvalue <- NA_real_
+  
   # add check that depth category flag function has been run, run it if it has not
   flag.func.cols <- c(
     "TADA.ConsolidatedDepth",
@@ -1074,15 +1077,12 @@ TADA_DepthProfilePlot <- function(
 
   # add convert depth unit (this still needs to be added), for now print warning and stop function if units don't match
   .data <- .data |> dplyr::filter(!is.na(TADA.ConsolidatedDepth))
-
-  if (.data$TADA.ConsolidatedDepth.Unit[1] == unit) {
-    message(
-      "TADA_DepthProfilePlot: Depth unit in data set matches depth unit specified by user for plot. No conversion necessary."
-    )
+  
+  units_present <- unique(stats::na.omit(.data$TADA.ConsolidatedDepth.Unit))
+  if (length(units_present) == 0 || any(units_present != unit)) {
+    stop("TADA_DepthProfilePlot: Depth units in data do not match `unit`. Convert units or adjust `unit`.")
   } else {
-    stop(
-      "TADA_DepthProfilePlot: Depth unit in data set does not match depth unit specified by user for plot. Convert units in data or specify correct unit in TADA_DepthProfilePlot function."
-    )
+    message("TADA_DepthProfilePlot: Depth unit in data matches depth unit specified by user. No conversion necessary.")
   }
 
   # create ID Depth Profiles data.frame to check against params
@@ -1262,6 +1262,7 @@ TADA_DepthProfilePlot <- function(
     "TADA.ConsolidatedDepth.Unit",
     "TADA.ConsolidatedDepth.Bottom",
     "TADA.ActivityMediaName",
+    "ActivityMediaSubdivisionName",
     "TADA.ComparableDataIdentifier"
   )
 
@@ -1618,7 +1619,7 @@ TADA_DepthProfilePlot <- function(
 
   # first parameter has a depth profile
   if (
-    length(groups) >= 1 & !param1$TADA.CharacteristicName[1] %in% depth.params
+    length(groups) >= 1 && nrow(param1) > 0 && !param1$TADA.CharacteristicName[1] %in% depth.params
   ) {
     # config options https://plotly.com/r/configuration-options/
     scatterplot <- scatterplot |>
@@ -1674,7 +1675,7 @@ TADA_DepthProfilePlot <- function(
 
   # first parameter has a single value where units are depth
   if (
-    length(groups) >= 1 & param1$TADA.CharacteristicName[1] %in% depth.params
+    length(groups) >= 1 && nrow(param1) > 0 && param1$TADA.CharacteristicName[1] %in% depth.params
   ) {
     scatterplot <- scatterplot |>
       plotly::add_lines(
@@ -1727,7 +1728,7 @@ TADA_DepthProfilePlot <- function(
 
   # second parameter has a depth profile
   if (
-    length(groups) >= 2 & !param2$TADA.CharacteristicName[1] %in% depth.params
+    length(groups) >= 2 && nrow(param2) > 0 && !param2$TADA.CharacteristicName[1] %in% depth.params
   ) {
     scatterplot <- scatterplot |>
       plotly::add_trace(
@@ -1781,7 +1782,7 @@ TADA_DepthProfilePlot <- function(
 
   # second parameter has a single value where units are depth
   if (
-    length(groups) >= 2 & param2$TADA.CharacteristicName[1] %in% depth.params
+    length(groups) >= 2 && nrow(param2) > 0 && param2$TADA.CharacteristicName[1] %in% depth.params
   ) {
     scatterplot <- scatterplot |>
       plotly::add_lines(
@@ -1835,7 +1836,7 @@ TADA_DepthProfilePlot <- function(
 
   # third parameter has a depth profile
   if (
-    length(groups) >= 3 & !param3$TADA.CharacteristicName[1] %in% depth.params
+    length(groups) >= 3 && nrow(param3) > 0 && !param3$TADA.CharacteristicName[1] %in% depth.params
   ) {
     scatterplot <- scatterplot |>
       plotly::add_trace(
@@ -1889,7 +1890,7 @@ TADA_DepthProfilePlot <- function(
 
   # third parameter has a single value where units are depth
   if (
-    length(groups) >= 3 & param3$TADA.CharacteristicName[1] %in% depth.params
+    length(groups) >= 3 && nrow(param3) > 0 && param3$TADA.CharacteristicName[1] %in% depth.params
   ) {
     scatterplot <- scatterplot |>
       plotly::add_lines(
