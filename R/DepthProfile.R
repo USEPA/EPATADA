@@ -119,19 +119,31 @@ TADA_FlagDepthCategory <- function(
   TADA_CheckType(aggregatedonly, "logical")
   # check clean is boolean
   TADA_CheckType(clean, "logical")
-  
+
   # normalize 'null' and NULL inputs to NA_real_
-  if (is.character(surfacevalue) && tolower(surfacevalue) == "null") surfacevalue <- NA_real_
-  if (is.character(bottomvalue)  && tolower(bottomvalue)  == "null") bottomvalue  <- NA_real_
-  if (is.null(surfacevalue)) surfacevalue <- NA_real_
-  if (is.null(bottomvalue))  bottomvalue  <- NA_real_
-  
+  if (is.character(surfacevalue) && tolower(surfacevalue) == "null") {
+    surfacevalue <- NA_real_
+  }
+  if (is.character(bottomvalue) && tolower(bottomvalue) == "null") {
+    bottomvalue <- NA_real_
+  }
+  if (is.null(surfacevalue)) {
+    surfacevalue <- NA_real_
+  }
+  if (is.null(bottomvalue)) {
+    bottomvalue <- NA_real_
+  }
+
   # validate types if provided
   if (!is.na(surfacevalue) && !is.numeric(surfacevalue)) {
-    stop("TADA_FlagDepthCategory: surfacevalue must be numeric, NULL, or 'null'.")
+    stop(
+      "TADA_FlagDepthCategory: surfacevalue must be numeric, NULL, or 'null'."
+    )
   }
   if (!is.na(bottomvalue) && !is.numeric(bottomvalue)) {
-    stop("TADA_FlagDepthCategory: bottomvalue must be numeric, NULL, or 'null'.")
+    stop(
+      "TADA_FlagDepthCategory: bottomvalue must be numeric, NULL, or 'null'."
+    )
   }
 
   # execute function after checks are passed
@@ -227,17 +239,19 @@ TADA_FlagDepthCategory <- function(
         ),
         TADA.ConsolidatedDepth.Unit = tolower(TADA.ConsolidatedDepth.Unit)
       )
-    
+
     # 2) Validate there is only one depth unit in use (assumes conversion already done)
     units_present <- .data |>
       dplyr::filter(!is.na(TADA.ConsolidatedDepth.Unit)) |>
       dplyr::pull(TADA.ConsolidatedDepth.Unit) |>
       unique()
-    
+
     if (length(units_present) > 1) {
-      stop("TADA_FlagDepthCategory: Multiple depth units detected. Convert depth units to a single unit before categorizing.")
+      stop(
+        "TADA_FlagDepthCategory: Multiple depth units detected. Convert depth units to a single unit before categorizing."
+      )
     }
-    
+
     # 3) Proceed to compute bottom depth and assign categories (NA-aware)
     # use group_by to identify profile data
     .data <- .data |>
@@ -265,21 +279,24 @@ TADA_FlagDepthCategory <- function(
           !is.na(surfacevalue) &
             !is.na(TADA.ConsolidatedDepth) &
             TADA.ConsolidatedDepth <= surfacevalue ~ "Surface",
-          
+
           # Bottom only if bottomvalue and bottom depth are available
           !is.na(bottomvalue) &
             !is.na(TADA.ConsolidatedDepth.Bottom) &
             !is.na(TADA.ConsolidatedDepth) &
-            TADA.ConsolidatedDepth >= (TADA.ConsolidatedDepth.Bottom - bottomvalue) &
+            TADA.ConsolidatedDepth >=
+              (TADA.ConsolidatedDepth.Bottom - bottomvalue) &
             TADA.ConsolidatedDepth <= TADA.ConsolidatedDepth.Bottom ~ "Bottom",
-          
+
           # Middle only if both surfacevalue and bottomvalue are provided (and bottom available)
-          !is.na(surfacevalue) & !is.na(bottomvalue) &
+          !is.na(surfacevalue) &
+            !is.na(bottomvalue) &
             !is.na(TADA.ConsolidatedDepth.Bottom) &
             !is.na(TADA.ConsolidatedDepth) &
             TADA.ConsolidatedDepth > surfacevalue &
-            TADA.ConsolidatedDepth < (TADA.ConsolidatedDepth.Bottom - bottomvalue) ~ "Middle",
-          
+            TADA.ConsolidatedDepth <
+              (TADA.ConsolidatedDepth.Bottom - bottomvalue) ~ "Middle",
+
           TRUE ~ NA_character_
         )
       ) |>
@@ -287,7 +304,9 @@ TADA_FlagDepthCategory <- function(
       dplyr::left_join(ard.ref, by = "ActivityRelativeDepthName") |>
       dplyr::mutate(
         TADA.DepthCategory.Flag = ifelse(
-          is.na(TADA.DepthCategory.Flag), ARD_Category, TADA.DepthCategory.Flag
+          is.na(TADA.DepthCategory.Flag),
+          ARD_Category,
+          TADA.DepthCategory.Flag
         ),
         TADA.DepthCategory.Flag = ifelse(
           is.na(TADA.ActivityDepthHeightMeasure.MeasureValue) &
