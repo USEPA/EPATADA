@@ -1328,34 +1328,12 @@ TADA_DepthProfilePlot <- function(
     dplyr::pull()
 
   # if any depth parameter (ex: secchi) data
-
-  if (length(intersect(groups, depth.params.groups)) == 0) {
-    depth.params.string <- paste(depth.params, collapse = "; ")
-
-    profile.data <- depthprofile.avail
-
-    rm(depth.params.string, depthprofile.avail)
-  }
-
   if (length(intersect(groups, depth.params.groups)) > 0) {
     # add depth param (ex: secchi) results
     depth.params.string <- paste(depth.params, collapse = "; ")
-
-    depth.units <- c(
-      "m",
-      "ft",
-      "in",
-      "m",
-      "m",
-      "ft",
-      "ft",
-      "in",
-      "in",
-      "m",
-      "ft",
-      "in"
-    )
-
+    
+    depth.units <- c("m","ft","in","m","m","ft","ft","in","in","m","ft","in")
+    
     depth.params.avail <- .data |>
       dplyr::filter(
         TADA.MonitoringLocationIdentifier %in% location,
@@ -1370,39 +1348,23 @@ TADA_DepthProfilePlot <- function(
       ) |>
       dplyr::slice_sample(n = 1) |>
       dplyr::ungroup()
-
-    if (
-      unique(depth.params.avail$TADA.ConsolidatedDepth.Unit) == fig.depth.unit
-    ) {
+    
+    if (unique(depth.params.avail$TADA.ConsolidatedDepth.Unit) == fig.depth.unit) {
       message(paste(
-        "TADA_DepthProfilePlot: Any results for",
-        depth.params.string,
+        "TADA_DepthProfilePlot: Any results for", depth.params.string,
         "match the depth unit selected for the figure."
       ))
-      depth.params.avail <- depth.params.avail
     } else {
       message(paste(
         "TADA_DepthProfilePlot: Converting depth units for any results for",
-        depth.params.string,
-        "results to match depth units selected for the figure."
+        depth.params.string, "results to match depth units selected for the figure."
       ))
       
-      depth.units <- c(
-        "m", "ft", "in", "m", "m", "ft", "ft", "in", "in", "m", "ft", "in"
-      )
+      depth.units   <- c("m","ft","in","m","m","ft","ft","in","in","m","ft","in")
+      result.units  <- c("m","ft","in","ft","in","m","in","m","ft","cm","cm","cm")
+      convert.factor<- c("1","1","1","0.3048","0.0254","3.281","0.083","39.3701","12","0.01","0.032808","0.39")
       
-      result.units <- c(
-        "m", "ft", "in", "ft", "in", "m", "in", "m", "ft", "cm", "cm", "cm"
-      )
-      
-      convert.factor <- c(
-        "1", "1", "1", "0.3048", "0.0254", "3.281", "0.083", "39.3701",
-        "12", "0.01", "0.032808", "0.39"
-      )
-      
-      secchi.conversion <- data.frame(
-        result.units, depth.units, convert.factor
-      ) |>
+      secchi.conversion <- data.frame(result.units, depth.units, convert.factor) |>
         dplyr::rename(
           TADA.ConsolidatedDepth.Unit = result.units,
           YAxis.DepthUnit = depth.units,
@@ -1414,23 +1376,12 @@ TADA_DepthProfilePlot <- function(
         dplyr::left_join(secchi.conversion) |>
         dplyr::mutate(
           TADA.ConsolidatedDepth.Unit = fig.depth.unit,
-          TADA.ConsolidatedDepth = TADA.ResultMeasureValue *
-            as.numeric(SecchiConversion)
+          TADA.ConsolidatedDepth = TADA.ResultMeasureValue * as.numeric(SecchiConversion)
         ) |>
         dplyr::select(-YAxis.DepthUnit, -SecchiConversion)
-      
-      rm(
-        secchi.conversion,
-        depth.params.string,
-        depth.units,
-        result.units,
-        convert.factor
-      )
     }
-    }
-
+    
     profile.data <- dplyr::bind_rows(depthprofile.avail, depth.params.avail)
-
     rm(depth.params.avail, depthprofile.avail)
   }
 
