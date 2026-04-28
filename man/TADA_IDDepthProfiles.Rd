@@ -9,7 +9,7 @@ TADA_IDDepthProfiles(.data, nresults = TRUE, nvalue = 2, aggregates = FALSE)
 \arguments{
 \item{.data}{TADA dataframe which must include the columns ActivityStartDate,
 TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Unit, TADA.ConsolidatedDepth.Bottom,
-TADA.ResultMeasureValue, TADA.ResultMeasureValue.UnitCode,
+TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode,
 OrganizationIdentifier, TADA.MonitoringLocationName, TADA.MonitoringLocationIdentifier,
 and TADA.ComparableDataIdentifier.}
 

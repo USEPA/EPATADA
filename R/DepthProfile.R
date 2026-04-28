@@ -1014,14 +1014,11 @@ TADA_DepthProfilePlot <- function(
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
-  if (is.character(surfacevalue) && tolower(surfacevalue) == "null") {
-    surfacevalue <- NA_real_
-  }
-  if (is.character(bottomvalue) && tolower(bottomvalue) == "null") {
-    bottomvalue <- NA_real_
-  }
-
-  # add check that depth category flag function has been run, run it if it has not
+  # Normalize "null" to NA
+  if (is.character(surfacevalue) && tolower(surfacevalue) == "null") surfacevalue <- NA_real_
+  if (is.character(bottomvalue)  && tolower(bottomvalue)  == "null") bottomvalue  <- NA_real_
+  
+  # Add check that depth category flag function has been run, run it if it has not
   flag.func.cols <- c(
     "TADA.ConsolidatedDepth",
     "TADA.ConsolidatedDepth.Unit",
@@ -1029,26 +1026,19 @@ TADA_DepthProfilePlot <- function(
     "TADA.DepthCategory.Flag"
   )
   
-  if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
-    message(
-      "TADA_DepthProfilePlot: Necessary columns from TADA_FlagDepthCategory function are included in the data frame"
-    )
-    .data <- .data
-  } else {
+  if (any(flag.func.cols %in% colnames(.data)) == FALSE) {
     message(
       "TADA_DepthProfilePlot: Running TADA_FlagDepthCategory function to add required columns to data frame"
     )
     
-    if (bottomvalue == "null" & surfacevalue == "null") {
+    if (is.na(surfacevalue) && is.na(bottomvalue)) {
       .data <- TADA_FlagDepthCategory(
         .data,
         surfacevalue = 2,
         bottomvalue = 2
       ) |>
-        dplyr::mutate(TADA.DepthCategory.Flag = NA)
-    }
-    
-    if (surfacevalue == "null" & is.numeric(bottomvalue)) {
+        dplyr::mutate(TADA.DepthCategory.Flag = NA_character_)
+    } else if (is.na(surfacevalue) && is.numeric(bottomvalue)) {
       .data <- TADA_FlagDepthCategory(
         .data,
         surfacevalue = 2,
@@ -1057,13 +1047,11 @@ TADA_DepthProfilePlot <- function(
         dplyr::mutate(
           TADA.DepthCategory.Flag = ifelse(
             TADA.DepthCategory.Flag %in% c("Surface", "Middle"),
-            NA,
+            NA_character_,
             TADA.DepthCategory.Flag
           )
         )
-    }
-    
-    if (bottomvalue == "null" & is.numeric(surfacevalue)) {
+    } else if (is.na(bottomvalue) && is.numeric(surfacevalue)) {
       .data <- TADA_FlagDepthCategory(
         .data,
         surfacevalue = surfacevalue,
@@ -1072,13 +1060,11 @@ TADA_DepthProfilePlot <- function(
         dplyr::mutate(
           TADA.DepthCategory.Flag = ifelse(
             TADA.DepthCategory.Flag %in% c("Bottom", "Middle"),
-            NA,
+            NA_character_,
             TADA.DepthCategory.Flag
           )
         )
-    }
-    
-    if (is.numeric(bottomvalue) & is.numeric(surfacevalue)) {
+    } else {
       .data <- TADA_FlagDepthCategory(
         .data,
         surfacevalue = surfacevalue,
