@@ -1378,92 +1378,54 @@ TADA_DepthProfilePlot <- function(
         depth.params.string,
         "match the depth unit selected for the figure."
       ))
-
       depth.params.avail <- depth.params.avail
-
-      if (
-        unique(depth.params.avail$TADA.ConsolidatedDepth.Unit) != fig.depth.unit
-      ) {
-        message(paste(
-          "TADA_DepthProfilePlot: Converting depth units for any results for",
-          depth.params.string,
-          "results to match depth units selected for the figure."
-        ))
-
-        depth.units <- c(
-          "m",
-          "ft",
-          "in",
-          "m",
-          "m",
-          "ft",
-          "ft",
-          "in",
-          "in",
-          "m",
-          "ft",
-          "in"
+    } else {
+      message(paste(
+        "TADA_DepthProfilePlot: Converting depth units for any results for",
+        depth.params.string,
+        "results to match depth units selected for the figure."
+      ))
+      
+      depth.units <- c(
+        "m", "ft", "in", "m", "m", "ft", "ft", "in", "in", "m", "ft", "in"
+      )
+      
+      result.units <- c(
+        "m", "ft", "in", "ft", "in", "m", "in", "m", "ft", "cm", "cm", "cm"
+      )
+      
+      convert.factor <- c(
+        "1", "1", "1", "0.3048", "0.0254", "3.281", "0.083", "39.3701",
+        "12", "0.01", "0.032808", "0.39"
+      )
+      
+      secchi.conversion <- data.frame(
+        result.units, depth.units, convert.factor
+      ) |>
+        dplyr::rename(
+          TADA.ConsolidatedDepth.Unit = result.units,
+          YAxis.DepthUnit = depth.units,
+          SecchiConversion = convert.factor
         )
-
-        result.units <- c(
-          "m",
-          "ft",
-          "in",
-          "ft",
-          "in",
-          "m",
-          "in",
-          "m",
-          "ft",
-          "cm",
-          "cm",
-          "cm"
-        )
-
-        convert.factor <- c(
-          "1",
-          "1",
-          "1",
-          "0.3048",
-          "0.0254",
-          "3.281",
-          "0.083",
-          "39.3701",
-          "12",
-          "0.01",
-          "0.032808",
-          "0.39"
-        )
-
-        secchi.conversion <- data.frame(
-          result.units,
-          depth.units,
-          convert.factor
+      
+      depth.params.avail <- depth.params.avail |>
+        dplyr::mutate(YAxis.DepthUnit = fig.depth.unit) |>
+        dplyr::left_join(secchi.conversion) |>
+        dplyr::mutate(
+          TADA.ConsolidatedDepth.Unit = fig.depth.unit,
+          TADA.ConsolidatedDepth = TADA.ResultMeasureValue *
+            as.numeric(SecchiConversion)
         ) |>
-          dplyr::rename(
-            TADA.ConsolidatedDepth.Unit = result.units,
-            YAxis.DepthUnit = depth.units,
-            SecchiConversion = convert.factor
-          )
-
-        depth.params.avail <- depth.params.avail |>
-          dplyr::mutate(YAxis.DepthUnit = fig.depth.unit) |>
-          dplyr::left_join(secchi.conversion) |>
-          dplyr::mutate(
-            TADA.ConsolidatedDepth.Unit = fig.depth.unit,
-            TADA.ConsolidatedDepth = TADA.ResultMeasureValue *
-              as.numeric(SecchiConversion)
-          ) |>
-          dplyr::select(-YAxis.DepthUnit, -SecchiConversion)
-
-        rm(
-          secchi.conversion,
-          depth.params.string,
-          depth.units,
-          result.units,
-          convert.factor
-        )
-      }
+        dplyr::select(-YAxis.DepthUnit, -SecchiConversion)
+      
+      rm(
+        secchi.conversion,
+        depth.params.string,
+        depth.units,
+        result.units,
+        convert.factor
+      )
+    }
     }
 
     profile.data <- dplyr::bind_rows(depthprofile.avail, depth.params.avail)
