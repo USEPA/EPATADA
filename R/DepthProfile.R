@@ -119,6 +119,20 @@ TADA_FlagDepthCategory <- function(
   TADA_CheckType(aggregatedonly, "logical")
   # check clean is boolean
   TADA_CheckType(clean, "logical")
+  
+  # normalize 'null' and NULL inputs to NA_real_
+  if (is.character(surfacevalue) && tolower(surfacevalue) == "null") surfacevalue <- NA_real_
+  if (is.character(bottomvalue)  && tolower(bottomvalue)  == "null") bottomvalue  <- NA_real_
+  if (is.null(surfacevalue)) surfacevalue <- NA_real_
+  if (is.null(bottomvalue))  bottomvalue  <- NA_real_
+  
+  # validate types if provided
+  if (!is.na(surfacevalue) && !is.numeric(surfacevalue)) {
+    stop("TADA_FlagDepthCategory: surfacevalue must be numeric, NULL, or 'null'.")
+  }
+  if (!is.na(bottomvalue) && !is.numeric(bottomvalue)) {
+    stop("TADA_FlagDepthCategory: bottomvalue must be numeric, NULL, or 'null'.")
+  }
 
   # execute function after checks are passed
 
@@ -186,9 +200,10 @@ TADA_FlagDepthCategory <- function(
 
     message("TADA_FlagDepthCategory: assigning depth categories.")
 
+    # 1) Consolidate depth and units first
     .data <- .data |>
-      # set equal to TADA.ResultDepthHeighMeasure.MeasureValue if available, otherwise use TADA.ActivityDepthHeightMeasure.MeasureValue
       dplyr::mutate(
+        # set equal to TADA.ResultDepthHeighMeasure.MeasureValue if available, otherwise use TADA.ActivityDepthHeightMeasure.MeasureValue
         TADA.ConsolidatedDepth = ifelse(
           !is.na(TADA.ResultDepthHeightMeasure.MeasureValue),
           TADA.ResultDepthHeightMeasure.MeasureValue,
@@ -199,6 +214,7 @@ TADA_FlagDepthCategory <- function(
           TADA.ResultDepthHeightMeasure.MeasureUnitCode,
           TADA.ActivityDepthHeightMeasure.MeasureUnitCode
         ),
+        # Override with ResultMeasureValue for depth-parameter characteristics
         TADA.ConsolidatedDepth = ifelse(
           TADA.CharacteristicName %in% depth.params,
           TADA.ResultMeasureValue,
@@ -210,8 +226,21 @@ TADA_FlagDepthCategory <- function(
           TADA.ConsolidatedDepth.Unit
         ),
         TADA.ConsolidatedDepth.Unit = tolower(TADA.ConsolidatedDepth.Unit)
-      ) |>
-      # use group_by to identify profile data
+      )
+    
+    # 2) Validate there is only one depth unit in use (assumes conversion already done)
+    units_present <- .data |>
+      dplyr::filter(!is.na(TADA.ConsolidatedDepth.Unit)) |>
+      dplyr::pull(TADA.ConsolidatedDepth.Unit) |>
+      unique()
+    
+    if (length(units_present) > 1) {
+      stop("TADA_FlagDepthCategory: Multiple depth units detected. Convert depth units to a single unit before categorizing.")
+    }
+    
+    # 3) Proceed to compute bottom depth and assign categories (NA-aware)
+    # use group_by to identify profile data
+    .data <- .data |>
       dplyr::group_by(
         ActivityStartDate,
         TADA.MonitoringLocationIdentifier,
@@ -229,25 +258,36 @@ TADA_FlagDepthCategory <- function(
         )
       ) |>
       dplyr::ungroup() |>
-      # assign depth categories by using depth information
       dplyr::mutate(
+        # Only assign depth categories when the needed thresholds are available
         TADA.DepthCategory.Flag = dplyr::case_when(
-          TADA.ConsolidatedDepth <= surfacevalue ~ "Surface",
-          TADA.ConsolidatedDepth <= TADA.ConsolidatedDepth.Bottom &
-            TADA.ConsolidatedDepth >=
-              TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Bottom",
-          TADA.ConsolidatedDepth > surfacevalue &
-            TADA.ConsolidatedDepth <
-              TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Middle"
+          # Surface only if surfacevalue is provided
+          !is.na(surfacevalue) &
+            !is.na(TADA.ConsolidatedDepth) &
+            TADA.ConsolidatedDepth <= surfacevalue ~ "Surface",
+          
+          # Bottom only if bottomvalue and bottom depth are available
+          !is.na(bottomvalue) &
+            !is.na(TADA.ConsolidatedDepth.Bottom) &
+            !is.na(TADA.ConsolidatedDepth) &
+            TADA.ConsolidatedDepth >= (TADA.ConsolidatedDepth.Bottom - bottomvalue) &
+            TADA.ConsolidatedDepth <= TADA.ConsolidatedDepth.Bottom ~ "Bottom",
+          
+          # Middle only if both surfacevalue and bottomvalue are provided (and bottom available)
+          !is.na(surfacevalue) & !is.na(bottomvalue) &
+            !is.na(TADA.ConsolidatedDepth.Bottom) &
+            !is.na(TADA.ConsolidatedDepth) &
+            TADA.ConsolidatedDepth > surfacevalue &
+            TADA.ConsolidatedDepth < (TADA.ConsolidatedDepth.Bottom - bottomvalue) ~ "Middle",
+          
+          TRUE ~ NA_character_
         )
       ) |>
-      # assign depth categories that could not be assigned using depth
+      # Join ARD reference as fallback
       dplyr::left_join(ard.ref, by = "ActivityRelativeDepthName") |>
       dplyr::mutate(
         TADA.DepthCategory.Flag = ifelse(
-          is.na(TADA.DepthCategory.Flag),
-          ARD_Category,
-          TADA.DepthCategory.Flag
+          is.na(TADA.DepthCategory.Flag), ARD_Category, TADA.DepthCategory.Flag
         ),
         TADA.DepthCategory.Flag = ifelse(
           is.na(TADA.ActivityDepthHeightMeasure.MeasureValue) &
@@ -375,7 +415,7 @@ TADA_FlagDepthCategory <- function(
       dplyr::mutate(
         TADA.DepthProfileAggregation.Flag = ifelse(
           DepthsByGroup > 1,
-          "No aggregation perfomed",
+          "No aggregation performed",
           "No aggregation needed"
         )
       ) |>
@@ -385,7 +425,7 @@ TADA_FlagDepthCategory <- function(
 
     if (aggregatedonly == TRUE) {
       stop(
-        "Function not executed because clean cannot be TRUE while daily_agg is 'no'"
+        "aggregatedonly = TRUE requires dailyagg = 'avg', 'min' or 'max'; nothing to return when dailyagg = 'none'."
       )
     }
 
