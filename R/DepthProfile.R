@@ -337,7 +337,7 @@ TADA_FlagDepthCategory <- function(
     message(
       "TADA_FlagDepthCategory: No depth information was found in the dataset. The columns TADA.DepthCategory.Flag and TADA.ConsolidatedDepth are being added and populated with NA values."
     )
-    
+
     .data <- .data |>
       dplyr::mutate(
         TADA.DepthCategory.Flag = NA_character_,
@@ -346,7 +346,7 @@ TADA_FlagDepthCategory <- function(
         TADA.ConsolidatedDepth.Bottom = as.numeric(NA)
       ) |>
       TADA_OrderCols()
-    
+
     return(.data)
   }
 
@@ -754,7 +754,7 @@ TADA_IDDepthProfiles <- function(
     "TADA.DepthCategory.Flag",
     "TADA.DepthProfileAggregation.Flag"
   )
-  
+
   if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
     message(
       "TADA_IDDepthProfiles: Necessary columns from TADA_FlagDepthCategory function are included in the data frame."
@@ -1015,9 +1015,13 @@ TADA_DepthProfilePlot <- function(
   TADA_CheckType(.data, "data.frame", "Input object")
 
   # Normalize "null" to NA
-  if (is.character(surfacevalue) && tolower(surfacevalue) == "null") surfacevalue <- NA_real_
-  if (is.character(bottomvalue)  && tolower(bottomvalue)  == "null") bottomvalue  <- NA_real_
-  
+  if (is.character(surfacevalue) && tolower(surfacevalue) == "null") {
+    surfacevalue <- NA_real_
+  }
+  if (is.character(bottomvalue) && tolower(bottomvalue) == "null") {
+    bottomvalue <- NA_real_
+  }
+
   # Add check that depth category flag function has been run, run it if it has not
   flag.func.cols <- c(
     "TADA.ConsolidatedDepth",
@@ -1025,13 +1029,17 @@ TADA_DepthProfilePlot <- function(
     "TADA.ConsolidatedDepth.Bottom",
     "TADA.DepthCategory.Flag"
   )
-  
+
   if (all(flag.func.cols %in% colnames(.data))) {
-    message("TADA_DepthProfilePlot: Necessary columns from TADA_FlagDepthCategory function are included in the data frame")
+    message(
+      "TADA_DepthProfilePlot: Necessary columns from TADA_FlagDepthCategory function are included in the data frame"
+    )
     .data <- .data
   } else {
-    message("TADA_DepthProfilePlot: Running TADA_FlagDepthCategory function to add required columns to data frame")
-    
+    message(
+      "TADA_DepthProfilePlot: Running TADA_FlagDepthCategory function to add required columns to data frame"
+    )
+
     if (is.na(surfacevalue) && is.na(bottomvalue)) {
       .data <- TADA_FlagDepthCategory(
         .data,
@@ -1331,9 +1339,22 @@ TADA_DepthProfilePlot <- function(
   if (length(intersect(groups, depth.params.groups)) > 0) {
     # add depth param (ex: secchi) results
     depth.params.string <- paste(depth.params, collapse = "; ")
-    
-    depth.units <- c("m","ft","in","m","m","ft","ft","in","in","m","ft","in")
-    
+
+    depth.units <- c(
+      "m",
+      "ft",
+      "in",
+      "m",
+      "m",
+      "ft",
+      "ft",
+      "in",
+      "in",
+      "m",
+      "ft",
+      "in"
+    )
+
     depth.params.avail <- .data |>
       dplyr::filter(
         TADA.MonitoringLocationIdentifier %in% location,
@@ -1348,39 +1369,87 @@ TADA_DepthProfilePlot <- function(
       ) |>
       dplyr::slice_sample(n = 1) |>
       dplyr::ungroup()
-    
-    if (unique(depth.params.avail$TADA.ConsolidatedDepth.Unit) == fig.depth.unit) {
+
+    if (
+      unique(depth.params.avail$TADA.ConsolidatedDepth.Unit) == fig.depth.unit
+    ) {
       message(paste(
-        "TADA_DepthProfilePlot: Any results for", depth.params.string,
+        "TADA_DepthProfilePlot: Any results for",
+        depth.params.string,
         "match the depth unit selected for the figure."
       ))
     } else {
       message(paste(
         "TADA_DepthProfilePlot: Converting depth units for any results for",
-        depth.params.string, "results to match depth units selected for the figure."
+        depth.params.string,
+        "results to match depth units selected for the figure."
       ))
-      
-      depth.units   <- c("m","ft","in","m","m","ft","ft","in","in","m","ft","in")
-      result.units  <- c("m","ft","in","ft","in","m","in","m","ft","cm","cm","cm")
-      convert.factor<- c("1","1","1","0.3048","0.0254","3.281","0.083","39.3701","12","0.01","0.032808","0.39")
-      
-      secchi.conversion <- data.frame(result.units, depth.units, convert.factor) |>
+
+      depth.units <- c(
+        "m",
+        "ft",
+        "in",
+        "m",
+        "m",
+        "ft",
+        "ft",
+        "in",
+        "in",
+        "m",
+        "ft",
+        "in"
+      )
+      result.units <- c(
+        "m",
+        "ft",
+        "in",
+        "ft",
+        "in",
+        "m",
+        "in",
+        "m",
+        "ft",
+        "cm",
+        "cm",
+        "cm"
+      )
+      convert.factor <- c(
+        "1",
+        "1",
+        "1",
+        "0.3048",
+        "0.0254",
+        "3.281",
+        "0.083",
+        "39.3701",
+        "12",
+        "0.01",
+        "0.032808",
+        "0.39"
+      )
+
+      secchi.conversion <- data.frame(
+        result.units,
+        depth.units,
+        convert.factor
+      ) |>
         dplyr::rename(
           TADA.ConsolidatedDepth.Unit = result.units,
           YAxis.DepthUnit = depth.units,
           SecchiConversion = convert.factor
         )
-      
+
       depth.params.avail <- depth.params.avail |>
         dplyr::mutate(YAxis.DepthUnit = fig.depth.unit) |>
         dplyr::left_join(secchi.conversion) |>
         dplyr::mutate(
           TADA.ConsolidatedDepth.Unit = fig.depth.unit,
-          TADA.ConsolidatedDepth = TADA.ResultMeasureValue * as.numeric(SecchiConversion)
+          TADA.ConsolidatedDepth = TADA.ResultMeasureValue *
+            as.numeric(SecchiConversion)
         ) |>
         dplyr::select(-YAxis.DepthUnit, -SecchiConversion)
     }
-    
+
     profile.data <- dplyr::bind_rows(depthprofile.avail, depth.params.avail)
     rm(depth.params.avail, depthprofile.avail)
   }
