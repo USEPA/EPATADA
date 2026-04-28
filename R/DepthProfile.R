@@ -337,14 +337,16 @@ TADA_FlagDepthCategory <- function(
     message(
       "TADA_FlagDepthCategory: No depth information was found in the dataset. The columns TADA.DepthCategory.Flag and TADA.ConsolidatedDepth are being added and populated with NA values."
     )
-
+    
     .data <- .data |>
       dplyr::mutate(
-        TADA.DepthCategory.Flag = as.character(NA),
-        TADA.ConsolidatedDepth = as.numeric(NA)
+        TADA.DepthCategory.Flag = NA_character_,
+        TADA.ConsolidatedDepth = as.numeric(NA),
+        TADA.ConsolidatedDepth.Unit = NA_character_,
+        TADA.ConsolidatedDepth.Bottom = as.numeric(NA)
       ) |>
       TADA_OrderCols()
-
+    
     return(.data)
   }
 
@@ -520,7 +522,7 @@ TADA_FlagDepthCategory <- function(
 
     if (aggregatedonly == FALSE) {
       # combine original and aggregate data
-      comb.data <- plyr::rbind.fill(orig.data, agg.data) |>
+      comb.data <- dplyr::bind_rows(orig.data, agg.data) |>
         dplyr::ungroup() |>
         dplyr::select(-DepthsByGroup) |>
         TADA_OrderCols()
@@ -694,7 +696,7 @@ TADA_FlagDepthCategory <- function(
 #'
 #' @param .data TADA dataframe which must include the columns ActivityStartDate,
 #' TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Unit, TADA.ConsolidatedDepth.Bottom,
-#' TADA.ResultMeasureValue, TADA.ResultMeasureValue.UnitCode,
+#' TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode,
 #' OrganizationIdentifier, TADA.MonitoringLocationName, TADA.MonitoringLocationIdentifier,
 #' and TADA.ComparableDataIdentifier.
 #'
@@ -752,20 +754,16 @@ TADA_IDDepthProfiles <- function(
     "TADA.DepthCategory.Flag",
     "TADA.DepthProfileAggregation.Flag"
   )
-
+  
   if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
     message(
       "TADA_IDDepthProfiles: Necessary columns from TADA_FlagDepthCategory function are included in the data frame."
     )
-
     .data <- .data
-  }
-
-  if (any(flag.func.cols %in% colnames(.data)) == FALSE) {
+  } else {
     message(
       "TADA_IDDepthProfiles: Necessary columns are being added to the data frame using TADA_DepthCatgegory.Flag function."
     )
-
     .data <- TADA_FlagDepthCategory(.data)
   }
 
@@ -1030,20 +1028,17 @@ TADA_DepthProfilePlot <- function(
     "TADA.ConsolidatedDepth.Bottom",
     "TADA.DepthCategory.Flag"
   )
-
+  
   if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
     message(
       "TADA_DepthProfilePlot: Necessary columns from TADA_FlagDepthCategory function are included in the data frame"
     )
-
     .data <- .data
-  }
-
-  if (any(flag.func.cols %in% colnames(.data)) == FALSE) {
+  } else {
     message(
       "TADA_DepthProfilePlot: Running TADA_FlagDepthCategory function to add required columns to data frame"
     )
-
+    
     if (bottomvalue == "null" & surfacevalue == "null") {
       .data <- TADA_FlagDepthCategory(
         .data,
@@ -1052,7 +1047,7 @@ TADA_DepthProfilePlot <- function(
       ) |>
         dplyr::mutate(TADA.DepthCategory.Flag = NA)
     }
-
+    
     if (surfacevalue == "null" & is.numeric(bottomvalue)) {
       .data <- TADA_FlagDepthCategory(
         .data,
@@ -1067,7 +1062,7 @@ TADA_DepthProfilePlot <- function(
           )
         )
     }
-
+    
     if (bottomvalue == "null" & is.numeric(surfacevalue)) {
       .data <- TADA_FlagDepthCategory(
         .data,
@@ -1082,7 +1077,7 @@ TADA_DepthProfilePlot <- function(
           )
         )
     }
-
+    
     if (is.numeric(bottomvalue) & is.numeric(surfacevalue)) {
       .data <- TADA_FlagDepthCategory(
         .data,
