@@ -16,7 +16,8 @@ and TADA.ComparableDataIdentifier.}
 \item{nresults}{Boolean argument with options "TRUE" or "FALSE". The
 default is nresults = TRUE, which means that the number of results for each
 characteristic are added within the TADA.CharacteristicsForDepthProfile column.
-When nresults = FALSE.}
+When nresults = FALSE, the number of results is not appended to
+TADA.CharacteristicsForDepthProfile.}
 
 \item{nvalue}{numeric argument to specify the number of results required to identify
 a depth profile. The default is 2, which means that a depth profile will be identified
@@ -52,6 +53,9 @@ A new column, TADA.CharacteristicsForDepthProfile, is created which lists the
 characteristics available for depth profile analysis. Using the, nresults param,
 users can specify whether characteristic names should be followed by the number
 of results available for the characteristic in parentheses.
+
+Inputs nresults and aggregates must be logical scalars; non-logical values will
+raise an error. nvalue must be a single numeric value.
 }
 \examples{
 # Load data frame

@@ -15,7 +15,11 @@ TADA_FlagDepthCategory(
 )
 }
 \arguments{
-\item{.data}{TADA dataframe}
+\item{.data}{TADA dataframe which must include the columns
+TADA.ActivityDepthHeightMeasure.MeasureValue,
+TADA.ResultDepthHeightMeasure.MeasureValue,
+TADA.ActivityBottomDepthHeightMeasure.MeasureValue, and
+ActivityRelativeDepthName.}
 
 \item{bycategory}{character argument with options "no", "all", "surface", "middle",
 "bottom". The default is bycategory = "no" which means that any aggregate values
@@ -52,7 +56,9 @@ be added to describe aggregation.}
 
 \item{aggregatedonly}{Boolean argument with options TRUE or FALSE. The
 default is aggregatedonly = FALSE which means that all results are returned.
-When aggregatedonly = TRUE, only aggregate values are returned.}
+When aggregatedonly = TRUE, only aggregate values are returned.
+Note: aggregatedonly = TRUE has no effect when dailyagg = "none" and will raise an error
+(no aggregates to return).}
 
 \item{clean}{Boolean argument with options TRUE or FALSE. The
 default is clean = FALSE which means that all results are returned.
@@ -63,11 +69,12 @@ category are included in the returned dataframe.}
 The same input TADA dataframe with additional columns TADA.DepthCategory.Flag,
 TADA.DepthProfileAggregation.Flag, TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Bottom,
 and TADA.ConsolidatedDepth.Unit. The consolidated depth fields are created by reviewing
-multiple WQC columns where users may input depth information. If a daily_agg = "avg",
-"min", or "max", aggregated values will be identified in the TADA.ResultAggregation.Flag
-column. In the case of daily_agg = "avg", additional rows to display averages will be
-added to the data frame. They can be identified by the prefix ("TADA-") of
-their result identifiers.
+multiple WQC columns where users may input depth information. If dailyagg = "avg",
+"min", or "max", aggregation status is described in TADA.DepthProfileAggregation.Flag.
+In the case of dailyagg = "avg", additional rows to display averages will be
+added to the data frame. Aggregated rows are identified by ResultIdentifier prefixed
+with "TADA-". When dailyagg = "avg", the aggregated result retains metadata from a
+deterministically selected representative record (first by ResultIdentifier within the group).
 }
 \description{
 This function creates a new column, TADA.DepthCategory.Flag with values: "No

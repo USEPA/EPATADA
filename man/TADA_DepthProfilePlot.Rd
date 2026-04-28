@@ -24,10 +24,11 @@ and TADA.ActivityDepthHeightMeasure.MeasureValue. Units for all depth fields
 must be the same. This can be accomplished using TADA_AutoClean() or
 TADA_ConvertDepthUnits.}
 
-\item{groups}{A vector of two identifiers from the TADA.ComparableDataIdentifier column.
+\item{groups}{A vector of up to three identifiers from the TADA.ComparableDataIdentifier column.
 For example, the groups could be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'.
 These groups will be specific to your data frame. The TADA_IDDepthProfiles can be
-used to identify available groups.}
+used to identify available groups. If more than three identifiers are supplied,
+only the first three are used and a warning is issued.}
 
 \item{location}{A single TADA.MonitoringLocationIdentifier to plot the depth profile.
 A TADA.MonitoringLocationIdentifier must be entered or an error will be returned and
@@ -38,7 +39,10 @@ no depth profile will be created.}
 \item{depthcat}{Boolean argument indicating whether delineation between depth
 categories should be shown on the depth profile figure. depthcat = TRUE is the
 default and displays solid black lines to delineate between surface, middle, and
-bottom samples and labels each section of the plot.}
+bottom samples and labels each section of the plot.
+When depthcat = TRUE, at least one of surfacevalue or bottomvalue must be provided
+(non-NA), otherwise the function will stop. If bottom depth cannot be determined for
+the selection, “Bottom” and “Middle” delineations are omitted.}
 
 \item{surfacevalue}{numeric argument. The user enters how many meters from the
 surface should be included in the "Surface" category. Default is surfacevalue = 2.}
@@ -47,13 +51,17 @@ surface should be included in the "Surface" category. Default is surfacevalue = 
 bottom should be included in the "Bottom" category. Default is
 bottomvalue = 2.}
 
-\item{unit}{Character argument. The enters either "m" or "ft" to specify which
-depth units should be used for the plot. Default is "m".}
+\item{unit}{Character argument. The user enters either "m" or "ft" to specify which
+depth units should be used for the plot. Default is "m".
+Non-depth-parameter rows must already be in the specified unit. Depth-parameter
+rows (e.g., Secchi) are converted to the specified unit for plotting when necessary.}
 }
 \value{
 A depth profile plot displaying up to three parameters for a single
 TADA.MonitoringLocationIdentifier. Displaying depth categories is optional with the
-depthcat argument.
+depthcat argument. The function excludes duplicate depth-parameter rows from the
+main profile series and, if any are included via groups, plots them as single
+horizontal reference lines in the requested unit.
 }
 \description{
 Create A Three-Characteristic Depth Profile
