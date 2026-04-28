@@ -1026,10 +1026,11 @@ TADA_DepthProfilePlot <- function(
     "TADA.DepthCategory.Flag"
   )
   
-  if (any(flag.func.cols %in% colnames(.data)) == FALSE) {
-    message(
-      "TADA_DepthProfilePlot: Running TADA_FlagDepthCategory function to add required columns to data frame"
-    )
+  if (all(flag.func.cols %in% colnames(.data))) {
+    message("TADA_DepthProfilePlot: Necessary columns from TADA_FlagDepthCategory function are included in the data frame")
+    .data <- .data
+  } else {
+    message("TADA_DepthProfilePlot: Running TADA_FlagDepthCategory function to add required columns to data frame")
     
     if (is.na(surfacevalue) && is.na(bottomvalue)) {
       .data <- TADA_FlagDepthCategory(
