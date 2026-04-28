@@ -337,7 +337,7 @@ TADA_FlagDepthCategory <- function(
     message(
       "TADA_FlagDepthCategory: No depth information was found in the dataset. The columns TADA.DepthCategory.Flag and TADA.ConsolidatedDepth are being added and populated with NA values."
     )
-    
+
     .data <- .data |>
       dplyr::mutate(
         TADA.DepthCategory.Flag = NA_character_,
@@ -346,7 +346,7 @@ TADA_FlagDepthCategory <- function(
         TADA.ConsolidatedDepth.Bottom = as.numeric(NA)
       ) |>
       TADA_OrderCols()
-    
+
     return(.data)
   }
 
@@ -754,7 +754,7 @@ TADA_IDDepthProfiles <- function(
     "TADA.DepthCategory.Flag",
     "TADA.DepthProfileAggregation.Flag"
   )
-  
+
   if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
     message(
       "TADA_IDDepthProfiles: Necessary columns from TADA_FlagDepthCategory function are included in the data frame."
@@ -1028,7 +1028,7 @@ TADA_DepthProfilePlot <- function(
     "TADA.ConsolidatedDepth.Bottom",
     "TADA.DepthCategory.Flag"
   )
-  
+
   if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
     message(
       "TADA_DepthProfilePlot: Necessary columns from TADA_FlagDepthCategory function are included in the data frame"
@@ -1038,7 +1038,7 @@ TADA_DepthProfilePlot <- function(
     message(
       "TADA_DepthProfilePlot: Running TADA_FlagDepthCategory function to add required columns to data frame"
     )
-    
+
     if (bottomvalue == "null" & surfacevalue == "null") {
       .data <- TADA_FlagDepthCategory(
         .data,
@@ -1047,7 +1047,7 @@ TADA_DepthProfilePlot <- function(
       ) |>
         dplyr::mutate(TADA.DepthCategory.Flag = NA)
     }
-    
+
     if (surfacevalue == "null" & is.numeric(bottomvalue)) {
       .data <- TADA_FlagDepthCategory(
         .data,
@@ -1062,7 +1062,7 @@ TADA_DepthProfilePlot <- function(
           )
         )
     }
-    
+
     if (bottomvalue == "null" & is.numeric(surfacevalue)) {
       .data <- TADA_FlagDepthCategory(
         .data,
@@ -1077,7 +1077,7 @@ TADA_DepthProfilePlot <- function(
           )
         )
     }
-    
+
     if (is.numeric(bottomvalue) & is.numeric(surfacevalue)) {
       .data <- TADA_FlagDepthCategory(
         .data,
