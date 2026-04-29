@@ -103,10 +103,15 @@ TADA_OverviewMap <- function(.data) {
         Sample_n = pt_labels,
         Point_size = c(5, 10, 15, 20, 30)
       )
+      if(length(unique(sumdat$radius)) > 1) {
       site_legend <- subset(
         site_size,
         site_size$Point_size %in% unique(sumdat$radius)
-      )
+      )} else {
+        site_legend <- subset(
+          unique(pt_sizes),
+          site_size$Point_size %in% unique(sumdat$radius)
+      )}
       # set breaks to occur only at integers for data sets requiring bins
       pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
       bins_n <- length(pretty.breaks)
