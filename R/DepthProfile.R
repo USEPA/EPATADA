@@ -39,8 +39,12 @@
 #'
 #' @noRd
 .normalize_null_numeric <- function(x) {
-  if (is.character(x) && tolower(x) == "null") return(NA_real_)
-  if (is.null(x)) return(NA_real_)
+  if (is.character(x) && tolower(x) == "null") {
+    return(NA_real_)
+  }
+  if (is.null(x)) {
+    return(NA_real_)
+  }
   x
 }
 
@@ -62,22 +66,30 @@
 #'   TADA.ConsolidatedDepth.Bottom, and TADA.DepthCategory.Flag present.
 #'
 #' @noRd
-.ensure_depth_flag_columns <- function(.data, surfacevalue = 2, bottomvalue = 2,
-                                       allow_na_thresholds = FALSE) {
+.ensure_depth_flag_columns <- function(
+  .data,
+  surfacevalue = 2,
+  bottomvalue = 2,
+  allow_na_thresholds = FALSE
+) {
   needed <- c(
     "TADA.ConsolidatedDepth",
     "TADA.ConsolidatedDepth.Unit",
     "TADA.ConsolidatedDepth.Bottom",
     "TADA.DepthCategory.Flag"
   )
-  
+
   if (all(needed %in% names(.data))) {
-    message("TADA: Necessary columns from TADA_FlagDepthCategory function are included in the data frame.")
+    message(
+      "TADA: Necessary columns from TADA_FlagDepthCategory function are included in the data frame."
+    )
     return(.data)
   }
-  
+
   if (allow_na_thresholds && (is.na(surfacevalue) || is.na(bottomvalue))) {
-    message("TADA: Running TADA_FlagDepthCategory to add columns; NA thresholds requested, post-adjusting flags.")
+    message(
+      "TADA: Running TADA_FlagDepthCategory to add columns; NA thresholds requested, post-adjusting flags."
+    )
     # run with defaults and then blank out flags that cannot be determined
     tmp <- TADA_FlagDepthCategory(.data, surfacevalue = 2, bottomvalue = 2)
     if (is.na(surfacevalue) && is.na(bottomvalue)) {
@@ -97,9 +109,15 @@
     }
     return(tmp)
   }
-  
-  message("TADA: Running TADA_FlagDepthCategory function to add required columns to data frame.")
-  TADA_FlagDepthCategory(.data, surfacevalue = surfacevalue, bottomvalue = bottomvalue)
+
+  message(
+    "TADA: Running TADA_FlagDepthCategory function to add required columns to data frame."
+  )
+  TADA_FlagDepthCategory(
+    .data,
+    surfacevalue = surfacevalue,
+    bottomvalue = bottomvalue
+  )
 }
 
 #' Drop mean-aggregated rows from data
@@ -113,7 +131,9 @@
 #'
 #' @noRd
 .drop_avg_aggregates <- function(.data) {
-  if (!"ResultIdentifier" %in% names(.data)) return(.data)
+  if (!"ResultIdentifier" %in% names(.data)) {
+    return(.data)
+  }
   dplyr::filter(.data, !grepl("^TADA-", .data$ResultIdentifier))
 }
 
@@ -256,8 +276,8 @@ TADA_FlagDepthCategory <- function(
 
   # normalize 'null' and NULL inputs to NA_real_
   surfacevalue <- .normalize_null_numeric(surfacevalue)
-  bottomvalue  <- .normalize_null_numeric(bottomvalue)
-  
+  bottomvalue <- .normalize_null_numeric(bottomvalue)
+
   # validate types if provided
   if (!is.na(surfacevalue) && !is.numeric(surfacevalue)) {
     stop(
@@ -310,7 +330,7 @@ TADA_FlagDepthCategory <- function(
   }
 
   depth.params <- .depth_param_names()
-  
+
   if (depth.count > 0) {
     message(paste(
       "TADA_FlagDepthCategory: checking data set for depth values. ",
@@ -843,9 +863,9 @@ TADA_IDDepthProfiles <- function(
   # check for columns created in TADA_FlagDepthCategory and run the function if they are missing
   # add check that depth category flag function has been run, run it if it has not
   .data <- .ensure_depth_flag_columns(.data)
-  
+
   depth.params <- .depth_param_names()
-  
+
   # when aggregates == FALSE, robust removal of mean-aggregated rows (created by avg)
   if (!aggregates) {
     .data <- .drop_avg_aggregates(.data)
@@ -1104,8 +1124,8 @@ TADA_DepthProfilePlot <- function(
 
   # Normalize "null" to NA
   surfacevalue <- .normalize_null_numeric(surfacevalue)
-  bottomvalue  <- .normalize_null_numeric(bottomvalue)
-  
+  bottomvalue <- .normalize_null_numeric(bottomvalue)
+
   # Add check that depth category flag function has been run, run it if it has not
   .data <- .ensure_depth_flag_columns(
     .data,
@@ -1116,7 +1136,7 @@ TADA_DepthProfilePlot <- function(
 
   # Define depth-parameter characteristics (needed before unit checks)
   depth.params <- .depth_param_names()
-  
+
   # Enforce unit consistency only across non-depth-parameter rows; depth-parameter rows will be converted later
   .data <- .data |> dplyr::filter(!is.na(TADA.ConsolidatedDepth))
 

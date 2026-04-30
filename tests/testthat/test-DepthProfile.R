@@ -56,17 +56,30 @@ testthat::test_that(".ensure_depth_flag_columns runs FlagDepthCategory and can b
     TADA.ResultSampleFractionText = "NONE",
     TADA.MonitoringLocationTypeName = "River/Stream"
   )
-  
-  out1 <- .ensure_depth_flag_columns(df, surfacevalue = 2, bottomvalue = 2, allow_na_thresholds = FALSE)
-  testthat::expect_true(all(c(
-    "TADA.ConsolidatedDepth",
-    "TADA.ConsolidatedDepth.Unit",
-    "TADA.ConsolidatedDepth.Bottom",
-    "TADA.DepthCategory.Flag"
-  ) %in% names(out1)))
+
+  out1 <- .ensure_depth_flag_columns(
+    df,
+    surfacevalue = 2,
+    bottomvalue = 2,
+    allow_na_thresholds = FALSE
+  )
+  testthat::expect_true(all(
+    c(
+      "TADA.ConsolidatedDepth",
+      "TADA.ConsolidatedDepth.Unit",
+      "TADA.ConsolidatedDepth.Bottom",
+      "TADA.DepthCategory.Flag"
+    ) %in%
+      names(out1)
+  ))
   testthat::expect_false(all(is.na(out1$TADA.DepthCategory.Flag))) # some flag assigned
-  
-  out2 <- .ensure_depth_flag_columns(df, surfacevalue = NA_real_, bottomvalue = NA_real_, allow_na_thresholds = TRUE)
+
+  out2 <- .ensure_depth_flag_columns(
+    df,
+    surfacevalue = NA_real_,
+    bottomvalue = NA_real_,
+    allow_na_thresholds = TRUE
+  )
   testthat::expect_true(all(is.na(out2$TADA.DepthCategory.Flag)))
 })
 
@@ -78,8 +91,16 @@ make_synth_profile_only_df <- function() {
   # Three temperature rows (profile only, no depth-parameter)
   tibble::tibble(
     TADA.ActivityDepthHeightMeasure.MeasureValue = c(0.5, 5, 9),
-    TADA.ResultDepthHeightMeasure.MeasureValue = c(NA_real_, NA_real_, NA_real_),
-    TADA.ActivityBottomDepthHeightMeasure.MeasureValue = c(NA_real_, NA_real_, NA_real_),
+    TADA.ResultDepthHeightMeasure.MeasureValue = c(
+      NA_real_,
+      NA_real_,
+      NA_real_
+    ),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureValue = c(
+      NA_real_,
+      NA_real_,
+      NA_real_
+    ),
     ActivityRelativeDepthName = NA_character_,
     TADA.ResultDepthHeightMeasure.MeasureUnitCode = c("m", "m", "m"),
     TADA.ActivityDepthHeightMeasure.MeasureUnitCode = c("m", "m", "m"),
@@ -106,12 +127,27 @@ make_synth_depth_df_meters <- function() {
   tibble::tibble(
     # Use activity depth; leave result depth NA
     TADA.ActivityDepthHeightMeasure.MeasureValue = c(0.5, 5, 9, NA),
-    TADA.ResultDepthHeightMeasure.MeasureValue = c(NA_real_, NA_real_, NA_real_, NA_real_),
-    TADA.ActivityBottomDepthHeightMeasure.MeasureValue = c(NA_real_, NA_real_, NA_real_, NA_real_),
+    TADA.ResultDepthHeightMeasure.MeasureValue = c(
+      NA_real_,
+      NA_real_,
+      NA_real_,
+      NA_real_
+    ),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureValue = c(
+      NA_real_,
+      NA_real_,
+      NA_real_,
+      NA_real_
+    ),
     ActivityRelativeDepthName = NA_character_,
     TADA.ResultDepthHeightMeasure.MeasureUnitCode = c("m", "m", "m", "m"), # not used (result depth NA)
     TADA.ActivityDepthHeightMeasure.MeasureUnitCode = c("m", "m", "m", "m"),
-    TADA.CharacteristicName = c("TEMPERATURE", "TEMPERATURE", "TEMPERATURE", "DEPTH, SECCHI DISK DEPTH"),
+    TADA.CharacteristicName = c(
+      "TEMPERATURE",
+      "TEMPERATURE",
+      "TEMPERATURE",
+      "DEPTH, SECCHI DISK DEPTH"
+    ),
     TADA.ResultMeasure.MeasureUnitCode = c("DEG C", "DEG C", "DEG C", "m"),
     TADA.ResultMeasureValue = c(10, 5, 1, 1.2), # secchi in meters
     ResultIdentifier = c("T1", "T2", "T3", "S1"),
@@ -143,9 +179,11 @@ make_synth_depth_df_mixed_units_annotated <- function() {
   # Convert the depth-parameter row "appearance" to feet for plotting conversion path
   df_ann$TADA.ResultMeasureValue[is_depth_param] <- 4
   df_ann$TADA.ResultMeasure.MeasureUnitCode[is_depth_param] <- "ft"
-  df_ann$TADA.ConsolidatedDepth.Unit[is_depth_param] <- "ft"   # force mismatch with figure unit ("m")
-  df_ann$TADA.ConsolidatedDepth[is_depth_param] <- 4           # arbitrary ft value; plot will convert using ResultMeasureValue
-  df_ann$TADA.ComparableDataIdentifier[is_depth_param] <- "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"
+  df_ann$TADA.ConsolidatedDepth.Unit[is_depth_param] <- "ft" # force mismatch with figure unit ("m")
+  df_ann$TADA.ConsolidatedDepth[is_depth_param] <- 4 # arbitrary ft value; plot will convert using ResultMeasureValue
+  df_ann$TADA.ComparableDataIdentifier[
+    is_depth_param
+  ] <- "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"
   df_ann
 }
 
@@ -155,37 +193,70 @@ make_synth_depth_df_mixed_units_annotated <- function() {
 
 testthat::test_that("TADA_FlagDepthCategory assigns Surface/Middle/Bottom with bycategory = 'no'", {
   df <- make_synth_depth_df_meters()
-  out <- TADA_FlagDepthCategory(df, bycategory = "no", surfacevalue = 2, bottomvalue = 2, dailyagg = "none")
+  out <- TADA_FlagDepthCategory(
+    df,
+    bycategory = "no",
+    surfacevalue = 2,
+    bottomvalue = 2,
+    dailyagg = "none"
+  )
   # Filter to temperature rows
   temp <- out[out$TADA.CharacteristicName == "TEMPERATURE", ]
   flags <- temp$TADA.DepthCategory.Flag
-  testthat::expect_true(all(c("Surface","Middle","Bottom") %in% flags))
+  testthat::expect_true(all(c("Surface", "Middle", "Bottom") %in% flags))
 })
 
 testthat::test_that("TADA_FlagDepthCategory filters categories with bycategory filters", {
   df <- make_synth_depth_df_meters()
-  out_surface <- TADA_FlagDepthCategory(df, bycategory = "surface", dailyagg = "none")
+  out_surface <- TADA_FlagDepthCategory(
+    df,
+    bycategory = "surface",
+    dailyagg = "none"
+  )
   testthat::expect_true(all(out_surface$TADA.DepthCategory.Flag == "Surface"))
-  out_bottom <- TADA_FlagDepthCategory(df, bycategory = "bottom", dailyagg = "none")
+  out_bottom <- TADA_FlagDepthCategory(
+    df,
+    bycategory = "bottom",
+    dailyagg = "none"
+  )
   testthat::expect_true(all(out_bottom$TADA.DepthCategory.Flag == "Bottom"))
 })
 
 testthat::test_that("TADA_FlagDepthCategory dailyagg = 'none' with aggregatedonly = TRUE errors", {
   df <- make_synth_depth_df_meters()
-  testthat::expect_error(TADA_FlagDepthCategory(df, dailyagg = "none", aggregatedonly = TRUE))
+  testthat::expect_error(TADA_FlagDepthCategory(
+    df,
+    dailyagg = "none",
+    aggregatedonly = TRUE
+  ))
 })
 
 testthat::test_that("TADA_FlagDepthCategory dailyagg = 'avg' returns aggregate with prefix when aggregatedonly = TRUE", {
   df <- make_synth_depth_df_meters()
-  out <- TADA_FlagDepthCategory(df, bycategory = "no", dailyagg = "avg", aggregatedonly = TRUE)
+  out <- TADA_FlagDepthCategory(
+    df,
+    bycategory = "no",
+    dailyagg = "avg",
+    aggregatedonly = TRUE
+  )
   testthat::expect_true(all(grepl("^TADA-", out$ResultIdentifier)))
   testthat::expect_equal(nrow(out), 1L) # single group aggregate (entire water column)
 })
 
 testthat::test_that("TADA_FlagDepthCategory dailyagg = 'min' and 'max' select one row each", {
   df <- make_synth_depth_df_meters()
-  out_min <- TADA_FlagDepthCategory(df, bycategory = "no", dailyagg = "min", aggregatedonly = TRUE)
-  out_max <- TADA_FlagDepthCategory(df, bycategory = "no", dailyagg = "max", aggregatedonly = TRUE)
+  out_min <- TADA_FlagDepthCategory(
+    df,
+    bycategory = "no",
+    dailyagg = "min",
+    aggregatedonly = TRUE
+  )
+  out_max <- TADA_FlagDepthCategory(
+    df,
+    bycategory = "no",
+    dailyagg = "max",
+    aggregatedonly = TRUE
+  )
   testthat::expect_equal(nrow(out_min), 1L)
   testthat::expect_equal(nrow(out_max), 1L)
   # min should pick the lowest temperature value (1 at bottom depth)
@@ -197,14 +268,16 @@ testthat::test_that("TADA_FlagDepthCategory dailyagg = 'min' and 'max' select on
 testthat::test_that("TADA_FlagDepthCategory clean = TRUE keeps only depth categories", {
   df <- make_synth_depth_df_meters()
   out <- TADA_FlagDepthCategory(df, clean = TRUE)
-  testthat::expect_true(all(out$TADA.DepthCategory.Flag %in% c("Surface","Middle","Bottom")))
+  testthat::expect_true(all(
+    out$TADA.DepthCategory.Flag %in% c("Surface", "Middle", "Bottom")
+  ))
 })
 
 testthat::test_that("TADA_FlagDepthCategory stops on multiple depth units", {
   df <- make_synth_depth_df_meters()
   # Inject a second unit in the temperature rows by populating result depth with different unit
   df$TADA.ResultDepthHeightMeasure.MeasureValue <- df$TADA.ActivityDepthHeightMeasure.MeasureValue
-  df$TADA.ResultDepthHeightMeasure.MeasureUnitCode <- c("m","m","ft","ft")
+  df$TADA.ResultDepthHeightMeasure.MeasureUnitCode <- c("m", "m", "ft", "ft")
   testthat::expect_error(TADA_FlagDepthCategory(df))
 })
 
@@ -225,25 +298,49 @@ testthat::test_that("TADA_FlagDepthCategory handles data with no depth info", {
 
 testthat::test_that("TADA_IDDepthProfiles lists characteristics with counts (default)", {
   df <- make_synth_depth_df_meters()
-  out <- TADA_IDDepthProfiles(df, nresults = TRUE, nvalue = 2, aggregates = FALSE)
-  testthat::expect_true(all(c(
-    "TADA.MonitoringLocationIdentifier",
-    "TADA.MonitoringLocationName",
-    "OrganizationIdentifier",
-    "ActivityStartDate",
-    "TADA.CharacteristicsForDepthProfile"
-  ) %in% names(out)))
+  out <- TADA_IDDepthProfiles(
+    df,
+    nresults = TRUE,
+    nvalue = 2,
+    aggregates = FALSE
+  )
+  testthat::expect_true(all(
+    c(
+      "TADA.MonitoringLocationIdentifier",
+      "TADA.MonitoringLocationName",
+      "OrganizationIdentifier",
+      "ActivityStartDate",
+      "TADA.CharacteristicsForDepthProfile"
+    ) %in%
+      names(out)
+  ))
   # Should include temperature comparable ID with count "(3)"
-  testthat::expect_true(any(grepl("TEMPERATURE_NONE_NONE_DEG C \\(3\\)", out$TADA.CharacteristicsForDepthProfile)))
+  testthat::expect_true(any(grepl(
+    "TEMPERATURE_NONE_NONE_DEG C \\(3\\)",
+    out$TADA.CharacteristicsForDepthProfile
+  )))
 })
 
 testthat::test_that("TADA_IDDepthProfiles without counts and higher threshold", {
   df <- make_synth_depth_df_meters()
   # With nvalue = 3, temperature group qualifies (3 depths)
-  out <- TADA_IDDepthProfiles(df, nresults = FALSE, nvalue = 3, aggregates = FALSE)
-  testthat::expect_true(any(grepl("TEMPERATURE_NONE_NONE_DEG C", out$TADA.CharacteristicsForDepthProfile)))
+  out <- TADA_IDDepthProfiles(
+    df,
+    nresults = FALSE,
+    nvalue = 3,
+    aggregates = FALSE
+  )
+  testthat::expect_true(any(grepl(
+    "TEMPERATURE_NONE_NONE_DEG C",
+    out$TADA.CharacteristicsForDepthProfile
+  )))
   # With nvalue = 4, temperature is dropped; depth-parameter remains only if a profile is present
-  out2 <- TADA_IDDepthProfiles(df, nresults = FALSE, nvalue = 4, aggregates = FALSE)
+  out2 <- TADA_IDDepthProfiles(
+    df,
+    nresults = FALSE,
+    nvalue = 4,
+    aggregates = FALSE
+  )
   # Because the function also requires MeanResults > 1 across the group,
   # and only secchi has 1 depth, the whole group will be filtered out.
   testthat::expect_equal(nrow(out2), 0)
@@ -251,26 +348,37 @@ testthat::test_that("TADA_IDDepthProfiles without counts and higher threshold", 
 
 testthat::test_that("TADA_IDDepthProfiles respects aggregates = FALSE by ignoring TADA- average rows", {
   df <- make_synth_depth_df_meters()
-  
+
   # First, annotate the base data with consolidated depth/category columns
   df_annot <- TADA_FlagDepthCategory(df, dailyagg = "none")
-  
+
   # Baseline: no TADA- rows present
-  base_out <- TADA_IDDepthProfiles(df_annot, nresults = TRUE, aggregates = FALSE)
-  
+  base_out <- TADA_IDDepthProfiles(
+    df_annot,
+    nresults = TRUE,
+    aggregates = FALSE
+  )
+
   # Create an averaged aggregate row from the annotated data and append
-  avg_only <- TADA_FlagDepthCategory(df_annot, bycategory = "no", dailyagg = "avg", aggregatedonly = TRUE)
+  avg_only <- TADA_FlagDepthCategory(
+    df_annot,
+    bycategory = "no",
+    dailyagg = "avg",
+    aggregatedonly = TRUE
+  )
   df2 <- dplyr::bind_rows(df_annot, avg_only)
-  
+
   # Now run IDDepthProfiles with aggregates = FALSE; TADA- row should be ignored
   out <- TADA_IDDepthProfiles(df2, nresults = TRUE, aggregates = FALSE)
-  
+
   # Normalize for comparison:
   normalize_df <- function(x) {
     x |>
       dplyr::ungroup() |>
       dplyr::mutate(
-        TADA.CharacteristicsForDepthProfile = stringr::str_squish(TADA.CharacteristicsForDepthProfile)
+        TADA.CharacteristicsForDepthProfile = stringr::str_squish(
+          TADA.CharacteristicsForDepthProfile
+        )
       ) |>
       dplyr::arrange(
         TADA.MonitoringLocationIdentifier,
@@ -279,10 +387,10 @@ testthat::test_that("TADA_IDDepthProfiles respects aggregates = FALSE by ignorin
         TADA.CharacteristicsForDepthProfile
       )
   }
-  
+
   out_norm <- normalize_df(out)
   base_norm <- normalize_df(base_out)
-  
+
   testthat::expect_equal(nrow(out_norm), nrow(base_norm))
   testthat::expect_equal(names(out_norm), names(base_norm))
   testthat::expect_equal(out_norm, base_norm, ignore_attr = TRUE)
