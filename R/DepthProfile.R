@@ -1,3 +1,122 @@
+#' Depth-parameter characteristic names
+#'
+#' Returns the set of characteristic names that represent depth parameters
+#' (e.g., Secchi, thalweg), which are handled specially in depth consolidation
+#' and plotting.
+#'
+#' @return Character vector of characteristic names treated as depth parameters.
+#'
+#' @noRd
+.depth_param_names <- function() {
+  c(
+    "DEPTH, SECCHI DISK DEPTH",
+    "DEPTH, SECCHI DISK DEPTH (CHOICE LIST)",
+    "DEPTH, SECCHI DISK DEPTH REAPPEARS",
+    "TRANSPARENCY, SECCHI TUBE WITH DISK",
+    "DEPTH, DATA-LOGGER (NON-PORTED)",
+    "DEPTH, DATA-LOGGER (PORTED)",
+    "RBP STREAM DEPTH - RIFFLE",
+    "RBP STREAM DEPTH - RUN",
+    "THALWEG DEPTH",
+    "SAMPLING DEPTH IN"
+  )
+}
+
+#' Normalize "null" or NULL numeric inputs
+#'
+#' Converts character "null" (case-insensitive) or NULL to NA_real_ for
+#' numeric options such as surfacevalue/bottomvalue. Leaves other values
+#' unchanged.
+#'
+#' @param x A value expected to be numeric, the character "null", or NULL.
+#'
+#' @return A numeric value or NA_real_.
+#'
+#' @examples
+#' # .normalize_null_numeric("null") -> NA_real_
+#' # .normalize_null_numeric(NULL)    -> NA_real_
+#' # .normalize_null_numeric(2)       -> 2
+#'
+#' @noRd
+.normalize_null_numeric <- function(x) {
+  if (is.character(x) && tolower(x) == "null") return(NA_real_)
+  if (is.null(x)) return(NA_real_)
+  x
+}
+
+#' Ensure depth-category columns exist
+#'
+#' Ensures the columns produced by TADA_FlagDepthCategory are present. If
+#' missing, runs TADA_FlagDepthCategory with the supplied thresholds.
+#' When allow_na_thresholds is TRUE and one or both thresholds are NA,
+#' the function runs with defaults and then blanks out categories that
+#' cannot be determined.
+#'
+#' @param .data A TADA-compatible data.frame.
+#' @param surfacevalue Numeric or NA. Threshold for Surface category (m).
+#' @param bottomvalue Numeric or NA. Threshold for Bottom category (m).
+#' @param allow_na_thresholds Logical; if TRUE, permits NA thresholds and
+#'   post-adjusts depth-category flags accordingly.
+#'
+#' @return A data.frame with TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Unit,
+#'   TADA.ConsolidatedDepth.Bottom, and TADA.DepthCategory.Flag present.
+#'
+#' @noRd
+.ensure_depth_flag_columns <- function(.data, surfacevalue = 2, bottomvalue = 2,
+                                       allow_na_thresholds = FALSE) {
+  needed <- c(
+    "TADA.ConsolidatedDepth",
+    "TADA.ConsolidatedDepth.Unit",
+    "TADA.ConsolidatedDepth.Bottom",
+    "TADA.DepthCategory.Flag"
+  )
+  
+  if (all(needed %in% names(.data))) {
+    message("TADA: Necessary columns from TADA_FlagDepthCategory function are included in the data frame.")
+    return(.data)
+  }
+  
+  if (allow_na_thresholds && (is.na(surfacevalue) || is.na(bottomvalue))) {
+    message("TADA: Running TADA_FlagDepthCategory to add columns; NA thresholds requested, post-adjusting flags.")
+    # run with defaults and then blank out flags that cannot be determined
+    tmp <- TADA_FlagDepthCategory(.data, surfacevalue = 2, bottomvalue = 2)
+    if (is.na(surfacevalue) && is.na(bottomvalue)) {
+      tmp$TADA.DepthCategory.Flag <- NA_character_
+    } else if (is.na(surfacevalue)) {
+      tmp$TADA.DepthCategory.Flag <- ifelse(
+        tmp$TADA.DepthCategory.Flag %in% c("Surface", "Middle"),
+        NA_character_,
+        tmp$TADA.DepthCategory.Flag
+      )
+    } else if (is.na(bottomvalue)) {
+      tmp$TADA.DepthCategory.Flag <- ifelse(
+        tmp$TADA.DepthCategory.Flag %in% c("Bottom", "Middle"),
+        NA_character_,
+        tmp$TADA.DepthCategory.Flag
+      )
+    }
+    return(tmp)
+  }
+  
+  message("TADA: Running TADA_FlagDepthCategory function to add required columns to data frame.")
+  TADA_FlagDepthCategory(.data, surfacevalue = surfacevalue, bottomvalue = bottomvalue)
+}
+
+#' Drop mean-aggregated rows from data
+#'
+#' Removes rows that were created by dailyagg = "avg" in TADA_FlagDepthCategory,
+#' identified by ResultIdentifier values prefixed with "TADA-".
+#'
+#' @param .data A data.frame that may include mean-aggregated rows.
+#'
+#' @return The input data.frame with any "TADA-" ResultIdentifier rows removed.
+#'
+#' @noRd
+.drop_avg_aggregates <- function(.data) {
+  if (!"ResultIdentifier" %in% names(.data)) return(.data)
+  dplyr::filter(.data, !grepl("^TADA-", .data$ResultIdentifier))
+}
+
 #' TADA_FlagDepthCategory
 #'
 #' This function creates a new column, TADA.DepthCategory.Flag with values: "No
@@ -136,19 +255,9 @@ TADA_FlagDepthCategory <- function(
   }
 
   # normalize 'null' and NULL inputs to NA_real_
-  if (is.character(surfacevalue) && tolower(surfacevalue) == "null") {
-    surfacevalue <- NA_real_
-  }
-  if (is.character(bottomvalue) && tolower(bottomvalue) == "null") {
-    bottomvalue <- NA_real_
-  }
-  if (is.null(surfacevalue)) {
-    surfacevalue <- NA_real_
-  }
-  if (is.null(bottomvalue)) {
-    bottomvalue <- NA_real_
-  }
-
+  surfacevalue <- .normalize_null_numeric(surfacevalue)
+  bottomvalue  <- .normalize_null_numeric(bottomvalue)
+  
   # validate types if provided
   if (!is.na(surfacevalue) && !is.numeric(surfacevalue)) {
     stop(
@@ -200,18 +309,8 @@ TADA_FlagDepthCategory <- function(
     cattype <- "for Surface"
   }
 
-  depth.params <- c(
-    "DEPTH, SECCHI DISK DEPTH",
-    "DEPTH, SECCHI DISK DEPTH (CHOICE LIST)",
-    "DEPTH, SECCHI DISK DEPTH REAPPEARS",
-    "TRANSPARENCY, SECCHI TUBE WITH DISK",
-    "DEPTH, DATA-LOGGER (NON-PORTED)",
-    "DEPTH, DATA-LOGGER (PORTED)",
-    "RBP STREAM DEPTH - RIFFLE",
-    "RBP STREAM DEPTH - RUN",
-    "THALWEG DEPTH"
-  )
-
+  depth.params <- .depth_param_names()
+  
   if (depth.count > 0) {
     message(paste(
       "TADA_FlagDepthCategory: checking data set for depth values. ",
@@ -743,41 +842,13 @@ TADA_IDDepthProfiles <- function(
 
   # check for columns created in TADA_FlagDepthCategory and run the function if they are missing
   # add check that depth category flag function has been run, run it if it has not
-  flag.func.cols <- c(
-    "TADA.ConsolidatedDepth",
-    "TADA.ConsolidatedDepth.Unit",
-    "TADA.ConsolidatedDepth.Bottom",
-    "TADA.DepthCategory.Flag",
-    "TADA.DepthProfileAggregation.Flag"
-  )
-
-  if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
-    message(
-      "TADA_IDDepthProfiles: Necessary columns from TADA_FlagDepthCategory function are included in the data frame."
-    )
-    .data <- .data
-  } else {
-    message(
-      "TADA_IDDepthProfiles: Necessary columns are being added to the data frame using TADA_DepthCatgegory.Flag function."
-    )
-    .data <- TADA_FlagDepthCategory(.data)
-  }
-
-  depth.params <- c(
-    "DEPTH, SECCHI DISK DEPTH",
-    "DEPTH, SECCHI DISK DEPTH (CHOICE LIST)",
-    "DEPTH, SECCHI DISK DEPTH REAPPEARS",
-    "TRANSPARENCY, SECCHI TUBE WITH DISK",
-    "DEPTH, DATA-LOGGER (NON-PORTED)",
-    "DEPTH, DATA-LOGGER (PORTED)",
-    "RBP STREAM DEPTH - RIFFLE",
-    "RBP STREAM DEPTH - RUN",
-    "THALWEG DEPTH"
-  )
-
+  .data <- .ensure_depth_flag_columns(.data)
+  
+  depth.params <- .depth_param_names()
+  
   # when aggregates == FALSE, robust removal of mean-aggregated rows (created by avg)
-  if (!aggregates && "ResultIdentifier" %in% names(.data)) {
-    .data <- dplyr::filter(.data, !grepl("^TADA-", ResultIdentifier))
+  if (!aggregates) {
+    .data <- .drop_avg_aggregates(.data)
   }
 
   if (nresults == TRUE) {
@@ -1032,86 +1103,20 @@ TADA_DepthProfilePlot <- function(
   }
 
   # Normalize "null" to NA
-  if (is.character(surfacevalue) && tolower(surfacevalue) == "null") {
-    surfacevalue <- NA_real_
-  }
-  if (is.character(bottomvalue) && tolower(bottomvalue) == "null") {
-    bottomvalue <- NA_real_
-  }
-
+  surfacevalue <- .normalize_null_numeric(surfacevalue)
+  bottomvalue  <- .normalize_null_numeric(bottomvalue)
+  
   # Add check that depth category flag function has been run, run it if it has not
-  flag.func.cols <- c(
-    "TADA.ConsolidatedDepth",
-    "TADA.ConsolidatedDepth.Unit",
-    "TADA.ConsolidatedDepth.Bottom",
-    "TADA.DepthCategory.Flag"
+  .data <- .ensure_depth_flag_columns(
+    .data,
+    surfacevalue = surfacevalue,
+    bottomvalue = bottomvalue,
+    allow_na_thresholds = TRUE
   )
-
-  if (all(flag.func.cols %in% colnames(.data))) {
-    message(
-      "TADA_DepthProfilePlot: Necessary columns from TADA_FlagDepthCategory function are included in the data frame"
-    )
-    .data <- .data
-  } else {
-    message(
-      "TADA_DepthProfilePlot: Running TADA_FlagDepthCategory function to add required columns to data frame"
-    )
-
-    if (is.na(surfacevalue) && is.na(bottomvalue)) {
-      .data <- TADA_FlagDepthCategory(
-        .data,
-        surfacevalue = 2,
-        bottomvalue = 2
-      ) |>
-        dplyr::mutate(TADA.DepthCategory.Flag = NA_character_)
-    } else if (is.na(surfacevalue) && is.numeric(bottomvalue)) {
-      .data <- TADA_FlagDepthCategory(
-        .data,
-        surfacevalue = 2,
-        bottomvalue = bottomvalue
-      ) |>
-        dplyr::mutate(
-          TADA.DepthCategory.Flag = ifelse(
-            TADA.DepthCategory.Flag %in% c("Surface", "Middle"),
-            NA_character_,
-            TADA.DepthCategory.Flag
-          )
-        )
-    } else if (is.na(bottomvalue) && is.numeric(surfacevalue)) {
-      .data <- TADA_FlagDepthCategory(
-        .data,
-        surfacevalue = surfacevalue,
-        bottomvalue = 2
-      ) |>
-        dplyr::mutate(
-          TADA.DepthCategory.Flag = ifelse(
-            TADA.DepthCategory.Flag %in% c("Bottom", "Middle"),
-            NA_character_,
-            TADA.DepthCategory.Flag
-          )
-        )
-    } else {
-      .data <- TADA_FlagDepthCategory(
-        .data,
-        surfacevalue = surfacevalue,
-        bottomvalue = bottomvalue
-      )
-    }
-  }
 
   # Define depth-parameter characteristics (needed before unit checks)
-  depth.params <- c(
-    "DEPTH, SECCHI DISK DEPTH",
-    "DEPTH, SECCHI DISK DEPTH (CHOICE LIST)",
-    "DEPTH, SECCHI DISK DEPTH REAPPEARS",
-    "TRANSPARENCY, SECCHI TUBE WITH DISK",
-    "DEPTH, DATA-LOGGER (NON-PORTED)",
-    "DEPTH, DATA-LOGGER (PORTED)",
-    "RBP STREAM DEPTH - RIFFLE",
-    "RBP STREAM DEPTH - RUN",
-    "THALWEG DEPTH"
-  )
-
+  depth.params <- .depth_param_names()
+  
   # Enforce unit consistency only across non-depth-parameter rows; depth-parameter rows will be converted later
   .data <- .data |> dplyr::filter(!is.na(TADA.ConsolidatedDepth))
 
