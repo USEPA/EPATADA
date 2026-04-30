@@ -74,6 +74,7 @@ needed before installing EPATADA because it is only available on GitHub
 (not CRAN).
 
 ``` r
+
 install.packages("remotes")
 # Load the remotes library
 library(remotes)
@@ -87,6 +88,7 @@ prompt, it is recommended to update all of them (enter 1 into the
 console).
 
 ``` r
+
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -97,6 +99,7 @@ Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ``` r
+
 library(EPATADA)
 ```
 
@@ -110,6 +113,7 @@ function in R or RStudio using the following format (example below):
 `?[name of TADA function]`
 
 ``` r
+
 # Access help page for TADA_CreateAUMLCrosswalk
 ?TADA_CreateAUMLCrosswalk
 ```
@@ -121,6 +125,7 @@ included in the EPATADA R package, and can be loaded into your R
 environment like this:
 
 ``` r
+
 tada.MT.clean <- TADA_DataRetrieval(
   startDate = "2020-01-01",
   endDate = "2022-12-31",
@@ -137,6 +142,7 @@ tada.MT.clean <- TADA_DataRetrieval(
 Rename the example data to tada.MT.clean:
 
 ``` r
+
 # Assign it to tada.MT.clean
 tada.MT.clean <- Data_MT_MissoulaCounty
 
@@ -170,6 +176,7 @@ API key to the “api_key” variable. Otherwise, the default EPATADA
 package key will be used.
 
 ``` r
+
 # api_key <- "paste your key here"
 
 # is user does not provide key, set api_key as NULL
@@ -234,6 +241,7 @@ Unit and WQP Monitoring Location crosswalk for demonstration purposes.
 If you have your own crosswalk, this step can be skipped.
 
 ``` r
+
 # review valid ATTAINS org IDs
 ATTAINS_orgs <- rExpertQuery::EQ_DomainValues("org_id")
 
@@ -278,6 +286,7 @@ rm(attains.existing.MT, clean.existing.attains.MT, ATTAINS_orgs)
 ### Run `TADA_CreateAUMLCrosswalk`
 
 ``` r
+
 # make AU assignments for unassigned MLs
 MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
   tada.MT.clean,
@@ -291,6 +300,7 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
 ```
 
 ``` r
+
 # extract ATTAINS_crosswalk data frame from the list and show table
 TADA_TableExport(MT.AUMLRef$ATTAINS_crosswalk)
 ```
@@ -355,6 +365,7 @@ Let’s run
 to make the water quality data spatial.
 
 ``` r
+
 # Adds epsg and geometry column at end, uses default CRS WGS84 (4326)
 TADA_spatial <- TADA_MakeSpatial(.data = tada.MT.clean, crs = 4326)
 ```
@@ -374,6 +385,7 @@ additional information.
 Now we can review the monitoring locations on a map:
 
 ``` r
+
 leaflet::leaflet() |>
   leaflet::addProviderTiles("Esri.WorldTopoMap",
     group = "World topo",
@@ -408,6 +420,7 @@ Using either our original `tada.MT.clean` *or* the geospatial version
 intersect our observations:
 
 ``` r
+
 TADA_with_ATTAINS <- TADA_CreateATTAINSAUMLCrosswalk(
   .data = tada.MT.clean,
   return_sf = FALSE,
@@ -428,6 +441,7 @@ Portal observations fall within an NHD catchment that contains more than
 one ATTAINS assessment unit.
 
 ``` r
+
 TADA_with_ATTAINS_list <- TADA_CreateATTAINSAUMLCrosswalk(
   .data = tada.MT.clean,
   return_sf = TRUE,
@@ -486,6 +500,7 @@ source.
 Let’s view the data associated with MT.AUMLRef!
 
 ``` r
+
 TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
 ```
 
@@ -531,6 +546,7 @@ For more detailed instructions, enter
 into the console.
 
 ``` r
+
 batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload |>
   TADA_UpdateATTAINSAUMLCrosswalk( # selected attains_replace = TRUE because all matches currently in ATTAINS are included in this new crosswalk
     attains_replace = TRUE,
@@ -553,6 +569,7 @@ demonstrate how to automatically assign uses to the new assessment unit,
 created in step A, which is not yet present in ATTAINS.
 
 ``` r
+
 # extract ATTAINS_crosswalk data frame from the list
 Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk
 
@@ -572,6 +589,7 @@ prioritized steps:
     units as defined by ATTAINS organizations.
 
 ``` r
+
 MT.UseAURef <- TADA_AssignUsesToAU(
   MT.AUMLRef$TADA_with_ATTAINS,
   AUMLRef = Final.MT.AUMLRef,
@@ -581,6 +599,7 @@ MT.UseAURef <- TADA_AssignUsesToAU(
 ```
 
 ``` r
+
 TADA_TableExport(MT.UseAURef)
 ```
 
@@ -600,6 +619,7 @@ needs, enter
 into the R console.
 
 ``` r
+
 MT.UseAURef_with_WaterUseRef <-
   TADA_AssignUsesToAU(
     MT.AUMLRef$TADA_with_ATTAINS,
@@ -611,6 +631,7 @@ MT.UseAURef_with_WaterUseRef <-
 ```
 
 ``` r
+
 TADA_TableExport(MT.UseAURef_with_WaterUseRef)
 ```
 
@@ -620,6 +641,7 @@ approach allows for greater flexibility and customization when
 integrating new AUs into existing frameworks.
 
 ``` r
+
 MT.UseAURef_manual <- MT.UseAURef |>
   dplyr::left_join(
     data.frame(

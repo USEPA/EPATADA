@@ -15,6 +15,7 @@ needed before installing EPATADA because it is only available on GitHub
 (not CRAN).
 
 ``` r
+
 install.packages("remotes")
 # Load the remotes library
 library(remotes)
@@ -28,6 +29,7 @@ prompt, it is recommended to update all of them (enter 1 into the
 console).
 
 ``` r
+
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -38,6 +40,7 @@ Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ``` r
+
 library(EPATADA)
 ```
 
@@ -178,6 +181,7 @@ This example includes monitoring data collected from Jan 2018 to Jan
 du Lac Band), 5) Pueblo of Tesuque, and 6) The Chickasaw Nation.
 
 ``` r
+
 TADAProfile <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", applyautoclean = FALSE, ask = FALSE)
 ```
 
@@ -191,6 +195,7 @@ Focusing just on the “PUEBLO_POJOAQUE” organization, rerun the example
 above:
 
 ``` r
+
 TADAProfile_single <- TADA_DataRetrieval(
   organization = "PUEBLO_POJOAQUE",
   startDate = "2018-01-01",
@@ -218,6 +223,7 @@ determine the correct spelling for this argument, “Pueblo of Pojoaque,
 New Mexico”, as listed in the TRIBE_NAME column.
 
 ``` r
+
 # Review TRIBE_NAME column to get name format for the TADA_DataRetrieval tribe_name_parcel function input
 TRIBE_NAME <- TADA_TribalOptions("American Indian Reservations")
 
@@ -240,6 +246,7 @@ Pueblo of Pojoaque examples above, using tigris::native_areas to acquire
 Census Bureau spatial data:
 
 ``` r
+
 TADAProfile_spatial <- TADA_DataRetrieval(
   aoi_sf = tigris::native_areas() |> dplyr::filter(NAMELSAD == "Pueblo of Pojoaque"),
   startDate = "2018-01-01",
@@ -264,6 +271,7 @@ query option! There is additional data available that may be useful but
 is missed if only the organization query filter is used.
 
 ``` r
+
 TADAProfile_single_2 <- TADA_DataRetrieval(
   organization = "REDLAKE_WQX",
   startDate = "2018-01-01",
@@ -296,6 +304,7 @@ data from multiple WQP profiles, and does some additional data cleaning
 as part of the data retrieval process.
 
 ``` r
+
 # dataRetrieval_example <- dataRetrieval::readWQPdata(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", ignore_attributes = TRUE)
 ```
 
@@ -329,6 +338,7 @@ below can take multiple HOURS to run. The total run time depends on your
 query inputs.
 
 ``` r
+
 # AK_AL_WaterTemp <- TADA_DataRetrieval(startDate = "2000-01-01", endDate = "2022-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
 #
 # AllWaterTemp <- TADA_DataRetrieval(characteristicName = "Temperature, water")
@@ -364,6 +374,7 @@ to filter by activity media, uncomment the example to filter for water
 data only by using dplyr::filter() with TADA.ActivityMediaName.
 
 ``` r
+
 # Filter to retain only results for use in analysis
 TADAProfile <- TADA_MediaFilter(TADAProfile,
   clean = TRUE,
@@ -426,6 +437,7 @@ columns flag if special characters are included in result values, and
 specifies what the special characters are.
 
 ``` r
+
 # run TADA_AutoClean on filtered dataset to convert special characters, result units, and depth units and identify censored data.
 
 TADAProfile <- TADA_AutoClean(TADAProfile)
@@ -439,6 +451,7 @@ sites and number of records for each unique value in the specified
 column. The example below uses TADA.CharacteristicName.
 
 ``` r
+
 # View column names for TADAProfile
 colnames(TADAProfile)
 ```
@@ -597,6 +610,7 @@ colnames(TADAProfile)
     ## [152] "LastUpdated"
 
 ``` r
+
 # Review the number of sites and number of records for each CharacteristicName in TADAProfile
 TADAProfile_CharSummary <- TADA_SummarizeColumn(TADAProfile, "TADA.CharacteristicName")
 
@@ -633,6 +647,7 @@ organizations that reported results at that site. This map may inform a
 user’s decision to remove/correct sites that are outside the US.
 
 ``` r
+
 TADA_OverviewMap(TADAProfile)
 ```
 
@@ -682,6 +697,7 @@ following flags (if relevant to dataframe):
   “Imprecise”.
 
 ``` r
+
 # flag only
 TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, flaggedonly = FALSE)
 
@@ -737,6 +753,7 @@ another unit. See function documentation for additional input options by
 entering the following code in the console: ?TADA_ConvertDepthUnits
 
 ``` r
+
 # converts all depth profile data to meters
 TADAProfileClean1 <- TADA_ConvertDepthUnits(TADAProfileClean1,
   unit = "ft",
@@ -755,6 +772,7 @@ See function documentation for additional details by entering the
 following code in the console: ?TADA_FlagContinuousData
 
 ``` r
+
 TADAProfileClean1 <- TADA_FlagContinuousData(TADAProfileClean1,
   clean = FALSE,
   flaggedonly = FALSE,
@@ -840,6 +858,7 @@ See documentation for more details:
     flagged as “Suspect”; default is flaggedonly = FALSE.
 
 ``` r
+
 TADAProfileClean2 <- TADA_FlagMethod(TADAProfileClean1, clean = TRUE)
 
 TADAProfileClean2 <- TADA_FlagFraction(TADAProfileClean2, clean = TRUE)
@@ -884,12 +903,14 @@ combination. See documentation for more details:
     FALSE.
 
 ``` r
+
 TADAProfileClean3 <- TADA_FlagAboveThreshold(TADAProfileClean2, clean = TRUE)
 
 TADAProfileClean3 <- TADA_FlagBelowThreshold(TADAProfileClean3, clean = TRUE)
 ```
 
 ``` r
+
 rm(TADAProfileClean1, TADAProfile_CharSummary)
 ```
 
@@ -908,6 +929,7 @@ console:
 - ?**TADA_FindPotentialDuplicatesSingleOrg**
 
 ``` r
+
 TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3)
 
 # filter to keep only unique rows using TADA.SingleOrgDup.Flag
@@ -920,6 +942,7 @@ TADAProfileClean3 <- dplyr::filter(
 - ?**TADA_FindPotentialDuplicatesMultipleOrgs**
 
 ``` r
+
 TADAProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(
   TADAProfileClean3,
   dist_buffer = 100,
@@ -957,6 +980,7 @@ If clean = FALSE, cleanNA = FALSE, and flaggedonly = FALSE, the function
 will not do anything.
 
 ``` r
+
 TADAProfileClean3 <- TADA_FindQAPPApproval(TADAProfileClean3, clean = FALSE, cleanNA = FALSE)
 ```
 
@@ -975,6 +999,7 @@ only be used to remove data if an accompanying QAPP document is required
 to use data in assessments.
 
 ``` r
+
 TADAProfileClean3 <- TADA_FindQAPPDoc(TADAProfileClean3,
   clean = FALSE
 )
@@ -1032,6 +1057,7 @@ are not included in the output):
 - *LaboratoryName*
 
 ``` r
+
 # multiple options
 
 # print table to console
@@ -1055,6 +1081,7 @@ TADA_FieldCounts(TADAProfileClean3)
     ## 14         SampleTissueAnatomyName     1
 
 ``` r
+
 # create object of table
 fieldCounts_Table <- TADA_FieldCounts(TADAProfileClean3)
 ```
@@ -1065,6 +1092,7 @@ table or pie chart of the counts of unique values in that field using
 *ActivityTypeCode*.
 
 ``` r
+
 TADA_FieldValuesTable(TADAProfileClean3, field = "ActivityTypeCode")
 ```
 
@@ -1075,12 +1103,14 @@ TADA_FieldValuesTable(TADAProfileClean3, field = "ActivityTypeCode")
     ## 4 Quality Control Sample-Equipment Blank    20
 
 ``` r
+
 TADA_FieldValuesPie(TADAProfileClean3, field = "ActivityTypeCode")
 ```
 
 ![](TADAModule1_files/figure-html/fieldValues_all-1.png)
 
 ``` r
+
 rm(TADAProfileClean2, fieldCounts_Table)
 ```
 
@@ -1101,6 +1131,7 @@ See WQX domain file to review all the **ActivityTypeCode** allowable
 values: <https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV>
 
 ``` r
+
 # Review flagged QC samples using the TADA_FindQCActivities function:
 # enter ?TADA_FindQCActivities into the console for more information
 TADAProfileClean3a <- TADA_FindQCActivities(TADAProfileClean3,
@@ -1180,6 +1211,7 @@ the data. Note that a modest error in a measurement will have a much
 smaller effect than implementing a QA process that builds in bias.
 
 ``` r
+
 # Run TADA_PairReplicates to add new TADA.ReplicateSampleID column
 TADAProfileClean3b <- TADA_PairReplicates(TADAProfileClean3)
 
@@ -1209,6 +1241,7 @@ unique(TADAProfileClean3b$TADA.ReplicateSampleID)
     ## [77] "STORET-974514939" "STORET-974514941"
 
 ``` r
+
 # Filter df to include only unique values that are paired replicate samples (parent-result and child-replicate).
 
 # Exclude NAs
@@ -1243,6 +1276,7 @@ unique(TADAProfileClean3b$TADA.ReplicateSampleID)
 Now, let’s remove QC samples/measurements from the dataframe.
 
 ``` r
+
 # Remove flagged QC samples using the TADA_FindQCActivities function:
 TADAProfileClean4 <- TADA_FindQCActivities(TADAProfileClean3,
   clean = TRUE
@@ -1257,6 +1291,7 @@ TADA_FieldValuesTable(TADAProfileClean4, "ActivityTypeCode")
     ## 2 Sample-Routine  1751
 
 ``` r
+
 TADA_FieldValuesPie(TADAProfileClean4, "ActivityTypeCode")
 ```
 
@@ -1265,6 +1300,7 @@ TADA_FieldValuesPie(TADAProfileClean4, "ActivityTypeCode")
 We’ve completed our review of the ActivityTypeCode.
 
 ``` r
+
 rm(TADAProfileClean3, TADAProfileClean3a, TADAProfileClean3b)
 ```
 
@@ -1275,6 +1311,7 @@ In this next example, there are multiple MeasureQualifierCode values to
 review.
 
 ``` r
+
 TADA_FieldValuesPie(TADAProfileClean4, "MeasureQualifierCode")
 ```
 
@@ -1291,6 +1328,7 @@ MeasureQualifierCode that are categorized as “SUSPECT”.
 See ?TADA_FlagMeasureQualifierCode for more information.
 
 ``` r
+
 # flag only
 Review_TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4,
   clean = FALSE,
@@ -1310,6 +1348,7 @@ TADA_FieldValuesPie(TADAProfileClean4, field = "TADA.MeasureQualifierCode.Def")
 ![](TADAModule1_files/figure-html/FilterMeasureQualifierCodes-1.png)
 
 ``` r
+
 rm(Review_TADAProfileClean4)
 ```
 
@@ -1375,6 +1414,7 @@ detection limit (half the detection limit). Please review
 information.
 
 ``` r
+
 TADAProfileClean4 <- TADA_SimpleCensoredMethods(TADAProfileClean4,
   nd_method = "multiplier",
   nd_multiplier = 0.5,
@@ -1388,6 +1428,7 @@ Next, review unique values within the *TADA.CensoredData.Flag*,
 columns.
 
 ``` r
+
 # review unique values
 unique(TADAProfileClean4$TADA.CensoredData.Flag)
 ```
@@ -1395,6 +1436,7 @@ unique(TADAProfileClean4$TADA.CensoredData.Flag)
     ## [1] "Uncensored" "Non-Detect"
 
 ``` r
+
 unique(TADAProfileClean4$DetectionQuantitationLimitTypeName)
 ```
 
@@ -1403,6 +1445,7 @@ unique(TADAProfileClean4$DetectionQuantitationLimitTypeName)
     ## [5] "Upper Quantitation Limit"
 
 ``` r
+
 unique(TADAProfileClean4$ResultDetectionConditionText)
 ```
 
@@ -1413,6 +1456,7 @@ Also, review the *TADA.ResultMeasureValueDataTypes.Flag* to see if any
 NAs or NDs (non-detects) remain.
 
 ``` r
+
 unique(TADAProfileClean4$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
@@ -1424,6 +1468,7 @@ unique(TADAProfileClean4$TADA.ResultMeasureValueDataTypes.Flag)
 Count how many NAs remain in the TADA.ResultMeasureValue.
 
 ``` r
+
 sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
@@ -1434,12 +1479,14 @@ Filter down to only include data that is numeric in the
 TADA.ResultMeasureValueDataTypes.Flag = “Text” or “NA - Not Available”.
 
 ``` r
+
 TADAProfileClean5 <- TADA_ConvertSpecialChars(TADAProfileClean4, col = "TADA.ResultMeasureValue", clean = TRUE)
 ```
 
 Double check to make sure no NAs or NDs remain.
 
 ``` r
+
 unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
@@ -1447,18 +1494,21 @@ unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
     ## [2] "Result Value/Unit Estimated from Detection Limit"
 
 ``` r
+
 nrow(TADAProfileClean4) - nrow(TADAProfileClean5)
 ```
 
     ## [1] 688
 
 ``` r
+
 sum(is.na(TADAProfileClean5$TADA.ResultMeasureValue))
 ```
 
     ## [1] 0
 
 ``` r
+
 rm(TADAProfileClean4)
 ```
 
@@ -1507,6 +1557,7 @@ used:
     a consistent name (and identifier) to synonyms.
 
 ``` r
+
 UniqueHarmonizationRef <- TADA_GetSynonymRef(TADAProfileClean5)
 
 TADAProfileClean5 <- TADA_HarmonizeSynonyms(TADAProfileClean5,
@@ -1515,6 +1566,7 @@ TADAProfileClean5 <- TADA_HarmonizeSynonyms(TADAProfileClean5,
 ```
 
 ``` r
+
 rm(UniqueHarmonizationRef)
 ```
 
@@ -1542,10 +1594,12 @@ the same day at the same site and depth, the function will pick the
 maximum value to use in summation calculations.
 
 ``` r
+
 TADAProfileClean6 <- TADA_CalculateTotalNP(TADAProfileClean5, daily_agg = "max")
 ```
 
 ``` r
+
 rm(TADAProfileClean5)
 ```
 
@@ -1561,6 +1615,7 @@ To start, review the list of parameters in the dataframe using the
 Enter ?TADA_FieldValuesTable into the console for more information.
 
 ``` r
+
 TADA_FieldValuesTable(TADAProfileClean6, field = "TADA.CharacteristicName")
 ```
 
@@ -1659,6 +1714,7 @@ included within each of the following fields:
 - *DetectionQuantitationLimitTypeName*
 
 ``` r
+
 TADA_FieldCounts(TADAProfileClean6, display = "most", characteristicName = "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)")
 ```
 
@@ -1730,6 +1786,7 @@ Now, we’ll use **TADA_FieldValuesTable** and **TADA_FieldValuesPie** at
 the characteristic-level to review a column of interest.
 
 ``` r
+
 # In this example we review values from the SampleCollectionMethod.MethodName field
 TADA_FieldValuesTable(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)")
 ```
@@ -1741,6 +1798,7 @@ TADA_FieldValuesTable(TADAProfileClean6, field = "SampleCollectionMethod.MethodN
     ## 4               Hand Dipper    28
 
 ``` r
+
 TADA_FieldValuesPie(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)")
 ```
 
@@ -1749,6 +1807,7 @@ TADA_FieldValuesPie(TADAProfileClean6, field = "SampleCollectionMethod.MethodNam
 Review unique TADA.ComparableDataIdentifier’s.
 
 ``` r
+
 unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
 ```
 
@@ -1787,6 +1846,7 @@ Filter dataframe and generate scatterplots for each selected
 TADA.ComparableDataIdentifier:
 
 ``` r
+
 TADAProfileClean6_filtered <- TADAProfileClean6[
   TADAProfileClean6$TADA.ComparableDataIdentifier %in%
     c(
@@ -1816,6 +1876,7 @@ TADA_Scatterplot(TADAProfileClean6_filtered, id_cols = c("TADA.ComparableDataIde
 Choose two from TADAProfileClean6 and generate scatterplot:
 
 ``` r
+
 TADA_TwoCharacteristicScatterplot(TADAProfileClean6, id_cols = "TADA.ComparableDataIdentifier", groups = c("TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L", "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"))
 ```
 
@@ -1827,6 +1888,7 @@ plots if their input dataset has more than one unique comparable data
 group.
 
 ``` r
+
 # review TADA.ComparableDataIdentifier
 unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
 ```
@@ -1863,6 +1925,7 @@ unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
     ## [30] "PERIPHYTON_NONE_NONE_G/M2"
 
 ``` r
+
 # filter dataframe to only "TOTAL PHOSPHORUS, MIXED FORMS"
 TADAProfileCleanTP <- dplyr::filter(
   TADAProfileClean6,
@@ -1888,6 +1951,7 @@ TADAProfileCleanTP_stats
     ## #   Percentile_95th <dbl>, Percentile_98th <dbl>, ND_Estimation_Method <chr>
 
 ``` r
+
 # generate a histogram
 TP_Histogram <- TADA_Histogram(TADAProfileCleanTP,
   id_cols =
@@ -1901,6 +1965,7 @@ TP_Histogram
 Generate interactive box plot.
 
 ``` r
+
 TP_Boxplot <- TADA_Boxplot(TADAProfileCleanTP,
   id_cols =
     "TADA.ComparableDataIdentifier"
@@ -1918,6 +1983,7 @@ function to remove any columns that are not required or used as filters
 in the TADA workflow. This reduces the size of the dataframe.
 
 ``` r
+
 TADAProfileClean7 <- TADA_RetainRequired(TADAProfileClean6)
 ```
 
@@ -1935,6 +2001,7 @@ currently hosted on the web with minimal server memory/storage
 allocated.
 
 ``` r
+
 # download TADA Shiny repository
 remotes::install_github("USEPA/TADAShiny",
   ref = "develop",

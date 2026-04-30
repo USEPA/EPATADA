@@ -49,6 +49,7 @@ needed before installing EPATADA because it is only available on GitHub
 (not CRAN).
 
 ``` r
+
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -64,6 +65,7 @@ If desired, the development versions of dataRetrieval and StreamCatTools
 can be downloaded directly from GitHub (un-comment).
 
 ``` r
+
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -80,6 +82,7 @@ Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ``` r
+
 library(EPATADA)
 ```
 
@@ -88,6 +91,7 @@ library(EPATADA)
 It’s go time! Let’s time our process.
 
 ``` r
+
 # Record start time
 start.time <- Sys.time()
 ```
@@ -116,6 +120,7 @@ in the WQP for this HUC 12 in Wisconsin for the last 5 years.
 WATERSHED: City of Green Bay-Fox River (040302040405)
 
 ``` r
+
 # Uncomment to query the WQP
 GreenBay_FoxRiver <- TADA_DataRetrieval(
   statecode = "WI",
@@ -157,6 +162,7 @@ analysis. For this example, we will retain only results flagged as
 “Unique”.
 
 ``` r
+
 # find duplicate results submitted by single org
 GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesSingleOrg(GreenBay_FoxRiver)
 
@@ -171,6 +177,7 @@ such as multiplying the detection limit by a user supplied value or
 leaving the result as is.
 
 ``` r
+
 # substitude nondetects with 0.5 detection limit, leave overdetects as is
 GreenBay_FoxRiver <- TADA_SimpleCensoredMethods(GreenBay_FoxRiver, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
 ```
@@ -181,6 +188,7 @@ Two organizations sometimes submit the same exact data to WQP. Filtering
 out these duplicates can prevent issues in analysis.
 
 ``` r
+
 # find potential dups multiple orgs
 GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesMultipleOrgs(GreenBay_FoxRiver)
 
@@ -193,6 +201,7 @@ GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.ResultSelectedMultipl
 Filter out any remaining irrelevant data, NAs and empty columns.
 
 ``` r
+
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
@@ -203,6 +212,7 @@ GreenBay_FoxRiver <- TADA_ConvertSpecialChars(GreenBay_FoxRiver, col = "TADA.Res
 Check to make sure there are no more NAs in TADA.ResultMeasureValue.
 
 ``` r
+
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
@@ -216,12 +226,14 @@ sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 Flag or remove QAQC samples and suspect results.
 
 ``` r
+
 GreenBay_FoxRiver <- TADA_RunKeyFlagFunctions(GreenBay_FoxRiver, clean = TRUE)
 ```
 
 Flag results above and below threshold, but do not remove them
 
 ``` r
+
 GreenBay_FoxRiver <- TADA_FlagAboveThreshold(GreenBay_FoxRiver, clean = FALSE, flaggedonly = FALSE)
 
 GreenBay_FoxRiver <- TADA_FlagBelowThreshold(GreenBay_FoxRiver, clean = FALSE, flaggedonly = FALSE)
@@ -230,12 +242,14 @@ GreenBay_FoxRiver <- TADA_FlagBelowThreshold(GreenBay_FoxRiver, clean = FALSE, f
 ##### **Harmonize synonyms across characteristic, fraction, and speciation**
 
 ``` r
+
 GreenBay_FoxRiver <- TADA_HarmonizeSynonyms(GreenBay_FoxRiver)
 ```
 
 ##### **Calculate Total N and Total P from various species and fractions**
 
 ``` r
+
 GreenBay_FoxRiver <- TADA_CalculateTotalNP(GreenBay_FoxRiver, daily_agg = "max")
 ```
 
@@ -244,6 +258,7 @@ GreenBay_FoxRiver <- TADA_CalculateTotalNP(GreenBay_FoxRiver, daily_agg = "max")
 Review unique characteristic, fraction, and species combinations
 
 ``` r
+
 GreenBay_FoxRiver_Counts <- TADA_FieldValuesTable(GreenBay_FoxRiver, field = "TADA.ComparableDataIdentifier")
 
 DT::datatable(GreenBay_FoxRiver_Counts, fillContainer = TRUE)
@@ -252,6 +267,7 @@ DT::datatable(GreenBay_FoxRiver_Counts, fillContainer = TRUE)
 Filter to focus on frequently monitored characteristics in example data
 
 ``` r
+
 GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver |>
   dplyr::filter(TADA.ComparableDataIdentifier %in%
     c(
@@ -266,6 +282,7 @@ GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver |>
 Review organizations for subset
 
 ``` r
+
 # Create pie of results by organization
 TADA_FieldValuesPie(GreenBay_FoxRiver_Subset, field = "OrganizationFormalName")
 ```
@@ -275,6 +292,7 @@ TADA_FieldValuesPie(GreenBay_FoxRiver_Subset, field = "OrganizationFormalName")
 Generate stats table
 
 ``` r
+
 GreenBay_FoxRiver_Subset_Stats <- TADA_Stats(GreenBay_FoxRiver_Subset)
 
 DT::datatable(GreenBay_FoxRiver_Subset_Stats, fillContainer = TRUE)
@@ -283,18 +301,21 @@ DT::datatable(GreenBay_FoxRiver_Subset_Stats, fillContainer = TRUE)
 Generate scatterplot
 
 ``` r
+
 TADA_TwoCharacteristicScatterplot(GreenBay_FoxRiver_Subset, id_cols = "TADA.ComparableDataIdentifier", groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
 ```
 
 Generate map
 
 ``` r
+
 TADA_OverviewMap(GreenBay_FoxRiver_Subset)
 ```
 
 ##### **Coordinate issues**
 
 ``` r
+
 # Change coordinate sign if appropriate
 GreenBay_FoxRiver <- TADA_FlagCoordinates(GreenBay_FoxRiver_Subset, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
 
@@ -319,6 +340,7 @@ First, leverage TADA_MakeSpatial to transform a WQP dataframe into a
 geospatial sf object.
 
 ``` r
+
 GreenBay_FoxRiver_sf <- TADA_MakeSpatial(GreenBay_FoxRiver_Subset)
 ```
 
@@ -326,6 +348,7 @@ Then create a unique identifier based on shared lat long values and
 filter to just the 25 unique locations.
 
 ``` r
+
 GreenBay_FoxRiver_sf$latlon <- paste0(GreenBay_FoxRiver_sf$TADA.LongitudeMeasure, GreenBay_FoxRiver_sf$TADA.LatitudeMeasure)
 
 GreenBay_FoxRiver_sf <- GreenBay_FoxRiver_sf |>
@@ -342,6 +365,7 @@ We use `StreamCatTools` function `sc_get_comid` (which uses an
 `nhdplusTools` web service client) to get the comid for each location.
 
 ``` r
+
 GreenBay_FoxRiver_sf_locs$COMID <- as.integer(strsplit(StreamCatTools::sc_get_comid(GreenBay_FoxRiver_sf_locs), split = ",")[[1]])
 
 nhdplus_data <- nhdplusTools::subset_nhdplus(GreenBay_FoxRiver_sf_locs$COMID, nhdplus_data = "download")
@@ -359,6 +383,7 @@ network navigation only includes flowline geometry. `nhdplusTools`
 subsets all of the NHDPlus.
 
 ``` r
+
 all_network <- dataRetrieval::findNLDI(comid = outlet$comid, nav = "UT", distance_km = 500)
 
 # we could select only comids on network
@@ -390,6 +415,7 @@ systems. See [hydroloom documentation for
 more!](https://doi-usgs.github.io/hydroloom/articles/hydroloom.html)
 
 ``` r
+
 GreenBay_FoxRiver_sf_locs <- sf::st_join(
   GreenBay_FoxRiver_sf_locs,
   hydroloom::st_compatibalize(
@@ -415,6 +441,7 @@ For on-network waterbodies, it will also include the outlet flowline for
 each waterbody.
 
 ``` r
+
 all_wb <- dplyr::bind_rows(
   dplyr::select(nhdplus_data$NHDWaterbody, wbid = comid),
   dplyr::select(nhdplus_data$NHDArea, wbid = comid)
@@ -429,6 +456,7 @@ all_wb <- dplyr::bind_rows(
 ```
 
 ``` r
+
 par(mar = c(0, 0, 0, 0))
 nhdplusTools::plot_nhdplus(
   bbox = sf::st_bbox(GreenBay_FoxRiver_sf),
@@ -461,6 +489,7 @@ watershed for each particular site using
 **Discover what StreamCat metrics we might want to use**
 
 ``` r
+
 metrics <- StreamCatTools::sc_get_params(param = "metric_names")
 print(paste0("A selection of available StreamCat metrics include: ", paste(metrics[1:10], collapse = ", ")))
 ```
@@ -471,6 +500,7 @@ We’ll pull in all the NLCD categories at the local catchment level for
 each location
 
 ``` r
+
 GB_FR_NLCD <- StreamCatTools::sc_nlcd(year = "2019", aoi = "cat", comid = GreenBay_FoxRiver_sf_locs$COMID)
 
 
@@ -483,6 +513,7 @@ GB_FR_Urb
 **Visualize urbanization for local catchment for each location**
 
 ``` r
+
 ggplot2::ggplot(GB_FR_Urb, ggplot2::aes(x = Pct_Urbanized)) +
   ggplot2::geom_density()
 ```
@@ -493,6 +524,7 @@ Now we’ll just demonstrate pulling in watershed data that we might use
 in a modeling exercise as spatial covariates
 
 ``` r
+
 ws_data <- StreamCatTools::sc_get_data(metric = "fert,nsurp,nani,manure,IWI", aoi = "cat,ws", comid = GreenBay_FoxRiver_sf_locs$COMID)
 ```
 
@@ -591,6 +623,7 @@ quality data is the WQP.
   applicable to their use case
 
 ``` r
+
 WQP_with_ATTAINSonly <- TADA_CreateATTAINSAUMLCrosswalk(GreenBay_FoxRiver_Subset, return_sf = TRUE)
 
 TADA_ViewATTAINS(WQP_with_ATTAINSonly)
@@ -636,6 +669,7 @@ res is the default) and match those with the WQP sites & create new IDs
 these WQP sites).
 
 ``` r
+
 WQP_withATTAINSandNHDPluscatchments <- TADA_CreateATTAINSAUMLCrosswalk(GreenBay_FoxRiver_Subset, fill_USGS_catch = TRUE, return_sf = TRUE)
 
 TADA_ViewATTAINS(WQP_withATTAINSandNHDPluscatchments)
@@ -644,6 +678,7 @@ TADA_ViewATTAINS(WQP_withATTAINSandNHDPluscatchments)
 ## Stop timer!
 
 ``` r
+
 end.time <- Sys.time()
 
 end.time - start.time

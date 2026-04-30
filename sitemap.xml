@@ -59,7 +59,6 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CreateDateTime.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CreatePairRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CreateUnitRef.html</loc></url>
-<url><loc>https://usepa.github.io/EPATADA/reference/TADA_CriteriaDataDictionary.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_DecimalPlaces.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_DefineCriteriaMethodology.html</loc></url>
@@ -160,6 +159,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/checkTADAColsForMap.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/createBBox.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/createTADABasemap.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_CriteriaDataDictionary.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateATTAINSOrgIDsRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateATTAINSParamUseOrgRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateActivityTypeRef.html</loc></url>
@@ -187,6 +187,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/getMapIconLabels.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/getTribalPopup.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/getWQPSiteStats.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/get_downloads_path.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/index.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/pchIcons.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/prepATTAINSMapper.html</loc></url>

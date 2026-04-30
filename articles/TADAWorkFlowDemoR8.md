@@ -29,6 +29,7 @@ First, install and load the remotes package specifying the repo. This is
 needed before installing TADA because it is only available on GitHub.
 
 ``` r
+
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -43,6 +44,7 @@ prompt, it is recommended to update all of them (enter 1 into the
 console).
 
 ``` r
+
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -53,6 +55,7 @@ Finally, use the library() function to load the TADA R Package into your
 R session.
 
 ``` r
+
 library(EPATADA)
 ```
 
@@ -64,6 +67,7 @@ also access the help page for a given function in R or RStudio using the
 following format (example below): ?\[name of TADA function\].
 
 ``` r
+
 # Access help page for TADA_DataRetrieval
 ?TADA_DataRetrieval
 ```
@@ -123,6 +127,7 @@ unified naming format for easier aggregation, analysis, and
 visualization.
 
 ``` r
+
 Data_MT_MissoulaCounty <- TADA_DataRetrieval(
   startDate = "2020-01-01",
   endDate = "2022-12-31",
@@ -140,6 +145,7 @@ Rename the Data_MT_MissoulaCounty data frame to tada.MT. Generate a
 table:
 
 ``` r
+
 # Assign it to tada.MT
 tada.MT.clean <- Data_MT_MissoulaCounty
 
@@ -160,6 +166,7 @@ Create a pie chart to display the count of results for each
 TADA.CharacteristicName.
 
 ``` r
+
 TADA_FieldValuesPie(
   tada.MT.clean,
   field = "TADA.CharacteristicName",
@@ -175,6 +182,7 @@ see what activity media types are represented in the data set.
 Are there any media types that are not water?
 
 ``` r
+
 # Create table with count for each ActivityMediaName
 media <- TADA_FieldValuesTable(
   tada.MT.clean,
@@ -189,6 +197,7 @@ count, visit count and characteristic counts along with the site ID,
 site name, and organization name.
 
 ``` r
+
 TADA_OverviewMap(tada.MT.clean)
 ```
 
@@ -197,6 +206,7 @@ MonitoringLocationIdentifier column and see how how many results are
 associated with each.
 
 ``` r
+
 # use TADA_FieldValuesTable to create a table of the number of results per MonitoringLocationIdentifier
 sites <- TADA_FieldValuesTable(
   tada.MT.clean,
@@ -209,6 +219,7 @@ DT::datatable(sites, fillContainer = TRUE)
 What about OrganizationFormalName?
 
 ``` r
+
 # use TADA_FieldValuesTable to create a table of the number of results per MonitoringLocationIdentifier
 orgs <- TADA_FieldValuesTable(
   tada.MT.clean,
@@ -223,6 +234,7 @@ with QA/QC ActivityTypeCodes. When clean = TRUE, it removes QA/QC
 results.
 
 ``` r
+
 tada.MT.clean <- TADA_FindQCActivities(tada.MT.clean, clean = TRUE)
 ```
 
@@ -232,6 +244,7 @@ thresholds, respectively. When clean = TRUE, the flagged results are
 removed from the TADA data frame.
 
 ``` r
+
 tada.MT.clean <- TADA_FlagAboveThreshold(tada.MT.clean, clean = TRUE, flaggedonly = FALSE)
 
 tada.MT.clean <- TADA_FlagBelowThreshold(tada.MT.clean, clean = TRUE, flaggedonly = FALSE)
@@ -300,6 +313,7 @@ API key to the “api_key” variable. Otherwise, the default EPATADA
 package key will be used.
 
 ``` r
+
 # api_key <- "paste your key here"
 
 # is user does not provide key, set api_key as NULL
@@ -311,6 +325,7 @@ if (!exists("api_key")) {
 #### Define a user supplied crosswalk of Assessment Units and Monitoring Location(s)
 
 ``` r
+
 # user would like to associate this MonitoringLocationIdentifier to this AU.
 user.supplied.cw <- data.frame(
   AssessmentUnitIdentifier = "MT76M001_020",
@@ -329,6 +344,7 @@ ATTAINS for the assessment unit identifier “MT76M001_020”.
 Does our TADA data frame contain any of these monitoring locations?
 
 ``` r
+
 ATTAINS.cw <- TADA_GetATTAINSAUMLCrosswalk(
   org_id = "MTDEQ",
   api_key = api_key
@@ -353,6 +369,7 @@ check the ATTAINS crosswalk (see ATTAINS.cw above), then lastly, the
 geospatial join, as needed.
 
 ``` r
+
 # make AU assignments for unassigned MLs
 MT.AUMLRef <- TADA_CreateAUMLCrosswalk(tada.MT.clean,
   au_ref = user.supplied.cw,
@@ -381,6 +398,7 @@ Now, let’s view the assessment units and monitoring locations on a map
 to review the assessment unit/monitoring location assignments.
 
 ``` r
+
 TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
 ```
 
@@ -392,6 +410,7 @@ OXYGEN (DO)” for demonstration purposes for the remainder of this
 example.
 
 ``` r
+
 # get subset DO data for one AU
 tada.MT.clean.DO <- MT.AUMLRef$TADA_with_ATTAINS |>
   sf::st_drop_geometry() |>
@@ -412,6 +431,7 @@ additional rows or remove use names as needed. See the TADA Module 2:
 Geospatial Functions vignette for more information.
 
 ``` r
+
 AU.uses <- TADA_AssignUsesToAU(
   tada.MT.clean.DO,
   org_id = "MTDEQ",
@@ -436,6 +456,7 @@ from the output of MT.AUMLRef\$ATTAINS_crosswalk for your assessment
 unit.
 
 ``` r
+
 names(TADA_AssignUsesToAU())
 
 AU.uses.user.supplied <- data.frame(
@@ -497,6 +518,7 @@ For this demo, We will load in a pre-filled criteria template for MTDEQ
 and states/tribes.
 
 ``` r
+
 # Load the example R8 criteria table for MTDEQ
 criteria_table <- TADA_ListCriteriaFile(org_id = "MTDEQ")
 
@@ -527,6 +549,7 @@ interested in individual result measurement excursions, they can proceed
 to use this table as is.
 
 ``` r
+
 criteria_table_auto <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ",
@@ -551,6 +574,7 @@ criteria table into an excel spreadsheet and read it back into the R
 environment once any edits are made.
 
 ``` r
+
 MT_criteria_excel <- TADA_DefineCriteriaMethodology(
   tada.MT.clean.DO,
   org_id = "MTDEQ",
@@ -572,6 +596,7 @@ your TADA data frame to the criteria table using the MTDEQ table sourced
 from the TADACommunityHub.
 
 ``` r
+
 # join use and criteria to tada df (many to many relationships may occur)
 tada.MT.clean.DO2 <- dplyr::left_join(
   tada.MT.clean.DO,
@@ -595,6 +620,7 @@ information (e.g. seasonality and data sufficiency) entered into the
 Criteria and Methodologies Template.
 
 ``` r
+
 TADA_scatters <- list()
 
 n <- length(tada.MT.do.subsets)
@@ -643,6 +669,7 @@ information was determined to be the appropriate criteria for this
 assessment unit and applied.
 
 ``` r
+
 names(TADA_scatters)
 # TADA_scatters
 TADA_scatters[[1]]

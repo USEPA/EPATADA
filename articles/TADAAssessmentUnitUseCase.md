@@ -39,6 +39,7 @@ needed before installing TADA because it is only available on GitHub
 (not CRAN).
 
 ``` r
+
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -48,6 +49,7 @@ library(remotes)
 Next, install and load EPATADA using the remotes package.
 
 ``` r
+
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -59,6 +61,7 @@ Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ``` r
+
 library(EPATADA)
 ```
 
@@ -74,6 +77,7 @@ We’ll also record the start time for our analysis, beginning after
 loading packages.
 
 ``` r
+
 list.of.packages <- c(
   "dplyr", "yaml", "lwgeom", "sf", "lubridate",
   "knitr", "DT"
@@ -136,6 +140,7 @@ Characteristics are not missed. There are TADA functions that can be
 used to harmonize these synonyms.
 
 ``` r
+
 # Import data from WQP
 data <- TADA_DataRetrieval(
   statecode = "IL",
@@ -200,6 +205,7 @@ more detailed look at the logic behind this and the other TADA
 geospatial functions.
 
 ``` r
+
 # Import data from ATTAINS geospatial services
 ATTAINS_data <- TADA_CreateATTAINSAUMLCrosswalk(data)
 ```
@@ -214,6 +220,7 @@ this demo, we are focusing on a single Assessment Unit, IL-84, with
 multiple monitoring locations (*MonitoringLocationIdentifier*).
 
 ``` r
+
 # View catchments and assessment units on map
 
 ATTAINS_map <- TADA_ViewATTAINS(ATTAINS_data)
@@ -237,6 +244,7 @@ Monitoring Locations in Assessment Unit IL-84 and a pie chart to display
 the relative number of results contributed by each organization.
 
 ``` r
+
 # Filter data for specified assessment unit
 
 AUID_data <- ATTAINS_data$TADA_with_ATTAINS |>
@@ -288,6 +296,7 @@ want to review each function and its output more carefully before moving
 on.
 
 ``` r
+
 # Flag and remove results
 
 Analysis_data <- Analysis_data |>
@@ -304,6 +313,7 @@ these functions to remove any results that fall outside the national
 thresholds.
 
 ``` r
+
 # Flag and remove results
 
 Analysis_data <- Analysis_data |>
@@ -334,6 +344,7 @@ In this example, we will use the default setting “none” where a single
 representative is selected randomly from each duplicate group.
 
 ``` r
+
 # Flag and remove results
 
 Analysis_data <- Analysis_data |>
@@ -354,6 +365,7 @@ results for removal as you may wish to make different decisions than the
 TADA defaults regarding which results to retain.
 
 ``` r
+
 # Flag and remove results
 
 Analysis_data <- Analysis_data |>
@@ -389,6 +401,7 @@ After running `TADA_SimpleCensoredMethods`, we will also filter the data
 to remove any remaining NAs.
 
 ``` r
+
 Analysis_data <- TADA_SimpleCensoredMethods(Analysis_data,
   nd_method = "multiplier",
   nd_multiplier = 0.5,
@@ -423,6 +436,7 @@ this function is to make similar data consistent and therefore easier to
 compare and analyze.
 
 ``` r
+
 UniqueHarmonizationRef <- TADA_GetSynonymRef(Analysis_data)
 
 UniqueHarmonizationRef_edit <- UniqueHarmonizationRef |>
@@ -462,6 +476,7 @@ maximum value to use in summation calculations. In this example, we will
 use the default summation worksheet to obtain total nitrogen.
 
 ``` r
+
 Harmonized_data <- TADA_CalculateTotalNP(Harmonized_data, daily_agg = "max")
 ```
 
@@ -472,6 +487,7 @@ Now we can filter to our three parameters of interest and use
 location count, measurement count, min, max, and more.
 
 ``` r
+
 # review unique identifiers
 unique(Harmonized_data$TADA.ComparableDataIdentifier)
 
@@ -492,6 +508,7 @@ temperature to begin visualizing the data, using
 `TADA_TwoCharacteristicScatterplot`.
 
 ``` r
+
 # choose two and generate scatterplot
 TADA_TwoCharacteristicScatterplot(Harmonized_data, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_STD UNITS"))
 ```
@@ -507,6 +524,7 @@ are not a default option in `TADA_Scatterplot` but can be added via the
 `plotly` package.
 
 ``` r
+
 # comparison to standard for ph
 pH_Standard <- Filtered_data |>
   dplyr::filter(TADA.ComparableDataIdentifier == "PH_NA_NA_STD UNITS") |>
@@ -576,6 +594,7 @@ the results that did not meet the standard and review during which years
 and seasons they occurred.
 
 ``` r
+
 # comparison to standard for temperature
 Temp_Standard <- Filtered_data |>
   dplyr::filter(TADA.ComparableDataIdentifier == "TEMPERATURE_NA_NA_DEG C") |>
@@ -621,6 +640,7 @@ functions `TADA_Histogram` and `TADA_Boxplot`.
 data.
 
 ``` r
+
 # filter dataframe to comparable data identifier of interest
 
 Nitrogen_data <- dplyr::filter(Filtered_data, TADA.ComparableDataIdentifier == "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L")
@@ -635,6 +655,7 @@ Nitrogen_Histogram
 `TADA_Boxplot` can be useful for identifying skewness and percentiles.
 
 ``` r
+
 Nitrogen_Boxplot <- TADA_Boxplot(Nitrogen_data, id_cols = "TADA.ComparableDataIdentifier")
 
 
@@ -647,6 +668,7 @@ columns or creating a single characteristic scatterplot may also provide
 useful information.
 
 ``` r
+
 # create table with nitrogen stats
 Nitrogen_stats <- Filtered_data_stats |>
   dplyr::filter(TADA.ComparableDataIdentifier == "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L") |>
@@ -689,6 +711,7 @@ chunks and create this document, providing an example of how
 incorporating TADA in your workflow can increase efficiency.
 
 ``` r
+
 end.time <- Sys.time()
 
 end.time - start.time

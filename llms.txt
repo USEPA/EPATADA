@@ -60,6 +60,7 @@ TRUE, force = TRUE)
 
 library(EPATADA)
 
+
     The TADA R Shiny application can be run [on the web](https://rconnect-public.epa.gov/TADAShiny/) (R and R Studio install not required), or within R Studio. We recommend running it within R Studio if possible to avoid time out issues (especially when working with large datasets) and to make sure you are using the most up to date version. The web version of the application is on a slightly lagged update schedule. Run the following code within R Studio to install or update and run the most recent version of the [TADA R Shiny](https://github.com/USEPA/TADAShiny) application:
 
     ```{r}
@@ -293,9 +294,6 @@ mywaterway@epa.gov.
 
 - [`TADA_CreateUnitRef()`](https://usepa.github.io/EPATADA/reference/TADA_CreateUnitRef.md)
   : Generate A DataFrame of Units and Target by Characteristic Name
-
-- [`TADA_CriteriaDataDictionary()`](https://usepa.github.io/EPATADA/reference/TADA_CriteriaDataDictionary.md)
-  : Data Dictionary for Criteria and Methodology
 
 - [`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
   : Generate TADA-compatible dataframe from WQP Data
@@ -627,6 +625,9 @@ mywaterway@epa.gov.
 - [`createTADABasemap()`](https://usepa.github.io/EPATADA/reference/createTADABasemap.md)
   : createTADABasemap
 
+- [`.TADA_CriteriaDataDictionary()`](https://usepa.github.io/EPATADA/reference/dot-TADA_CriteriaDataDictionary.md)
+  : Data Dictionary for Criteria and Methodology Workbook
+
 - [`.TADA_UpdateExampleData()`](https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateExampleData.md)
   : Update Example Data for EPATADA Package (Internal)
 
@@ -673,6 +674,9 @@ mywaterway@epa.gov.
 
 - [`getWQPSiteStats()`](https://usepa.github.io/EPATADA/reference/getWQPSiteStats.md)
   : getWQPSiteStats
+
+- [`get_downloads_path()`](https://usepa.github.io/EPATADA/reference/get_downloads_path.md)
+  : Get the excel downloads path for criteria files
 
 - [`pchIcons()`](https://usepa.github.io/EPATADA/reference/pchIcons.md)
   : Create icon(s) to be used to represent points on a map feature layer

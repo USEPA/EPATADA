@@ -19,6 +19,7 @@ needed before installing the EPATADA R package because it is only
 available on GitHub.
 
 ``` r
+
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -32,6 +33,7 @@ recent versions available. If you see this prompt, it is recommended to
 update all of them (enter 1 into the console).
 
 ``` r
+
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -42,6 +44,7 @@ Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ``` r
+
 library(EPATADA)
 ```
 
@@ -52,6 +55,7 @@ can also access function help pages from RStudio by entering
 `?[name of TADA function]` into the console (example below).
 
 ``` r
+
 # Access help page for TADA_DataRetrieval
 ?TADA_DataRetrieval
 ```
@@ -99,6 +103,7 @@ functions. The example TADA data frame used in this vignette
 (Data_HUC8_02070004_Mod1Output) has already been through this process.
 
 ``` r
+
 # import example data set (output of Module 1 Workflow)
 Data_NCTC <- Data_HUC8_02070004_Mod1Output
 ```
@@ -122,6 +127,7 @@ combinations) in the example data. How many results are available for
 each within the example data set (Data_NCTC)?
 
 ``` r
+
 # create table with counts of TADA.ComparableDataIdentifiers
 TADA_FieldValuesTable(Data_NCTC, field = "TADA.ComparableDataIdentifier")
 ```
@@ -135,6 +141,7 @@ functions for downloading tidy data from the ATTAINS public web services
 domains (see example below).
 
 ``` r
+
 # return ATTAINS domain names
 rExpertQuery::EQ_DomainValues()
 ```
@@ -146,6 +153,7 @@ quality impairment) in prior ATTAINS CWA assessment cycles. Let’s review
 the complete list:
 
 ``` r
+
 # return ATTAINS parameter domain values
 TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
 ```
@@ -157,6 +165,7 @@ must first review the ATTAINS organization domain list to get the
 ATTAINS organization id’s to use for the function input.
 
 ``` r
+
 # return ATTAINS organization domain values
 TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id"))
 ```
@@ -216,6 +225,7 @@ ATTAINS.ParameterName column, and users will need to manually fill this
 crosswalk out.
 
 ``` r
+
 # create TADA parameter reference table for specified organization
 NCTC_ParamRef_None <- TADA_ParametersForAnalysis(
   Data_NCTC,
@@ -238,6 +248,7 @@ Your organization is fine with using an ATTAINS Parameter Name that has
 been submitted to ATTAINS outside of your organization.
 
 ``` r
+
 # create TADA parameter reference table for specified organization
 NCTC_ParamRef_All <- TADA_ParametersForAnalysis(
   Data_NCTC,
@@ -257,6 +268,7 @@ matches ONLY if your organization has used this “ATTAINS.ParameterName”
 domain value in the past.
 
 ``` r
+
 # create TADA parameter reference table for specified organization
 NCTC_ParamRef_Org <- TADA_ParametersForAnalysis(
   Data_NCTC,
@@ -284,6 +296,7 @@ TADA.ComparableDataIdentifier as not been assigned an ATTAINS parameter
 name.
 
 ``` r
+
 # only run the code chunks below if you make edits to the excel file. Please note you must open and save the excel file at least once to reflect all Excel formula based values.
 
 # downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
@@ -321,6 +334,7 @@ review process if new WQX characteristic names are added as a domain
 value.
 
 ``` r
+
 NCTC_ParamRef_AutoCreate <- TADA_ParametersForAnalysis(
   Data_NCTC,
   org_id = c("MDE_EASP"),
@@ -345,6 +359,7 @@ so NCTC_ParamRef_Manual2 will crosswalk the TADA Characteristic name to
 ‘PH’ as the exact match for ATTAINS parameter name.
 
 ``` r
+
 ParamRef2 <- dplyr::mutate(NCTC_ParamRef_None, ATTAINS.ParameterName = dplyr::case_when(
   # grepl("PH", TADA.ComparableDataIdentifier) ~ "PH",
   TADA.ComparableDataIdentifier == "ZINC_DISSOLVED_NA_UG/L" ~ "ZINC",
@@ -398,6 +413,7 @@ listed in ATTAINS for MDE_EASP in the prior assessment cycle, but was
 included in MDE_EASP paramRef argument input.
 
 ``` r
+
 NCTC_usesRef_Manual <- TADA_UsesForAnalysis(
   Data_NCTC,
   org_id = c("MDE_EASP"),
@@ -414,6 +430,7 @@ uses (disclaimer: this is for demonstration purposes only and does not
 reflect MDE_EASP’s process).
 
 ``` r
+
 add_data <- data.frame(
   "ATTAINS.OrganizationIdentifier" = "MDE_EASP",
   "ATTAINS.ParameterName" = rep("PH", 3),
@@ -449,6 +466,7 @@ We can choose to assign all unique use names found by your organization
 to those ATTAINS.ParameterName without any associated ATTAINS.UseName.
 
 ``` r
+
 NCTC_usesRef_AutoAssign <- TADA_UsesForAnalysis(
   Data_NCTC,
   org_id = c("MDE_EASP"),
@@ -472,6 +490,7 @@ organization. We will also run TADA_UsesForAnalysis for multiple
 organizations using autoassign = TRUE.
 
 ``` r
+
 # create TADA parameter reference table for specified organization
 NCTC_ParamRef_MultipleOrgs <- TADA_ParametersForAnalysis(
   Data_NCTC,

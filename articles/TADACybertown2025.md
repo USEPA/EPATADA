@@ -17,12 +17,14 @@ instructions [here](https://github.com/USEPA/EPATADA). Next, load the
 EPATADA R Package.
 
 ``` r
+
 library(EPATADA)
 ```
 
 ## Record start time
 
 ``` r
+
 start.time <- Sys.time()
 ```
 
@@ -63,6 +65,7 @@ TADA_DataRetrieval. This allows us to download WQP data within the
 Assessment Unit (our area of interest/AOI).
 
 ``` r
+
 query.params <- list(
   where = "assessmentunitidentifier IN ('CT6400-00-1-L5_01')",
   outFields = "*",
@@ -105,6 +108,7 @@ WQP_raw <- TADA_DataRetrieval(
 Remove intermediate variables in R by using ‘rm()’.
 
 ``` r
+
 rm(poly.response, poly.sf, query.params, poly.geojson, url)
 ```
 
@@ -119,6 +123,7 @@ see what activity media types are represented in the data set. Are there
 any media type that are not water in our data frame?
 
 ``` r
+
 # Create table with count for each ActivityMediaName
 TADA_FieldValuesTable(
   WQP_raw,
@@ -130,6 +135,7 @@ TADA_FieldValuesTable(
 Create an overview map.
 
 ``` r
+
 TADA_OverviewMap(WQP_raw)
 ```
 
@@ -138,6 +144,7 @@ MonitoringLocationIdentifier column and see how how many results are
 associated with each.
 
 ``` r
+
 # use TADA_FieldValuesTable to create a table of the number of results per MonitoringLocationIdentifier
 sites <- TADA_FieldValuesTable(
   WQP_raw,
@@ -151,6 +158,7 @@ DT::datatable(sites, fillContainer = TRUE)
 Are there sites located within 100 meters of each other?
 
 ``` r
+
 WQP_clean <- TADA_FindNearbySites(
   WQP_raw,
   dist_buffer = 100,
@@ -171,6 +179,7 @@ TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
 TADA.ResultMeasure.MeasureUnitCode.
 
 ``` r
+
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
 chars <- TADA_FieldValuesTable(
   WQP_clean,
@@ -184,6 +193,7 @@ DT::datatable(chars, fillContainer = TRUE)
 Remove intermediate variables in R by using ‘rm()’.
 
 ``` r
+
 rm(chars, sites, WQP_flag_review, WQP_flag)
 ```
 
@@ -197,6 +207,7 @@ another, this can be done using the org_hierarchy argument in
 `TADA_FindPotentialDuplicatesMultipleOrgs`.
 
 ``` r
+
 # find duplicates from single org
 WQP_flag <- TADA_FindPotentialDuplicatesSingleOrg(WQP_clean)
 
@@ -214,6 +225,7 @@ WQP_flag <- TADA_FindPotentialDuplicatesMultipleOrgs(
 Let’s review the duplicates:
 
 ``` r
+
 WQP_flag_review <- WQP_flag |>
   dplyr::select(
     MonitoringLocationName,
@@ -245,6 +257,7 @@ were, duplicates can by removed by filtering for
 TADA.ResultSelectedMultipleOrgs equals “Y”.
 
 ``` r
+
 WQP_clean <- WQP_flag |>
   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
   dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
@@ -254,6 +267,7 @@ Remove intermediate variables in R by using ‘rm()’. In the remainder of
 this workshop, we will work with the clean data set.
 
 ``` r
+
 rm(WQP_flag, WQP_flag_review)
 ```
 
@@ -277,6 +291,7 @@ non-detect values to 0.5 times the detection limit (half the detection
 limit).
 
 ``` r
+
 WQP_clean <- TADA_SimpleCensoredMethods(
   WQP_clean,
   nd_method = "multiplier",
@@ -289,6 +304,7 @@ WQP_clean <- TADA_SimpleCensoredMethods(
 `TADA_FindQCActivities` removes results with QA/QC ActivityTypeCode’s.
 
 ``` r
+
 WQP_clean <- TADA_FindQCActivities(WQP_clean, clean = TRUE)
 ```
 
@@ -301,6 +317,7 @@ results with QA/QC ActivityTypeCode’s. This function also removes any
 columns not required for TADA workflow where all values are equal to NA.
 
 ``` r
+
 WQP_clean <- TADA_ConvertSpecialChars(WQP_clean, col = "TADA.ResultMeasureValue", clean = TRUE)
 ```
 
@@ -310,6 +327,7 @@ TADA_FlagFraction, TADA_FlagMeasureQualifierCode, and
 TADA_FlagSpeciation for more information.
 
 ``` r
+
 WQP_clean <- TADA_RunKeyFlagFunctions(
   WQP_clean,
   clean = TRUE
@@ -323,6 +341,7 @@ flaggedonly = TRUE so that it returns only flagged results in the review
 dataframe returned. We will keep these in our “clean” dataframe for now.
 
 ``` r
+
 WQP_flag_reviewabove <- TADA_FlagAboveThreshold(WQP_clean, clean = FALSE, flaggedonly = TRUE)
 
 WQP_flag_reviewbelow <- TADA_FlagBelowThreshold(WQP_clean, clean = FALSE, flaggedonly = TRUE)
@@ -331,6 +350,7 @@ WQP_flag_reviewbelow <- TADA_FlagBelowThreshold(WQP_clean, clean = FALSE, flagge
 Remove intermediate variables.
 
 ``` r
+
 rm(WQP_flag_reviewabove, WQP_flag_reviewbelow)
 ```
 
@@ -341,6 +361,7 @@ TADA.CharacteristicName, TADA.ResultSampleFractionText,
 TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
 
 ``` r
+
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
 chars <- TADA_FieldValuesTable(
   WQP_clean,
@@ -360,6 +381,7 @@ be possible that some of these can be automatically harmonized using
 Let’s give it a try.
 
 ``` r
+
 WQP_clean <- TADA_HarmonizeSynonyms(WQP_clean)
 ```
 
@@ -367,18 +389,21 @@ How many unique TADA.ComparableDataIdentifier’s do we have now? In this
 example, there were no synonyms.
 
 ``` r
+
 chars_after <- unique(WQP_clean$TADA.ComparableDataIdentifier)
 ```
 
 Remove intermediate variables.
 
 ``` r
+
 rm(chars_before, chars_after)
 ```
 
 Create a pie chart.
 
 ``` r
+
 TADA_FieldValuesPie(
   WQP_clean,
   field = "TADA.CharacteristicName",
@@ -391,6 +416,7 @@ TADA_FieldValuesPie(
 Let’s filter the data and focus on a one characteristic of interest.
 
 ``` r
+
 # Select characteristics of interest
 WQP_clean_subset <- WQP_clean |>
   dplyr::filter(TADA.CharacteristicName %in% "ESCHERICHIA COLI")
@@ -399,6 +425,7 @@ WQP_clean_subset <- WQP_clean |>
 Remove intermediate variables. We will focus on the subset from now on.
 
 ``` r
+
 rm(WQP_clean, chars)
 ```
 
@@ -421,6 +448,7 @@ monitoring locations within this assessment unit.
   applicable to their use case
 
 ``` r
+
 WQP_clean_subset_spatial <- TADA_CreateATTAINSAUMLCrosswalk(
   WQP_clean_subset,
   return_nearest = TRUE,
@@ -434,6 +462,7 @@ WQP_clean_subset <- WQP_clean_subset_spatial$TADA_with_ATTAINS
 View catchments and assessment units on map
 
 ``` r
+
 ATTAINS_map <- TADA_ViewATTAINS(WQP_clean_subset_spatial,
   ref_icons = FALSE
 )
@@ -444,12 +473,14 @@ ATTAINS_map
 Remove intermediate variables:
 
 ``` r
+
 rm(ATTAINS_map)
 ```
 
 Create table of monitoring location identifiers and AUs.
 
 ``` r
+
 ML_AU_crosswalk <- WQP_clean_subset |>
   dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.AssessmentUnitName, TADA.CharacteristicName) |>
   dplyr::distinct()
@@ -458,6 +489,7 @@ ML_AU_crosswalk <- WQP_clean_subset |>
 Remove intermediate variables. Let’s keep going with WQP_clean_subset.
 
 ``` r
+
 rm(ML_AU_crosswalk, WQP_clean_subset_spatial)
 ```
 
@@ -467,6 +499,7 @@ columns as well as other original fields that are either required by
 other TADA functions or are commonly used filters.
 
 ``` r
+
 WQP_clean_subset <- TADA_RetainRequired(WQP_clean_subset)
 ```
 
@@ -475,6 +508,7 @@ WQP_clean_subset <- TADA_RetainRequired(WQP_clean_subset)
 Review unique TADA.ComparableDataIdentifier’s
 
 ``` r
+
 unique(WQP_clean_subset$TADA.ComparableDataIdentifier)
 ```
 
@@ -505,6 +539,7 @@ magnitude component of the EPA recommendation 2 criteria for ESCHERICHIA
 COLI).
 
 ``` r
+
 # add column with comparison to criteria mag (excursions)
 WQP_clean_subset <- WQP_clean_subset |>
   sf::st_drop_geometry() |>
@@ -524,6 +559,7 @@ Generate stats table. Review percentiles. Less than 5% of results fall
 above 10 CFU/100mL, and over 98% of results fall below 265.2 CFU/100m.
 
 ``` r
+
 WQP_clean_subset_stats <- WQP_clean_subset |>
   sf::st_drop_geometry() |>
   TADA_Stats()
@@ -532,6 +568,7 @@ WQP_clean_subset_stats <- WQP_clean_subset |>
 Generate a scatterplot. One result value is above the threshold.
 
 ``` r
+
 TADA_Scatterplot(WQP_clean_subset, id_cols = "TADA.ComparableDataIdentifier") |>
   plotly::add_lines(
     y = 320,
@@ -546,12 +583,14 @@ TADA_Scatterplot(WQP_clean_subset, id_cols = "TADA.ComparableDataIdentifier") |>
 Generate a histogram.
 
 ``` r
+
 TADA_Histogram(WQP_clean_subset, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
 `TADA_Boxplot` can be useful for identifying skewness and percentiles.
 
 ``` r
+
 TADA_Boxplot(WQP_clean_subset, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
@@ -559,12 +598,14 @@ TADA_Boxplot(WQP_clean_subset, id_cols = "TADA.ComparableDataIdentifier")
 into the console for more details.
 
 ``` r
+
 WQP_clean_subset_final <- TADA_RetainRequired(WQP_clean_subset)
 ```
 
 ## Record end time
 
 ``` r
+
 end.time <- Sys.time()
 
 end.time - start.time

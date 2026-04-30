@@ -41,6 +41,7 @@ needed before installing EPATADA because it is only available on GitHub
 (not CRAN).
 
 ``` r
+
 install.packages("remotes", repos = "http://cran.us.r-project.org")
 library(remotes)
 ```
@@ -52,6 +53,7 @@ the development version of dataRetrieval can be downloaded directly from
 GitHub (un-comment).
 
 ``` r
+
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -63,6 +65,7 @@ Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ``` r
+
 library(EPATADA)
 ```
 
@@ -73,6 +76,7 @@ beta](https://www.waterqualitydata.us/beta/) web services and retrieve
 the new WQX 3.0 full physical chemical profile.
 
 ``` r
+
 wqx3_fullPhysChem <- dataRetrieval::readWQPdata(
   statecode = "Illinois",
   countycode = "DeWitt",
@@ -100,6 +104,7 @@ Portal Quick Reference
 Guide](https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide).
 
 ``` r
+
 wqx3schema <- readr::read_csv("https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv", show_col_types = FALSE)
 ```
 
@@ -108,6 +113,7 @@ After retrieving the WQX 3.0 full physical chemical profile, we can use
 applicable.
 
 ``` r
+
 wqx3_legacynames <- EPATADA::TADA_RenametoLegacy(wqx3_fullPhysChem)
 ```
 
@@ -115,6 +121,7 @@ Now, we can test other EPATADA package functions as usual, for example,
 we can run `TADA_AutoClean`:
 
 ``` r
+
 wqx3_legacynames <- TADA_AutoClean(wqx3_legacynames)
 ```
 

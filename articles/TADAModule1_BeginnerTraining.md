@@ -26,6 +26,7 @@ First, install and load the remotes package specifying the repo. This is
 needed before installing TADA because it is only available on GitHub.
 
 ``` r
+
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -40,6 +41,7 @@ prompt, it is recommended to update all of them (enter 1 into the
 console).
 
 ``` r
+
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -51,6 +53,7 @@ Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ``` r
+
 library(EPATADA)
 ```
 
@@ -64,6 +67,7 @@ function in R or RStudio using the following format (example below):
 `?[name of TADA function]`
 
 ``` r
+
 # Access help page for TADA_DataRetrieval
 ?TADA_DataRetrieval
 ```
@@ -163,6 +167,7 @@ users likely will not notice a difference in their use of the
 to upload a custom or WQP GUI-downloaded data set into the R package.
 
 ``` r
+
 # Uncomment query below to download data set from WQP
 # TADAProfile <- TADA_DataRetrieval(statecode = c("IL", "IN", "MI", "MN", "OH", "WI"), startDate = "2019-05-01", endDate = "2019-05-07", applyautoclean = FALSE)
 
@@ -178,6 +183,7 @@ Portal Query.*
 **Question 1: How many results did TADA_DataRetrieval return?**
 
 ``` r
+
 # Determine number of rows in the data set
 R5_nresults <- nrow(R5Profile)
 ```
@@ -193,6 +199,7 @@ field with **TADA_FieldValuesTable** or **TADA_FieldValuesPie**. We’ll
 start with *TADA.ActivityMediaName*.
 
 ``` r
+
 # Create pie chart for ActivityMediaName
 ActMedName_Pie <- TADA_FieldValuesPie(R5Profile, field = "ActivityMediaName")
 
@@ -206,6 +213,7 @@ FieldValues_ActMedia <- TADA_FieldValuesTable(R5Profile, field = "ActivityMediaN
 dataset? Are there any media types that are not water?**
 
 ``` r
+
 n_media <- length(unique(FieldValues_ActMedia$Value))
 
 unique_media <- FieldValues_ActMedia |>
@@ -245,6 +253,7 @@ to review this more specific breakdown of results by media type.
 updated to include fish tissue a filter option.
 
 ``` r
+
 # Filter to flag only surface water results for use in analysis
 R5Profile <- TADA_MediaFilter(R5Profile, clean = FALSE)
 
@@ -260,6 +269,7 @@ FieldValues_AnalysisFlag <- TADA_FieldValuesTable(R5Profile, field = "TADA.Media
 analysis**
 
 ``` r
+
 # Select only surface water results for use in analysis
 
 n_sur_water <- FieldValues_AnalysisFlag |>
@@ -268,6 +278,7 @@ n_sur_water <- FieldValues_AnalysisFlag |>
 ```
 
 ``` r
+
 # Filter to retain only surface water results for use in analysis
 R5Profile <- R5Profile |>
   dplyr::filter(TADA.Media.Flag == "SURFACE WATER")
@@ -316,6 +327,7 @@ characters are included in result values, and specify what the special
 characters are.
 
 ``` r
+
 # run TADA_AutoClean on filtered dataset to convert special characters, result units, and depth units and identify censored data.
 R5Profile <- TADA_AutoClean(R5Profile)
 ```
@@ -328,6 +340,7 @@ your program’s goals and methods, you might want to further filter the
 monitoring location types in the data set.
 
 ``` r
+
 MonLocTypNam_Pie <- TADA_FieldValuesPie(R5Profile, field = "TADA.MonitoringLocationTypeName")
 
 MonLocTypNam_Pie
@@ -338,6 +351,7 @@ MonLocTypNam_Pie
 common?**
 
 ``` r
+
 FieldValues_MLs_table <- TADA_FieldValuesTable(R5Profile, field = "TADA.MonitoringLocationTypeName")
 
 mlt_n <- length(unique(FieldValues_MLs_table$Value))
@@ -350,6 +364,7 @@ Now, let’s filter by mlt_most_common and focus the rest of this demo on
 the mlt_most_common\[1\] subset of results.
 
 ``` r
+
 R5Profile <- R5Profile |>
   dplyr::filter(TADA.MonitoringLocationTypeName == dplyr::pull(mlt_most_common[1]))
 ```
@@ -365,6 +380,7 @@ step in identifying incorrect coordinates that are outside of the
 desired state(s) of interest or outside of the US.
 
 ``` r
+
 TADA_OverviewMap(R5Profile)
 ```
 
@@ -382,6 +398,7 @@ and number of records for each unique value in the specified column.
 This example uses *TADA.CharacteristicName*.
 
 ``` r
+
 # Review the number of sites and number of records for each CharacteristicName in TADAProfile
 R5Profile_CharSummary <- TADA_SummarizeColumn(R5Profile, "TADA.CharacteristicName")
 ```
@@ -392,6 +409,7 @@ the greatest number of sites? Which TADA.CharacteristicName has the most
 results?**
 
 ``` r
+
 # Number of unique values of TADA.CharacteristicName
 n_char_name <- length(unique(R5Profile_CharSummary$TADA.CharacteristicName))
 
@@ -422,6 +440,7 @@ See documentation for more details:
 - ?**TADA_FlagFraction**
 
 ``` r
+
 R5ProfileClean1 <- TADA_FlagMethod(R5Profile, clean = TRUE)
 
 R5ProfileClean1 <- TADA_FlagFraction(R5ProfileClean1, clean = TRUE)
@@ -436,6 +455,7 @@ functions? What might be a helpful first step in investigating why these
 removals occurred?**
 
 ``` r
+
 # Determine number of rows removed
 R5Profile_n <- nrow(R5Profile)
 
@@ -455,6 +475,7 @@ combination. See documentation for more details:
 - ?**TADA_FlagBelowThreshold**
 
 ``` r
+
 R5ProfileClean2 <- TADA_FlagAboveThreshold(R5ProfileClean1, clean = TRUE)
 
 R5ProfileClean3 <- TADA_FlagBelowThreshold(R5ProfileClean2, clean = TRUE)
@@ -464,6 +485,7 @@ R5ProfileClean3 <- TADA_FlagBelowThreshold(R5ProfileClean2, clean = TRUE)
 lower thresholds?**
 
 ``` r
+
 # Determine number of rows removed
 R5ProfileClean1_n <- nrow(R5ProfileClean1)
 
@@ -479,6 +501,7 @@ Quality Portal (WQP). Let’s start by looking at the submitting
 organizations for this data set and their relative contributions.
 
 ``` r
+
 # Create dataframe with result counts by organization
 FieldValues_Orgs <- TADA_FieldValuesTable(R5ProfileClean3, field = "OrganizationFormalName")
 ```
@@ -488,6 +511,7 @@ submitted the most results? Which organization submitted the fewest
 results?**
 
 ``` r
+
 orgs_n <- length(unique(FieldValues_Orgs$Value))
 
 org_max <- dplyr::slice_max(FieldValues_Orgs, Count)
@@ -508,6 +532,7 @@ by entering the following into the console:
 Flag potential duplicates from a single organization:
 
 ``` r
+
 R5ProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(R5ProfileClean3)
 ```
 
@@ -515,6 +540,7 @@ Remove flagged duplicates from a single organization (random selection
 of single result):
 
 ``` r
+
 R5ProfileClean4 <- R5ProfileClean3 |>
   dplyr::filter(
     TADA.SingleOrgDup.Flag == "Unique"
@@ -526,6 +552,7 @@ you prioritize retaining results from your organization when duplicate
 results are identified?**
 
 ``` r
+
 # Determine how many duplicate results were removed
 R5ProfileClean3_n <- nrow(R5ProfileClean3)
 
@@ -586,6 +613,7 @@ NAs are not included in the output):
 - *LaboratoryName*
 
 ``` r
+
 # Create table of field counts
 FieldCounts_Table_R5 <- TADA_FieldCounts(R5ProfileClean4)
 ```
@@ -616,6 +644,7 @@ handling paired replicates (outside the TADA package) see TADA Module 1
 or enter “?TADA_PairReplicates” in the console.
 
 ``` r
+
 # Remove flagged QC samples using the TADA_FindQCActivities function:
 R5ProfileClean5 <- TADA_FindQCActivities(R5ProfileClean4,
   clean = TRUE
@@ -631,6 +660,7 @@ ActTypCod_Pie
 samples? Which ActivityTypeCode is the most common?**
 
 ``` r
+
 # Number of ActivityTypeCodes
 activity_type_code_n <- length(unique(R5ProfileClean5$ActivityTypeCode))
 
@@ -645,6 +675,7 @@ remove. In this next example, there are multiple MeasureQualifierCode
 values to review.
 
 ``` r
+
 MQC_Pie <- TADA_FieldValuesPie(R5ProfileClean5, "MeasureQualifierCode")
 
 MQC_Pie
@@ -661,6 +692,7 @@ definitions and flag and/or remove rows with specific codes under
 See **?TADA_FlagMeasureQualifierCode** for more information.
 
 ``` r
+
 # Flag only
 Review_R5ProfileClean5 <- TADA_FlagMeasureQualifierCode(R5ProfileClean5,
   clean = FALSE,
@@ -728,6 +760,7 @@ detection limit (half the detection limit). Please review
 information.
 
 ``` r
+
 R5ProfileClean5 <- TADA_SimpleCensoredMethods(R5ProfileClean5,
   nd_method = "multiplier",
   nd_multiplier = 0.5,
@@ -742,6 +775,7 @@ the values in the MeasureQualifierCode and TADA.MeasureQualifierCode.Def
 columns?**
 
 ``` r
+
 # Determine number of NA results remaining
 result_na_n <- sum(is.na(R5ProfileClean5$TADA.ResultMeasureValue))
 
@@ -757,6 +791,7 @@ Available”. The **TADA_ConvertSpecialChars** function removes
 non-numeric data.
 
 ``` r
+
 # Removes rows where the result value is not numeric. Specifically, removes rows with "Text" or "NA - Not Available" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column. Removes optional columns containing only NAs.
 R5ProfileClean6 <- TADA_ConvertSpecialChars(R5ProfileClean5, col = "TADA.ResultMeasureValue", clean = TRUE)
 ```
@@ -767,6 +802,7 @@ non-numeric values in TADA.ResultMeasureValueDataTypes.Flag remain in
 the data set? How many rows were removed from the data set?**
 
 ``` r
+
 result_nas_n <- sum(is.na(R5ProfileClean6$TADA.ResultMeasureValue))
 
 non_numeric_n <- sum(!R5ProfileClean6$TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Result Value/Unit Estimated from Detection Limit", "Result Value/Unit Copied from Detection Limit"))
@@ -823,6 +859,7 @@ useful:
     a consistent name (and identifier) to synonyms.
 
 ``` r
+
 # Get harmonization reference table
 UniqueHarmonizationRef <- TADA_GetSynonymRef(R5ProfileClean6)
 
@@ -863,6 +900,7 @@ same site and depth, the function will pick the maximum value to use for
 summation.
 
 ``` r
+
 R5ProfileClean8 <- TADA_CalculateTotalNP(R5ProfileClean7, daily_agg = "max")
 ```
 
@@ -870,6 +908,7 @@ R5ProfileClean8 <- TADA_CalculateTotalNP(R5ProfileClean7, daily_agg = "max")
 added? Can users customize nutrient summation?**
 
 ``` r
+
 R5ProfileClean7_n <- nrow(R5ProfileClean7)
 
 R5ProfileClean8_n <- nrow(R5ProfileClean8)
@@ -897,6 +936,7 @@ To start, review the list of parameters in the dataframe using the
 **TADA_FieldValuesTable** function.
 
 ``` r
+
 Char_Table <- FieldValuesTable_Chars <- TADA_FieldValuesTable(R5ProfileClean8, field = "TADA.CharacteristicName")
 
 Char_Table
@@ -969,6 +1009,7 @@ included within each of the following fields:
 - *DetectionQuantitationLimitTypeName*
 
 ``` r
+
 R5_FieldCounts_Chars <- TADA_FieldCounts(R5ProfileClean8, display = "most", characteristicName = "DISSOLVED OXYGEN (DO)")
 
 R5_FieldCounts_Chars
@@ -989,6 +1030,7 @@ we review values from the *SampleCollectionMethod.MethodName* field for
 Dissolved Oxygen (DO) results.
 
 ``` r
+
 # # Create subset of DO data
 DO_R5ProfileClean8 <- R5ProfileClean8 |> dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)")
 #
@@ -1005,6 +1047,7 @@ FieldValuesTable_DO_scm <- TADA_FieldValuesTable(R5ProfileClean8, field = "Sampl
 Generate a scatterplot with two characteristics.
 
 ``` r
+
 # review unique identifiers
 unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
 ```
@@ -1012,6 +1055,7 @@ unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
 Select two characteristics to plot using the id_cols function input.
 
 ``` r
+
 # choose two and generate scatterplot
 TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
 ```
@@ -1027,6 +1071,7 @@ First, filter the dataframe to include only “DISSOLVED OXYGEN
 (DO)\_NA_NA_MG/L”
 
 ``` r
+
 # filter dataframe to only "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
 R5ProfileCleanDO <- dplyr::filter(R5ProfileClean8, TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO)_NA_NA_MG/L")
 ```
@@ -1034,6 +1079,7 @@ R5ProfileCleanDO <- dplyr::filter(R5ProfileClean8, TADA.ComparableDataIdentifier
 Generate histogram.
 
 ``` r
+
 # generate a histogram
 TADA_Histogram(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 
@@ -1044,6 +1090,7 @@ R5ProfileCleanDO_stats <- TADA_Stats(R5ProfileCleanDO)
 Generate interactive box plot.
 
 ``` r
+
 TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
@@ -1051,6 +1098,7 @@ Generate a new dataframe with only the daily max dissolved oxygen
 values.
 
 ``` r
+
 R5ProfileCleanDO_dailymax <- TADA_AggregateMeasurements(R5ProfileCleanDO,
   agg_fun = c("max"),
   clean = TRUE
@@ -1061,6 +1109,7 @@ Generate interactive scatterplot of max daily dissolved oxygen over
 time.
 
 ``` r
+
 TADA_Scatterplot(R5ProfileCleanDO_dailymax, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
@@ -1077,6 +1126,7 @@ function to remove any columns that are not required or used as filters
 in the TADA workflow. This reduces the size of the dataframe.
 
 ``` r
+
 R5ProfileClean9 <- TADA_RetainRequired(R5ProfileClean8)
 ```
 
@@ -1084,6 +1134,7 @@ R5ProfileClean9 <- TADA_RetainRequired(R5ProfileClean8)
 TADA_RetainRequired?**
 
 ``` r
+
 R5ProfileClean8_n <- ncol(R5ProfileClean8)
 
 R5ProfileClean9_n <- ncol(R5ProfileClean9)
@@ -1105,6 +1156,7 @@ currently hosted on the web with minimal server memory/storage
 allocated.
 
 ``` r
+
 # download TADA Shiny repository
 remotes::install_github("USEPA/TADAShiny",
   ref = "develop",

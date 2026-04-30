@@ -116,9 +116,6 @@
 - [`TADA_CreateUnitRef()`](https://usepa.github.io/EPATADA/reference/TADA_CreateUnitRef.md)
   : Generate A DataFrame of Units and Target by Characteristic Name
 
-- [`TADA_CriteriaDataDictionary()`](https://usepa.github.io/EPATADA/reference/TADA_CriteriaDataDictionary.md)
-  : Data Dictionary for Criteria and Methodology
-
 - [`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
   : Generate TADA-compatible dataframe from WQP Data
 
@@ -449,6 +446,9 @@
 - [`createTADABasemap()`](https://usepa.github.io/EPATADA/reference/createTADABasemap.md)
   : createTADABasemap
 
+- [`.TADA_CriteriaDataDictionary()`](https://usepa.github.io/EPATADA/reference/dot-TADA_CriteriaDataDictionary.md)
+  : Data Dictionary for Criteria and Methodology Workbook
+
 - [`.TADA_UpdateExampleData()`](https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateExampleData.md)
   : Update Example Data for EPATADA Package (Internal)
 
@@ -495,6 +495,9 @@
 
 - [`getWQPSiteStats()`](https://usepa.github.io/EPATADA/reference/getWQPSiteStats.md)
   : getWQPSiteStats
+
+- [`get_downloads_path()`](https://usepa.github.io/EPATADA/reference/get_downloads_path.md)
+  : Get the excel downloads path for criteria files
 
 - [`pchIcons()`](https://usepa.github.io/EPATADA/reference/pchIcons.md)
   : Create icon(s) to be used to represent points on a map feature layer

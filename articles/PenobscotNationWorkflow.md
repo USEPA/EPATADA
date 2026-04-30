@@ -7,6 +7,7 @@ needed before installing EPATADA because it is only available on GitHub
 (not CRAN).
 
 ``` r
+
 install.packages("remotes")
 # Load the remotes library
 library(remotes)
@@ -20,6 +21,7 @@ prompt, it is recommended to update all of them (enter 1 into the
 console).
 
 ``` r
+
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -30,6 +32,7 @@ Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ``` r
+
 library(EPATADA)
 ```
 
@@ -43,6 +46,7 @@ of locations to query the WQP. In addition, we are interested in E. Coli
 data and can specify that in the characteristicName filter.
 
 ``` r
+
 df_raw <- TADA_DataRetrieval(
   siteid = c(
     "PENOBSCOTINDIANNATIONDNR-130-BM1",
@@ -154,6 +158,7 @@ df_raw <- TADA_DataRetrieval(
 Review unique monitoring projects:
 
 ``` r
+
 unique(df_raw$ProjectName)
 ```
 
@@ -162,6 +167,7 @@ unique(df_raw$ProjectName)
 Generate pie chart:
 
 ``` r
+
 EPATADA::TADA_FieldValuesPie(df_raw, field = "MonitoringLocationTypeName")
 ```
 
@@ -170,12 +176,14 @@ EPATADA::TADA_FieldValuesPie(df_raw, field = "MonitoringLocationTypeName")
 Use `TADA_OverviewMap` to generate a map:
 
 ``` r
+
 EPATADA::TADA_OverviewMap(df_raw)
 ```
 
 Review and remove duplicate results if present:
 
 ``` r
+
 df_flag <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(df_raw)
 ```
 
@@ -184,6 +192,7 @@ df_flag <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(df_raw)
 Select a small number of columns to review duplicates:
 
 ``` r
+
 TADA_TableExport(subset(
   df_flag,
   TADA.SingleOrgDupGroupID != "Not a duplicate",
@@ -203,6 +212,7 @@ TADA_TableExport(subset(
 Remove duplicates:
 
 ``` r
+
 df_clean <- dplyr::filter(df_flag, TADA.SingleOrgDup.Flag == "Unique")
 ```
 
@@ -210,6 +220,7 @@ Run key TADA quality control flagging functions. Review carefully and
 consider removing flagged results.
 
 ``` r
+
 df_flag <- EPATADA::TADA_RunKeyFlagFunctions(
   df_clean,
   clean = FALSE
@@ -226,6 +237,7 @@ Flag results above and below thresholds. Review carefully and consider
 removing.
 
 ``` r
+
 df_flag <- EPATADA::TADA_FlagAboveThreshold(df_flag,
   clean = FALSE,
   flaggedonly = FALSE
@@ -235,6 +247,7 @@ df_flag <- EPATADA::TADA_FlagAboveThreshold(df_flag,
     ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  Pass: 1932, Suspect: 25
 
 ``` r
+
 df_flag <- EPATADA::TADA_FlagBelowThreshold(df_flag,
   clean = FALSE,
   flaggedonly = FALSE
@@ -247,18 +260,21 @@ For now, let’s assume we reviewed the flagged results and want to move
 forward with all of them:
 
 ``` r
+
 df_clean <- df_flag
 ```
 
 Harmonize synonyms if found:
 
 ``` r
+
 df_clean <- EPATADA::TADA_HarmonizeSynonyms(df_clean)
 ```
 
 Generate table:
 
 ``` r
+
 EPATADA::TADA_FieldValuesTable(df_clean, field = "ActivityTypeCode")
 ```
 
@@ -268,6 +284,7 @@ EPATADA::TADA_FieldValuesTable(df_clean, field = "ActivityTypeCode")
 Generate pie chart:
 
 ``` r
+
 EPATADA::TADA_FieldValuesPie(df_clean, field = "MonitoringLocationName")
 ```
 
@@ -276,6 +293,7 @@ EPATADA::TADA_FieldValuesPie(df_clean, field = "MonitoringLocationName")
 Remove non-numeric results:
 
 ``` r
+
 df_clean <- EPATADA::TADA_ConvertSpecialChars(
   df_clean,
   col = "TADA.ResultMeasureValue",
@@ -286,12 +304,14 @@ df_clean <- EPATADA::TADA_ConvertSpecialChars(
 Review the number of sites and records for each characteristic:
 
 ``` r
+
 EPATADA::TADA_TableExport(EPATADA::TADA_SummarizeColumn(df_clean, col = "TADA.CharacteristicName"))
 ```
 
 Generate statistics for each Monitoring Location:
 
 ``` r
+
 EPATADA::TADA_TableExport(EPATADA::TADA_Stats(df_clean,
   group_cols = c(
     "TADA.ComparableDataIdentifier",
@@ -306,6 +326,7 @@ Generate scatter plot for E. coli (top four monitoring location by
 number of results will be displayed):
 
 ``` r
+
 EPATADA::TADA_GroupedScatterplot(df_clean,
   group_col = "MonitoringLocationName"
 )
@@ -316,6 +337,7 @@ EPATADA::TADA_GroupedScatterplot(df_clean,
 Filter to a single site and continue exploring E. coli:
 
 ``` r
+
 df_singleML <- dplyr::filter(
   df_clean,
   TADA.MonitoringLocationIdentifier %in% c(
@@ -357,6 +379,7 @@ COLI).
 Add column with comparison to criteria mag (excursions):
 
 ``` r
+
 df_singleML <- df_singleML |>
   dplyr::mutate(meets_criteria_mag = ifelse(TADA.ResultMeasureValue <= 320, "Yes", "No"))
 
@@ -368,6 +391,7 @@ unique(df_singleML$meets_criteria_mag)
 Review a table of the results:
 
 ``` r
+
 # review subset
 df_clean_subset_review <- df_singleML |>
   dplyr::select(
@@ -383,6 +407,7 @@ Generate stats table. Review percentiles. Less than 5% of results fall
 above 23.4 CFU/100mL and over 98% of results fall below 1310 CFU/100m
 
 ``` r
+
 EPATADA::TADA_TableExport(EPATADA::TADA_Stats(df_singleML))
 ```
 
@@ -391,6 +416,7 @@ EPATADA::TADA_TableExport(EPATADA::TADA_Stats(df_singleML))
 Generate a scatterplot. Three result values are above the threshold.
 
 ``` r
+
 EPATADA::TADA_Scatterplot(df_singleML, id_cols = "TADA.ComparableDataIdentifier") |>
   plotly::add_lines(
     y = 320,
@@ -405,12 +431,14 @@ EPATADA::TADA_Scatterplot(df_singleML, id_cols = "TADA.ComparableDataIdentifier"
 Generate a histogram.
 
 ``` r
+
 EPATADA::TADA_Histogram(df_singleML, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
 `TADA_Boxplot` can be useful for identifying skewness and percentiles.
 
 ``` r
+
 EPATADA::TADA_Boxplot(df_singleML, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
@@ -436,6 +464,7 @@ We can pull this information into R using the
 TADA_DefineCriteriaMethodology() function:
 
 ``` r
+
 ME_criteria_ecoli <- TADA_DefineCriteriaMethodology(df_singleML, org_id = "MEDEP", auto_assign = TRUE)
 ```
 
@@ -460,6 +489,7 @@ ME_criteria_ecoli <- TADA_DefineCriteriaMethodology(df_singleML, org_id = "MEDEP
 Filter output to include only Class B waters:
 
 ``` r
+
 ME_criteria_ecoli_classB <- unique(subset(
   ME_criteria_ecoli,
   CST.Use == "FRESH SURFACE WATERS - CLASS B"
@@ -508,6 +538,7 @@ FreqMethod, SeasonStartDate, and SeasonEndDate.
   done for during a calendar year.
 
 ``` r
+
 ME_criteria_ecoli_classB_final <- ME_criteria_ecoli_classB |>
   dplyr::mutate(
     DurationValue = 90,
@@ -553,6 +584,7 @@ this example. This analysis will run if a minimum of 3 samples are
 available in any 90-day period for each year.
 
 ``` r
+
 # -----------------------------------------------------------------------------
 # Class B assessment
 # - TADA.CharacteristicName == "ESCHERICHIA COLI"
@@ -731,6 +763,7 @@ TADA_TableExport(head(res$windows))
 ```
 
 ``` r
+
 TADA_TableExport(res$summary)
 ```
 

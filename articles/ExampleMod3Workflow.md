@@ -19,6 +19,7 @@ needed before installing EPATADA because it is only available on GitHub
 (not CRAN).
 
 ``` r
+
 install.packages("remotes")
 # Load the remotes library
 library(remotes)
@@ -32,6 +33,7 @@ prompt, it is recommended to update all of them (enter 1 into the
 console).
 
 ``` r
+
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -44,6 +46,7 @@ Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ``` r
+
 library(rExpertQuery)
 library(EPATADA)
 ```
@@ -58,6 +61,7 @@ function in R or RStudio using the following format (example below):
 `?[name of TADA function]`
 
 ``` r
+
 # Access help page for TADA_CreateAUMLCrosswalk
 ?TADA_CreateAUMLCrosswalk
 ```
@@ -114,6 +118,7 @@ TADA workflow example purposes. These are (1) a ML to AU crosswalk and
 reference tables were created, see the ExampleMod2Workflow vignette.
 
 ``` r
+
 # import example data set, example AUML crosswalk and example uses to AU crosswalk.
 # extract ATTAINS_crosswalk data frame from the list
 utils::data(Data_MT_AUMLRef)
@@ -133,6 +138,7 @@ data set from Montana. Get bacteria and pH data from Missoula County,
 Montana.
 
 ``` r
+
 # get MT data
 tada.MT <- TADA_DataRetrieval(
   startDate = "2020-01-01",
@@ -160,6 +166,7 @@ rm(tada.MT)
 This example data set can be loaded from the EPATADA package:
 
 ``` r
+
 utils::data("Data_MT_MissoulaCounty", package = "EPATADA")
 
 tada.MT.clean <- Data_MT_MissoulaCounty
@@ -182,6 +189,7 @@ speciation combinations) in the example data. How many results are
 available for each within the example data set?
 
 ``` r
+
 # create table with counts of TADA.ComparableDataIdentifiers
 TADA_FieldValuesTable(tada.MT.clean, field = "TADA.ComparableDataIdentifier")
 ```
@@ -199,6 +207,7 @@ functions for downloading tidy data from the ATTAINS public web services
 domains (see example below).
 
 ``` r
+
 # return ATTAINS parameter domain values
 TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
 ```
@@ -212,6 +221,7 @@ need to identify the organization id used in ATTAINS. The organization
 id for Montana is “MTDEQ”.
 
 ``` r
+
 # return ATTAINS organization domain values
 TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id"))
 ```
@@ -275,6 +285,7 @@ the ATTAINS.ParameterName column, and users will need to manually fill
 this crosswalk out.
 
 ``` r
+
 # create TADA parameter reference table for specified organization
 MT.ParamRef.None <- TADA_ParametersForAnalysis(
   tada.MT.clean,
@@ -289,6 +300,7 @@ MT.ParamRef.None <- TADA_ParametersForAnalysis(
     ## [1] "EQ_DomainValues: For org_id the values in the 'code' column of the function output are the allowable values for rExpert Query functions."
 
 ``` r
+
 TADA_TableExport(MT.ParamRef.None)
 ```
 
@@ -301,6 +313,7 @@ parameters. This means that parameter names your organization has not
 previously record in ATTAINS may be included in the assignments.
 
 ``` r
+
 # create TADA parameter reference table for specified organization
 MT.ParamRef.All <- TADA_ParametersForAnalysis(
   tada.MT.clean,
@@ -318,6 +331,7 @@ characteristic alias matches to return only ATTAINS.ParameterNames that
 an organization has used in the past.
 
 ``` r
+
 # create TADA parameter reference table for specified organization
 MT.ParamRef.Org <- TADA_ParametersForAnalysis(
   tada.MT.clean,
@@ -337,6 +351,7 @@ The code chunk below demonstrates how the parameter reference table can
 be modified in R.
 
 ``` r
+
 # only run the code chunks below if you make edits to the excel file. Please note you must open and save the excel file at least once to reflect all Excel formula based values.
 
 # downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
@@ -372,6 +387,7 @@ It also flags rows where the TADA.ComparableDataIdentifier as not been
 assigned an ATTAINS parameter name.
 
 ``` r
+
 MT.ParamRef.user.supplied <- TADA_ParametersForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
@@ -403,6 +419,7 @@ ATTAINS.ParameterName in the user supplied ’MT.ParamRef_user_supplied,
 this table will be the same.
 
 ``` r
+
 MT.ParamRef.Final <- TADA_ParametersForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
@@ -420,6 +437,7 @@ identical(MT.ParamRef.Final[1:4], MT.ParamRef.user.supplied[1:4])
     ## [1] TRUE
 
 ``` r
+
 TADA_TableExport(MT.ParamRef.Final)
 ```
 
@@ -427,6 +445,7 @@ Remove intermediate variable, we will keep only the crosswalk tables
 that are relevant for the remaining workflow.
 
 ``` r
+
 rm(MT.ParamRef.All, MT.ParamRef.manual, MT.ParamRef.None, MT.ParamRef.Org, MT.ParamRef.user.supplied)
 ```
 
@@ -467,6 +486,7 @@ this current assessment cycle. Thus, the ATTAINS.UseName is left blank
 for “PH, HIGH”.
 
 ``` r
+
 MT.UsesRef.manual <- TADA_UsesForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
@@ -488,6 +508,7 @@ If desired, a user can manually assign “PH, HIGH” to any applicable uses
 reflect MTDEQ’s criteria and assessment process).
 
 ``` r
+
 add.data <- data.frame(
   "ATTAINS.OrganizationIdentifier" = "MTDEQ",
   "ATTAINS.ParameterName" = rep("PH, HIGH", 2),
@@ -509,6 +530,7 @@ ATTAINS.FlagUseName column. To do so, we need to re run
 TADA_UsesForAnalysis() with usesRef = add_data as an argument input.
 
 ``` r
+
 # PH will now reflect the changes
 MT.UsesRef.manual.Update <- TADA_UsesForAnalysis(
   tada.MT.clean,
@@ -537,6 +559,7 @@ are more ATTAINS.UseName applicable for that ATTAINS.ParameterName that
 was not captured by the auto_assign method.
 
 ``` r
+
 MT.UsesRef.auto <- TADA_UsesForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
@@ -655,6 +678,7 @@ considering all readily available data from your WQP data retrieval that
 you may need to consider for analysis.
 
 ``` r
+
 # Load the example MTDEQ criteria table
 criteria_table <- TADA_GetCriteriaFile(org_id = "MTDEQ")
 
@@ -699,6 +723,7 @@ ATTAINS assessment cycles for MTDEQ, so the tables should be identical
 to MT.UsesRef.with.AU_UsesRef.
 
 ``` r
+
 # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
 utils::data(Data_MT_AU_UsesRef)
 
@@ -720,6 +745,7 @@ TADA_TableExport(MT.UsesRef.manual.AU_UsesRef)
 Now, lets show the output when we turn auto_assign = TRUE
 
 ``` r
+
 MT.UsesRef.auto.AU_UsesRef <- TADA_UsesForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
@@ -749,6 +775,7 @@ TADAModule2.Rmd vignette. We will compare the output of
 in which water type is ‘LAKE, FRESHWATER’ versus ‘RIVER’.
 
 ``` r
+
 # This AUMLRef will come from the user supplied reference table produced in TADAModule2.Rmd
 utils::data(Data_MT_AUMLRef)
 
@@ -768,6 +795,7 @@ Question: What differences do we see between the two outputs for ‘LAKE,
 FRESHWATER’ versus ‘RIVER’?
 
 ``` r
+
 MT.UsesRef.manual.MT76F007_010 <- TADA_UsesForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
@@ -784,6 +812,7 @@ TADA_TableExport(MT.UsesRef.manual.MT76F007_010)
 ```
 
 ``` r
+
 MT.UsesRef.manual.MT76M004_070 <- TADA_UsesForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
@@ -802,6 +831,7 @@ TADA_TableExport(MT.UsesRef.manual.MT76M004_070)
 What do we see with auto_assign for this lake assessment unit?
 
 ``` r
+
 MT.UsesRef.auto.MT76F007_010 <- TADA_UsesForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
@@ -824,6 +854,7 @@ filtered AUMLRef as our input along with the full AU_UsesRef defined
 earlier.
 
 ``` r
+
 MT.UsesRef.manual.3B <- TADA_UsesForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
@@ -856,6 +887,7 @@ have not filled in but will not replace any cross walk that you have
 defined in your user supplied crosswalk.
 
 ``` r
+
 MT.UsesRef.Final <- TADA_UsesForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
@@ -876,6 +908,7 @@ identical(MT.UsesRef.Final[, 1:5], MT.UsesRef.manual.user.supplied[, 1:5])
     ## [1] TRUE
 
 ``` r
+
 TADA_TableExport(MT.UsesRef.Final)
 ```
 
@@ -883,6 +916,7 @@ remove intermediate variable, keep only the crosswalk table that we will
 continue to use in the workflow.
 
 ``` r
+
 rm(MT.UsesRef.auto, user.supplied.MT.data, MT.UsesRef.manual, MT.UsesRef.manual.Update)
 ```
 
@@ -913,6 +947,7 @@ If you would like to display all information even for sites with no WQP
 data, please choose displayNA = TRUE
 
 ``` r
+
 MT.MLSummaryRef.ML <- TADA_MLSummary(
   .data = tada.MT.clean,
   usesRef = MT.UsesRef.Final,
@@ -943,6 +978,7 @@ your WQP data query. If you would like to display all information even
 for sites with no WQP data, please choose displayNA = TRUE
 
 ``` r
+
 # Load the dataset
 utils::data("Data_MT_AU_UsesRef_Water", package = "EPATADA")
 
@@ -969,6 +1005,7 @@ certain combination of characteristics that have site-specific criteria.
 Let’s go through an example of how a user may modify this table.
 
 ``` r
+
 MT.MLSummaryRef.AU2 <- MT.MLSummaryRef.AU |>
   dplyr::mutate(
     UniqueSpatialCriteria = dplyr::case_when(
@@ -991,6 +1028,7 @@ This could be included in the final summary table and labeled as NA or
 insufficient data.)
 
 ``` r
+
 nrow(MT.MLSummaryRef.AU)
 nrow(MT.MLSummaryRef.ML)
 ```
@@ -1009,6 +1047,7 @@ recommended to export this to the excel spreadsheet to show the
 allowable values and easy interface for inputs to the table.
 
 ``` r
+
 MT.CriteriaMethods <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "MTDEQ",
@@ -1033,6 +1072,7 @@ captured in their user supplied table. Thus, auto_assign defaults to
 TRUE even if it is specified as FALSE.
 
 ``` r
+
 MT.CriteriaMethods.user.supplied <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "MTDEQ",
@@ -1049,6 +1089,7 @@ You can append EPA304(a) recommended standards by specifying “USEPA” as
 part of org_id (if there is one found for a TADA.CharacteristicName)
 
 ``` r
+
 MT.CriteriaMethods.user.supplied2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = c("MTDEQ", "USEPA"),
@@ -1076,6 +1117,7 @@ in the remaining blank PH magnitude values with a range between 6.5 and
 8.5 as MTDEQ criteria of interest.
 
 ``` r
+
 # We will fill in PH magnitude values for this example
 MT.CriteriaMethods.Final <- MT.CriteriaMethods.user.supplied2 |>
   dplyr::mutate(MagnitudeValueLower = dplyr::case_when(
@@ -1093,6 +1135,7 @@ TADA_TableExport(MT.CriteriaMethods.Final)
 We will supply this final crosswalk table to be reused and validated.
 
 ``` r
+
 MT.CriteriaMethods.Final2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "MTDEQ",

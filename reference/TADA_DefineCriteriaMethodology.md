@@ -140,8 +140,8 @@ TADA_DefineCriteriaMethodology(
   This spreadsheet is created in the user's downloads folder path. If
   you have any trouble locating the file, please type the following into
   your R console to locate it: file.path(Sys.getenv("USERPROFILE"),
-  "Downloads"). The file will be named "myfileRef.xlsx". The excel
-  spreadsheet will highlight the cells in which users should input
+  "Downloads"). The file will be named "CriteriaMethodology.xlsx". The
+  excel spreadsheet will highlight the cells in which users should input
   information.
 
 - overwrite:
@@ -179,7 +179,8 @@ rExpertQuery::EQ_DomainValues("org_id")
 # Example 1
 # First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
 paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
-#> TADA_ParametersForAnalysis: auto_assign == 'All' was selected, finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.
+#> TADA_ParametersForAnalysis: auto_assign == 'All' was selected,
+#>   finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
@@ -189,7 +190,8 @@ paramRef_UT3 <- TADA_ParametersForAnalysis(
   Data_Nutrients_UT,
   paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
 )
-#> TADA_ParametersForAnalysis: auto_assign == 'All' was selected, finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.
+#> TADA_ParametersForAnalysis: auto_assign == 'All' was selected,
+#>   finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.
 
 # Next, enter the crosswalk generated above as the paramRef function input
 # for TADA_UsesForAnalysis():
@@ -211,6 +213,7 @@ MLSummaryRef_UT <- TADA_MLSummary(
 DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
   Data_Nutrients_UT,
   MLSummaryRef = MLSummaryRef_UT,
+  org_id = "UTAHDWQ",
   displayUniqueId = TRUE,
   excel = FALSE
 )

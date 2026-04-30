@@ -203,7 +203,7 @@ without the reference tables.</p></dd>
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 If you have any trouble locating the file, please type the following into
 your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
+The file will be named "CriteriaMethodology.xlsx". The excel spreadsheet will highlight
 the cells in which users should input information.</p></dd>
 
 
@@ -241,7 +241,8 @@ ATTAINS.organizations &lt;- rExpertQuery::EQ_DomainValues("org_id")</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Example 1</span></span></span>
 <span class="r-in"><span><span class="co"># First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):</span></span></span>
 <span class="r-in"><span><span class="va">paramRef_UT</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, org_id <span class="op">=</span> <span class="st">"UTAHDWQ"</span>, excel <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_ParametersForAnalysis: auto_assign == 'All' was selected, finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_ParametersForAnalysis: auto_assign == 'All' was selected,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.</span>
 <span class="r-in"><span><span class="va">paramRef_UT2</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">paramRef_UT</span>, ATTAINS.ParameterName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"AMMONIA"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"AMMONIA, TOTAL"</span>,</span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"NITRATE"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"NITRATE"</span>,</span></span>
@@ -251,7 +252,8 @@ ATTAINS.organizations &lt;- rExpertQuery::EQ_DomainValues("org_id")</p>
 <span class="r-in"><span>  <span class="va">Data_Nutrients_UT</span>,</span></span>
 <span class="r-in"><span>  paramRef <span class="op">=</span> <span class="va">paramRef_UT2</span>, org_id <span class="op">=</span> <span class="st">"UTAHDWQ"</span>, excel <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_ParametersForAnalysis: auto_assign == 'All' was selected, finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_ParametersForAnalysis: auto_assign == 'All' was selected,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Next, enter the crosswalk generated above as the paramRef function input</span></span></span>
 <span class="r-in"><span><span class="co"># for TADA_UsesForAnalysis():</span></span></span>
@@ -273,6 +275,7 @@ ATTAINS.organizations &lt;- rExpertQuery::EQ_DomainValues("org_id")</p>
 <span class="r-in"><span><span class="va">DefineCriteriaMethodology_UT</span> <span class="op">&lt;-</span> <span class="fu">TADA_DefineCriteriaMethodology</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">Data_Nutrients_UT</span>,</span></span>
 <span class="r-in"><span>  MLSummaryRef <span class="op">=</span> <span class="va">MLSummaryRef_UT</span>,</span></span>
+<span class="r-in"><span>  org_id <span class="op">=</span> <span class="st">"UTAHDWQ"</span>,</span></span>
 <span class="r-in"><span>  displayUniqueId <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  excel <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
@@ -307,10 +310,10 @@ ATTAINS.organizations &lt;- rExpertQuery::EQ_DomainValues("org_id")</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   Please ensure that you have inputted all field values of interest in </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   the ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_UsesForAnalysis: auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   If an ATTAINS.ParameterName and ATTAINS.UseName alias was found, populating these rows with the CST magnitude values.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   If an ATTAINS.ParameterName and ATTAINS.UseName alias was found, populating these rows with the CST magnitude values.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   A many-to-many match is likely. User review is needed to ensure accuracy in crosswalk method.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_DefineCriteriaMethodology: removing any instances where CST Pollutant names are 'PH VARIATION', 'TEMPERATURE RISE ABOVE AMBIENT'. TADA functions cannot currently handle analysis for these instances.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Warning in TADA_DefineCriteriaMethodology:  There are 2 TADA.CharacteristicName units that do not match with the CST autoassign MagnitudeUnit values. Converting these MagnitudeUnit Values from the CST to match the TADA.ResultMeasure.MeasureUnitCode in your dataframe. Please review these conversions.</span>

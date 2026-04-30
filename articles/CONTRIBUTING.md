@@ -119,6 +119,7 @@ Once those have been installed, the following R packages will be needed
 for R-package development work:
 
 ``` r
+
 install.packages(c("devtools", "rmarkdown"))
 ```
 

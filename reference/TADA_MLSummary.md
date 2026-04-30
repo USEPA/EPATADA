@@ -97,8 +97,8 @@ TADA_MLSummary(
   A boolean value. If TRUE, this allows user to view MLSummaryRef for
   all uses and parameter assigned to a ML or AU regardless if that site
   contains WQP data for that parameter. This is useful if a user is
-  interested in an explicit list of everything that will be analyzed.
-  Default is FALSE.
+  interested in an explicit list of parameters and uses for assessment
+  and show NAs for sites without data. Default is FALSE.
 
 - excel:
 
@@ -106,8 +106,8 @@ TADA_MLSummary(
   This spreadsheet is created in the user's downloads folder path. If
   you have any trouble locating the file, please type the following into
   your R console to locate it: file.path(Sys.getenv("USERPROFILE"),
-  "Downloads"). The file will be named "myfileRef.xlsx". The excel
-  spreadsheet will highlight the cells in which users should input
+  "Downloads"). The file will be named "ParamUseMLCrosswalks.xlsx". The
+  excel spreadsheet will highlight the cells in which users should input
   information.
 
 - overwrite:

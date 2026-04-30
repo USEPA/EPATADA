@@ -107,8 +107,8 @@ TADA_ParametersForAnalysis(
   This spreadsheet is created in the user's downloads folder path. If
   you have any trouble locating the file, please type the following into
   your R console to locate it: file.path(Sys.getenv("USERPROFILE"),
-  "Downloads"). The file will be named "myfileRef.xlsx". The excel
-  spreadsheet will highlight the cells in which users should input
+  "Downloads"). The file will be named "ParamUseMLCrosswalks.xlsx". The
+  excel spreadsheet will highlight the cells in which users should input
   information.
 
 - overwrite:

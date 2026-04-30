@@ -33,6 +33,7 @@ needed before installing EPATADA because it is only available on GitHub
 (not CRAN).
 
 ``` r
+
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -46,6 +47,7 @@ the development version of dataRetrieval can be downloaded directly from
 GitHub (un-comment).
 
 ``` r
+
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -57,6 +59,7 @@ Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ``` r
+
 library(EPATADA)
 ```
 
@@ -64,6 +67,7 @@ We’ll also record the start time for our analysis, beginning after
 loading packages.
 
 ``` r
+
 # Record start time
 start.time <- Sys.time()
 ```
@@ -110,6 +114,7 @@ our query. We will not set start and end dates as we are interested in
 all available data for these locations and characteristics. .
 
 ``` r
+
 # Import data from WQP
 
 data <- TADA_DataRetrieval(
@@ -162,6 +167,7 @@ concatenates TADA.CharacteristicName, TADA.ResultSampleFractionText,
 TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
 
 ``` r
+
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
 compid_table <- TADA_FieldValuesTable(data, field = "TADA.ComparableDataIdentifier")
 
@@ -183,6 +189,7 @@ Now, we can filter the data set to retain only the
 TADA.ComparableDataIdentifiers of interest.
 
 ``` r
+
 data <- data |>
   dplyr::filter(TADA.ComparableDataIdentifier %in% c(
     "TOTAL DISSOLVED SOLIDS_DISSOLVED_NA_UG/L",
@@ -209,6 +216,7 @@ want to review each function and its output more carefully before moving
 on.
 
 ``` r
+
 data <- data |>
   TADA_FlagMethod(clean = TRUE) |>
   TADA_FlagSpeciation(clean = "both") |>
@@ -223,6 +231,7 @@ these functions to remove any results that fall outside the national
 thresholds.
 
 ``` r
+
 data <- data |>
   TADA_FlagAboveThreshold(clean = TRUE) |>
   TADA_FlagBelowThreshold(clean = TRUE)
@@ -251,6 +260,7 @@ In this example, we will use the default setting “none” where a single
 representative is selected randomly from each duplicate group.
 
 ``` r
+
 data <- data |>
   TADA_FindPotentialDuplicatesSingleOrg() |>
   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
@@ -269,6 +279,7 @@ results for removal as you may wish to make different decisions than the
 TADA defaults regarding which results to retain.
 
 ``` r
+
 data <- data |>
   TADA_FindQCActivities(clean = TRUE) |>
   TADA_FlagMeasureQualifierCode(clean = TRUE)
@@ -280,6 +291,7 @@ We can use a TADA function to identify any censored data in the data
 set.
 
 ``` r
+
 utils::data <- TADA_IDCensoredData(data)
 ```
 
@@ -310,6 +322,7 @@ more detailed look at the logic behind this and the other TADA
 geospatial functions.
 
 ``` r
+
 # Import data from ATTAINS geospatial services
 
 ATTAINS_data <- TADA_CreateATTAINSAUMLCrosswalk(data)
@@ -324,6 +337,7 @@ Monitoring Locations should be retained for additional analysis. It can
 also allow us to sub
 
 ``` r
+
 # View catchments and assessment units on map
 
 ATTAINS_map <- TADA_ViewATTAINS(ATTAINS_data)
@@ -339,6 +353,7 @@ TADA.ComparableDataIdentifier to give us some information about how many
 results are available per each monitoring location group.
 
 ``` r
+
 # Select TADA data with ATTAINS data
 data <- ATTAINS_data$TADA_with_ATTAINS |>
   # Remove geometry to reduce size of data set
@@ -371,6 +386,7 @@ assessment unit each monitoring location belongs to, the number of
 results per each parameter and the oldest and most recent sampling date.
 
 ``` r
+
 # Create table of monitoring location identifiers
 MonitoringLocations <- data |>
   dplyr::select(
@@ -401,6 +417,7 @@ Now, let’s create subsets of the data by assessment unit name. These
 will be useful to create some basic data visualizations.
 
 ``` r
+
 data_animas <- data |>
   dplyr::filter(ATTAINS.AssessmentUnitName == "Animas River (San Juan River to Estes Arroyo)")
 
@@ -418,6 +435,7 @@ solids and specific conductance from the entire data set to begin
 visualizing the data, using `TADA_TwoCharacteristicScatterplot`.
 
 ``` r
+
 # choose two and generate scatterplot
 TADA_TwoCharacteristicScatterplot(data, id_cols = "TADA.ComparableDataIdentifier", groups = c("SPECIFIC CONDUCTANCE_TOTAL_NA_US/CM @25C", "TOTAL DISSOLVED SOLIDS_DISSOLVED_NA_UG/L"))
 ```
@@ -428,6 +446,7 @@ data. We could filter the data set to exclude any results collected
 prior to 2015 and recreate the scatterplot.
 
 ``` r
+
 # choose two and generate scatterplot
 TADA_TwoCharacteristicScatterplot(
   data |>
@@ -447,6 +466,7 @@ for both characteristics for the Animas River only, excluding samples
 prior to 2014.
 
 ``` r
+
 TADA_Histogram(
   data |>
     dplyr::filter(
@@ -463,6 +483,7 @@ assessment unit, for example, total dissolved solids for the San Juan
 River.
 
 ``` r
+
 TADA_Boxplot(
   data |>
     dplyr::filter(
@@ -480,6 +501,7 @@ between the two rivers. We can do this by revisiting
 `TADA.TwoCharacteristicScatterplot`.
 
 ``` r
+
 # create two characteristic scatterplot using TADA_TWoCharacteristicScatterplot
 twochar_scatter <- TADA_TwoCharacteristicScatterplot(
   data |>
@@ -510,6 +532,7 @@ We can also use `TADA_Stats` to generate a summary table for the entire
 data set or subsets of it for each river.
 
 ``` r
+
 # create table with all data
 data_stats <- TADA_Stats(data)
 
@@ -517,6 +540,7 @@ DT::datatable(data_stats, fillContainer = TRUE)
 ```
 
 ``` r
+
 # create table with animas data
 animas_stats <- TADA_Stats(data |> dplyr::filter(ATTAINS.AssessmentUnitName == "Animas River (San Juan River to Estes Arroyo)"))
 
@@ -524,6 +548,7 @@ DT::datatable(animas_stats, fillContainer = TRUE)
 ```
 
 ``` r
+
 # create table with san juan data
 sanjuan_stats <- TADA_Stats(data |> dplyr::filter(ATTAINS.AssessmentUnitName == "San Juan River (Navajo bnd at Hogback to Animas River)"))
 
@@ -552,6 +577,7 @@ chunks and create this document, providing an example of how
 incorporating TADA in your workflow can increase efficiency.
 
 ``` r
+
 end.time <- Sys.time()
 
 end.time - start.time

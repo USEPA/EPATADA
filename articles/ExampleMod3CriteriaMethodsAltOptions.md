@@ -27,6 +27,7 @@ First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub.
 
 ``` r
+
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -40,6 +41,7 @@ recent versions available. If you see this prompt, it is recommended to
 update all of them (enter 1 into the console).
 
 ``` r
+
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -50,6 +52,7 @@ Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ``` r
+
 library(EPATADA)
 ```
 
@@ -63,6 +66,7 @@ function in R or RStudio using the following format (example below):
 `?[name of TADA function]`
 
 ``` r
+
 # Access help page for TADA_DataRetrieval
 ?TADA_DataRetrieval
 ```
@@ -82,6 +86,7 @@ their decision making processes. Use of EPATADA is not required.
 Get bacteria and pH data from Missoula County, Montana.
 
 ``` r
+
 # get MT data
 tada.MT <- TADA_DataRetrieval(
   startDate = "2020-01-01",
@@ -107,6 +112,7 @@ tada.MT.clean <- tada.MT |>
     ## 1 TADA.SampleFraction.Flag          135
 
 ``` r
+
 # remove intermediate objects
 rm(tada.MT)
 
@@ -137,6 +143,7 @@ API key to the “api_key” variable. Otherwise, the default EPATADA
 package key will be used.
 
 ``` r
+
 # api_key <- "paste your key here"
 
 # is user does not provide key, set api_key as NULL
@@ -195,6 +202,7 @@ A blank template is generated. This can be generated and filled out in
 the excel file.
 
 ``` r
+
 MT.Criteria.blank <- TADA_DefineCriteriaMethodology()
 
 TADA_TableExport(MT.Criteria.blank)
@@ -207,6 +215,7 @@ been filled out in TADA format for most priority WQP Characteristic Name
 by including “USEPA” as part of the org_id argument input.
 
 ``` r
+
 MT.Criteria.epa <- TADA_DefineCriteriaMethodology(
   org_id = "USEPA"
 )
@@ -222,6 +231,7 @@ choose to fill this value out as desired or leave this row
 unfilled/removed.
 
 ``` r
+
 MT.Criteria.epa2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "USEPA"
@@ -231,6 +241,7 @@ MT.Criteria.epa2 <- TADA_DefineCriteriaMethodology(
     ## [1] "EQ_DomainValues: For org_id the values in the 'code' column of the function output are the allowable values for rExpert Query functions."
 
 ``` r
+
 TADA_TableExport(MT.Criteria.epa2)
 ```
 
@@ -246,6 +257,7 @@ process during each step of the process with the recommended workflow of
 TADA_ParametersForAnalysis, TADA_UsesForAnalysis and TADA_MLSummaryRef.
 
 ``` r
+
 MT.Criteria.auto <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ",
@@ -267,6 +279,7 @@ are not harmonized or if there are many different combinations of
 Characteristic, Speciation and Fractions to consider.
 
 ``` r
+
 MT.Criteria.auto2 <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ",
@@ -285,6 +298,7 @@ criteria table for any WQP characteristics in your data frame that are
 found by specifying “USEPA” as part of the org_id argument input.
 
 ``` r
+
 MT.Criteria.auto3 <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = c("MTDEQ", "USEPA"),
@@ -321,6 +335,7 @@ Otherwise the uses will be pulled in from the prior ATTAINS assessment
 cycle.
 
 ``` r
+
 # Load the example R8 criteria table
 criteria_table <- TADA_GetCriteriaFile(org_id = "MTDEQ")
 # Load example uses to AU Ref table
@@ -353,6 +368,7 @@ will display all unique TADA.ComparableDataIdentifier combinations in
 the criteria table output.
 
 ``` r
+
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
 MT.Criteria.user2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
@@ -370,6 +386,7 @@ TADA_TableExport(MT.Criteria.user2)
 ### Choose a Final Criteria Template, Save and Re-use
 
 ``` r
+
 # Save the criteria table of your liking to be used for your next analysis needs.
 # TADA_CreateCSV(MT.Criteria_user_supplied_autofill2)
 

@@ -179,7 +179,7 @@ and you will need to manually assign the use names as needed.</p></dd>
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 If you have any trouble locating the file, please type the following into
 your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
+The file will be named "ParamUseMLCrosswalks.xlsx". The excel spreadsheet will highlight
 the cells in which users should input information.</p></dd>
 
 
@@ -239,7 +239,8 @@ include an ATTAINS use name that was not listed in prior ATTAINS assessment cycl
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):</span></span></span>
 <span class="r-in"><span><span class="va">paramRef_UT</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, org_id <span class="op">=</span> <span class="st">"UTAHDWQ"</span>, excel <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_ParametersForAnalysis: auto_assign == 'All' was selected, finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_ParametersForAnalysis: auto_assign == 'All' was selected,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.</span>
 <span class="r-in"><span><span class="va">paramRef_UT2</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">paramRef_UT</span>, ATTAINS.ParameterName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"AMMONIA"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"AMMONIA, TOTAL"</span>,</span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"NITRATE"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"NITRATE"</span>,</span></span>
@@ -249,13 +250,15 @@ include an ATTAINS use name that was not listed in prior ATTAINS assessment cycl
 <span class="r-in"><span>  <span class="va">Data_Nutrients_UT</span>,</span></span>
 <span class="r-in"><span>  paramRef <span class="op">=</span> <span class="va">paramRef_UT2</span>, org_id <span class="op">=</span> <span class="st">"UTAHDWQ"</span>, excel <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_ParametersForAnalysis: auto_assign == 'All' was selected, finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_ParametersForAnalysis: auto_assign == 'All' was selected,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">paramRef_UT4</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">Data_Nutrients_UT</span>,</span></span>
 <span class="r-in"><span>  org_id <span class="op">=</span> <span class="st">"UTAHDWQ"</span>, auto_assign <span class="op">=</span> <span class="st">"All"</span>, excel <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_ParametersForAnalysis: auto_assign == 'All' was selected, finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_ParametersForAnalysis: auto_assign == 'All' was selected,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Next, enter the crosswalk generated above as the paramRef function input</span></span></span>
 <span class="r-in"><span><span class="co"># for TADA_UsesForAnalysis():</span></span></span>
