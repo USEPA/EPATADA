@@ -63,7 +63,10 @@ TADA_OverviewMap <- function(.data) {
           "Sample_Count" = length(unique(ResultIdentifier)),
           "Visit_Count" = length(unique(ActivityStartDate)),
           "Parameter_Count" = length(unique(TADA.CharacteristicName))
-        )
+        ) |>
+        dplyr::ungroup() |>
+        as.data.frame()
+
       param_counts <- sort(unique(sumdat$Parameter_Count))
       param_length <- length(param_counts)
       param_diff <- diff(param_counts)
@@ -78,7 +81,7 @@ TADA_OverviewMap <- function(.data) {
         paste0(">", pt_sizes[3]),
         paste0(">", pt_sizes[4])
       )
-      sumdat$radius <- 5
+      sumdat$radius <- 20
       sumdat$radius <- ifelse(
         sumdat$Sample_Count > pt_sizes[1],
         10,
@@ -103,10 +106,14 @@ TADA_OverviewMap <- function(.data) {
         Sample_n = pt_labels,
         Point_size = c(5, 10, 15, 20, 30)
       )
-      site_legend <- subset(
-        site_size,
-        site_size$Point_size %in% unique(sumdat$radius)
-      )
+      if (length(unique(sumdat$radius)) > 1) {
+        site_legend <- subset(
+          site_size,
+          site_size$Point_size %in% unique(sumdat$radius)
+        )
+      } else {
+        site_legend <- data.frame(Sample_n = unique(pt_sizes), Point_size = 20)
+      }
       # set breaks to occur only at integers for data sets requiring bins
       pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
       bins_n <- length(pretty.breaks)
@@ -126,7 +133,7 @@ TADA_OverviewMap <- function(.data) {
       if (length(unique(param_diff)) == 1 & param_length < 10) {
         pal <- leaflet::colorFactor(palette = tada.blues, levels = param_counts)
       } else if (length(unique(param_counts)) == 1) {
-        pal <- "orange"
+        pal <- tada.blues[1]
       } else {
         pal <- leaflet::colorBin(palette = tada.blues, bins = pretty.breaks)
       }
@@ -155,7 +162,7 @@ TADA_OverviewMap <- function(.data) {
           fillOpacity = 0.7,
           stroke = TRUE,
           weight = 1.5,
-          radius = sumdat$radius,
+          radius = ~radius,
           popup = paste0(
             "Site ID: ",
             sumdat$MonitoringLocationIdentifier,
