@@ -3117,14 +3117,14 @@ TADA_UsesForAnalysis <- function(
 #' }
 #'
 TADA_AssignUsesToAU <- function(
-    .data,
-    org_id = NULL,
-    AUMLRef = NULL,
-    AU_UsesRef = NULL,
-    waterUseRef = NULL,
-    excel = FALSE,
-    overwrite = FALSE,
-    api_key = NULL
+  .data,
+  org_id = NULL,
+  AUMLRef = NULL,
+  AU_UsesRef = NULL,
+  waterUseRef = NULL,
+  excel = FALSE,
+  overwrite = FALSE,
+  api_key = NULL
 ) {
   # Resolve API key from options/env, else hard-coded default
   if (is.null(api_key) || !nzchar(api_key)) {
@@ -3265,9 +3265,9 @@ TADA_AssignUsesToAU <- function(
     if (
       sum(
         !org_id[!org_id %in% c("EPA304a", "")] %in%
-        TADA_GetATTAINSOrgIDsRef()[, "code"]
+          TADA_GetATTAINSOrgIDsRef()[, "code"]
       ) >
-      0
+        0
     ) {
       stop(paste0(
         "TADA_AssignUsesToAU: ",
@@ -3285,7 +3285,7 @@ TADA_AssignUsesToAU <- function(
       api_key = api_key
     ))
 
-    if(NROW(OrgID_assessments) == 0) {
+    if (NROW(OrgID_assessments) == 0) {
       OrgID_assessments <- data.frame(
         assessmentUnitId = character(0),
         organizationId = character(0), # ATTAINS.assessmentunitname,
