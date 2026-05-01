@@ -1788,7 +1788,7 @@ TADA_ParametersForAnalysis <- function(
         openxlsx::activeSheet(wb) <- "ParametersCrosswalk"
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
         message(
-          "TADA_ParametersForAnalysis: 
+          "TADA_ParametersForAnalysis:
   overwrite = F selected but no original ParamUseMLCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
         )
         wb <- openxlsx::loadWorkbook(downloads_path)
@@ -3117,18 +3117,18 @@ TADA_UsesForAnalysis <- function(
 #' }
 #'
 TADA_AssignUsesToAU <- function(
-  .data,
-  org_id = NULL,
-  AUMLRef = NULL,
-  AU_UsesRef = NULL,
-  waterUseRef = NULL,
-  excel = FALSE,
-  overwrite = FALSE,
-  api_key = NULL
+    .data,
+    org_id = NULL,
+    AUMLRef = NULL,
+    AU_UsesRef = NULL,
+    waterUseRef = NULL,
+    excel = FALSE,
+    overwrite = FALSE,
+    api_key = NULL
 ) {
   # Resolve API key from options/env, else hard-coded default
   if (is.null(api_key) || !nzchar(api_key)) {
-    api_key <- .setEQKey()
+    api_key <- EPATADA:::.setEQKey()
   }
 
   # ensure correct column types for any user supplied dfs
@@ -3219,9 +3219,6 @@ TADA_AssignUsesToAU <- function(
     # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
     if (!is.character(org_id) & is.null(org_id)) {
       org_id <- ""
-      message(
-        "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
-      )
     }
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
@@ -3268,9 +3265,9 @@ TADA_AssignUsesToAU <- function(
     if (
       sum(
         !org_id[!org_id %in% c("EPA304a", "")] %in%
-          TADA_GetATTAINSOrgIDsRef()[, "code"]
+        TADA_GetATTAINSOrgIDsRef()[, "code"]
       ) >
-        0
+      0
     ) {
       stop(paste0(
         "TADA_AssignUsesToAU: ",
@@ -3287,6 +3284,15 @@ TADA_AssignUsesToAU <- function(
       org_id = org_id,
       api_key = api_key
     ))
+
+    if(NROW(OrgID_assessments) == 0) {
+      OrgID_assessments <- data.frame(
+        assessmentUnitId = character(0),
+        organizationId = character(0), # ATTAINS.assessmentunitname,
+        waterType = character(0),
+        useName = character(0)
+      )
+    }
 
     OrgID_assessments <- dplyr::filter(
       OrgID_assessments,
@@ -3520,7 +3526,6 @@ TADA_AssignUsesToAU <- function(
     return(CreateAU_UsesRef)
   }
 }
-
 
 #' Helper Function to Apply Uses to Unassigned Assessment Units by Water Type
 #'
