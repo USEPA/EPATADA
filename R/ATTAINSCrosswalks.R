@@ -3128,7 +3128,7 @@ TADA_AssignUsesToAU <- function(
 ) {
   # Resolve API key from options/env, else hard-coded default
   if (is.null(api_key) || !nzchar(api_key)) {
-    api_key <- EPATADA:::.setEQKey()
+    api_key <- .setEQKey()
   }
 
   # ensure correct column types for any user supplied dfs
