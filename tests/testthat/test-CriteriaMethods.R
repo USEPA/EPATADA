@@ -835,23 +835,36 @@ test_that("Excel save path uses timestamp when overwrite = FALSE", {
   #   org_id = "ORGX",
   #   displayUniqueId = TRUE,
   #   excel = TRUE,
-  #   overwrite = FALSE
+  #   overwrite = TRUE
   # )
-  # Then write again to ensure timestamped file is created
-  res2 <- TADA_DefineCriteriaMethodology(
-    .data = df,
-    MLSummaryRef = ml,
-    org_id = "ORGX",
-    displayUniqueId = TRUE,
-    excel = TRUE,
-    overwrite = FALSE
+  # Then write again to ensure timestamped file is created, and save the message to remove timestamped file in the end
+  msg <- utils::capture.output(
+    res2 <- TADA_DefineCriteriaMethodology(
+      .data = df,
+      MLSummaryRef = ml,
+      org_id = "ORGX",
+      displayUniqueId = TRUE,
+      excel = TRUE,
+      overwrite = FALSE
+    )
   )
   files <- list.files(
-    file.path(tmp, "Downloads"),
+    get_downloads_path(""),
     pattern = "^CriteriaMethodology.*\\.xlsx$",
     full.names = TRUE
   )
   expect_true(length(files) >= 2) # base + at least one timestamped copy
+  
+  # find the timestamped copy index name
+  idx_pat <- which(grepl("CriteriaMethodology_", msg, fixed = TRUE))
+  
+  # find timestamped path
+  timestamp_path <- gsub("File saved to: ", "", msg[idx_pat])
+  
+  # remove time stamped path
+  if (file.exists(timestamp_path)) {
+    file.remove(timestamp_path)
+  }
 })
 
 test_that("All NA org identifiers skip final formatting block safely", {
