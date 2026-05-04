@@ -2750,23 +2750,24 @@ TADA_CorrectColType <- function(.data) {
 }
 
 #' Get the excel downloads path for criteria files
-#' 
+#'
 #' @param filename the name of the .xlsx file to locate. Default is NULL and
 #' will return the location of the Download's folder path of your OS.
 #'
-#' @return the download's folder path for a user's operating system 
+#' @return the download's folder path for a user's operating system
 #' and file name, if provided, within the path.
 #'
 #' @examples
 #' myfilepath <- get_downloads_path()
 #'
-#' 
+#'
 get_downloads_path <- function(filename = NULL) {
   # filename arg input must be provided.
   if (is.null(filename)) {
-    message("get_downloads_path:
+    message(
+      "get_downloads_path:
   No filename was provided, returning the Downloads folder path only."
-            )
+    )
     filename = ""
   }
 
@@ -2841,8 +2842,12 @@ get_downloads_path <- function(filename = NULL) {
   if (!dir.exists(base_dir)) {
     base_dir <- tempdir()
   }
-  
-  utils::capture.output(cat("File saved to:", gsub("/", "\\\\", file.path(base_dir, filename)), "\n"))
+
+  utils::capture.output(cat(
+    "File saved to:",
+    gsub("/", "\\\\", file.path(base_dir, filename)),
+    "\n"
+  ))
 
   return <- file.path(base_dir, filename)
 }

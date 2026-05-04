@@ -2144,7 +2144,6 @@ TADA_DefineCriteriaMethodology <- function(
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
 
     message("Saved as: ", normalizePath(save_path))
-
   }
 
   DefineCriteriaMethodology <- suppressWarnings(TADA_CorrectColType(
