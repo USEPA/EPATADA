@@ -854,13 +854,13 @@ test_that("Excel save path uses timestamp when overwrite = FALSE", {
     full.names = TRUE
   )
   expect_true(length(files) >= 2) # base + at least one timestamped copy
-  
+
   # find the timestamped copy index name
   idx_pat <- which(grepl("CriteriaMethodology_", msg, fixed = TRUE))
-  
+
   # find timestamped path
   timestamp_path <- gsub("File saved to: ", "", msg[idx_pat])
-  
+
   # remove time stamped path
   if (file.exists(timestamp_path)) {
     file.remove(timestamp_path)
