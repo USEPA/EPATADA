@@ -1423,7 +1423,7 @@ TADA_DefineCriteriaMethodology <- function(
   # Generates the excel function (HIGHLY Recommended for users to export)
   if (excel == TRUE) {
     # get downloads path
-    downloads_path <- get_downloads_path("CriteriaMethodology.xlsx")
+    downloads_path <- invisible(get_downloads_path("CriteriaMethodology.xlsx"))
 
     # create a brand new workbook and decide on save path at the end.
     wb <- openxlsx::createWorkbook()
@@ -2115,6 +2115,7 @@ TADA_DefineCriteriaMethodology <- function(
           "TADA_DefineCriteriaMethodology: ",
           "overwrite = F selected but no original CriteriaMethodology.xlsx was found. Creating original version as well as a copy with timestamp."
         )
+        message("Saved as: ", normalizePath(downloads_path))
         wb <- openxlsx::loadWorkbook(downloads_path)
       }
       if (file.exists(downloads_path)) {
@@ -2142,11 +2143,8 @@ TADA_DefineCriteriaMethodology <- function(
     # now continue any remaining edits if needed, then final save
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
 
-    if (!overwrite && save_path != downloads_path) {
-      message("Saved as: ", save_path)
-    }
+    message("Saved as: ", normalizePath(save_path))
 
-    cat("File saved to:", gsub("/", "\\\\", save_path), "\n")
   }
 
   DefineCriteriaMethodology <- suppressWarnings(TADA_CorrectColType(

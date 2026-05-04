@@ -2841,6 +2841,8 @@ get_downloads_path <- function(filename = NULL) {
   if (!dir.exists(base_dir)) {
     base_dir <- tempdir()
   }
+  
+  utils::capture.output(cat("File saved to:", gsub("/", "\\\\", file.path(base_dir, filename)), "\n"))
 
-  cat(gsub("/", "\\\\", file.path(base_dir, filename)))
+  return <- file.path(base_dir, filename)
 }
