@@ -2181,6 +2181,7 @@ TADA_DefineCriteriaMethodology <- function(
 #'     ColumnName, ColumnType, AllowableValues, ExampleValues.
 #'
 #' @seealso [TADA_DefineCriteriaMethodology()] [TADA_ParametersForAnalysis()]
+#' @keywords internal
 #'
 #' @examples
 #' # Example 1: Write to a temporary path (recommended for reproducible scripts/tests)

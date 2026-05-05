@@ -59,3 +59,4 @@ if (requireNamespace("openxlsx", quietly = TRUE)) {
 \seealso{
 \code{\link[=TADA_DefineCriteriaMethodology]{TADA_DefineCriteriaMethodology()}} \code{\link[=TADA_ParametersForAnalysis]{TADA_ParametersForAnalysis()}}
 }
+\keyword{internal}
