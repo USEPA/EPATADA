@@ -59,7 +59,7 @@ jobs:
 
       - name: Comment on PR with spelling results (same-repo PRs only)
         if: github.event_name == 'pull_request' && steps.spellcheck.outputs.ok == 'false' && github.event.pull_request.head.repo.full_name == github.repository
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: ${{ github.token }}
           script: |

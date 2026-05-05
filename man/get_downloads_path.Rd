@@ -6,9 +6,19 @@
 \usage{
 get_downloads_path(filename = NULL)
 }
+\arguments{
+\item{filename}{the name of the .xlsx file to locate. Default is NULL and
+will return the location of the Download's folder path of your OS.}
+}
 \value{
-the downloads path depending on a user's operating system
+the download's folder path for a user's operating system
+and file name, if provided, within the path.
 }
 \description{
 Get the excel downloads path for criteria files
+}
+\examples{
+myfilepath <- get_downloads_path()
+
+
 }
