@@ -18,7 +18,8 @@ and file name, if provided, within the path.
 Get the excel downloads path for criteria files
 }
 \examples{
+\dontrun{
 myfilepath <- get_downloads_path()
-
-
 }
+}
+\keyword{internal}

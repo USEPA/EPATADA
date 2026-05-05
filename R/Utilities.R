@@ -2756,11 +2756,13 @@ TADA_CorrectColType <- function(.data) {
 #'
 #' @return the download's folder path for a user's operating system
 #' and file name, if provided, within the path.
+#' 
+#' @keywords internal
 #'
 #' @examples
+#' \dontrun{
 #' myfilepath <- get_downloads_path()
-#'
-#'
+#' }
 get_downloads_path <- function(filename = NULL) {
   # filename arg input must be provided.
   if (is.null(filename)) {
