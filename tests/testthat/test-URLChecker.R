@@ -189,7 +189,8 @@ testthat::test_that("URLs are not broken", {
   # Warn-only set: transient outages
   df_transient <- df[is_transient, , drop = FALSE]
 
-  other.cols <- df_false |> dplyr::filter(!urls %in% func.urls) |>
+  other.cols <- df_false |>
+    dplyr::filter(!urls %in% func.urls) |>
     # temporarily filter out rows where both status and body are NA (short term fix)
     # longer term, the handling of urls leading to a csv or zip file needs improvement
     dplyr::filter(!is.na(status) & !is.na(body))
