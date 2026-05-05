@@ -248,7 +248,7 @@ volunteer_data <- EPATADA::TADA_FlagAboveThreshold(volunteer_data,
 )
 ```
 
-    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 2995, Pass: 34148, Suspect: 1762
+    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3137, Pass: 34360, Suspect: 1762
 
 ``` r
 
@@ -258,7 +258,7 @@ volunteer_data <- EPATADA::TADA_FlagBelowThreshold(volunteer_data,
 )
 ```
 
-    ## TADA_FlagBelowThreshold: No data below the WQX Lower Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking. Counts:  NA - Not Available: 2995, Pass: 35910
+    ## TADA_FlagBelowThreshold: No data below the WQX Lower Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking. Counts:  NA - Not Available: 3137, Pass: 36122
 
 Harmonize synonyms if found:
 
@@ -276,7 +276,7 @@ EPATADA::TADA_FieldValuesTable(volunteer_data, field = "ActivityTypeCode")
 
     ##            Value Count
     ## 1 Sample-Routine 35420
-    ## 2  Field Msr/Obs  3485
+    ## 2  Field Msr/Obs  3839
 
 Generate pie chart:
 
@@ -321,7 +321,7 @@ EPATADA::TADA_SummarizeColumn(volunteer_data)
     ##  2 CHLOROPHYLL A                                                     4       144
     ##  3 CONDUCTANCE                                                      15       149
     ##  4 COUNT                                                           808     23121
-    ##  5 DEPTH, SECCHI DISK DEPTH                                         41       474
+    ##  5 DEPTH, SECCHI DISK DEPTH                                         47       616
     ##  6 DISSOLVED OXYGEN (DO)                                            15       589
     ##  7 ESCHERICHIA COLI                                                440      9478
     ##  8 INORGANIC NITROGEN (NO2, NO3, & NH3)                             15       269
@@ -333,7 +333,7 @@ EPATADA::TADA_SummarizeColumn(volunteer_data)
     ## 14 RBP2, HIGH G, RIPARIAN VEGETATIVE ZONE WIDTH, RIGHT BANK (…       2         2
     ## 15 RBP2, HIGH G, VEGETATIVE PROTECTION, LEFT BANK (CHOICE LIS…       2         3
     ## 16 RBP2, HIGH G, VEGETATIVE PROTECTION, RIGHT BANK (CHOICE LI…       1         1
-    ## 17 TEMPERATURE                                                     394      2095
+    ## 17 TEMPERATURE                                                     401      2307
     ## 18 TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)                        15       238
     ## 19 TOTAL NITROGEN, MIXED FORMS                                      15       275
     ## 20 TOTAL PHOSPHORUS, MIXED FORMS                                    15       216

@@ -92,9 +92,9 @@ including labeled hyperlinks to EPA ATTAINS domain values and WQX Characteristic
 
 
 <dl><dt id="arg-downloads-path">downloads_path<a class="anchor" aria-label="anchor" href="#arg-downloads-path"></a></dt>
-<dd><p>A character string to define the location of the
-'CriteriaMethodology.xlsx' file to include the data dictionary. Default is
-null to find the path in the Downloads folder path.</p></dd>
+<dd><p>Character string path to the Excel workbook to update
+(e.g., "CriteriaMethodology.xlsx"). If NULL (default), the function
+attempts to locate the user's Downloads folder.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -122,13 +122,15 @@ two documentation tabs are added (or replaced if already present).</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Example 1: Write to a temporary path (recommended for reproducible scripts/tests)</span></span></span>
-<span class="r-in"><span><span class="va">tmp_xlsx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"CriteriaMethodology.xlsx"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">.TADA_CriteriaDataDictionary</span><span class="op">(</span><span class="va">tmp_xlsx</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in .TADA_CriteriaDataDictionary(tmp_xlsx):</span> could not find function ".TADA_CriteriaDataDictionary"</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Inspect created sheet names</span></span></span>
-<span class="r-in"><span><span class="fu">openxlsx</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/openxlsx/man/getSheetNames.html" class="external-link">getSheetNames</a></span><span class="op">(</span><span class="va">tmp_xlsx</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in openxlsx::getSheetNames(tmp_xlsx):</span> file does not exist.</span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"openxlsx"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">tmp_xlsx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"CriteriaMethodology.xlsx"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># Calling the internal function is possible within EPATADA package via :::,</span></span></span>
+<span class="r-in"><span>  <span class="co"># but generally discouraged for users. Kept here only for demonstration.</span></span></span>
+<span class="r-in"><span>  <span class="fu">EPATADA</span><span class="fu">:::</span><span class="fu">.TADA_CriteriaDataDictionary</span><span class="op">(</span><span class="va">tmp_xlsx</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">openxlsx</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/openxlsx/man/getSheetNames.html" class="external-link">getSheetNames</a></span><span class="op">(</span><span class="va">tmp_xlsx</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "DefineCriteriaMethodology" "Index-Criteria"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "DataDictionary"            "AllowableValues"          </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example 2: Use the default Downloads location (may vary by OS/user)</span></span></span>
 <span class="r-in"><span><span class="co"># \dontrun{</span></span></span>

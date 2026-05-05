@@ -21,9 +21,9 @@ workbook used by TADA. This helper builds two worksheets:
 
 - downloads_path:
 
-  A character string to define the location of the
-  'CriteriaMethodology.xlsx' file to include the data dictionary.
-  Default is null to find the path in the Downloads folder path.
+  Character string path to the Excel workbook to update (e.g.,
+  "CriteriaMethodology.xlsx"). If NULL (default), the function attempts
+  to locate the user's Downloads folder.
 
 ## Value
 
@@ -56,13 +56,15 @@ if already present).
 
 ``` r
 # Example 1: Write to a temporary path (recommended for reproducible scripts/tests)
-tmp_xlsx <- file.path(tempdir(), "CriteriaMethodology.xlsx")
-.TADA_CriteriaDataDictionary(tmp_xlsx)
-#> Error in .TADA_CriteriaDataDictionary(tmp_xlsx): could not find function ".TADA_CriteriaDataDictionary"
-
-# Inspect created sheet names
-openxlsx::getSheetNames(tmp_xlsx)
-#> Error in openxlsx::getSheetNames(tmp_xlsx): file does not exist.
+if (requireNamespace("openxlsx", quietly = TRUE)) {
+  tmp_xlsx <- file.path(tempdir(), "CriteriaMethodology.xlsx")
+  # Calling the internal function is possible within EPATADA package via :::,
+  # but generally discouraged for users. Kept here only for demonstration.
+  EPATADA:::.TADA_CriteriaDataDictionary(tmp_xlsx)
+  openxlsx::getSheetNames(tmp_xlsx)
+}
+#> [1] "DefineCriteriaMethodology" "Index-Criteria"           
+#> [3] "DataDictionary"            "AllowableValues"          
 
 # Example 2: Use the default Downloads location (may vary by OS/user)
 # \dontrun{
