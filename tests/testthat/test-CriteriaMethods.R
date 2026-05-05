@@ -846,7 +846,8 @@ test_that("Excel save path uses timestamp when overwrite = FALSE", {
       displayUniqueId = TRUE,
       excel = TRUE,
       overwrite = FALSE
-    )
+    ),
+    type = "message"
   )
   files <- list.files(
     get_downloads_path(""),
@@ -859,7 +860,7 @@ test_that("Excel save path uses timestamp when overwrite = FALSE", {
   idx_pat <- which(grepl("CriteriaMethodology_", msg, fixed = TRUE))
 
   # find timestamped path
-  timestamp_path <- gsub("File saved to: ", "", msg[idx_pat])
+  timestamp_path <- gsub("Saved as: ", "", msg[idx_pat])
 
   # remove time stamped path
   if (file.exists(timestamp_path)) {
