@@ -1788,7 +1788,7 @@ TADA_ParametersForAnalysis <- function(
         openxlsx::activeSheet(wb) <- "ParametersCrosswalk"
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
         message(
-          "TADA_ParametersForAnalysis: 
+          "TADA_ParametersForAnalysis:
   overwrite = F selected but no original ParamUseMLCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
         )
         wb <- openxlsx::loadWorkbook(downloads_path)
@@ -1815,11 +1815,7 @@ TADA_ParametersForAnalysis <- function(
     # now continue any remaining edits if needed, then final save
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
 
-    if (!overwrite && save_path != downloads_path) {
-      message("Saved as: ", save_path)
-    }
-
-    cat("File saved to:", gsub("/", "\\\\", save_path), "\n")
+    message("Saved as: ", normalizePath(save_path))
   }
   return(ParametersCrosswalk)
 }
@@ -2927,11 +2923,7 @@ TADA_UsesForAnalysis <- function(
     # now continue any remaining edits if needed, then final save
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
 
-    if (!overwrite && save_path != downloads_path) {
-      message("Saved as: ", save_path)
-    }
-
-    cat("File saved to:", gsub("/", "\\\\", save_path), "\n")
+    message("Saved as: ", normalizePath(save_path))
   }
   return(UsesCrosswalk)
 }
@@ -3219,10 +3211,10 @@ TADA_AssignUsesToAU <- function(
     # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
     if (!is.character(org_id) & is.null(org_id)) {
       org_id <- ""
-      message(
-        "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
-      )
     }
+    message(
+      "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+    )
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
     if (tolower("all") %in% tolower(org_id)) {
@@ -3287,6 +3279,15 @@ TADA_AssignUsesToAU <- function(
       org_id = org_id,
       api_key = api_key
     ))
+
+    if (NROW(OrgID_assessments) == 0) {
+      OrgID_assessments <- data.frame(
+        assessmentUnitId = character(0),
+        organizationId = character(0), # ATTAINS.assessmentunitname,
+        waterType = character(0),
+        useName = character(0)
+      )
+    }
 
     OrgID_assessments <- dplyr::filter(
       OrgID_assessments,
@@ -3509,7 +3510,7 @@ TADA_AssignUsesToAU <- function(
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
       }
 
-      cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
+      message("Saved as: ", normalizePath(downloads_path))
 
       CreateAU_UsesRef <- openxlsx::read.xlsx(
         downloads_path,
@@ -3520,7 +3521,6 @@ TADA_AssignUsesToAU <- function(
     return(CreateAU_UsesRef)
   }
 }
-
 
 #' Helper Function to Apply Uses to Unassigned Assessment Units by Water Type
 #'
@@ -4503,11 +4503,7 @@ TADA_MLSummary <- function(
     # now continue any remaining edits if needed, then final save
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
 
-    if (!overwrite && save_path != downloads_path) {
-      message("Saved as: ", save_path)
-    }
-
-    cat("File saved to:", gsub("/", "\\\\", save_path), "\n")
+    message("Saved as: ", normalizePath(save_path))
   }
   return(MLSummaryRef)
 }

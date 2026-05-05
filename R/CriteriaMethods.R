@@ -1423,7 +1423,7 @@ TADA_DefineCriteriaMethodology <- function(
   # Generates the excel function (HIGHLY Recommended for users to export)
   if (excel == TRUE) {
     # get downloads path
-    downloads_path <- get_downloads_path("CriteriaMethodology.xlsx")
+    downloads_path <- invisible(get_downloads_path("CriteriaMethodology.xlsx"))
 
     # create a brand new workbook and decide on save path at the end.
     wb <- openxlsx::createWorkbook()
@@ -2115,6 +2115,7 @@ TADA_DefineCriteriaMethodology <- function(
           "TADA_DefineCriteriaMethodology: ",
           "overwrite = F selected but no original CriteriaMethodology.xlsx was found. Creating original version as well as a copy with timestamp."
         )
+        message("Saved as: ", normalizePath(downloads_path))
         wb <- openxlsx::loadWorkbook(downloads_path)
       }
       if (file.exists(downloads_path)) {
@@ -2142,11 +2143,7 @@ TADA_DefineCriteriaMethodology <- function(
     # now continue any remaining edits if needed, then final save
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
 
-    if (!overwrite && save_path != downloads_path) {
-      message("Saved as: ", save_path)
-    }
-
-    cat("File saved to:", gsub("/", "\\\\", save_path), "\n")
+    message("Saved as: ", normalizePath(save_path))
   }
 
   DefineCriteriaMethodology <- suppressWarnings(TADA_CorrectColType(
@@ -2176,10 +2173,6 @@ TADA_DefineCriteriaMethodology <- function(
 #'   (e.g., "CriteriaMethodology.xlsx"). If NULL (default), the function
 #'   attempts to locate the user's Downloads folder.
 #'
-#' @param downloads_path A character string to define the location of the
-#' 'CriteriaMethodology.xlsx' file to include the data dictionary. Default is
-#' null to find the path in the Downloads folder path.
-#'
 #' @return No return value; called for its side effects of creating or updating
 #'   an Excel workbook in the downloads_path. The function writes or refreshes:
 #'   - "DataDictionary" worksheet with columns:
@@ -2188,14 +2181,17 @@ TADA_DefineCriteriaMethodology <- function(
 #'     ColumnName, ColumnType, AllowableValues, ExampleValues.
 #'
 #' @seealso [TADA_DefineCriteriaMethodology()] [TADA_ParametersForAnalysis()]
+#' @keywords internal
 #'
 #' @examples
 #' # Example 1: Write to a temporary path (recommended for reproducible scripts/tests)
-#' tmp_xlsx <- file.path(tempdir(), "CriteriaMethodology.xlsx")
-#' .TADA_CriteriaDataDictionary(tmp_xlsx)
-#'
-#' # Inspect created sheet names
-#' openxlsx::getSheetNames(tmp_xlsx)
+#' if (requireNamespace("openxlsx", quietly = TRUE)) {
+#'   tmp_xlsx <- file.path(tempdir(), "CriteriaMethodology.xlsx")
+#'   # Calling the internal function is possible within EPATADA package via :::,
+#'   # but generally discouraged for users. Kept here only for demonstration.
+#'   EPATADA:::.TADA_CriteriaDataDictionary(tmp_xlsx)
+#'   openxlsx::getSheetNames(tmp_xlsx)
+#' }
 #'
 #' # Example 2: Use the default Downloads location (may vary by OS/user)
 #' # \dontrun{
