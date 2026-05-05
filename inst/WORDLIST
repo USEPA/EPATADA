@@ -20,6 +20,7 @@ ActivityType
 ActivityTypeCode
 ActivityTypeCode's
 ActivityTypeCodes
+AllowableValues
 AnalyticalMethod
 Animas
 ArcGIS
@@ -54,6 +55,8 @@ CharacteristicNames
 CharacteristicsForDepthProfile
 Chilton
 Coli
+ColumnName
+ColumnType
 ComparableDataIdentifier
 ComparableDataIdentifier's
 ComparableDataIdentifiers
@@ -70,9 +73,11 @@ CreateComparableID
 CreatePairRef
 CreateUnitRef
 CreateWaterusesRef
+CriteriaMethodology
 CriteriaMethods
 Cybertown
 DEV
+DataDictionary
 DataFrame
 DataQuality
 DataRetrieval
@@ -96,6 +101,7 @@ EASP's
 EMEF
 EQ
 ExampleMod
+ExampleValues
 ExpertQuery
 FONDULAC
 Farmington
@@ -239,6 +245,7 @@ PairingGroup
 PairingGroupRank
 Param
 ParamRef
+ParamUseMLCrosswalks
 ParameterName
 ParameterNames
 ParametersForAnalysis
@@ -507,7 +514,6 @@ maxrecs
 mimeType
 mlid
 mlt
-myfileRef
 nd
 nhd
 nhdplus

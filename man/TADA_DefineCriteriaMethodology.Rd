@@ -96,7 +96,7 @@ without the reference tables.}
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 If you have any trouble locating the file, please type the following into
 your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
+The file will be named "CriteriaMethodology.xlsx". The excel spreadsheet will highlight
 the cells in which users should input information.}
 
 \item{overwrite}{A Boolean value. If overwrite = TRUE, the excel file will be
@@ -168,6 +168,7 @@ MLSummaryRef_UT <- TADA_MLSummary(
 DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
   Data_Nutrients_UT,
   MLSummaryRef = MLSummaryRef_UT,
+  org_id = "UTAHDWQ",
   displayUniqueId = TRUE,
   excel = FALSE
 )

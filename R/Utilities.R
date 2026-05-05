@@ -2749,3 +2749,87 @@ TADA_CorrectColType <- function(.data) {
     return(def)
   }
 }
+
+#' Get the excel downloads path for criteria files
+#'
+#' @return the downloads path depending on a user's operating system
+get_downloads_path <- function(filename = NULL) {
+  # filename arg input must be provided.
+  if (is.null(filename)) {
+    stop("get_downloads_path: No filename was provided.")
+  }
+
+  # find OneDrive directory if present
+  find_onedrive_root <- function() {
+    os <- Sys.info()[["sysname"]]
+    home <- path.expand("~")
+
+    if (os == "Windows") {
+      # look for official Windows env vars
+      for (v in c("OneDriveCommercial", "OneDriveConsumer", "OneDrive")) {
+        p <- Sys.getenv(v, unset = NA)
+        if (!is.na(p) && nzchar(p) && dir.exists(p)) return(p)
+      }
+      # fallback: look for OneDrive* folders directly under USERPROFILE
+      up <- Sys.getenv("USERPROFILE", unset = NA)
+      if (!is.na(up) && nzchar(up) && dir.exists(up)) {
+        cand <- list.dirs(up, recursive = FALSE, full.names = TRUE)
+        cand <- cand[grepl("^OneDrive", basename(cand))]
+        cand <- cand[dir.exists(cand)]
+        if (length(cand)) return(cand[1])
+      }
+    } else if (os == "Darwin") {
+      # macOS: File Provider locations and legacy paths
+      cand <- c(
+        Sys.glob(file.path(home, "Library", "CloudStorage", "OneDrive*")),
+        Sys.glob(file.path(home, "OneDrive*"))
+      )
+      cand <- cand[dir.exists(cand)]
+      if (length(cand)) return(cand[1])
+    } else {
+      # Linux/other
+      cand <- c(
+        Sys.glob(file.path(home, "OneDrive*")),
+        Sys.glob(file.path(home, "onedrive*"))
+      )
+      cand <- cand[dir.exists(cand)]
+      if (length(cand)) return(cand[1])
+    }
+    NA_character_
+  }
+
+  # default Downloads directory (return a string)
+  default_downloads_dir <- function() {
+    os <- Sys.info()[["sysname"]]
+    home <- path.expand("~")
+    if (os == "Windows") {
+      up <- Sys.getenv("USERPROFILE", unset = home)
+      return(file.path(up, "Downloads"))
+    }
+    # On Linux/macOS
+    # Try xdg-user-dir on Linux if available
+    if (os == "Linux") {
+      xdg <- tryCatch(
+        system("xdg-user-dir DOWNLOAD", intern = TRUE),
+        error = function(e) NA_character_
+      )
+      if (!is.na(xdg) && nzchar(xdg)) return(xdg)
+    }
+    file.path(home, "Downloads")
+  }
+
+  # Choose base_dir
+  od_root <- find_onedrive_root()
+  if (!is.na(od_root) && dir.exists(od_root)) {
+    base_dir <- file.path(od_root, "Downloads")
+  } else {
+    base_dir <- default_downloads_dir()
+  }
+
+  # Fallback for CI/GitHub or if Downloads doesn't exist
+  if (!dir.exists(base_dir)) {
+    base_dir <- tempdir()
+  }
+
+  file.path(base_dir, filename)
+}

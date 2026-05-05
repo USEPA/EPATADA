@@ -33,7 +33,27 @@ test_that("returns empty dataframe (names only) when all args missing", {
     "DistrCount",
     "DistrPeriod",
     "DistrMinSample",
-    "Notes"
+    "Notes",
+    "EquationType",
+    "EquationFormula",
+    "pHThreshold",
+    "pHDirection",
+    "hardness_param_1",
+    "hardness_param_2",
+    "hardness_param_3",
+    "hardness_param_4",
+    "TemperatureExtreme",
+    "pH_param_1",
+    "pH_param_2",
+    "pH_param_3",
+    "pH_param_4",
+    "pH_param_5",
+    "pH_param_6",
+    "pH_param_7",
+    "pH_param_8",
+    "pH_param_9",
+    "MinEqMagnitude",
+    "MaxEqMagnitude"
   )
   expect_identical(names(res), expected_cols)
   expect_equal(nrow(res), 0)
@@ -285,51 +305,13 @@ test_that("Excel output is written to temporary Downloads and DataDictionary can
   skip_on_cran()
   skip_if_not_installed("openxlsx")
 
-  # Create an isolated temp USERPROFILE with a Downloads folder
-  tmp <- withr::local_tempdir()
-  withr::local_envvar(USERPROFILE = tmp)
-  dir.create(
-    file.path(tmp, "Downloads"),
-    recursive = TRUE,
-    showWarnings = FALSE
-  )
+  tmp_xlsx <- file.path(tempdir(), "CriteriaMethodology.xlsx")
+  # Can we add DataDictionary to the same workbook
+  .TADA_CriteriaDataDictionary(tmp_xlsx)
 
-  df <- data.frame(
-    TADA.ComparableDataIdentifier = "C1",
-    TADA.CharacteristicName = "CHAR_A",
-    TADA.ResultMeasure.MeasureUnitCode = "mg/L",
-    stringsAsFactors = FALSE
-  )
-  ml <- data.frame(
-    ATTAINS.ParameterName = "PARAM_X",
-    ATTAINS.UseName = "USE1",
-    ATTAINS.OrganizationIdentifier = "ORGX",
-    UniqueSpatialCriteria = NA_character_,
-    ATTAINS.WaterType = "RIVER",
-    ATTAINS.AssessmentUnitIdentifier = "AU1",
-    TADA.ComparableDataIdentifier = "C1",
-    SaltFresh = "F",
-    DepthCategory = NA_character_,
-    stringsAsFactors = FALSE
-  )
+  expect_true(file.exists(tmp_xlsx))
 
-  # Run with excel = TRUE; ensure file is created
-  res <- TADA_DefineCriteriaMethodology(
-    .data = df,
-    MLSummaryRef = ml,
-    org_id = "ORGX",
-    displayUniqueId = TRUE,
-    excel = TRUE,
-    overwrite = TRUE
-  )
-  expect_true(is.data.frame(res))
-
-  xlsx_path <- file.path(tmp, "Downloads", "myfileRef.xlsx")
-  expect_true(file.exists(xlsx_path))
-
-  # Add DataDictionary to the same workbook
-  TADA_CriteriaDataDictionary()
-  wb <- openxlsx::loadWorkbook(xlsx_path)
+  wb <- openxlsx::loadWorkbook(tmp_xlsx)
   expect_true("DataDictionary" %in% names(wb))
 })
 
@@ -866,7 +848,7 @@ test_that("Excel save path uses timestamp when overwrite = FALSE", {
   )
   files <- list.files(
     file.path(tmp, "Downloads"),
-    pattern = "^myfileRef.*\\.xlsx$",
+    pattern = "^CriteriaMethodology.*\\.xlsx$",
     full.names = TRUE
   )
   expect_true(length(files) >= 2) # base + at least one timestamped copy
