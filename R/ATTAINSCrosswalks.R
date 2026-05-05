@@ -1816,7 +1816,6 @@ TADA_ParametersForAnalysis <- function(
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
 
     message("Saved as: ", normalizePath(save_path))
-
   }
   return(ParametersCrosswalk)
 }
@@ -2925,7 +2924,6 @@ TADA_UsesForAnalysis <- function(
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
 
     message("Saved as: ", normalizePath(save_path))
-
   }
   return(UsesCrosswalk)
 }
@@ -4506,7 +4504,6 @@ TADA_MLSummary <- function(
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
 
     message("Saved as: ", normalizePath(save_path))
-
   }
   return(MLSummaryRef)
 }
