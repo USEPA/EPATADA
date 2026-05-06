@@ -3205,16 +3205,17 @@ TADA_AssignUsesToAU <- function(
           ATTAINS.AssessmentUnitIdentifier,
           ATTAINS.WaterType,
           ATTAINS.OrganizationIdentifier
-        )
+        ) |>
+        TADA_CorrectColType()
     }
 
     # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
     if (!is.character(org_id) & is.null(org_id)) {
       org_id <- ""
+      message(
+        "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+      )
     }
-    message(
-      "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
-    )
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
     if (tolower("all") %in% tolower(org_id)) {
@@ -3292,7 +3293,8 @@ TADA_AssignUsesToAU <- function(
     OrgID_assessments <- dplyr::filter(
       OrgID_assessments,
       assessmentUnitId %in% unique(AUMLRef$ATTAINS.AssessmentUnitIdentifier)
-    )
+    ) |>
+      TADA_CorrectColType()
 
     # Joins Existing Uses to Existing AUs in your AUMLRef dataframe. Non-matches are flagged as New AU.
     CreateAU_UsesRef <- AUMLRef |>
