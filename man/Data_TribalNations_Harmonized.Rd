@@ -5,7 +5,7 @@
 \alias{Data_TribalNations_Harmonized}
 \title{Data_TribalNations_Harmonized}
 \format{
-A dataframe
+A dataframe with 75264 rows and 171 columns
 }
 \description{
 A dataframe containing data from tribal organizations

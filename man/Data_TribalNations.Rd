@@ -5,7 +5,7 @@
 \alias{Data_TribalNations}
 \title{Data_TribalNations}
 \format{
-A dataframe with 798131 rows and 152 variables
+A dataframe with 142991 rows and 152 variables
 }
 \description{
 This example includes monitoring data collected from (no start or end dates):
