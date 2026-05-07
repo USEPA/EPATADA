@@ -482,7 +482,8 @@ utils::globalVariables(c(
   "Target.TADA.SpeciationConversionFactor",
   "has_depth_param",
   "out_epsg",
-  "ATTAINSParamUseOrgRef"
+  "ATTAINSParamUseOrgRef",
+  "CountyCode"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -2750,11 +2751,26 @@ TADA_CorrectColType <- function(.data) {
 
 #' Get the excel downloads path for criteria files
 #'
-#' @return the downloads path depending on a user's operating system
+#' @param filename the name of the .xlsx file to locate. Default is NULL and
+#' will return the location of the Download's folder path of your OS.
+#'
+#' @return the download's folder path for a user's operating system
+#' and file name, if provided, within the path.
+#'
+#' @keywords internal
+#'
+#' @examples
+#' \dontrun{
+#' myfilepath <- get_downloads_path()
+#' }
 get_downloads_path <- function(filename = NULL) {
   # filename arg input must be provided.
   if (is.null(filename)) {
-    stop("get_downloads_path: No filename was provided.")
+    message(
+      "get_downloads_path:
+  No filename was provided, returning the Downloads folder path only."
+    )
+    filename = ""
   }
 
   # find OneDrive directory if present
@@ -2829,5 +2845,11 @@ get_downloads_path <- function(filename = NULL) {
     base_dir <- tempdir()
   }
 
-  file.path(base_dir, filename)
+  utils::capture.output(cat(
+    "File saved to:",
+    gsub("/", "\\\\", file.path(base_dir, filename)),
+    "\n"
+  ))
+
+  return <- file.path(base_dir, filename)
 }
