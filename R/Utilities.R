@@ -1315,16 +1315,16 @@ TADA_RandomTestingData <- function(
 #' @examples
 #' \dontrun{
 #' # Load example dataset
-#' utils::data(Data_6Tribes_5y)
+#' utils::data(Data_TribalNations)
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(
 #'   c(
-#'     xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure),
-#'     ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure),
-#'     xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure),
-#'     ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)
+#'     xmin = min(Data_TribalNations$TADA.LongitudeMeasure),
+#'     ymin = min(Data_TribalNations$TADA.LatitudeMeasure),
+#'     xmax = max(Data_TribalNations$TADA.LongitudeMeasure),
+#'     ymax = max(Data_TribalNations$TADA.LatitudeMeasure)
 #'   ),
-#'   crs = sf::st_crs(Data_6Tribes_5y)
+#'   crs = sf::st_crs(Data_TribalNations)
 #' )
 #' # Get a string containing the JSON of the bounding box
 #' getBboxJson(bbox)
@@ -1470,19 +1470,19 @@ writeLayer <- function(url, layerfilepath) {
 #' @examples
 #' \dontrun{
 #' # Load example dataset
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(
 #'   c(
-#'     xmin = min(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure),
-#'     ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure),
-#'     xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure),
-#'     ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)
+#'     xmin = min(Data_TribalNations_Harmonized$TADA.LongitudeMeasure),
+#'     ymin = min(Data_TribalNations_Harmonized$TADA.LatitudeMeasure),
+#'     xmax = max(Data_TribalNations_Harmonized$TADA.LongitudeMeasure),
+#'     ymax = max(Data_TribalNations_Harmonized$TADA.LatitudeMeasure)
 #'   ),
-#'   crs = sf::st_crs(Data_6Tribes_5y_Harmonized)
+#'   crs = sf::st_crs(Data_TribalNations_Harmonized)
 #' )
 #' # Get the American Indian Reservations feature layer,
-#' # filtered by the bounding box for the Data_6Tribes_5y_Harmonized
+#' # filtered by the bounding box for the Data_TribalNations_Harmonized
 #' # example dataset
 #' layerfilepath <- "extdata/AmericanIndian.shp"
 #' getLayer(layerfilepath, bbox)

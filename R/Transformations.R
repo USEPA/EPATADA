@@ -37,23 +37,23 @@
 #' @examples
 #' \dontrun{
 #' # Load example dataset:
-#' utils::data(Data_6Tribes_5y)
+#' utils::data(Data_TribalNations)
 #'
 #' # Create a synonym reference table for flagged, cleaned dataframe:
-#' Data_6Tribes_5yClean <- subset(
-#'   Data_6Tribes_5y,
-#'   !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue)
+#' Data_TribalNationsClean <- subset(
+#'   Data_TribalNations,
+#'   !is.na(Data_TribalNations$TADA.ResultMeasureValue)
 #' )
-#' Data_6Tribes_5yClean <- TADA_FlagFraction(Data_6Tribes_5yClean, clean = TRUE)
-#' Data_6Tribes_5yClean <- TADA_FlagResultUnit(Data_6Tribes_5yClean, clean = "suspect_only")
-#' Data_6Tribes_5yClean <- TADA_FlagSpeciation(Data_6Tribes_5yClean, clean = "suspect_only")
-#' Data_6Tribes_5yClean <- TADA_FlagMethod(Data_6Tribes_5yClean, clean = TRUE)
-#' CreateRefTable <- TADA_GetSynonymRef(Data_6Tribes_5yClean)
+#' Data_TribalNationsClean <- TADA_FlagFraction(Data_TribalNationsClean, clean = TRUE)
+#' Data_TribalNationsClean <- TADA_FlagResultUnit(Data_TribalNationsClean, clean = "suspect_only")
+#' Data_TribalNationsClean <- TADA_FlagSpeciation(Data_TribalNationsClean, clean = "suspect_only")
+#' Data_TribalNationsClean <- TADA_FlagMethod(Data_TribalNationsClean, clean = TRUE)
+#' CreateRefTable <- TADA_GetSynonymRef(Data_TribalNationsClean)
 #'
 #' # Append synonym reference table columns to dataframe and transform/convert
 #' # data to the USER SUPPLIED reference table values:
-#' Data_6Tribes_5yClean_Harmonized <-
-#'   TADA_HarmonizeSynonyms(Data_6Tribes_5yClean, ref = CreateRefTable)
+#' Data_TribalNationsClean_Harmonized <-
+#'   TADA_HarmonizeSynonyms(Data_TribalNationsClean, ref = CreateRefTable)
 #' }
 #'
 TADA_HarmonizeSynonyms <- function(.data, ref = NULL, np_speciation = TRUE) {
@@ -929,11 +929,11 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
 #'
 #' @examples
 #' # Load example dataset
-#' utils::data(Data_6Tribes_5y)
+#' utils::data(Data_TribalNations)
 #' # Select maximum value per day, site, comparable data identifier,
 #' # unit, result detection condition,
 #' # and activity type code. Clean all non-maximum measurements from grouped data.
-#' Data_6Tribes_5y_max <- TADA_AggregateMeasurements(Data_6Tribes_5y,
+#' Data_TribalNations_max <- TADA_AggregateMeasurements(Data_TribalNations,
 #'   grouping_cols = c(
 #'     "ActivityStartDate",
 #'     "TADA.MonitoringLocationIdentifier",
@@ -949,7 +949,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
 #' # Calculate a mean value per day, site, comparable data identifier, unit,
 #' # result detection condition,
 #' # and activity type code. Keep all measurements used to calculate mean measurement.
-#' Data_6Tribes_5y_mean <- TADA_AggregateMeasurements(Data_6Tribes_5y,
+#' Data_TribalNations_mean <- TADA_AggregateMeasurements(Data_TribalNations,
 #'   grouping_cols = c(
 #'     "ActivityStartDate", "TADA.MonitoringLocationIdentifier",
 #'     "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
