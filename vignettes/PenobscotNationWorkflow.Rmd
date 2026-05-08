@@ -29,7 +29,9 @@ knitr::opts_chunk$set(
 
 ## Install and Load the EPATADA R Package
 
-First, install and load the remotes package specifying the repo. This is needed before installing EPATADA because it is only available on GitHub (not CRAN).
+First, install and load the remotes package specifying the repo. This is
+needed before installing EPATADA because it is only available on GitHub
+(not CRAN).
 
 ```{r install_remotes, results = 'hide', eval = F}
 install.packages("remotes")
@@ -37,7 +39,12 @@ install.packages("remotes")
 library(remotes)
 ```
 
-Next, install and load TADA using the remotes package. TADA R Package dependencies will also be downloaded automatically from CRAN with the TADA install. You may be prompted in the console to update dependency packages that have more recent versions available. If you see this prompt, it is recommended to update all of them (enter 1 into the console).
+Next, install and load TADA using the remotes package. TADA R Package
+dependencies will also be downloaded automatically from CRAN with the
+TADA install. You may be prompted in the console to update dependency
+packages that have more recent versions available. If you see this
+prompt, it is recommended to update all of them (enter 1 into the
+console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
@@ -46,7 +53,8 @@ remotes::install_github("USEPA/EPATADA",
 )
 ```
 
-Finally, use the **library()** function to load the TADA R Package into your R session.
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
 
 ```{r library, results = 'hide'}
 library(EPATADA)
@@ -54,7 +62,13 @@ library(EPATADA)
 
 ## Retrieve Penobscot Nation data
 
-To start, let's find Penobscot Nation water monitoring data that was submitted to EPA's Water Quality eXchange (WQX). We are interested in Class B waters only. In this example, we already have a list of the Monitoring Location Identifiers that represent Class B waters. We can use this list of locations to query the WQP. In addition, we are interested in E. Coli data and can specify that in the characteristicName filter.
+To start, let's find Penobscot Nation water monitoring data that was
+submitted to EPA's Water Quality eXchange (WQX). We are interested in
+Class B waters only. In this example, we already have a list of the
+Monitoring Location Identifiers that represent Class B waters. We can
+use this list of locations to query the WQP. In addition, we are
+interested in E. Coli data and can specify that in the
+characteristicName filter.
 
 ```{r get data, eval = F}
 df_raw <- TADA_DataRetrieval(
@@ -189,7 +203,8 @@ Remove duplicates:
 df_clean <- dplyr::filter(df_flag, TADA.SingleOrgDup.Flag == "Unique")
 ```
 
-Run key TADA quality control flagging functions. Review carefully and consider removing flagged results.
+Run key TADA quality control flagging functions. Review carefully and
+consider removing flagged results.
 
 ```{r}
 df_flag <- EPATADA::TADA_RunKeyFlagFunctions(
@@ -198,7 +213,8 @@ df_flag <- EPATADA::TADA_RunKeyFlagFunctions(
 )
 ```
 
-Flag results above and below thresholds. Review carefully and consider removing.
+Flag results above and below thresholds. Review carefully and consider
+removing.
 
 ```{r}
 df_flag <- EPATADA::TADA_FlagAboveThreshold(df_flag,
@@ -212,7 +228,8 @@ df_flag <- EPATADA::TADA_FlagBelowThreshold(df_flag,
 )
 ```
 
-For now, let's assume we reviewed the flagged results and want to move forward with all of them:
+For now, let's assume we reviewed the flagged results and want to move
+forward with all of them:
 
 ```{r}
 df_clean <- df_flag
@@ -263,7 +280,8 @@ EPATADA::TADA_TableExport(EPATADA::TADA_Stats(df_clean,
 ))
 ```
 
-Generate scatter plot for E. coli (top four monitoring location by number of results will be displayed):
+Generate scatter plot for E. coli (top four monitoring location by
+number of results will be displayed):
 
 ```{r}
 EPATADA::TADA_GroupedScatterplot(df_clean,
@@ -286,13 +304,31 @@ EPATADA::TADA_Scatterplot(df_singleML)
 
 ## Analyze Data Against Available Thresholds (Criteria Magnitude)
 
-Let's check if any results are above the EPA 304A recommended maximum criteria magnitude (see: [2012 Recreational Water Quality Criteria Fact Sheet](https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf)).
+Let's check if any results are above the EPA 304A recommended maximum
+criteria magnitude (see: [2012 Recreational Water Quality Criteria Fact
+Sheet](https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf)).
 
-[![EPA 2012 recreational water quality criteria (RWQC) recommendations for protecting human health in all coastal and non-coastal waters designated for primary contact recreation use. EPA provides two sets of recommended criteria. The RWQC consist of three components: magnitude, duration and frequency. The magnitude of the bacterial indicators are described by both a geometric mean (GM) and a statistical threshold value (STV) for the bacteria samples. The waterbody GM should not be greater than the selected GM magnitude in any 30-day interval. The STV approximates the 90th percentile of the water quality distribution and is intended to be a value that should not be exceeded by more than 10 percent of the samples in the same 30-day interval. The table summarizes the magnitude component of the recommendations.](images/bacteria.png)](chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf)
+[![EPA 2012 recreational water quality criteria (RWQC) recommendations
+for protecting human health in all coastal and non-coastal waters
+designated for primary contact recreation use. EPA provides two sets of
+recommended criteria. The RWQC consist of three components: magnitude,
+duration and frequency. The magnitude of the bacterial indicators are
+described by both a geometric mean (GM) and a statistical threshold
+value (STV) for the bacteria samples. The waterbody GM should not be
+greater than the selected GM magnitude in any 30-day interval. The STV
+approximates the 90th percentile of the water quality distribution and
+is intended to be a value that should not be exceeded by more than 10
+percent of the samples in the same 30-day interval. The table summarizes
+the magnitude component of the
+recommendations.](images/bacteria.png)](chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf)
 
-If interested, you can find other state, tribal, and EPA 304A criteria in [EPA's Criteria Search Tool](https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa).
+If interested, you can find other state, tribal, and EPA 304A criteria
+in [EPA's Criteria Search
+Tool](https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa).
 
-Let's check if any individual results exceed 320 CFU/100mL (the magnitude component of the EPA recommendation 2 criteria for ESCHERICHIA COLI).
+Let's check if any individual results exceed 320 CFU/100mL (the
+magnitude component of the EPA recommendation 2 criteria for ESCHERICHIA
+COLI).
 
 Add column with comparison to criteria mag (excursions):
 
@@ -317,7 +353,8 @@ df_clean_subset_review <- df_singleML |>
 EPATADA::TADA_TableExport(df_clean_subset_review)
 ```
 
-Generate stats table. Review percentiles. Less than 5% of results fall above 23.4 CFU/100mL and over 98% of results fall below 1310 CFU/100m
+Generate stats table. Review percentiles. Less than 5% of results fall
+above 23.4 CFU/100mL and over 98% of results fall below 1310 CFU/100m
 
 ```{r stats}
 EPATADA::TADA_TableExport(EPATADA::TADA_Stats(df_singleML))
@@ -351,7 +388,9 @@ EPATADA::TADA_Boxplot(df_singleML, id_cols = "TADA.ComparableDataIdentifier")
 
 ## Analyze Data Against Full Criteria (Magnitude, Duration, Frequency)
 
-Now, let's look at **Maine's Water Quality Standards for Class B** surface waters. Two different criteria can be assessed using E. Coli data:
+Now, let's look at **Maine's Water Quality Standards for Class B**
+surface waters. Two different criteria can be assessed using E. Coli
+data:
 
 The magnitude components of these criteria are:
 
@@ -359,9 +398,14 @@ The magnitude components of these criteria are:
 
 -   236 CFU/100 ML OR MPN/100 ML for Secondary Contact Recreation
 
-This information is available in [EPA's Criteria Search Tool](https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa). Additional details specific to [Maine](https://www.epa.gov/wqs-tech/water-quality-standards-regulations-maine) are available.
+This information is available in [EPA's Criteria Search
+Tool](https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa).
+Additional details specific to
+[Maine](https://www.epa.gov/wqs-tech/water-quality-standards-regulations-maine)
+are available.
 
-We can pull this information into R using the TADA_DefineCriteriaMethodology() function:
+We can pull this information into R using the
+TADA_DefineCriteriaMethodology() function:
 
 ```{r, results = 'hide'}
 ME_criteria_ecoli <- TADA_DefineCriteriaMethodology(df_singleML, org_id = "MEDEP", auto_assign = TRUE)
@@ -378,23 +422,44 @@ ME_criteria_ecoli_classB <- unique(subset(
 TADA_TableExport(ME_criteria_ecoli_classB)
 ```
 
-In this table, both criteria have been applied by MEDEP to assess PRIMARY CONTACT RECREATION and SECONDARY CONTACT RECREATION designated uses in the past.
+In this table, both criteria have been applied by MEDEP to assess
+PRIMARY CONTACT RECREATION and SECONDARY CONTACT RECREATION designated
+uses in the past.
 
-When reviewing the table, you'll notice that additional detail is needed to perform a complete water quality assessment. This information is available on pg. 3 of the [WQS documentation](https://www.epa.gov/sites/production/files/2014-12/documents/mewqs-mrsa-465.pdf#page=4) (links to these documents are included in ME_criteria_ecoli_classB). This detailed methodology can be added manually to the TADA Criteria and Methods template (e.g., ME_criteria_ecoli_classB).
+When reviewing the table, you'll notice that additional detail is needed
+to perform a complete water quality assessment. This information is
+available on pg. 3 of the [WQS
+documentation](https://www.epa.gov/sites/production/files/2014-12/documents/mewqs-mrsa-465.pdf#page=4)
+(links to these documents are included in ME_criteria_ecoli_classB).
+This detailed methodology can be added manually to the TADA Criteria and
+Methods template (e.g., ME_criteria_ecoli_classB).
 
-For simplicity, let's focus on finding and added a few critical components: the DurationValue, DurationUnit, DurationMethod, FreqValue, FreqMethod, SeasonStartDate, and SeasonEndDate.
+For simplicity, let's focus on finding and added a few critical
+components: the DurationValue, DurationUnit, DurationMethod, FreqValue,
+FreqMethod, SeasonStartDate, and SeasonEndDate.
 
--   DurationValue: The numeric value component of the length of time in which a waterbody can be exposed to a magnitude of a parameter without negatively impacting its designated use.
+-   DurationValue: The numeric value component of the length of time in
+    which a waterbody can be exposed to a magnitude of a parameter
+    without negatively impacting its designated use.
 
--   DurationUnit: The units component of the length of time in which a waterbody can be exposed to a magnitude of a parameter without negatively impacting its designated use.
+-   DurationUnit: The units component of the length of time in which a
+    waterbody can be exposed to a magnitude of a parameter without
+    negatively impacting its designated use.
 
--   DurationMethod: The specific aggregation calculation of samples that are collected during a duration period. FreqValue Optional User Supplied Criteria The numeric value of how often a magnitude value can be exceeded before being considered impaired.
+-   DurationMethod: The specific aggregation calculation of samples that
+    are collected during a duration period. FreqValue Optional User
+    Supplied Criteria The numeric value of how often a magnitude value
+    can be exceeded before being considered impaired.
 
--   FreqMethod: How often a magnitude value can be exceeded percentage or number of times a magnitude value can be exceeded over a specified duration period.
+-   FreqMethod: How often a magnitude value can be exceeded percentage
+    or number of times a magnitude value can be exceeded over a
+    specified duration period.
 
--   SeasonStartDate: The start date of the season in which assessments are done for during a calendar year.
+-   SeasonStartDate: The start date of the season in which assessments
+    are done for during a calendar year.
 
--   SeasonEndDate: The end date of the season in which assessments are done for during a calendar year.
+-   SeasonEndDate: The end date of the season in which assessments are
+    done for during a calendar year.
 
 ```{r}
 ME_criteria_ecoli_classB_final <- ME_criteria_ecoli_classB |>
@@ -411,19 +476,35 @@ ME_criteria_ecoli_classB_final <- ME_criteria_ecoli_classB |>
 TADA_TableExport(ME_criteria_ecoli_classB_final)
 ```
 
-You may notice the rows repeat the two criteria. This is because the same two criteria are used to assess primary and secondary contact recreation. For Class B waters (both primary and secondary recreational uses), the Escherichia coli (E. coli) criteria are as follows:
+You may notice the rows repeat the two criteria. This is because the
+same two criteria are used to assess primary and secondary contact
+recreation. For Class B waters (both primary and secondary recreational
+uses), the Escherichia coli (E. coli) criteria are as follows:
 
-Between April 15th and October 31st, the number of E. coli bacteria in Class B waters may not exceed:
+Between April 15th and October 31st, the number of E. coli bacteria in
+Class B waters may not exceed:
 
-1.  A geometric mean of 64 CFU or MPN per 100 milliliters over a 90-day interval.
+1.  A geometric mean of 64 CFU or MPN per 100 milliliters over a 90-day
+    interval.
 
-2.  236 CFU or MPN per 100 milliliters in more than 10% of the samples in any 90-day interval.
+2.  236 CFU or MPN per 100 milliliters in more than 10% of the samples
+    in any 90-day interval.
 
-This information is outlined in the document under §465. Standards for classification of fresh surface waters, subsection 3(B). If either of these criteria are not met, then a waterbody is considered impaired.
+This information is outlined in the document under §465. Standards for
+classification of fresh surface waters, subsection 3(B). If either of
+these criteria are not met, then a waterbody is considered impaired.
 
-The EPATADA R package does not yet contain the functionality to assess data against WQS. We are currently working on that functionality - in the future, we will be able to analyze data using the information provided in a Criteria and Methods Template (e.g., ME_criteria_ecoli_classB_final). We are also working on an R Shiny application that will take this Criteria and Methods Template as an input and perform the analysis. Stay tuned for these new features!
+The EPATADA R package does not yet contain the functionality to assess
+data against WQS. We are currently working on that functionality - in
+the future, we will be able to analyze data using the information
+provided in a Criteria and Methods Template (e.g.,
+ME_criteria_ecoli_classB_final). We are also working on an R Shiny
+application that will take this Criteria and Methods Template as an
+input and perform the analysis. Stay tuned for these new features!
 
-In the meantime, here is an example workflow to perform the analysis in this example. This analysis will run if a minimum of 3 samples are available in any 90-day period for each year.
+In the meantime, here is an example workflow to perform the analysis in
+this example. This analysis will run if a minimum of 3 samples are
+available in any 90-day period for each year.
 
 ```{r}
 # -----------------------------------------------------------------------------
@@ -604,4 +685,5 @@ TADA_TableExport(head(res$windows))
 TADA_TableExport(res$summary)
 ```
 
-Disclaimer: This example workflow is not meant to be representative of Penobscot Nation's or Maine's assessment process.
+Disclaimer: This example workflow is not meant to be representative of
+Penobscot Nation's or Maine's assessment process.
