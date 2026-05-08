@@ -24,10 +24,10 @@
 #' # Create a single boxplot using defaults. The input dataframe in this example
 #' # includes only one unique TADA.ComparableDataIdentifier:
 #' # Load example dataframe:
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #' # Filter data down to a single TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(
-#'   Data_6Tribes_5y_Harmonized,
+#'   Data_TribalNations_Harmonized,
 #'   TADA.ComparableDataIdentifier ==
 #'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
 #' )
@@ -221,16 +221,16 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #'
 #' @examples
 #' # Load example dataframe:
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #'
 #' # Create a histogram for each comparable data group (TADA.ComparableDataIdentifier)
 #' # in the input dataframe:
-#' TADA_Histogram(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
+#' TADA_Histogram(Data_TribalNations_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
 #'
 #' # Create a single histogram using defaults. The input dataframe in this example
 #' # is filtered so it includes only one TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(
-#'   Data_6Tribes_5y_Harmonized,
+#'   Data_TribalNations_Harmonized,
 #'   TADA.ComparableDataIdentifier ==
 #'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
 #' )
@@ -551,16 +551,16 @@ TADA_FieldValuesPie <- function(
 #'
 #' @examples
 #' # Load example dataset:
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #'
 #' # Create a scatterplot for each comparable data group (TADA.ComparableDataIdentifier)
 #' # in the input dataframe:
-#' TADA_Scatterplot(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
+#' TADA_Scatterplot(Data_TribalNations_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
 #'
 #' # Create a single scatterplot using defaults. The input dataframe in this
 #' # example is filtered so it includes only one TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(
-#'   Data_6Tribes_5y_Harmonized,
+#'   Data_TribalNations_Harmonized,
 #'   TADA.ComparableDataIdentifier ==
 #'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
 #' )
@@ -777,13 +777,13 @@ TADA_Scatterplot <- function(
 #'
 #' @examples
 #' # Load example dataset:
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #' # Review monitoring location and result counts for each TADA.ComparableDataIdentifier
-#' TADA_SummarizeColumn(Data_6Tribes_5y_Harmonized, col = "TADA.ComparableDataIdentifier")
+#' TADA_SummarizeColumn(Data_TribalNations_Harmonized, col = "TADA.ComparableDataIdentifier")
 #'
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
 #' # These two have the most results in the example data
-#' TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized,
+#' TADA_TwoCharacteristicScatterplot(Data_TribalNations_Harmonized,
 #'   id_cols = "TADA.ComparableDataIdentifier",
 #'   groups = c(
 #'     "TEMPERATURE_NONE_NONE_DEG C",
@@ -1134,7 +1134,7 @@ TADA_TwoCharacteristicScatterplot <- function(
 #' @param groups A vector of up to four identifiers from the id_cols column
 #'   to specify the groups that will be plotted for a TADA.ComparableDataIdentifier.
 #'   These groups will be specific to your dataset. For example, in the example data set
-#'   Data_6Tribes_5y_Harmonized if group_col is 'MonitoringLocationName', the groups could be
+#'   Data_TribalNations_Harmonized if group_col is 'MonitoringLocationName', the groups could be
 #'   'Upper Red Lake: West', 'Upper Red Lake: West-Central', and 'Upper Red Lake: East Central'.
 #'
 #' @return A plotly scatterplot(s) figure with one x-axis (Date/Time) and a
@@ -1160,12 +1160,12 @@ TADA_TwoCharacteristicScatterplot <- function(
 #' UT_Nutrients_by_HUCEightDigitCode[[3]]
 #'
 #' # Load example dataset:
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #'
 #' # Filter the example data so it includes only one
 #' # TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(
-#'   Data_6Tribes_5y_Harmonized,
+#'   Data_TribalNations_Harmonized,
 #'   TADA.ComparableDataIdentifier %in% c(
 #'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
 #'   )
