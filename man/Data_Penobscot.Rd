@@ -5,7 +5,7 @@
 \alias{Data_Penobscot}
 \title{Data_Penobscot}
 \format{
-A data frame with 41723 rows and 150 variables.
+A data frame with 1970 rows and 152 variables.
 }
 \description{
 Generate Data_Penobscot used in

@@ -202,7 +202,7 @@ about input parameters and to see several examples.
 #       )
 
 # For brevity, we'll skip pinging the WQP and instead load the example dataframe:
-dataset_0 <- Data_6Tribes
+dataset_0 <- Data_TribalNations
 ```
 
 Let's take a look at all of the TADA-created columns:

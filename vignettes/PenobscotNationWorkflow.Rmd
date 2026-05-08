@@ -150,6 +150,8 @@ df_raw <- TADA_DataRetrieval(
 utils::data("Data_Penobscot", package = "EPATADA")
 
 df_raw <- Data_Penobscot
+
+rm(Data_Penobscot)
 ```
 
 ## Explore and refine results

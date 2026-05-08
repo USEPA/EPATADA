@@ -149,5 +149,5 @@ NULL
 #'
 #' @docType data
 #' @name Data_Penobscot
-#' @format A data frame with 41723 rows and 150 variables.
+#' @format A data frame with 1970 rows and 152 variables.
 NULL
