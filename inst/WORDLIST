@@ -31,6 +31,7 @@ AssignUsesToAU
 AssignUsesToWaterType
 AutoClean
 BDL
+BLCKFEET
 BPQL
 BiasValue
 BigDataRetrieval
@@ -39,7 +40,6 @@ Blodgett
 CAS
 CCO
 CFU
-CNENVSER
 COLI
 COMBITR
 COMIDs
@@ -251,6 +251,7 @@ ParameterNames
 ParametersForAnalysis
 PartB
 Penobscot
+PenobscotNationWorkflow
 PhysChem
 Pojoaque
 PollutantName
@@ -357,12 +358,14 @@ TP
 TargetUnit
 Tesuque
 Thawley
+TribalNations
 TribalOptions
 UG
 USEPA
 USERPROFILE
 USGS
 USGS's
+UTEMTN
 Uncomment
 UniqueHarmonizationRef
 UniqueSpatialCriteria
