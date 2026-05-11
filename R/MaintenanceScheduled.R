@@ -193,11 +193,14 @@
       )
 
       rm(Data_TribalNations)
-      
+
       # Remove single organization duplicates
       harmonized_data <- TADA_FindPotentialDuplicatesSingleOrg(harmonized_data)
-      harmonized_data <- dplyr::filter(harmonized_data, TADA.SingleOrgDup.Flag == "Unique")
-      
+      harmonized_data <- dplyr::filter(
+        harmonized_data,
+        TADA.SingleOrgDup.Flag == "Unique"
+      )
+
       # Handle censored results
       harmonized_data <- TADA_SimpleCensoredMethods(
         harmonized_data,
@@ -213,10 +216,10 @@
         col = "TADA.ResultMeasureValue",
         clean = TRUE
       )
-      
+
       # Remove results with quality control issues
       harmonized_data <- TADA_RunKeyFlagFunctions(harmonized_data, clean = TRUE)
-      
+
       # Flag above and below threshold
       harmonized_data <- TADA_FlagAboveThreshold(
         harmonized_data,
@@ -228,14 +231,14 @@
         clean = FALSE,
         flaggedonly = FALSE
       )
-      
+
       # Harmonize synonyms
       harmonized_data <- TADA_HarmonizeSynonyms(harmonized_data)
       Data_TribalNations_Harmonized <- TADA_HarmonizeSynonyms(harmonized_data)
-      
+
       message("Data_TribalNations_Harmonized")
       dim(Data_TribalNations_Harmonized)
-      
+
       usethis::use_data(
         Data_TribalNations_Harmonized,
         internal = FALSE,
@@ -244,7 +247,7 @@
         version = 3,
         ascii = FALSE
       )
-     
+
       rm(Data_TribalNations_Harmonized, harmonized_data)
 
       # =======================================
@@ -323,7 +326,7 @@
       )
       # Harmonize synonyms
       Data_WV <- TADA_HarmonizeSynonyms(Data_WV)
-      
+
       # Save example data
       Data_HUC8_02070004_Mod1Output <- Data_WV
       message("Data_HUC8_02070004_Mod1Output")
@@ -495,11 +498,11 @@
         ascii = FALSE
       )
       rm(wqx3_fullPhysChem)
-      
+
       # =======================================
       # Generate Data_Penobscot
-      # =======================================    
-      
+      # =======================================
+
       Data_Penobscot <- TADA_DataRetrieval(
         siteid = c(
           "PENOBSCOTINDIANNATIONDNR-130-BM1",
@@ -573,10 +576,10 @@
         ask = FALSE,
         applyautoclean = TRUE
       )
-      
+
       message("Data_Penobscot")
       dim(Data_Penobscot)
-      
+
       usethis::use_data(
         Data_Penobscot,
         internal = FALSE,
@@ -585,7 +588,7 @@
         version = 3,
         ascii = FALSE
       )
-      
+
       # =======================================
       # Generate Data_Participatory_Scientists
       # =======================================

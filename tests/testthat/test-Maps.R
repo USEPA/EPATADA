@@ -19,8 +19,8 @@ test_that("TADA_FlaggedSitesMap return leaflet map", {
 
 test_that("TADA_NearbySitesMap returns a leaflet map", {
   expect_silent({
-    testmap <- suppressMessages(suppressWarnings(
-      TADA_NearbySitesMap(Data_MT_MissoulaCounty)
-    ))
+    testmap <- suppressMessages(suppressWarnings(TADA_NearbySitesMap(
+      Data_MT_MissoulaCounty
+    )))
   })
 })
