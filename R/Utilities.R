@@ -2834,14 +2834,17 @@ get_downloads_path <- function(filename = NULL) {
 
   # Choose base_dir
   od_root <- find_onedrive_root()
-  if (!is.na(od_root) && dir.exists(od_root)) {
-    base_dir <- file.path(od_root, "Downloads")
+  
+  candidate_dirs <- c(
+    if (!is.na(od_root)) file.path(od_root, "Downloads"),
+    default_downloads_dir()
+  )
+  
+  candidate_dirs <- candidate_dirs[dir.exists(candidate_dirs)]
+  
+  if (length(candidate_dirs) > 0) {
+    base_dir <- candidate_dirs[1]
   } else {
-    base_dir <- default_downloads_dir()
-  }
-
-  # Fallback for CI/GitHub or if Downloads doesn't exist
-  if (!dir.exists(base_dir)) {
     base_dir <- tempdir()
   }
 
