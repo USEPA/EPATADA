@@ -33,10 +33,10 @@ Create Boxplot(s)
 # Create a single boxplot using defaults. The input dataframe in this example
 # includes only one unique TADA.ComparableDataIdentifier:
 # Load example dataframe:
-utils::data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_TribalNations_Harmonized)
 # Filter data down to a single TADA.ComparableDataIdentifier
 df <- dplyr::filter(
-  Data_6Tribes_5y_Harmonized,
+  Data_TribalNations_Harmonized,
   TADA.ComparableDataIdentifier ==
     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
 )

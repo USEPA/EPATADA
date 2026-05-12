@@ -16,11 +16,11 @@
 #'
 #' @examples
 #' utils::data(Data_Nutrients_UT)
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #'
 #' # Create maps:
 #' TADA_OverviewMap(Data_Nutrients_UT)
-#' TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
+#' TADA_OverviewMap(Data_TribalNations_Harmonized)
 #'
 TADA_OverviewMap <- function(.data) {
   suppressMessages(suppressWarnings({
@@ -281,11 +281,11 @@ TADA_OverviewMap <- function(.data) {
 #' \dontrun{
 #' # Load example dataframe:
 #' utils::data(Data_Nutrients_UT)
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #'
 #' # Create maps:
 #' TADA_FlaggedSitesMap(Data_Nutrients_UT)
-#' TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
+#' TADA_FlaggedSitesMap(Data_TribalNations_Harmonized)
 #' }
 #'
 TADA_FlaggedSitesMap <- function(.data) {
@@ -353,7 +353,7 @@ TADA_FlaggedSitesMap <- function(.data) {
 #'
 #' # Create maps:
 #' TADA_NearbySitesMap(Data_Nutrients_UT)
-#' TADA_NearbySitesMap(Data_6Tribes_5y_Harmonized)
+#' TADA_NearbySitesMap(Data_TribalNations_Harmonized)
 #' }
 #'
 TADA_NearbySitesMap <- function(

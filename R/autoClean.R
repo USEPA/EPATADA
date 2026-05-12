@@ -389,10 +389,10 @@ TADA_AutoClean <- function(.data) {
 #'
 #' @examples
 #' # Run flagging functions but keep all results
-#' keep_all <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = FALSE)
+#' keep_all <- TADA_RunKeyFlagFunctions(Data_TribalNations, clean = FALSE)
 #'
 #' # Run flagging functions and remove any suspect rows
-#' remove_suspect <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = TRUE)
+#' remove_suspect <- TADA_RunKeyFlagFunctions(Data_TribalNations, clean = TRUE)
 TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
