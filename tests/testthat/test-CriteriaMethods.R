@@ -850,7 +850,7 @@ test_that("Excel save path uses timestamp when overwrite = FALSE", {
     type = "message"
   )
   files <- list.files(
-    get_downloads_path(""),
+    .get_downloads_path(""),
     pattern = "^CriteriaMethodology.*\\.xlsx$",
     full.names = TRUE
   )

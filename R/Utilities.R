@@ -2761,13 +2761,13 @@ TADA_CorrectColType <- function(.data) {
 #'
 #' @examples
 #' \dontrun{
-#' myfilepath <- get_downloads_path()
+#' myfilepath <- .get_downloads_path()
 #' }
-get_downloads_path <- function(filename = NULL) {
+.get_downloads_path <- function(filename = NULL) {
   # filename arg input must be provided.
   if (is.null(filename)) {
     message(
-      "get_downloads_path:
+      ".get_downloads_path:
   No filename was provided, returning the Downloads folder path only."
     )
     filename = ""

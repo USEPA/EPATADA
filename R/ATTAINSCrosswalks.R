@@ -1503,7 +1503,7 @@ TADA_ParametersForAnalysis <- function(
   }
   if (excel == TRUE) {
     # get downloads path
-    downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
+    downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
     # create a brand new workbook and decide on save path at the end.
     wb <- openxlsx::createWorkbook()
@@ -2611,7 +2611,7 @@ TADA_UsesForAnalysis <- function(
   }
   if (excel == TRUE) {
     # get downloads path
-    downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
+    downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
     # Create workbook if it doesn't exist (seed Index with Include/Exclude list)
     if (!file.exists(downloads_path)) {
@@ -4307,7 +4307,7 @@ TADA_MLSummary <- function(
   # Only run if user wants to create an excel guided spreadsheet.
   if (excel == TRUE) {
     # get downloads path
-    downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
+    downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
     # Create workbook if it doesn't exist (seed Index with Include/Exclude list)
     if (!file.exists(downloads_path)) {
