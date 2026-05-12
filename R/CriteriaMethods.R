@@ -1423,7 +1423,7 @@ TADA_DefineCriteriaMethodology <- function(
   # Generates the excel function (HIGHLY Recommended for users to export)
   if (excel == TRUE) {
     # get downloads path
-    downloads_path <- invisible(get_downloads_path("CriteriaMethodology.xlsx"))
+    downloads_path <- invisible(.get_downloads_path("CriteriaMethodology.xlsx"))
 
     # create a brand new workbook and decide on save path at the end.
     wb <- openxlsx::createWorkbook()
@@ -2201,7 +2201,7 @@ TADA_DefineCriteriaMethodology <- function(
 .TADA_CriteriaDataDictionary <- function(downloads_path = NULL) {
   if (is.null(downloads_path)) {
     # get downloads path
-    downloads_path <- get_downloads_path("CriteriaMethodology.xlsx")
+    downloads_path <- .get_downloads_path("CriteriaMethodology.xlsx")
   }
 
   if (!file.exists(downloads_path)) {

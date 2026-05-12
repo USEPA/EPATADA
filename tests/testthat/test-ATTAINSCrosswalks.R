@@ -159,7 +159,7 @@ testthat::test_that("TADA_DefineCriteriaMethodology ", {
 
 test_that("Excel file generation works correctly with overwrite = F in TADA_UsesForAnalysis when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
   # specify downloads path
-  downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
+  downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
   # 1. Remove the file if it already exists
   if (file.exists(downloads_path)) {
@@ -201,7 +201,7 @@ test_that("Excel file generation works correctly with overwrite = F in TADA_Uses
 
 test_that("Excel file generation works correctly with overwrite = T in TADA_UsesForAnalysis when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
   # specify downloads path
-  downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
+  downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
   # 1. Remove the file if it already exists
   if (file.exists(downloads_path)) {
@@ -229,7 +229,7 @@ test_that("Excel file generation works correctly with overwrite = T in TADA_Uses
 
 test_that("Excel file generation works correctly with overwrite = F in TADA_MLSummaryRef when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
   # specify downloads path
-  downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
+  downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
   # 1. Remove the file if it already exists
   if (file.exists(downloads_path)) {
@@ -276,7 +276,7 @@ test_that("Excel file generation works correctly with overwrite = F in TADA_MLSu
 
 test_that("Excel file generation works correctly with overwrite = T in TADA_MLSummaryRef when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
   # specify downloads path
-  downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
+  downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
   # 1. Remove the file if it already exists
   if (file.exists(downloads_path)) {
@@ -309,7 +309,7 @@ test_that("Excel file generation works correctly with overwrite = T in TADA_MLSu
 
 test_that("Excel file generation works with blank inputs in TADA_ParametersForAnalysis even when excel file does not exist yet.", {
   # specify downloads path
-  downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
+  downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
   # Remove the file if it already exists
   if (file.exists(downloads_path)) {
@@ -359,7 +359,7 @@ test_that("Excel file generation works with blank inputs in TADA_ParametersForAn
 
 test_that("Excel file generation works with blank inputs in TADA_UsesForAnalysis even when excel file does not exist yet.", {
   # specify downloads path
-  downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
+  downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
   # Remove the file if it already exists
   if (file.exists(downloads_path)) {
@@ -413,7 +413,7 @@ test_that("Excel file generation works with blank inputs in TADA_UsesForAnalysis
 
 test_that("Excel file generation works with blank inputs in TADA_MLSummary even when excel file does not exist yet.", {
   # specify downloads path
-  downloads_path <- get_downloads_path("ParamUseMLCrosswalks.xlsx")
+  downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
   # Remove the file if it already exists
   if (file.exists(downloads_path)) {
