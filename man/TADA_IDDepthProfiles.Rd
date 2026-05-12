@@ -59,13 +59,13 @@ raise an error. nvalue must be a single numeric value.
 }
 \examples{
 # Load data frame
-utils::data(Data_6Tribes_5y)
+utils::data(Data_TribalNations)
 
 # find depth profile data without showing number of results
-Data_6Tribes_5y_DepthProfileID_Nresults <-
-  TADA_IDDepthProfiles(Data_6Tribes_5y, nresults = FALSE)
+Data_TribalNations_DepthProfileID_Nresults <-
+  TADA_IDDepthProfiles(Data_TribalNations, nresults = FALSE)
 
 # find depth profile data showing number of results
-Data_6Tribes_5y_DepthProfileID <- TADA_IDDepthProfiles(Data_6Tribes_5y)
+Data_TribalNations_DepthProfileID <- TADA_IDDepthProfiles(Data_TribalNations)
 
 }

@@ -1,9 +1,9 @@
 # Use a packaged dataset instead of live WQP retrieval to avoid network fragility
 test_that("TADA_Stats suggestions complete", {
   # Load example dataset shipped with the package
-  utils::data(Data_6Tribes_5y_Harmonized, package = "EPATADA")
+  utils::data(Data_TribalNations_Harmonized, package = "EPATADA")
 
-  check <- TADA_Stats(Data_6Tribes_5y_Harmonized)
+  check <- TADA_Stats(Data_TribalNations_Harmonized)
   expect_true(all(!is.na(check$ND_Estimation_Method)))
 })
 

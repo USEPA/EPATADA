@@ -54,13 +54,19 @@ jobs:
           
       - name: Test coverage
         run: |
+          orig <- getwd(); on.exit(setwd(orig), add = TRUE)
+          cat("Working dir (start):", getwd(), "\n")
           cov <- covr::package_coverage(
+            path = ".",
             quiet = FALSE,
             clean = FALSE,
             install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
           )
           print(cov)
-          covr::to_cobertura(cov, filename = "cobertura.xml")
+          out <- file.path(Sys.getenv("GITHUB_WORKSPACE"), "cobertura.xml")
+          covr::to_cobertura(cov, filename = out)
+          message("Wrote: ", out, " exists? ", file.exists(out))
+          cat("Working dir (end):", getwd(), "\n")
         shell: Rscript {0}
 
       - name: Show testthat output
@@ -69,28 +75,38 @@ jobs:
           find '${{ runner.temp }}/package' -name 'testthat.Rout*' -exec cat '{}' \; || true
         shell: bash
 
+      - name: Verify coverage file
+        if: always()
+        run: |
+          echo "PWD: $(pwd)"
+          ls -lah
+          echo "Searching for cobertura.xml in workspace and temp..."
+          find "$GITHUB_WORKSPACE" -maxdepth 3 -name 'cobertura.xml' -ls || true
+          find "$RUNNER_TEMP" -maxdepth 5 -name 'cobertura.xml' -ls || true
+        shell: bash
+
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v7
         with:
           name: coverage-test-failures
           path: ${{ runner.temp }}/package
-          if-no-files-found: ignore # Suppress warnings if no files are found
+          if-no-files-found: ignore
 
       - name: Upload coverage report
-        if: always()
+        if: ${{ hashFiles('cobertura.xml') != '' }}
         uses: actions/upload-artifact@v7
         with:
           name: coverage-report
-          path: ./cobertura.xml
+          path: ${{ github.workspace }}/cobertura.xml
           if-no-files-found: error
 
       - name: Comment coverage
-        if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork }}
+        if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork && hashFiles('cobertura.xml') != '' }}
         uses: 5monkeys/cobertura-action@master
         with:
           report_name: coverage-report
-          path: ./cobertura.xml
+          path: ${{ github.workspace }}/cobertura.xml
           minimum_coverage: 20
           only_changed_files: true
           show_missing: true

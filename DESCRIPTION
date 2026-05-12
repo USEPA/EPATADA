@@ -44,7 +44,6 @@ Copyright: This software is in the public domain because it contains materials
     that originally came from the U.S. Environmental Protection Agency.
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Imports:
     plyr,
     data.table,
@@ -120,3 +119,4 @@ LazyData: true
 LazyDataCompression: xz
 Config/Needs/website: rmarkdown
 BugReports: https://github.com/USEPA/EPATADA/issues
+Config/roxygen2/version: 8.0.0
