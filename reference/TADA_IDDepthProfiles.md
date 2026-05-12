@@ -73,21 +73,21 @@ characteristic in parentheses.
 
 ``` r
 # Load data frame
-utils::data(Data_6Tribes_5y)
+utils::data(Data_TribalNations)
 
 # find depth profile data without showing number of results
-Data_6Tribes_5y_DepthProfileID_Nresults <-
-  TADA_IDDepthProfiles(Data_6Tribes_5y, nresults = FALSE)
+Data_TribalNations_DepthProfileID_Nresults <-
+  TADA_IDDepthProfiles(Data_TribalNations, nresults = FALSE)
 #> TADA_IDDepthProfiles: Necessary columns are being added to the data frame using TADA_DepthCatgegory.Flag function.
-#> TADA_FlagDepthCategory: checking data set for depth values. 59647 results have depth values available.
+#> TADA_FlagDepthCategory: checking data set for depth values. 71705 results have depth values available.
 #> TADA_FlagDepthCategory: assigning depth categories.
 #> TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for entire water column.
 #> TADA_FlagDepthCategory: No aggregation performed.
 
 # find depth profile data showing number of results
-Data_6Tribes_5y_DepthProfileID <- TADA_IDDepthProfiles(Data_6Tribes_5y)
+Data_TribalNations_DepthProfileID <- TADA_IDDepthProfiles(Data_TribalNations)
 #> TADA_IDDepthProfiles: Necessary columns are being added to the data frame using TADA_DepthCatgegory.Flag function.
-#> TADA_FlagDepthCategory: checking data set for depth values. 59647 results have depth values available.
+#> TADA_FlagDepthCategory: checking data set for depth values. 71705 results have depth values available.
 #> TADA_FlagDepthCategory: assigning depth categories.
 #> TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for entire water column.
 #> TADA_FlagDepthCategory: No aggregation performed.

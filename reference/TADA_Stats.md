@@ -98,14 +98,14 @@ The output is formatted for readability:
 
 ``` r
 # Load example dataset:
-utils::data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_TribalNations_Harmonized)
 
 # Default rounding: 3 significant figures for continuous stats, 1 decimal for percentages
-Data_6Tribes_5y_Harmonized_stats <- TADA_Stats(Data_6Tribes_5y_Harmonized)
+Data_TribalNations_Harmonized_stats <- TADA_Stats(Data_TribalNations_Harmonized)
 
 # Custom rounding: 4 significant figures and whole-number percentages
-Data_6Tribes_5y_Harmonized_stats_rounded <- TADA_Stats(
-  Data_6Tribes_5y_Harmonized,
+Data_TribalNations_Harmonized_stats_rounded <- TADA_Stats(
+  Data_TribalNations_Harmonized,
   sig_figs = 4,
   pct_digits = 0
 )

@@ -39,11 +39,12 @@ library(EPATADA)
 ## Retrieve Penobscot Nation data
 
 To start, let’s find Penobscot Nation water monitoring data that was
-submitted to EPA’s Water Quality eXchange. We are interested in Class B
-waters only. In this example, we already have a list of the Monitoring
-Location Identifiers that represent Class B waters. We can use this list
-of locations to query the WQP. In addition, we are interested in E. Coli
-data and can specify that in the characteristicName filter.
+submitted to EPA’s Water Quality eXchange (WQX). We are interested in
+Class B waters only. In this example, we already have a list of the
+Monitoring Location Identifiers that represent Class B waters. We can
+use this list of locations to query the WQP. In addition, we are
+interested in E. Coli data and can specify that in the
+characteristicName filter.
 
 ``` r
 
@@ -117,41 +118,10 @@ df_raw <- TADA_DataRetrieval(
     "PENOBSCOTINDIANNATIONDNR-56-WL1"
   ),
   characteristicName = "Escherichia coli",
-  maxrecs = 350000,
   ask = FALSE,
   applyautoclean = TRUE
 )
 ```
-
-    ## Checking what data is available. This may take a moment.
-
-    ## Downloading WQP query results. This may take some time depending upon the query size.
-
-    ## c("PENOBSCOTINDIANNATIONDNR-130-BM1", "PENOBSCOTINDIANNATIONDNR-4-CH1", "PENOBSCOTINDIANNATIONDNR-5-DC1", "PENOBSCOTINDIANNATIONDNR-6-DP1", "PENOBSCOTINDIANNATIONDNR-76-DP3", "PENOBSCOTINDIANNATIONDNR-13-EM1", "PENOBSCOTINDIANNATIONDNR-14-EM2", "PENOBSCOTINDIANNATIONDNR-15-GB1", "PENOBSCOTINDIANNATIONDNR-16-GB2", "PENOBSCOTINDIANNATIONDNR-17-GB3", "PENOBSCOTINDIANNATIONDNR-18-GF1", "PENOBSCOTINDIANNATIONDNR-19-GF2", "PENOBSCOTINDIANNATIONDNR-113-GW1", "PENOBSCOTINDIANNATIONDNR-114-GW2", "PENOBSCOTINDIANNATIONDNR-115-GW3", 
-    ## "PENOBSCOTINDIANNATIONDNR-129-GWTR1", "PENOBSCOTINDIANNATIONDNR-20-LE1", "PENOBSCOTINDIANNATIONDNR-21-LE2", "PENOBSCOTINDIANNATIONDNR-22-LE3", "PENOBSCOTINDIANNATIONDNR-23-LI1", "PENOBSCOTINDIANNATIONDNR-24-LT1", "PENOBSCOTINDIANNATIONDNR-25-MD1", "PENOBSCOTINDIANNATIONDNR-26-MD2", "PENOBSCOTINDIANNATIONDNR-27-MI1", "PENOBSCOTINDIANNATIONDNR-28-MI2", "PENOBSCOTINDIANNATIONDNR-29-MI3", "PENOBSCOTINDIANNATIONDNR-30-MS1", "PENOBSCOTINDIANNATIONDNR-31-MW1", "PENOBSCOTINDIANNATIONDNR-32-MW2", "PENOBSCOTINDIANNATIONDNR-33-NL1", 
-    ## "PENOBSCOTINDIANNATIONDNR-117-OR1", "PENOBSCOTINDIANNATIONDNR-34-OT1", "PENOBSCOTINDIANNATIONDNR-35-OT2", "PENOBSCOTINDIANNATIONDNR-36-OT3", "PENOBSCOTINDIANNATIONDNR-37-PA1", "PENOBSCOTINDIANNATIONDNR-38-PA2", "PENOBSCOTINDIANNATIONDNR-39-PA3", "PENOBSCOTINDIANNATIONDNR-40-PA4", "PENOBSCOTINDIANNATIONDNR-41-PI1", "PENOBSCOTINDIANNATIONDNR-42-PI2", "PENOBSCOTINDIANNATIONDNR-43-PI3", "PENOBSCOTINDIANNATIONDNR-44-PS1", "PENOBSCOTINDIANNATIONDNR-46-SH2", "PENOBSCOTINDIANNATIONDNR-47-SL1", "PENOBSCOTINDIANNATIONDNR-81-TCOS1", 
-    ## "PENOBSCOTINDIANNATIONDNR-87-THOB", "PENOBSCOTINDIANNATIONDNR-135-TPIR14", "PENOBSCOTINDIANNATIONDNR-105-TPIR15", "PENOBSCOTINDIANNATIONDNR-123-TPIR16", "PENOBSCOTINDIANNATIONDNR-100-TPIR3", "PENOBSCOTINDIANNATIONDNR-103-TPIR6", "PENOBSCOTINDIANNATIONDNR-104-TPIR9", "PENOBSCOTINDIANNATIONDNR-86-TPOB", "PENOBSCOTINDIANNATIONDNR-91-TPUS1", "PENOBSCOTINDIANNATIONDNR-92-TPUS2", "PENOBSCOTINDIANNATIONDNR-131-VZI1", "PENOBSCOTINDIANNATIONDNR-132-VZTR1", "PENOBSCOTINDIANNATIONDNR-48-WB1", "PENOBSCOTINDIANNATIONDNR-49-WBU1", 
-    ## "PENOBSCOTINDIANNATIONDNR-50-WD1", "PENOBSCOTINDIANNATIONDNR-51-WD2", "PENOBSCOTINDIANNATIONDNR-75-WD3", "PENOBSCOTINDIANNATIONDNR-52-WE1", "PENOBSCOTINDIANNATIONDNR-53-WE2", "PENOBSCOTINDIANNATIONDNR-54-WE3", "PENOBSCOTINDIANNATIONDNR-56-WL1")Escherichia coli
-
-    ## Data successfully downloaded. Running TADA_AutoClean function.
-
-    ## TADA_Autoclean: creating TADA-specific columns.
-
-    ## TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric.
-
-    ## TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric.
-
-    ## TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m.
-
-    ## TADA_Autoclean: updating deprecated (i.e. retired) characteristic names.
-
-    ## No deprecated characteristic names found in dataset.
-
-    ## TADA_Autoclean: harmonizing result and depth units.
-
-    ## TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses.
-
-    ## NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')
 
 ## Explore and refine results
 

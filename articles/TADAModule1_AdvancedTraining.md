@@ -241,18 +241,23 @@ several examples.
 ``` r
 
 # download example data
-# dataset_0  <- TADA_DataRetrieval(
-#   organization = c("REDLAKE_WQX",
-#                    "SFNOES_WQX",
-#                    "PUEBLO_POJOAQUE",
-#                    "FONDULAC_WQX",
-#                    "PUEBLOOFTESUQUE",
-#                    "CNENVSER"),
-#   startDate = "2018-01-01",
-#   endDate = "2023-01-01")
+# dataset_0 <- TADA_DataRetrieval(
+#         organization = c(
+#           "REDLAKE_WQX", # Red Lake Band of Chippewa Indians
+#           "FONDULAC_WQX", # Minnesota Chippewa Tribe (Fond du Lac Band)
+#           "PUEBLOOFTESUQUE", # Pueblo of Tesuque
+#           "PENOBSCOTINDIANNATIONDNR", # Penobscot Indian Nation
+#           "UTEMTN", # Ute Mountain Ute Tribe
+#           "BLCKFEET" # Blackfeet Nation
+#         ),
+#         # last 20 years
+#         startDate = "2005-01-01",
+#         endDate = "2025-12-31",
+#         ask = TRUE
+#       )
 
 # For brevity, we'll skip pinging the WQP and instead load the example dataframe:
-dataset_0 <- Data_6Tribes_5y
+dataset_0 <- Data_TribalNations
 ```
 
 Let’s take a look at all of the TADA-created columns:
@@ -322,7 +327,7 @@ First, always good to take a look at the dataframe dimensions.
 dim(dataset_0) # returns x and of x (as the numbers of rows and columns respectively)
 ```
 
-    ## [1] 135932    152
+    ## [1] 142991    152
 
 Before we start filtering and flagging our data, let’s create a function
 (`dimCheck`) that performs dimension checks between the results that
@@ -370,11 +375,11 @@ key_counts
 ```
 
     ##                             Fields Count
-    ## 1             SubjectTaxonomicName   278
-    ## 2    TADA.ComparableDataIdentifier   223
-    ## 3          TADA.CharacteristicName   147
-    ## 4           OrganizationFormalName     6
-    ## 5  TADA.MonitoringLocationTypeName     5
+    ## 1    TADA.ComparableDataIdentifier   309
+    ## 2             SubjectTaxonomicName   300
+    ## 3          TADA.CharacteristicName   223
+    ## 4  TADA.MonitoringLocationTypeName     8
+    ## 5           OrganizationFormalName     5
     ## 6           TADA.ActivityMediaName     3
     ## 7     ActivityMediaSubdivisionName     3
     ## 8        ActivityRelativeDepthName     3
@@ -392,147 +397,148 @@ all_counts
 ```
 
     ##                                                                Fields  Count
-    ## 1                                                    ResultIdentifier 135932
-    ## 2                                             TADA.ResultMeasureValue  40875
-    ## 3                                                  ResultMeasureValue  37488
-    ## 4                                                  ActivityIdentifier  19180
-    ## 5                                 ResultDetectionQuantitationLimitUrl  12311
-    ## 6                                               ActivityStartDateTime  11989
-    ## 7                                                         LastUpdated   6683
-    ## 8                                              ActivityStartTime.Time   3737
-    ## 9                          TADA.ResultDepthHeightMeasure.MeasureValue   3608
-    ## 10                              ResultDepthHeightMeasure.MeasureValue   3519
-    ## 11                                                ActivityEndDateTime   1026
-    ## 12                                               ActivityEndTime.Time   1001
-    ## 13                                                ActivityCommentText    805
-    ## 14                                                  ActivityStartDate    756
-    ## 15                                                  AnalysisStartDate    619
-    ## 16                                                  ResultCommentText    385
-    ## 17                TADA.DetectionQuantitationLimitMeasure.MeasureValue    377
-    ## 18                     DetectionQuantitationLimitMeasure.MeasureValue    373
-    ## 19                            ActivityDepthHeightMeasure.MeasureValue    321
-    ## 20                       TADA.ActivityDepthHeightMeasure.MeasureValue    318
-    ## 21                                               SubjectTaxonomicName    278
-    ## 22                                  ActivityLocation.LongitudeMeasure    272
-    ## 23                                   ActivityLocation.LatitudeMeasure    269
-    ## 24                                       MonitoringLocationIdentifier    227
-    ## 25                                  TADA.MonitoringLocationIdentifier    227
-    ## 26                                      TADA.ComparableDataIdentifier    223
-    ## 27                                             MonitoringLocationName    222
-    ## 28                                        TADA.MonitoringLocationName    222
-    ## 29                                                   LongitudeMeasure    218
-    ## 30                                              TADA.LongitudeMeasure    218
-    ## 31                                                    LatitudeMeasure    215
-    ## 32                                               TADA.LatitudeMeasure    214
-    ## 33                                                 CharacteristicName    148
-    ## 34                                            TADA.CharacteristicName    147
-    ## 35                              DataQuality.UpperConfidenceLimitValue     95
-    ## 36                            ResultAnalyticalMethod.MethodIdentifier     74
-    ## 37                                  ResultAnalyticalMethod.MethodName     73
-    ## 38                                                    ActivityEndDate     68
-    ## 39                              DataQuality.LowerConfidenceLimitValue     64
-    ## 40                      ActivityBottomDepthHeightMeasure.MeasureValue     55
-    ## 41                 TADA.ActivityBottomDepthHeightMeasure.MeasureValue     54
-    ## 42                                      ResultMeasure.MeasureUnitCode     44
-    ## 43                       ResultAnalyticalMethod.MethodDescriptionText     42
-    ## 44                                                        ProjectName     30
-    ## 45                                                  ProjectIdentifier     30
-    ## 46                                 TADA.ResultMeasure.MeasureUnitCode     22
-    ## 47                                             ProjectDescriptionText     18
-    ## 48                                                         CountyCode     15
-    ## 49                                                  HUCEightDigitCode     15
-    ## 50                                  SampleCollectionMethod.MethodName     15
-    ## 51                                  MonitoringLocationDescriptionText     14
-    ## 52                            SampleCollectionMethod.MethodIdentifier     14
-    ## 53                  DetectionQuantitationLimitMeasure.MeasureUnitCode     13
-    ## 54                     ResultAnalyticalMethod.MethodIdentifierContext     13
-    ## 55                       SampleCollectionMethod.MethodDescriptionText     13
-    ## 56             TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode     11
-    ## 57                                      SampleCollectionEquipmentName     11
-    ## 58                                               MethodSpeciationName     10
-    ## 59                                          TADA.MethodSpeciationName      9
-    ## 60                              TADA.ResultMeasureValueDataTypes.Flag      9
-    ## 61                                               MeasureQualifierCode      9
-    ## 62                                                     LaboratoryName      9
-    ## 63                                           ResultSampleFractionText      7
+    ## 1                                                    ResultIdentifier 142991
+    ## 2                                             TADA.ResultMeasureValue  44218
+    ## 3                                                  ResultMeasureValue  42595
+    ## 4                                                  ActivityIdentifier  17545
+    ## 5                                 ResultDetectionQuantitationLimitUrl  12228
+    ## 6                                               ActivityStartDateTime  10734
+    ## 7                                                         LastUpdated   3474
+    ## 8                               ResultDepthHeightMeasure.MeasureValue   3006
+    ## 9                          TADA.ResultDepthHeightMeasure.MeasureValue   3006
+    ## 10                                                ActivityCommentText   1922
+    ## 11                                             ActivityStartTime.Time   1350
+    ## 12                            ActivityDepthHeightMeasure.MeasureValue   1155
+    ## 13                       TADA.ActivityDepthHeightMeasure.MeasureValue   1155
+    ## 14                                                  ActivityStartDate    671
+    ## 15                                                  AnalysisStartDate    568
+    ## 16                                  ActivityLocation.LongitudeMeasure    465
+    ## 17                                   ActivityLocation.LatitudeMeasure    460
+    ## 18                TADA.DetectionQuantitationLimitMeasure.MeasureValue    390
+    ## 19                     DetectionQuantitationLimitMeasure.MeasureValue    380
+    ## 20                                                  ResultCommentText    325
+    ## 21                                      TADA.ComparableDataIdentifier    309
+    ## 22                                               SubjectTaxonomicName    300
+    ## 23                                                    ActivityEndDate    251
+    ## 24                                                ActivityEndDateTime    251
+    ## 25                                       MonitoringLocationIdentifier    231
+    ## 26                                  TADA.MonitoringLocationIdentifier    231
+    ## 27                                             MonitoringLocationName    230
+    ## 28                                        TADA.MonitoringLocationName    230
+    ## 29                                                   LongitudeMeasure    224
+    ## 30                                              TADA.LongitudeMeasure    224
+    ## 31                                                 CharacteristicName    224
+    ## 32                                            TADA.CharacteristicName    223
+    ## 33                                                    LatitudeMeasure    221
+    ## 34                                               TADA.LatitudeMeasure    221
+    ## 35                                  MonitoringLocationDescriptionText     80
+    ## 36                                  ResultAnalyticalMethod.MethodName     77
+    ## 37                            ResultAnalyticalMethod.MethodIdentifier     75
+    ## 38                                       VerticalMeasure.MeasureValue     68
+    ## 39                       ResultAnalyticalMethod.MethodDescriptionText     45
+    ## 40                                      ResultMeasure.MeasureUnitCode     42
+    ## 41                      ActivityBottomDepthHeightMeasure.MeasureValue     35
+    ## 42                 TADA.ActivityBottomDepthHeightMeasure.MeasureValue     35
+    ## 43                                                        ProjectName     23
+    ## 44                                                  ProjectIdentifier     23
+    ## 45                                 TADA.ResultMeasure.MeasureUnitCode     22
+    ## 46                                                  HUCEightDigitCode     17
+    ## 47                     ResultAnalyticalMethod.MethodIdentifierContext     15
+    ## 48                                                         CountyCode     14
+    ## 49                            SampleCollectionMethod.MethodIdentifier     14
+    ## 50                                  SampleCollectionMethod.MethodName     14
+    ## 51                       SampleCollectionMethod.MethodDescriptionText     14
+    ## 52                                                     LaboratoryName     13
+    ## 53                                             ProjectDescriptionText     13
+    ## 54                  DetectionQuantitationLimitMeasure.MeasureUnitCode     11
+    ## 55             TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode     10
+    ## 56                                                   ActivityTypeCode      9
+    ## 57                              TADA.ResultMeasureValueDataTypes.Flag      9
+    ## 58                                      SampleCollectionEquipmentName      9
+    ## 59                                               MeasureQualifierCode      9
+    ## 60                                         MonitoringLocationTypeName      8
+    ## 61                                    TADA.MonitoringLocationTypeName      8
+    ## 62                                           ResultSampleFractionText      8
+    ## 63                                               MethodSpeciationName      8
     ## 64                                      TADA.ResultSampleFractionText      7
-    ## 65                                       ResultDetectionConditionText      7
-    ## 66                                 DetectionQuantitationLimitTypeName      7
-    ## 67                     SampleCollectionMethod.MethodIdentifierContext      7
-    ## 68                                                   ActivityTypeCode      6
-    ## 69                                             OrganizationIdentifier      6
-    ## 70                                             OrganizationFormalName      6
-    ## 71                                         MonitoringLocationTypeName      5
-    ## 72                                    TADA.MonitoringLocationTypeName      5
-    ## 73                                             QAPPApprovalAgencyName      5
-    ## 74                                                          StateCode      4
-    ## 75                                     ActivityStartTime.TimeZoneCode      4
-    ## 76                              ActivityStartTime.TimeZoneCode_offset      4
-    ## 77         TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag      4
+    ## 65                                          TADA.MethodSpeciationName      7
+    ## 66                                       ResultDetectionConditionText      7
+    ## 67                                 DetectionQuantitationLimitTypeName      7
+    ## 68                                                          StateCode      6
+    ## 69                     SampleCollectionMethod.MethodIdentifierContext      6
+    ## 70                              DataQuality.UpperConfidenceLimitValue      6
+    ## 71                              DataQuality.LowerConfidenceLimitValue      6
+    ## 72                                     ActivityStartTime.TimeZoneCode      5
+    ## 73                                                StatisticalBaseCode      5
+    ## 74                                             OrganizationIdentifier      5
+    ## 75                                             OrganizationFormalName      5
+    ## 76                                     HorizontalCollectionMethodName      5
+    ## 77                              ActivityStartTime.TimeZoneCode_offset      4
     ## 78                                              QAPPApprovedIndicator      4
-    ## 79                                                  ActivityMediaName      3
-    ## 80                                             TADA.ActivityMediaName      3
-    ## 81                                       ActivityMediaSubdivisionName      3
-    ## 82                                                ResultValueTypeName      3
-    ## 83  TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag      3
-    ## 84                           ResultDepthHeightMeasure.MeasureUnitCode      3
-    ## 85                                          ActivityRelativeDepthName      3
-    ## 86                         ActivityDepthHeightMeasure.MeasureUnitCode      3
-    ## 87   TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag      3
-    ## 88                                                StatisticalBaseCode      3
-    ## 89                                       ActivityEndTime.TimeZoneCode      3
-    ## 90                                ActivityEndTime.TimeZoneCode_offset      3
-    ## 91                                                        CountryCode      2
-    ## 92                       HorizontalCoordinateReferenceSystemDatumName      2
-    ## 93                                       TADA.WQXResultUnitConversion      2
-    ## 94           TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag      2
-    ## 95                         ActivityTopDepthHeightMeasure.MeasureValue      2
-    ## 96                    TADA.ActivityTopDepthHeightMeasure.MeasureValue      2
-    ## 97      TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag      2
-    ## 98                      ActivityTopDepthHeightMeasure.MeasureUnitCode      2
-    ## 99                   ActivityBottomDepthHeightMeasure.MeasureUnitCode      2
-    ## 100                                            ResultStatusIdentifier      2
-    ## 101                                            SamplingDesignTypeCode      2
-    ## 102                                                    ProjectFileUrl      2
-    ## 103                                ActivityConductingOrganizationText      2
-    ## 104                                             SourceMapScaleNumeric      2
-    ## 105                                    HorizontalCollectionMethodName      2
-    ## 106                             ProjectMonitoringLocationWeightingUrl      2
-    ## 107                                           SampleTissueAnatomyName      1
-    ## 108                     TADA.ResultDepthHeightMeasure.MeasureUnitCode      1
-    ## 109                             ResultDepthAltitudeReferencePointText      1
-    ## 110                   TADA.ActivityDepthHeightMeasure.MeasureUnitCode      1
-    ## 111                TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode      1
-    ## 112             TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode      1
-    ## 113                                               ResultTimeBasisText      1
-    ## 114                                                     ResultFileUrl      1
-    ## 115                                  ResultAnalyticalMethod.MethodUrl      1
-    ## 116                                               HydrologicCondition      1
-    ## 117                                                   HydrologicEvent      1
-    ## 118                                       ResultLaboratoryCommentText      1
-    ## 119                                                       AquiferName      1
-    ## 120                                                   AquiferTypeName      1
-    ## 121                                                     LocalAqfrName      1
-    ## 122                                  WellDepthMeasure.MeasureUnitCode      1
-    ## 123                              WellHoleDepthMeasure.MeasureUnitCode      1
-    ## 124                           ActivityDepthAltitudeReferencePointText      1
-    ## 125                                                     SampleAquifer      1
-    ## 126                                             ResultWeightBasisText      1
-    ## 127                                        ResultTemperatureBasisText      1
-    ## 128                                       ResultParticleSizeBasisText      1
-    ## 129                                                         USGSPCode      1
-    ## 130                                              BinaryObjectFileName      1
-    ## 131                                          BinaryObjectFileTypeCode      1
-    ## 132                                           LabSamplePreparationUrl      1
-    ## 133                         HorizontalAccuracyMeasure.MeasureUnitCode      1
-    ## 134                                   VerticalMeasure.MeasureUnitCode      1
-    ## 135                           VerticalAccuracyMeasure.MeasureUnitCode      1
-    ## 136                                      VerticalCollectionMethodName      1
-    ## 137                        VerticalCoordinateReferenceSystemDatumName      1
-    ## 138                                                 FormationTypeText      1
-    ## 139                               DrainageAreaMeasure.MeasureUnitCode      1
-    ## 140                   ContributingDrainageAreaMeasure.MeasureUnitCode      1
-    ## 141                                                      ProviderName      1
+    ## 79                                             QAPPApprovalAgencyName      4
+    ## 80                                       VerticalCollectionMethodName      4
+    ## 81                                                  ActivityMediaName      3
+    ## 82                                             TADA.ActivityMediaName      3
+    ## 83                                       ActivityMediaSubdivisionName      3
+    ## 84                       HorizontalCoordinateReferenceSystemDatumName      3
+    ## 85                                       TADA.WQXResultUnitConversion      3
+    ## 86                                                ResultValueTypeName      3
+    ## 87                           ResultDepthHeightMeasure.MeasureUnitCode      3
+    ## 88                                          ActivityRelativeDepthName      3
+    ## 89         TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag      3
+    ## 90                         ActivityDepthHeightMeasure.MeasureUnitCode      3
+    ## 91   TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag      3
+    ## 92                                       ActivityEndTime.TimeZoneCode      3
+    ## 93                                ActivityEndTime.TimeZoneCode_offset      3
+    ## 94                                    VerticalMeasure.MeasureUnitCode      3
+    ## 95                                                        CountryCode      2
+    ## 96  TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag      2
+    ## 97           TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag      2
+    ## 98                         ActivityTopDepthHeightMeasure.MeasureValue      2
+    ## 99                    TADA.ActivityTopDepthHeightMeasure.MeasureValue      2
+    ## 100     TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag      2
+    ## 101                     ActivityTopDepthHeightMeasure.MeasureUnitCode      2
+    ## 102                  ActivityBottomDepthHeightMeasure.MeasureUnitCode      2
+    ## 103                                               ResultTimeBasisText      2
+    ## 104                                            ResultStatusIdentifier      2
+    ## 105                                            SamplingDesignTypeCode      2
+    ## 106                                                    ProjectFileUrl      2
+    ## 107                                              ActivityEndTime.Time      2
+    ## 108                        VerticalCoordinateReferenceSystemDatumName      2
+    ## 109                             ProjectMonitoringLocationWeightingUrl      2
+    ## 110                                           SampleTissueAnatomyName      1
+    ## 111                     TADA.ResultDepthHeightMeasure.MeasureUnitCode      1
+    ## 112                             ResultDepthAltitudeReferencePointText      1
+    ## 113                   TADA.ActivityDepthHeightMeasure.MeasureUnitCode      1
+    ## 114                TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode      1
+    ## 115             TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode      1
+    ## 116                                                     ResultFileUrl      1
+    ## 117                                  ResultAnalyticalMethod.MethodUrl      1
+    ## 118                                               HydrologicCondition      1
+    ## 119                                                   HydrologicEvent      1
+    ## 120                                       ResultLaboratoryCommentText      1
+    ## 121                                                       AquiferName      1
+    ## 122                                                   AquiferTypeName      1
+    ## 123                                                     LocalAqfrName      1
+    ## 124                                  WellDepthMeasure.MeasureUnitCode      1
+    ## 125                              WellHoleDepthMeasure.MeasureUnitCode      1
+    ## 126                           ActivityDepthAltitudeReferencePointText      1
+    ## 127                                ActivityConductingOrganizationText      1
+    ## 128                                                     SampleAquifer      1
+    ## 129                                             ResultWeightBasisText      1
+    ## 130                                        ResultTemperatureBasisText      1
+    ## 131                                       ResultParticleSizeBasisText      1
+    ## 132                                                         USGSPCode      1
+    ## 133                                              BinaryObjectFileName      1
+    ## 134                                          BinaryObjectFileTypeCode      1
+    ## 135                                           LabSamplePreparationUrl      1
+    ## 136                                             SourceMapScaleNumeric      1
+    ## 137                         HorizontalAccuracyMeasure.MeasureUnitCode      1
+    ## 138                           VerticalAccuracyMeasure.MeasureUnitCode      1
+    ## 139                                                 FormationTypeText      1
+    ## 140                               DrainageAreaMeasure.MeasureUnitCode      1
+    ## 141                   ContributingDrainageAreaMeasure.MeasureUnitCode      1
+    ## 142                                                      ProviderName      1
 
 **Question 3: How many unique ‘TADA.ActivityMediaName’ values exist in
 your dataframe? Are there any media types that are not water?**
@@ -551,7 +557,7 @@ removed <- dataset_0 |>
 unique(removed$TADA.ActivityMediaName)
 ```
 
-    ## [1] "BIOLOGICAL" "AIR"
+    ## [1] "BIOLOGICAL" "HABITAT"
 
 ``` r
 
@@ -587,13 +593,12 @@ org_counts <- TADA_FieldValuesTable(dataset, field = "OrganizationFormalName")
 org_counts
 ```
 
-    ##                                             Value Count
-    ## 1                                    Red Lake DNR 85740
-    ## 2               Fond du Lac Band of Chippewa (MN) 22945
-    ## 3                     Sac and Fox Nation (Tribal)  9943
-    ## 4                      Pueblo Of Tesuque (Tribal)  6798
-    ## 5 Chickasaw Nation Environmental Service (Tribal)  4946
-    ## 6                              Pueblo of Pojoaque  1101
+    ##                                         Value Count
+    ## 1                       Red Lake DNR (Tribal) 84965
+    ## 2           Fond du Lac Band of Chippewa (MN) 27928
+    ## 3                  Blackfeet Nation (Montana) 20126
+    ## 4 Ute Mountain Utes Tribe (Colorado) (Tribal)  4257
+    ## 5                  Pueblo Of Tesuque (Tribal)   793
 
 **Question 4: When might a user choose to view a column’s unique values
 as a table rather than in a pie chart?**
@@ -847,10 +852,10 @@ removal
     ## 3                                                            Activity media is not water.
     ## 4                     Detection limit information contains errors or missing information.
     ##   Count
-    ## 1 49455
-    ## 2  7619
-    ## 3  4459
-    ## 4    15
+    ## 1 48036
+    ## 2 13418
+    ## 3  4922
+    ## 4    18
 
 You can review any other columns of interest and create custom domain
 tables of your “Valid” and “Invalid” criteria using R or Excel. Also
@@ -924,13 +929,13 @@ TADA.ResultMeasureValueDataTypes.Flag column in data set before we ran
 TADA_FieldValuesTable(dataset_flags, field = "TADA.ResultMeasureValueDataTypes.Flag")
 ```
 
-    ##                                           Value Count
-    ## 1                                       Numeric 73536
-    ## 2                                    Percentage   745
-    ## 3 Result Value/Unit Copied from Detection Limit    48
-    ## 4                      Numeric Range - Averaged    33
-    ## 5                                     Less Than    19
-    ## 6                                  Greater Than     3
+    ##                      Value Count
+    ## 1                  Numeric 75306
+    ## 2               Percentage   992
+    ## 3 Numeric Range - Averaged   265
+    ## 4                Less Than    18
+    ## 5             Greater Than     9
+    ## 6  Comma-Separated Numeric     7
 
 Then we can use `TADA_FieldValuesTable` again to look at the same column
 after `TADA_SimpleCensoredMethods`.
@@ -941,13 +946,13 @@ after `TADA_SimpleCensoredMethods`.
 TADA_FieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTypes.Flag")
 ```
 
-    ##                                              Value Count
-    ## 1                                          Numeric 73526
-    ## 2                                       Percentage   745
-    ## 3 Result Value/Unit Estimated from Detection Limit    58
-    ## 4                         Numeric Range - Averaged    33
-    ## 5                                        Less Than    19
-    ## 6                                     Greater Than     3
+    ##                      Value Count
+    ## 1                  Numeric 75306
+    ## 2               Percentage   992
+    ## 3 Numeric Range - Averaged   265
+    ## 4                Less Than    18
+    ## 5             Greater Than     9
+    ## 6  Comma-Separated Numeric     7
 
 **Question 9: Is there a difference between the first and second
 tables?**
@@ -1117,8 +1122,8 @@ TADA_DepthProfilePlot(dataset_cens,
     "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M",
     "PH_NONE_NONE_NONE"
   ),
-  location = "REDLAKE_WQX-ANKE",
-  activity_date = "2018-10-04",
+  location = "REDLAKE_WQX-KINN",
+  activity_date = "2025-09-25",
   depthcat = TRUE,
   surfacevalue = 2,
   bottomvalue = 2,

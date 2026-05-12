@@ -118,11 +118,11 @@ to indicate which rows have been aggregated.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset</span></span></span>
-<span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_6Tribes_5y</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_TribalNations</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Select maximum value per day, site, comparable data identifier,</span></span></span>
 <span class="r-in"><span><span class="co"># unit, result detection condition,</span></span></span>
 <span class="r-in"><span><span class="co"># and activity type code. Clean all non-maximum measurements from grouped data.</span></span></span>
-<span class="r-in"><span><span class="va">Data_6Tribes_5y_max</span> <span class="op">&lt;-</span> <span class="fu">TADA_AggregateMeasurements</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>,</span></span>
+<span class="r-in"><span><span class="va">Data_TribalNations_max</span> <span class="op">&lt;-</span> <span class="fu">TADA_AggregateMeasurements</span><span class="op">(</span><span class="va">Data_TribalNations</span>,</span></span>
 <span class="r-in"><span>  grouping_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="st">"ActivityStartDate"</span>,</span></span>
 <span class="r-in"><span>    <span class="st">"TADA.MonitoringLocationIdentifier"</span>,</span></span>
@@ -136,12 +136,12 @@ to indicate which rows have been aggregated.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregation results:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 5406010659</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 5489111646</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Calculate a mean value per day, site, comparable data identifier, unit,</span></span></span>
 <span class="r-in"><span><span class="co"># result detection condition,</span></span></span>
 <span class="r-in"><span><span class="co"># and activity type code. Keep all measurements used to calculate mean measurement.</span></span></span>
-<span class="r-in"><span><span class="va">Data_6Tribes_5y_mean</span> <span class="op">&lt;-</span> <span class="fu">TADA_AggregateMeasurements</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>,</span></span>
+<span class="r-in"><span><span class="va">Data_TribalNations_mean</span> <span class="op">&lt;-</span> <span class="fu">TADA_AggregateMeasurements</span><span class="op">(</span><span class="va">Data_TribalNations</span>,</span></span>
 <span class="r-in"><span>  grouping_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="st">"ActivityStartDate"</span>, <span class="st">"TADA.MonitoringLocationIdentifier"</span>,</span></span>
 <span class="r-in"><span>    <span class="st">"TADA.ComparableDataIdentifier"</span>, <span class="st">"ResultDetectionConditionText"</span>,</span></span>
@@ -152,7 +152,7 @@ to indicate which rows have been aggregated.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregation results:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 818725406010659</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 881005489111646</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

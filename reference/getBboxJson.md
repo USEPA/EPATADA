@@ -24,16 +24,16 @@ feature layer in the Input Geometry field
 ``` r
 if (FALSE) { # \dontrun{
 # Load example dataset
-utils::data(Data_6Tribes_5y)
+utils::data(Data_TribalNations)
 # Get the bounding box of the data
 bbox <- sf::st_bbox(
   c(
-    xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure),
-    ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure),
-    xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure),
-    ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)
+    xmin = min(Data_TribalNations$TADA.LongitudeMeasure),
+    ymin = min(Data_TribalNations$TADA.LatitudeMeasure),
+    xmax = max(Data_TribalNations$TADA.LongitudeMeasure),
+    ymax = max(Data_TribalNations$TADA.LatitudeMeasure)
   ),
-  crs = sf::st_crs(Data_6Tribes_5y)
+  crs = sf::st_crs(Data_TribalNations)
 )
 # Get a string containing the JSON of the bounding box
 getBboxJson(bbox)

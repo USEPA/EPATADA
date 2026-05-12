@@ -54,11 +54,11 @@ aggregated.
 
 ``` r
 # Load example dataset
-utils::data(Data_6Tribes_5y)
+utils::data(Data_TribalNations)
 # Select maximum value per day, site, comparable data identifier,
 # unit, result detection condition,
 # and activity type code. Clean all non-maximum measurements from grouped data.
-Data_6Tribes_5y_max <- TADA_AggregateMeasurements(Data_6Tribes_5y,
+Data_TribalNations_max <- TADA_AggregateMeasurements(Data_TribalNations,
   grouping_cols = c(
     "ActivityStartDate",
     "TADA.MonitoringLocationIdentifier",
@@ -72,12 +72,12 @@ Data_6Tribes_5y_max <- TADA_AggregateMeasurements(Data_6Tribes_5y,
 )
 #> Warning: TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation.
 #> Aggregation results:
-#> 5406010659
+#> 5489111646
 
 # Calculate a mean value per day, site, comparable data identifier, unit,
 # result detection condition,
 # and activity type code. Keep all measurements used to calculate mean measurement.
-Data_6Tribes_5y_mean <- TADA_AggregateMeasurements(Data_6Tribes_5y,
+Data_TribalNations_mean <- TADA_AggregateMeasurements(Data_TribalNations,
   grouping_cols = c(
     "ActivityStartDate", "TADA.MonitoringLocationIdentifier",
     "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
@@ -88,5 +88,5 @@ Data_6Tribes_5y_mean <- TADA_AggregateMeasurements(Data_6Tribes_5y,
 )
 #> Warning: TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation.
 #> Aggregation results:
-#> 818725406010659
+#> 881005489111646
 ```

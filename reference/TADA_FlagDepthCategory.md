@@ -110,21 +110,21 @@ middle, or bottom) or for the entire depth profile.
 
 ``` r
 # Load data frame
-utils::data(Data_6Tribes_5y)
+utils::data(Data_TribalNations)
 
 # assign TADA.DepthCategory.Flag with no aggregation
-Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_6Tribes_5y)
-#> TADA_FlagDepthCategory: checking data set for depth values. 59647 results have depth values available.
+Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_TribalNations)
+#> TADA_FlagDepthCategory: checking data set for depth values. 71705 results have depth values available.
 #> TADA_FlagDepthCategory: assigning depth categories.
 #> TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for entire water column.
 #> TADA_FlagDepthCategory: No aggregation performed.
 
 # assign TADA.DepthCategory.Flag and determine average values by depth
 # category and returning only aggregate values
-Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y,
+Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_TribalNations,
   bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE
 )
-#> TADA_FlagDepthCategory: checking data set for depth values. 59647 results have depth values available.
+#> TADA_FlagDepthCategory: checking data set for depth values. 71705 results have depth values available.
 #> TADA_FlagDepthCategory: assigning depth categories.
 #> TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, ActivityStartDate, and TADA.DepthCategory.Flag for aggregation by TADA.DepthCategory.Flag.
 #> TADA_FlagDepthCategory: Calculating mean aggregate value with randomly selected metadata.

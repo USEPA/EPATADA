@@ -370,11 +370,6 @@ to make the water quality data spatial.
 TADA_spatial <- TADA_MakeSpatial(.data = tada.MT.clean, crs = 4326)
 ```
 
-    ## [1] "Processing CRS: NAD27"
-    ## [1] "Processing CRS: NAD83"
-    ## [1] "Processing CRS: UNKWN"
-    ## [1] "Processing CRS: WGS84"
-
 This new spatial object is identical to the original TADA dataframe, but
 now includes a “geometry” column that allows for mapping and additional
 geospatial capabilities. Enter

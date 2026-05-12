@@ -34,11 +34,11 @@ TADA.ActivityType.Flag.
 
 ``` r
 # Run flagging functions but keep all results
-keep_all <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = FALSE)
+keep_all <- TADA_RunKeyFlagFunctions(Data_TribalNations, clean = FALSE)
 #> TADA_FlagFraction: Rows with Suspect sample fractions have been flagged but retained. Review these rows using the TADA.SampleFraction.Flag column before proceeding and/or set clean = TRUE.
 #> TADA_FlagSpeciation: Rows with Suspect speciations have been flagged but retained. Review these rows using the new TADA.MethodSpeciation.Flag column before proceeding and/or set clean = 'suspect_only' or 'both'.
 
 # Run flagging functions and remove any suspect rows
-remove_suspect <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = TRUE)
+remove_suspect <- TADA_RunKeyFlagFunctions(Data_TribalNations, clean = TRUE)
 #> TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking.
 ```

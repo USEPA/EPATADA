@@ -22,8 +22,6 @@
 <url><loc>https://usepa.github.io/EPATADA/articles/index.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/authors.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/index.html</loc></url>
-<url><loc>https://usepa.github.io/EPATADA/reference/Data_6Tribes_5y.html</loc></url>
-<url><loc>https://usepa.github.io/EPATADA/reference/Data_6Tribes_5y_Harmonized.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/Data_HUC8_02070004_Mod1Output.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/Data_MT_AUMLRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/Data_MT_AU_UsesRef.html</loc></url>
@@ -31,7 +29,10 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/Data_MT_MissoulaCounty.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/Data_Nutrients_UT.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/Data_Participatory_Scientists.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/Data_Penobscot.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/Data_R5_TADAPackageDemo.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/Data_TribalNations.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/Data_TribalNations_Harmonized.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_AssignUsesToAU.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_AssignUsesToWaterType.html</loc></url>
@@ -173,6 +174,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateRefFiles.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateWQPOrganizationRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateWQXCharValRef.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/dot-get_downloads_path.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-setEQKey.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/fetchATTAINS.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/fetchNHD.html</loc></url>
@@ -187,7 +189,6 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/getMapIconLabels.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/getTribalPopup.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/getWQPSiteStats.html</loc></url>
-<url><loc>https://usepa.github.io/EPATADA/reference/get_downloads_path.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/index.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/pchIcons.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/prepATTAINSMapper.html</loc></url>

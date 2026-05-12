@@ -181,12 +181,6 @@ mywaterway@epa.gov.
 
 ## All functions
 
-- [`Data_6Tribes_5y`](https://usepa.github.io/EPATADA/reference/Data_6Tribes_5y.md)
-  : Data_6Tribes_5y
-
-- [`Data_6Tribes_5y_Harmonized`](https://usepa.github.io/EPATADA/reference/Data_6Tribes_5y_Harmonized.md)
-  : Data_6Tribes_5y_Harmonized
-
 - [`Data_HUC8_02070004_Mod1Output`](https://usepa.github.io/EPATADA/reference/Data_HUC8_02070004_Mod1Output.md)
   : Data_HUC8_02070004_Mod1Output
 
@@ -208,8 +202,17 @@ mywaterway@epa.gov.
 - [`Data_Participatory_Scientists`](https://usepa.github.io/EPATADA/reference/Data_Participatory_Scientists.md)
   : Data_Participatory_Scientists
 
+- [`Data_Penobscot`](https://usepa.github.io/EPATADA/reference/Data_Penobscot.md)
+  : Data_Penobscot
+
 - [`Data_R5_TADAPackageDemo`](https://usepa.github.io/EPATADA/reference/Data_R5_TADAPackageDemo.md)
   : Data_R5_TADAPackageDemo
+
+- [`Data_TribalNations`](https://usepa.github.io/EPATADA/reference/Data_TribalNations.md)
+  : Data_TribalNations
+
+- [`Data_TribalNations_Harmonized`](https://usepa.github.io/EPATADA/reference/Data_TribalNations_Harmonized.md)
+  : Data_TribalNations_Harmonized
 
 - [`TADA_AggregateMeasurements()`](https://usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.md)
   : Aggregate multiple result values to a min, max, or mean
