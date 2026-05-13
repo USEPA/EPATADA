@@ -4509,3 +4509,24 @@ TADA_MLSummary <- function(
   }
   return(MLSummaryRef)
 }
+
+#' Crosswalk WQP Monitoring Location Type to ATTAINS Water Type
+#'
+#' The WQP Monitoring Location Types and ATTAINS Water Types are not direct one to
+#' one matches. This function crosswalks the WQP Monitoring Location Type to the
+#' recommended ATTAINS Water Type. The crosswalk used in this function was created
+#' and maintained by the TADA team.
+#'
+#' @param .data A TADA data frame.
+#' @param replace_all Logical. If TRUE, replace all ATTAINS.WaterType values in the
+#' TADA data frame with the recommended ATTAINS Water Type values. If FALSE, only
+#' assigns an ATTAINS Water Type to rows with no ATTAINS Water Type value. Default
+#' equals FALSE.
+#' @param review_all Logical. If TRUE, review all ATTAINS.WaterType values to ensure
+#' they are allowable values. If a value is not allowed, replace it with the ATTAINS
+#' WaterType identified in the crosswalk. If FALSE, no review. Default equals FALSE.
+#'
+#' @return A TADA data frame with ATTAINS.WaterType column created (f not already
+#' existing) and populated.
+#'
+#' @export
