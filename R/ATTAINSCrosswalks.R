@@ -4530,3 +4530,12 @@ TADA_MLSummary <- function(
 #' existing) and populated.
 #'
 #' @export
+#'
+TADA_CrosswalkATTAINSWaterTypes <- function(.data,
+                                            replace_all = FALSE,
+                                            review_all = FALSE){
+  wqp.mls <- .data |>
+    dplyr::select(TADA.MonitoringLocationName,
+                  TADA.MonitoringLocationTypeName)
+
+}
