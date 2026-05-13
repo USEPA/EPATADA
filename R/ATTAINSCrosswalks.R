@@ -4534,8 +4534,82 @@ TADA_MLSummary <- function(
 TADA_CrosswalkATTAINSWaterTypes <- function(.data,
                                             replace_all = FALSE,
                                             review_all = FALSE){
-  wqp.mls <- .data |>
-    dplyr::select(TADA.MonitoringLocationName,
-                  TADA.MonitoringLocationTypeName)
 
+  # create df of unique monitoring location identifiers, monitoring location type
+  # name, and (if present in TADA df) ATTAINS.WaterType
+  wqp.mls <- .data |>
+    dplyr::select(dplyr::any_of(c(
+     "TADA.MonitoringLocationIdentifier",
+     "TADA.MonitoringLocationTypeName",
+     "ATTAINS.WaterType"))) |>
+    dplyr::distinct()
+
+  # if replace_all equals TRUE, remove all existing ATTAINS.WaterTypes
+  if(replace_all == TRUE) {
+
+    if("ATTAINS.WaterType" %in% names(wqp.mls)) {
+      wqp.mls <- wqp.mls |>
+        dplyr::select(-ATTAINS.WaterType)
+    }
+    # if replace_all equals FALSE, filter to retain only rows where ATTAINS.WaterType
+    # is NA or blank
+  } else {
+    if("ATTAINS.WaterType" %in% names(wqp.mls)) {
+      wqp.mls <- wqp.mls |>
+        dplyr::filter(is.na(ATTAINS.WaterType) |
+                      ATTAINS.WaterType == "") |>
+        dplyr::select(-ATTAINS.WaterType)
+    }
+  }
+
+  # load water type crosswalk
+  wattype.crosswalk <- utils::read.csv(system.file(
+    "extdata",
+    "ATTAINSWaterTypeToWQPMonLocType.csv",
+    package = "EPATADA"
+  )) |>
+    dplyr::select(Name, ATTAINS.WaterType) |>
+    dplyr::mutate(TADA.MonitoringLocationTypeName = toupper(Name)) |>
+    dplyr::select(-Name) |>
+    dplyr::distinct()
+
+  # match ATTAINS.WaterType to TADA.MonitoringLocationTypeName
+  match.type <- wqp.mls |>
+    dplyr::left_join(wattype.crosswalk, dplyr::join_by(TADA.MonitoringLocationTypeName)) |>
+    dplyr::rename(New.ATTAINS.WaterType = ATTAINS.WaterType) |>
+    dplyr::select(-TADA.MonitoringLocationTypeName)
+
+  # remove water type crosswalk
+  rm(wattype.crosswalk)
+
+  # join ATTAINS.WaterType matches to TADA df
+  .data <- .data |>
+    dplyr::left_join(match.type,
+                     relationship = "many-to-many",
+                     by = dplyr::join_by(TADA.MonitoringLocationIdentifier))
+
+  # remove intermediate object
+  rm(match.type)
+
+  # retain all existing ATTAINS.WaterType matches if none were present in TADA df
+  # or if replace_all = TRUE
+  if(!"ATTAINS.WaterType" %in% names(.data)) {
+
+    .data <- .data |>
+      dplyr::rename(ATTAINS.WaterType = New.ATTAINS.WaterType)
+  } else {
+    # if some ATTAINS.WaterType matches exist, only replace the NA or blank rows
+    # with the new matches
+    testresults <- testresults |>
+    dplyr::mutate(ATTAINS.WaterType = ifelse(is.na(ATTAINS.WaterType) |
+                                               ATTAINS.WaterType == "",
+                                             New.ATTAINS.WaterType,
+                                             ATTAINS.WaterType)) |>
+    dplyr::select(-New.ATTAINS.WaterType)
+  }
+
+  .data <- .data |>
+    TADA_OrderCols()
+
+  return(.data)
 }
