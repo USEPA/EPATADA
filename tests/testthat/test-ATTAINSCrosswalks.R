@@ -468,10 +468,30 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_MLSum
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-testthat::test_that({
-  #' # example TADA df already including an ATTAINS.WaterType column
-  #' MT_exata <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
-  #' sf::st_drop_geometry()
+testthat::test_that("TADA_CrosswalkATTAINSWaterTypes does not replace vaid ATTAINS.WaterType entries", {
+  # create list of allowable ATTAINS water types
+  attains.types <- quiet(rExpertQuery::EQ_DomainValues("water_type") |>
+                           dplyr::select(name) |>
+                           dplyr::distinct() |>
+                           dplyr::pull())
+
+
+  # example TADA df already including an ATTAINS.WaterType column
+  MT_exData <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
+  sf::st_drop_geometry() |>
+  dplyr::filter(ATTAINS.WaterType %in% attains.types)
+
+  # run TADA_CrosswalkATTAINSWaterTypes
+  MT_exDataCw <- TADA_CrosswalkATTAINSWaterTypes(MT_exData)
+
+  # compare dfs by anti-join
+  MT_compare <- MT_exData |>
+    dplyr::anti_join(MT_exDataCw,
+                     by = dplyr::join_by(names(MT_exData)))
+
+  # check to see that there are no rows in the df resulting from the anti-join
+  testthat::expect_equal(NROW(MT_compare), 0)
+
   #'
   #' # add ATTAINS.WaterType only for rows without values in that column
   #' MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData)
