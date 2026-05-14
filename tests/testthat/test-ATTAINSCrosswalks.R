@@ -468,7 +468,7 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_MLSum
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-testthat::test_that("TADA_CrosswalkATTAINSWaterTypes does not replace vaid ATTAINS.WaterType entries", {
+testthat::test_that("TADA_CrosswalkATTAINSWaterTypes does not replace valid ATTAINS.WaterType entries", {
   # create list of allowable ATTAINS water types
   attains.types <- quiet(rExpertQuery::EQ_DomainValues("water_type") |>
                            dplyr::select(name) |>
@@ -487,35 +487,85 @@ testthat::test_that("TADA_CrosswalkATTAINSWaterTypes does not replace vaid ATTAI
   # compare dfs by anti-join
   MT_compare <- MT_exData |>
     dplyr::anti_join(MT_exDataCw,
-                     by = dplyr::join_by(names(MT_exData)))
+                     by = names(MT_exData))
 
   # check to see that there are no rows in the df resulting from the anti-join
   testthat::expect_equal(NROW(MT_compare), 0)
-
-  #'
-  #' # add ATTAINS.WaterType only for rows without values in that column
-  #' MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData)
-  #'
-  #' # add ATTAINS.WaterType for all rows (replace existing matches)
-  #' MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
-  #'
-  #' # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
-  #' Tribal_addAll <- TADA_CrosswalkATTAINSWaterType(Data_TribalNations_Harmonized)
-  #'
-  #' # modify tribal example data to include an ATTAINS.WaterType not allowed by ATTAINS
-  #' Tribal_modified <- Tribal_addAll |>
-  #' dplyr::mutate(ATTAINS.WaterTYpe =
-  #' ifelse(TADA.MonitoringLocationIdentifier %in%
-  #'  c("REDLAKE_WQX-GREE-REDLAKE",
-  #'    "UTEMTN-COTTONWOOD WASH SPRING",
-  #'    "BLCKFEET-00000054",
-  #'    "BLCKFEET-00000056"
-  #'  ), "INVALID WATER TYPE",
-  #'  ATTAINS.WaterType))
-  #'
-  #'  # add ATTAINS.WaterType for any rows where it is missing, review all ATTAINS.WaterType
-  #'  # values and update any that are not allowed
-  #'  Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterType(Tribal_modified,
-  #'  review_all = TRUE,
-  #'  review_action = "update")
 })
+
+testthat::test_that("ATTAINS.WaterType values are only added for rows missing ATTAINS.WaterType", {
+
+# load test data
+MT_exData <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
+    sf::st_drop_geometry() |>
+    dplyr::mutate(HasWT = ifelse(is.na(ATTAINS.WaterType) |
+                                   ATTAINS.WaterType == "",
+                  "No",
+                  "Yes"))
+
+WT_yes <- MT_exData |>
+  dplyr::filter(!is.na(ATTAINS.WaterType),
+                ATTAINS.WaterType != "") |>
+  dplyr::select(TADA.MonitoringLocationIdentifier) |>
+  dplyr::distinct() |>
+  dplyr::pull()
+
+WT_no <- MT_exData |>
+  dplyr::filter(!TADA.MonitoringLocationIdentifier %in% WT_yes) |>
+  dplyr::select(TADA.MonitoringLocationIdentifier) |>
+  dplyr::distinct() |>
+  dplyr::pull()
+
+MT_exData <- MT_exData |>
+  dplyr::select(-HasWT)
+
+# add ATTAINS.WaterType only for rows without values in that column
+MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_exData)
+
+# compare existing ATTAINS.WaterType before and after running function
+MT_filtYesOrig <- MT_exData |>
+  dplyr::filter(TADA.MonitoringLocationIdentifier %in% WT_yes)
+
+
+# filter new data set for
+MT_filtYesNew <- MT_addMissing |>
+  dplyr::filter(TADA.MonitoringLocationIdentifier %in% WT_yes)
+
+MT_compare <- MT_filtYesNew |>
+  dplyr::anti_join(MT_filtYesOrig,
+                   by = names(MT_filtYesOrig))
+
+MT_filtNoNew <- MT_addMissing |>
+  dplyr::filter(TADA.MonitoringLocationIdentifier %in% WT_no,
+                !is.na(ATTAINS.WaterType),
+                ATTAINS.WaterType != "")
+
+
+# check to see that now rows with existing ATTAINS.WaterType values were changed
+testthat::expect_equal(NROW(MT_compare), 0)
+# check to see that new ATTAINS.WaterType values were added for rows without existing ATTAINS.WaterType values
+testthat::expect_gte(NROW(MT_filtNoNew), 0)
+})
+
+#' # modify tribal example data to include an ATTAINS.WaterType not allowed by ATTAINS
+#' Tribal_modified <- Tribal_addAll |>
+#' dplyr::mutate(ATTAINS.WaterTYpe =
+#' ifelse(TADA.MonitoringLocationIdentifier %in%
+#'  c("REDLAKE_WQX-GREE-REDLAKE",
+#'    "UTEMTN-COTTONWOOD WASH SPRING",
+#'    "BLCKFEET-00000054",
+#'    "BLCKFEET-00000056"
+#'  ), "INVALID WATER TYPE",
+#'  ATTAINS.WaterType))
+#'
+#'  # add ATTAINS.WaterType for any rows where it is missing, review all ATTAINS.WaterType
+#'  # values and update any that are not allowed
+#'  Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterType(Tribal_modified,
+#'  review_all = TRUE,
+#'  review_action = "update")
+
+#'
+#' # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
+#' Tribal_addAll <- TADA_CrosswalkATTAINSWaterType(Data_TribalNations_Harmonized)
+#'
+
