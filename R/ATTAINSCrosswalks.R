@@ -4525,15 +4525,42 @@ TADA_MLSummary <- function(
 #' @param review_all Logical. If TRUE, review all ATTAINS.WaterType values to ensure
 #' they are allowable values. If a value is not allowed, replace it with the ATTAINS
 #' WaterType identified in the crosswalk. If FALSE, no review. Default equals FALSE.
+#' @param review_action Character string. Options are "flag" or "update". If
+#' review_action equals "flag", the flagging column TADA.ATTAINSWaterTypeFlag will
+#' be added to .data and identify any rows where the ATTAINS.WaterType value does
+#' not match any of the allowable values for water type in ATTAINS. When review_action
+#' equals "update", the flagging column will be added and any flagged rows will have
+#' their ATTAINS.WaterType values updated by crosswalking the
+#' TADA.MonitoringLocationTypeName to ATTAINS.WaterType. The TADA.ATTAINSWaterTypeFlag
+#' column will be updated to reflect this action.
 #'
 #' @return A TADA data frame with ATTAINS.WaterType column created (f not already
 #' existing) and populated.
 #'
 #' @export
 #'
+#' #' @examples
+#' \dontrun{
+#' # Example TADA df already including an ATTAINS.WaterType column
+#' MT_ExData <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
+#' sf::st_drop_geometry()
+#'
+#' # Add ATTAINS.WaterType only for rows without values in that column
+#' MT_AddMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData)
+#'
+#' # Add ATTAINS.WaterType for all rows (replace existing matches)
+#' MT_ReplaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
+#'
+#' # Add ATTAINS.WaterType only for rows without values in that column and review
+#' # All rows to ensure valid ATTAINS.WaterType values
+#'
+#' }
+#'
+#'
 TADA_CrosswalkATTAINSWaterTypes <- function(.data,
                                             replace_all = FALSE,
-                                            review_all = FALSE){
+                                            review_all = FALSE,
+                                            review_action = "flag"){
 
   # create df of unique monitoring location identifiers, monitoring location type
   # name, and (if present in TADA df) ATTAINS.WaterType
@@ -4579,17 +4606,11 @@ TADA_CrosswalkATTAINSWaterTypes <- function(.data,
     dplyr::rename(New.ATTAINS.WaterType = ATTAINS.WaterType) |>
     dplyr::select(-TADA.MonitoringLocationTypeName)
 
-  # remove water type crosswalk
-  rm(wattype.crosswalk)
-
   # join ATTAINS.WaterType matches to TADA df
   .data <- .data |>
     dplyr::left_join(match.type,
                      relationship = "many-to-many",
                      by = dplyr::join_by(TADA.MonitoringLocationIdentifier))
-
-  # remove intermediate object
-  rm(match.type)
 
   # retain all existing ATTAINS.WaterType matches if none were present in TADA df
   # or if replace_all = TRUE
@@ -4600,7 +4621,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(.data,
   } else {
     # if some ATTAINS.WaterType matches exist, only replace the NA or blank rows
     # with the new matches
-    testresults <- testresults |>
+    .data <- .data |>
     dplyr::mutate(ATTAINS.WaterType = ifelse(is.na(ATTAINS.WaterType) |
                                                ATTAINS.WaterType == "",
                                              New.ATTAINS.WaterType,
@@ -4610,6 +4631,62 @@ TADA_CrosswalkATTAINSWaterTypes <- function(.data,
 
   .data <- .data |>
     TADA_OrderCols()
+
+  if(isTRUE(review_all)) {
+
+    # create list of allowable ATTAINS water types
+    attains.types <- quiet(rExpertQuery::EQ_DomainValues("water_type") |>
+      dplyr::select(name) |>
+      dplyr::distinct() |>
+      dplyr::pull()) |>
+      append(c("", NA))
+
+    # identify and flag data without allowable ATTAINS Water Type
+    flag.data <- .data |>
+      dplyr::filter(!ATTAINS.WaterType %in% attains.types) |>
+      dplyr::mutate(TADA.ATTAINSWaterType.Flag =
+                      "ATTAINS.WaterType value does not match any allowable ATTAINS.WaterType.") |>
+      dplyr::select(TADA.MonitoringLocationIdentifier,
+                    TADA.MonitoringLocationTypeName,
+                    TADA.ATTAINSWaterType.Flag) |>
+      dplyr::distinct() |>
+      dplyr::mutate(New.ATTAINS.WaterType = NA)
+
+    # if users has selected the option to update invalid ATTAINS.WaterTypeValues then
+    # update any flagged rows
+    if(review_action == "update") {
+
+      # identify and flag data for updates
+      flag.data <- flag.data |>
+        dplyr::left_join(wattype.crosswalk, dplyr::join_by(TADA.MonitoringLocationTypeName)) |>
+        dplyr::rename(New.ATTAINS.WaterType = ATTAINS.WaterType) |>
+        dplyr::select(-TADA.MonitoringLocationTypeName) |>
+        dplyr::mutate(TADA.ATTAINSWaterType.Flag =
+                        ifelse(!is.na(New.ATTAINS.WaterType),
+                        "ATTAINS.WaterType was updated to match an allowable ATTAINS.WaterType value by crosswalking ATTAINS.WaterType to TADA.MonitoringLocationTypeName.",
+                        "ATTAINS.WaterType set to NA as no ATTAINS.WaterType value was found for this TADA.MonitoringLocationTypeName."))
+
+    }
+
+    # fill flag column for all results, updated ATTAINS.WaterType (if required)
+    .data <- .data |>
+      dplyr::left_join(flag.data,
+                       by = dplyr::join_by(TADA.MonitoringLocationTypeName)) |>
+      dplyr::mutate(ATTAINS.WaterType = ifelse(!is.na(New.ATTAINS.WaterType),
+                                               New.ATTAINS.WaterType,
+                                               ATTAINS.WaterType),
+                    TADA.ATTAINSWaterType.Flag = ifelse(is.na(TADA.ATTAINS.WaterType.Flag),
+                                                        "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value.",
+                                                        ATTAINS.WaterType))
+
+    # remove intermediate object
+    rm(attains.types)
+
+
+  }
+
+  # remove intermediate objects
+  rm(match.type, wattype.crosswalk)
 
   return(.data)
 }
