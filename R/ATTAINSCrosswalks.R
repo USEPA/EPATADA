@@ -4541,19 +4541,35 @@ TADA_MLSummary <- function(
 #'
 #' #' @examples
 #' \dontrun{
-#' # Example TADA df already including an ATTAINS.WaterType column
-#' MT_ExData <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
+#' # example TADA df already including an ATTAINS.WaterType column
+#' MT_exata <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
 #' sf::st_drop_geometry()
 #'
-#' # Add ATTAINS.WaterType only for rows without values in that column
-#' MT_AddMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData)
+#' # add ATTAINS.WaterType only for rows without values in that column
+#' MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData)
 #'
-#' # Add ATTAINS.WaterType for all rows (replace existing matches)
-#' MT_ReplaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
+#' # add ATTAINS.WaterType for all rows (replace existing matches)
+#' MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
 #'
-#' # Add ATTAINS.WaterType only for rows without values in that column and review
-#' # All rows to ensure valid ATTAINS.WaterType values
+#' # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
+#' Tribal_addAll <- TADA_CrosswalkATTAINSWaterType(Data_TribalNations_Harmonized)
 #'
+#' # modify tribal example data to include an ATTAINS.WaterType not allowed by ATTAINS
+#' Tribal_modified <- Tribal_addAll |>
+#' dplyr::mutate(ATTAINS.WaterTYpe =
+#' ifelse(TADA.MonitoringLocationIdentifier %in%
+#'  c("REDLAKE_WQX-GREE-REDLAKE",
+#'    "UTEMTN-COTTONWOOD WASH SPRING",
+#'    "BLCKFEET-00000054",
+#'    "BLCKFEET-00000056"
+#'  ), "INVALID WATER TYPE",
+#'  ATTAINS.WaterType))
+#'
+#'  # add ATTAINS.WaterType for any rows where it is missing, review all ATTAINS.WaterType
+#'  # values and update any that are not allowed
+#'  Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterType(Tribal_modified,
+#'  review_all = TRUE,
+#'  review_action = "update")
 #' }
 #'
 #'
@@ -4681,8 +4697,6 @@ TADA_CrosswalkATTAINSWaterTypes <- function(.data,
 
     # remove intermediate object
     rm(attains.types)
-
-
   }
 
   # remove intermediate objects

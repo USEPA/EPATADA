@@ -157,7 +157,7 @@ testthat::test_that("TADA_DefineCriteriaMethodology ", {
   )
 })
 
-test_that("Excel file generation works correctly with overwrite = F in TADA_UsesForAnalysis when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
+testthat::test_that("Excel file generation works correctly with overwrite = F in TADA_UsesForAnalysis when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
   # specify downloads path
   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
@@ -199,7 +199,7 @@ test_that("Excel file generation works correctly with overwrite = F in TADA_Uses
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-test_that("Excel file generation works correctly with overwrite = T in TADA_UsesForAnalysis when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
+testthat::test_that("Excel file generation works correctly with overwrite = T in TADA_UsesForAnalysis when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
   # specify downloads path
   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
@@ -227,7 +227,7 @@ test_that("Excel file generation works correctly with overwrite = T in TADA_Uses
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-test_that("Excel file generation works correctly with overwrite = F in TADA_MLSummaryRef when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
+testthat::test_that("Excel file generation works correctly with overwrite = F in TADA_MLSummaryRef when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
   # specify downloads path
   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
@@ -274,7 +274,7 @@ test_that("Excel file generation works correctly with overwrite = F in TADA_MLSu
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-test_that("Excel file generation works correctly with overwrite = T in TADA_MLSummaryRef when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
+testthat::test_that("Excel file generation works correctly with overwrite = T in TADA_MLSummaryRef when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
   # specify downloads path
   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
@@ -307,7 +307,7 @@ test_that("Excel file generation works correctly with overwrite = T in TADA_MLSu
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-test_that("Excel file generation works with blank inputs in TADA_ParametersForAnalysis even when excel file does not exist yet.", {
+testhat::test_that("Excel file generation works with blank inputs in TADA_ParametersForAnalysis even when excel file does not exist yet.", {
   # specify downloads path
   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
@@ -357,7 +357,7 @@ test_that("Excel file generation works with blank inputs in TADA_ParametersForAn
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-test_that("Excel file generation works with blank inputs in TADA_UsesForAnalysis even when excel file does not exist yet.", {
+testthat::test_that("Excel file generation works with blank inputs in TADA_UsesForAnalysis even when excel file does not exist yet.", {
   # specify downloads path
   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
@@ -411,7 +411,7 @@ test_that("Excel file generation works with blank inputs in TADA_UsesForAnalysis
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-test_that("Excel file generation works with blank inputs in TADA_MLSummary even when excel file does not exist yet.", {
+testthat::test_that("Excel file generation works with blank inputs in TADA_MLSummary even when excel file does not exist yet.", {
   # specify downloads path
   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
@@ -466,4 +466,36 @@ test_that("Excel file generation works with blank inputs in TADA_MLSummary even 
 
   # Clean up after test completes
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
+})
+
+testthat::test_that({
+  #' # example TADA df already including an ATTAINS.WaterType column
+  #' MT_exata <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
+  #' sf::st_drop_geometry()
+  #'
+  #' # add ATTAINS.WaterType only for rows without values in that column
+  #' MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData)
+  #'
+  #' # add ATTAINS.WaterType for all rows (replace existing matches)
+  #' MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
+  #'
+  #' # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
+  #' Tribal_addAll <- TADA_CrosswalkATTAINSWaterType(Data_TribalNations_Harmonized)
+  #'
+  #' # modify tribal example data to include an ATTAINS.WaterType not allowed by ATTAINS
+  #' Tribal_modified <- Tribal_addAll |>
+  #' dplyr::mutate(ATTAINS.WaterTYpe =
+  #' ifelse(TADA.MonitoringLocationIdentifier %in%
+  #'  c("REDLAKE_WQX-GREE-REDLAKE",
+  #'    "UTEMTN-COTTONWOOD WASH SPRING",
+  #'    "BLCKFEET-00000054",
+  #'    "BLCKFEET-00000056"
+  #'  ), "INVALID WATER TYPE",
+  #'  ATTAINS.WaterType))
+  #'
+  #'  # add ATTAINS.WaterType for any rows where it is missing, review all ATTAINS.WaterType
+  #'  # values and update any that are not allowed
+  #'  Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterType(Tribal_modified,
+  #'  review_all = TRUE,
+  #'  review_action = "update")
 })
