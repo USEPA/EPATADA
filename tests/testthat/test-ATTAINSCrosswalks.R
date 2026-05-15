@@ -307,7 +307,7 @@ testthat::test_that("Excel file generation works correctly with overwrite = T in
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-testhat::test_that("Excel file generation works with blank inputs in TADA_ParametersForAnalysis even when excel file does not exist yet.", {
+testthat::test_that("Excel file generation works with blank inputs in TADA_ParametersForAnalysis even when excel file does not exist yet.", {
   # specify downloads path
   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
