@@ -4572,10 +4572,12 @@ TADA_MLSummary <- function(
 #'  review_action = "update")
 #' }
 #'
-TADA_CrosswalkATTAINSWaterTypes <- function(.data,
-                                            replace_all = FALSE,
-                                            review_all = FALSE,
-                                            review_action = "flag"){
+TADA_CrosswalkATTAINSWaterTypes <- function(
+  .data,
+  replace_all = FALSE,
+  review_all = FALSE,
+  review_action = "flag"
+) {
   # create df of unique monitoring location identifiers, monitoring location type
   # name, and (if present in TADA df) ATTAINS.WaterType
   wqp.mls <- .data |>
