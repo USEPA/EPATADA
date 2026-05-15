@@ -4552,11 +4552,11 @@ TADA_MLSummary <- function(
 #' MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
 #'
 #' # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
-#' Tribal_addAll <- TADA_CrosswalkATTAINSWaterType(Data_TribalNations_Harmonized)
+#' Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(Data_TribalNations_Harmonized)
 #'
 #' # modify tribal example data to include an ATTAINS.WaterType not allowed by ATTAINS
 #' Tribal_modified <- Tribal_addAll |>
-#' dplyr::mutate(ATTAINS.WaterTYpe =
+#' dplyr::mutate(ATTAINS.WaterType =
 #' ifelse(TADA.MonitoringLocationIdentifier %in%
 #'  c("REDLAKE_WQX-GREE-REDLAKE",
 #'    "UTEMTN-COTTONWOOD WASH SPRING",
@@ -4567,7 +4567,7 @@ TADA_MLSummary <- function(
 #'
 #'  # add ATTAINS.WaterType for any rows where it is missing, review all ATTAINS.WaterType
 #'  # values and update any that are not allowed
-#'  Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterType(Tribal_modified,
+#'  Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterTypes(Tribal_modified,
 #'  review_all = TRUE,
 #'  review_action = "update")
 #' }
@@ -4665,8 +4665,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(.data,
       dplyr::select(TADA.MonitoringLocationIdentifier,
                     TADA.MonitoringLocationTypeName,
                     TADA.ATTAINSWaterType.Flag) |>
-      dplyr::distinct() |>
-      dplyr::mutate(New.ATTAINS.WaterType = NA)
+      dplyr::distinct()
 
     # if users has selected the option to update invalid ATTAINS.WaterTypeValues then
     # update any flagged rows
@@ -4687,11 +4686,11 @@ TADA_CrosswalkATTAINSWaterTypes <- function(.data,
     # fill flag column for all results, updated ATTAINS.WaterType (if required)
     .data <- .data |>
       dplyr::left_join(flag.data,
-                       by = dplyr::join_by(TADA.MonitoringLocationTypeName)) |>
+                       by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) |>
       dplyr::mutate(ATTAINS.WaterType = ifelse(!is.na(New.ATTAINS.WaterType),
                                                New.ATTAINS.WaterType,
                                                ATTAINS.WaterType),
-                    TADA.ATTAINSWaterType.Flag = ifelse(is.na(TADA.ATTAINS.WaterType.Flag),
+                    TADA.ATTAINSWaterType.Flag = ifelse(is.na(TADA.ATTAINSWaterType.Flag),
                                                         "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value.",
                                                         ATTAINS.WaterType))
 
