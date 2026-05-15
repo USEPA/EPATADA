@@ -4539,7 +4539,7 @@ TADA_MLSummary <- function(
 #'
 #' @export
 #'
-#' #' @examples
+#' @examples
 #' \dontrun{
 #' # example TADA df already including an ATTAINS.WaterType column
 #' MT_exata <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
@@ -4571,7 +4571,6 @@ TADA_MLSummary <- function(
 #'  review_all = TRUE,
 #'  review_action = "update")
 #' }
-#'
 #'
 TADA_CrosswalkATTAINSWaterTypes <- function(.data,
                                             replace_all = FALSE,
