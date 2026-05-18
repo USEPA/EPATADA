@@ -541,7 +541,6 @@ testthat::test_that("In TADA_CrosswalkATTAINSWaterType ATTAINS.WaterType values 
 })
 
 testthat::test_that("TADA_CrosswalkATTAINSWaterType identifies and updates invalid ATTAINS.WaterType values.", {
-
   # create list of allowable ATTAINS water types
   attains.types <- quiet(
     rExpertQuery::EQ_DomainValues("water_type") |>
