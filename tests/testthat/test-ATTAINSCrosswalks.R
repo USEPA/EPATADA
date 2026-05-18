@@ -541,6 +541,15 @@ testthat::test_that("In TADA_CrosswalkATTAINSWaterType ATTAINS.WaterType values 
 })
 
 testthat::test_that("TADA_CrosswalkATTAINSWaterType identifies and updates invalid ATTAINS.WaterType values.", {
+
+  # create list of allowable ATTAINS water types
+  attains.types <- quiet(
+    rExpertQuery::EQ_DomainValues("water_type") |>
+      dplyr::select(name) |>
+      dplyr::distinct() |>
+      dplyr::pull()
+  )
+
   # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
   Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(
     Data_TribalNations_Harmonized
