@@ -3653,6 +3653,18 @@ TADA_AssignUsesToWaterType <- function(
   # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
   load(system.file("extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"))
 
+  # If AUMLRef is provided, filter by the ATTAINS.WaterType in the data frame
+  if (!is.null(AUMLRef)) {
+    ATTAINSParamUseOrgRef <- dplyr::filter(
+      ATTAINSParamUseOrgRef,
+      ATTAINS.WaterType %in% unique(AUMLRef$ATTAINS.WaterType)
+    )
+    message(
+      "TADA_AssignUsesToWaterType:
+      An AUMLRef was provided. Filtering the crosswalk to water types found in your data frame."
+    )
+  }
+  
   # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA 304(a)" as that is not an ATTAINS org_id.
   if (
     sum(
