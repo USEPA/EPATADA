@@ -4546,8 +4546,11 @@ TADA_MLSummary <- function(
 #' their ATTAINS.WaterType values updated by crosswalking the
 #' TADA.MonitoringLocationTypeName to ATTAINS.WaterType. The TADA.ATTAINSWaterTypeFlag
 #' column will be updated to reflect this action.
-#' @param assign_AUML Logical. If True, adds a column ATTAINS.AssessmentUnitIdentifier
+#' @param create_AUMLRef Logical. If True, adds a column ATTAINS.AssessmentUnitIdentifier
 #' that is identical to the newly created ATTAINS.WaterType.
+#'
+#' @param org_id Character vector. ATTAINS organization identifier(s). Note: 
+#' Only a single ATTAINS.Organization identifier should be supplied for the time being
 #'
 #' @return A TADA data frame with ATTAINS.WaterType column created (f not already
 #' existing) and populated.
