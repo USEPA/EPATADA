@@ -3664,7 +3664,7 @@ TADA_AssignUsesToWaterType <- function(
       An AUMLRef was provided. Filtering the crosswalk to water types found in your data frame."
     )
   }
-  
+
   # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA 304(a)" as that is not an ATTAINS org_id.
   if (
     sum(
@@ -3688,7 +3688,8 @@ TADA_AssignUsesToWaterType <- function(
   if (!org_id == "") {
     ATTAINSParamUseOrgRef <- dplyr::filter(
       ATTAINSParamUseOrgRef,
-      ATTAINS.OrganizationIdentifier %in% org_id)
+      ATTAINS.OrganizationIdentifier %in% org_id
+    )
   } else {
     ATTAINSParamUseOrgRef <- ATTAINSParamUseOrgRef |>
       dplyr::mutate(
@@ -3697,7 +3698,7 @@ TADA_AssignUsesToWaterType <- function(
       ) |>
       dplyr::distinct()
   }
-  
+
   if (nrow(ATTAINSParamUseOrgRef) == 0) {
     message(
       "TADA_CreateWaterusesRef:
@@ -3707,7 +3708,7 @@ TADA_AssignUsesToWaterType <- function(
     )
   }
 
-  CreateWaterUseRef <- ATTAINSParamUseOrgRef|>
+  CreateWaterUseRef <- ATTAINSParamUseOrgRef |>
     dplyr::distinct() |>
     dplyr::bind_cols(data.frame(IncludeOrExclude = as.character("Include"))) |>
     dplyr::select(
