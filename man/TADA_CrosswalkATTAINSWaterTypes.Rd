@@ -81,18 +81,18 @@ ifelse(TADA.MonitoringLocationIdentifier \%in\%
  Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterTypes(Tribal_modified,
  review_all = TRUE,
  review_action = "update")
- 
+
  # filter to Blackfeet
  Tribal_modified2 <- Tribal_modified |>
  dplyr::filter(OrganizationIdentifier == "BLCKFEET")
- 
+
  # append additional columns to the data frame to allow for creating the AUML crosswalk
  Tribal_reviewUpdate2 <- TADA_CrosswalkATTAINSWaterTypes(Tribal_modified2,
  org_id = "BLCKFEET",
  review_all = TRUE,
  review_action = "update",
  create_AUMLRef = TRUE)
- 
+
  Tribal_AUMLRef <- TADA_UpdateATTAINSAUMLCrosswalk(
  org_id = "BLCKFEET",
  crosswalk = Tribal_reviewUpdate2,
