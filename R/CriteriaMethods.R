@@ -112,7 +112,8 @@
 #' Users should only specify overwrite = TRUE once they are ready to re-run this
 #' function if they have already ran it once.
 #'
-#' @return A data frame with the criteria and methodology table in TADA format.
+#' @return A list containing three data frames with the (1) criteria and methodology table in TADA format,
+#' (2) the Data Dictionary table, and (3) the Allowable Values table.
 #' @importFrom rlang :=
 #' @export
 #'
