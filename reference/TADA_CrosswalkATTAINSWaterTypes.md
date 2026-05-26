@@ -1,0 +1,90 @@
+# Crosswalk WQP Monitoring Location Type to ATTAINS Water Type
+
+The WQP Monitoring Location Types and ATTAINS Water Types are not direct
+one to one matches. This function crosswalks the WQP Monitoring Location
+Type to the recommended ATTAINS Water Type. The crosswalk used in this
+function was created and maintained by the TADA team.
+
+## Usage
+
+``` r
+TADA_CrosswalkATTAINSWaterTypes(
+  .data,
+  replace_all = FALSE,
+  review_all = FALSE,
+  review_action = "flag"
+)
+```
+
+## Arguments
+
+- .data:
+
+  A TADA data frame.
+
+- replace_all:
+
+  Logical. If TRUE, replace all ATTAINS.WaterType values in the TADA
+  data frame with the recommended ATTAINS Water Type values. If FALSE,
+  only assigns an ATTAINS Water Type to rows with no ATTAINS Water Type
+  value. Default equals FALSE.
+
+- review_all:
+
+  Logical. If TRUE, review all ATTAINS.WaterType values to ensure they
+  are allowable values. If a value is not allowed, replace it with the
+  ATTAINS WaterType identified in the crosswalk. If FALSE, no review.
+  Default equals FALSE.
+
+- review_action:
+
+  Character string. Options are "flag" or "update". If review_action
+  equals "flag", the flagging column TADA.ATTAINSWaterTypeFlag will be
+  added to .data and identify any rows where the ATTAINS.WaterType value
+  does not match any of the allowable values for water type in ATTAINS.
+  When review_action equals "update", the flagging column will be added
+  and any flagged rows will have their ATTAINS.WaterType values updated
+  by crosswalking the TADA.MonitoringLocationTypeName to
+  ATTAINS.WaterType. The TADA.ATTAINSWaterTypeFlag column will be
+  updated to reflect this action.
+
+## Value
+
+A TADA data frame with ATTAINS.WaterType column created (f not already
+existing) and populated.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# example TADA df already including an ATTAINS.WaterType column
+MT_exata <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
+sf::st_drop_geometry()
+
+# add ATTAINS.WaterType only for rows without values in that column
+MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData)
+
+# add ATTAINS.WaterType for all rows (replace existing matches)
+MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
+
+# add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
+Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(Data_TribalNations_Harmonized)
+
+# modify tribal example data to include an ATTAINS.WaterType not allowed by ATTAINS
+Tribal_modified <- Tribal_addAll |>
+dplyr::mutate(ATTAINS.WaterType =
+ifelse(TADA.MonitoringLocationIdentifier %in%
+ c("REDLAKE_WQX-GREE-REDLAKE",
+   "UTEMTN-COTTONWOOD WASH SPRING",
+   "BLCKFEET-00000054",
+   "BLCKFEET-00000056"
+ ), "INVALID WATER TYPE",
+ ATTAINS.WaterType))
+
+ # add ATTAINS.WaterType for any rows where it is missing, review all ATTAINS.WaterType
+ # values and update any that are not allowed
+ Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterTypes(Tribal_modified,
+ review_all = TRUE,
+ review_action = "update")
+} # }
+```

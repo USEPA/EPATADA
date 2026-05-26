@@ -119,6 +119,9 @@
 - [`TADA_CreateUnitRef()`](https://usepa.github.io/EPATADA/reference/TADA_CreateUnitRef.md)
   : Generate A DataFrame of Units and Target by Characteristic Name
 
+- [`TADA_CrosswalkATTAINSWaterTypes()`](https://usepa.github.io/EPATADA/reference/TADA_CrosswalkATTAINSWaterTypes.md)
+  : Crosswalk WQP Monitoring Location Type to ATTAINS Water Type
+
 - [`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
   : Generate TADA-compatible dataframe from WQP Data
 
