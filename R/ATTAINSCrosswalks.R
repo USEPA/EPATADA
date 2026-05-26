@@ -4534,10 +4534,7 @@ TADA_MLSummary <- function(
 #' TADA.MonitoringLocationTypeName to ATTAINS.WaterType. The TADA.ATTAINSWaterTypeFlag
 #' column will be updated to reflect this action.
 #'
-#' @param org_id Character vector. ATTAINS organization identifier(s). Note: 
-#' Only a single ATTAINS.Organization identifier should be supplied for the time being
-#'
-#' @return A TADA data frame with ATTAINS.WaterType column created (f not already
+#' @return A TADA data frame with ATTAINS.WaterType column created (if not already
 #' existing) and populated.
 #'
 #' @export
