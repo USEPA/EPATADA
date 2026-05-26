@@ -384,7 +384,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
     ))
   }
 
-  # check that crosswalk is a data frame before proceeding
+  # check that crosswalk is a dataframe before proceeding
   if (is.data.frame(crosswalk)) {
     # check crosswalk has all of the required columns
     crosswalk_cols <- c(
@@ -411,20 +411,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       ))
     }
 
-    # filter user supplied crosswalk to only appropriate columns and unique values
-    crosswalk <- dplyr::select(
-      crosswalk,
-      ATTAINS.MonitoringLocationIdentifier,
-      OrganizationIdentifier,
-      ATTAINS.OrganizationIdentifier,
-      ATTAINS.AssessmentUnitIdentifier,
-      ATTAINS.MonitoringDataLinkText,
-      ATTAINS.WaterType
-    ) |>
-      dplyr::distinct()
-
     if (all(batchupload_cols %in% names(crosswalk))) {
-      # rename columns as needed
       crosswalk <- crosswalk |>
         dplyr::rename(
           ATTAINS.AssessmentUnitIdentifier = ASSESSMENT_UNIT_ID,
@@ -4546,8 +4533,6 @@ TADA_MLSummary <- function(
 #' their ATTAINS.WaterType values updated by crosswalking the
 #' TADA.MonitoringLocationTypeName to ATTAINS.WaterType. The TADA.ATTAINSWaterTypeFlag
 #' column will be updated to reflect this action.
-#' @param create_AUMLRef Logical. If True, adds a column ATTAINS.AssessmentUnitIdentifier
-#' that is identical to the newly created ATTAINS.WaterType.
 #'
 #' @param org_id Character vector. ATTAINS organization identifier(s). Note: 
 #' Only a single ATTAINS.Organization identifier should be supplied for the time being
@@ -4588,31 +4573,13 @@ TADA_MLSummary <- function(
 #'  Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterTypes(Tribal_modified,
 #'  review_all = TRUE,
 #'  review_action = "update")
-#'  
-#'  # filter to Blackfeet
-#'  Tribal_modified2 <- Tribal_modified |>
-#'  dplyr::filter(OrganizationIdentifier == "BLCKFEET")
-#'  
-#'  # append additional columns to the data frame to allow for creating the AUML crosswalk
-#'  Tribal_reviewUpdate2 <- TADA_CrosswalkATTAINSWaterTypes(Tribal_modified2,
-#'  org_id = "BLCKFEET",
-#'  review_all = TRUE,
-#'  review_action = "update",
-#'  create_AUMLRef = TRUE)
-#'  
-#'  Tribal_AUMLRef <- TADA_UpdateATTAINSAUMLCrosswalk(
-#'  org_id = "BLCKFEET",
-#'  crosswalk = Tribal_reviewUpdate2,
-#'  api_key = .setEQKey())
 #' }
 #'
 TADA_CrosswalkATTAINSWaterTypes <- function(
   .data,
   replace_all = FALSE,
   review_all = FALSE,
-  review_action = "flag",
-  create_AUMLRef = FALSE,
-  org_id = NULL
+  review_action = "flag"
 ) {
   # create df of unique monitoring location identifiers, monitoring location type
   # name, and (if present in TADA df) ATTAINS.WaterType
@@ -4749,29 +4716,6 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
         )
       )
 
-    if (isTRUE(create_AUMLRef)) {
-      if (!is.character(org_id) & is.null(org_id)) {
-        org_id <- ""
-        message(
-          "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
-        )
-      }
-      
-      .data <- .data |>
-        dplyr::mutate(
-          ATTAINS.AssessmentUnitIdentifier = TADA.MonitoringLocationIdentifier,
-          ATTAINS.OrganizationIdentifier = org_id,
-          ATTAINS.MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier,
-          ATTAINS.MonitoringDataLinkText = NA_character_
-        )
-      
-      message(
-        "TADA_CrosswalkATTAINSWaterTypes:
-  ATTAINS.OrganizationIdentifier, ATTAINS.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.MonitoringDataLinkText
-  have been appended. To create your AUMLRef crosswalk table, use the output as your crosswalk input for TADA_UpdateATTAINSAUMLCrosswalk."
-      )
-    }
-    
     # remove intermediate object
     rm(attains.types)
   }
