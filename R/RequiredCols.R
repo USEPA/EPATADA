@@ -280,6 +280,7 @@ attains.cols <- c(
   "ATTAINS.CatchmentStateCode",
   "ATTAINS.CatchmentResolution",
   "ATTAINS.WaterType",
+  "TADA.ATTAINSWaterType.Flag",
   "ATTAINS.ShapeArea"
 )
 
