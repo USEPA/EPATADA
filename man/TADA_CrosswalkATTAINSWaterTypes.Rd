@@ -8,9 +8,7 @@ TADA_CrosswalkATTAINSWaterTypes(
   .data,
   replace_all = FALSE,
   review_all = FALSE,
-  review_action = "flag",
-  create_AUMLRef = FALSE,
-  org_id = NULL
+  review_action = "flag"
 )
 }
 \arguments{
@@ -33,15 +31,9 @@ equals "update", the flagging column will be added and any flagged rows will hav
 their ATTAINS.WaterType values updated by crosswalking the
 TADA.MonitoringLocationTypeName to ATTAINS.WaterType. The TADA.ATTAINSWaterTypeFlag
 column will be updated to reflect this action.}
-
-\item{create_AUMLRef}{Logical. If True, adds a column ATTAINS.AssessmentUnitIdentifier
-that is identical to the newly created ATTAINS.WaterType.}
-
-\item{org_id}{Character vector. ATTAINS organization identifier(s). Note:
-Only a single ATTAINS.Organization identifier should be supplied for the time being}
 }
 \value{
-A TADA data frame with ATTAINS.WaterType column created (f not already
+A TADA data frame with ATTAINS.WaterType column created (if not already
 existing) and populated.
 }
 \description{
@@ -81,22 +73,6 @@ ifelse(TADA.MonitoringLocationIdentifier \%in\%
  Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterTypes(Tribal_modified,
  review_all = TRUE,
  review_action = "update")
-
- # filter to Blackfeet
- Tribal_modified2 <- Tribal_modified |>
- dplyr::filter(OrganizationIdentifier == "BLCKFEET")
-
- # append additional columns to the data frame to allow for creating the AUML crosswalk
- Tribal_reviewUpdate2 <- TADA_CrosswalkATTAINSWaterTypes(Tribal_modified2,
- org_id = "BLCKFEET",
- review_all = TRUE,
- review_action = "update",
- create_AUMLRef = TRUE)
-
- Tribal_AUMLRef <- TADA_UpdateATTAINSAUMLCrosswalk(
- org_id = "BLCKFEET",
- crosswalk = Tribal_reviewUpdate2,
- api_key = .setEQKey())
 }
 
 }
