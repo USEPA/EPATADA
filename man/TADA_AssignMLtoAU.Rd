@@ -6,13 +6,19 @@
 \usage{
 TADA_AssignMLtoAU(
   .data,
-  replace_all = TRUE,
-  addprefix_ATTAINS = FALSE,
-  org_id = NULL
+  org_id = NULL,
+  replace_all = FALSE,
+  addprefix_ATTAINS = FALSE
 )
 }
 \arguments{
 \item{.data}{A TADA data frame.}
+
+\item{org_id}{Character. Use "all" (case-insensitive) to
+apply an internal WQP organization to ATTAINS organization crosswalk,
+(see TADA_CrosswalkATTAINSOrgID)
+or NULL to leave blank for manual entry. Any org_ids that cannot be matched
+will be kept as NA.}
 
 \item{replace_all}{Logical. If TRUE, replace all ATTAINS.AssessmentUnitIdentifier
 values in the TADA data frame with the name of the WQP Monitoring Location Identifier
@@ -23,12 +29,6 @@ ATTAINS.AssessmentUnitIdentifier value. Default equals FALSE.}
 
 \item{addprefix_ATTAINS}{Character. Optional prefix to prepend to
 ATTAINS.AssessmentUnitIdentifier. Use NULL or "" to skip.}
-
-\item{org_id}{Character. ATTAINS organization identifier(s) to assign to
-each unique ATTAINS Assessment Unit ID. Use "all" (case-insensitive) to
-apply an internal WQP organization to ATTAINS organization crosswalk,
-(see TADA_CrosswalkATTAINSOrgID)
-or NULL to leave blank for manual entry.}
 }
 \value{
 A TADA data frame; creates and populates ATTAINS.WaterType if not
@@ -70,7 +70,7 @@ review_action = "update")
 
 Tribal_AUMLRef <- TADA_AssignMLtoAU(Tribal_modified, org_id = "all", addprefix_ATTAINS = "WQX_")
 
-BLCKFEET_AUMLRef <- Tribal_AUMLRef |> dplyr::filter(ATTAINS.OrganizationIdentifier == "BLCKFEET")
+BLCKFEET_AUMLRef <- TADA_AssignMLtoAU(Tribal_modified, org_id = "BLCKFEET", addprefix_ATTAINS = "WQX_")
  
 # update the final AUML crosswalk for use in module 3 analysis
 update_BLCKFEET_ATTAINS_AUML <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "BLCKFEET", crosswalk = BLCKFEET_AUMLRef)
