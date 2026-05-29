@@ -8,7 +8,9 @@ TADA_CrosswalkATTAINSWaterTypes(
   .data,
   replace_all = FALSE,
   review_all = FALSE,
-  review_action = "flag"
+  review_action = "flag",
+  create_AUMLRef = FALSE,
+  org_id = NULL
 )
 }
 \arguments{
@@ -31,9 +33,15 @@ equals "update", the flagging column will be added and any flagged rows will hav
 their ATTAINS.WaterType values updated by crosswalking the
 TADA.MonitoringLocationTypeName to ATTAINS.WaterType. The TADA.ATTAINSWaterTypeFlag
 column will be updated to reflect this action.}
+
+\item{create_AUMLRef}{Logical. If True, adds a column ATTAINS.AssessmentUnitIdentifier
+that is identical to the newly created ATTAINS.WaterType.}
+
+\item{org_id}{Character vector. ATTAINS organization identifier(s). Note:
+Only a single ATTAINS.Organization identifier should be supplied for the time being}
 }
 \value{
-A TADA data frame with ATTAINS.WaterType column created (if not already
+A TADA data frame with ATTAINS.WaterType column created (f not already
 existing) and populated.
 }
 \description{
