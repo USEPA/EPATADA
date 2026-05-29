@@ -4788,16 +4788,15 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 }
 
 
-
 #' WQP Organization ID to ATTAINS Organization ID Crosswalk
 #'
 #' Builds a crosswalk from ATTAINS organization IDs to WQP OrganizationIdentifiers
 #' using exact matches or sites that contain the same ID with a “_WQX” suffix.'
-#' 
-#' @return A data.frame with one row per ATTAINS org and matched WQP org, 
+#'
+#' @return A data.frame with one row per ATTAINS org and matched WQP org,
 #' containing columns: "ATTAINS.OrganizationIdentifier", "OrganizationIdentifier",
 #' "OrganizationFormalName", "ProviderName".
-#' 
+#'
 #' #' @examples
 #' \dontrun{
 #' # Generate the crosswalk
@@ -4809,24 +4808,31 @@ TADA_CrosswalkATTAINSOrgID <- function() {
   att_orgs <- rExpertQuery::EQ_DomainValues(domain = "org_id") |>
     dplyr::mutate(ATTAINS.OrganizationIdentifier = toupper(code)) |>
     dplyr::select(ATTAINS.OrganizationIdentifier)
-  
+
   # Load WQP organization reference
   load(system.file("extdata", "WQPOrganizationRef.rda", package = "EPATADA"))
-  
+
   # certain-only crosswalk
   wqp_set <- unique(WQPOrganizationRef$OrganizationIdentifier)
-  
+
   wqp_attains_orgs <- att_orgs |>
     dplyr::rowwise() |>
     dplyr::mutate(
-      candidates = list(unique(c(ATTAINS.OrganizationIdentifier, paste0(ATTAINS.OrganizationIdentifier, "_WQX")))),
+      candidates = list(unique(c(
+        ATTAINS.OrganizationIdentifier,
+        paste0(ATTAINS.OrganizationIdentifier, "_WQX")
+      ))),
       matched = list(intersect(candidates, wqp_set))
     ) |>
     dplyr::select(ATTAINS.OrganizationIdentifier, matched) |>
-    tidyr::unnest_longer(matched, values_to = "OrganizationIdentifier", keep_empty = TRUE) |>
+    tidyr::unnest_longer(
+      matched,
+      values_to = "OrganizationIdentifier",
+      keep_empty = TRUE
+    ) |>
     # keep_empty=TRUE gives NA where no match; join to add WQP org metadata
-    dplyr::left_join(WQPOrganizationRef, by = c("OrganizationIdentifier" )) 
-  
+    dplyr::left_join(WQPOrganizationRef, by = c("OrganizationIdentifier"))
+
   return(wqp_attains_orgs)
 }
 
@@ -4848,12 +4854,12 @@ TADA_CrosswalkATTAINSOrgID <- function() {
 #'
 #' @param addprefix_ATTAINS Character. Optional prefix to prepend to
 #' ATTAINS.AssessmentUnitIdentifier. Use NULL or "" to skip.
-#'   
+#'
 #' @param replace_all Logical. If TRUE, replace all ATTAINS.AssessmentUnitIdentifier
 #' values in the TADA data frame with the name of the WQP Monitoring Location Identifier
 #' (use case for those organizations that have not submitted to ATTAINS in the past nor
 #' have created any assessment units of their own). If FALSE, only
-#' assigns an ATTAINS.AssessmentUnitIdentifier to rows with no 
+#' assigns an ATTAINS.AssessmentUnitIdentifier to rows with no
 #' ATTAINS.AssessmentUnitIdentifier value. Default equals FALSE.
 #'
 #' @return A TADA data frame; creates and populates ATTAINS.WaterType if not
@@ -4892,69 +4898,87 @@ TADA_CrosswalkATTAINSOrgID <- function() {
 #' review_action = "update")
 #'
 #' Tribal_AUMLRef <- TADA_AssignMLtoAU(Tribal_modified, org_id = "all", addprefix_ATTAINS = "WQX_")
-#' 
+#'
 #' BLCKFEET_AUMLRef <- TADA_AssignMLtoAU(Tribal_modified, org_id = "BLCKFEET", addprefix_ATTAINS = "WQX_")
-#'  
+#'
 #' # update the final AUML crosswalk for use in module 3 analysis
 #' update_BLCKFEET_ATTAINS_AUML <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "BLCKFEET", crosswalk = BLCKFEET_AUMLRef)
-#' 
+#'
 #' # create an ATTAINS batch upload compatible ATTAINS AUMLRef
 #' update_BLCKFEET_ATTAINS_AUML2 <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "BLCKFEET", crosswalk = BLCKFEET_AUMLRef, batch_upload = TRUE)
 #' }
 #'
 TADA_AssignMLtoAU <- function(
-    .data,
-    org_id = NULL,
-    replace_all = FALSE,
-    addprefix_ATTAINS = FALSE
+  .data,
+  org_id = NULL,
+  replace_all = FALSE,
+  addprefix_ATTAINS = FALSE
 ) {
   # checks if ATTAINS.AssessmentUnitIdentifier exists yet
-  if (!"ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) { .data <- dplyr::mutate(.data, ATTAINS.AssessmentUnitIdentifier = NA_character_) }
-  if (!is.character(org_id) & is.null(org_id)) {
-      org_id <- ""
-      message(
-        "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
-      )
-      AUMLRef <- .data |>
-        dplyr::mutate(
-          ATTAINS.AssessmentUnitIdentifier = dplyr::case_when(
-            isTRUE(replace_all) ~ TADA.MonitoringLocationIdentifier,
-            !isTRUE(replace_all) &
-              (is.na(ATTAINS.AssessmentUnitIdentifier) | ATTAINS.AssessmentUnitIdentifier == "") ~ TADA.MonitoringLocationIdentifier,
-            TRUE ~ ATTAINS.AssessmentUnitIdentifier
-          ),
-          ATTAINS.OrganizationIdentifier = org_id,
-          ATTAINS.MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier,
-          ATTAINS.MonitoringDataLinkText = NA_character_
-        ) |>
-        dplyr::select(
-          OrganizationIdentifier,
-          ATTAINS.OrganizationIdentifier,
-          ATTAINS.MonitoringLocationIdentifier,
-          ATTAINS.AssessmentUnitIdentifier,
-          ATTAINS.MonitoringDataLinkText,
-          ATTAINS.WaterType
-        ) |>
-        dplyr::distinct()
-    }
-    
-  if (!is.null(org_id) && org_id != "") {
-  temp <- TADA_CrosswalkATTAINSOrgID()
-    
-  if (!"ATTAINS.OrganizationIdentifier" %in% names(.data)) {
-    joins <- c("OrganizationIdentifier", "OrganizationFormalName", "ProviderName")
-  } else {
-    joins <- c("ATTAINS.OrganizationIdentifier", "OrganizationIdentifier", "OrganizationFormalName", "ProviderName")
+  if (!"ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
+    .data <- dplyr::mutate(
+      .data,
+      ATTAINS.AssessmentUnitIdentifier = NA_character_
+    )
   }
-  
+  if (!is.character(org_id) & is.null(org_id)) {
+    org_id <- ""
+    message(
+      "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+    )
+    AUMLRef <- .data |>
+      dplyr::mutate(
+        ATTAINS.AssessmentUnitIdentifier = dplyr::case_when(
+          isTRUE(replace_all) ~ TADA.MonitoringLocationIdentifier,
+          !isTRUE(replace_all) &
+            (is.na(ATTAINS.AssessmentUnitIdentifier) |
+              ATTAINS.AssessmentUnitIdentifier ==
+                "") ~ TADA.MonitoringLocationIdentifier,
+          TRUE ~ ATTAINS.AssessmentUnitIdentifier
+        ),
+        ATTAINS.OrganizationIdentifier = org_id,
+        ATTAINS.MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier,
+        ATTAINS.MonitoringDataLinkText = NA_character_
+      ) |>
+      dplyr::select(
+        OrganizationIdentifier,
+        ATTAINS.OrganizationIdentifier,
+        ATTAINS.MonitoringLocationIdentifier,
+        ATTAINS.AssessmentUnitIdentifier,
+        ATTAINS.MonitoringDataLinkText,
+        ATTAINS.WaterType
+      ) |>
+      dplyr::distinct()
+  }
+
+  if (!is.null(org_id) && org_id != "") {
+    temp <- TADA_CrosswalkATTAINSOrgID()
+
+    if (!"ATTAINS.OrganizationIdentifier" %in% names(.data)) {
+      joins <- c(
+        "OrganizationIdentifier",
+        "OrganizationFormalName",
+        "ProviderName"
+      )
+    } else {
+      joins <- c(
+        "ATTAINS.OrganizationIdentifier",
+        "OrganizationIdentifier",
+        "OrganizationFormalName",
+        "ProviderName"
+      )
+    }
+
     AUMLRef_temp <- dplyr::left_join(.data, temp, by = joins)
-    
+
     AUMLRef <- AUMLRef_temp |>
       dplyr::mutate(
         ATTAINS.AssessmentUnitIdentifier = dplyr::case_when(
           isTRUE(replace_all) ~ TADA.MonitoringLocationIdentifier,
           !isTRUE(replace_all) &
-            (is.na(ATTAINS.AssessmentUnitIdentifier) | ATTAINS.AssessmentUnitIdentifier == "") ~ TADA.MonitoringLocationIdentifier,
+            (is.na(ATTAINS.AssessmentUnitIdentifier) |
+              ATTAINS.AssessmentUnitIdentifier ==
+                "") ~ TADA.MonitoringLocationIdentifier,
           TRUE ~ ATTAINS.AssessmentUnitIdentifier
         ),
         ATTAINS.OrganizationIdentifier = ATTAINS.OrganizationIdentifier,
@@ -4968,22 +4992,24 @@ TADA_AssignMLtoAU <- function(
         ATTAINS.AssessmentUnitIdentifier,
         ATTAINS.MonitoringDataLinkText,
         ATTAINS.WaterType
-        ) |>
-      dplyr::filter(ATTAINS.OrganizationIdentifier %in% c(org_id, NA_character_, "")) |>
+      ) |>
+      dplyr::filter(
+        ATTAINS.OrganizationIdentifier %in% c(org_id, NA_character_, "")
+      ) |>
       dplyr::distinct()
   }
-  
+
   if (!is.null(addprefix_ATTAINS)) {
     AUMLRef <- AUMLRef |>
       dplyr::mutate(
-        ATTAINS.AssessmentUnitIdentifier =
-          dplyr::if_else(
-            is.na(ATTAINS.AssessmentUnitIdentifier) | ATTAINS.AssessmentUnitIdentifier == "",
-            ATTAINS.AssessmentUnitIdentifier,
-            paste0(addprefix_ATTAINS, ATTAINS.AssessmentUnitIdentifier)
-          )
+        ATTAINS.AssessmentUnitIdentifier = dplyr::if_else(
+          is.na(ATTAINS.AssessmentUnitIdentifier) |
+            ATTAINS.AssessmentUnitIdentifier == "",
+          ATTAINS.AssessmentUnitIdentifier,
+          paste0(addprefix_ATTAINS, ATTAINS.AssessmentUnitIdentifier)
+        )
       )
   }
-  
+
   return(AUMLRef)
 }
