@@ -16,7 +16,6 @@ TADA_AssignMLtoAU(
 
 \item{org_id}{Character. Use "all" (case-insensitive) to
 apply an internal WQP organization to ATTAINS organization crosswalk,
-(see @TADA_CrosswalkATTAINSOrgID)
 or NULL to leave blank for manual entry. Any org_ids that cannot be matched
 will be kept as NA.}
 
@@ -27,8 +26,8 @@ have created any assessment units of their own). If FALSE, only
 assigns an ATTAINS.AssessmentUnitIdentifier to rows with no
 ATTAINS.AssessmentUnitIdentifier value. Default equals FALSE.}
 
-\item{addprefix_ATTAINS}{Character. Optional prefix to prepend to
-ATTAINS.AssessmentUnitIdentifier. Use NULL or "" to skip.}
+\item{addprefix_ATTAINS}{Character. Optional prefix to append to
+ATTAINS.AssessmentUnitIdentifier. Use NULL or "" to skip if no prefix is needed.}
 }
 \value{
 A TADA data frame; creates and populates ATTAINS.WaterType if not
@@ -87,4 +86,6 @@ update_BLCKFEET_ATTAINS_AUML2 <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "BLCKF
 }
 \seealso{
 \code{\link[=TADA_CrosswalkATTAINSWaterType]{TADA_CrosswalkATTAINSWaterType()}}
+
+\code{\link[=TADA_CrosswalkATTAINSOrgID]{TADA_CrosswalkATTAINSOrgID()}} for crosswalk between ATTAINS and WQP orgs
 }
