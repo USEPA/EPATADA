@@ -8,9 +8,7 @@ TADA_CrosswalkATTAINSWaterTypes(
   .data,
   replace_all = FALSE,
   review_all = FALSE,
-  review_action = "flag",
-  create_AUMLRef = FALSE,
-  org_id = NULL
+  review_action = "flag"
 )
 }
 \arguments{
@@ -47,7 +45,7 @@ and maintained by the TADA team.
 \examples{
 \dontrun{
 # example TADA df already including an ATTAINS.WaterType column
-MT_ExData <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
+MT_exata <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
 sf::st_drop_geometry()
 
 # add ATTAINS.WaterType only for rows without values in that column

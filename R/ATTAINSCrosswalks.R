@@ -384,7 +384,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
     ))
   }
 
-  # check that crosswalk is a data frame before proceeding
+  # check that crosswalk is a dataframe before proceeding
   if (is.data.frame(crosswalk)) {
     # check crosswalk has all of the required columns
     crosswalk_cols <- c(
@@ -411,20 +411,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       ))
     }
 
-    # filter user supplied crosswalk to only appropriate columns and unique values
-    crosswalk <- dplyr::select(
-      crosswalk,
-      ATTAINS.MonitoringLocationIdentifier,
-      OrganizationIdentifier,
-      ATTAINS.OrganizationIdentifier,
-      ATTAINS.AssessmentUnitIdentifier,
-      ATTAINS.MonitoringDataLinkText,
-      ATTAINS.WaterType
-    ) |>
-      dplyr::distinct()
-
     if (all(batchupload_cols %in% names(crosswalk))) {
-      # rename columns as needed
       crosswalk <- crosswalk |>
         dplyr::rename(
           ATTAINS.AssessmentUnitIdentifier = ASSESSMENT_UNIT_ID,
@@ -3653,18 +3640,6 @@ TADA_AssignUsesToWaterType <- function(
   # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
   load(system.file("extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"))
 
-  # If AUMLRef is provided, filter by the ATTAINS.WaterType in the data frame
-  if (!is.null(AUMLRef)) {
-    ATTAINSParamUseOrgRef <- dplyr::filter(
-      ATTAINSParamUseOrgRef,
-      ATTAINS.WaterType %in% unique(AUMLRef$ATTAINS.WaterType)
-    )
-    message(
-      "TADA_AssignUsesToWaterType:
-      An AUMLRef was provided. Filtering the crosswalk to water types found in your data frame."
-    )
-  }
-  
   # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA 304(a)" as that is not an ATTAINS org_id.
   if (
     sum(
@@ -3682,42 +3657,29 @@ TADA_AssignUsesToWaterType <- function(
   # Calls on EQ_Assessments from latest assessment cycle. Pulls in unique water types and uses by org
   message(paste0(
     "TADA_CreateWaterusesRef: Importing unique water types and uses ",
-    "by organization from Expert Query National Extract."
+    "by organization from Expert Query."
   ))
 
-  if (!org_id == "") {
-    ATTAINSParamUseOrgRef <- dplyr::filter(
-      ATTAINSParamUseOrgRef,
-      ATTAINS.OrganizationIdentifier %in% org_id)
-  } else {
-    ATTAINSParamUseOrgRef <- ATTAINSParamUseOrgRef |>
-      dplyr::mutate(
-        ATTAINS.OrganizationName = NA_character_,
-        ATTAINS.OrganizationIdentifier = NA_character_
-      ) |>
-      dplyr::distinct()
-  }
-  
-  if (nrow(ATTAINSParamUseOrgRef) == 0) {
-    message(
-      "TADA_CreateWaterusesRef:
-      No uses were found for your ATTAINS organization identifier in prior ATTAINS
-      assessment cycles. A manual uses to water type crosswalk is required or selecting
-      another existing ATTAINS organization identifier to represent your uses to water type. "
-    )
-  }
+  OrgID_assessments <- spsUtil::quiet(rExpertQuery::EQ_Assessments(
+    org_id = org_id,
+    api_key = api_key
+  ))
 
-  CreateWaterUseRef <- ATTAINSParamUseOrgRef|>
+  CreateWaterUseRef <- OrgID_assessments[, c(
+    "organizationName",
+    "organizationId",
+    "waterType",
+    "useName"
+  )] |>
     dplyr::distinct() |>
     dplyr::bind_cols(data.frame(IncludeOrExclude = as.character("Include"))) |>
     dplyr::select(
-      ATTAINS.OrganizationName,
-      ATTAINS.OrganizationIdentifier,
-      ATTAINS.UseName,
-      ATTAINS.WaterType,
+      ATTAINS.OrganizationName = organizationName,
+      ATTAINS.OrganizationIdentifier = organizationId,
+      ATTAINS.UseName = useName,
+      ATTAINS.WaterType = waterType,
       IncludeOrExclude
-    ) |>
-    dplyr::distinct()
+    )
 
   # User supplies their own use to water ref table.
   if (!is.null(waterUseRef)) {
@@ -3732,8 +3694,7 @@ TADA_AssignUsesToWaterType <- function(
         ATTAINS.UseName,
         ATTAINS.WaterType,
         IncludeOrExclude
-      ) |>
-      dplyr::distinct()
+      )
   }
 
   return(CreateWaterUseRef)
@@ -4352,12 +4313,12 @@ TADA_MLSummary <- function(
     if (!file.exists(downloads_path)) {
       message(
         "TADA_MLSummary:
-        ParamUseMLCrosswalks.xlsx does not exist yet. Generating the excel file using your usesRef input (or NULL input if generating a blank sheet)."
+  ParamUseMLCrosswalks.xlsx does not exist yet. Generating the excel file using your usesRef input (or NULL input if generating a blank sheet)."
       )
       if (!isTRUE(overwrite)) {
         message(
           "TADA_MLSummary:
-          overwrite = F selected, creating original version as well as a copy with timestamp."
+  overwrite = F selected, creating original version as well as a copy with timestamp."
         )
       }
       # if no file exists yet, use the paramRef as the input from this function to generate the paramRef tabs from TADA_ParametersForAnalysis
@@ -4615,9 +4576,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   .data,
   replace_all = FALSE,
   review_all = FALSE,
-  review_action = "flag",
-  create_AUMLRef = FALSE,
-  org_id = NULL
+  review_action = "flag"
 ) {
   # create df of unique monitoring location identifiers, monitoring location type
   # name, and (if present in TADA df) ATTAINS.WaterType
@@ -4753,29 +4712,6 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
           ATTAINS.WaterType
         )
       )
-
-    if (isTRUE(create_AUMLRef)) {
-      if (!is.character(org_id) & is.null(org_id)) {
-        org_id <- ""
-        message(
-          "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
-        )
-      }
-
-      .data <- .data |>
-        dplyr::mutate(
-          ATTAINS.AssessmentUnitIdentifier = TADA.MonitoringLocationIdentifier,
-          ATTAINS.OrganizationIdentifier = org_id,
-          ATTAINS.MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier,
-          ATTAINS.MonitoringDataLinkText = NA_character_
-        )
-
-      message(
-        "TADA_CrosswalkATTAINSWaterTypes:
-        ATTAINS.OrganizationIdentifier, ATTAINS.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.MonitoringDataLinkText
-        have been appended. To create your AUMLRef crosswalk table, use the output as your crosswalk input for TADA_UpdateATTAINSAUMLCrosswalk."
-      )
-    }
 
     # remove intermediate object
     rm(attains.types)
