@@ -4572,13 +4572,8 @@ TADA_MLSummary <- function(
 #' their ATTAINS.WaterType values updated by crosswalking the
 #' TADA.MonitoringLocationTypeName to ATTAINS.WaterType. The TADA.ATTAINSWaterTypeFlag
 #' column will be updated to reflect this action.
-#' @param create_AUMLRef Logical. If True, adds a column ATTAINS.AssessmentUnitIdentifier
-#' that is identical to the newly created ATTAINS.WaterType.
 #'
-#' @param org_id Character vector. ATTAINS organization identifier(s). Note:
-#' Only a single ATTAINS.Organization identifier should be supplied for the time being
-#'
-#' @return A TADA data frame with ATTAINS.WaterType column created (f not already
+#' @return A TADA data frame with ATTAINS.WaterType column created (if not already
 #' existing) and populated.
 #'
 #' @export
@@ -4848,11 +4843,18 @@ TADA_CrosswalkATTAINSOrgID <- function() {
 #' @param org_id Character. ATTAINS organization identifier(s) to assign to
 #' each unique ATTAINS Assessment Unit ID. Use "all" (case-insensitive) to
 #' apply an internal WQP organization to ATTAINS organization crosswalk,
-#' (see TADA_CrosswalkATTAINS)
+#' (see TADA_CrosswalkATTAINSOrgID)
 #' or NULL to leave blank for manual entry.
 #'
 #' @param addprefix_ATTAINS Character. Optional prefix to prepend to
-#'   ATTAINS.AssessmentUnitIdentifier. Use NULL or "" to skip.
+#' ATTAINS.AssessmentUnitIdentifier. Use NULL or "" to skip.
+#'   
+#' @param replace_all Logical. If TRUE, replace all ATTAINS.AssessmentUnitIdentifier
+#' values in the TADA data frame with the name of the WQP Monitoring Location Identifier
+#' (use case for those organizations that have not submitted to ATTAINS in the past nor
+#' have created any assessment units of their own). If FALSE, only
+#' assigns an ATTAINS.AssessmentUnitIdentifier to rows with no 
+#' ATTAINS.AssessmentUnitIdentifier value. Default equals FALSE.
 #'
 #' @return A TADA data frame; creates and populates ATTAINS.WaterType if not
 #'   already present.
@@ -4902,9 +4904,12 @@ TADA_CrosswalkATTAINSOrgID <- function() {
 #'
 TADA_AssignMLtoAU <- function(
     .data,
+    replace_all = TRUE,
     addprefix_ATTAINS = FALSE,
     org_id = NULL
 ) {
+  # checks if ATTAINS.AssessmentUnitIdentifier exists yet
+  if (!"ATTAINS.AssessmentUnitIdentifier" %in% names(data)) { data <- dplyr::mutate(data, ATTAINS.AssessmentUnitIdentifier = NA_character_) }
   if (!is.character(org_id) & is.null(org_id)) {
       org_id <- ""
       message(
@@ -4915,7 +4920,12 @@ TADA_AssignMLtoAU <- function(
   if (tolower(org_id) != "all") {
     AUMLRef <- .data |>
       dplyr::mutate(
-        ATTAINS.AssessmentUnitIdentifier = TADA.MonitoringLocationIdentifier,
+        ATTAINS.AssessmentUnitIdentifier = dplyr::case_when(
+          isTRUE(replace_all) ~ TADA.MonitoringLocationIdentifier,
+          !isTRUE(replace_all) &
+            (is.na(ATTAINS.AssessmentUnitIdentifier) | ATTAINS.AssessmentUnitIdentifier == "") ~ TADA.MonitoringLocationIdentifier,
+          TRUE ~ ATTAINS.AssessmentUnitIdentifier
+        ),
         ATTAINS.OrganizationIdentifier = org_id,
         ATTAINS.MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier,
         ATTAINS.MonitoringDataLinkText = NA_character_
@@ -4927,7 +4937,12 @@ TADA_AssignMLtoAU <- function(
     
     AUMLRef <- AUMLRef_temp |>
       dplyr::mutate(
-        ATTAINS.AssessmentUnitIdentifier = TADA.MonitoringLocationIdentifier,
+        ATTAINS.AssessmentUnitIdentifier = dplyr::case_when(
+          isTRUE(replace_all) ~ TADA.MonitoringLocationIdentifier,
+          !isTRUE(replace_all) &
+            (is.na(ATTAINS.AssessmentUnitIdentifier) | ATTAINS.AssessmentUnitIdentifier == "") ~ TADA.MonitoringLocationIdentifier,
+          TRUE ~ ATTAINS.AssessmentUnitIdentifier
+        ),
         ATTAINS.OrganizationIdentifier = ATTAINS.OrganizationIdentifier,
         ATTAINS.MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier,
         ATTAINS.MonitoringDataLinkText = NA_character_
@@ -4956,10 +4971,4 @@ TADA_AssignMLtoAU <- function(
   }
   
   return(AUMLRef)
-    
-    message(
-      "TADA_CrosswalkATTAINSWaterTypes:
-        ATTAINS.OrganizationIdentifier, ATTAINS.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.MonitoringDataLinkText
-        have been appended. To create your AUMLRef crosswalk table, use the output as your crosswalk input for TADA_UpdateATTAINSAUMLCrosswalk."
-    )
 }

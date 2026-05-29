@@ -6,7 +6,7 @@
 \usage{
 TADA_AssignMLtoAU(
   .data,
-  batch_upload = FALSE,
+  replace_all = TRUE,
   addprefix_ATTAINS = FALSE,
   org_id = NULL
 )
@@ -14,9 +14,12 @@ TADA_AssignMLtoAU(
 \arguments{
 \item{.data}{A TADA data frame.}
 
-\item{batch_upload}{Logical. If TRUE, return columns named for ATTAINS
-batch upload; if FALSE, return crosswalk-friendly columns for Module 3
-analysis functions.}
+\item{replace_all}{Logical. If TRUE, replace all ATTAINS.AssessmentUnitIdentifier
+values in the TADA data frame with the name of the WQP Monitoring Location Identifier
+(use case for those organizations that have not submitted to ATTAINS in the past nor
+have created any assessment units of their own). If FALSE, only
+assigns an ATTAINS.AssessmentUnitIdentifier to rows with no
+ATTAINS.AssessmentUnitIdentifier value. Default equals FALSE.}
 
 \item{addprefix_ATTAINS}{Character. Optional prefix to prepend to
 ATTAINS.AssessmentUnitIdentifier. Use NULL or "" to skip.}
@@ -24,7 +27,7 @@ ATTAINS.AssessmentUnitIdentifier. Use NULL or "" to skip.}
 \item{org_id}{Character. ATTAINS organization identifier(s) to assign to
 each unique ATTAINS Assessment Unit ID. Use "all" (case-insensitive) to
 apply an internal WQP organization to ATTAINS organization crosswalk,
-(see TADA_CrosswalkATTAINS)
+(see TADA_CrosswalkATTAINSOrgID)
 or NULL to leave blank for manual entry.}
 }
 \value{
@@ -71,6 +74,9 @@ BLCKFEET_AUMLRef <- Tribal_AUMLRef |> dplyr::filter(ATTAINS.OrganizationIdentifi
  
 # update the final AUML crosswalk for use in module 3 analysis
 update_BLCKFEET_ATTAINS_AUML <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "BLCKFEET", crosswalk = BLCKFEET_AUMLRef)
+
+# create an ATTAINS batch upload compatible ATTAINS AUMLRef
+update_BLCKFEET_ATTAINS_AUML2 <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "BLCKFEET", crosswalk = BLCKFEET_AUMLRef, batch_upload = TRUE)
 }
 
 }
