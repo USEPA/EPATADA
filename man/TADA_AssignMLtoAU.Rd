@@ -16,7 +16,7 @@ TADA_AssignMLtoAU(
 
 \item{org_id}{Character. Use "all" (case-insensitive) to
 apply an internal WQP organization to ATTAINS organization crosswalk,
-(see TADA_CrosswalkATTAINSOrgID)
+(see @TADA_CrosswalkATTAINSOrgID)
 or NULL to leave blank for manual entry. Any org_ids that cannot be matched
 will be kept as NA.}
 
@@ -68,8 +68,13 @@ Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterTypes(Tribal_modified,
 review_all = TRUE,
 review_action = "update")
 
+# populates and returns any org_ids found as an alias between WQP and ATTAINS
 Tribal_AUMLRef <- TADA_AssignMLtoAU(Tribal_modified, org_id = "all", addprefix_ATTAINS = "WQX_")
 
+# leave ATTAINS.OrganizationIdentifier blank
+Tribal_AUMLRef2 <- TADA_AssignMLtoAU(Tribal_modified, org_id = NULL, addprefix_ATTAINS = "WQX_")
+
+# filters to only BLCKFEET tribe
 BLCKFEET_AUMLRef <- TADA_AssignMLtoAU(Tribal_modified, org_id = "BLCKFEET", addprefix_ATTAINS = "WQX_")
  
 # update the final AUML crosswalk for use in module 3 analysis
