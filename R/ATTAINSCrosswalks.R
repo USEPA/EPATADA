@@ -4800,7 +4800,7 @@ TADA_CrosswalkATTAINSOrgID <- function() {
 #' @return A TADA data frame; creates and populates ATTAINS.WaterType if not
 #' already present.
 #'
-#' @seealso [TADA_CrosswalkATTAINSWaterType()]
+#' @seealso [TADA_CrosswalkATTAINSWaterTypes()]
 #' @seealso [TADA_CrosswalkATTAINSOrgID()] for crosswalk between ATTAINS and WQP orgs
 #'
 #' @export
@@ -4890,10 +4890,10 @@ TADA_AssignMLtoAU <- function(
   }
 
   if (!is.null(org_id) && org_id != "") {
-    temp <- TADA_CrosswalkATTAINSOrgID()
+    temp <- spsUtil::quiet(TADA_CrosswalkATTAINSOrgID())
     
     if (tolower(org_id) == "all") {
-      org_id = as.character(rExpertQuery::EQ_DomainValues("org_id")$code)
+      org_id = spsUtil::quiet(as.character(rExpertQuery::EQ_DomainValues("org_id")$code))
     }
 
     if (!"ATTAINS.OrganizationIdentifier" %in% names(.data)) {
