@@ -45,7 +45,7 @@ and maintained by the TADA team.
 \examples{
 \dontrun{
 # example TADA df already including an ATTAINS.WaterType column
-MT_exata <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
+MT_ExData <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
 sf::st_drop_geometry()
 
 # add ATTAINS.WaterType only for rows without values in that column

@@ -61,12 +61,6 @@ ifelse(TADA.MonitoringLocationIdentifier \%in\%
  review_all = TRUE,
  review_action = "update")
 
-# add ATTAINS.WaterType for any rows where it is missing, review all ATTAINS.WaterType
-# values and update any that are not allowed
-Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterTypes(Tribal_modified,
-review_all = TRUE,
-review_action = "update")
-
 # populates and returns any org_ids found as an alias between WQP and ATTAINS
 Tribal_AUMLRef <- TADA_AssignMLtoAU(Tribal_modified, org_id = "all", addprefix_ATTAINS = "WQX_")
 
@@ -74,13 +68,16 @@ Tribal_AUMLRef <- TADA_AssignMLtoAU(Tribal_modified, org_id = "all", addprefix_A
 Tribal_AUMLRef2 <- TADA_AssignMLtoAU(Tribal_modified, org_id = NULL, addprefix_ATTAINS = "WQX_")
 
 # filters to only BLCKFEET tribe
-BLCKFEET_AUMLRef <- TADA_AssignMLtoAU(Tribal_modified, org_id = "BLCKFEET", addprefix_ATTAINS = "WQX_")
- 
+BLCKFEET_AUMLRef <- TADA_AssignMLtoAU(
+Tribal_modified, org_id = "BLCKFEET", addprefix_ATTAINS = "WQX_")
+
 # update the final AUML crosswalk for use in module 3 analysis
-update_BLCKFEET_ATTAINS_AUML <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "BLCKFEET", crosswalk = BLCKFEET_AUMLRef)
+update_BLCKFEET_ATTAINS_AUML <- TADA_UpdateATTAINSAUMLCrosswalk(
+org_id = "BLCKFEET", crosswalk = BLCKFEET_AUMLRef)
 
 # create an ATTAINS batch upload compatible ATTAINS AUMLRef
-update_BLCKFEET_ATTAINS_AUML2 <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "BLCKFEET", crosswalk = BLCKFEET_AUMLRef, batch_upload = TRUE)
+update_BLCKFEET_ATTAINS_AUML2 <- TADA_UpdateATTAINSAUMLCrosswalk(
+org_id = "BLCKFEET", crosswalk = BLCKFEET_AUMLRef, batch_upload = TRUE)
 }
 
 }

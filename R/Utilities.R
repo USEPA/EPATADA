@@ -483,7 +483,12 @@ utils::globalVariables(c(
   "has_depth_param",
   "out_epsg",
   "ATTAINSParamUseOrgRef",
-  "CountyCode"
+  "CountyCode",
+  "candidates",
+  "matched",
+  "New.ATTAINS.WaterType",
+  "TADA.ATTAINSWaterType.Flag",
+  "WQPOrganizationRef"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
