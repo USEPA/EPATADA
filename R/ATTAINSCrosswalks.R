@@ -4891,9 +4891,11 @@ TADA_AssignMLtoAU <- function(
 
   if (!is.null(org_id) && org_id != "") {
     temp <- spsUtil::quiet(TADA_CrosswalkATTAINSOrgID())
-    
+
     if (tolower(org_id) == "all") {
-      org_id = spsUtil::quiet(as.character(rExpertQuery::EQ_DomainValues("org_id")$code))
+      org_id = spsUtil::quiet(as.character(
+        rExpertQuery::EQ_DomainValues("org_id")$code
+      ))
     }
 
     if (!"ATTAINS.OrganizationIdentifier" %in% names(.data)) {
