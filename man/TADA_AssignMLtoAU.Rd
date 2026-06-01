@@ -82,7 +82,7 @@ org_id = "BLCKFEET", crosswalk = BLCKFEET_AUMLRef, batch_upload = TRUE)
 
 }
 \seealso{
-\code{\link[=TADA_CrosswalkATTAINSWaterType]{TADA_CrosswalkATTAINSWaterType()}}
+\code{\link[=TADA_CrosswalkATTAINSWaterTypes]{TADA_CrosswalkATTAINSWaterTypes()}}
 
 \code{\link[=TADA_CrosswalkATTAINSOrgID]{TADA_CrosswalkATTAINSOrgID()}} for crosswalk between ATTAINS and WQP orgs
 }
