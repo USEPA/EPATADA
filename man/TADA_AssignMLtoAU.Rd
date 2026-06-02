@@ -8,7 +8,7 @@ TADA_AssignMLtoAU(
   .data,
   org_id = NULL,
   replace_all = FALSE,
-  addprefix_ATTAINS = FALSE
+  addprefix_ATTAINS = NULL
 )
 }
 \arguments{
@@ -41,6 +41,18 @@ to each ATTAINS.AssessmentUnitIdentifier for naming consistency.
 }
 \examples{
 \dontrun{
+# example TADA df already including an ATTAINS.WaterType column
+MT_ExData <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
+sf::st_drop_geometry()
+
+# add ATTAINS.WaterType only for rows without values in that column
+MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData)
+
+# add ATTAINS.WaterType for all rows (replace existing matches)
+MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
+
+MT_AUML_update_all <- TADA_AssignMLtoAU(MT_replaceAll, org_id = "all")
+
 # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
 Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(Data_TribalNations_Harmonized)
 
