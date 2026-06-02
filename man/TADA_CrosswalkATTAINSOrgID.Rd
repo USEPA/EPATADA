@@ -10,14 +10,15 @@ TADA_CrosswalkATTAINSOrgID()
 A data.frame with one row per ATTAINS org and matched WQP org,
 containing columns: "ATTAINS.OrganizationIdentifier", "OrganizationIdentifier",
 "OrganizationFormalName", "ProviderName".
-
-#' @examples
-\dontrun{
-# Generate the crosswalk
-orgs_crosswalk <- TADA_CrosswalkATTAINSOrgID()
-}
 }
 \description{
 Builds a crosswalk from ATTAINS organization IDs to WQP OrganizationIdentifiers
 using exact matches or sites that contain the same ID with a “_WQX” suffix.'
+}
+\examples{
+\dontrun{
+# Generate the crosswalk
+orgs_crosswalk <- TADA_CrosswalkATTAINSOrgID()
+}
+
 }

@@ -4733,7 +4733,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' containing columns: "ATTAINS.OrganizationIdentifier", "OrganizationIdentifier",
 #' "OrganizationFormalName", "ProviderName".
 #'
-#' #' @examples
+#' @examples
 #' \dontrun{
 #' # Generate the crosswalk
 #' orgs_crosswalk <- TADA_CrosswalkATTAINSOrgID()
