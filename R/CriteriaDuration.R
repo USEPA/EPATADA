@@ -27,11 +27,16 @@ add_step <- function(t, unit, n) {
 }
 
 # 1) Calendar-aligned windows
-make_calendar_windows <- function(df, duration_value, duration_unit, week_start = 1) {
-  stopifnot(is.numeric(duration_value), duration_value > 0)
-  unit <- normalize_unit(duration_unit)
+make_calendar_windows <- function(
+    .data,
+    durationValue,
+    durationUnit,
+    week_start = 1
+    ) {
+  stopifnot(is.numeric(durationValue), durationValue > 0)
+  unit <- normalize_unit(durationUnit)
   
-  ts <- df[["ActivityStartDateTime"]]
+  ts <- .data[["ActivityStartDateTime"]]
   if (is.null(ts)) stop('Column "ActivityStartDateTime" not found.')
   
   # Coerce to POSIXct if needed
@@ -64,10 +69,10 @@ make_calendar_windows <- function(df, duration_value, duration_unit, week_start 
   # Build boundaries; include final partial window
   boundaries <- c(start0)
   while (tail(boundaries, 1) < max_dt) {
-    boundaries <- c(boundaries, add_step(tail(boundaries, 1), unit, duration_value))
+    boundaries <- c(boundaries, add_step(tail(boundaries, 1), unit, durationValue))
   }
   if (length(boundaries) == 1L) {
-    boundaries <- c(boundaries, add_step(boundaries, unit, duration_value))
+    boundaries <- c(boundaries, add_step(boundaries, unit, durationValue))
   }
   
   windows <- tibble(
@@ -99,19 +104,19 @@ make_calendar_windows <- function(df, duration_value, duration_unit, week_start 
   return(windows)
 }
 
-# 2) Rolling windows (ends step on calendar boundaries; start = aligned start of n-unit lookback)
+# 2) Rolling windows
 make_rolling_windows <- function(
-    df,
-    duration_value,
-    duration_unit,
+    .data,
+    durationValue,
+    durationUnit,
     week_start = 1
     ) {
-  stopifnot(is.numeric(duration_value), duration_value > 0)
+  stopifnot(is.numeric(durationValue), durationValue > 0)
   # normalize unit
-  unit <- tolower(gsub("^n-", "", duration_unit)); unit <- sub("s$", "", unit)
+  unit <- tolower(gsub("^n-", "", durationUnit)); unit <- sub("s$", "", unit)
   unit <- match.arg(unit, c("hour","day","week","month","quarter"))
   
-  ts <- df[["ActivityStartDateTime"]]
+  ts <- .data[["ActivityStartDateTime"]]
   if (is.null(ts)) stop('Column "ActivityStartDateTime" not found.')
   tz_ref <- attr(ts, "tzone"); if (is.null(tz_ref) || tz_ref == "") tz_ref <- "UTC"
   
@@ -175,14 +180,18 @@ make_rolling_windows <- function(
     floor_start <- function(x) lubridate::floor_date(x, "day")
   }
   
-  # one window per period end, covering previous `duration_value` full periods
-  if (length(E) < duration_value) return(data.frame(window_start = as.POSIXct(character()),
+  # one window per period end, covering previous `durationValue` full periods
+  if (length(E) < durationValue) return(data.frame(window_start = as.POSIXct(character()),
                                                     window_end   = as.POSIXct(character())))
-  idx <- seq.int(duration_value, length(E))
-  win_start <- floor_start(S[idx + 1 - duration_value])
+  idx <- seq.int(durationValue, length(E))
+  win_start <- floor_start(S[idx + 1 - durationValue])
   win_end   <- E[idx]
   attr(win_start, "tzone") <- tz_ref; attr(win_end, "tzone") <- tz_ref
-  data.frame(window_start = win_start, window_end = win_end, row.names = NULL)
+  windows <- data.frame(window_start = win_start, window_end = win_end, row.names = NULL)
+  
+  windows$window_start <- format(windows$window_start, "%Y-%m-%d %H:%M:%S")
+  
+  return(windows)
 }
 
 
@@ -209,3 +218,16 @@ join_by_date_range <- function(data, windows) {
     join_by(between(ActivityStartDate, window_start_date, window_end_date))
   )
 }
+
+##### examples 
+
+# think through how to group by parameters & uses next
+cal_4d <- make_calendar_windows(Data_MT_MissoulaCounty, 4, durationUnit = "n-day")
+
+cal_m <- make_calendar_windows(Data_MT_MissoulaCounty, 1, durationUnit = "n-month")
+
+cal_3m <- make_calendar_windows(Data_MT_MissoulaCounty, 3, durationUnit = "n-month")
+
+roll_3m <- make_rolling_windows(Data_MT_MissoulaCounty, 3, durationUnit = "n-month")
+
+Data_MT_MissoulaCounty_Durations <- join_by_date_range(Data_MT_MissoulaCounty, cal_3m)
