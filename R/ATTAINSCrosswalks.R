@@ -4769,7 +4769,6 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 }
 
 
-
 #' Assign WQP Monitoring Location ID to ATTAINS Assessment Unit ID
 #'
 #' After creating a crosswalk of ATTAINS WaterType from WQP MonitoringLocationType,
@@ -4831,7 +4830,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' # populates and returns any org_ids found as an alias between WQP and ATTAINS
 #' Blackfeet_AUMLRef <- TADA_CreatePointAUs(
 #' Tribal_reviewUpdate,
-#' org_id = "BLCKFEET", 
+#' org_id = "BLCKFEET",
 #' addprefix_ATTAINS = "WQX_")
 #'
 #' # update the final AUML crosswalk for use in module 3 analysis
@@ -4861,7 +4860,7 @@ TADA_CreatePointAUs <- function(
     message(
       "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
     )
-    
+
     # display message for case when org_id = does not match all current unique org_ids
     if (!org_id %in% unique(.data$ATTAINS.OrganizationIdentifier)) {
       warning(
@@ -4869,13 +4868,14 @@ TADA_CreatePointAUs <- function(
     Please ensure you have provided the correct org_id input for your assessment needs."
       )
     }
-    
+
     AUMLRef <- .data |>
       dplyr::mutate(
         ATTAINS.AssessmentUnitIdentifier = dplyr::if_else(
-          (is.na(ATTAINS.AssessmentUnitIdentifier) | ATTAINS.AssessmentUnitIdentifier == ""), 
-        TADA.MonitoringLocationIdentifier,
-        ATTAINS.AssessmentUnitIdentifier
+          (is.na(ATTAINS.AssessmentUnitIdentifier) |
+            ATTAINS.AssessmentUnitIdentifier == ""),
+          TADA.MonitoringLocationIdentifier,
+          ATTAINS.AssessmentUnitIdentifier
         ),
         ATTAINS.OrganizationIdentifier = org_id,
         ATTAINS.MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier,
@@ -4902,7 +4902,9 @@ TADA_CreatePointAUs <- function(
     }
 
     if (!"ATTAINS.OrganizationIdentifier" %in% names(.data)) {
-      stop("Your WQP data frame does not contain the required column: ATTAINS.OrganizationIdentifier")
+      stop(
+        "Your WQP data frame does not contain the required column: ATTAINS.OrganizationIdentifier"
+      )
     } else {
       joins <- c(
         "ATTAINS.OrganizationIdentifier",
