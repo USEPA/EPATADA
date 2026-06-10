@@ -4780,7 +4780,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' @param .data A TADA data frame.
 #'
 #' @param org_id Character. Use "all" (case-insensitive) to
-#' pull in all Assessment 
+#' pull in all Assessment
 #'
 #' @param addprefix_ATTAINS Character. Optional prefix to append to
 #' ATTAINS.AssessmentUnitIdentifier. Use NULL or "" to skip if no prefix is needed.
