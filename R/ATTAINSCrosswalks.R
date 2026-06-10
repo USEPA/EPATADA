@@ -1128,8 +1128,8 @@ TADA_ParametersForAnalysis <- function(
     # display message for case when org_id = does not match all current unique org_ids
     if (!org_id %in% unique(.data$ATTAINS.OrganizationIdentifier)) {
       warning(
-        "Your org_id input was not found as an ATTAINS.OrganizationIdentifier in your WQP data frame.
-  Please ensure you have provided the correct org_id input for your assessment needs."
+        "Your org_id input was not found as an ATTAINS.OrganizationIdentifier in your WQP data frame. 
+Please ensure you have provided the correct org_id input for your assessment needs."
       )
     }
 
@@ -4562,7 +4562,9 @@ TADA_MLSummary <- function(
 #' MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
 #'
 #' # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
-#' Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(Data_TribalNations_Harmonized)
+#' Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(
+#' Data_TribalNations_Harmonized,
+#' org_id = "BLCKFEET") |> dplyr::filter(OrganizationIdentifier == "BLCKFEET")
 #'
 #' # modify tribal example data to include an ATTAINS.WaterType not allowed by ATTAINS
 #' Tribal_modified <- Tribal_addAll |>
@@ -4660,7 +4662,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 
   # if ATTAINS.OrganizationIdentifier does not exist yet
   if (!"ATTAINS.OrganizationIdentifier" %in% names(.data)) {
-    .data <- .data |> dplyr::rename(ATTAINS.OrganizationIdentifier = org_id)
+    .data <- .data |> dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id)
   } else {
     # if some ATTAINS.WaterType matches exist, only replace the NA or blank rows
     # with the new matches with the org_id as the ATTAINS.OrganizationIdentifier
@@ -4767,54 +4769,6 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 }
 
 
-#' WQP Organization ID to ATTAINS Organization ID Crosswalk
-#'
-#' Builds a crosswalk from ATTAINS organization IDs to WQP OrganizationIdentifiers
-#' using exact matches or sites that contain the same ID with a “_WQX” suffix.'
-#'
-#' @return A data.frame with one row per ATTAINS org and matched WQP org,
-#' containing columns: "ATTAINS.OrganizationIdentifier", "OrganizationIdentifier",
-#' "OrganizationFormalName", "ProviderName".
-#'
-#' @examples
-#' \dontrun{
-#' # Generate the crosswalk
-#' orgs_crosswalk <- TADA_CrosswalkATTAINSOrgID()
-#' }
-#'
-TADA_CrosswalkATTAINSOrgID <- function() {
-  # Pull ATTAINS org IDs
-  att_orgs <- rExpertQuery::EQ_DomainValues(domain = "org_id") |>
-    dplyr::mutate(ATTAINS.OrganizationIdentifier = toupper(code)) |>
-    dplyr::select(ATTAINS.OrganizationIdentifier)
-
-  # Load WQP organization reference
-  load(system.file("extdata", "WQPOrganizationRef.rda", package = "EPATADA"))
-
-  # certain-only crosswalk
-  wqp_set <- unique(WQPOrganizationRef$OrganizationIdentifier)
-
-  wqp_attains_orgs <- att_orgs |>
-    dplyr::rowwise() |>
-    dplyr::mutate(
-      candidates = list(unique(c(
-        ATTAINS.OrganizationIdentifier,
-        paste0(ATTAINS.OrganizationIdentifier, "_WQX")
-      ))),
-      matched = list(intersect(candidates, wqp_set))
-    ) |>
-    dplyr::select(ATTAINS.OrganizationIdentifier, matched) |>
-    tidyr::unnest_longer(
-      matched,
-      values_to = "OrganizationIdentifier",
-      keep_empty = TRUE
-    ) |>
-    # keep_empty=TRUE gives NA where no match; join to add WQP org metadata
-    dplyr::left_join(WQPOrganizationRef, by = c("OrganizationIdentifier"))
-
-  return(wqp_attains_orgs)
-}
-
 
 #' Assign WQP Monitoring Location ID to ATTAINS Assessment Unit ID
 #'
@@ -4831,18 +4785,10 @@ TADA_CrosswalkATTAINSOrgID <- function() {
 #' @param addprefix_ATTAINS Character. Optional prefix to append to
 #' ATTAINS.AssessmentUnitIdentifier. Use NULL or "" to skip if no prefix is needed.
 #'
-#' @param replace_all Logical. If TRUE, replace all ATTAINS.AssessmentUnitIdentifier
-#' values in the TADA data frame with the name of the WQP Monitoring Location Identifier
-#' (use case for those organizations that have not submitted to ATTAINS in the past nor
-#' have created any assessment units of their own). If FALSE, only
-#' assigns an ATTAINS.AssessmentUnitIdentifier to rows with no
-#' ATTAINS.AssessmentUnitIdentifier value. Default equals FALSE.
-#'
 #' @return A TADA data frame; creates and populates ATTAINS.WaterType if not
 #' already present.
 #'
 #' @seealso [TADA_CrosswalkATTAINSWaterTypes()]
-#' @seealso [TADA_CrosswalkATTAINSOrgID()] for crosswalk between ATTAINS and WQP orgs
 #'
 #' @export
 #'
@@ -4861,7 +4807,9 @@ TADA_CrosswalkATTAINSOrgID <- function() {
 #' MT_AUML_update_all <- TADA_AssignMLtoAU(MT_replaceAll, org_id = "all")
 #'
 #' # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
-#' Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(Data_TribalNations_Harmonized)
+#' Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(
+#' Data_TribalNations_Harmonized,
+#' org_id = "BLCKFEET") |> dplyr::filter(OrganizationIdentifier == "BLCKFEET")
 #'
 #' # modify tribal example data to include an ATTAINS.WaterType not allowed by ATTAINS
 #' Tribal_modified <- Tribal_addAll |>
@@ -4881,25 +4829,21 @@ TADA_CrosswalkATTAINSOrgID <- function() {
 #'  review_action = "update")
 #'
 #' # populates and returns any org_ids found as an alias between WQP and ATTAINS
-#' Tribal_AUMLRef <- TADA_AssignMLtoAU(Tribal_modified, org_id = "all", addprefix_ATTAINS = "WQX_")
-#'
-#' # leave ATTAINS.OrganizationIdentifier blank
-#' Tribal_AUMLRef2 <- TADA_AssignMLtoAU(Tribal_modified, org_id = NULL, addprefix_ATTAINS = "WQX_")
-#'
-#' # filters to only BLCKFEET tribe
-#' BLCKFEET_AUMLRef <- TADA_AssignMLtoAU(
-#' Tribal_modified, org_id = "BLCKFEET", addprefix_ATTAINS = "WQX_")
+#' Blackfeet_AUMLRef <- TADA_CreatePointAUs(
+#' Tribal_reviewUpdate,
+#' org_id = "BLCKFEET", 
+#' addprefix_ATTAINS = "WQX_")
 #'
 #' # update the final AUML crosswalk for use in module 3 analysis
 #' update_BLCKFEET_ATTAINS_AUML <- TADA_UpdateATTAINSAUMLCrosswalk(
-#' org_id = "BLCKFEET", crosswalk = BLCKFEET_AUMLRef)
+#' org_id = "BLCKFEET", crosswalk = Blackfeet_AUMLRef)
 #'
 #' # create an ATTAINS batch upload compatible ATTAINS AUMLRef
 #' update_BLCKFEET_ATTAINS_AUML2 <- TADA_UpdateATTAINSAUMLCrosswalk(
-#' org_id = "BLCKFEET", crosswalk = BLCKFEET_AUMLRef, batch_upload = TRUE)
+#' org_id = "BLCKFEET", crosswalk = Blackfeet_AUMLRef, batch_upload = TRUE)
 #' }
 #'
-TADA_AssignMLtoPointAU <- function(
+TADA_CreatePointAUs <- function(
   .data,
   org_id = NULL,
   replace_all = FALSE,
@@ -4917,15 +4861,21 @@ TADA_AssignMLtoPointAU <- function(
     message(
       "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
     )
+    
+    # display message for case when org_id = does not match all current unique org_ids
+    if (!org_id %in% unique(.data$ATTAINS.OrganizationIdentifier)) {
+      warning(
+        "Your org_id input was not found as an ATTAINS.OrganizationIdentifier in your WQP data frame.
+    Please ensure you have provided the correct org_id input for your assessment needs."
+      )
+    }
+    
     AUMLRef <- .data |>
       dplyr::mutate(
-        ATTAINS.AssessmentUnitIdentifier = dplyr::case_when(
-          isTRUE(replace_all) ~ TADA.MonitoringLocationIdentifier,
-          !isTRUE(replace_all) &
-            (is.na(ATTAINS.AssessmentUnitIdentifier) |
-              ATTAINS.AssessmentUnitIdentifier ==
-                "") ~ TADA.MonitoringLocationIdentifier,
-          TRUE ~ ATTAINS.AssessmentUnitIdentifier
+        ATTAINS.AssessmentUnitIdentifier = dplyr::if_else(
+          (is.na(ATTAINS.AssessmentUnitIdentifier) | ATTAINS.AssessmentUnitIdentifier == ""), 
+        TADA.MonitoringLocationIdentifier,
+        ATTAINS.AssessmentUnitIdentifier
         ),
         ATTAINS.OrganizationIdentifier = org_id,
         ATTAINS.MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier,
@@ -4952,11 +4902,7 @@ TADA_AssignMLtoPointAU <- function(
     }
 
     if (!"ATTAINS.OrganizationIdentifier" %in% names(.data)) {
-      joins <- c(
-        "OrganizationIdentifier",
-        "OrganizationFormalName",
-        "ProviderName"
-      )
+      stop("Your WQP data frame does not contain the required column: ATTAINS.OrganizationIdentifier")
     } else {
       joins <- c(
         "ATTAINS.OrganizationIdentifier",
