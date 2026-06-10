@@ -6,6 +6,7 @@
 \usage{
 TADA_CrosswalkATTAINSWaterTypes(
   .data,
+  org_id = NULL,
   replace_all = FALSE,
   review_all = FALSE,
   review_action = "flag"
@@ -13,6 +14,9 @@ TADA_CrosswalkATTAINSWaterTypes(
 }
 \arguments{
 \item{.data}{A TADA data frame.}
+
+\item{org_id}{assign an ATTAINS organization identifier to all rows in which the
+the ATTAINS.WaterType has been replaced. Default is to leave these as NA.}
 
 \item{replace_all}{Logical. If TRUE, replace all ATTAINS.WaterType values in the
 TADA data frame with the recommended ATTAINS Water Type values. If FALSE, only

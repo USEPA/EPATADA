@@ -4518,6 +4518,8 @@ TADA_MLSummary <- function(
 #' and maintained by the TADA team.
 #'
 #' @param .data A TADA data frame.
+#' @param org_id assign an ATTAINS organization identifier to all rows in which the
+#' the ATTAINS.WaterType has been replaced. Default is to leave these as NA.
 #' @param replace_all Logical. If TRUE, replace all ATTAINS.WaterType values in the
 #' TADA data frame with the recommended ATTAINS Water Type values. If FALSE, only
 #' assigns an ATTAINS Water Type to rows with no ATTAINS Water Type value. Default
@@ -4574,6 +4576,7 @@ TADA_MLSummary <- function(
 #'
 TADA_CrosswalkATTAINSWaterTypes <- function(
   .data,
+  org_id = NULL,
   replace_all = FALSE,
   review_all = FALSE,
   review_action = "flag"
@@ -4630,6 +4633,22 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
       relationship = "many-to-many",
       by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
     )
+
+  # if ATTAINS.OrganizationIdentifier does not exist yet
+  if (!"ATTAINS.OrganizationIdentifier" %in% names(.data)) {
+    .data <- .data |> dplyr::rename(ATTAINS.OrganizationIdentifier = org_id)
+  } else {
+    # if some ATTAINS.WaterType matches exist, only replace the NA or blank rows
+    # with the new matches with the org_id as the ATTAINS.OrganizationIdentifier
+    .data <- .data |>
+      dplyr::mutate(
+        ATTAINS.OrganizationIdentifier = ifelse(
+          is.na(ATTAINS.WaterType) | ATTAINS.WaterType == "",
+          org_id,
+          ATTAINS.OrganizationIdentifier
+        )
+      )
+  }
 
   # retain all existing ATTAINS.WaterType matches if none were present in TADA df
   # or if replace_all = TRUE
@@ -4783,9 +4802,7 @@ TADA_CrosswalkATTAINSOrgID <- function() {
 #' @param .data A TADA data frame.
 #'
 #' @param org_id Character. Use "all" (case-insensitive) to
-#' apply an internal WQP organization to ATTAINS organization crosswalk,
-#' or NULL to leave blank for manual entry. Any org_ids that cannot be matched
-#' will be kept as NA.
+#' pull in all Assessment 
 #'
 #' @param addprefix_ATTAINS Character. Optional prefix to append to
 #' ATTAINS.AssessmentUnitIdentifier. Use NULL or "" to skip if no prefix is needed.
@@ -4858,7 +4875,7 @@ TADA_CrosswalkATTAINSOrgID <- function() {
 #' org_id = "BLCKFEET", crosswalk = BLCKFEET_AUMLRef, batch_upload = TRUE)
 #' }
 #'
-TADA_AssignMLtoAU <- function(
+TADA_AssignMLtoPointAU <- function(
   .data,
   org_id = NULL,
   replace_all = FALSE,
