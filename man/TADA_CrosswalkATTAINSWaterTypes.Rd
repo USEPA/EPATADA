@@ -59,7 +59,9 @@ MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData)
 MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
 
 # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
-Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(Data_TribalNations_Harmonized)
+Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(
+Data_TribalNations_Harmonized,
+org_id = "BLCKFEET") |> dplyr::filter(OrganizationIdentifier == "BLCKFEET")
 
 # modify tribal example data to include an ATTAINS.WaterType not allowed by ATTAINS
 Tribal_modified <- Tribal_addAll |>

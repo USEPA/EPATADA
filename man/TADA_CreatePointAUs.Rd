@@ -45,7 +45,9 @@ MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
 MT_AUML_update_all <- TADA_AssignMLtoAU(MT_replaceAll, org_id = "all")
 
 # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
-Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(Data_TribalNations_Harmonized)
+Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(
+Data_TribalNations_Harmonized,
+org_id = "BLCKFEET") |> dplyr::filter(OrganizationIdentifier == "BLCKFEET")
 
 # modify tribal example data to include an ATTAINS.WaterType not allowed by ATTAINS
 Tribal_modified <- Tribal_addAll |>
@@ -65,27 +67,21 @@ ifelse(TADA.MonitoringLocationIdentifier \%in\%
  review_action = "update")
 
 # populates and returns any org_ids found as an alias between WQP and ATTAINS
-Tribal_AUMLRef <- TADA_CreatePointAUs(Tribal_modified, org_id = "all", addprefix_ATTAINS = "WQX_")
-
-# leave ATTAINS.OrganizationIdentifier blank
-Tribal_AUMLRef2 <- TADA_CreatePointAUs(Tribal_modified, org_id = NULL, addprefix_ATTAINS = "WQX_")
-
-# filters to only BLCKFEET tribe
-BLCKFEET_AUMLRef <- TADA_CreatePointAUs(
-Tribal_modified, org_id = "BLCKFEET", addprefix_ATTAINS = "WQX_")
+Blackfeet_AUMLRef <- TADA_CreatePointAUs(
+Tribal_reviewUpdate,
+org_id = "BLCKFEET", 
+addprefix_ATTAINS = "WQX_")
 
 # update the final AUML crosswalk for use in module 3 analysis
 update_BLCKFEET_ATTAINS_AUML <- TADA_UpdateATTAINSAUMLCrosswalk(
-org_id = "BLCKFEET", crosswalk = BLCKFEET_AUMLRef)
+org_id = "BLCKFEET", crosswalk = Blackfeet_AUMLRef)
 
 # create an ATTAINS batch upload compatible ATTAINS AUMLRef
 update_BLCKFEET_ATTAINS_AUML2 <- TADA_UpdateATTAINSAUMLCrosswalk(
-org_id = "BLCKFEET", crosswalk = BLCKFEET_AUMLRef, batch_upload = TRUE)
+org_id = "BLCKFEET", crosswalk = Blackfeet_AUMLRef, batch_upload = TRUE)
 }
 
 }
 \seealso{
 \code{\link[=TADA_CrosswalkATTAINSWaterTypes]{TADA_CrosswalkATTAINSWaterTypes()}}
-
-\code{\link[=TADA_CrosswalkATTAINSOrgID]{TADA_CrosswalkATTAINSOrgID()}} for crosswalk between ATTAINS and WQP orgs
 }
