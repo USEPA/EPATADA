@@ -1125,6 +1125,14 @@ TADA_ParametersForAnalysis <- function(
       )
     }
 
+    # display message for case when org_id = does not match all current unique org_ids
+    if (!org_id %in% unique(.data$ATTAINS.OrganizationIdentifier)) {
+      warning(
+        "Your org_id input was not found as an ATTAINS.OrganizationIdentifier in your WQP data frame.
+  Please ensure you have provided the correct org_id input for your assessment needs."
+      )
+    }
+
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
     if (tolower("all") %in% tolower(org_id)) {
       if (is.null(AUMLRef)) {
@@ -4581,6 +4589,22 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   review_all = FALSE,
   review_action = "flag"
 ) {
+  # display message for case when org_id = NULL
+  if (!is.character(org_id) & is.null(org_id)) {
+    org_id <- ""
+    message(
+      "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+    )
+  }
+
+  # display message for case when org_id = does not match all current unique org_ids
+  if (!org_id %in% unique(.data$ATTAINS.OrganizationIdentifier)) {
+    warning(
+      "Your org_id input was not found as an ATTAINS.OrganizationIdentifier in your WQP data frame.
+    Please ensure you have provided the correct org_id input for your assessment needs."
+    )
+  }
+
   # create df of unique monitoring location identifiers, monitoring location type
   # name, and (if present in TADA df) ATTAINS.WaterType
   wqp.mls <- .data |>
