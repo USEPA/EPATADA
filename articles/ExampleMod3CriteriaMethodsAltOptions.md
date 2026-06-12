@@ -236,11 +236,6 @@ MT.Criteria.epa2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "USEPA"
 )
-```
-
-    ## [1] "EQ_DomainValues: For org_id the values in the 'code' column of the function output are the allowable values for rExpert Query functions."
-
-``` r
 
 TADA_TableExport(MT.Criteria.epa2)
 ```

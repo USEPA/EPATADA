@@ -222,7 +222,9 @@ volunteer_data <- EPATADA::TADA_SimpleCensoredMethods(
 )
 ```
 
-    ## TADA_IDCensoredData: 24 records in supplied dataset have conflicting detection condition and detection limit type information. These records will not be included in detection limit handling calculations.
+    ## TADA_IDCensoredData: No censored data detected in your dataframe. Returning input dataframe with new column TADA.CensoredData.Flag set to Uncensored
+
+    ## Cannot apply simple censored methods to dataframe with no censored data results. Returning input dataframe.
 
 Run key TADA quality control flagging functions and remove suspect
 results:
@@ -248,7 +250,7 @@ volunteer_data <- EPATADA::TADA_FlagAboveThreshold(volunteer_data,
 )
 ```
 
-    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3137, Pass: 34360, Suspect: 1762
+    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3156, Pass: 34365, Suspect: 1762
 
 ``` r
 
@@ -258,7 +260,7 @@ volunteer_data <- EPATADA::TADA_FlagBelowThreshold(volunteer_data,
 )
 ```
 
-    ## TADA_FlagBelowThreshold: No data below the WQX Lower Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking. Counts:  NA - Not Available: 3137, Pass: 36122
+    ## TADA_FlagBelowThreshold: No data below the WQX Lower Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking. Counts:  NA - Not Available: 3156, Pass: 36127
 
 Harmonize synonyms if found:
 
@@ -275,8 +277,8 @@ EPATADA::TADA_FieldValuesTable(volunteer_data, field = "ActivityTypeCode")
 ```
 
     ##            Value Count
-    ## 1 Sample-Routine 35420
-    ## 2  Field Msr/Obs  3839
+    ## 1 Sample-Routine 35439
+    ## 2  Field Msr/Obs  3844
 
 Generate pie chart:
 
@@ -333,7 +335,7 @@ EPATADA::TADA_SummarizeColumn(volunteer_data)
     ## 14 RBP2, HIGH G, RIPARIAN VEGETATIVE ZONE WIDTH, RIGHT BANK (…       2         2
     ## 15 RBP2, HIGH G, VEGETATIVE PROTECTION, LEFT BANK (CHOICE LIS…       2         3
     ## 16 RBP2, HIGH G, VEGETATIVE PROTECTION, RIGHT BANK (CHOICE LI…       1         1
-    ## 17 TEMPERATURE                                                     401      2307
+    ## 17 TEMPERATURE                                                     405      2312
     ## 18 TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)                        15       238
     ## 19 TOTAL NITROGEN, MIXED FORMS                                      15       275
     ## 20 TOTAL PHOSPHORUS, MIXED FORMS                                    15       216

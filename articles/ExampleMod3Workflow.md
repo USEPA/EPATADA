@@ -212,8 +212,6 @@ domains (see example below).
 TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
 ```
 
-    ## [1] "EQ_DomainValues: For param_name the values in the 'name' column of the function output are the allowable values for rExpert Query functions."
-
 In the next section, we will review which parameters have been listed in
 ATTAINS in the past for a specific organization. In order to select a
 specific organization in the TADA_ParametersForAnalysis() function, we
@@ -225,8 +223,6 @@ id for Montana is “MTDEQ”.
 # return ATTAINS organization domain values
 TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id"))
 ```
-
-    ## [1] "EQ_DomainValues: For org_id the values in the 'code' column of the function output are the allowable values for rExpert Query functions."
 
 ## TADA_ParametersForAnalysis() Basics
 
@@ -295,11 +291,6 @@ MT.ParamRef.None <- TADA_ParametersForAnalysis(
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
-```
-
-    ## [1] "EQ_DomainValues: For org_id the values in the 'code' column of the function output are the allowable values for rExpert Query functions."
-
-``` r
 
 TADA_TableExport(MT.ParamRef.None)
 ```
