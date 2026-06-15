@@ -4801,9 +4801,9 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' org_id = "BLCKFEET",
 #' replace_all = TRUE)
 #'
-#' # only return the New Point AU and ML for BLCKFEET 
+#' # only return the New Point AU and ML for BLCKFEET
 #' MT_AUML_update_w_BFT <- TADA_CreatePointAUs(MT_replaceAll_w_BFT, org_id = "BLCKFEET")
-#' 
+#'
 #' # returns the existing ATTAINS AU and ML from MTDEQ with New Point AU and ML
 #' MT_AUML_update_w_all <- TADA_CreatePointAUs(MT_replaceAll_w_BFT, org_id = "all")
 #'
@@ -4899,7 +4899,7 @@ TADA_CreatePointAUs <- function(
     AUMLRef <- AUMLRef |>
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
   }
-  
+
   if (!is.null(addprefix_ATTAINS)) {
     AUMLRef <- AUMLRef |>
       dplyr::mutate(
