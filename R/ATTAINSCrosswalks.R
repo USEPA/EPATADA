@@ -4862,27 +4862,27 @@ TADA_CreatePointAUs <- function(
     }
   }
 
-    AUMLRef <- .data |>
-      dplyr::mutate(
-        ATTAINS.AssessmentUnitIdentifier = dplyr::if_else(
-          (is.na(ATTAINS.AssessmentUnitIdentifier) |
-            ATTAINS.AssessmentUnitIdentifier == ""),
-          TADA.MonitoringLocationIdentifier,
-          ATTAINS.AssessmentUnitIdentifier
-        ),
-        #ATTAINS.OrganizationIdentifier = org_id,
-        ATTAINS.MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier,
-        ATTAINS.MonitoringDataLinkText = NA_character_
-      ) |>
-      dplyr::select(
-        OrganizationIdentifier,
-        ATTAINS.OrganizationIdentifier,
-        ATTAINS.MonitoringLocationIdentifier,
-        ATTAINS.AssessmentUnitIdentifier,
-        ATTAINS.MonitoringDataLinkText,
-        ATTAINS.WaterType
-      ) |>
-      dplyr::distinct()
+  AUMLRef <- .data |>
+    dplyr::mutate(
+      ATTAINS.AssessmentUnitIdentifier = dplyr::if_else(
+        (is.na(ATTAINS.AssessmentUnitIdentifier) |
+          ATTAINS.AssessmentUnitIdentifier == ""),
+        TADA.MonitoringLocationIdentifier,
+        ATTAINS.AssessmentUnitIdentifier
+      ),
+      #ATTAINS.OrganizationIdentifier = org_id,
+      ATTAINS.MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier,
+      ATTAINS.MonitoringDataLinkText = NA_character_
+    ) |>
+    dplyr::select(
+      OrganizationIdentifier,
+      ATTAINS.OrganizationIdentifier,
+      ATTAINS.MonitoringLocationIdentifier,
+      ATTAINS.AssessmentUnitIdentifier,
+      ATTAINS.MonitoringDataLinkText,
+      ATTAINS.WaterType
+    ) |>
+    dplyr::distinct()
 
   if (!is.null(addprefix_ATTAINS)) {
     AUMLRef <- AUMLRef |>
