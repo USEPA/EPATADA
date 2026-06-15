@@ -4806,7 +4806,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #'
 #' # returns the existing ATTAINS AU and ML from MTDEQ with New Point AU and ML
 #' MT_AUML_update_w_all <- TADA_CreatePointAUs(MT_replaceAll_w_BFT, org_id = "all")
-#' 
+#'
 #' # append or update ATTAINS.AssessmentUnitIdentifier column to the WQP data frame
 #' Data_MT_Missoula_Updated <- TADA_CreateAUMLCrosswalk(
 #' Data_MT_MissoulaCounty, # must use the original data frame to update AUID
