@@ -4853,7 +4853,6 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 TADA_CreatePointAUs <- function(
   .data,
   org_id = NULL,
-  replace_all = FALSE,
   addprefix_ATTAINS = NULL
 ) {
   # checks if ATTAINS.AssessmentUnitIdentifier exists yet
