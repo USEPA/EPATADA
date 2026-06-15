@@ -471,7 +471,7 @@ TADA_TableExport(MT.Criteria.user2[[3]])
 # We can now reuse this criteria table
 MT.Criteria.reuse <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
-  criteriaMethods = MT.Criteria.user2, # user supplied table - all rows are kept from this table
+  criteriaMethods = MT.Criteria.user2[[1]], # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
   displayUniqueId = FALSE,
   excel = FALSE
