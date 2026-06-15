@@ -53,10 +53,13 @@ MT_ExData <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
 sf::st_drop_geometry()
 
 # add ATTAINS.WaterType only for rows without values in that column
-MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData)
+MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, org_id = "BLCKFEET")
 
 # add ATTAINS.WaterType for all rows (replace existing matches)
-MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
+MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(
+MT_ExData,
+org_id = "BLCKFEET",
+replace_all = TRUE)
 
 # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
 Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(

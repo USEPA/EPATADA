@@ -4548,10 +4548,13 @@ TADA_MLSummary <- function(
 #' sf::st_drop_geometry()
 #'
 #' # add ATTAINS.WaterType only for rows without values in that column
-#' MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData)
+#' MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, org_id = "BLCKFEET")
 #'
 #' # add ATTAINS.WaterType for all rows (replace existing matches)
-#' MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
+#' MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(
+#' MT_ExData,
+#' org_id = "BLCKFEET",
+#' replace_all = TRUE)
 #'
 #' # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
 #' Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(
@@ -4790,12 +4793,19 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' sf::st_drop_geometry()
 #'
 #' # add ATTAINS.WaterType only for rows without values in that column
-#' MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData)
+#' MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, org_id = "BLCKFEET")
 #'
 #' # add ATTAINS.WaterType for all rows (replace existing matches)
-#' MT_replaceAll_w_BFT <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, org_id = "BLCKFEET", replace_all = TRUE)
+#' MT_replaceAll_w_BFT <- TADA_CrosswalkATTAINSWaterTypes(
+#' MT_ExData,
+#' org_id = "BLCKFEET",
+#' replace_all = TRUE)
 #'
-#' MT_AUML_update_w_BFT <- TADA_CreatePointAUs(MT_replaceAll_w_BFT, org_id = "MTDEQ")
+#' # only return the New Point AU and ML for BLCKFEET 
+#' MT_AUML_update_w_BFT <- TADA_CreatePointAUs(MT_replaceAll_w_BFT, org_id = "BLCKFEET")
+#' 
+#' # returns the existing ATTAINS AU and ML from MTDEQ with New Point AU and ML
+#' MT_AUML_update_w_all <- TADA_CreatePointAUs(MT_replaceAll_w_BFT, org_id = "all")
 #'
 #' # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
 #' Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(
@@ -4816,6 +4826,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #'  # add ATTAINS.WaterType for any rows where it is missing, review all ATTAINS.WaterType
 #'  # values and update any that are not allowed
 #'  Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterTypes(Tribal_modified,
+#'  org_id = "BLCKFEET",
 #'  review_all = TRUE,
 #'  review_action = "update")
 #'
@@ -4884,6 +4895,11 @@ TADA_CreatePointAUs <- function(
     ) |>
     dplyr::distinct()
 
+  if (!org_id == "" & !tolower(org_id) == "all") {
+    AUMLRef <- AUMLRef |>
+      dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
+  }
+  
   if (!is.null(addprefix_ATTAINS)) {
     AUMLRef <- AUMLRef |>
       dplyr::mutate(
