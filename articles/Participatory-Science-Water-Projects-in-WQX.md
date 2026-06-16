@@ -250,7 +250,7 @@ volunteer_data <- EPATADA::TADA_FlagAboveThreshold(volunteer_data,
 )
 ```
 
-    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3156, Pass: 34365, Suspect: 1762
+    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3156, Pass: 34741, Suspect: 1830
 
 ``` r
 
@@ -260,7 +260,7 @@ volunteer_data <- EPATADA::TADA_FlagBelowThreshold(volunteer_data,
 )
 ```
 
-    ## TADA_FlagBelowThreshold: No data below the WQX Lower Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking. Counts:  NA - Not Available: 3156, Pass: 36127
+    ## TADA_FlagBelowThreshold: No data below the WQX Lower Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking. Counts:  NA - Not Available: 3156, Pass: 36571
 
 Harmonize synonyms if found:
 
@@ -277,7 +277,7 @@ EPATADA::TADA_FieldValuesTable(volunteer_data, field = "ActivityTypeCode")
 ```
 
     ##            Value Count
-    ## 1 Sample-Routine 35439
+    ## 1 Sample-Routine 35883
     ## 2  Field Msr/Obs  3844
 
 Generate pie chart:
@@ -316,29 +316,20 @@ Review the number of sites and records for each characteristic:
 EPATADA::TADA_SummarizeColumn(volunteer_data)
 ```
 
-    ## # A tibble: 20 × 3
-    ##    TADA.CharacteristicName                                     n_sites n_records
-    ##    <chr>                                                         <int>     <int>
-    ##  1 AMMONIA                                                          15       244
-    ##  2 CHLOROPHYLL A                                                     4       144
-    ##  3 CONDUCTANCE                                                      15       149
-    ##  4 COUNT                                                           808     23121
-    ##  5 DEPTH, SECCHI DISK DEPTH                                         47       616
-    ##  6 DISSOLVED OXYGEN (DO)                                            15       589
-    ##  7 ESCHERICHIA COLI                                                440      9478
-    ##  8 INORGANIC NITROGEN (NO2, NO3, & NH3)                             15       269
-    ##  9 NITRATE                                                          30       303
-    ## 10 ORTHOPHOSPHATE                                                   15       144
-    ## 11 PH                                                               15       277
-    ## 12 RBP2, HIGH G, CHANNEL ALTERATION (CHOICE LIST)                    3         4
-    ## 13 RBP2, HIGH G, RIPARIAN VEGETATIVE ZONE WIDTH, LEFT BANK (C…       1         1
-    ## 14 RBP2, HIGH G, RIPARIAN VEGETATIVE ZONE WIDTH, RIGHT BANK (…       2         2
-    ## 15 RBP2, HIGH G, VEGETATIVE PROTECTION, LEFT BANK (CHOICE LIS…       2         3
-    ## 16 RBP2, HIGH G, VEGETATIVE PROTECTION, RIGHT BANK (CHOICE LI…       1         1
-    ## 17 TEMPERATURE                                                     405      2312
-    ## 18 TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)                        15       238
-    ## 19 TOTAL NITROGEN, MIXED FORMS                                      15       275
-    ## 20 TOTAL PHOSPHORUS, MIXED FORMS                                    15       216
+    ## # A tibble: 21 × 3
+    ##    TADA.CharacteristicName              n_sites n_records
+    ##    <chr>                                  <int>     <int>
+    ##  1 AMMONIA                                   15       244
+    ##  2 CHLOROPHYLL A                              4       144
+    ##  3 CONDUCTANCE                               15       149
+    ##  4 COUNT                                    808     23121
+    ##  5 DEPTH, SECCHI DISK DEPTH                  47       616
+    ##  6 DISSOLVED OXYGEN (DO)                     15       589
+    ##  7 ENTEROCOCCUS                              35       444
+    ##  8 ESCHERICHIA COLI                         440      9478
+    ##  9 INORGANIC NITROGEN (NO2, NO3, & NH3)      15       269
+    ## 10 NITRATE                                   30       303
+    ## # ℹ 11 more rows
 
 Filter data to review a single characteristic:
 

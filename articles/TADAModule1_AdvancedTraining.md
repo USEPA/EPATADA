@@ -852,7 +852,7 @@ removal
     ## 3                                                            Activity media is not water.
     ## 4                     Detection limit information contains errors or missing information.
     ##   Count
-    ## 1 48036
+    ## 1 37924
     ## 2 13418
     ## 3  4922
     ## 4    18
@@ -930,9 +930,9 @@ TADA_FieldValuesTable(dataset_flags, field = "TADA.ResultMeasureValueDataTypes.F
 ```
 
     ##                      Value Count
-    ## 1                  Numeric 75306
+    ## 1                  Numeric 85417
     ## 2               Percentage   992
-    ## 3 Numeric Range - Averaged   265
+    ## 3 Numeric Range - Averaged   266
     ## 4                Less Than    18
     ## 5             Greater Than     9
     ## 6  Comma-Separated Numeric     7
@@ -946,13 +946,14 @@ after `TADA_SimpleCensoredMethods`.
 TADA_FieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTypes.Flag")
 ```
 
-    ##                      Value Count
-    ## 1                  Numeric 75306
-    ## 2               Percentage   992
-    ## 3 Numeric Range - Averaged   265
-    ## 4                Less Than    18
-    ## 5             Greater Than     9
-    ## 6  Comma-Separated Numeric     7
+    ##                                              Value Count
+    ## 1                                          Numeric 85412
+    ## 2                                       Percentage   992
+    ## 3                         Numeric Range - Averaged   266
+    ## 4                                        Less Than    18
+    ## 5                                     Greater Than     9
+    ## 6                          Comma-Separated Numeric     7
+    ## 7 Result Value/Unit Estimated from Detection Limit     5
 
 **Question 9: Is there a difference between the first and second
 tables?**
