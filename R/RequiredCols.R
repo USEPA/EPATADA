@@ -50,7 +50,6 @@ require.cols <- c(
   "Target.TADA.CharacteristicName",
   "TADA.CharacteristicNameAssumptions", # generated
   "SubjectTaxonomicName",
-  "SampleTissueAnatomyName",
   "MethodSpeciationName", # required in Module 1 but is replaced by TADA version in future modules
   "TADA.MethodSpeciationName", # generated/required/replaces original
   "TADA.Target.MethodSpeciationName", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
@@ -198,7 +197,10 @@ require.cols <- c(
   "WellDepthMeasure.MeasureValue", # filter
   "WellDepthMeasure.MeasureUnitCode", # filter
   "WellHoleDepthMeasure.MeasureValue", # filter
-  "WellHoleDepthMeasure.MeasureUnitCode" # filter
+  "WellHoleDepthMeasure.MeasureUnitCode", # filter
+  
+  "ProviderName",
+  "LastUpdated"
 )
 
 # ordered list of non-essential WQP columns that can be removed from df
@@ -242,8 +244,7 @@ extra.cols <- c(
   "DrainageAreaMeasure.MeasureUnitCode",
   "ContributingDrainageAreaMeasure.MeasureValue",
   "ContributingDrainageAreaMeasure.MeasureUnitCode",
-  "ProviderName",
-  "LastUpdated"
+  "SampleTissueAnatomyName"
 )
 
 attains.cols <- c(
