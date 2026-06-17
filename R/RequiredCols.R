@@ -198,7 +198,7 @@ require.cols <- c(
   "WellDepthMeasure.MeasureUnitCode", # filter
   "WellHoleDepthMeasure.MeasureValue", # filter
   "WellHoleDepthMeasure.MeasureUnitCode", # filter
-  
+
   "ProviderName",
   "LastUpdated"
 )
