@@ -33,7 +33,7 @@ TADA.MonitoringLocationTypeName to ATTAINS.WaterType. The TADA.ATTAINSWaterTypeF
 column will be updated to reflect this action.}
 }
 \value{
-A TADA data frame with ATTAINS.WaterType column created (f not already
+A TADA data frame with ATTAINS.WaterType column created (if not already
 existing) and populated.
 }
 \description{
@@ -45,7 +45,7 @@ and maintained by the TADA team.
 \examples{
 \dontrun{
 # example TADA df already including an ATTAINS.WaterType column
-MT_exata <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
+MT_ExData <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
 sf::st_drop_geometry()
 
 # add ATTAINS.WaterType only for rows without values in that column
