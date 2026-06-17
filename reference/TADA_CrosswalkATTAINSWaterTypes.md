@@ -50,7 +50,7 @@ TADA_CrosswalkATTAINSWaterTypes(
 
 ## Value
 
-A TADA data frame with ATTAINS.WaterType column created (f not already
+A TADA data frame with ATTAINS.WaterType column created (if not already
 existing) and populated.
 
 ## Examples
@@ -58,7 +58,7 @@ existing) and populated.
 ``` r
 if (FALSE) { # \dontrun{
 # example TADA df already including an ATTAINS.WaterType column
-MT_exata <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
+MT_ExData <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
 sf::st_drop_geometry()
 
 # add ATTAINS.WaterType only for rows without values in that column

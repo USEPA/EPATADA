@@ -43,5 +43,5 @@ TADA_FieldValuesTable(Data_Nutrients_UT, field = "TADA.CharacteristicName")
 #>      Value Count
 #> 1 NITROGEN 12544
 #> 2  NITRATE  1927
-#> 3  AMMONIA   108
+#> 3  AMMONIA   118
 ```

@@ -327,7 +327,7 @@ First, always good to take a look at the dataframe dimensions.
 dim(dataset_0) # returns x and of x (as the numbers of rows and columns respectively)
 ```
 
-    ## [1] 142991    152
+    ## [1] 143209    152
 
 Before we start filtering and flagging our data, let’s create a function
 (`dimCheck`) that performs dimension checks between the results that
@@ -376,7 +376,7 @@ key_counts
 
     ##                             Fields Count
     ## 1    TADA.ComparableDataIdentifier   309
-    ## 2             SubjectTaxonomicName   300
+    ## 2             SubjectTaxonomicName   307
     ## 3          TADA.CharacteristicName   223
     ## 4  TADA.MonitoringLocationTypeName     8
     ## 5           OrganizationFormalName     5
@@ -397,13 +397,13 @@ all_counts
 ```
 
     ##                                                                Fields  Count
-    ## 1                                                    ResultIdentifier 142991
+    ## 1                                                    ResultIdentifier 143209
     ## 2                                             TADA.ResultMeasureValue  44218
     ## 3                                                  ResultMeasureValue  42595
-    ## 4                                                  ActivityIdentifier  17545
+    ## 4                                                  ActivityIdentifier  17547
     ## 5                                 ResultDetectionQuantitationLimitUrl  12228
     ## 6                                               ActivityStartDateTime  10734
-    ## 7                                                         LastUpdated   3474
+    ## 7                                                         LastUpdated   3502
     ## 8                               ResultDepthHeightMeasure.MeasureValue   3006
     ## 9                          TADA.ResultDepthHeightMeasure.MeasureValue   3006
     ## 10                                                ActivityCommentText   1922
@@ -416,9 +416,9 @@ all_counts
     ## 17                                   ActivityLocation.LatitudeMeasure    460
     ## 18                TADA.DetectionQuantitationLimitMeasure.MeasureValue    390
     ## 19                     DetectionQuantitationLimitMeasure.MeasureValue    380
-    ## 20                                                  ResultCommentText    325
+    ## 20                                                  ResultCommentText    330
     ## 21                                      TADA.ComparableDataIdentifier    309
-    ## 22                                               SubjectTaxonomicName    300
+    ## 22                                               SubjectTaxonomicName    307
     ## 23                                                    ActivityEndDate    251
     ## 24                                                ActivityEndDateTime    251
     ## 25                                       MonitoringLocationIdentifier    231
@@ -432,15 +432,15 @@ all_counts
     ## 33                                                    LatitudeMeasure    221
     ## 34                                               TADA.LatitudeMeasure    221
     ## 35                                  MonitoringLocationDescriptionText     80
-    ## 36                                  ResultAnalyticalMethod.MethodName     77
-    ## 37                            ResultAnalyticalMethod.MethodIdentifier     75
+    ## 36                                  ResultAnalyticalMethod.MethodName     78
+    ## 37                            ResultAnalyticalMethod.MethodIdentifier     76
     ## 38                                       VerticalMeasure.MeasureValue     68
     ## 39                       ResultAnalyticalMethod.MethodDescriptionText     45
     ## 40                                      ResultMeasure.MeasureUnitCode     42
     ## 41                      ActivityBottomDepthHeightMeasure.MeasureValue     35
     ## 42                 TADA.ActivityBottomDepthHeightMeasure.MeasureValue     35
-    ## 43                                                        ProjectName     23
-    ## 44                                                  ProjectIdentifier     23
+    ## 43                                                        ProjectName     25
+    ## 44                                                  ProjectIdentifier     25
     ## 45                                 TADA.ResultMeasure.MeasureUnitCode     22
     ## 46                                                  HUCEightDigitCode     17
     ## 47                     ResultAnalyticalMethod.MethodIdentifierContext     15
@@ -448,7 +448,7 @@ all_counts
     ## 49                            SampleCollectionMethod.MethodIdentifier     14
     ## 50                                  SampleCollectionMethod.MethodName     14
     ## 51                       SampleCollectionMethod.MethodDescriptionText     14
-    ## 52                                                     LaboratoryName     13
+    ## 52                                                     LaboratoryName     14
     ## 53                                             ProjectDescriptionText     13
     ## 54                  DetectionQuantitationLimitMeasure.MeasureUnitCode     11
     ## 55             TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode     10
@@ -594,7 +594,7 @@ org_counts
 ```
 
     ##                                         Value Count
-    ## 1                       Red Lake DNR (Tribal) 84965
+    ## 1                                Red Lake DNR 85055
     ## 2           Fond du Lac Band of Chippewa (MN) 27928
     ## 3                  Blackfeet Nation (Montana) 20126
     ## 4 Ute Mountain Utes Tribe (Colorado) (Tribal)  4257
@@ -852,9 +852,9 @@ removal
     ## 3                                                            Activity media is not water.
     ## 4                     Detection limit information contains errors or missing information.
     ##   Count
-    ## 1 37924
-    ## 2 13418
-    ## 3  4922
+    ## 1 35827
+    ## 2 13436
+    ## 3  5050
     ## 4    18
 
 You can review any other columns of interest and create custom domain
@@ -930,7 +930,7 @@ TADA_FieldValuesTable(dataset_flags, field = "TADA.ResultMeasureValueDataTypes.F
 ```
 
     ##                      Value Count
-    ## 1                  Numeric 85417
+    ## 1                  Numeric 87586
     ## 2               Percentage   992
     ## 3 Numeric Range - Averaged   266
     ## 4                Less Than    18
@@ -947,7 +947,7 @@ TADA_FieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTypes.Fl
 ```
 
     ##                                              Value Count
-    ## 1                                          Numeric 85412
+    ## 1                                          Numeric 87581
     ## 2                                       Percentage   992
     ## 3                         Numeric Range - Averaged   266
     ## 4                                        Less Than    18

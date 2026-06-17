@@ -117,7 +117,7 @@ column will be updated to reflect this action.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A TADA data frame with ATTAINS.WaterType column created (f not already
+    <p>A TADA data frame with ATTAINS.WaterType column created (if not already
 existing) and populated.</p>
     </div>
 
@@ -125,7 +125,7 @@ existing) and populated.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># example TADA df already including an ATTAINS.WaterType column</span></span></span>
-<span class="r-in"><span><span class="va">MT_exata</span> <span class="op">&lt;-</span> <span class="va">Data_MT_AUMLRef</span><span class="op">$</span><span class="va">TADA_with_ATTAINS</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span><span class="va">MT_ExData</span> <span class="op">&lt;-</span> <span class="va">Data_MT_AUMLRef</span><span class="op">$</span><span class="va">TADA_with_ATTAINS</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># add ATTAINS.WaterType only for rows without values in that column</span></span></span>

@@ -79,7 +79,7 @@ utils::data(Data_TribalNations)
 Data_TribalNations_DepthProfileID_Nresults <-
   TADA_IDDepthProfiles(Data_TribalNations, nresults = FALSE)
 #> TADA_IDDepthProfiles: Necessary columns are being added to the data frame using TADA_DepthCatgegory.Flag function.
-#> TADA_FlagDepthCategory: checking data set for depth values. 71705 results have depth values available.
+#> TADA_FlagDepthCategory: checking data set for depth values. 71741 results have depth values available.
 #> TADA_FlagDepthCategory: assigning depth categories.
 #> TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for entire water column.
 #> TADA_FlagDepthCategory: No aggregation performed.
@@ -87,7 +87,7 @@ Data_TribalNations_DepthProfileID_Nresults <-
 # find depth profile data showing number of results
 Data_TribalNations_DepthProfileID <- TADA_IDDepthProfiles(Data_TribalNations)
 #> TADA_IDDepthProfiles: Necessary columns are being added to the data frame using TADA_DepthCatgegory.Flag function.
-#> TADA_FlagDepthCategory: checking data set for depth values. 71705 results have depth values available.
+#> TADA_FlagDepthCategory: checking data set for depth values. 71741 results have depth values available.
 #> TADA_FlagDepthCategory: assigning depth categories.
 #> TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for entire water column.
 #> TADA_FlagDepthCategory: No aggregation performed.

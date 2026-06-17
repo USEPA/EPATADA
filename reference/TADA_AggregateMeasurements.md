@@ -72,7 +72,7 @@ Data_TribalNations_max <- TADA_AggregateMeasurements(Data_TribalNations,
 )
 #> Warning: TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation.
 #> Aggregation results:
-#> 5489111646
+#> 5480111738
 
 # Calculate a mean value per day, site, comparable data identifier, unit,
 # result detection condition,
@@ -88,5 +88,5 @@ Data_TribalNations_mean <- TADA_AggregateMeasurements(Data_TribalNations,
 )
 #> Warning: TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation.
 #> Aggregation results:
-#> 881005489111646
+#> 884085480111738
 ```
