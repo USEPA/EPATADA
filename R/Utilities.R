@@ -2770,7 +2770,7 @@ TADA_CorrectColType <- function(.data) {
       ".get_downloads_path:
   No filename was provided, returning the Downloads folder path only."
     )
-    filename = ""
+    filename <- ""
   }
 
   # find OneDrive directory if present
