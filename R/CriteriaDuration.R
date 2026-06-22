@@ -204,6 +204,8 @@ join_by_date_range <- function(data, windows) {
     data <- mutate(data, ActivityStartDate = as.Date(ActivityStartDateTime))
   }
   
+  data <- EPATADA::TADA_CorrectColType(data)
+  
   # Reduce window bounds to Date
   win_dates <- windows |>
     mutate(
