@@ -357,9 +357,9 @@ TADA_Analysis_join_by_date_range <- function(data, windows) {
 #'
 #' @export
 TADA_Analysis_Join_Windows <- function(data_w_criteria) {
-  stopifnot(is.data.frame(.data_w_criteria))
+  stopifnot(is.data.frame(data_w_criteria))
   req <- c("DurationValue", "DurationUnit", "DurationMethod")
-  missing <- setdiff(req, names(.data_w_criteria))
+  missing <- setdiff(req, names(data_w_criteria))
   if (length(missing) > 0) {
     stop("Input data is missing required columns: ", paste(missing, collapse = ", "))
   }
@@ -396,7 +396,7 @@ TADA_Analysis_Join_Windows <- function(data_w_criteria) {
     df
   }
   
-  df <- harmonize_datetime_cols(.data_w_criteria)
+  df <- harmonize_datetime_cols(data_w_criteria)
   
   # Derive rolling flag from DurationMethod
   df$rolling <- grepl("\\brolling\\b", df$DurationMethod, ignore.case = TRUE)
@@ -409,35 +409,59 @@ TADA_Analysis_Join_Windows <- function(data_w_criteria) {
   df_valid   <- df[is_valid, , drop = FALSE]
   df_invalid <- df[!is_valid, , drop = FALSE]
   
+  # Identifier columns for splitting
+  id_cols <- c("TADA.ComparableDataIdentifier",
+               "TADA.CharacteristicName",
+               "TADA.ResultSampleFractionText",
+               "TADA.MethodSpeciationName")
+  have_ids <- id_cols[id_cols %in% names(df_valid)]
+  if (length(have_ids) < length(id_cols)) {
+    warning("Some identifier columns are missing: ",
+            paste(setdiff(id_cols, have_ids), collapse = ", "),
+            ". Proceeding with available identifiers.")
+  }
+  
   # Build results for valid criteria
   out_valid <- NULL
   if (nrow(df_valid) > 0L) {
-    combos <- df_valid |>
-      dplyr::distinct(DurationValue, du_norm, rolling)
+    # Split by Duration settings AND identifiers
+    df_groups <- df_valid |>
+      dplyr::group_by(
+        DurationValue, du_norm, rolling,
+        dplyr::across(dplyr::all_of(have_ids))
+      ) |>
+      dplyr::group_split()
     
-    out_list <- lapply(seq_len(nrow(combos)), function(i) {
-      val <- combos$DurationValue[i]
-      uni <- combos$du_norm[i]
-      rol <- combos$rolling[i]
+    out_list <- lapply(df_groups, function(sub_df) {
+      # Extract grouping values from the first row of the subgroup
+      val <- sub_df$DurationValue[1]
+      uni <- sub_df$du_norm[1]
+      rol <- sub_df$rolling[1]
       
-      sub_df <- df_valid[df_valid$DurationValue == val &
-                           df_valid$du_norm == uni &
-                           df_valid$rolling  == rol, , drop = FALSE]
-      
+      # Build windows for this subgroup
       win <- TADA_Analysis_DurationAgg(
-        .data         = sub_df,
+        .data         = sub_df, # use the beg and end dates 
         durationValue = val,
         durationUnit  = uni,
         rolling       = rol
       )
       
-        res <- TADA_Analysis_join_by_date_range(sub_df, win)
-        res$DurationValue  <- val
-        res$DurationUnit   <- uni
-        res$DurationMethod <- if (all(is.na(sub_df$DurationMethod))) NA_character_
-        else sub_df$DurationMethod[which(!is.na(sub_df$DurationMethod))[1]]
-        res$rolling <- rol
-        res
+      # Join observations to windows for this subgroup
+      res <- TADA_Analysis_join_by_date_range(sub_df, win)
+      
+      # Carry Duration metadata
+      res$DurationValue  <- val
+      res$DurationUnit   <- uni
+      res$DurationMethod <- if (all(is.na(sub_df$DurationMethod))) NA_character_
+      else sub_df$DurationMethod[which(!is.na(sub_df$DurationMethod))[1]]
+      res$rolling <- rol
+      
+      # Carry identifier columns from the subgroup
+      for (cc in have_ids) {
+        res[[cc]] <- sub_df[[cc]][1]
+      }
+      
+      res
     })
     
     out_valid <- dplyr::bind_rows(out_list)
@@ -450,12 +474,12 @@ TADA_Analysis_Join_Windows <- function(data_w_criteria) {
       if ("ActivityStartDate" %in% names(df_invalid)) as.POSIXct(df_invalid$ActivityStartDate) else as.POSIXct(NA)
     }
     ts_char <- ifelse(is.na(ts_invalid), NA_character_, format(ts_invalid, "%Y-%m-%d %H:%M:%S"))
-
-      out_invalid <- df_invalid
-      out_invalid$window_start       <- ts_char
-      out_invalid$window_end         <- ts_invalid
-      out_invalid$window_start_date  <- as.Date(ts_invalid)
-      out_invalid$window_end_date    <- as.Date(ts_invalid)
+    
+    out_invalid <- df_invalid
+    out_invalid$window_start       <- ts_char
+    out_invalid$window_end         <- ts_invalid
+    out_invalid$window_start_date  <- as.Date(ts_invalid)
+    out_invalid$window_end_date    <- as.Date(ts_invalid)
   }
   
   # Final bind; ensure consistent types again on ActivityStartDate
@@ -467,7 +491,7 @@ TADA_Analysis_Join_Windows <- function(data_w_criteria) {
   out_invalid <- if (!is.null(out_invalid)) cast_activity_date(out_invalid) else NULL
   
   if (is.null(out_valid) && is.null(out_invalid)) {
-    return(.data_w_criteria)
+    return(data_w_criteria)
   }
   
   out <- dplyr::bind_rows(out_valid, out_invalid)
@@ -475,7 +499,7 @@ TADA_Analysis_Join_Windows <- function(data_w_criteria) {
   # Drop helper columns if present
   out <- dplyr::select(out, -dplyr::any_of(c("du_norm", "rolling")))
   
-  out
+  return(out)
 }
 
 
@@ -493,3 +517,165 @@ roll_3m <- make_rolling_windows(Data_MT_MissoulaCounty, 3, durationUnit = "n-mon
 
 Data_MT_MissoulaCounty_Durations <- join_by_date_range(Data_MT_MissoulaCounty, cal_3m)
 Data_MT_MissoulaCounty_Durations_roll <- join_by_date_range(Data_MT_MissoulaCounty, roll_3m)
+
+
+
+
+
+filt <- dplyr::distinct(final_MT_data_criteria, TADA.ComparableDataIdentifier,
+                TADA.CharacteristicName,
+                TADA.ResultSampleFractionText,
+                TADA.MethodSpeciationName,DurationValue, DurationUnit) |>
+  tidyr::drop_na()
+
+wqp_criteria_durations <- list()
+
+
+for (i in 1:nrow(filt)) {
+  filt_data <- Data_MT_MissoulaCounty |> dplyr::semi_join(filt[i,])
+  
+  wqp_criteria_durations[[i]] <- TADA_Analysis_DurationAgg(filt_data, filt$DurationValue[i], filt$DurationUnit[i])
+}
+
+final_df <- dplyr::bind_rows(wqp_criteria_durations[[1]],wqp_criteria_durations[[2]])
+
+
+TADA_Analysis_Join_Windows2 <- function(data_w_criteria, join_back = TRUE) {
+  stopifnot(is.data.frame(data_w_criteria))
+  
+  id_cols <- c(
+    "TADA.ComparableDataIdentifier",
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName"
+  )
+  req <- c(id_cols, "DurationValue", "DurationUnit")
+  missing <- setdiff(req, names(data_w_criteria))
+  if (length(missing) > 0) {
+    stop("Input data is missing required columns: ", paste(missing, collapse = ", "))
+  }
+  
+  # Harmonize date/time columns for later use
+  harmonize_datetime_cols <- function(df) {
+    if ("ActivityStartDateTime" %in% names(df)) {
+      ts <- df$ActivityStartDateTime
+      if (!inherits(ts, "POSIXct")) {
+        if (inherits(ts, "Date")) {
+          ts <- as.POSIXct(ts)
+        } else if (is.character(ts)) {
+          ts_try <- suppressWarnings(lubridate::ymd_hms(ts, quiet = TRUE))
+          if (all(is.na(ts_try))) ts_try <- suppressWarnings(lubridate::ymd(ts, quiet = TRUE))
+          ts <- ts_try
+        } else {
+          ts <- tryCatch(as.POSIXct(ts), error = function(e) as.POSIXct(NA))
+        }
+      }
+      df$ActivityStartDateTime <- ts
+      df$ActivityStartDate <- as.Date(ts)
+    } else if ("ActivityStartDate" %in% names(df)) {
+      df$ActivityStartDate <- as.Date(df$ActivityStartDate)
+    }
+    df
+  }
+  df <- harmonize_datetime_cols(data_w_criteria)
+  
+  # Distinct combos INCLUDING NA so we can produce per-observation windows for them
+  filt_all <- df |>
+    dplyr::distinct(dplyr::across(dplyr::all_of(req)))
+  
+  if (nrow(filt_all) == 0) return(dplyr::tibble())
+  
+  out_list <- vector("list", nrow(filt_all))
+  
+  # Helper for NA-safe equality on identifiers
+  equal_or_both_na <- function(x, y) {
+    (is.na(x) & is.na(y)) | (!is.na(x) & !is.na(y) & x == y)
+  }
+  
+  for (i in seq_len(nrow(filt_all))) {
+    combo <- filt_all[i, , drop = FALSE]
+    
+    dur_val  <- combo$DurationValue
+    dur_unit <- combo$DurationUnit
+    valid_combo <- !is.na(dur_val) & !is.na(dur_unit)
+    
+    if (valid_combo) {
+      # Fully-specified combo: use semi_join and build windows via DurationAgg
+      filt_data <- df |>
+        dplyr::semi_join(combo, by = c(id_cols, "DurationValue", "DurationUnit"))
+      
+      if (nrow(filt_data) == 0) {
+        out_list[[i]] <- dplyr::tibble()
+        next
+      }
+      
+      win <- TADA_Analysis_DurationAgg(
+        .data         = filt_data,
+        durationValue = dur_val,
+        durationUnit  = dur_unit
+      )
+      
+      # Ensure identifiers + duration fields are present on the window output
+      for (cc in id_cols) if (!cc %in% names(win)) win[[cc]] <- combo[[cc]]
+      if (!"DurationValue" %in% names(win)) win$DurationValue <- dur_val
+      if (!"DurationUnit" %in% names(win))  win$DurationUnit  <- dur_unit
+      
+      if (isTRUE(join_back)) {
+        # Optionally attach windows to observations
+        win_joined <- TADA_Analysis_join_by_date_range(filt_data, win)
+        for (cc in id_cols) win_joined[[cc]] <- combo[[cc]]
+        win_joined$DurationValue <- dur_val
+        win_joined$DurationUnit  <- dur_unit
+        out_list[[i]] <- win_joined
+      } else {
+        out_list[[i]] <- win
+      }
+      
+    } else {
+      # NA DurationValue and/or DurationUnit: append per-observation windows
+      # Filter rows by identifiers only (NA-safe)
+      mask <- rep(TRUE, nrow(df))
+      for (cc in id_cols) {
+        mask <- mask & equal_or_both_na(df[[cc]], combo[[cc]])
+      }
+      # And match NA-ness of duration fields to the combo
+      mask <- mask &
+        (if (is.na(dur_val)) is.na(df$DurationValue) else df$DurationValue == dur_val) &
+        (if (is.na(dur_unit)) is.na(df$DurationUnit) else df$DurationUnit == dur_unit)
+      
+      sub_na <- df[mask, , drop = FALSE]
+      
+      if (nrow(sub_na) == 0) {
+        out_list[[i]] <- dplyr::tibble()
+        next
+      }
+      
+      # Windows equal to ActivityStartDateTime (like before)
+      ts <- if ("ActivityStartDateTime" %in% names(sub_na)) {
+        sub_na$ActivityStartDateTime
+      } else if ("ActivityStartDate" %in% names(sub_na)) {
+        as.POSIXct(sub_na$ActivityStartDate)
+      } else {
+        as.POSIXct(NA)
+      }
+      ts_char <- ifelse(is.na(ts), NA_character_, format(ts, "%Y-%m-%d %H:%M:%S"))
+      
+      win_na <- dplyr::tibble(
+        window_start      = ts_char,
+        window_end        = ts,
+        window_start_date = as.Date(ts),
+        window_end_date   = as.Date(ts)
+      )
+      
+      # Carry identifiers + duration fields for this NA combo
+      for (cc in id_cols) win_na[[cc]] <- combo[[cc]]
+      win_na$DurationValue <- dur_val
+      win_na$DurationUnit  <- dur_unit
+      
+      # If join_back = TRUE, these are already per-observation; just append
+      out_list[[i]] <- win_na
+    }
+  }
+  
+  dplyr::bind_rows(out_list)
+}

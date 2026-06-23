@@ -248,3 +248,34 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   
   return(wqp_criteria)
 }
+
+
+
+
+library(dplyr)
+
+geo_mean <- function(x) {
+  x <- as.numeric(x)
+  if (any(x <= 0, na.rm = TRUE)) return(NA_real_)
+  exp(mean(log(x), na.rm = TRUE))
+}
+
+final_test_grouped <- test |>
+  dplyr::group_by(window_start, window_end,
+                  TADA.ComparableDataIdentifier, TADA.CharacteristicName,
+                  TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
+                  AcuteChronic, SaltFresh, DurationValue, DurationUnit,
+                  DurationMethod, FreqValue, FreqMethod) |>
+  dplyr::summarise(
+    summary_value = {
+      method <- tolower(coalesce(dplyr::first(DurationMethod), ""))
+      if (grepl("geometric", method)) {
+        geo_mean(TADA.ResultMeasureValue)
+      } else if (grepl("arith", method)) {
+        mean(as.numeric(TADA.ResultMeasureValue), na.rm = TRUE)
+      } else {
+        NA_real_
+      }
+    },
+    .groups = "drop"
+  )
