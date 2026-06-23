@@ -1,4 +1,4 @@
-#' Join WQP data to criteria (ID preferred, with smart fallbacks)
+#' Join WQP data to criteria (TADA.ComparableDataIdentifier preferred, else fallbacks)
 #'
 #' @description
 #' Join WQP results to a criteria table by the best available key:
@@ -6,7 +6,7 @@
 #' 2) TADA.CharacteristicName + TADA.ResultSampleFractionText + TADA.MethodSpeciationName
 #' 3) TADA.CharacteristicName + TADA.ResultSampleFractionText
 #' 4) TADA.CharacteristicName + TADA.MethodSpeciationName
-#' 5) TADA.CharacteristicName (byChar = TRUE)
+#' 5) TADA.CharacteristicName (or when byChar = TRUE)
 #'
 #' For each fallback pass, rows with NA in any of the pass keys are dropped
 #' from both inputs for that pass. Left-join semantics are preserved overall.
