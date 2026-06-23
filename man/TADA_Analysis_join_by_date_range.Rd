@@ -22,10 +22,9 @@ observation date falls into multiple windows. If no dates fall within any
 window ranges, the result is empty.
 }
 \description{
-If rolling, many-to-many inner join that assigns each observation date to all analysis
-windows whose date range includes it. This is typically used to attach
-rolling or calendar-aligned windows (e.g., from \code{TADA_Analysis_DurationAgg})
-to a dataset of observations.
+Assigns each observation date to all analysis windows whose date range
+includes it. Attaches the rolling or calendar-aligned windows
+from \code{TADA_Analysis_DurationAgg} to a TADA dataset of observations.
 }
 \details{
 The function converts \code{ActivityStartDate} and \code{ActivityStartDateTime},

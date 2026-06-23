@@ -237,10 +237,9 @@ TADA_Analysis_DurationAgg <- function(
 
 #' Join WQP Data with analysis windows by date range
 #'
-#' If rolling, many-to-many inner join that assigns each observation date to all analysis
-#' windows whose date range includes it. This is typically used to attach
-#' rolling or calendar-aligned windows (e.g., from `TADA_Analysis_DurationAgg`)
-#' to a dataset of observations.
+#' Assigns each observation date to all analysis windows whose date range
+#' includes it. Attaches the rolling or calendar-aligned windows 
+#' from `TADA_Analysis_DurationAgg` to a TADA dataset of observations.
 #'
 #' The function converts `ActivityStartDate` and `ActivityStartDateTime`, 
 #' to a `Date` column type. It performs an inclusive range join where
@@ -311,54 +310,88 @@ TADA_Analysis_join_by_date_range <- function(data, windows) {
 }
 
 
-TADA_Analysis_apply_criteria <- function(.data, criteria, join = TRUE) {
-  stopifnot(is.data.frame(criteria))
-  if (!all(c("DurationValue", "DurationUnit") %in% names(criteria))) {
-    stop("criteria must have columns durationValue and durationUnit; include DurationMethod if available.")
+TADA_Analysis_apply_criteria <- function(.data_w_criteria, join = TRUE) {
+  stopifnot(is.data.frame(.data_w_criteria))
+  req <- c("DurationValue", "DurationUnit", "DurationMethod")
+  missing <- setdiff(req, names(.data_w_criteria))
+  if (length(missing) > 0) {
+    stop("Input data is missing required columns: ", paste(missing, collapse = ", "))
   }
   
-  crit <- criteria |> dplyr::filter(
-    is.numeric(DurationValue)
-  )
-  
-  if(nrow(crit) == 0) {
-    warning("TADA_Analysis_apply_criteria: Your criteria table contains no rows with DurationValue populated.
-            Returning the input data with no changes.")
-    return(.data)
-  } else {
-  
-  # Infer rolling from DurationMethod (preferred), else from 'rolling' column, else FALSE
-  if ("DurationMethod" %in% names(crit)) {
-    crit <- dplyr::mutate(crit, rolling = grepl("\\brolling\\b", DurationMethod, ignore.case = TRUE))
-  } else if (!"rolling" %in% names(crit)) {
-    crit <- dplyr::mutate(crit, rolling = FALSE)
-  } else {
-    crit <- dplyr::mutate(crit, rolling = as.logical(rolling))
+  # Normalize unit (lowercase, remove n- prefix and trailing s)
+  normalize_unit <- function(u) {
+    u <- tolower(trimws(u))
+    u <- sub("^n-", "", u)
+    u <- sub("s$", "", u)
+    u
   }
   
-  crit <- crit %>%
-    dplyr::mutate(
-      DurationUnit = tolower(DurationUnit),
-      rolling = ifelse(is.na(rolling), FALSE, rolling)
-    ) %>%
-    dplyr::distinct(DurationValue, DurationUnit, rolling, .keep_all = TRUE)
+  df <- .data_w_criteria
   
-  results <- purrr::pmap(
-    list(crit$DurationValue, crit$DurationUnit, crit$rolling, if ("DurationMethod" %in% names(crit)) crit$DurationMethod else rep(NA_character_, nrow(crit))),
-    function(val, unit, roll, method) {
-      win <- TADA_Analysis_DurationAgg(.data, durationValue = val, durationUnit = unit, rolling = roll)
-      if (isTRUE(join)) {
-        res <- TADA_Analysis_join_by_date_range(.data, win)
-        dplyr::mutate(res, durationValue = val, durationUnit = unit, rolling = roll, DurationMethod = method)
-      } else {
-        dplyr::mutate(win, durationValue = val, durationUnit = unit, rolling = roll, DurationMethod = method)
-      }
+  # Derive rolling flag from DurationMethod
+  df$..rolling <- grepl("\\brolling\\b", df$DurationMethod, ignore.case = TRUE)
+  
+  # Normalized unit for grouping/window generation
+  df$..du_norm <- normalize_unit(df$DurationUnit)
+  
+  # Keep only usable criteria rows
+  df_valid <- df[!is.na(df$DurationValue) & !is.na(df$..du_norm) & nzchar(df$..du_norm), , drop = FALSE]
+  
+  if (nrow(df_valid) == 0L) {
+    warning("TADA_Analysis_apply_criteria: No duration aggregation start or end date performed (DurationValue/DurationUnit are all NA). Returning input data unchanged.")
+    return(.data_w_criteria)
+  }
+  
+  # Unique combinations to iterate over
+  combos <- df_valid |>
+    dplyr::distinct(DurationValue, ..du_norm, ..rolling)
+  
+  out_list <- lapply(seq_len(nrow(combos)), function(i) {
+    val <- combos$DurationValue[i]
+    uni <- combos$..du_norm[i]
+    rol <- combos$..rolling[i]
+    
+    # Subset rows for this combo
+    sub_df <- df_valid[df_valid$DurationValue == val &
+                         df_valid$..du_norm == uni &
+                         df_valid$..rolling  == rol, , drop = FALSE]
+    
+    # Compute windows from this subset's date range
+    win <- TADA_Analysis_DurationAgg(
+      .data         = sub_df,
+      durationValue = val,
+      durationUnit  = uni,
+      rolling       = rol
+    )
+    
+    if (isTRUE(join)) {
+      res <- TADA_Analysis_join_by_date_range(sub_df, win)
+      # Ensure criteria columns are present/consistent
+      res$DurationValue  <- val
+      res$DurationUnit   <- uni
+      res$DurationMethod <- if (all(is.na(sub_df$DurationMethod))) NA_character_ else
+        sub_df$DurationMethod[which(!is.na(sub_df$DurationMethod))[1]]
+      res$rolling <- rol
+      res
+    } else {
+      # Return just the windows, tagged with criteria
+      win$DurationValue  <- val
+      win$DurationUnit   <- uni
+      win$DurationMethod <- if (all(is.na(sub_df$DurationMethod))) NA_character_ else
+        sub_df$DurationMethod[which(!is.na(sub_df$DurationMethod))[1]]
+      win$rolling <- rol
+      win
     }
-  )
+  })
   
-  dplyr::bind_rows(results)
-  }
+  out <- dplyr::bind_rows(out_list)
+  
+  # Drop helper columns if they leaked through
+  out <- dplyr::select(out, -dplyr::any_of(c("..du_norm", "..rolling")))
+  
+  out
 }
+
 
 
 ##### examples 
