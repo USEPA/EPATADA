@@ -14,7 +14,7 @@ following columns:
 \item \code{OrganizationIdentifier} (WQP)
 \item \code{ATTAINS.OrganizationIdentifier}
 \item \code{ATTAINS.WaterType} (if needed, run TADA_CrosswalkATTAINSWaterTypes before
-this function to add ATTAINS.WaterType)
+this function to add or update ATTAINS.WaterType)
 Optionally, the input may already include \code{ATTAINS.AssessmentUnitIdentifier}.
 If it is absent, the function will add it as a character column and populate
 missing/empty values as described above.
@@ -71,13 +71,6 @@ MT_ExData <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
 
 # add ATTAINS.WaterType only for rows without values in that column
 MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, org_id = "BLCKFEET")
-
-# add ATTAINS.WaterType for all rows (replace existing matches)
-MT_replaceAll_w_BFT <- TADA_CrosswalkATTAINSWaterTypes(
-  MT_ExData,
-  org_id = "BLCKFEET",
-  replace_all = TRUE
-)
 
 # only return the AU–ML crosswalk for BLCKFEET
 MT_AUML_update_w_BFT <- TADA_CreatePointAUs(MT_replaceAll_w_BFT, org_id = "BLCKFEET")
