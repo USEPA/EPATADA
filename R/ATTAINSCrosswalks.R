@@ -4770,13 +4770,13 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' the value is filled with `TADA.MonitoringLocationIdentifier`. The function
 #' also sets `ATTAINS.MonitoringLocationIdentifier` to
 #' `TADA.MonitoringLocationIdentifier` and initializes
-#' `ATTAINS.MonitoringDataLinkText` to `NA_character_`. 
-#' 
-#' Optionally, a prefix can be appended to each non-missing 
-#' `ATTAINS.AssessmentUnitIdentifier`, and the result can be filtered to a 
+#' `ATTAINS.MonitoringDataLinkText` to `NA_character_`.
+#'
+#' Optionally, a prefix can be appended to each non-missing
+#' `ATTAINS.AssessmentUnitIdentifier`, and the result can be filtered to a
 #' single ATTAINS organization or returned for all.
 #'
-#' @param .data A TADA-formatted data frame containing, at minimum, the 
+#' @param .data A TADA-formatted data frame containing, at minimum, the
 #' following columns:
 #'   - `TADA.MonitoringLocationIdentifier`
 #'   - `OrganizationIdentifier` (WQP)
@@ -4784,21 +4784,21 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #'   - `ATTAINS.WaterType` (if needed, run TADA_CrosswalkATTAINSWaterTypes before
 #'   this function to add or update ATTAINS.WaterType)
 #' Optionally, the input may already include `ATTAINS.AssessmentUnitIdentifier`.
-#' If it is absent, the function will add it as a character column and populate 
+#' If it is absent, the function will add it as a character column and populate
 #' missing/empty values as described above.
 #'
 #' @param org_id Character. If there are multiple ATTAINS.OrganizationIdentifier
-#' values in the input data, this argument can be used to filter the output to only 
-#' include rows with a matching ATTAINS.OrganizationIdentifier. In addition, 
+#' values in the input data, this argument can be used to filter the output to only
+#' include rows with a matching ATTAINS.OrganizationIdentifier. In addition,
 #' for any rows where `ATTAINS.AssessmentUnitIdentifier` is missing or empty,
-#' the ATTAINS.OrganizationIdentifier column in the output will be set to this 
-#' value and the `ATTAINS.AssessmentUnitIdentifier` is filled with the 
-#' `TADA.MonitoringLocationIdentifier`. Use `NULL` (default) or `"all"` 
+#' the ATTAINS.OrganizationIdentifier column in the output will be set to this
+#' value and the `ATTAINS.AssessmentUnitIdentifier` is filled with the
+#' `TADA.MonitoringLocationIdentifier`. Use `NULL` (default) or `"all"`
 #' (case-insensitive) to return all organizations found in the input
-#' data frame without filtering. 
+#' data frame without filtering.
 #'
-#' @param addprefix_ATTAINS Character. If `addprefix_ATTAINS` is provided, this 
-#' prefix is appended to all `ATTAINS.AssessmentUnitIdentifier` values 
+#' @param addprefix_ATTAINS Character. If `addprefix_ATTAINS` is provided, this
+#' prefix is appended to all `ATTAINS.AssessmentUnitIdentifier` values
 #' (including those just created from `TADA.MonitoringLocationIdentifier`).
 #' Use `NULL` to skip prefixing; an empty string `""` has no effect.
 #'
@@ -4889,9 +4889,9 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' )
 #' }
 TADA_CreatePointAUs <- function(
-    .data,
-    org_id = NULL,
-    addprefix_ATTAINS = NULL
+  .data,
+  org_id = NULL,
+  addprefix_ATTAINS = NULL
 ) {
   # Ensure the output has `ATTAINS.AssessmentUnitIdentifier`. If the
   # input does not have this column, we add it as a character column with NAs.
@@ -4902,7 +4902,7 @@ TADA_CreatePointAUs <- function(
       ATTAINS.AssessmentUnitIdentifier = NA_character_
     )
   }
-  
+
   # Handle org_id = NULL. The current logic replaces NULL with an
   # empty string "" and emits an informational message. It also checks whether
   # the (now empty) org_id matches any existing ATTAINS.OrganizationIdentifier
@@ -4913,7 +4913,7 @@ TADA_CreatePointAUs <- function(
     message(
       "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
     )
-    
+
     # This warning checks membership of "" against the dataset. It
     # only executes when org_id was NULL (and now is ""), not when a non-NULL,
     # non-matching org_id is provided by the user.
@@ -4923,7 +4923,7 @@ TADA_CreatePointAUs <- function(
       )
     }
   }
-  
+
   # Build the AU–ML crosswalk:
   # - Fill missing/empty AUIDs with the TADA Monitoring Location ID
   # - Copy TADA.MonitoringLocationIdentifier into an ATTAINS-prefixed column
@@ -4934,7 +4934,7 @@ TADA_CreatePointAUs <- function(
       # If the row's AUID is missing or blank, use the TADA MLID; otherwise keep as-is
       ATTAINS.AssessmentUnitIdentifier = dplyr::if_else(
         (is.na(ATTAINS.AssessmentUnitIdentifier) |
-           ATTAINS.AssessmentUnitIdentifier == ""),
+          ATTAINS.AssessmentUnitIdentifier == ""),
         TADA.MonitoringLocationIdentifier,
         ATTAINS.AssessmentUnitIdentifier
       ),
@@ -4950,8 +4950,8 @@ TADA_CreatePointAUs <- function(
       ATTAINS.MonitoringDataLinkText,
       ATTAINS.WaterType
     ) |>
-    dplyr::distinct()  # remove duplicate rows to form a clean crosswalk
-  
+    dplyr::distinct() # remove duplicate rows to form a clean crosswalk
+
   # Optionally filter by org_id. If org_id == "" or "all" (any case),
   # no filtering is applied. Otherwise, keep only rows matching the given org_id.
   # This logic assumes org_id is a scalar; if a vector is supplied, the `if`
@@ -4961,7 +4961,7 @@ TADA_CreatePointAUs <- function(
     AUMLRef <- AUMLRef |>
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
   }
-  
+
   # Optionally prepend a prefix to non-missing, non-empty AUIDs. If
   # addprefix_ATTAINS is NULL, skip. If it's "", the paste0 has no effect.
   # Empty/NA AUIDs remain unchanged to avoid creating spurious identifiers.
@@ -4976,7 +4976,7 @@ TADA_CreatePointAUs <- function(
         )
       )
   }
-  
+
   # Return the de-duplicated crosswalk containing both WQP and ATTAINS
   # columns for downstream use (e.g., updating AUIDs in source data, batch loads).
   return(AUMLRef)
