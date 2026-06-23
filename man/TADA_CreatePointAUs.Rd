@@ -54,9 +54,8 @@ left unchanged.
 Build a crosswalk between WQP Monitoring Locations and ATTAINS Assessment
 Units. For rows where \code{ATTAINS.AssessmentUnitIdentifier} is missing or empty,
 the value is filled with \code{TADA.MonitoringLocationIdentifier}. The function
-also sets \code{ATTAINS.MonitoringLocationIdentifier} to
-\code{TADA.MonitoringLocationIdentifier} and initializes
-\code{ATTAINS.MonitoringDataLinkText} to \code{NA_character_}.
+also sets \code{ATTAINS.OrganizationIdentifier} to the value of \code{org_id} and
+and initializes \code{ATTAINS.MonitoringDataLinkText} to \code{NA_character_}.
 }
 \details{
 Optionally, a prefix can be appended to each non-missing

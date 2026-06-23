@@ -4768,9 +4768,8 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' Build a crosswalk between WQP Monitoring Locations and ATTAINS Assessment
 #' Units. For rows where `ATTAINS.AssessmentUnitIdentifier` is missing or empty,
 #' the value is filled with `TADA.MonitoringLocationIdentifier`. The function
-#' also sets `ATTAINS.MonitoringLocationIdentifier` to
-#' `TADA.MonitoringLocationIdentifier` and initializes
-#' `ATTAINS.MonitoringDataLinkText` to `NA_character_`. 
+#' also sets `ATTAINS.OrganizationIdentifier` to the value of `org_id` and 
+#' and initializes `ATTAINS.MonitoringDataLinkText` to `NA_character_`. 
 #' 
 #' Optionally, a prefix can be appended to each non-missing 
 #' `ATTAINS.AssessmentUnitIdentifier`, and the result can be filtered to a 
