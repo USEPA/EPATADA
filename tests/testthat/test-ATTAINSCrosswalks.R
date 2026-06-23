@@ -533,7 +533,7 @@ testthat::test_that("In TADA_CrosswalkATTAINSWaterType ATTAINS.WaterType values 
       !is.na(ATTAINS.WaterType),
       ATTAINS.WaterType != ""
     )
-  
+
   # the only ones that should be NA are those in this list
   unmatched_ATTAINS.WaterType <- utils::read.csv(system.file(
     "extdata",
@@ -542,19 +542,26 @@ testthat::test_that("In TADA_CrosswalkATTAINSWaterType ATTAINS.WaterType values 
   )) |>
     dplyr::select(TADA.MonitoringLocationTypeName = Name, ATTAINS.WaterType) |>
     dplyr::filter(is.na(ATTAINS.WaterType))
-    
+
   # filter for rows that still contains NA ATTAINS.WaterType for those that were NA before
   MT_filtStillNA <- MT_addMissing |>
     dplyr::filter(
       TADA.MonitoringLocationIdentifier %in% WT_no,
-      TADA.MonitoringLocationTypeName %in% toupper(unmatched_ATTAINS.WaterType$TADA.MonitoringLocationTypeName),
+      TADA.MonitoringLocationTypeName %in%
+        toupper(unmatched_ATTAINS.WaterType$TADA.MonitoringLocationTypeName),
       is.na(ATTAINS.WaterType) | ATTAINS.WaterType == ""
     )
 
   # check to see that now rows with existing ATTAINS.WaterType values were changed
   testthat::expect_equal(NROW(MT_compare), 0)
   # check to see that new ATTAINS.WaterType values were added for rows without existing ATTAINS.WaterType values
-  testthat::expect_equal(NROW(MT_exData) - NROW(MT_filtYesNew) - NROW(MT_filtNoNew) - NROW(MT_filtStillNA), 0)
+  testthat::expect_equal(
+    NROW(MT_exData) -
+      NROW(MT_filtYesNew) -
+      NROW(MT_filtNoNew) -
+      NROW(MT_filtStillNA),
+    0
+  )
 })
 
 
@@ -620,29 +627,32 @@ testthat::test_that("TADA_CrosswalkATTAINSWaterType identifies and updates inval
 testthat::test_that("TADA_CrosswalkATTAINSWaterType assigns the new ATTAINS.WaterType to only those without existing ATTAINS.WaterType with the org_id the user specifies", {
   # load test data and drop geometry
   MT_exData <- Data_MT_AUMLRef$TADA_with_ATTAINS |> sf::st_drop_geometry()
-  
+
   # create a list of TADA.MonitoringLocationIdentifiers with existing ATTAINS.WaterType
   WT_yes <- MT_exData |>
     dplyr::filter(!is.na(ATTAINS.WaterType), ATTAINS.WaterType != "") |>
     dplyr::select(TADA.MonitoringLocationIdentifier) |>
     dplyr::distinct() |>
     dplyr::pull()
-  
+
   # create a list of TADA.MonitoringLocationIdentifiers without existing ATTAINS.WaterType
   WT_no <- MT_exData |>
     dplyr::filter(!TADA.MonitoringLocationIdentifier %in% WT_yes) |>
     dplyr::select(TADA.MonitoringLocationIdentifier) |>
     dplyr::distinct() |>
     dplyr::pull()
-  
+
   # Assigns BLCKFEET to the new ATTAINS.WaterType for only those without existing ATTAINS.WaterType
   testthat::expect_warning(
-    MT_addMissing2 <- TADA_CrosswalkATTAINSWaterTypes(MT_exData, org_id = "BLCKFEET")
+    MT_addMissing2 <- TADA_CrosswalkATTAINSWaterTypes(
+      MT_exData,
+      org_id = "BLCKFEET"
+    )
   )
-  
+
   MT_filtYesNew <- MT_addMissing2 |>
     dplyr::filter(TADA.MonitoringLocationIdentifier %in% WT_yes)
-  
+
   # filter for rows with newly assigned ATTAINS.WaterType
   MT_filtNoNew <- MT_addMissing2 |>
     dplyr::filter(
@@ -650,7 +660,11 @@ testthat::test_that("TADA_CrosswalkATTAINSWaterType assigns the new ATTAINS.Wate
       !is.na(ATTAINS.WaterType),
       ATTAINS.WaterType != ""
     )
-  
-  testthat::expect_true(unique(MT_filtNoNew$ATTAINS.OrganizationIdentifier) == "BLCKFEET")
-  testthat::expect_true(unique(MT_filtYesNew$ATTAINS.OrganizationIdentifier) == "MTDEQ")
+
+  testthat::expect_true(
+    unique(MT_filtNoNew$ATTAINS.OrganizationIdentifier) == "BLCKFEET"
+  )
+  testthat::expect_true(
+    unique(MT_filtYesNew$ATTAINS.OrganizationIdentifier) == "MTDEQ"
+  )
 })
