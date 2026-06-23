@@ -11,7 +11,7 @@
 #' For each fallback pass, rows with NA in any of the pass keys are dropped
 #' from both inputs for that pass. Left-join semantics are preserved overall.
 #'
-#' @param wqp data.frame/tibble of WQP results.
+#' @param .data data.frame/tibble of WQP results.
 #' @param criteria data.frame/tibble of criteria rows.
 #'
 #' @return data.frame with WQP rows and matching criteria columns.
@@ -25,11 +25,17 @@
 #' criteria_MT <- EPATADA::TADA_GetCriteriaFile(org_id = "MTDEQ")
 #'
 #' # join the table by best match from what is filled out from the criteria table
-#' MT_data_criteria <- join_wqp_criteria(MT_data, criteria_MT)
+#' MT_data_criteria <- TADA_Analysis_Join_WQP_Criteria(MT_data, criteria_MT)
 #'
 #' @noRd
-join_wqp_criteria <- function(wqp, criteria, byChar = FALSE, AUMLRef = NULL, AU_UsesRef = NULL) {
-  stopifnot(is.data.frame(wqp), is.data.frame(criteria))
+TADA_Analysis_Join_WQP_Criteria <- function(
+    .data,
+    criteria,
+    byChar = FALSE,
+    AUMLRef = NULL, # has not been handled yet
+    AU_UsesRef = NULL # has not been handled yet
+    ) {
+  stopifnot(is.data.frame(.data), is.data.frame(criteria))
   
   # Harmonize case on selected keys only
   upper_keys <- c(
@@ -44,8 +50,8 @@ join_wqp_criteria <- function(wqp, criteria, byChar = FALSE, AUMLRef = NULL, AU_
       ~ toupper(as.character(.x))
     ))
   for (nm in upper_keys) {
-    if (nm %in% names(wqp)) {
-      wqp[[nm]] <- toupper(as.character(wqp[[nm]]))
+    if (nm %in% names(.data)) {
+      .data[[nm]] <- toupper(as.character(.data[[nm]]))
     }
   }
   
@@ -62,7 +68,7 @@ join_wqp_criteria <- function(wqp, criteria, byChar = FALSE, AUMLRef = NULL, AU_
   
   # Optional use/org keys (only if present in BOTH)
   use_org <- c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier")
-  use_org_in_both <- intersect(use_org, intersect(names(wqp), names(criteria)))
+  use_org_in_both <- intersect(use_org, intersect(names(.data), names(criteria)))
   with_use_org <- function(keys) unique(c(keys, use_org_in_both))
   
   # Split criteria into disjoint sets (NO de-duplication)
@@ -144,20 +150,20 @@ join_wqp_criteria <- function(wqp, criteria, byChar = FALSE, AUMLRef = NULL, AU_
       dplyr::filter(!is.na(.data$`TADA.CharacteristicName`))
     
     wqp_criteria <- dplyr::left_join(
-      wqp, crit_char, by = keys, relationship = "many-to-many"
+      .data, crit_char, by = keys, relationship = "many-to-many"
     )
     
     # Warn only for criteria characteristics that had WQP rows but did not match
-    if ("TADA.CharacteristicName" %in% names(wqp) && length(expected_chars) > 0) {
-      wqp_chars_in_expected <- intersect(
-        unique(stats::na.omit(wqp$TADA.CharacteristicName)),
+    if ("TADA.CharacteristicName" %in% names(.data) && length(expected_chars) > 0) {
+      .data_chars_in_expected <- intersect(
+        unique(stats::na.omit(.data$TADA.CharacteristicName)),
         expected_chars
       )
       matched_chars <- intersect(
         unique(stats::na.omit(wqp_criteria$TADA.CharacteristicName)),
         expected_chars
       )
-      unmatched_chars <- setdiff(wqp_chars_in_expected, matched_chars)
+      unmatched_chars <- setdiff(.data_chars_in_expected, matched_chars)
       if (length(unmatched_chars) > 0) {
         warning(
           sprintf(
@@ -176,37 +182,37 @@ join_wqp_criteria <- function(wqp, criteria, byChar = FALSE, AUMLRef = NULL, AU_
   results <- list()
   
   # Pass 1: ID (+ optional Use/Org)
-  if (nrow(criteria1) > 0 && all(with_use_org(id_col1) %in% names(wqp))) {
+  if (nrow(criteria1) > 0 && all(with_use_org(id_col1) %in% names(.data))) {
     keys <- with_use_org(id_col1)
-    j1 <- dplyr::left_join(wqp, criteria1, by = keys, relationship = "many-to-many")
+    j1 <- dplyr::left_join(.data, criteria1, by = keys, relationship = "many-to-many")
     if (nrow(j1) > 0) results[[length(results) + 1]] <- j1
   }
   
   # Pass 2: Char + Fraction + Speciation (+ optional Use/Org)
-  if (nrow(criteria2) > 0 && all(with_use_org(id_col2) %in% names(wqp))) {
+  if (nrow(criteria2) > 0 && all(with_use_org(id_col2) %in% names(.data))) {
     keys <- with_use_org(id_col2)
-    j2 <- dplyr::left_join(wqp, criteria2, by = keys, relationship = "many-to-many")
+    j2 <- dplyr::left_join(.data, criteria2, by = keys, relationship = "many-to-many")
     if (nrow(j2) > 0) results[[length(results) + 1]] <- j2
   }
   
   # Pass 3: Char + Fraction (+ optional Use/Org)
-  if (nrow(criteria3) > 0 && all(with_use_org(id_col3) %in% names(wqp))) {
+  if (nrow(criteria3) > 0 && all(with_use_org(id_col3) %in% names(.data))) {
     keys <- with_use_org(id_col3)
-    j3 <- dplyr::left_join(wqp, criteria3, by = keys, relationship = "many-to-many")
+    j3 <- dplyr::left_join(.data, criteria3, by = keys, relationship = "many-to-many")
     if (nrow(j3) > 0) results[[length(results) + 1]] <- j3
   }
   
   # Pass 4: Char + Speciation (+ optional Use/Org)
-  if (nrow(criteria4) > 0 && all(with_use_org(id_col4) %in% names(wqp))) {
+  if (nrow(criteria4) > 0 && all(with_use_org(id_col4) %in% names(.data))) {
     keys <- with_use_org(id_col4)
-    j4 <- dplyr::left_join(wqp, criteria4, by = keys, relationship = "many-to-many")
+    j4 <- dplyr::left_join(.data, criteria4, by = keys, relationship = "many-to-many")
     if (nrow(j4) > 0) results[[length(results) + 1]] <- j4
   }
   
   # Pass 5: Char only (+ optional Use/Org)
-  if (nrow(criteria5) > 0 && all(with_use_org(id_col5) %in% names(wqp))) {
+  if (nrow(criteria5) > 0 && all(with_use_org(id_col5) %in% names(.data))) {
     keys <- with_use_org(id_col5)
-    j5 <- dplyr::left_join(wqp, criteria5, by = keys, relationship = "many-to-many")
+    j5 <- dplyr::left_join(.data, criteria5, by = keys, relationship = "many-to-many")
     if (nrow(j5) > 0) results[[length(results) + 1]] <- j5
   }
   
@@ -214,20 +220,20 @@ join_wqp_criteria <- function(wqp, criteria, byChar = FALSE, AUMLRef = NULL, AU_
     dplyr::bind_rows(results)
   } else {
     # No criteria matched in any pass
-    wqp
+    .data
   }
   
   # Warn only for expected (criteria) characteristics that had unmatched WQP rows overall
-  if ("TADA.CharacteristicName" %in% names(wqp) && length(expected_chars) > 0) {
+  if ("TADA.CharacteristicName" %in% names(.data) && length(expected_chars) > 0) {
     matched_chars <- intersect(
       unique(stats::na.omit(wqp_criteria$TADA.CharacteristicName)),
       expected_chars
     )
-    wqp_chars_in_expected <- intersect(
-      unique(stats::na.omit(wqp$TADA.CharacteristicName)),
+    .data_chars_in_expected <- intersect(
+      unique(stats::na.omit(.data$TADA.CharacteristicName)),
       expected_chars
     )
-    unmatched_chars <- setdiff(wqp_chars_in_expected, matched_chars)
+    unmatched_chars <- setdiff(.data_chars_in_expected, matched_chars)
     if (length(unmatched_chars) > 0) {
       warning(
         sprintf(
