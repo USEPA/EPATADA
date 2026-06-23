@@ -2,93 +2,144 @@
 % Please edit documentation in R/ATTAINSCrosswalks.R
 \name{TADA_CreatePointAUs}
 \alias{TADA_CreatePointAUs}
-\title{Assign WQP Monitoring Location ID to ATTAINS Assessment Unit ID}
+\title{Create ATTAINS Assessment Unit IDs from WQP Monitoring Location IDs}
 \usage{
 TADA_CreatePointAUs(.data, org_id = NULL, addprefix_ATTAINS = NULL)
 }
 \arguments{
-\item{.data}{A TADA data frame.}
+\item{.data}{A TADA-formatted data frame containing, at minimum, the
+following columns:
+\itemize{
+\item \code{TADA.MonitoringLocationIdentifier}
+\item \code{OrganizationIdentifier} (WQP)
+\item \code{ATTAINS.OrganizationIdentifier}
+\item \code{ATTAINS.WaterType} (if needed, run TADA_CrosswalkATTAINSWaterTypes before
+this function to add ATTAINS.WaterType)
+Optionally, the input may already include \code{ATTAINS.AssessmentUnitIdentifier}.
+If it is absent, the function will add it as a character column and populate
+missing/empty values as described above.
+}}
 
-\item{org_id}{Character. Use "all" (case-insensitive) to
-pull in all Assessment}
+\item{org_id}{Character. If there are multiple ATTAINS.OrganizationIdentifier
+values in the input data, this argument can be used to filter the output to only
+include rows with a matching ATTAINS.OrganizationIdentifier. In addition,
+for any rows where \code{ATTAINS.AssessmentUnitIdentifier} is missing or empty,
+the ATTAINS.OrganizationIdentifier column in the output will be set to this
+value and the \code{ATTAINS.AssessmentUnitIdentifier} is filled with the
+\code{TADA.MonitoringLocationIdentifier}. Use \code{NULL} (default) or \code{"all"}
+(case-insensitive) to return all organizations found in the input
+data frame without filtering.}
 
-\item{addprefix_ATTAINS}{Character. Optional prefix to append to
-ATTAINS.AssessmentUnitIdentifier. Use NULL or "" to skip if no prefix is needed.}
+\item{addprefix_ATTAINS}{Character. If \code{addprefix_ATTAINS} is provided, this
+prefix is appended to all \code{ATTAINS.AssessmentUnitIdentifier} values
+(including those just created from \code{TADA.MonitoringLocationIdentifier}).
+Use \code{NULL} to skip prefixing; an empty string \code{""} has no effect.}
 }
 \value{
-A TADA data frame; creates and populates ATTAINS.WaterType if not
-already present.
+A data frame (AU–ML crosswalk) with distinct rows, containing:
+\itemize{
+\item \code{OrganizationIdentifier} (WQP)
+\item \code{ATTAINS.OrganizationIdentifier}
+\item \code{ATTAINS.MonitoringLocationIdentifier}
+\item \code{ATTAINS.AssessmentUnitIdentifier}
+\item \code{ATTAINS.MonitoringDataLinkText} (returned as \code{NA_character_})
+\item \code{ATTAINS.WaterType}
+}
+
+If \code{ATTAINS.AssessmentUnitIdentifier} is missing or empty in a row, it is
+set to \code{TADA.MonitoringLocationIdentifier} for that row; otherwise it is
+left unchanged.
 }
 \description{
-After creating a crosswalk of ATTAINS WaterType from WQP MonitoringLocationType,
-this function assigns the WQP Monitoring Location identifier to
-ATTAINS.AssessmentUnitIdentifier. Optionally, a prefix can be added
-to each ATTAINS.AssessmentUnitIdentifier for naming consistency.
+Build a crosswalk between WQP Monitoring Locations and ATTAINS Assessment
+Units. For rows where \code{ATTAINS.AssessmentUnitIdentifier} is missing or empty,
+the value is filled with \code{TADA.MonitoringLocationIdentifier}. The function
+also sets \code{ATTAINS.MonitoringLocationIdentifier} to
+\code{TADA.MonitoringLocationIdentifier} and initializes
+\code{ATTAINS.MonitoringDataLinkText} to \code{NA_character_}.
+}
+\details{
+Optionally, a prefix can be appended to each non-missing
+\code{ATTAINS.AssessmentUnitIdentifier}, and the result can be filtered to a
+single ATTAINS organization or returned for all.
 }
 \examples{
 \dontrun{
 # example TADA df already including an ATTAINS.WaterType column
 MT_ExData <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
-sf::st_drop_geometry()
+  sf::st_drop_geometry()
 
 # add ATTAINS.WaterType only for rows without values in that column
 MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, org_id = "BLCKFEET")
 
 # add ATTAINS.WaterType for all rows (replace existing matches)
 MT_replaceAll_w_BFT <- TADA_CrosswalkATTAINSWaterTypes(
-MT_ExData,
-org_id = "BLCKFEET",
-replace_all = TRUE)
+  MT_ExData,
+  org_id = "BLCKFEET",
+  replace_all = TRUE
+)
 
-# only return the New Point AU and ML for BLCKFEET
+# only return the AU–ML crosswalk for BLCKFEET
 MT_AUML_update_w_BFT <- TADA_CreatePointAUs(MT_replaceAll_w_BFT, org_id = "BLCKFEET")
 
-# returns the existing ATTAINS AU and ML from MTDEQ with New Point AU and ML
+# return the AU–ML crosswalk for all organizations
 MT_AUML_update_w_all <- TADA_CreatePointAUs(MT_replaceAll_w_BFT, org_id = "all")
 
 # append or update ATTAINS.AssessmentUnitIdentifier column to the WQP data frame
 Data_MT_Missoula_Updated <- TADA_CreateAUMLCrosswalk(
-Data_MT_MissoulaCounty, # must use the original data frame to update AUID
-au_ref = MT_AUML_update_w_all)
+  Data_MT_MissoulaCounty, # must use the original data frame to update AUID
+  au_ref = MT_AUML_update_w_all
+)
 
 # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
 Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(
-Data_TribalNations_Harmonized,
-org_id = "BLCKFEET") |> dplyr::filter(OrganizationIdentifier == "BLCKFEET")
+  Data_TribalNations_Harmonized,
+  org_id = "BLCKFEET"
+) |>
+  dplyr::filter(OrganizationIdentifier == "BLCKFEET")
 
 # modify tribal example data to include an ATTAINS.WaterType not allowed by ATTAINS
 Tribal_modified <- Tribal_addAll |>
-dplyr::mutate(ATTAINS.WaterType =
-ifelse(TADA.MonitoringLocationIdentifier \%in\%
- c("REDLAKE_WQX-GREE-REDLAKE",
-   "UTEMTN-COTTONWOOD WASH SPRING",
-   "BLCKFEET-00000054",
-   "BLCKFEET-00000056"
- ), "INVALID WATER TYPE",
- ATTAINS.WaterType))
+  dplyr::mutate(
+    ATTAINS.WaterType = ifelse(
+      TADA.MonitoringLocationIdentifier \%in\%
+        c(
+          "REDLAKE_WQX-GREE-REDLAKE",
+          "UTEMTN-COTTONWOOD WASH SPRING",
+          "BLCKFEET-00000054",
+          "BLCKFEET-00000056"
+        ),
+      "INVALID WATER TYPE",
+      ATTAINS.WaterType
+    )
+  )
 
- # add ATTAINS.WaterType for any rows where it is missing, review all ATTAINS.WaterType
- # values and update any that are not allowed
- Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterTypes(Tribal_modified,
- org_id = "BLCKFEET",
- review_all = TRUE,
- review_action = "update")
+# add ATTAINS.WaterType for any rows where it is missing, review all ATTAINS.WaterType
+# values and update any that are not allowed
+Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterTypes(
+  Tribal_modified,
+  org_id = "BLCKFEET",
+  review_all = TRUE,
+  review_action = "update"
+)
 
-# populates and returns any org_ids found as an alias between WQP and ATTAINS
+# create a crosswalk for BLCKFEET and prepend a prefix to AUIDs
 Blackfeet_AUMLRef <- TADA_CreatePointAUs(
-Tribal_reviewUpdate,
-org_id = "BLCKFEET",
-addprefix_ATTAINS = "WQX_")
+  Tribal_reviewUpdate,
+  org_id = "BLCKFEET",
+  addprefix_ATTAINS = "WQX_"
+)
 
 # update the final AUML crosswalk for use in module 3 analysis
 update_BLCKFEET_ATTAINS_AUML <- TADA_UpdateATTAINSAUMLCrosswalk(
-org_id = "BLCKFEET", crosswalk = Blackfeet_AUMLRef)
+  org_id = "BLCKFEET", crosswalk = Blackfeet_AUMLRef
+)
 
 # create an ATTAINS batch upload compatible ATTAINS AUMLRef
 update_BLCKFEET_ATTAINS_AUML2 <- TADA_UpdateATTAINSAUMLCrosswalk(
-org_id = "BLCKFEET", crosswalk = Blackfeet_AUMLRef, batch_upload = TRUE)
+  org_id = "BLCKFEET", crosswalk = Blackfeet_AUMLRef, batch_upload = TRUE
+)
 }
-
 }
 \seealso{
 \code{\link[=TADA_CrosswalkATTAINSWaterTypes]{TADA_CrosswalkATTAINSWaterTypes()}}
