@@ -28,12 +28,12 @@ they are allowable values. If a value is not allowed, replace it with the ATTAIN
 WaterType identified in the crosswalk. If FALSE, no review. Default equals FALSE.}
 
 \item{review_action}{Character string. Options are "flag" or "update". If
-review_action equals "flag", the flagging column TADA.ATTAINSWaterTypeFlag will
+review_action equals "flag", the flagging column TADA.ATTAINSWaterType.Flag will
 be added to .data and identify any rows where the ATTAINS.WaterType value does
 not match any of the allowable values for water type in ATTAINS. When review_action
 equals "update", the flagging column will be added and any flagged rows will have
 their ATTAINS.WaterType values updated by crosswalking the
-TADA.MonitoringLocationTypeName to ATTAINS.WaterType. The TADA.ATTAINSWaterTypeFlag
+TADA.MonitoringLocationTypeName to ATTAINS.WaterType. The TADA.ATTAINSWaterType.Flag
 column will be updated to reflect this action.}
 }
 \value{
@@ -43,8 +43,8 @@ existing) and populated.
 \description{
 The WQP Monitoring Location Types and ATTAINS Water Types are not direct one to
 one matches. This function crosswalks the WQP Monitoring Location Type to the
-recommended ATTAINS Water Type. The crosswalk used in this function was created
-and maintained by the TADA team.
+synonymous ATTAINS Water Type. The crosswalk used in this function was created
+and is maintained by the TADA team.
 }
 \examples{
 \dontrun{
