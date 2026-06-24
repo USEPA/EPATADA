@@ -1121,7 +1121,7 @@ TADA_ParametersForAnalysis <- function(
     if (!is.character(org_id) & is.null(org_id)) {
       org_id <- ""
       message(
-        "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+        "TADA_ParametersForAnalysis: Proceeding with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
       )
     }
 
@@ -2203,7 +2203,7 @@ TADA_UsesForAnalysis <- function(
     if (!is.character(org_id) & is.null(org_id)) {
       org_id <- ""
       message(
-        "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+        "TADA_UsesForAnalysis: Proceeding with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
       )
     }
 
@@ -2686,7 +2686,7 @@ TADA_UsesForAnalysis <- function(
     if (is.null(org_filter)) {
       org_filter <- ""
       message(
-        "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+        "TADA_UsesForAnalysis: Proceeding with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
       )
     }
     if (length(org_filter) == 1 && org_filter == "") {
@@ -3213,7 +3213,7 @@ TADA_AssignUsesToAU <- function(
     if (!is.character(org_id) & is.null(org_id)) {
       org_id <- ""
       message(
-        "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+        "TADA_AssignUsesToAU: Proceeding with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
       )
     }
 
@@ -3596,7 +3596,7 @@ TADA_AssignUsesToWaterType <- function(
   if (!is.character(org_id) & is.null(org_id)) {
     org_id <- ""
     message(
-      "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+      "TADA_AssignUsesToWaterType: Proceeding with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
     )
   }
 
@@ -4590,14 +4590,14 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   if (!is.character(org_id) & is.null(org_id)) {
     org_id <- ""
     message(
-      "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+      "TADA_CrosswalkATTAINSWaterTypes: Proceeding with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
     )
   }
 
   # display message for case when org_id = does not match all current unique org_ids
   if (!org_id %in% unique(.data$ATTAINS.OrganizationIdentifier)) {
     warning(
-      "The org_id entered does not match the ATTAINS.OrganizationIdentifier in the input data frame. Please ensure you have provided the correct org_id input."
+      "TADA_CrosswalkATTAINSWaterTypes: The org_id entered does not match the ATTAINS.OrganizationIdentifier in the input data frame. Please ensure you have provided the correct org_id input."
     )
   }
 
@@ -4922,7 +4922,7 @@ TADA_CreatePointAUs <- function(
   if (!is.character(org_id) & is.null(org_id)) {
     org_id <- ""
     message(
-      "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+      "TADA_CreatePointAUs: Proceeding with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
     )
 
     # This warning checks membership of "" against the dataset. It

@@ -67,19 +67,31 @@ single ATTAINS organization or returned for all.
 # example TADA df already including an ATTAINS.WaterType column
 MT_ExData <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
   sf::st_drop_geometry()
+unique(MT_ExData$ATTAINS.WaterType)
+unique(MT_ExData$ATTAINS.AssessmentUnitIdentifier)
+unique(MT_ExData$ATTAINS.OrganizationName)
 
 # add ATTAINS.WaterType only for rows without values in that column
 MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, org_id = "BLCKFEET")
+unique(MT_addMissing$ATTAINS.WaterType)
+unique(MT_addMissing$ATTAINS.AssessmentUnitIdentifier)
+unique(MT_addMissing$ATTAINS.OrganizationName)
 
 # only return the AU–ML crosswalk for BLCKFEET
-MT_AUML_update_w_BFT <- TADA_CreatePointAUs(MT_replaceAll_w_BFT, org_id = "BLCKFEET")
+MT_AUML_update_w_BFT <- TADA_CreatePointAUs(MT_addMissing, org_id = "BLCKFEET")
+unique(MT_addMissing$ATTAINS.WaterType)
+unique(MT_addMissing$ATTAINS.AssessmentUnitIdentifier)
+unique(MT_addMissing$ATTAINS.OrganizationName)
 
 # return the AU–ML crosswalk for all organizations
-MT_AUML_update_w_all <- TADA_CreatePointAUs(MT_replaceAll_w_BFT, org_id = "all")
+MT_AUML_update_w_all <- TADA_CreatePointAUs(MT_addMissing, org_id = "all")
+unique(MT_AUML_update_w_all$ATTAINS.WaterType)
+unique(MT_AUML_update_w_all$ATTAINS.AssessmentUnitIdentifier)
+unique(MT_AUML_update_w_all$ATTAINS.OrganizationName)
 
-# append or update ATTAINS.AssessmentUnitIdentifier column to the WQP data frame
+# append or update ATTAINS.AssessmentUnitIdentifier column
 Data_MT_Missoula_Updated <- TADA_CreateAUMLCrosswalk(
-  Data_MT_MissoulaCounty, # must use the original data frame to update AUID
+  Data_MT_MissoulaCounty, # use the original data frame to update AUID
   au_ref = MT_AUML_update_w_all
 )
 
@@ -115,7 +127,7 @@ Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterTypes(
   review_action = "update"
 )
 
-# create a crosswalk for BLCKFEET and prepend a prefix to AUIDs
+# create a crosswalk for BLCKFEET and append a prefix to AUIDs
 Blackfeet_AUMLRef <- TADA_CreatePointAUs(
   Tribal_reviewUpdate,
   org_id = "BLCKFEET",
