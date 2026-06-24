@@ -250,32 +250,126 @@ TADA_Analysis_Join_WQP_Criteria <- function(
 }
 
 
-
-
-library(dplyr)
-
-geo_mean <- function(x) {
-  x <- as.numeric(x)
-  if (any(x <= 0, na.rm = TRUE)) return(NA_real_)
-  exp(mean(log(x), na.rm = TRUE))
-}
-
-final_test_grouped <- test |>
-  dplyr::group_by(window_start, window_end,
-                  TADA.ComparableDataIdentifier, TADA.CharacteristicName,
-                  TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
-                  AcuteChronic, SaltFresh, DurationValue, DurationUnit,
-                  DurationMethod, FreqValue, FreqMethod) |>
-  dplyr::summarise(
-    summary_value = {
-      method <- tolower(coalesce(dplyr::first(DurationMethod), ""))
-      if (grepl("geometric", method)) {
-        geo_mean(TADA.ResultMeasureValue)
-      } else if (grepl("arith", method)) {
-        mean(as.numeric(TADA.ResultMeasureValue), na.rm = TRUE)
-      } else {
-        NA_real_
-      }
-    },
-    .groups = "drop"
+# test_criteria <- TADA_Analysis_Custom(Data_MT_MissoulaCounty, TADA.ComparableDataIdentifier = "PH", MagnitudeValueLower = 1)
+TADA_Analysis_Custom <- function(
+    .data,
+    ATTAINS.OrganizationIdentifier = NULL,
+    ATTAINS.ParameterName          = NULL,
+    ATTAINS.UseName                = NULL,
+    TADA.ComparableDataIdentifier  = NULL,
+    TADA.CharacteristicName        = NULL,
+    TADA.ResultSampleFractionText  = NULL,
+    TADA.MethodSpeciationName      = NULL,
+    ATTAINS.WaterType              = NULL,          
+    SaltFresh                      = NULL,
+    DepthCategory                  = NULL,
+    UniqueSpatialCriteria          = NULL,
+    AcuteChronic                   = NULL,
+    EquationBased                  = NULL,
+    MagnitudeValueLower            = NULL,
+    MagnitudeValueUpper            = NULL,
+    MagnitudeUnit                  = NULL,                 
+    DurationValue                  = NULL,
+    DurationUnit                   = NULL,
+    DurationMethod                 = NULL,
+    FreqValue                      = NULL,
+    FreqMethod                     = NULL,
+    AssessPeriod                   = NULL,
+    AssessPeriodStartDate          = NULL,
+    AssessPeriodEndDate            = NULL,
+    Season                         = NULL,
+    SeasonStartDate                = NULL,
+    SeasonEndDate                  = NULL,
+    DistrCount                     = NULL,
+    DistrPeriod                    = NULL,
+    DistrMinSample                 = NULL
+) {
+  # Helper: keep columns even when args are NULL
+  to_na <- function(x) if (is.null(x)) NA else x
+  
+  criteria <- data.frame(
+    ATTAINS.OrganizationIdentifier = to_na(ATTAINS.OrganizationIdentifier),
+    ATTAINS.ParameterName          = to_na(ATTAINS.ParameterName),
+    ATTAINS.UseName                = to_na(ATTAINS.UseName),
+    TADA.ComparableDataIdentifier  = to_na(TADA.ComparableDataIdentifier),
+    TADA.CharacteristicName        = to_na(TADA.CharacteristicName),
+    TADA.ResultSampleFractionText  = to_na(TADA.ResultSampleFractionText),
+    TADA.MethodSpeciationName      = to_na(TADA.MethodSpeciationName),
+    ATTAINS.WaterType              = to_na(ATTAINS.WaterType),          
+    SaltFresh                      = to_na(SaltFresh),
+    DepthCategory                  = to_na(DepthCategory),
+    UniqueSpatialCriteria          = to_na(UniqueSpatialCriteria),
+    AcuteChronic                   = to_na(AcuteChronic),
+    EquationBased                  = to_na(EquationBased),
+    MagnitudeValueLower            = to_na(MagnitudeValueLower),
+    MagnitudeValueUpper            = to_na(MagnitudeValueUpper),
+    MagnitudeUnit                  = to_na(MagnitudeUnit),                 
+    DurationValue                  = to_na(DurationValue),
+    DurationUnit                   = to_na(DurationUnit),
+    DurationMethod                 = to_na(DurationMethod),
+    FreqValue                      = to_na(FreqValue),
+    FreqMethod                     = to_na(FreqMethod),
+    AssessPeriod                   = to_na(AssessPeriod),
+    AssessPeriodStartDate          = to_na(AssessPeriodStartDate),
+    AssessPeriodEndDate            = to_na(AssessPeriodEndDate),
+    Season                         = to_na(Season),
+    SeasonStartDate                = to_na(SeasonStartDate),
+    SeasonEndDate                  = to_na(SeasonEndDate),
+    DistrCount                     = to_na(DistrCount),
+    DistrPeriod                    = to_na(DistrPeriod),
+    DistrMinSample                 = to_na(DistrMinSample),
+    stringsAsFactors               = FALSE
   )
+  
+  criteria <- criteria |>
+    TADA_CorrectColType()
+    
+  criteria2 <- TADA_DefineCriteriaMethodology(.data = .data, org_id = ATTAINS.OrganizationIdentifier, criteriaMethods = criteria)
+  
+  TADACommunityHub::runAllValidations(criteria)
+  
+  # filter data to just TADA.ComparableDataIdentifier or char (or ATTAINS.Parameter/frac/spec)
+  .data <- dplyr::filter(.data, TADA.CharacteristicName == unique(criteria$TADA.CharacteristicName))
+  
+  # join the wqp data with the criteria table (joins be best matches of what is filled in from the criteria table)
+  data_w_criteria <- TADA_Analysis_Join_WQP_Criteria(.data, criteria = criteria2)
+  
+  data_w_criteria_windows <- TADA_Analysis_Join_Windows(data_w_criteria)
+  
+  # start of with just geo mean function
+  geo_mean <- function(x) {
+    x <- as.numeric(x)
+    # Replace zeros with 1 if censored data exists
+    x[x == 0] <- 1
+    # Return NA if negative numbers exist
+    if (any(x < 0, na.rm = TRUE)) return(NA_real_)
+    
+    exp(mean(log(x), na.rm = TRUE))
+  }
+  
+  final_analysis_test <- data_w_criteria_windows |>
+    dplyr::group_by(window_start, window_end,
+                    TADA.ComparableDataIdentifier, TADA.CharacteristicName,
+                    TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
+                    AcuteChronic, SaltFresh,
+                    MagnitudeValueLower, MagnitudeValueUpper, MagnitudeUnit,
+                    DurationValue, DurationUnit, DurationMethod,
+                    FreqValue, FreqMethod, AssessPeriod, AssessPeriodStartDate,
+                    AssessPeriodEndDate, Season, SeasonStartDate, SeasonEndDate,
+                    DistrCount, DistrPeriod, DistrMinSample) |>
+    dplyr::summarise(
+      summary_value = {
+        method <- tolower(coalesce(dplyr::first(DurationMethod), ""))
+        if (grepl("geometric", method)) {
+          geo_mean(TADA.ResultMeasureValue)
+        } else if (grepl("arith", method)) {
+          mean(as.numeric(TADA.ResultMeasureValue), na.rm = TRUE)
+        } else {
+          NA_real_
+        }
+      },
+      .groups = "drop"
+    )
+  
+  return(final_analysis_test)
+}
