@@ -4843,8 +4843,10 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' # Behavior notes:
 #' # - Rows with missing/blank AUIDs receive AUID = TADA.MonitoringLocationIdentifier.
 #' # - For those rows, ATTAINS.OrganizationIdentifier is set to assign_org_id.
-#' # - Existing (non-blank) AUIDs are left unchanged; their ATTAINS.OrganizationIdentifier is not overwritten.
-#' # - If ATTAINS.WaterType is not present or has blanks, it is filled via the crosswalk where possible.
+#' # - Existing (non-blank) AUIDs are left unchanged; 
+#' # their ATTAINS.OrganizationIdentifier is not overwritten.
+#' # - If ATTAINS.WaterType is not present or has blanks, it is filled via the
+#' #  crosswalk where possible.
 #' }
 TADA_CreatePointAUs <- function(
     .data,
