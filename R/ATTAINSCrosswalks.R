@@ -4825,38 +4825,38 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' unique(MT_ExData$ATTAINS.WaterType)
 #' unique(MT_ExData$ATTAINS.AssessmentUnitIdentifier)
 #' unique(MT_ExData$ATTAINS.OrganizationName)
-#' 
+#'
 #' # add ATTAINS.WaterType only for rows without values in that column
 #' MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, org_id = "BLCKFEET")
 #' unique(MT_addMissing$ATTAINS.WaterType)
 #' unique(MT_addMissing$ATTAINS.AssessmentUnitIdentifier)
 #' unique(MT_addMissing$ATTAINS.OrganizationName)
-#' 
+#'
 #' # only return the AU–ML crosswalk for BLCKFEET
 #' MT_AUML_update_w_BFT <- TADA_CreatePointAUs(MT_addMissing, org_id = "BLCKFEET")
 #' unique(MT_addMissing$ATTAINS.WaterType)
 #' unique(MT_addMissing$ATTAINS.AssessmentUnitIdentifier)
 #' unique(MT_addMissing$ATTAINS.OrganizationName)
-#' 
+#'
 #' # return the AU–ML crosswalk for all organizations
 #' MT_AUML_update_w_all <- TADA_CreatePointAUs(MT_addMissing, org_id = "all")
 #' unique(MT_AUML_update_w_all$ATTAINS.WaterType)
 #' unique(MT_AUML_update_w_all$ATTAINS.AssessmentUnitIdentifier)
 #' unique(MT_AUML_update_w_all$ATTAINS.OrganizationName)
-#' 
+#'
 #' # append or update ATTAINS.AssessmentUnitIdentifier column
 #' Data_MT_Missoula_Updated <- TADA_CreateAUMLCrosswalk(
 #'   Data_MT_MissoulaCounty, # use the original data frame to update AUID
 #'   au_ref = MT_AUML_update_w_all
 #' )
-#' 
+#'
 #' # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
 #' Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(
 #'   Data_TribalNations_Harmonized,
 #'   org_id = "BLCKFEET"
 #' ) |>
 #'   dplyr::filter(OrganizationIdentifier == "BLCKFEET")
-#' 
+#'
 #' # modify tribal example data to include an ATTAINS.WaterType not allowed by ATTAINS
 #' Tribal_modified <- Tribal_addAll |>
 #'   dplyr::mutate(
@@ -4872,7 +4872,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #'       ATTAINS.WaterType
 #'     )
 #'   )
-#' 
+#'
 #' # add ATTAINS.WaterType for any rows where it is missing, review all ATTAINS.WaterType
 #' # values and update any that are not allowed
 #' Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterTypes(
@@ -4881,19 +4881,19 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #'   review_all = TRUE,
 #'   review_action = "update"
 #' )
-#' 
+#'
 #' # create a crosswalk for BLCKFEET and append a prefix to AUIDs
 #' Blackfeet_AUMLRef <- TADA_CreatePointAUs(
 #'   Tribal_reviewUpdate,
 #'   org_id = "BLCKFEET",
 #'   addprefix_ATTAINS = "WQX_"
 #' )
-#' 
+#'
 #' # update the final AUML crosswalk for use in module 3 analysis
 #' update_BLCKFEET_ATTAINS_AUML <- TADA_UpdateATTAINSAUMLCrosswalk(
 #'   org_id = "BLCKFEET", crosswalk = Blackfeet_AUMLRef
 #' )
-#' 
+#'
 #' # create an ATTAINS batch upload compatible ATTAINS AUMLRef
 #' update_BLCKFEET_ATTAINS_AUML2 <- TADA_UpdateATTAINSAUMLCrosswalk(
 #'   org_id = "BLCKFEET", crosswalk = Blackfeet_AUMLRef, batch_upload = TRUE
