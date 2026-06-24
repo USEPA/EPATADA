@@ -237,7 +237,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(
 #' will examine the response code of each MS_DATA_LINK URL and only retain those
 #' with a 200 response, which indicates the URL is valid.
 #'
-#' @param attains_replace Character argument. When attains_replace = FALSE, all
+#' @param attains_replace Logical (T/F). When attains_replace = FALSE, all
 #' Monitoring Location Identifiers in the user supplied crosswalk will be
 #' appended to the existing ATTAINS crosswalk. When attains_replace = TRUE,
 #' Monitoring Location Identifiers will only be retained if they are in the
