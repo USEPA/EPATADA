@@ -3294,3 +3294,24 @@ TADA_CST_GetSources <- function(download_only = FALSE, refresh = FALSE) {
   }
   df
 }
+
+#' Update EPATADA internal ATTAINS Org ID to ATTAINS Water Type crosswalk
+#' @keywords internal
+.TADA_UpdateATTAINSWaterTypeByOrg <- function() {
+
+  org.watertype.cw <- rExpertQuery::EQ_NationalExtract("aus")
+
+  org.watertype.cw <- org.watertype.cw |>
+    dplyr::select(organizationId,
+                  waterType) |>
+    dplyr::distinct()
+
+  .tada_save_ext_rda(
+    obj = org.watertype.cw,
+    obj_name = .ATTAINS_WATERTYPE_BY_ORG_OBJ_NAME,
+    pkg = "EPATADA",
+    filename = .ATTAINS_WATERTYPE_BY_ORG_RDA_FILENAME,
+    compress = "xz",
+    version = 2
+  )
+}
