@@ -379,8 +379,8 @@ TADA_DefineCriteriaMethodology <- function(
         TADA_ParamRef <- TADA_ParametersForAnalysis(
           .data = .data,
           org_id = org_id,
-          excel = F,
-          overwrite = F
+          excel = excel,
+          overwrite = overwrite
         )
       )
 
@@ -389,8 +389,8 @@ TADA_DefineCriteriaMethodology <- function(
           .data,
           paramRef = TADA_ParamRef,
           org_id = org_id,
-          excel = F,
-          overwrite = F
+          excel = excel,
+          overwrite = overwrite
         )
       )
 
@@ -399,8 +399,8 @@ TADA_DefineCriteriaMethodology <- function(
           .data,
           usesRef = TADA_usesRef,
           org_id = org_id,
-          excel = F,
-          overwrite = F
+          excel = excel,
+          overwrite = overwrite
         )
       )
     }
@@ -434,8 +434,8 @@ TADA_DefineCriteriaMethodology <- function(
             .data,
             org_id = org_id,
             auto_assign = "Org", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
-            excel = F,
-            overwrite = F # Changed to FALSE when auto_assign = T KW 4/17/26
+            excel = excel,
+            overwrite = overwrite # Changed to FALSE when auto_assign = T KW 4/17/26
           )
         )
 
@@ -450,8 +450,8 @@ TADA_DefineCriteriaMethodology <- function(
             AU_UsesRef = AU_UsesRef,
             AUMLRef = AUMLRef,
             auto_assign = TRUE,
-            excel = F,
-            overwrite = F # Changed to FALSE when auto_assign = T KW 4/17/26
+            excel = excel,
+            overwrite = overwrite # Changed to FALSE when auto_assign = T KW 4/17/26
           )
         )
 
@@ -463,8 +463,8 @@ TADA_DefineCriteriaMethodology <- function(
             usesRef = TADA_usesRef,
             AUMLRef = AUMLRef,
             AU_UsesRef = AU_UsesRef,
-            excel = F,
-            overwrite = F # Changed to FALSE when auto_assign = T KW 4/17/26
+            excel = excel,
+            overwrite = overwrite # Changed to FALSE when auto_assign = T KW 4/17/26
           )
         )
 
@@ -1788,7 +1788,7 @@ TADA_DefineCriteriaMethodology <- function(
       "Index-Criteria",
       startCol = 34, # AH
       startRow = 1,
-      x = data.frame(AmmoniaEqType = c("Acute-Fish", "Acute-NonFish", "Chronic"))
+      x = data.frame(AmmoniaEqType = c("Min Multiplier", "Max Exponent", "Overall"))
     )
 
     # Build an allowed UseName list (non-NA) from the table you’re writing
@@ -2607,7 +2607,7 @@ TADA_DefineCriteriaMethodology <- function(
         collapse = "\r\n"
       ),
       #AmmoniaEqType
-      "For pH and Temperature equations only (Ammonia equations). Specifies if the equation format should follow the acute fish species dependent, acute fish species independent, or chronic format.",
+      "For pH and Temperature equations only (Ammonia equations). Specifies if the equation format should follow the Min Multiplier, Max Exponent, or Overall Min format.",
       # pH_param_1
       paste0(
         c(
@@ -2648,11 +2648,11 @@ TADA_DefineCriteriaMethodology <- function(
       paste0(
         c(
           "Fifth coefficient in the typical pH- & temperature-dependent equation format: ",
-          "ACUTE-FISH: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
+          "Overall Min: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
           "OR ",
-          "ACUTE-NONFISH: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+          "Min Multiplier: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
           "OR ",
-          "CHRONIC: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+          "Max Exponent: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
           "NOTE: Equation handling in TADA is still in development."
         ),
         collapse = "\r\n"
@@ -2661,11 +2661,11 @@ TADA_DefineCriteriaMethodology <- function(
       paste0(
         c(
           "Sixth coefficient in the typical pH- & temperature-dependent equation format: ",
-          "ACUTE-FISH: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
+          "Overall Min: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
           "OR ",
-          "ACUTE-NONFISH: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+          "Min Multiplier: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
           "OR ",
-          "CHRONIC: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+          "Max Exponent: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
           "NOTE: Equation handling in TADA is still in development."
         ),
         collapse = "\r\n"
@@ -2674,11 +2674,11 @@ TADA_DefineCriteriaMethodology <- function(
       paste0(
         c(
           "Seventh coefficient in the typical pH- & temperature-dependent equation format: ",
-          "ACUTE-FISH: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
+          "Overall Min: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
           "OR ",
-          "ACUTE-NONFISH: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+          "Min Multiplier: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
           "OR ",
-          "CHRONIC: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+          "Max Exponent: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
           "NOTE: Equation handling in TADA is still in development."
         ),
         collapse = "\r\n"
@@ -2687,11 +2687,11 @@ TADA_DefineCriteriaMethodology <- function(
       paste0(
         c(
           "Eigth coefficient in the typical pH- & temperature-dependent equation format: ",
-          "ACUTE-FISH: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
+          "Overall Min: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
           "OR ",
-          "ACUTE-NONFISH: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+          "Min Multiplier: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
           "OR ",
-          "CHRONIC: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+          "Max Exponent: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
           "NOTE: Equation handling in TADA is still in development."
         ),
         collapse = "\r\n"
@@ -2700,11 +2700,11 @@ TADA_DefineCriteriaMethodology <- function(
       paste0(
         c(
           "Ninth coefficient in the typical pH- & temperature-dependent equation format: ",
-          "ACUTE-FISH: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
+          "Overall Min: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
           "OR ",
-          "ACUTE-NONFISH: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+          "Min Multiplier: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
           "OR ",
-          "CHRONIC: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+          "Max Exponent: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
           "NOTE: Equation handling in TADA is still in development."
         ),
         collapse = "\r\n"
@@ -2713,11 +2713,11 @@ TADA_DefineCriteriaMethodology <- function(
       paste0(
         c(
           "Tenth coefficient in the typical pH- & temperature-dependent equation format: ",
-          "ACUTE-FISH: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
+          "Overall Min: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
           "OR ",
-          "ACUTE-NONFISH: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+          "Min Multiplier: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
           "OR ",
-          "CHRONIC: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+          "Max Exponent: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
           "NOTE: Equation handling in TADA is still in development."
         ),
         collapse = "\r\n"
@@ -2726,11 +2726,11 @@ TADA_DefineCriteriaMethodology <- function(
       paste0(
         c(
           "Eleventh coefficient in the typical pH- & temperature-dependent equation format: ",
-          "ACUTE-FISH: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
+          "Overall Min: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
           "OR ",
-          "ACUTE-NONFISH: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+          "Min Multiplier: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
           "OR ",
-          "CHRONIC: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+          "Max Exponent: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
           "NOTE: Equation handling in TADA is still in development."
         ),
         collapse = "\r\n"
@@ -2739,11 +2739,11 @@ TADA_DefineCriteriaMethodology <- function(
       paste0(
         c(
           "Twelfth coefficient in the typical pH- & temperature-dependent equation format: ",
-          "ACUTE-FISH: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
+          "Overall Min: min(param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH)), param_5*[param_6/(1+10^(param_7-pH)) + param_8/(1+10^(param_9-pH))]*(param_10*10^(param_11*(param_12-Temperature))))",
           "OR ",
-          "ACUTE-NONFISH: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
+          "Min Multiplier: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*min(param_6, param_7*10^(param_8*(param_9-Temperature)))) ",
           "OR ",
-          "CHRONIC: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
+          "Max Exponent: param_5*[param_1/(1+10^(param_2-pH)) + param_3/(1+10^(param_4-pH))]*(param_6*10^(param_7*(param_8-max(Temperature,param_9))))). ",
           "NOTE: Equation handling in TADA is still in development."
         ),
         collapse = "\r\n"
@@ -3077,7 +3077,7 @@ TADA_DefineCriteriaMethodology <- function(
       "",
       "",
       "",
-      "Acute-Fish, Acute-NonFish, Chronic",
+      "Min Multiplier, Max Exponent, Overall Min",
       "",
       "",
       "",
