@@ -1,15 +1,14 @@
 test_that("returns empty dataframe (names only) when all args missing", {
   res <- TADA_DefineCriteriaMethodology()
   expect_type(res, "list")
-  expect_named(res, c(
-    "DefineCriteriaMethodology",
-    "DataDictionary",
-    "AllowableValues"
-  ))
-  
+  expect_named(
+    res,
+    c("DefineCriteriaMethodology", "DataDictionary", "AllowableValues")
+  )
+
   dcm <- res$DefineCriteriaMethodology
   expect_true(is.data.frame(dcm))
-  
+
   # Expected columns (keep in sync with desired_cols in the function)
   expected_cols <- c(
     "ATTAINS.OrganizationIdentifier",

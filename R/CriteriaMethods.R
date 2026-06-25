@@ -1233,11 +1233,11 @@ TADA_DefineCriteriaMethodology <- function(
       suppressWarnings({
         for (i in seq_len(ncol(non_definedCriteria))) {
           col_name <- names(non_definedCriteria)[i]
-          
+
           if (!col_name %in% names(desired_types)) {
             next
           }
-          
+
           target_class <- desired_types[[col_name]]
 
           # Coerce non_definedCriteria if it has rows
@@ -1788,7 +1788,9 @@ TADA_DefineCriteriaMethodology <- function(
       "Index-Criteria",
       startCol = 34, # AH
       startRow = 1,
-      x = data.frame(AmmoniaEqType = c("Min Multiplier", "Max Exponent", "Overall"))
+      x = data.frame(
+        AmmoniaEqType = c("Min Multiplier", "Max Exponent", "Overall")
+      )
     )
 
     # Build an allowed UseName list (non-NA) from the table you’re writing
@@ -2161,32 +2163,31 @@ TADA_DefineCriteriaMethodology <- function(
   DefineCriteriaMethodology <- suppressWarnings(TADA_CorrectColType(
     DefineCriteriaMethodology
   ))
-  
+
   # return all supporting tables as a named list
   tmp_xlsx <- tempfile(fileext = ".xlsx")
   on.exit(unlink(tmp_xlsx), add = TRUE)
-  
+
   .TADA_CriteriaDataDictionary(tmp_xlsx)
-  
+
   DataDictionary <- openxlsx::read.xlsx(
     tmp_xlsx,
     sheet = "DataDictionary",
     startRow = 2
   )
-  
+
   AllowableValues <- openxlsx::read.xlsx(
     tmp_xlsx,
     sheet = "AllowableValues",
     startRow = 2
   )
-  
+
   out <- list(
     DefineCriteriaMethodology = DefineCriteriaMethodology,
     DataDictionary = DataDictionary,
     AllowableValues = AllowableValues
   )
 
-  
   return(out)
 }
 
@@ -3157,7 +3158,7 @@ TADA_DefineCriteriaMethodology <- function(
       "7",
       "23.12",
       "0.036",
-      "20", 
+      "20",
       "87",
       "900"
     ),
@@ -3386,4 +3387,3 @@ TADA_DefineCriteriaMethodology <- function(
   # Save the workbook to an Excel file
   openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
 }
-
