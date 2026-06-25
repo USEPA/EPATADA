@@ -475,17 +475,17 @@ test_that("errors when required columns are missing", {
     TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
     stringsAsFactors = FALSE
   )
-  
+
   expect_error(
     TADA_CrosswalkATTAINSWaterTypes(df_missing_id),
     "must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName"
   )
-  
+
   df_missing_type <- data.frame(
     TADA.MonitoringLocationIdentifier = c("A", "B"),
     stringsAsFactors = FALSE
   )
-  
+
   expect_error(
     TADA_CrosswalkATTAINSWaterTypes(df_missing_type),
     "must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName"
@@ -498,12 +498,12 @@ test_that("errors when overwrite_existing is not a single logical", {
     TADA.MonitoringLocationTypeName = "Stream",
     stringsAsFactors = FALSE
   )
-  
+
   expect_error(
     TADA_CrosswalkATTAINSWaterTypes(df, overwrite_existing = "yes"),
     "overwrite_existing must be a single logical"
   )
-  
+
   expect_error(
     TADA_CrosswalkATTAINSWaterTypes(df, overwrite_existing = c(TRUE, FALSE)),
     "overwrite_existing must be a single logical"
@@ -516,20 +516,20 @@ test_that("creates ATTAINS.WaterType when missing", {
     TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
     stringsAsFactors = FALSE
   )
-  
+
   crosswalk_df <- data.frame(
     Name = c("Stream", "Lake"),
     ATTAINS.WaterType = c("River/Stream", "Lake/Pond"),
     stringsAsFactors = FALSE
   )
-  
+
   local_mocked_bindings(
     read.csv = function(...) crosswalk_df,
     .package = "utils"
   )
-  
+
   out <- TADA_CrosswalkATTAINSWaterTypes(df, validation = "none")
-  
+
   expect_s3_class(out, "data.frame")
   expect_true("ATTAINS.WaterType" %in% names(out))
   expect_equal(out$ATTAINS.WaterType, c("River/Stream", "Lake/Pond"))
@@ -542,25 +542,28 @@ test_that("fills missing ATTAINS.WaterType only when overwrite_existing = FALSE"
     ATTAINS.WaterType = c(NA, "ExistingType", ""),
     stringsAsFactors = FALSE
   )
-  
+
   crosswalk_df <- data.frame(
     Name = c("Stream", "Lake", "Wetland"),
     ATTAINS.WaterType = c("River/Stream", "Lake/Pond", "WetlandType"),
     stringsAsFactors = FALSE
   )
-  
+
   local_mocked_bindings(
     read.csv = function(...) crosswalk_df,
     .package = "utils"
   )
-  
+
   out <- TADA_CrosswalkATTAINSWaterTypes(
     df,
     overwrite_existing = FALSE,
     validation = "none"
   )
-  
-  expect_equal(out$ATTAINS.WaterType, c("River/Stream", "ExistingType", "WetlandType"))
+
+  expect_equal(
+    out$ATTAINS.WaterType,
+    c("River/Stream", "ExistingType", "WetlandType")
+  )
 })
 
 test_that("overwrites existing ATTAINS.WaterType when overwrite_existing = TRUE", {
@@ -570,24 +573,24 @@ test_that("overwrites existing ATTAINS.WaterType when overwrite_existing = TRUE"
     ATTAINS.WaterType = c("WrongValue", "AnotherWrongValue"),
     stringsAsFactors = FALSE
   )
-  
+
   crosswalk_df <- data.frame(
     Name = c("Stream", "Lake"),
     ATTAINS.WaterType = c("River/Stream", "Lake/Pond"),
     stringsAsFactors = FALSE
   )
-  
+
   local_mocked_bindings(
     read.csv = function(...) crosswalk_df,
     .package = "utils"
   )
-  
+
   out <- TADA_CrosswalkATTAINSWaterTypes(
     df,
     overwrite_existing = TRUE,
     validation = "none"
   )
-  
+
   expect_equal(out$ATTAINS.WaterType, c("River/Stream", "Lake/Pond"))
 })
 
@@ -597,20 +600,20 @@ test_that("matching is case-insensitive on MonitoringLocationTypeName", {
     TADA.MonitoringLocationTypeName = c("stream", "LaKe"),
     stringsAsFactors = FALSE
   )
-  
+
   crosswalk_df <- data.frame(
     Name = c("Stream", "Lake"),
     ATTAINS.WaterType = c("River/Stream", "Lake/Pond"),
     stringsAsFactors = FALSE
   )
-  
+
   local_mocked_bindings(
     read.csv = function(...) crosswalk_df,
     .package = "utils"
   )
-  
+
   out <- TADA_CrosswalkATTAINSWaterTypes(df, validation = "none")
-  
+
   expect_equal(out$ATTAINS.WaterType, c("River/Stream", "Lake/Pond"))
 })
 
@@ -620,20 +623,20 @@ test_that("validation = none does not add flag column", {
     TADA.MonitoringLocationTypeName = "Stream",
     stringsAsFactors = FALSE
   )
-  
+
   crosswalk_df <- data.frame(
     Name = "Stream",
     ATTAINS.WaterType = "River/Stream",
     stringsAsFactors = FALSE
   )
-  
+
   local_mocked_bindings(
     read.csv = function(...) crosswalk_df,
     .package = "utils"
   )
-  
+
   out <- TADA_CrosswalkATTAINSWaterTypes(df, validation = "none")
-  
+
   expect_false("TADA.ATTAINSWaterType.Flag" %in% names(out))
   expect_false("ATTAINS.WaterType.Validation" %in% names(out))
 })
@@ -645,30 +648,30 @@ test_that("validation = flag adds flag column for invalid values", {
     ATTAINS.WaterType = c("BadValue", "AlsoBad"),
     stringsAsFactors = FALSE
   )
-  
+
   crosswalk_df <- data.frame(
     Name = c("Stream", "Lake"),
     ATTAINS.WaterType = c("River/Stream", "Lake/Pond"),
     stringsAsFactors = FALSE
   )
-  
+
   domain_values_df <- data.frame(
     name = c("River/Stream", "Lake/Pond"),
     stringsAsFactors = FALSE
   )
-  
+
   local_mocked_bindings(
     read.csv = function(...) crosswalk_df,
     .package = "utils"
   )
-  
+
   local_mocked_bindings(
     EQ_DomainValues = function(...) domain_values_df,
     .package = "rExpertQuery"
   )
-  
+
   out <- TADA_CrosswalkATTAINSWaterTypes(df, validation = "flag")
-  
+
   expect_true("TADA.ATTAINSWaterType.Flag" %in% names(out))
   expect_equal(out$ATTAINS.WaterType, c("BadValue", "AlsoBad"))
   expect_equal(out$TADA.ATTAINSWaterType.Flag, c("Suspect", "Suspect"))
@@ -681,30 +684,30 @@ test_that("validation = flag marks valid values as Pass", {
     ATTAINS.WaterType = c("River/Stream", "Lake/Pond"),
     stringsAsFactors = FALSE
   )
-  
+
   crosswalk_df <- data.frame(
     Name = c("Stream", "Lake"),
     ATTAINS.WaterType = c("River/Stream", "Lake/Pond"),
     stringsAsFactors = FALSE
   )
-  
+
   domain_values_df <- data.frame(
     name = c("River/Stream", "Lake/Pond"),
     stringsAsFactors = FALSE
   )
-  
+
   local_mocked_bindings(
     read.csv = function(...) crosswalk_df,
     .package = "utils"
   )
-  
+
   local_mocked_bindings(
     EQ_DomainValues = function(...) domain_values_df,
     .package = "rExpertQuery"
   )
-  
+
   out <- TADA_CrosswalkATTAINSWaterTypes(df, validation = "flag")
-  
+
   expect_equal(out$TADA.ATTAINSWaterType.Flag, c("Pass", "Pass"))
   expect_equal(out$ATTAINS.WaterType, c("River/Stream", "Lake/Pond"))
 })
@@ -716,30 +719,30 @@ test_that("validation = correct updates invalid values when crosswalk exists", {
     ATTAINS.WaterType = c("BadValue", "Lake/Pond"),
     stringsAsFactors = FALSE
   )
-  
+
   crosswalk_df <- data.frame(
     Name = c("Stream", "Lake"),
     ATTAINS.WaterType = c("River/Stream", "Lake/Pond"),
     stringsAsFactors = FALSE
   )
-  
+
   domain_values_df <- data.frame(
     name = c("River/Stream", "Lake/Pond"),
     stringsAsFactors = FALSE
   )
-  
+
   local_mocked_bindings(
     read.csv = function(...) crosswalk_df,
     .package = "utils"
   )
-  
+
   local_mocked_bindings(
     EQ_DomainValues = function(...) domain_values_df,
     .package = "rExpertQuery"
   )
-  
+
   out <- TADA_CrosswalkATTAINSWaterTypes(df, validation = "correct")
-  
+
   expect_true("TADA.ATTAINSWaterType.Flag" %in% names(out))
   expect_equal(out$ATTAINS.WaterType, c("River/Stream", "Lake/Pond"))
   expect_equal(out$TADA.ATTAINSWaterType.Flag, c("Corrected", "Pass"))
@@ -752,30 +755,30 @@ test_that("validation = correct sets Suspect when no crosswalk exists", {
     ATTAINS.WaterType = "BadValue",
     stringsAsFactors = FALSE
   )
-  
+
   crosswalk_df <- data.frame(
     Name = "Stream",
     ATTAINS.WaterType = "River/Stream",
     stringsAsFactors = FALSE
   )
-  
+
   domain_values_df <- data.frame(
     name = "River/Stream",
     stringsAsFactors = FALSE
   )
-  
+
   local_mocked_bindings(
     read.csv = function(...) crosswalk_df,
     .package = "utils"
   )
-  
+
   local_mocked_bindings(
     EQ_DomainValues = function(...) domain_values_df,
     .package = "rExpertQuery"
   )
-  
+
   out <- TADA_CrosswalkATTAINSWaterTypes(df, validation = "correct")
-  
+
   expect_equal(out$ATTAINS.WaterType, "BadValue")
   expect_equal(out$TADA.ATTAINSWaterType.Flag, "Suspect")
 })
@@ -787,28 +790,28 @@ test_that("validation skips with warning when domain lookup fails", {
     ATTAINS.WaterType = "BadValue",
     stringsAsFactors = FALSE
   )
-  
+
   crosswalk_df <- data.frame(
     Name = "Stream",
     ATTAINS.WaterType = "River/Stream",
     stringsAsFactors = FALSE
   )
-  
+
   local_mocked_bindings(
     read.csv = function(...) crosswalk_df,
     .package = "utils"
   )
-  
+
   local_mocked_bindings(
     EQ_DomainValues = function(...) stop("domain lookup failed"),
     .package = "rExpertQuery"
   )
-  
+
   expect_warning(
     out <- TADA_CrosswalkATTAINSWaterTypes(df, validation = "flag"),
     "Could not retrieve allowable ATTAINS water types"
   )
-  
+
   expect_false("TADA.ATTAINSWaterType.Flag" %in% names(out))
 })
 
@@ -818,20 +821,20 @@ test_that("duplicate monitoring location rows do not break output", {
     TADA.MonitoringLocationTypeName = c("Stream", "Stream"),
     stringsAsFactors = FALSE
   )
-  
+
   crosswalk_df <- data.frame(
     Name = "Stream",
     ATTAINS.WaterType = "River/Stream",
     stringsAsFactors = FALSE
   )
-  
+
   local_mocked_bindings(
     read.csv = function(...) crosswalk_df,
     .package = "utils"
   )
-  
+
   out <- TADA_CrosswalkATTAINSWaterTypes(df, validation = "none")
-  
+
   expect_equal(nrow(out), 2)
   expect_true(all(out$ATTAINS.WaterType == "River/Stream"))
 })
@@ -843,20 +846,20 @@ test_that("existing ATTAINS.OrganizationIdentifier is preserved", {
     ATTAINS.OrganizationIdentifier = "ORG123",
     stringsAsFactors = FALSE
   )
-  
+
   crosswalk_df <- data.frame(
     Name = "Stream",
     ATTAINS.WaterType = "River/Stream",
     stringsAsFactors = FALSE
   )
-  
+
   local_mocked_bindings(
     read.csv = function(...) crosswalk_df,
     .package = "utils"
   )
-  
+
   out <- TADA_CrosswalkATTAINSWaterTypes(df, validation = "none")
-  
+
   expect_equal(out$ATTAINS.OrganizationIdentifier, "ORG123")
 })
 
@@ -867,24 +870,24 @@ test_that("overwrite_existing = FALSE preserves nonblank existing ATTAINS.WaterT
     ATTAINS.WaterType = "KeepMe",
     stringsAsFactors = FALSE
   )
-  
+
   crosswalk_df <- data.frame(
     Name = "Stream",
     ATTAINS.WaterType = "River/Stream",
     stringsAsFactors = FALSE
   )
-  
+
   local_mocked_bindings(
     read.csv = function(...) crosswalk_df,
     .package = "utils"
   )
-  
+
   out <- TADA_CrosswalkATTAINSWaterTypes(
     df,
     overwrite_existing = FALSE,
     validation = "none"
   )
-  
+
   expect_equal(out$ATTAINS.WaterType, "KeepMe")
 })
 
@@ -895,7 +898,7 @@ test_that("errors when TADA.MonitoringLocationIdentifier is missing", {
     TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
     stringsAsFactors = FALSE
   )
-  
+
   expect_error(
     TADA_CreatePointAUs(df),
     "Missing required column\\(s\\): TADA\\.MonitoringLocationIdentifier"
@@ -910,9 +913,9 @@ test_that("adds missing ATTAINS.AssessmentUnitIdentifier and fills blanks/NA wit
     ATTAINS.WaterType = c("STREAM", "LAKE", "ESTUARY"),
     stringsAsFactors = FALSE
   )
-  
+
   result <- TADA_CreatePointAUs(df)
-  
+
   expect_s3_class(result, "data.frame")
   expect_equal(
     names(result),
@@ -922,9 +925,15 @@ test_that("adds missing ATTAINS.AssessmentUnitIdentifier and fills blanks/NA wit
       "ATTAINS.WaterType"
     )
   )
-  
-  expect_equal(result$ATTAINS.MonitoringLocationIdentifier, c("LOC1", "LOC2", "LOC3"))
-  expect_equal(result$ATTAINS.AssessmentUnitIdentifier, c("LOC1", "EXISTING_AU_001", "LOC3"))
+
+  expect_equal(
+    result$ATTAINS.MonitoringLocationIdentifier,
+    c("LOC1", "LOC2", "LOC3")
+  )
+  expect_equal(
+    result$ATTAINS.AssessmentUnitIdentifier,
+    c("LOC1", "EXISTING_AU_001", "LOC3")
+  )
   expect_equal(result$ATTAINS.WaterType, c("STREAM", "LAKE", "ESTUARY"))
 })
 
@@ -936,10 +945,13 @@ test_that("applies auid_prefix only to newly created AUIDs", {
     ATTAINS.WaterType = c("STREAM", "LAKE", "ESTUARY"),
     stringsAsFactors = FALSE
   )
-  
+
   result <- TADA_CreatePointAUs(df, auid_prefix = "WQX_")
-  
-  expect_equal(result$ATTAINS.AssessmentUnitIdentifier, c("WQX_LOC1", "EXISTING_AU_001", "WQX_LOC3"))
+
+  expect_equal(
+    result$ATTAINS.AssessmentUnitIdentifier,
+    c("WQX_LOC1", "EXISTING_AU_001", "WQX_LOC3")
+  )
 })
 
 test_that("treats blank AUIDs as missing", {
@@ -950,9 +962,9 @@ test_that("treats blank AUIDs as missing", {
     ATTAINS.WaterType = c("STREAM", "LAKE"),
     stringsAsFactors = FALSE
   )
-  
+
   result <- TADA_CreatePointAUs(df)
-  
+
   expect_equal(result$ATTAINS.AssessmentUnitIdentifier, c("LOC1", "LOC2"))
 })
 
@@ -963,21 +975,25 @@ test_that("calls TADA_CrosswalkATTAINSWaterTypes when ATTAINS.WaterType is missi
     ATTAINS.AssessmentUnitIdentifier = c(NA_character_, NA_character_),
     stringsAsFactors = FALSE
   )
-  
-  mock_crosswalk <- function(.data, overwrite_existing = FALSE, validation = "none") {
+
+  mock_crosswalk <- function(
+    .data,
+    overwrite_existing = FALSE,
+    validation = "none"
+  ) {
     expect_false(overwrite_existing)
     expect_identical(validation, "none")
     .data$ATTAINS.WaterType <- c("STREAM", "LAKE")
     .data
   }
-  
+
   testthat::local_mocked_bindings(
     TADA_CrosswalkATTAINSWaterTypes = mock_crosswalk,
     .env = environment(TADA_CreatePointAUs)
   )
-  
+
   result <- TADA_CreatePointAUs(df)
-  
+
   expect_equal(result$ATTAINS.WaterType, c("STREAM", "LAKE"))
   expect_equal(result$ATTAINS.AssessmentUnitIdentifier, c("LOC1", "LOC2"))
 })
@@ -990,19 +1006,23 @@ test_that("calls TADA_CrosswalkATTAINSWaterTypes when ATTAINS.WaterType has blan
     ATTAINS.WaterType = c("STREAM", ""),
     stringsAsFactors = FALSE
   )
-  
-  mock_crosswalk <- function(.data, overwrite_existing = FALSE, validation = "none") {
+
+  mock_crosswalk <- function(
+    .data,
+    overwrite_existing = FALSE,
+    validation = "none"
+  ) {
     .data$ATTAINS.WaterType <- c("STREAM", "LAKE")
     .data
   }
-  
+
   testthat::local_mocked_bindings(
     TADA_CrosswalkATTAINSWaterTypes = mock_crosswalk,
     .env = environment(TADA_CreatePointAUs)
   )
-  
+
   result <- TADA_CreatePointAUs(df)
-  
+
   expect_equal(result$ATTAINS.WaterType, c("STREAM", "LAKE"))
 })
 
@@ -1013,7 +1033,7 @@ test_that("errors when water crosswalk is needed but TADA.MonitoringLocationType
     ATTAINS.WaterType = c(NA_character_, NA_character_),
     stringsAsFactors = FALSE
   )
-  
+
   expect_error(
     TADA_CreatePointAUs(df),
     "Missing required column: TADA\\.MonitoringLocationTypeName"
@@ -1028,9 +1048,9 @@ test_that("returns distinct rows", {
     ATTAINS.WaterType = c("STREAM", "STREAM"),
     stringsAsFactors = FALSE
   )
-  
+
   result <- TADA_CreatePointAUs(df)
-  
+
   expect_equal(nrow(result), 1)
   expect_equal(result$ATTAINS.MonitoringLocationIdentifier, "LOC1")
   expect_equal(result$ATTAINS.AssessmentUnitIdentifier, "LOC1")
@@ -1045,8 +1065,11 @@ test_that("does not modify existing non-missing, non-blank AUIDs when prefix is 
     ATTAINS.WaterType = c("STREAM", "LAKE"),
     stringsAsFactors = FALSE
   )
-  
+
   result <- TADA_CreatePointAUs(df, auid_prefix = "WQX_")
-  
-  expect_equal(result$ATTAINS.AssessmentUnitIdentifier, c("EXISTING_AU_001", "WQX_LOC2"))
+
+  expect_equal(
+    result$ATTAINS.AssessmentUnitIdentifier,
+    c("EXISTING_AU_001", "WQX_LOC2")
+  )
 })
