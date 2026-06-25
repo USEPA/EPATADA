@@ -2,7 +2,7 @@
 % Please edit documentation in R/ATTAINSCrosswalks.R
 \name{TADA_CrosswalkATTAINSWaterTypes}
 \alias{TADA_CrosswalkATTAINSWaterTypes}
-\title{Crosswalk WQP Monitoring Location Type to ATTAINS Water Type}
+\title{Crosswalk WQP Monitoring Location Types to ATTAINS Water Types}
 \usage{
 TADA_CrosswalkATTAINSWaterTypes(
   .data,
@@ -21,44 +21,58 @@ ATTAINS.WaterType where it is missing or blank.}
 \item{validation}{Character. Validation mode for ATTAINS.WaterType values:
 \itemize{
 \item "none": do not validate (default).
-\item "flag": validate against ATTAINS domain and add TADA.ATTAINSWaterType.Flag;
-do not change values.
-\item "correct": validate and attempt to replace invalid values using the
-crosswalk; TADA.ATTAINSWaterType.Flag describes the action.
+\item "flag": validate against the ATTAINS water_type domain and add
+TADA.ATTAINSWaterType.Flag; values are flagged as "Pass" or "Suspect";
+no values are changed.
+\item "correct": validate and attempt to replace invalid or missing values
+using the crosswalk; the TADA.ATTAINSWaterType.Flag indicates
+whether the final value is "Pass", "Corrected", or "Suspect".
 }}
 }
 \value{
 A TADA data frame with ATTAINS.WaterType created (if needed) and
-populated, and optionally validated/flagged/corrected per the chosen mode.
+populated or overwritten as requested. If validation is requested and
+allowable ATTAINS water types can be retrieved, the output also includes
+TADA.ATTAINSWaterType.Flag.
 }
 \description{
 The WQP Monitoring Location Types and ATTAINS Water Types are not direct
-one-to-one matches. This function crosswalks the WQP Monitoring Location
-Type to the synonymous ATTAINS Water Type using a crosswalk maintained
+one-to-one matches. This function crosswalks WQP Monitoring Location Type
+names to the corresponding ATTAINS Water Type using a crosswalk maintained
 by the TADA team.
 }
 \details{
 \itemize{
-\item The crosswalk is read via system.file("extdata",
-"ATTAINSWaterTypeToWQPMonLocType.csv", package = "EPATADA").
-\item Matching is case-insensitive (Monitoring Location Type is uppercased
-prior to joining).
+\item The crosswalk is read via \code{system.file("extdata", "ATTAINSWaterTypeToWQPMonLocType.csv", package = "EPATADA")}.
+\item Matching is case-insensitive (\code{TADA.MonitoringLocationTypeName} is
+uppercased prior to joining).
+\item Blank ATTAINS.WaterType values are normalized to \code{NA} for processing.
 \item When validation = "flag" or "correct", allowable values are retrieved via
-rExpertQuery::EQ_DomainValues("water_type"). If retrieval fails, the
+\code{rExpertQuery::EQ_DomainValues("water_type")}. If retrieval fails, the
 function warns and skips validation.
-\item NA and blank ("") ATTAINS.WaterType values are treated as invalid and are
-flagged; in validation = "correct", they are crosswalked if possible or set
-to NA when no crosswalk exists.
+\item In validation = "correct", rows with missing or invalid final
+ATTAINS.WaterType values are marked "Corrected" if a crosswalk value is
+available and used to replace the value; otherwise they remain "Suspect".
+\item If the crosswalk contains multiple rows for the same monitoring location
+type, the join may duplicate rows; the crosswalk should be curated to
+maintain one-to-one mappings where possible.
 }
 }
-\section{Side effects}{
+\examples{
+\dontrun{
+x <- tibble::tibble(
+  TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2", "LOC3"),
+  TADA.MonitoringLocationTypeName = c("Stream", "Lake", "Estuary"),
+  ATTAINS.WaterType = c(NA_character_, "", "InvalidValue")
+)
 
-\itemize{
-\item Adds TADA.ATTAINSWaterType.Flag when validation does not equal "none".
-\item Does not create or modify ATTAINS.OrganizationIdentifier.
-}
+y  <- TADA_CrosswalkATTAINSWaterTypes(x)
+y2 <- TADA_CrosswalkATTAINSWaterTypes(x, overwrite_existing = TRUE)
+y3 <- TADA_CrosswalkATTAINSWaterTypes(x, validation = "flag")
+y4 <- TADA_CrosswalkATTAINSWaterTypes(x, validation = "correct")
 }
 
+}
 \seealso{
-rExpertQuery::EQ_DomainValues
+\code{rExpertQuery::EQ_DomainValues}
 }
