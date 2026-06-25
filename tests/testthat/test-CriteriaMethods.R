@@ -1,6 +1,15 @@
 test_that("returns empty dataframe (names only) when all args missing", {
   res <- TADA_DefineCriteriaMethodology()
-  expect_true(is.data.frame(res))
+  expect_type(res, "list")
+  expect_named(res, c(
+    "DefineCriteriaMethodology",
+    "DataDictionary",
+    "AllowableValues"
+  ))
+  
+  dcm <- res$DefineCriteriaMethodology
+  expect_true(is.data.frame(dcm))
+  
   # Expected columns (keep in sync with desired_cols in the function)
   expected_cols <- c(
     "ATTAINS.OrganizationIdentifier",
@@ -42,7 +51,7 @@ test_that("returns empty dataframe (names only) when all args missing", {
     "hardness_param_2",
     "hardness_param_3",
     "hardness_param_4",
-    "TemperatureExtreme",
+    "AmmoniaEqType",
     "pH_param_1",
     "pH_param_2",
     "pH_param_3",
@@ -52,11 +61,14 @@ test_that("returns empty dataframe (names only) when all args missing", {
     "pH_param_7",
     "pH_param_8",
     "pH_param_9",
+    "pH_param_10",
+    "pH_param_11",
+    "pH_param_12",
     "MinEqMagnitude",
     "MaxEqMagnitude"
   )
-  expect_identical(names(res), expected_cols)
-  expect_equal(nrow(res), 0)
+  expect_identical(names(dcm), expected_cols)
+  expect_equal(nrow(dcm), 0)
 })
 
 test_that("auto_assign must be logical", {
@@ -172,6 +184,7 @@ test_that("returns rows from MLSummaryRef path and hides ComparableDataIdentifie
     ),
     "displayUniqueId == FALSE"
   )
+  res <- res$DefineCriteriaMethodology
   expect_true(is.data.frame(res))
   expect_true("ATTAINS.OrganizationIdentifier" %in% names(res))
   # The ComparableDataIdentifier should be set to NA_character_
@@ -205,6 +218,7 @@ test_that("criteriaMethods path fills missing columns and handles missing TADA.C
       excel = FALSE
     )
   )
+  res <- res$DefineCriteriaMethodology
   # Expect desired columns present
   expected_cols <- c(
     "ATTAINS.OrganizationIdentifier",
@@ -291,6 +305,7 @@ test_that("USEPA enrichment adds EPA304a rows only when overlapping characterist
     displayUniqueId = TRUE,
     excel = FALSE
   )
+  res <- res$DefineCriteriaMethodology
 
   # Expect at least some rows for USEPA if overlap exists
   expect_true(any(res$ATTAINS.OrganizationIdentifier == "USEPA"))
@@ -341,6 +356,7 @@ test_that("displayUniqueId = TRUE retains ComparableDataIdentifier", {
     displayUniqueId = TRUE,
     excel = FALSE
   )
+  res <- res$DefineCriteriaMethodology
   expect_true(any(res$TADA.ComparableDataIdentifier == "C1"))
 })
 
@@ -379,6 +395,7 @@ test_that("org_id = 'All' uses AUMLRef orgs without external calls", {
     displayUniqueId = TRUE,
     excel = FALSE
   )
+  res <- res$DefineCriteriaMethodology
   # It should include at least org from MLSummaryRef and not error
   expect_true(any(res$ATTAINS.OrganizationIdentifier %in% c("ORG1", "ORG2")))
 })
@@ -394,6 +411,7 @@ test_that("USEPA only with no .data returns EPA304a rows (when available)", {
     "EPA304a table not found"
   )
   res <- TADA_DefineCriteriaMethodology(org_id = "USEPA", excel = FALSE)
+  res <- res$DefineCriteriaMethodology
   expect_true(is.data.frame(res))
   expect_true(nrow(res) >= 0) # not asserting non-empty to be robust to local data
   expect_true("ATTAINS.OrganizationIdentifier" %in% names(res))
@@ -429,6 +447,7 @@ test_that("Spatial columns are blanked unless UniqueSpatialCriteria is set", {
     displayUniqueId = TRUE,
     excel = FALSE
   )
+  res <- res$DefineCriteriaMethodology
   # Row with NA UniqueSpatialCriteria should have spatial columns blanked
   row_na <- res[res$TADA.ComparableDataIdentifier == "C1", ]
   expect_true(all(is.na(row_na$ATTAINS.WaterType)))
@@ -466,6 +485,7 @@ test_that("Date columns have Date class after MLSummaryRef path", {
     org_id = "ORGX",
     excel = FALSE
   )
+  res <- res$DefineCriteriaMethodology
   expect_s3_class(res$AssessPeriodStartDate, "Date")
   expect_s3_class(res$AssessPeriodEndDate, "Date")
   expect_s3_class(res$SeasonStartDate, "Date")
@@ -535,6 +555,7 @@ test_that("displayUniqueId = TRUE retains ComparableDataIdentifier", {
     displayUniqueId = TRUE,
     excel = FALSE
   )
+  res <- res$DefineCriteriaMethodology
   expect_true(any(res$TADA.ComparableDataIdentifier == "C1"))
 })
 
@@ -565,6 +586,7 @@ test_that("final formatting preserves a single NA UseName summary row", {
     displayUniqueId = TRUE,
     excel = FALSE
   )
+  res <- res$DefineCriteriaMethodology
   # Create an artificial duplicate NA Use row by binding a NA UseName copy; then run final formatting logic indirectly by calling function again via criteriaMethods
   cm <- res
   cm$ATTAINS.UseName <- NA_character_
@@ -575,6 +597,7 @@ test_that("final formatting preserves a single NA UseName summary row", {
     displayUniqueId = TRUE,
     excel = FALSE
   )
+  res2 <- res2$DefineCriteriaMethodology
   # Expect exactly one NA UseName row for this characteristic/param/org
   sub <- subset(
     res2,
@@ -621,6 +644,7 @@ test_that("org_id NULL becomes empty string in criteriaMethods path", {
       excel = FALSE
     )
   )
+  res <- res$DefineCriteriaMethodology
   expect_true(is.data.frame(res))
   expect_true(any(res$ATTAINS.OrganizationIdentifier == ""))
   expect_true(any(res$TADA.CharacteristicName == "CHAR_A"))
@@ -649,6 +673,7 @@ test_that("org_id 'all' correctly filters by organizations found in user supplie
       excel = FALSE
     )
   )
+  res <- res$DefineCriteriaMethodology
   expect_true(is.data.frame(res))
   expect_true(all(
     res$ATTAINS.OrganizationIdentifier %in% cm$ATTAINS.OrganizationIdentifier
@@ -678,6 +703,7 @@ test_that("criteriaMethods season date strings are parsed to Date class", {
     criteriaMethods = cm,
     excel = FALSE
   )
+  res <- res$DefineCriteriaMethodology
   expect_s3_class(res$SeasonStartDate, "Date")
   expect_s3_class(res$SeasonEndDate, "Date")
   # Parsed dates should not be NA when strings were provided
@@ -716,6 +742,7 @@ test_that("displayUniqueId = FALSE dedupes multiple IDs into one row", {
     displayUniqueId = FALSE,
     excel = FALSE
   )
+  res <- res$DefineCriteriaMethodology
   # ComparableDataIdentifier is set to NA and duplicates collapse
   expect_true(all(is.na(res$TADA.ComparableDataIdentifier)))
   # Only one row for the CHAR_A / ORGX / USE1 / PARAM_X combination should remain
@@ -754,6 +781,7 @@ test_that("MagnitudeValue columns are numeric in MLSummaryRef path", {
     org_id = "ORGX",
     excel = FALSE
   )
+  res <- res$DefineCriteriaMethodology
   expect_type(res$MagnitudeValueLower, "double")
   expect_type(res$MagnitudeValueUpper, "double")
 })
@@ -887,6 +915,7 @@ test_that("All NA org identifiers skip final formatting block safely", {
     criteriaMethods = cm,
     excel = FALSE
   )
+  res <- res$DefineCriteriaMethodology
   expect_true(all(is.na(res$ATTAINS.OrganizationIdentifier)))
   # Ensure we still have the CHAR_A row and no error occurred
   expect_true(any(res$TADA.CharacteristicName == "CHAR_A"))
@@ -949,6 +978,7 @@ test_that("auto_assign = TRUE with MLSummaryRef filters to MLSummaryRef identifi
     auto_assign = TRUE,
     excel = FALSE
   )
+  res <- res$DefineCriteriaMethodology
   expect_false(any(res$TADA.ComparableDataIdentifier == "C2"))
   expect_true(any(res$TADA.ComparableDataIdentifier == "C1"))
 })

@@ -2162,35 +2162,32 @@ TADA_DefineCriteriaMethodology <- function(
     DefineCriteriaMethodology
   ))
   
-  # When excel = FALSE, return all supporting tables as a named list
-  if (isFALSE(excel)) {
-    tmp_xlsx <- tempfile(fileext = ".xlsx")
-    on.exit(unlink(tmp_xlsx), add = TRUE)
-    
-    .TADA_CriteriaDataDictionary(tmp_xlsx)
-    
-    DataDictionary <- openxlsx::read.xlsx(
-      tmp_xlsx,
-      sheet = "DataDictionary",
-      startRow = 2
-    )
-    
-    AllowableValues <- openxlsx::read.xlsx(
-      tmp_xlsx,
-      sheet = "AllowableValues",
-      startRow = 2
-    )
-    
-    out <- list(
-      DefineCriteriaMethodology = DefineCriteriaMethodology,
-      DataDictionary = DataDictionary,
-      AllowableValues = AllowableValues
-    )
-    
-    return(out)
-  }
+  # return all supporting tables as a named list
+  tmp_xlsx <- tempfile(fileext = ".xlsx")
+  on.exit(unlink(tmp_xlsx), add = TRUE)
   
-  return(DefineCriteriaMethodology)
+  .TADA_CriteriaDataDictionary(tmp_xlsx)
+  
+  DataDictionary <- openxlsx::read.xlsx(
+    tmp_xlsx,
+    sheet = "DataDictionary",
+    startRow = 2
+  )
+  
+  AllowableValues <- openxlsx::read.xlsx(
+    tmp_xlsx,
+    sheet = "AllowableValues",
+    startRow = 2
+  )
+  
+  out <- list(
+    DefineCriteriaMethodology = DefineCriteriaMethodology,
+    DataDictionary = DataDictionary,
+    AllowableValues = AllowableValues
+  )
+
+  
+  return(out)
 }
 
 #' Data Dictionary for Criteria and Methodology Workbook
