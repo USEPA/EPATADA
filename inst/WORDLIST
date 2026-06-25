@@ -1,6 +1,7 @@
 ANDs
 AOI
-ATTAINSWaterTypeFlag
+ATTAINSWaterType
+AUIDs
 AUML
 AUMLRef
 AURefSource
@@ -76,7 +77,6 @@ CreateUnitRef
 CreateWaterusesRef
 CriteriaMethodology
 CriteriaMethods
-CrosswalkATTAINSWaterTypes
 Cybertown
 DEV
 DataDictionary
@@ -448,7 +448,7 @@ createBBox
 createTADABasemap
 cristinamullin
 criteriaMethods
-crosswalking
+crosswalked
 crs
 cst
 csv
@@ -591,6 +591,7 @@ uncomment
 uncommenting
 uniqueDataId
 unprefixed
+uppercased
 useR
 usepa
 usesRef
