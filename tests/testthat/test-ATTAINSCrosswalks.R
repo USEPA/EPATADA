@@ -887,3 +887,166 @@ test_that("overwrite_existing = FALSE preserves nonblank existing ATTAINS.WaterT
   
   expect_equal(out$ATTAINS.WaterType, "KeepMe")
 })
+
+# Test TADA_CreatePointAUs
+
+test_that("errors when TADA.MonitoringLocationIdentifier is missing", {
+  df <- data.frame(
+    TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
+    stringsAsFactors = FALSE
+  )
+  
+  expect_error(
+    TADA_CreatePointAUs(df),
+    "Missing required column\\(s\\): TADA\\.MonitoringLocationIdentifier"
+  )
+})
+
+test_that("adds missing ATTAINS.AssessmentUnitIdentifier and fills blanks/NA without prefix", {
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2", "LOC3"),
+    TADA.MonitoringLocationTypeName = c("Stream", "Lake", "Estuary"),
+    ATTAINS.AssessmentUnitIdentifier = c(NA_character_, "EXISTING_AU_001", ""),
+    ATTAINS.WaterType = c("STREAM", "LAKE", "ESTUARY"),
+    stringsAsFactors = FALSE
+  )
+  
+  result <- TADA_CreatePointAUs(df)
+  
+  expect_s3_class(result, "data.frame")
+  expect_equal(
+    names(result),
+    c(
+      "ATTAINS.MonitoringLocationIdentifier",
+      "ATTAINS.AssessmentUnitIdentifier",
+      "ATTAINS.WaterType"
+    )
+  )
+  
+  expect_equal(result$ATTAINS.MonitoringLocationIdentifier, c("LOC1", "LOC2", "LOC3"))
+  expect_equal(result$ATTAINS.AssessmentUnitIdentifier, c("LOC1", "EXISTING_AU_001", "LOC3"))
+  expect_equal(result$ATTAINS.WaterType, c("STREAM", "LAKE", "ESTUARY"))
+})
+
+test_that("applies auid_prefix only to newly created AUIDs", {
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2", "LOC3"),
+    TADA.MonitoringLocationTypeName = c("Stream", "Lake", "Estuary"),
+    ATTAINS.AssessmentUnitIdentifier = c(NA_character_, "EXISTING_AU_001", ""),
+    ATTAINS.WaterType = c("STREAM", "LAKE", "ESTUARY"),
+    stringsAsFactors = FALSE
+  )
+  
+  result <- TADA_CreatePointAUs(df, auid_prefix = "WQX_")
+  
+  expect_equal(result$ATTAINS.AssessmentUnitIdentifier, c("WQX_LOC1", "EXISTING_AU_001", "WQX_LOC3"))
+})
+
+test_that("treats blank AUIDs as missing", {
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2"),
+    TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
+    ATTAINS.AssessmentUnitIdentifier = c("   ", ""),
+    ATTAINS.WaterType = c("STREAM", "LAKE"),
+    stringsAsFactors = FALSE
+  )
+  
+  result <- TADA_CreatePointAUs(df)
+  
+  expect_equal(result$ATTAINS.AssessmentUnitIdentifier, c("LOC1", "LOC2"))
+})
+
+test_that("calls TADA_CrosswalkATTAINSWaterTypes when ATTAINS.WaterType is missing", {
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2"),
+    TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
+    ATTAINS.AssessmentUnitIdentifier = c(NA_character_, NA_character_),
+    stringsAsFactors = FALSE
+  )
+  
+  mock_crosswalk <- function(.data, overwrite_existing = FALSE, validation = "none") {
+    expect_false(overwrite_existing)
+    expect_identical(validation, "none")
+    .data$ATTAINS.WaterType <- c("STREAM", "LAKE")
+    .data
+  }
+  
+  testthat::local_mocked_bindings(
+    TADA_CrosswalkATTAINSWaterTypes = mock_crosswalk,
+    .env = environment(TADA_CreatePointAUs)
+  )
+  
+  result <- TADA_CreatePointAUs(df)
+  
+  expect_equal(result$ATTAINS.WaterType, c("STREAM", "LAKE"))
+  expect_equal(result$ATTAINS.AssessmentUnitIdentifier, c("LOC1", "LOC2"))
+})
+
+test_that("calls TADA_CrosswalkATTAINSWaterTypes when ATTAINS.WaterType has blanks", {
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2"),
+    TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
+    ATTAINS.AssessmentUnitIdentifier = c(NA_character_, NA_character_),
+    ATTAINS.WaterType = c("STREAM", ""),
+    stringsAsFactors = FALSE
+  )
+  
+  mock_crosswalk <- function(.data, overwrite_existing = FALSE, validation = "none") {
+    .data$ATTAINS.WaterType <- c("STREAM", "LAKE")
+    .data
+  }
+  
+  testthat::local_mocked_bindings(
+    TADA_CrosswalkATTAINSWaterTypes = mock_crosswalk,
+    .env = environment(TADA_CreatePointAUs)
+  )
+  
+  result <- TADA_CreatePointAUs(df)
+  
+  expect_equal(result$ATTAINS.WaterType, c("STREAM", "LAKE"))
+})
+
+test_that("errors when water crosswalk is needed but TADA.MonitoringLocationTypeName is missing", {
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2"),
+    ATTAINS.AssessmentUnitIdentifier = c(NA_character_, NA_character_),
+    ATTAINS.WaterType = c(NA_character_, NA_character_),
+    stringsAsFactors = FALSE
+  )
+  
+  expect_error(
+    TADA_CreatePointAUs(df),
+    "Missing required column: TADA\\.MonitoringLocationTypeName"
+  )
+})
+
+test_that("returns distinct rows", {
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = c("LOC1", "LOC1"),
+    TADA.MonitoringLocationTypeName = c("Stream", "Stream"),
+    ATTAINS.AssessmentUnitIdentifier = c(NA_character_, NA_character_),
+    ATTAINS.WaterType = c("STREAM", "STREAM"),
+    stringsAsFactors = FALSE
+  )
+  
+  result <- TADA_CreatePointAUs(df)
+  
+  expect_equal(nrow(result), 1)
+  expect_equal(result$ATTAINS.MonitoringLocationIdentifier, "LOC1")
+  expect_equal(result$ATTAINS.AssessmentUnitIdentifier, "LOC1")
+  expect_equal(result$ATTAINS.WaterType, "STREAM")
+})
+
+test_that("does not modify existing non-missing, non-blank AUIDs when prefix is supplied", {
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2"),
+    TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
+    ATTAINS.AssessmentUnitIdentifier = c("EXISTING_AU_001", NA_character_),
+    ATTAINS.WaterType = c("STREAM", "LAKE"),
+    stringsAsFactors = FALSE
+  )
+  
+  result <- TADA_CreatePointAUs(df, auid_prefix = "WQX_")
+  
+  expect_equal(result$ATTAINS.AssessmentUnitIdentifier, c("EXISTING_AU_001", "WQX_LOC2"))
+})
