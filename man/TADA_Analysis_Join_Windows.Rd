@@ -2,7 +2,7 @@
 % Please edit documentation in R/CriteriaDuration.R
 \name{TADA_Analysis_Join_Windows}
 \alias{TADA_Analysis_Join_Windows}
-\title{Join a WQP + Criteria Table with Start and End Date Windows}
+\title{Join a WQP + Criteria Table with Start and End Date Windows for each unique Char, fraction and speciation}
 \usage{
 TADA_Analysis_Join_Windows(data_w_criteria, join_back = TRUE)
 }
@@ -23,7 +23,8 @@ window ranges, the result is empty.
 }
 \description{
 This data frame requires users to have already joined the WQP data frame
-with the TADA criteria table which can be generated from \link{TADA_}For each unique DurationUnit and DurationValue found in the
+with the TADA criteria table which can be generated from \link{TADA_Analysis_Join_WQP_Criteria}
+For each unique DurationUnit and DurationValue found in the data frame.
 }
 \details{
 The function converts \code{ActivityStartDate} and \code{ActivityStartDateTime},

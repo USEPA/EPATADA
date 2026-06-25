@@ -250,7 +250,8 @@ TADA_Analysis_Join_WQP_Criteria <- function(
 }
 
 
-# test_criteria <- TADA_Analysis_Custom(Data_MT_MissoulaCounty, TADA.ComparableDataIdentifier = "PH", MagnitudeValueLower = 1)
+# test_analysis <- TADA_Analysis_Custom(
+#       Data_MT_MissoulaCounty, ATTAINS.OrganizationIdentifier = "MTDEQ", ATTAINS.ParameterName = "ESCHERICHIA COLI (E. COLI)", TADA.CharacteristicName  = "ESCHERICHIA COLI", MagnitudeValueLower = 1, DurationValue = 1, DurationUnit = "n-day", DurationMethod = "geometric mean")
 TADA_Analysis_Custom <- function(
     .data,
     ATTAINS.OrganizationIdentifier = NULL,
@@ -321,15 +322,21 @@ TADA_Analysis_Custom <- function(
     stringsAsFactors               = FALSE
   )
   
+  # filter data to just TADA.ComparableDataIdentifier or char (or ATTAINS.Parameter/frac/spec)
+  .data <- dplyr::filter(.data, TADA.CharacteristicName == unique(criteria$TADA.CharacteristicName))
+  
   criteria <- criteria |>
-    TADA_CorrectColType()
+    TADA_CorrectColType() |>
+    dplyr::left_join(
+      spsUtil::quiet(
+        TADA_DefineCriteriaMethodology()
+        ),
+      by = names(criteria)
+      )
     
   criteria2 <- TADA_DefineCriteriaMethodology(.data = .data, org_id = ATTAINS.OrganizationIdentifier, criteriaMethods = criteria)
   
-  TADACommunityHub::runAllValidations(criteria)
-  
-  # filter data to just TADA.ComparableDataIdentifier or char (or ATTAINS.Parameter/frac/spec)
-  .data <- dplyr::filter(.data, TADA.CharacteristicName == unique(criteria$TADA.CharacteristicName))
+  message(TADACommunityHub::runAllValidations(criteria2)$overall_status)
   
   # join the wqp data with the criteria table (joins be best matches of what is filled in from the criteria table)
   data_w_criteria <- TADA_Analysis_Join_WQP_Criteria(.data, criteria = criteria2)
@@ -356,7 +363,8 @@ TADA_Analysis_Custom <- function(
                     DurationValue, DurationUnit, DurationMethod,
                     FreqValue, FreqMethod, AssessPeriod, AssessPeriodStartDate,
                     AssessPeriodEndDate, Season, SeasonStartDate, SeasonEndDate,
-                    DistrCount, DistrPeriod, DistrMinSample) |>
+                    DistrCount, DistrPeriod, DistrMinSample
+                    ) |>
     dplyr::summarise(
       summary_value = {
         method <- tolower(coalesce(dplyr::first(DurationMethod), ""))
@@ -369,7 +377,26 @@ TADA_Analysis_Custom <- function(
         }
       },
       .groups = "drop"
+    ) |>
+    dplyr::mutate(
+      exceedance = dplyr::case_when(
+        is.na(summary_value) | (is.na(MagnitudeValueLower) & is.na(MagnitudeValueUpper) )~ NA_character_,
+        summary_value < MagnitudeValueLower | summary_value > MagnitudeValueUpper ~ "yes",
+        TRUE ~ "no"
+      )
     )
   
-  return(final_analysis_test)
+  exceedance_percent <- final_analysis_test |>
+    dplyr::group_by(dplyr::across(-c(window_start, window_end, summary_value))) |>
+    dplyr::summarise(
+      percent_exceed = 100 * sum(exceedance == "yes", na.rm = TRUE) / sum(!is.na(exceedance)),
+      .groups = "drop"
+    )
+  
+  final_summary <- list(
+    data_windows_summary <- final_analysis_test,
+    exceedance_summary <- exceedance_percent
+  )
+  
+  return(final_summary)
 }
