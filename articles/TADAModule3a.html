@@ -86,7 +86,7 @@
       <h1>TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS or EPA 304(a) Criteria Search Tool (CST) Parameter and Use Names</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2026-06-17</h4>
+            <h4 data-toc-skip class="date">2026-06-26</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule3a.Rmd" class="external-link"><code>vignettes/TADAModule3a.Rmd</code></a></small>
       <div class="d-none name"><code>TADAModule3a.Rmd</code></div>
@@ -213,7 +213,7 @@ functions for downloading tidy data from the ATTAINS public web services
 all ATTAINS domains (see example below).</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># return ATTAINS domain names</span></span>
-<span><span class="fu">rExpertQuery</span><span class="fu">::</span><span class="fu"><a href="https://usepa.github.io/rExpertQuery/reference/EQ_DomainValues.html" class="external-link">EQ_DomainValues</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">rExpertQuery</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rExpertQuery/man/EQ_DomainValues.html" class="external-link">EQ_DomainValues</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>ParameterName is one of the ATTAINS domains that has a specific list
 of allowable values. Keep in mind that the ATTAINS parameters domain
 list only includes parameters that have been listed as causes (of water
@@ -221,7 +221,7 @@ quality impairment) in prior ATTAINS CWA assessment cycles. Let’s review
 the complete list:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># return ATTAINS parameter domain values</span></span>
-<span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="fu">rExpertQuery</span><span class="fu">::</span><span class="fu"><a href="https://usepa.github.io/rExpertQuery/reference/EQ_DomainValues.html" class="external-link">EQ_DomainValues</a></span><span class="op">(</span><span class="st">"param_name"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="fu">rExpertQuery</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rExpertQuery/man/EQ_DomainValues.html" class="external-link">EQ_DomainValues</a></span><span class="op">(</span><span class="st">"param_name"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>In the next section, we will review which parameters have been listed
 in ATTAINS in the past for a specific organization. In order to select a
 specific organization in the TADA_ParametersForAnalysis() function, we
@@ -229,7 +229,7 @@ must first review the ATTAINS organization domain list to get the
 ATTAINS organization id’s to use for the function input.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># return ATTAINS organization domain values</span></span>
-<span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="fu">rExpertQuery</span><span class="fu">::</span><span class="fu"><a href="https://usepa.github.io/rExpertQuery/reference/EQ_DomainValues.html" class="external-link">EQ_DomainValues</a></span><span class="op">(</span><span class="st">"org_id"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="fu">rExpertQuery</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rExpertQuery/man/EQ_DomainValues.html" class="external-link">EQ_DomainValues</a></span><span class="op">(</span><span class="st">"org_id"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="tada_parametersforanalysis-basics">TADA_ParametersForAnalysis() Basics<a class="anchor" aria-label="anchor" href="#tada_parametersforanalysis-basics"></a>

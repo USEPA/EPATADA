@@ -328,7 +328,7 @@ First, always good to take a look at the dataframe dimensions.
 dim(dataset_0) # returns x and of x (as the numbers of rows and columns respectively)
 ```
 
-    ## [1] 143209    152
+    ## [1] 143119    152
 
 Before we start filtering and flagging our data, let’s create a function
 (`dimCheck`) that performs dimension checks between the results that
@@ -398,7 +398,7 @@ all_counts
 ```
 
     ##                                                                Fields  Count
-    ## 1                                                    ResultIdentifier 143209
+    ## 1                                                    ResultIdentifier 143119
     ## 2                                             TADA.ResultMeasureValue  44218
     ## 3                                                  ResultMeasureValue  42595
     ## 4                                                  ActivityIdentifier  17547
@@ -507,22 +507,22 @@ all_counts
     ## 107                                              ActivityEndTime.Time      2
     ## 108                        VerticalCoordinateReferenceSystemDatumName      2
     ## 109                             ProjectMonitoringLocationWeightingUrl      2
-    ## 110                                           SampleTissueAnatomyName      1
-    ## 111                     TADA.ResultDepthHeightMeasure.MeasureUnitCode      1
-    ## 112                             ResultDepthAltitudeReferencePointText      1
-    ## 113                   TADA.ActivityDepthHeightMeasure.MeasureUnitCode      1
-    ## 114                TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode      1
-    ## 115             TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode      1
-    ## 116                                                     ResultFileUrl      1
-    ## 117                                  ResultAnalyticalMethod.MethodUrl      1
-    ## 118                                               HydrologicCondition      1
-    ## 119                                                   HydrologicEvent      1
-    ## 120                                       ResultLaboratoryCommentText      1
-    ## 121                                                       AquiferName      1
-    ## 122                                                   AquiferTypeName      1
-    ## 123                                                     LocalAqfrName      1
-    ## 124                                  WellDepthMeasure.MeasureUnitCode      1
-    ## 125                              WellHoleDepthMeasure.MeasureUnitCode      1
+    ## 110                     TADA.ResultDepthHeightMeasure.MeasureUnitCode      1
+    ## 111                             ResultDepthAltitudeReferencePointText      1
+    ## 112                   TADA.ActivityDepthHeightMeasure.MeasureUnitCode      1
+    ## 113                TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode      1
+    ## 114             TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode      1
+    ## 115                                                     ResultFileUrl      1
+    ## 116                                  ResultAnalyticalMethod.MethodUrl      1
+    ## 117                                               HydrologicCondition      1
+    ## 118                                                   HydrologicEvent      1
+    ## 119                                       ResultLaboratoryCommentText      1
+    ## 120                                                       AquiferName      1
+    ## 121                                                   AquiferTypeName      1
+    ## 122                                                     LocalAqfrName      1
+    ## 123                                  WellDepthMeasure.MeasureUnitCode      1
+    ## 124                              WellHoleDepthMeasure.MeasureUnitCode      1
+    ## 125                                                      ProviderName      1
     ## 126                           ActivityDepthAltitudeReferencePointText      1
     ## 127                                ActivityConductingOrganizationText      1
     ## 128                                                     SampleAquifer      1
@@ -539,7 +539,7 @@ all_counts
     ## 139                                                 FormationTypeText      1
     ## 140                               DrainageAreaMeasure.MeasureUnitCode      1
     ## 141                   ContributingDrainageAreaMeasure.MeasureUnitCode      1
-    ## 142                                                      ProviderName      1
+    ## 142                                           SampleTissueAnatomyName      1
 
 **Question 3: How many unique ‘TADA.ActivityMediaName’ values exist in
 your dataframe? Are there any media types that are not water?**
@@ -595,7 +595,7 @@ org_counts
 ```
 
     ##                                         Value Count
-    ## 1                                Red Lake DNR 85055
+    ## 1                                Red Lake DNR 84965
     ## 2           Fond du Lac Band of Chippewa (MN) 27928
     ## 3                  Blackfeet Nation (Montana) 20126
     ## 4 Ute Mountain Utes Tribe (Colorado) (Tribal)  4257
@@ -853,8 +853,8 @@ removal
     ## 3                                                            Activity media is not water.
     ## 4                     Detection limit information contains errors or missing information.
     ##   Count
-    ## 1 35827
-    ## 2 13436
+    ## 1 35809
+    ## 2 13418
     ## 3  5050
     ## 4    18
 
@@ -931,7 +931,7 @@ TADA_FieldValuesTable(dataset_flags, field = "TADA.ResultMeasureValueDataTypes.F
 ```
 
     ##                      Value Count
-    ## 1                  Numeric 87586
+    ## 1                  Numeric 87532
     ## 2               Percentage   992
     ## 3 Numeric Range - Averaged   266
     ## 4                Less Than    18
@@ -948,7 +948,7 @@ TADA_FieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTypes.Fl
 ```
 
     ##                                              Value Count
-    ## 1                                          Numeric 87581
+    ## 1                                          Numeric 87527
     ## 2                                       Percentage   992
     ## 3                         Numeric Range - Averaged   266
     ## 4                                        Less Than    18

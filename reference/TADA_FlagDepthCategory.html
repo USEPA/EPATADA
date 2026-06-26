@@ -185,7 +185,7 @@ define whether the daily aggregation occurs over each depth category
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># assign TADA.DepthCategory.Flag with no aggregation</span></span></span>
 <span class="r-in"><span><span class="va">Data_6Tribs_5y_DepthCat</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagDepthCategory</span><span class="op">(</span><span class="va">Data_TribalNations</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagDepthCategory: checking data set for depth values. 71741 results have depth values available.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagDepthCategory: checking data set for depth values. 71705 results have depth values available.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagDepthCategory: assigning depth categories.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for entire water column.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagDepthCategory: No aggregation performed.</span>
@@ -195,7 +195,7 @@ define whether the daily aggregation occurs over each depth category
 <span class="r-in"><span><span class="va">Data_6Tribs_5y_Mean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagDepthCategory</span><span class="op">(</span><span class="va">Data_TribalNations</span>,</span></span>
 <span class="r-in"><span>  bycategory <span class="op">=</span> <span class="st">"all"</span>, dailyagg <span class="op">=</span> <span class="st">"avg"</span>, aggregatedonly <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagDepthCategory: checking data set for depth values. 71741 results have depth values available.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagDepthCategory: checking data set for depth values. 71705 results have depth values available.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagDepthCategory: assigning depth categories.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, ActivityStartDate, and TADA.DepthCategory.Flag for aggregation by TADA.DepthCategory.Flag.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagDepthCategory: Calculating mean aggregate value with randomly selected metadata.</span>

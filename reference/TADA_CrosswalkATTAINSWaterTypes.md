@@ -1,18 +1,17 @@
-# Crosswalk WQP Monitoring Location Type to ATTAINS Water Type
+# Crosswalk WQP Monitoring Location Types to ATTAINS Water Types
 
 The WQP Monitoring Location Types and ATTAINS Water Types are not direct
-one to one matches. This function crosswalks the WQP Monitoring Location
-Type to the recommended ATTAINS Water Type. The crosswalk used in this
-function was created and maintained by the TADA team.
+one-to-one matches. This function crosswalks WQP Monitoring Location
+Type names to the corresponding ATTAINS Water Type using a crosswalk
+maintained by the TADA team.
 
 ## Usage
 
 ``` r
 TADA_CrosswalkATTAINSWaterTypes(
   .data,
-  replace_all = FALSE,
-  review_all = FALSE,
-  review_action = "flag"
+  overwrite_existing = FALSE,
+  validation = c("none", "flag", "correct")
 )
 ```
 
@@ -20,71 +19,76 @@ TADA_CrosswalkATTAINSWaterTypes(
 
 - .data:
 
-  A TADA data frame.
+  A TADA data frame. Must include TADA.MonitoringLocationIdentifier and
+  TADA.MonitoringLocationTypeName.
 
-- replace_all:
+- overwrite_existing:
 
-  Logical. If TRUE, replace all ATTAINS.WaterType values in the TADA
-  data frame with the recommended ATTAINS Water Type values. If FALSE,
-  only assigns an ATTAINS Water Type to rows with no ATTAINS Water Type
-  value. Default equals FALSE.
+  Logical. If TRUE, overwrite ATTAINS.WaterType with the crosswalked
+  value where a match exists. If FALSE (default), only fill
+  ATTAINS.WaterType where it is missing or blank.
 
-- review_all:
+- validation:
 
-  Logical. If TRUE, review all ATTAINS.WaterType values to ensure they
-  are allowable values. If a value is not allowed, replace it with the
-  ATTAINS WaterType identified in the crosswalk. If FALSE, no review.
-  Default equals FALSE.
+  Character. Validation mode for ATTAINS.WaterType values:
 
-- review_action:
+  - "none": do not validate (default).
 
-  Character string. Options are "flag" or "update". If review_action
-  equals "flag", the flagging column TADA.ATTAINSWaterTypeFlag will be
-  added to .data and identify any rows where the ATTAINS.WaterType value
-  does not match any of the allowable values for water type in ATTAINS.
-  When review_action equals "update", the flagging column will be added
-  and any flagged rows will have their ATTAINS.WaterType values updated
-  by crosswalking the TADA.MonitoringLocationTypeName to
-  ATTAINS.WaterType. The TADA.ATTAINSWaterTypeFlag column will be
-  updated to reflect this action.
+  - "flag": validate against the ATTAINS water_type domain and add
+    TADA.ATTAINSWaterType.Flag; values are flagged as "Pass" or
+    "Suspect"; no values are changed.
+
+  - "correct": validate and attempt to replace invalid or missing values
+    using the crosswalk; the TADA.ATTAINSWaterType.Flag indicates
+    whether the final value is "Pass", "Corrected", or "Suspect".
 
 ## Value
 
-A TADA data frame with ATTAINS.WaterType column created (if not already
-existing) and populated.
+A TADA data frame with ATTAINS.WaterType created (if needed) and
+populated or overwritten as requested. If validation is requested and
+allowable ATTAINS water types can be retrieved, the output also includes
+TADA.ATTAINSWaterType.Flag.
+
+## Details
+
+- The crosswalk is read via
+  `system.file("extdata", "ATTAINSWaterTypeToWQPMonLocType.csv", package = "EPATADA")`.
+
+- Matching is case-insensitive (`TADA.MonitoringLocationTypeName` is
+  uppercased prior to joining).
+
+- Blank ATTAINS.WaterType values are normalized to `NA` for processing.
+
+- When validation = "flag" or "correct", allowable values are retrieved
+  via `rExpertQuery::EQ_DomainValues("water_type")`. If retrieval fails,
+  the function warns and skips validation.
+
+- In validation = "correct", rows with missing or invalid final
+  ATTAINS.WaterType values are marked "Corrected" if a crosswalk value
+  is available and used to replace the value; otherwise they remain
+  "Suspect".
+
+- If the crosswalk contains multiple rows for the same monitoring
+  location type, the join may duplicate rows; the crosswalk should be
+  curated to maintain one-to-one mappings where possible.
+
+## See also
+
+[`rExpertQuery::EQ_DomainValues`](https://rdrr.io/pkg/rExpertQuery/man/EQ_DomainValues.html)
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-# example TADA df already including an ATTAINS.WaterType column
-MT_ExData <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
-sf::st_drop_geometry()
+x <- tibble::tibble(
+  TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2", "LOC3"),
+  TADA.MonitoringLocationTypeName = c("Stream", "Lake", "Estuary"),
+  ATTAINS.WaterType = c(NA_character_, "", "InvalidValue")
+)
 
-# add ATTAINS.WaterType only for rows without values in that column
-MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData)
-
-# add ATTAINS.WaterType for all rows (replace existing matches)
-MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
-
-# add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
-Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(Data_TribalNations_Harmonized)
-
-# modify tribal example data to include an ATTAINS.WaterType not allowed by ATTAINS
-Tribal_modified <- Tribal_addAll |>
-dplyr::mutate(ATTAINS.WaterType =
-ifelse(TADA.MonitoringLocationIdentifier %in%
- c("REDLAKE_WQX-GREE-REDLAKE",
-   "UTEMTN-COTTONWOOD WASH SPRING",
-   "BLCKFEET-00000054",
-   "BLCKFEET-00000056"
- ), "INVALID WATER TYPE",
- ATTAINS.WaterType))
-
- # add ATTAINS.WaterType for any rows where it is missing, review all ATTAINS.WaterType
- # values and update any that are not allowed
- Tribal_reviewUpdate <- TADA_CrosswalkATTAINSWaterTypes(Tribal_modified,
- review_all = TRUE,
- review_action = "update")
+y  <- TADA_CrosswalkATTAINSWaterTypes(x)
+y2 <- TADA_CrosswalkATTAINSWaterTypes(x, overwrite_existing = TRUE)
+y3 <- TADA_CrosswalkATTAINSWaterTypes(x, validation = "flag")
+y4 <- TADA_CrosswalkATTAINSWaterTypes(x, validation = "correct")
 } # }
 ```

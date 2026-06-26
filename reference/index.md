@@ -116,11 +116,14 @@
   : Create Reference Data Frame to Pair Characteristic Results For Use
   in Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)
 
+- [`TADA_CreatePointAUs()`](https://usepa.github.io/EPATADA/reference/TADA_CreatePointAUs.md)
+  : Create an ATTAINS AU–ML Crosswalk from WQP Monitoring Location IDs
+
 - [`TADA_CreateUnitRef()`](https://usepa.github.io/EPATADA/reference/TADA_CreateUnitRef.md)
   : Generate A DataFrame of Units and Target by Characteristic Name
 
 - [`TADA_CrosswalkATTAINSWaterTypes()`](https://usepa.github.io/EPATADA/reference/TADA_CrosswalkATTAINSWaterTypes.md)
-  : Crosswalk WQP Monitoring Location Type to ATTAINS Water Type
+  : Crosswalk WQP Monitoring Location Types to ATTAINS Water Types
 
 - [`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
   : Generate TADA-compatible dataframe from WQP Data
