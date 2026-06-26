@@ -131,7 +131,7 @@ testthat::test_that("TADA_DefineCriteriaMethodology auto_assign table contains a
       excel = FALSE
     )
   )
-  
+
   suppressWarnings(
     Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
       test_dat,
@@ -141,12 +141,14 @@ testthat::test_that("TADA_DefineCriteriaMethodology auto_assign table contains a
       excel = FALSE
     )
   )
-  
+
   testthat::expect_setequal(
     unique(test_dat$TADA.ComparableDataIdentifier),
-    unique(Criteria_autofill_w_uniqueID$DefineCriteriaMethodology$TADA.ComparableDataIdentifier)
+    unique(
+      Criteria_autofill_w_uniqueID$DefineCriteriaMethodology$TADA.ComparableDataIdentifier
+    )
   )
-  
+
   testthat::expect_setequal(
     unique(test_dat$TADA.CharacteristicName),
     unique(Criteria_autofill$DefineCriteriaMethodology$TADA.CharacteristicName)
