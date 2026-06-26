@@ -43,6 +43,7 @@
     {
       .TADA_UpdateATTAINSOrgIDsRef()
       .TADA_UpdateATTAINSParamUseOrgRef() # takes a long time, this is the Assessments Profile (Expert Query National Extract)
+      .TADA_UpdateATTAINSWaterTypeByOrg() # this can take a while to run as it requires downloaing the national extract for Assessment Units
     },
     error = function(e) {
       message("Error updating ATTAINS reference tables: ", e$message)

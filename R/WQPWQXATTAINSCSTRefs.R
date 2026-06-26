@@ -3308,9 +3308,9 @@ TADA_CST_GetSources <- function(download_only = FALSE, refresh = FALSE) {
 
   .tada_save_ext_rda(
     obj = org.watertype.cw,
-    obj_name = .ATTAINS_WATERTYPE_BY_ORG_OBJ_NAME,
+    obj_name = "ATTAINSWaterTypeByOrgName",
     pkg = "EPATADA",
-    filename = .ATTAINS_WATERTYPE_BY_ORG_RDA_FILENAME,
+    filename = "ATTAINSWaterTypeByOrgName.rda",
     compress = "xz",
     version = 2
   )
