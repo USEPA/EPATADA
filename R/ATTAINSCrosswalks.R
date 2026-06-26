@@ -4518,6 +4518,11 @@ TADA_MLSummary <- function(
 #' and maintained by the TADA team.
 #'
 #' @param .data A TADA data frame.
+#' @param org_id Character string. This optional parameter filters the
+#' ATTAINS.WaterType values that will be matched to WQP Monitoring Location Type
+#' to only those used by the selected org. When org_id equals NULL, this filtering
+#' does not occur and WQP Monitoring Location Types are matched with the default
+#' TADA ATTAINS.WaterType.
 #' @param replace_all Logical. If TRUE, replace all ATTAINS.WaterType values in the
 #' TADA data frame with the recommended ATTAINS Water Type values. If FALSE, only
 #' assigns an ATTAINS Water Type to rows with no ATTAINS Water Type value. Default
@@ -4574,6 +4579,7 @@ TADA_MLSummary <- function(
 #'
 TADA_CrosswalkATTAINSWaterTypes <- function(
   .data,
+  org_id = NULL,
   replace_all = FALSE,
   review_all = FALSE,
   review_action = "flag"
@@ -4609,19 +4615,56 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     "ATTAINSWaterTypeToWQPMonLocType.csv",
     package = "EPATADA"
   )) |>
-    dplyr::select(Name, ATTAINS.WaterType) |>
+    dplyr::select(Name, ATTAINS.WaterType, TADA.Rank) |>
     dplyr::mutate(TADA.MonitoringLocationTypeName = toupper(Name)) |>
     dplyr::select(-Name) |>
     dplyr::distinct()
 
-  # match ATTAINS.WaterType to TADA.MonitoringLocationTypeName
-  match.type <- wqp.mls |>
+  # helper function to match ATTAINS.WaterType to TADA.MonitoringLocationTypeName
+  match.water.type <- function(.data,
+                               cw = NULL) {
+  matches <- .data |>
     dplyr::left_join(
-      wattype.crosswalk,
+      cw,
       dplyr::join_by(TADA.MonitoringLocationTypeName)
     ) |>
     dplyr::rename(New.ATTAINS.WaterType = ATTAINS.WaterType) |>
     dplyr::select(-TADA.MonitoringLocationTypeName)
+
+  rm(.data, cw)
+
+  return(matches)
+  }
+
+
+  # filter water type crosswalk if org_id is not null
+  if(!is.null(org_id)) {
+
+    load(system.file(
+      "extdata",
+      "ATTAINSWaterTypeByOrgName.rda",
+      package = "EPATADA"
+    ))
+
+    org.watertypes <- ATTAINSWaterTypeByOrgName |>
+      dplyr::filter(organizationId == org_id) |>
+      dplyr::select(waterType) |>
+      dplyr::distinct() |>
+      dplyr::pull()
+
+    wattype.crosswalk <- wattype.crosswalk |>
+      dplyr::filter(ATTAINS.WaterType %in% org.watertypes) |>
+      dplyr::group_by(TADA.MonitoringLocationTypeName) |>
+      dplyr::slice_min(TADA.Rank) |>
+      dplyr::ungroup() |>
+      dplyr::select(-TADA.Rank)
+
+    matches <- match.water.type(wqp.mls,
+                                cw = wattype.crosswalk)
+  }
+
+
+
 
   # join ATTAINS.WaterType matches to TADA df
   .data <- .data |>
