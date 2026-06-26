@@ -105,7 +105,8 @@ Users should only specify overwrite = TRUE once they are ready to re-run this
 function if they have already ran it once.}
 }
 \value{
-A data frame with the criteria and methodology table in TADA format.
+A list containing three data frames with the (1) criteria and methodology table in TADA format,
+(2) the Data Dictionary table, and (3) the Allowable Values table.
 }
 \description{
 Assessment criteria and methodologies used to evaluate water quality vary
