@@ -322,7 +322,7 @@ TADA_DefineCriteriaMethodology <- function(
     if (is.null(org_id)) {
       org_id <- ""
       message(
-        "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
+        "TADA_DefineCriteriaMethodology: Proceeding with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
       )
     }
 
