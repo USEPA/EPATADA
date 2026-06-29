@@ -368,10 +368,45 @@ TADA_Analysis_Custom <- function(
     dplyr::summarise(
       summary_value = {
         method <- tolower(coalesce(dplyr::first(DurationMethod), ""))
-        if (grepl("geometric", method)) {
-          geo_mean(TADA.ResultMeasureValue)
-        } else if (grepl("arith", method)) {
-          mean(as.numeric(TADA.ResultMeasureValue), na.rm = TRUE)
+        vals <- as.numeric(TADA.ResultMeasureValue)
+        
+        if (grepl("rolling geometric mean", method)) {
+          geo_mean(vals)
+          
+        } else if (grepl("rolling arithmetic mean", method)) {
+          mean(vals, na.rm = TRUE)
+          
+        } else if (grepl("geometric mean", method)) {
+          geo_mean(vals)
+          
+        } else if (grepl("arithmetic mean", method)) {
+          mean(vals, na.rm = TRUE)
+          
+        } else if (grepl("arithmetic median", method)) {
+          median(vals, na.rm = TRUE)
+          
+        } else if (grepl("arithmetic max", method)) {
+          max(vals, na.rm = TRUE)
+          
+        } else if (grepl("arithmetic min", method)) {
+          min(vals, na.rm = TRUE)
+          
+        } else if (grepl("arithmetic extremes", method)) {
+          upper_ok <- all(vals <= TADA.UpperLimit, na.rm = TRUE)
+          lower_ok <- all(vals >= TADA.LowerLimit, na.rm = TRUE)
+          
+          if (upper_ok && lower_ok) {
+            mean(vals, na.rm = TRUE)
+          } else {
+            NA_real_
+          }
+          
+        } else if (grepl("mean of daily minima", method)) {
+          mean(vals, na.rm = TRUE)
+          
+        } else if (grepl("mean of daily maxima", method)) {
+          mean(vals, na.rm = TRUE)
+          
         } else {
           NA_real_
         }
@@ -387,9 +422,10 @@ TADA_Analysis_Custom <- function(
     )
   
   exceedance_percent <- final_analysis_test |>
-    dplyr::group_by(dplyr::across(-c(window_start, window_end, summary_value))) |>
-    dplyr::summarise(
-      percent_exceed = 100 * sum(exceedance == "yes", na.rm = TRUE) / sum(!is.na(exceedance)),
+    dplyr::group_by(dplyr::across(-c(window_start, window_end, summary_value, exceedance))) |>dplyr::summarise(
+      n_exceed = sum(exceedance == "yes", na.rm = TRUE),
+      n_eval = sum(!is.na(exceedance)),
+      percent_exceed = if (n_eval > 0) 100 * n_exceed / n_eval else NA_real_,
       .groups = "drop"
     )
   

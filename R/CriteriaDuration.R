@@ -4,15 +4,16 @@ library(tibble)
 
 TADA_Analysis_DurationAgg <- function(
     .data,
-    durationValue,
-    durationUnit,
+    durationValue = NA,
+    durationUnit = NA,
     rolling = FALSE
-    ) {
+) {
   normalize_unit <- function(u) {
+    if (is.na(u) || is.null(u) || !nzchar(trimws(as.character(u)))) return(NA_character_)
     u <- tolower(trimws(u))
     u <- sub("^n-", "", u)
     u <- sub("s$", "", u)
-    match.arg(u, c("hour","day","week","month","quarter"))
+    match.arg(u, c("hour", "day", "week", "month", "quarter"))
   }
   
   # Shift a POSIXct by n months using base seq(Date, by = "<n> months")
@@ -31,21 +32,12 @@ TADA_Analysis_DurationAgg <- function(
     if (unit == "quarter") return(add_months_by_seq(t, 3 * n))
     stop("Unsupported unit: ", unit)
   }
-
-  # 1) Calendar-aligned windows
-  make_calendar_windows <- function(
-      .data,
-      durationValue,
-      durationUnit,
-      week_start = 1
-      ) {
-    stopifnot(is.numeric(durationValue), durationValue > 0)
-    unit <- normalize_unit(durationUnit)
-    
+  
+  # Instantaneous case: each row is its own window
+  if (is.na(durationValue) || is.na(durationUnit)) {
     ts <- .data[["ActivityStartDateTime"]]
     if (is.null(ts)) stop('Column "ActivityStartDateTime" not found.')
     
-    # Coerce to POSIXct if needed
     if (inherits(ts, "Date")) {
       ts <- as.POSIXct(ts)
     } else if (!inherits(ts, "POSIXct")) {
@@ -59,20 +51,50 @@ TADA_Analysis_DurationAgg <- function(
       }
     }
     
-    ts <- ts[is.finite(ts)]
-    if (length(ts) == 0) stop('No finite timestamps in "ActivityStartDateTime".')
+    out <- tibble::tibble(
+      window_start = ts,
+      window_end   = ts
+    )
     
-    min_dt <- min(ts, na.rm = TRUE)
-    max_dt <- max(ts, na.rm = TRUE)
+    out$window_start <- format(out$window_start, "%Y-%m-%d %H:%M:%S")
+    out$window_end   <- format(out$window_end, "%Y-%m-%d %H:%M:%S")
+    return(out)
+  }
+  
+  # Coerce ActivityStartDateTime for window calculations
+  ts <- .data[["ActivityStartDateTime"]]
+  if (is.null(ts)) stop('Column "ActivityStartDateTime" not found.')
+  
+  if (inherits(ts, "Date")) {
+    ts <- as.POSIXct(ts)
+  } else if (!inherits(ts, "POSIXct")) {
+    if (is.character(ts)) {
+      ts_parsed <- suppressWarnings(lubridate::ymd_hms(ts, quiet = TRUE))
+      if (all(is.na(ts_parsed))) ts_parsed <- suppressWarnings(lubridate::ymd(ts, quiet = TRUE))
+      if (all(is.na(ts_parsed))) stop('Could not parse "ActivityStartDateTime" to POSIXct.')
+      ts <- ts_parsed
+    } else {
+      stop('"ActivityStartDateTime" must be POSIXct/Date or character parseable to a datetime.')
+    }
+  }
+  
+  ts <- ts[is.finite(ts)]
+  if (length(ts) == 0) stop('No finite timestamps in "ActivityStartDateTime".')
+  
+  min_dt <- min(ts, na.rm = TRUE)
+  max_dt <- max(ts, na.rm = TRUE)
+  unit <- normalize_unit(durationUnit)
+  
+  # 1) Calendar-aligned windows
+  make_calendar_windows <- function(durationValue, durationUnit, week_start = 1) {
+    stopifnot(is.numeric(durationValue), durationValue > 0)
     
-    # Align first boundary to calendar boundary
     start0 <- if (unit == "week") {
       floor_date(min_dt, unit = "week", week_start = week_start)
     } else {
       floor_date(min_dt, unit = unit)
     }
     
-    # Build boundaries; include final partial window
     boundaries <- c(start0)
     while (tail(boundaries, 1) < max_dt) {
       boundaries <- c(boundaries, add_step(tail(boundaries, 1), unit, durationValue))
@@ -81,12 +103,11 @@ TADA_Analysis_DurationAgg <- function(
       boundaries <- c(boundaries, add_step(boundaries, unit, durationValue))
     }
     
-    windows <- tibble(
+    windows <- tibble::tibble(
       window_start = boundaries[-length(boundaries)],
       window_end   = boundaries[-1]
     )
     
-    # Branch once (no case_when)
     start_floor <- if (unit == "hour") {
       function(x) floor_date(x, "hour")
     } else {
@@ -94,67 +115,29 @@ TADA_Analysis_DurationAgg <- function(
     }
     
     end_adjust <- if (unit %in% c("month", "quarter")) {
-      function(x) floor_date(x, "day") - seconds(1)  # last day 23:59:59
+      function(x) floor_date(x, "day") - seconds(1)
     } else {
-      function(x) x - seconds(1)                     # one second before next boundary
+      function(x) x - seconds(1)
     }
     
     windows <- windows |>
-      mutate(
+      dplyr::mutate(
         window_start = start_floor(window_start),
         window_end   = end_adjust(window_end)
       )
     
     windows$window_start <- format(windows$window_start, "%Y-%m-%d %H:%M:%S")
-    
-    return(windows)
+    windows$window_end   <- format(windows$window_end, "%Y-%m-%d %H:%M:%S")
+    windows
   }
-
+  
   # 2) Rolling windows
-  make_rolling_windows <- function(
-    .data,
-    durationValue,
-    durationUnit,
-    week_start = 1
-  ) {
+  make_rolling_windows <- function(durationValue, durationUnit, week_start = 1) {
     stopifnot(is.numeric(durationValue), durationValue > 0)
     
-    unit <- tolower(gsub("^n-", "", durationUnit))
-    unit <- sub("s$", "", unit)
-    unit <- match.arg(unit, c("hour","day","week","month","quarter"))
+    tz_ref <- attr(ts, "tzone")
+    if (is.null(tz_ref) || tz_ref == "") tz_ref <- "UTC"
     
-    ts <- .data[["ActivityStartDateTime"]]
-    if (is.null(ts)) stop('Column "ActivityStartDateTime" not found.')
-    tz_ref <- attr(ts, "tzone"); if (is.null(tz_ref) || tz_ref == "") tz_ref <- "UTC"
-    
-    # coerce to POSIXct
-    if (inherits(ts, "POSIXct")) {
-      # ok
-    } else if (inherits(ts, "Date")) {
-      ts <- as.POSIXct(ts, tz = tz_ref)
-    } else if (is.character(ts)) {
-      ts <- suppressWarnings(lubridate::ymd_hms(ts, tz = tz_ref, quiet = TRUE))
-      if (all(is.na(ts))) ts <- suppressWarnings(lubridate::ymd(ts, tz = tz_ref, quiet = TRUE))
-      if (all(is.na(ts))) stop('Could not parse "ActivityStartDateTime" to POSIXct.')
-    } else if (is.numeric(ts)) {
-      rng <- range(ts[is.finite(ts)], na.rm = TRUE)
-      if (rng[2] > 1e12)       ts <- as.POSIXct(ts/1000, origin = "1970-01-01", tz = tz_ref)         # Unix ms
-      else if (rng[2] > 1e9)   ts <- as.POSIXct(ts,       origin = "1970-01-01", tz = tz_ref)         # Unix s
-      else if (rng[2] > 20000) ts <- as.POSIXct(ts*86400, origin = "1899-12-30", tz = tz_ref)         # Excel
-      else                     ts <- as.POSIXct(as.Date(ts, origin = "1970-01-01"), tz = tz_ref)      # R Date numeric
-    } else {
-      stop('"ActivityStartDateTime" must be POSIXct/Date/character/numeric.')
-    }
-    
-    ts <- ts[is.finite(ts)]
-    if (!length(ts)) {
-      return(data.frame(window_start = as.POSIXct(character()),
-                        window_end   = as.POSIXct(character())))
-    }
-    
-    min_dt <- min(ts); max_dt <- max(ts)
-    
-    # Build calendar-aligned period starts S and ends E, vectorized
     if (unit == "hour") {
       s0 <- lubridate::floor_date(min_dt, "hour")
       sL <- lubridate::floor_date(max_dt, "hour") + lubridate::hours(1)
@@ -181,7 +164,7 @@ TADA_Analysis_DurationAgg <- function(
       S  <- as.POSIXct(Sd, tz = tz_ref)
       E  <- as.POSIXct(Sd[-1], tz = tz_ref) - lubridate::seconds(1)
       start_floor <- function(x) lubridate::floor_date(x, "day")
-    } else { # quarter
+    } else if (unit == "quarter") {
       d0 <- as.Date(lubridate::floor_date(min_dt, "quarter"))
       dL <- seq(as.Date(lubridate::floor_date(max_dt, "quarter")),
                 by = "3 months", length.out = 2L)[2L]
@@ -192,15 +175,16 @@ TADA_Analysis_DurationAgg <- function(
     }
     
     if (length(E) < durationValue) {
-      return(data.frame(window_start = as.POSIXct(character()),
-                        window_end   = as.POSIXct(character())))
+      return(data.frame(
+        window_start = as.POSIXct(character()),
+        window_end   = as.POSIXct(character())
+      ))
     }
     
-    idx       <- seq.int(durationValue, length(E))
+    idx      <- seq.int(durationValue, length(E))
     win_start <- start_floor(S[idx + 1 - durationValue])
     win_end   <- E[idx]
     
-    # Optional end adjust (identity for hour/day/week; snap to end-of-day for month/quarter)
     end_adjust <- if (unit %in% c("month", "quarter")) {
       function(x) lubridate::floor_date(x, "day") - lubridate::seconds(1)
     } else {
@@ -209,7 +193,6 @@ TADA_Analysis_DurationAgg <- function(
     
     windows <- data.frame(window_start = win_start, window_end = win_end, row.names = NULL)
     
-    # Apply the same mutate + format as in your calendar branch
     windows <- windows |>
       dplyr::mutate(
         window_start = start_floor(window_start),
@@ -217,19 +200,18 @@ TADA_Analysis_DurationAgg <- function(
       )
     
     windows$window_start <- format(windows$window_start, "%Y-%m-%d %H:%M:%S")
-    
-    return(windows)
-  }
-
-  if (isFALSE(rolling)) {
-    message("TADA_Analysis_DurationAgg: rolling = FALSE was selected. Aggregating your WQP data set on a distinct calendar basis.")
-    windows <- make_calendar_windows(.data, durationValue, durationUnit)
+    windows$window_end   <- format(windows$window_end, "%Y-%m-%d %H:%M:%S")
+    windows
   }
   
-  if (isTRUE(rolling)) {
-    message("TADA_Analysis_DurationAgg: rolling = TRUE was selected. Aggregating your WQP data set on a rolling basis.")
-    windows <- make_rolling_windows(.data, durationValue, durationUnit)
+  if (isFALSE(rolling)) {
+    message("TADA_Analysis_DurationAgg: rolling = FALSE was selected. Aggregating on a distinct calendar basis.")
+    windows <- make_calendar_windows(durationValue, durationUnit)
+  } else {
+    message("TADA_Analysis_DurationAgg: rolling = TRUE was selected. Aggregating on a rolling basis.")
+    windows <- make_rolling_windows(durationValue, durationUnit)
   }
+  
   return(windows)
 }
 
@@ -278,9 +260,9 @@ TADA_Analysis_DurationAgg <- function(
 #' 
 #' roll_3m <- TADA_Analysis_DurationAgg(Data_MT_MissoulaCounty, 3, durationUnit = "n-month", rolling = TRUE)
 #' 
-#' Data_MT_MissoulaCounty_Durations <- join_by_date_range(Data_MT_MissoulaCounty, cal_3m)
+#' Data_MT_MissoulaCounty_Durations <- TADA_Analysis_join_by_date_range(Data_MT_MissoulaCounty, cal_3m)
 #' 
-#' Data_MT_MissoulaCounty_Durations_roll <- join_by_date_range(Data_MT_MissoulaCounty, roll_3m)
+#' Data_MT_MissoulaCounty_Durations_roll <- TADA_Analysis_join_by_date_range(Data_MT_MissoulaCounty, roll_3m)
 #'
 #' @export
 TADA_Analysis_join_by_date_range <- function(data, windows) {
@@ -354,9 +336,9 @@ TADA_Analysis_join_by_date_range <- function(data, windows) {
 #' 
 #' roll_3m <- TADA_Analysis_DurationAgg(Data_MT_MissoulaCounty, 3, durationUnit = "n-month", rolling = TRUE)
 #' 
-#' Data_MT_MissoulaCounty_Durations <- join_by_date_range(Data_MT_MissoulaCounty, cal_3m)
+#' Data_MT_MissoulaCounty_Durations <- TADA_Analysis_join_by_date_range(Data_MT_MissoulaCounty, cal_3m)
 #' 
-#' Data_MT_MissoulaCounty_Durations_roll <- join_by_date_range(Data_MT_MissoulaCounty, roll_3m)
+#' Data_MT_MissoulaCounty_Durations_roll <- TADA_Analysis_join_by_date_range(Data_MT_MissoulaCounty, roll_3m)
 #'
 #' @export
 TADA_Analysis_Join_Windows <- function(data_w_criteria, join_back = TRUE) {
@@ -368,16 +350,26 @@ TADA_Analysis_Join_Windows <- function(data_w_criteria, join_back = TRUE) {
     "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName"
   )
-  req <- c(id_cols, "DurationValue", "DurationUnit")
-  missing <- setdiff(req, names(data_w_criteria))
-  if (length(missing) > 0) {
-    stop("Input data is missing required columns: ", paste(missing, collapse = ", "))
+  
+  # Only require identifier columns
+  missing_ids <- setdiff(id_cols, names(data_w_criteria))
+  if (length(missing_ids) > 0) {
+    stop("Input data is missing required columns: ", paste(missing_ids, collapse = ", "))
   }
   
-  # Harmonize date/time columns for later use
+  # Add DurationValue / DurationUnit if missing
+  if (!"DurationValue" %in% names(data_w_criteria)) {
+    data_w_criteria$DurationValue <- NA
+  }
+  if (!"DurationUnit" %in% names(data_w_criteria)) {
+    data_w_criteria$DurationUnit <- NA
+  }
+  
+  # Harmonize date/time columns
   harmonize_datetime_cols <- function(df) {
     if ("ActivityStartDateTime" %in% names(df)) {
       ts <- df$ActivityStartDateTime
+      
       if (!inherits(ts, "POSIXct")) {
         if (inherits(ts, "Date")) {
           ts <- as.POSIXct(ts)
@@ -389,6 +381,7 @@ TADA_Analysis_Join_Windows <- function(data_w_criteria, join_back = TRUE) {
           ts <- tryCatch(as.POSIXct(ts), error = function(e) as.POSIXct(NA))
         }
       }
+      
       df$ActivityStartDateTime <- ts
       df$ActivityStartDate <- as.Date(ts)
     } else if ("ActivityStartDate" %in% names(df)) {
@@ -396,9 +389,11 @@ TADA_Analysis_Join_Windows <- function(data_w_criteria, join_back = TRUE) {
     }
     df
   }
+  
   df <- harmonize_datetime_cols(data_w_criteria)
   
-  # Distinct combos INCLUDING NA so we can produce per-observation windows for them
+  # Distinct combos including NA
+  req <- c(id_cols, "DurationValue", "DurationUnit")
   filt_all <- df |>
     dplyr::distinct(dplyr::across(dplyr::all_of(req)))
   
@@ -406,7 +401,7 @@ TADA_Analysis_Join_Windows <- function(data_w_criteria, join_back = TRUE) {
   
   out_list <- vector("list", nrow(filt_all))
   
-  # Helper for NA-safe equality on identifiers
+  # NA-safe equality
   equal_or_both_na <- function(x, y) {
     (is.na(x) & is.na(y)) | (!is.na(x) & !is.na(y) & x == y)
   }
@@ -416,39 +411,44 @@ TADA_Analysis_Join_Windows <- function(data_w_criteria, join_back = TRUE) {
     
     dur_val  <- combo$DurationValue
     dur_unit <- combo$DurationUnit
-    valid_combo <- !is.na(dur_val) & !is.na(dur_unit)
+    
+    valid_combo <- !is.na(dur_val) && !is.na(dur_unit)
+    
+    mask <- rep(TRUE, nrow(df))
+    for (cc in id_cols) {
+      mask <- mask & equal_or_both_na(df[[cc]], combo[[cc]])
+    }
+    mask <- mask &
+      equal_or_both_na(df$DurationValue, dur_val) &
+      equal_or_both_na(df$DurationUnit, dur_unit)
+    
+    sub <- df[mask, , drop = FALSE]
+    
+    if (nrow(sub) == 0) {
+      out_list[[i]] <- dplyr::tibble()
+      next
+    }
     
     if (valid_combo) {
-      # Fully-specified combo: use semi_join and build windows via DurationAgg
-      filt_data <- df |>
-        dplyr::semi_join(combo, by = c(id_cols, "DurationValue", "DurationUnit"))
-      
-      if (nrow(filt_data) == 0) {
-        out_list[[i]] <- dplyr::tibble()
-        next
-      }
-      
       win <- TADA_Analysis_DurationAgg(
-        .data         = filt_data,
+        .data = sub,
         durationValue = dur_val,
-        durationUnit  = dur_unit
+        durationUnit = dur_unit,
+        rolling = FALSE
       )
       
       if (isTRUE(join_back)) {
-        # FIX: prevent .x/.y by not joining duplicate id/duration columns
         win_for_join <- win |>
           dplyr::select(-dplyr::any_of(c(id_cols, "DurationValue", "DurationUnit")))
         
-        win_joined <- TADA_Analysis_join_by_date_range(filt_data, win_for_join)
+        win_joined <- TADA_Analysis_join_by_date_range(sub, win_for_join)
         
-        # Attach identifiers + duration from the current combo
         for (cc in id_cols) win_joined[[cc]] <- combo[[cc]]
         win_joined$DurationValue <- dur_val
         win_joined$DurationUnit  <- dur_unit
         
         out_list[[i]] <- win_joined
       } else {
-        # If not joining back, ensure identifiers + duration fields are present on the window output
         for (cc in id_cols) if (!cc %in% names(win)) win[[cc]] <- combo[[cc]]
         if (!"DurationValue" %in% names(win)) win$DurationValue <- dur_val
         if (!"DurationUnit" %in% names(win))  win$DurationUnit  <- dur_unit
@@ -456,47 +456,31 @@ TADA_Analysis_Join_Windows <- function(data_w_criteria, join_back = TRUE) {
       }
       
     } else {
-      # NA DurationValue and/or DurationUnit: append per-observation windows
-      # Filter rows by identifiers only (NA-safe)
-      mask <- rep(TRUE, nrow(df))
-      for (cc in id_cols) {
-        mask <- mask & equal_or_both_na(df[[cc]], combo[[cc]])
+      ts <- sub$ActivityStartDateTime
+      if (is.null(ts)) {
+        stop('Column "ActivityStartDateTime" is required for NA DurationValue/DurationUnit rows.')
       }
-      # And match NA-ness of duration fields to the combo
-      mask <- mask &
-        (if (is.na(dur_val)) is.na(df$DurationValue) else df$DurationValue == dur_val) &
-        (if (is.na(dur_unit)) is.na(df$DurationUnit) else df$DurationUnit == dur_unit)
-      
-      sub_na <- df[mask, , drop = FALSE]
-      
-      if (nrow(sub_na) == 0) {
-        out_list[[i]] <- dplyr::tibble()
-        next
-      }
-      
-      # Windows equal to ActivityStartDateTime (like before)
-      ts <- if ("ActivityStartDateTime" %in% names(sub_na)) {
-        sub_na$ActivityStartDateTime
-      } else if ("ActivityStartDate" %in% names(sub_na)) {
-        as.POSIXct(sub_na$ActivityStartDate)
-      } else {
-        as.POSIXct(NA)
-      }
-      ts_char <- ifelse(is.na(ts), NA_character_, format(ts, "%Y-%m-%d %H:%M:%S"))
+      if (!inherits(ts, "POSIXct")) ts <- as.POSIXct(ts)
       
       win_na <- dplyr::tibble(
-        window_start      = ts_char,
-        window_end        = ts,
+        window_start = format(ts, "%Y-%m-%d %H:%M:%S"),
+        window_end   = format(ts, "%Y-%m-%d %H:%M:%S"),
         window_start_date = as.Date(ts),
         window_end_date   = as.Date(ts)
       )
       
-      # Carry identifiers + duration fields for this NA combo
-      for (cc in id_cols) win_na[[cc]] <- combo[[cc]]
-      win_na$DurationValue <- dur_val
-      win_na$DurationUnit  <- dur_unit
+      for (cc in id_cols) win_na[[cc]] <- sub[[cc]]
+      win_na$DurationValue <- sub$DurationValue
+      win_na$DurationUnit  <- sub$DurationUnit
       
-      # If join_back = TRUE, these are already per-observation; just append
+      if (isTRUE(join_back)) {
+        win_na <- dplyr::bind_cols(
+          sub,
+          win_na |>
+            dplyr::select(-dplyr::any_of(names(sub)))
+        )
+      }
+      
       out_list[[i]] <- win_na
     }
   }

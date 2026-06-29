@@ -49,9 +49,9 @@ cal_3m <- TADA_Analysis_DurationAgg(Data_MT_MissoulaCounty, 3, durationUnit = "n
 
 roll_3m <- TADA_Analysis_DurationAgg(Data_MT_MissoulaCounty, 3, durationUnit = "n-month", rolling = TRUE)
 
-Data_MT_MissoulaCounty_Durations <- join_by_date_range(Data_MT_MissoulaCounty, cal_3m)
+Data_MT_MissoulaCounty_Durations <- TADA_Analysis_join_by_date_range(Data_MT_MissoulaCounty, cal_3m)
 
-Data_MT_MissoulaCounty_Durations_roll <- join_by_date_range(Data_MT_MissoulaCounty, roll_3m)
+Data_MT_MissoulaCounty_Durations_roll <- TADA_Analysis_join_by_date_range(Data_MT_MissoulaCounty, roll_3m)
 
 }
 \seealso{
