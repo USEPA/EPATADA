@@ -4698,6 +4698,8 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
                                                      TADA.ATTAINS.WaterType,
                                                      New.ATTAINS.WaterType)) |>
         dplyr::select(-TADA.ATTAINS.WaterType)
+
+      rm(wattype.crosswalk.tada)
     }
 
     }
@@ -4709,13 +4711,12 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     # create cw for TADA defaults
     wattype.crosswalk.tada <- tada.default.cw(wattype.crosswalk)
 
+    # THIS JOIN IS NOT WORKING CURRENTLY (HRM 6/26/26)
     match.type <- match.water.type(wqp.mls,
                                    cw = wattype.crosswalk.tada)
 
     rm(wattype.crosswalk.tada)
   }
-
-
 
 
   # join ATTAINS.WaterType matches to TADA df
