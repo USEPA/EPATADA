@@ -4533,16 +4533,16 @@ TADA_MLSummary <- function(
 #' assigns an ATTAINS Water Type to rows with no ATTAINS Water Type value. Default
 #' equals FALSE.
 #' @param review_all Logical. If TRUE, review all ATTAINS.WaterType values to ensure
-#' they are allowable values. If a value is not allowed, replace it with the ATTAINS
-#' WaterType identified in the crosswalk. If FALSE, no review. Default equals FALSE.
-#' @param review_action Character string. Options are "flag" or "update". If
-#' review_action equals "flag", the flagging column TADA.ATTAINSWaterTypeFlag will
-#' be added to .data and identify any rows where the ATTAINS.WaterType value does
-#' not match any of the allowable values for water type in ATTAINS. When review_action
-#' equals "update", the flagging column will be added and any flagged rows will have
-#' their ATTAINS.WaterType values updated by crosswalking the
-#' TADA.MonitoringLocationTypeName to ATTAINS.WaterType. The TADA.ATTAINSWaterTypeFlag
-#' column will be updated to reflect this action.
+#' they are allowable values. Default equals FALSE.
+#' @param review_action Character string. Required when review_all = TRUE.
+#' Options are "flag" or "update". If review_action equals "flag", the flagging
+#' column TADA.ATTAINSWaterTypeFlag will be added to .data and identify any rows
+#' where the ATTAINS.WaterType value does not match any of the allowable values
+#' for water type in ATTAINS. When review_action equals "update", the flagging
+#' column will be added and any flagged rows will have their ATTAINS.WaterType
+#' values updated by crosswalking the TADA.MonitoringLocationTypeName to
+#' ATTAINS.WaterType. The TADA.ATTAINSWaterTypeFlag column will be updated to
+#' reflect this action.
 #'
 #' @return A TADA data frame with ATTAINS.WaterType column created (if not already
 #' existing) and populated.
@@ -4560,6 +4560,10 @@ TADA_MLSummary <- function(
 #'
 #' # add ATTAINS.WaterType for all rows (replace existing matches)
 #' MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
+#'
+#' # add ATTAINS.WaterType for all rows, prioritize types from MT
+#' MT_orgWaterTypes <- TADA_CrosswalkWaterTypes(MT_ExData, replace_all = TRUE,
+#' org_id = "MTDEQ)
 #'
 #' # add ATTAINS.WaterType to TADA df without ATTAINS.WaterType column
 #' Tribal_addAll <- TADA_CrosswalkATTAINSWaterTypes(Data_TribalNations_Harmonized)
@@ -4647,7 +4651,8 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     dplyr::group_by(TADA.MonitoringLocationTypeName) |>
     dplyr::slice_min(TADA.Rank) |>
     dplyr::select(-TADA.Rank) |>
-    dplyr::rename(TADA.ATTAINS.WaterType = ATTAINS.WaterType)
+    dplyr::rename(TADA.ATTAINS.WaterType = ATTAINS.WaterType) |>
+    dplyr::ungroup()
   }
 
 
@@ -4711,13 +4716,16 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     # create cw for TADA defaults
     wattype.crosswalk.tada <- tada.default.cw(wattype.crosswalk)
 
-    # THIS JOIN IS NOT WORKING CURRENTLY (HRM 6/26/26)
+    # match ATTAINSWaterTypes
     match.type <- match.water.type(wqp.mls,
                                    cw = wattype.crosswalk.tada)
 
     rm(wattype.crosswalk.tada)
   }
 
+  # drop TADA.MonitoringLocationTypeName from match.type for joining with .data
+  match.type <- match.type |>
+    dplyr::select(-TADA.MonitoringLocationTypeName)
 
   # join ATTAINS.WaterType matches to TADA df
   .data <- .data |>

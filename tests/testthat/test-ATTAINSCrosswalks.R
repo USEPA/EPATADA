@@ -595,3 +595,24 @@ testthat::test_that("TADA_CrosswalkATTAINSWaterType identifies and updates inval
 
   testthat::expect_equal(NROW(Tribal_reviewFilt), 4)
 })
+
+
+testhat::test_that("All ATTAINS.WaterType values are allowable ATTAINS domain values when replace_all equals TRUE for TADA_CrosswalkATTAINSWaterTypes", {
+
+  # create test df
+  TADA.MonitoringLocationIdentifier <- c("test1", "test2", "test3", "test4", "test5")
+  TADA.MonitoringLocationTypeName <- c("WETLAND PALUSTRINE POND", "SUBTIDAL",
+                                       "GREAT LAKE", "BEACH PROGRAM SITE-LAKE",
+                                       "RESERVOIR")
+  ATTAINS.WaterType <- c("SWAMP POND", "OCEAN TIDAL", "LAKE MICHIGAN",
+                         "BEACH LAKE", "DRINKING RESERVOIR")
+
+  testdat <- data.frame(TADA.MonitoringLocationIdentifier,
+                        TADA.MonitoringLocationTypeName,
+                        ATTAINS.WaterType)
+
+  # run TADA_CrosswalkATTAINSWaterTypes
+  cw.test <- TADA_CrosswalkATTAINSWaterTypes(testdat,
+                                             replace_all = TRUE)
+
+})
