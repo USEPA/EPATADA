@@ -334,7 +334,9 @@ TADA_Analysis_Custom <- function(
       by = names(criteria)
       )
     
-  criteria2 <- TADA_DefineCriteriaMethodology(.data = .data, org_id = ATTAINS.OrganizationIdentifier, criteriaMethods = criteria)
+  criteria2 <- spsUtil::quiet(
+    TADA_DefineCriteriaMethodology(.data = .data, org_id = ATTAINS.OrganizationIdentifier, criteriaMethods = criteria)
+  )
   
   message(TADACommunityHub::runAllValidations(criteria2)$overall_status)
   
