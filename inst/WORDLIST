@@ -1,6 +1,7 @@
 ANDs
 AOI
-ATTAINSWaterTypeFlag
+ATTAINSWaterType
+AUIDs
 AUML
 AUMLRef
 AURefSource
@@ -447,7 +448,7 @@ createBBox
 createTADABasemap
 cristinamullin
 criteriaMethods
-crosswalking
+crosswalked
 crs
 cst
 csv
@@ -590,6 +591,7 @@ uncomment
 uncommenting
 uniqueDataId
 unprefixed
+uppercased
 useR
 usepa
 usesRef

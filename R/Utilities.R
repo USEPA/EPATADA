@@ -483,7 +483,13 @@ utils::globalVariables(c(
   "has_depth_param",
   "out_epsg",
   "ATTAINSParamUseOrgRef",
-  "CountyCode"
+  "CountyCode",
+  "candidates",
+  "matched",
+  "New.ATTAINS.WaterType",
+  "TADA.ATTAINSWaterType.Flag",
+  "WQPOrganizationRef",
+  "created_AUID"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -2770,7 +2776,7 @@ TADA_CorrectColType <- function(.data) {
       ".get_downloads_path:
   No filename was provided, returning the Downloads folder path only."
     )
-    filename = ""
+    filename <- ""
   }
 
   # find OneDrive directory if present
