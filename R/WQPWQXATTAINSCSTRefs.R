@@ -3298,12 +3298,10 @@ TADA_CST_GetSources <- function(download_only = FALSE, refresh = FALSE) {
 #' Update EPATADA internal ATTAINS Org ID to ATTAINS Water Type crosswalk
 #' @keywords internal
 .TADA_UpdateATTAINSWaterTypeByOrg <- function() {
-
   org.watertype.cw <- rExpertQuery::EQ_NationalExtract("aus")
 
   org.watertype.cw <- org.watertype.cw |>
-    dplyr::select(organizationId,
-                  waterType) |>
+    dplyr::select(organizationId, waterType) |>
     dplyr::distinct()
 
   .tada_save_ext_rda(

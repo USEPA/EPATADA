@@ -1076,12 +1076,13 @@ test_that("does not modify existing non-missing, non-blank AUIDs when prefix is 
 
 
 testthat::test_that("All ATTAINS.WaterType values are allowable ATTAINS domain values from the specified org when org_id is specified and org_only equals TRUE", {
-
   # run TADA_CrosswalkATTAINSWaterTypes
-  cw.test <- TADA_CrosswalkATTAINSWaterTypes(Data_MT_MissoulaCounty,
-                                             replace_all = TRUE,
-                                             org_id = "MTDEQ",
-                                             org_only = TRUE)
+  cw.test <- TADA_CrosswalkATTAINSWaterTypes(
+    Data_MT_MissoulaCounty,
+    replace_all = TRUE,
+    org_id = "MTDEQ",
+    org_only = TRUE
+  )
 
   # get list of unique ATTAINS.WaterTypes from MT example
   wattype.list <- cw.test |>
@@ -1104,5 +1105,4 @@ testthat::test_that("All ATTAINS.WaterType values are allowable ATTAINS domain v
 
   # compare lists of water types
   testthat::expect_true(all(wattype.list %in% mt.wattypes))
-
 })
