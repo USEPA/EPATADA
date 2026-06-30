@@ -597,22 +597,34 @@ testthat::test_that("TADA_CrosswalkATTAINSWaterType identifies and updates inval
 })
 
 
-testhat::test_that("All ATTAINS.WaterType values are allowable ATTAINS domain values when replace_all equals TRUE for TADA_CrosswalkATTAINSWaterTypes", {
-
-  # create test df
-  TADA.MonitoringLocationIdentifier <- c("test1", "test2", "test3", "test4", "test5")
-  TADA.MonitoringLocationTypeName <- c("WETLAND PALUSTRINE POND", "SUBTIDAL",
-                                       "GREAT LAKE", "BEACH PROGRAM SITE-LAKE",
-                                       "RESERVOIR")
-  ATTAINS.WaterType <- c("SWAMP POND", "OCEAN TIDAL", "LAKE MICHIGAN",
-                         "BEACH LAKE", "DRINKING RESERVOIR")
-
-  testdat <- data.frame(TADA.MonitoringLocationIdentifier,
-                        TADA.MonitoringLocationTypeName,
-                        ATTAINS.WaterType)
+testthat::test_that("All ATTAINS.WaterType values are allowable ATTAINS domain values from the specified org when org_id is specified and org_only equals TRUE", {
 
   # run TADA_CrosswalkATTAINSWaterTypes
-  cw.test <- TADA_CrosswalkATTAINSWaterTypes(testdat,
-                                             replace_all = TRUE)
+  cw.test <- TADA_CrosswalkATTAINSWaterTypes(Data_MT_MissoulaCounty,
+                                             replace_all = TRUE,
+                                             org_id = "MTDEQ",
+                                             org_only = TRUE)
+
+  # get list of unique ATTAINS.WaterTypes from MT example
+  wattype.list <- cw.test |>
+    dplyr::select(ATTAINS.WaterType) |>
+    dplyr::filter(!is.na(ATTAINS.WaterType)) |>
+    dplyr::distinct() |>
+    dplyr::pull()
+
+  # get list of water types used by MT in previous cycles
+  load(system.file(
+    "extdata",
+    "ATTAINSWaterTypeByOrgName.rda",
+    package = "EPATADA"
+  ))
+
+  mt.wattypes <- ATTAINSWaterTypeByOrgName |>
+    dplyr::filter(organizationId == "MTDEQ") |>
+    dplyr::select(waterType) |>
+    dplyr::pull()
+
+  # compare lists of water types
+  testthat::expect_true(all(wattype.list %in% mt.wattypes))
 
 })

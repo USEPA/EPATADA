@@ -4589,6 +4589,7 @@ TADA_MLSummary <- function(
 TADA_CrosswalkATTAINSWaterTypes <- function(
   .data,
   org_id = NULL,
+  org_only = FALSE,
   replace_all = FALSE,
   review_all = FALSE,
   review_action = "flag"
