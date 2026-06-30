@@ -472,13 +472,13 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_MLSum
 
 test_that("errors when required columns are missing", {
   df_missing_id <- data.frame(
-    TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
+    TADA.MonitoringLocationTypeName = c("STREAM", "LAKE"),
     stringsAsFactors = FALSE
   )
 
   expect_error(
     TADA_CrosswalkATTAINSWaterTypes(df_missing_id),
-    "must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName"
+    "TADA_CrosswalkATTAINSWaterTypes: must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName"
   )
 
   df_missing_type <- data.frame(
@@ -488,32 +488,32 @@ test_that("errors when required columns are missing", {
 
   expect_error(
     TADA_CrosswalkATTAINSWaterTypes(df_missing_type),
-    "must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName"
+    "TADA_CrosswalkATTAINSWaterTypes: must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName"
   )
 })
 
 test_that("errors when overwrite_existing is not a single logical", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = "A",
-    TADA.MonitoringLocationTypeName = "Stream",
+    TADA.MonitoringLocationTypeName = "STREAM",
     stringsAsFactors = FALSE
   )
 
   expect_error(
-    TADA_CrosswalkATTAINSWaterTypes(df, overwrite_existing = "yes"),
-    "overwrite_existing must be a single logical"
+    TADA_CrosswalkATTAINSWaterTypes(df, replace_all = "yes"),
+    "replace_all must be a single logical"
   )
 
   expect_error(
-    TADA_CrosswalkATTAINSWaterTypes(df, overwrite_existing = c(TRUE, FALSE)),
-    "overwrite_existing must be a single logical"
+    TADA_CrosswalkATTAINSWaterTypes(df, replace_all = c(TRUE, FALSE)),
+    "replace_all must be a single logical"
   )
 })
 
 test_that("creates ATTAINS.WaterType when missing", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = c("id1", "id2"),
-    TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
+    TADA.MonitoringLocationTypeName = c("STREAM", "LAKE"),
     stringsAsFactors = FALSE
   )
 
@@ -1076,13 +1076,12 @@ test_that("does not modify existing non-missing, non-blank AUIDs when prefix is 
 
 
 testthat::test_that("All ATTAINS.WaterType values are allowable ATTAINS domain values from the specified org when org_id is specified and org_only equals TRUE", {
+
   # run TADA_CrosswalkATTAINSWaterTypes
-  cw.test <- TADA_CrosswalkATTAINSWaterTypes(
-    Data_MT_MissoulaCounty,
-    replace_all = TRUE,
-    org_id = "MTDEQ",
-    org_only = TRUE
-  )
+  cw.test <- TADA_CrosswalkATTAINSWaterTypes(Data_MT_MissoulaCounty,
+                                             replace_all = TRUE,
+                                             org_id = "MTDEQ",
+                                             org_only = TRUE)
 
   # get list of unique ATTAINS.WaterTypes from MT example
   wattype.list <- cw.test |>
@@ -1105,4 +1104,5 @@ testthat::test_that("All ATTAINS.WaterType values are allowable ATTAINS domain v
 
   # compare lists of water types
   testthat::expect_true(all(wattype.list %in% mt.wattypes))
+
 })

@@ -4595,6 +4595,20 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   review_all = FALSE,
   review_action = "flag"
 ) {
+
+  # check to see if required columns are included in .data
+  required_cols <- c(
+    "TADA.MonitoringLocationIdentifier",
+    "TADA.MonitoringLocationTypeName"
+  )
+
+  if (any(!required_cols %in% names(.data))) {
+    stop("TADA_CrosswalkATTAINSWaterTypes: must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName")
+  }
+
+  # remove intermediate objects
+  rm(required_cols)
+
   # create df of unique monitoring location identifiers, monitoring location type
   # name, and (if present in TADA df) ATTAINS.WaterType
   wqp.mls <- .data |>
@@ -4634,8 +4648,12 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   # helper function to match ATTAINS.WaterType to TADA.MonitoringLocationTypeName
   match.water.type <- function(.data, cw = NULL) {
     matches <- .data |>
-      dplyr::left_join(cw, dplyr::join_by(TADA.MonitoringLocationTypeName)) |>
-      dplyr::rename(New.ATTAINS.WaterType = ATTAINS.WaterType)
+      dplyr::left_join(cw, dplyr::join_by(TADA.MonitoringLocationTypeName))
+
+    if ("ATTAINS.WaterType" %in% names(matches)) {
+      matches <- matches |>
+        dplyr::rename(New.ATTAINS.WaterType = ATTAINS.WaterType)
+    }
 
     rm(.data, cw)
 
@@ -4732,7 +4750,9 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   # retain all existing ATTAINS.WaterType matches if none were present in TADA df
   # or if replace_all = TRUE
   if (!"ATTAINS.WaterType" %in% names(.data)) {
+    if ("ATTAINS.WaterType" %in% names(matches)) {
     .data <- .data |> dplyr::rename(ATTAINS.WaterType = New.ATTAINS.WaterType)
+    }
   } else {
     # if some ATTAINS.WaterType matches exist, only replace the NA or blank rows
     # with the new matches
