@@ -12,7 +12,7 @@ test_that("TADA_Analysis_Join_WQP_Criteria joins by ComparableDataIdentifier whe
     `TADA.MethodSpeciationName` = c("Met1", "Met2", NA, NA),
     `TADA.ResultMeasure.MeasureUnitCode` = c("ug/L", "ug/L", "ug/L", "ug/L")
   )
-  
+
   criteria <- tibble::tibble(
     `TADA.ComparableDataIdentifier` = c(
       "LEAD_TOTAL_MET1_UG/L",
@@ -24,9 +24,9 @@ test_that("TADA_Analysis_Join_WQP_Criteria joins by ComparableDataIdentifier whe
     `TADA.ResultMeasure.MeasureUnitCode` = c("ug/L", "ug/L"),
     crit_value = c(10, 20)
   )
-  
+
   out <- TADA_Analysis_Join_WQP_Criteria(.data, criteria)
-  
+
   expect_true(any(out$row_id == 1 & out$crit_value == 10))
   expect_true(any(out$row_id == 2 & out$crit_value == 20))
   expect_true("crit_value" %in% names(out))
@@ -41,7 +41,7 @@ test_that("TADA_Analysis_Join_WQP_Criteria falls back when ComparableDataIdentif
     `TADA.MethodSpeciationName` = NA_character_,
     `TADA.ResultMeasure.MeasureUnitCode` = "ug/L"
   )
-  
+
   criteria <- tibble::tibble(
     `TADA.ComparableDataIdentifier` = NA_character_,
     `TADA.CharacteristicName` = "Copper",
@@ -50,9 +50,9 @@ test_that("TADA_Analysis_Join_WQP_Criteria falls back when ComparableDataIdentif
     `TADA.ResultMeasure.MeasureUnitCode` = "ug/L",
     crit_value = 30
   )
-  
+
   out <- TADA_Analysis_Join_WQP_Criteria(data, criteria)
-  
+
   expect_equal(nrow(out), 1)
   expect_equal(out$crit_value, 30)
 })
@@ -69,7 +69,7 @@ test_that("TADA_Analysis_Join_WQP_Criteria left-join semantics are preserved", {
     `TADA.MethodSpeciationName` = c("Met1", "Met1"),
     `TADA.ResultMeasure.MeasureUnitCode` = c("ug/L", "ug/L")
   )
-  
+
   criteria <- tibble::tibble(
     `TADA.ComparableDataIdentifier` = "LEAD_TOTAL_MET1_UG/L",
     `TADA.CharacteristicName` = "Lead",
@@ -78,9 +78,9 @@ test_that("TADA_Analysis_Join_WQP_Criteria left-join semantics are preserved", {
     `TADA.ResultMeasure.MeasureUnitCode` = "ug/L",
     crit_value = 10
   )
-  
+
   out <- TADA_Analysis_Join_WQP_Criteria(.data, criteria)
-  
+
   expect_true(any(out$row_id == 1))
   expect_true(any(out$row_id == 2))
 })
@@ -98,7 +98,7 @@ test_that("TADA_Analysis_Join_WQP_Criteria byChar = TRUE joins on characteristic
     `TADA.MethodSpeciationName` = c("Met1", "Met2", "Met3"),
     `TADA.ResultMeasure.MeasureUnitCode` = c("ug/L", "ug/L", "ug/L")
   )
-  
+
   criteria <- tibble::tibble(
     `TADA.ComparableDataIdentifier` = c(
       "LEAD_TOTAL_METX_UG/L",
@@ -111,11 +111,13 @@ test_that("TADA_Analysis_Join_WQP_Criteria byChar = TRUE joins on characteristic
     `TADA.ResultMeasure.MeasureUnitCode` = c("ug/L", "ug/L", "ug/L"),
     crit_value = c(11, 22, 33)
   )
-  
+
   out <- TADA_Analysis_Join_WQP_Criteria(.data, criteria, byChar = TRUE)
-  
+
   expect_equal(sum(out$`TADA.CharacteristicName` == "LEAD"), 4)
-  expect_true(any(out$`TADA.CharacteristicName` == "MERCURY" & out$crit_value == 33))
+  expect_true(any(
+    out$`TADA.CharacteristicName` == "MERCURY" & out$crit_value == 33
+  ))
 })
 
 test_that("TADA_Analysis_Join_WQP_Criteria returns original data when no criteria match", {
@@ -127,7 +129,7 @@ test_that("TADA_Analysis_Join_WQP_Criteria returns original data when no criteri
     `TADA.MethodSpeciationName` = "Met1",
     `TADA.ResultMeasure.MeasureUnitCode` = "ug/L"
   )
-  
+
   criteria <- tibble::tibble(
     `TADA.ComparableDataIdentifier` = "LEAD_TOTAL_MET1_UG/L",
     `TADA.CharacteristicName` = "Lead",
@@ -136,9 +138,9 @@ test_that("TADA_Analysis_Join_WQP_Criteria returns original data when no criteri
     `TADA.ResultMeasure.MeasureUnitCode` = "ug/L",
     crit_value = 1
   )
-  
+
   out <- TADA_Analysis_Join_WQP_Criteria(.data, criteria)
-  
+
   expect_equal(nrow(out), 1)
   expect_equal(out$row_id, 1)
 })
