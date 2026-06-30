@@ -4595,7 +4595,6 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   review_all = FALSE,
   review_action = "flag"
 ) {
-
   # check to see if required columns are included in .data
   required_cols <- c(
     "TADA.MonitoringLocationIdentifier",
@@ -4603,7 +4602,9 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   )
 
   if (any(!required_cols %in% names(.data))) {
-    stop("TADA_CrosswalkATTAINSWaterTypes: must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName")
+    stop(
+      "TADA_CrosswalkATTAINSWaterTypes: must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName"
+    )
   }
 
   # remove intermediate objects
@@ -4751,7 +4752,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   # or if replace_all = TRUE
   if (!"ATTAINS.WaterType" %in% names(.data)) {
     if ("ATTAINS.WaterType" %in% names(matches)) {
-    .data <- .data |> dplyr::rename(ATTAINS.WaterType = New.ATTAINS.WaterType)
+      .data <- .data |> dplyr::rename(ATTAINS.WaterType = New.ATTAINS.WaterType)
     }
   } else {
     # if some ATTAINS.WaterType matches exist, only replace the NA or blank rows
