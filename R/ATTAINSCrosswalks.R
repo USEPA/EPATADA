@@ -4559,7 +4559,8 @@ TADA_MLSummary <- function(
 #' MT_addMissing <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData)
 #'
 #' # add ATTAINS.WaterType for all rows (replace existing matches)
-#' MT_replaceAll <- TADA_CrosswalkATTAINSWaterTypes(MT_ExData, replace_all = TRUE)
+#' MT_orgWaterTypes <- TADA_CrosswalkWaterTypes(MT_ExData, replace_all = TRUE,
+#'   org_id = "MTDEQ")
 #'
 #' # add ATTAINS.WaterType for all rows, prioritize types from MT
 #' MT_orgWaterTypes <- TADA_CrosswalkWaterTypes(MT_ExData, replace_all = TRUE,
