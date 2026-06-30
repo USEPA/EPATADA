@@ -4525,7 +4525,7 @@ TADA_MLSummary <- function(
 #' TADA ATTAINS.WaterType.
 #' @param org_only Boolean. When org_only equals TRUE, only TADA.MonitoringLocationTypeNames
 #' that match an existing ATTAINS.WaterType will be assigned an ATTAINS.WaterType.
-#' WHen org_only = FALSE, any TADA.MonitoringLocationTypeNames that do not match
+#' When org_only = FALSE, any TADA.MonitoringLocationTypeNames that do not match
 #' with an ATTAINS.WaterType in use by the selected org will be matched with the TADA
 #' defaults. Default is org equals FALSE.
 #' @param replace_all Logical. If TRUE, replace all ATTAINS.WaterType values in the
