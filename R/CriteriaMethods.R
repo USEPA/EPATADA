@@ -1345,7 +1345,10 @@ TADA_DefineCriteriaMethodology <- function(
   # joins the EPA304(a) criteria to the current Criteria Table.
   # safe guard when org_id can be NULL in the "all arguments are blank" branch
   if (!is.null(org_id) && "USEPA" %in% org_id) {
-    message("TADA_DefineCriteriaMethodology: USEPA was included ...")
+    message(
+      "TADA_DefineCriteriaMethodology: USEPA was included in 'org_id'.",
+      "EPA section 304(a) recommended criteria were included for parameters that could be matched to the available data."
+      )
     epa304a <- utils::read.csv(
       system.file("extdata", "EPA304a_criteria_table.csv", package = "EPATADA"),
       fileEncoding = "UTF-8-BOM"

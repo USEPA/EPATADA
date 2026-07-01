@@ -2306,11 +2306,11 @@ TADA_UsesForAnalysis <- function(
       )
 
     if (auto_assign == TRUE) {
-      message(paste0(
+      message(
         "TADA_UsesForAnalysis: auto_assign == TRUE was selected, ",
-        "assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an ",
-        "organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
-      ))
+        "    assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an ",
+        "    organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
+      )
 
       # load ATTAINSParamUseOrgRef
       load(system.file(
