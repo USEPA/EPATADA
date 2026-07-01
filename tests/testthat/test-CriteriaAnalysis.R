@@ -153,21 +153,35 @@ testthat::test_that("TADA_Analysis_Join_WQP_Criteria returns expected row counts
   Data_Nutrients_UT_Harmonized <- TADA_HarmonizeSynonyms(Data_Nutrients_UT2)
   # use auto_assign to generate pre-filled criteria table
   testthat::expect_warning(
-    UTAH_Criteria <- TADA_DefineCriteriaMethodology(Data_Nutrients_UT_Harmonized, org_id = "UTAHDWQ", auto_assign = TRUE, displayUniqueId = TRUE)
+    UTAH_Criteria <- TADA_DefineCriteriaMethodology(
+      Data_Nutrients_UT_Harmonized,
+      org_id = "UTAHDWQ",
+      auto_assign = TRUE,
+      displayUniqueId = TRUE
+    )
   )
   # join the criteria table to the data frame
-  UTAH_with_criteria <- TADA_Analysis_Join_WQP_Criteria(Data_Nutrients_UT_Harmonized, UTAH_Criteria)
+  UTAH_with_criteria <- TADA_Analysis_Join_WQP_Criteria(
+    Data_Nutrients_UT_Harmonized,
+    UTAH_Criteria
+  )
   # all criteria has been filled out with TADA.ComparableDataIdentifier, look at all unique values and see if joins worked correctly
-  criteria_counts <- TADA_FieldValuesTable(UTAH_Criteria, "TADA.ComparableDataIdentifier")
-  data_counts <- TADA_FieldValuesTable(Data_Nutrients_UT_Harmonized, "TADA.ComparableDataIdentifier")
-  
+  criteria_counts <- TADA_FieldValuesTable(
+    UTAH_Criteria,
+    "TADA.ComparableDataIdentifier"
+  )
+  data_counts <- TADA_FieldValuesTable(
+    Data_Nutrients_UT_Harmonized,
+    "TADA.ComparableDataIdentifier"
+  )
+
   data_criteria_counts <- data_counts |>
     dplyr::left_join(criteria_counts, by = "Value") |>
     dplyr::mutate(
-      Count.y = dplyr::if_else(is.na(Count.y),1,Count.y),
+      Count.y = dplyr::if_else(is.na(Count.y), 1, Count.y),
       total_count = Count.x * Count.y
-      )
-  
+    )
+
   testthat::expect_equal(
     sum(data_criteria_counts$total_count),
     nrow(UTAH_with_criteria)
