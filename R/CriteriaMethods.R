@@ -1352,7 +1352,7 @@ TADA_DefineCriteriaMethodology <- function(
     message(
       "TADA_DefineCriteriaMethodology: USEPA was included in 'org_id'.",
       "EPA section 304(a) recommended criteria were included for parameters that could be matched to the available data."
-      )
+    )
     epa304a <- utils::read.csv(
       system.file("extdata", "EPA304a_criteria_table.csv", package = "EPATADA"),
       fileEncoding = "UTF-8-BOM"
