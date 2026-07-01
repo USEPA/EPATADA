@@ -755,7 +755,8 @@ TADA_DefineCriteriaMethodology <- function(
           )) |>
             dplyr::mutate(across(where(is.character), toupper)) %>%
             dplyr::filter(
-              CharacteristicName %in% DefineCriteriaMethodology$TADA.CharacteristicName
+              CharacteristicName %in%
+                DefineCriteriaMethodology$TADA.CharacteristicName
             )
 
           # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
@@ -868,7 +869,10 @@ TADA_DefineCriteriaMethodology <- function(
           ATTAINS_NA_filter <- DefineCriteriaMethodology |>
             dplyr::filter(is.na(ATTAINS.ParameterName)) |>
             dplyr::left_join(
-              dplyr::select(CriteriaSearchToolRef_filtered, -ATTAINS.ParameterName),
+              dplyr::select(
+                CriteriaSearchToolRef_filtered,
+                -ATTAINS.ParameterName
+              ),
               by = c(
                 "ATTAINS.OrganizationIdentifier",
                 "TADA.CharacteristicName" = "CharacteristicName"
@@ -881,7 +885,7 @@ TADA_DefineCriteriaMethodology <- function(
                 NA_character_
               )
             )
-          
+
           DefineCriteriaMethodology2 <- DefineCriteriaMethodology |>
             dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
             dplyr::left_join(
