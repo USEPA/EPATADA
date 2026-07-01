@@ -1,4 +1,4 @@
-test_that("TADA_Analysis_Join_WQP_Criteria joins by ComparableDataIdentifier when available", {
+testthat::test_that("TADA_Analysis_Join_WQP_Criteria joins by ComparableDataIdentifier when available", {
   .data <- tibble::tibble(
     row_id = 1:4,
     `TADA.ComparableDataIdentifier` = c(
@@ -32,7 +32,7 @@ test_that("TADA_Analysis_Join_WQP_Criteria joins by ComparableDataIdentifier whe
   expect_true("crit_value" %in% names(out))
 })
 
-test_that("TADA_Analysis_Join_WQP_Criteria falls back when ComparableDataIdentifier is missing from criteria", {
+testthat::test_that("TADA_Analysis_Join_WQP_Criteria falls back when ComparableDataIdentifier is missing from criteria", {
   data <- tibble::tibble(
     row_id = 1,
     `TADA.ComparableDataIdentifier` = "COPPER_DISSOLVED__UG/L",
@@ -53,11 +53,11 @@ test_that("TADA_Analysis_Join_WQP_Criteria falls back when ComparableDataIdentif
 
   out <- TADA_Analysis_Join_WQP_Criteria(data, criteria)
 
-  expect_equal(nrow(out), 1)
-  expect_equal(out$crit_value, 30)
+  testthat::expect_equal(nrow(out), 1)
+  testthat::expect_equal(out$crit_value, 30)
 })
 
-test_that("TADA_Analysis_Join_WQP_Criteria left-join semantics are preserved", {
+testthat::test_that("TADA_Analysis_Join_WQP_Criteria left-join semantics are preserved", {
   .data <- tibble::tibble(
     row_id = 1:2,
     `TADA.ComparableDataIdentifier` = c(
@@ -85,7 +85,7 @@ test_that("TADA_Analysis_Join_WQP_Criteria left-join semantics are preserved", {
   expect_true(any(out$row_id == 2))
 })
 
-test_that("TADA_Analysis_Join_WQP_Criteria byChar = TRUE joins on characteristic only", {
+testthat::test_that("TADA_Analysis_Join_WQP_Criteria byChar = TRUE joins on characteristic only", {
   .data <- tibble::tibble(
     row_id = 1:3,
     `TADA.ComparableDataIdentifier` = c(
@@ -114,13 +114,13 @@ test_that("TADA_Analysis_Join_WQP_Criteria byChar = TRUE joins on characteristic
 
   out <- TADA_Analysis_Join_WQP_Criteria(.data, criteria, byChar = TRUE)
 
-  expect_equal(sum(out$`TADA.CharacteristicName` == "LEAD"), 4)
+  testthat::expect_equal(sum(out$`TADA.CharacteristicName` == "LEAD"), 4)
   expect_true(any(
     out$`TADA.CharacteristicName` == "MERCURY" & out$crit_value == 33
   ))
 })
 
-test_that("TADA_Analysis_Join_WQP_Criteria returns original data when no criteria match", {
+testthat::test_that("TADA_Analysis_Join_WQP_Criteria returns original data when no criteria match", {
   .data <- tibble::tibble(
     row_id = 1,
     `TADA.ComparableDataIdentifier` = "NOMATCH_TOTAL_MET1_UG/L",
@@ -141,6 +141,35 @@ test_that("TADA_Analysis_Join_WQP_Criteria returns original data when no criteri
 
   out <- TADA_Analysis_Join_WQP_Criteria(.data, criteria)
 
-  expect_equal(nrow(out), 1)
-  expect_equal(out$row_id, 1)
+  testthat::expect_equal(nrow(out), 1)
+  testthat::expect_equal(out$row_id, 1)
+})
+
+
+testthat::test_that("TADA_Analysis_Join_WQP_Criteria returns expected row counts after joining Data_Nutrients_UT data with an example criteria table", {
+  # run key flagging functions
+  Data_Nutrients_UT2 <- TADA_RunKeyFlagFunctions(Data_Nutrients_UT)
+  # harmonize synonyms
+  Data_Nutrients_UT_Harmonized <- TADA_HarmonizeSynonyms(Data_Nutrients_UT2)
+  # use auto_assign to generate pre-filled criteria table
+  testthat::expect_warning(
+    UTAH_Criteria <- TADA_DefineCriteriaMethodology(Data_Nutrients_UT_Harmonized, org_id = "UTAHDWQ", auto_assign = TRUE, displayUniqueId = TRUE)
+  )
+  # join the criteria table to the data frame
+  UTAH_with_criteria <- TADA_Analysis_Join_WQP_Criteria(Data_Nutrients_UT_Harmonized, UTAH_Criteria)
+  # all criteria has been filled out with TADA.ComparableDataIdentifier, look at all unique values and see if joins worked correctly
+  criteria_counts <- TADA_FieldValuesTable(UTAH_Criteria, "TADA.ComparableDataIdentifier")
+  data_counts <- TADA_FieldValuesTable(Data_Nutrients_UT_Harmonized, "TADA.ComparableDataIdentifier")
+  
+  data_criteria_counts <- data_counts |>
+    dplyr::left_join(criteria_counts, by = "Value") |>
+    dplyr::mutate(
+      Count.y = dplyr::if_else(is.na(Count.y),1,Count.y),
+      total_count = Count.x * Count.y
+      )
+  
+  testthat::expect_equal(
+    sum(data_criteria_counts$total_count),
+    nrow(UTAH_with_criteria)
+  )
 })
