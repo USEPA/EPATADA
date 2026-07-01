@@ -753,21 +753,9 @@ TADA_DefineCriteriaMethodology <- function(
             "TADACharAliasRef.csv",
             package = "EPATADA"
           )) |>
-            dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
+            dplyr::mutate(across(where(is.character), toupper)) %>%
             dplyr::filter(
-              (CharacteristicName %in%
-                stats::na.omit(unique(
-                  DefineCriteriaMethodology$TADA.CharacteristicName
-                )) &
-                ATTAINS.ParameterName %in%
-                  stats::na.omit(unique(
-                    DefineCriteriaMethodology$ATTAINS.ParameterName
-                  ))) |
-                (CharacteristicName %in%
-                  stats::na.omit(unique(
-                    DefineCriteriaMethodology$TADA.CharacteristicName
-                  )) &
-                  is.na(ATTAINS.ParameterName))
+              CharacteristicName %in% DefineCriteriaMethodology$TADA.CharacteristicName
             )
 
           # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
@@ -877,8 +865,26 @@ TADA_DefineCriteriaMethodology <- function(
             )
 
           # fill in TADA criteria table with CST magnitude values and other relevant CST columns
+          ATTAINS_NA_filter <- DefineCriteriaMethodology |>
+            dplyr::filter(is.na(ATTAINS.ParameterName)) |>
+            dplyr::left_join(
+              dplyr::select(CriteriaSearchToolRef_filtered, -ATTAINS.ParameterName),
+              by = c(
+                "ATTAINS.OrganizationIdentifier",
+                "TADA.CharacteristicName" = "CharacteristicName"
+              )
+            ) |>
+            dplyr::mutate(
+              ATTAINS.UseName = dplyr::if_else(
+                ATTAINS.UseName.x == ATTAINS.UseName.y,
+                ATTAINS.UseName.x,
+                NA_character_
+              )
+            )
+          
           DefineCriteriaMethodology2 <- DefineCriteriaMethodology |>
-            dplyr::full_join(
+            dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
+            dplyr::left_join(
               CriteriaSearchToolRef_filtered,
               by = c(
                 "ATTAINS.OrganizationIdentifier",
@@ -893,6 +899,8 @@ TADA_DefineCriteriaMethodology <- function(
                 NA_character_
               )
             ) |>
+            # now combine those rows that had NA ATTAINS.ParameterName (no char crosswalk was defined/found in auto assignment)
+            dplyr::bind_rows(ATTAINS_NA_filter) |>
             # format the criterion values to the TADA magnitude format, for cases when there's a range.
             tidyr::separate(
               col = CRITERION_VALUE,
