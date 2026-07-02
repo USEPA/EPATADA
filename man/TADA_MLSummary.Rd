@@ -105,7 +105,7 @@ Units, users will need to provide an AUMLRef and AU_UsesRef file which
 (see TADA Module 2 tools) to assist in their monitoring location to assessment
 unit crosswalk (see TADA_GetATTAINSAUMLCrosswalk, TADA_CreateAUMLCrosswalk,
 and TADA_GetATTAINSByAUID) and uses to assessment unit crosswalk
-(see TADA_CreateWaterusesRef and TADA_AssignUsesToAU) prior to this step.
+(see TADA_AssignUsesToWaterType and TADA_AssignUsesToAU) prior to this step.
 
 Users can apply any unique site-specific criteria (for example, warm waters,
 cold waters, water classifications, species-based waters, ecoregions etc.) to
