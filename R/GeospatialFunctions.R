@@ -278,7 +278,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   )
 
   message(
-    "Depending on your data's observation count and its spatial range, the ATTAINS pull may take a while."
+    "fetchATTAINS: Depending on your data's observation count and its spatial range, the ATTAINS pull may take a while."
   )
 
   out_epsg <- 4326
@@ -295,7 +295,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)
   ) {
     stop(
-      "The dataframe does not contain TADA-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `TADA.LatitudeMeasure`, and `TADA.LongitudeMeasure`)."
+      "fetchATTAINS: The dataframe does not contain TADA-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `TADA.LatitudeMeasure`, and `TADA.LongitudeMeasure`)."
     )
   }
 
@@ -315,7 +315,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
   if (is.null(.data) || nrow(.data) == 0) {
     stop(
-      "There is no data in your `data` object to use as a bounding box for selecting ATTAINS features."
+      "fetchATTAINS: There is no data in your `data` object to use as a bounding box for selecting ATTAINS features."
     )
   }
 
@@ -341,7 +341,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
   if (length(catchment_features) == 0 || is.null(catchment_features)) {
     message(
-      "There are no ATTAINS features associated with your WQP observations."
+      "fetchATTAINS: There are no ATTAINS features associated with your WQP observations."
     )
   } else {
     all_units <- unique(catchment_features$assessmentunitidentifier)
