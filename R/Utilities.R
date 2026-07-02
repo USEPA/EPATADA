@@ -489,7 +489,12 @@ utils::globalVariables(c(
   "New.ATTAINS.WaterType",
   "TADA.ATTAINSWaterType.Flag",
   "WQPOrganizationRef",
-  "created_AUID"
+  "created_AUID",
+  ".can_correct",
+  ".should_correct",
+  ".was_valid",
+  "ATTAINS.WaterType.Original",
+  "Crosswalk.ATTAINS.WaterType"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
