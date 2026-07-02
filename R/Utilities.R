@@ -482,7 +482,19 @@ utils::globalVariables(c(
   "Target.TADA.SpeciationConversionFactor",
   "has_depth_param",
   "out_epsg",
-  "ATTAINSParamUseOrgRef"
+  "ATTAINSParamUseOrgRef",
+  "CountyCode",
+  "candidates",
+  "matched",
+  "New.ATTAINS.WaterType",
+  "TADA.ATTAINSWaterType.Flag",
+  "WQPOrganizationRef",
+  "created_AUID",
+  ".can_correct",
+  ".should_correct",
+  ".was_valid",
+  "ATTAINS.WaterType.Original",
+  "Crosswalk.ATTAINS.WaterType"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -1315,16 +1327,16 @@ TADA_RandomTestingData <- function(
 #' @examples
 #' \dontrun{
 #' # Load example dataset
-#' utils::data(Data_6Tribes_5y)
+#' utils::data(Data_TribalNations)
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(
 #'   c(
-#'     xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure),
-#'     ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure),
-#'     xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure),
-#'     ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)
+#'     xmin = min(Data_TribalNations$TADA.LongitudeMeasure),
+#'     ymin = min(Data_TribalNations$TADA.LatitudeMeasure),
+#'     xmax = max(Data_TribalNations$TADA.LongitudeMeasure),
+#'     ymax = max(Data_TribalNations$TADA.LatitudeMeasure)
 #'   ),
-#'   crs = sf::st_crs(Data_6Tribes_5y)
+#'   crs = sf::st_crs(Data_TribalNations)
 #' )
 #' # Get a string containing the JSON of the bounding box
 #' getBboxJson(bbox)
@@ -1470,19 +1482,19 @@ writeLayer <- function(url, layerfilepath) {
 #' @examples
 #' \dontrun{
 #' # Load example dataset
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(
 #'   c(
-#'     xmin = min(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure),
-#'     ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure),
-#'     xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure),
-#'     ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)
+#'     xmin = min(Data_TribalNations_Harmonized$TADA.LongitudeMeasure),
+#'     ymin = min(Data_TribalNations_Harmonized$TADA.LatitudeMeasure),
+#'     xmax = max(Data_TribalNations_Harmonized$TADA.LongitudeMeasure),
+#'     ymax = max(Data_TribalNations_Harmonized$TADA.LatitudeMeasure)
 #'   ),
-#'   crs = sf::st_crs(Data_6Tribes_5y_Harmonized)
+#'   crs = sf::st_crs(Data_TribalNations_Harmonized)
 #' )
 #' # Get the American Indian Reservations feature layer,
-#' # filtered by the bounding box for the Data_6Tribes_5y_Harmonized
+#' # filtered by the bounding box for the Data_TribalNations_Harmonized
 #' # example dataset
 #' layerfilepath <- "extdata/AmericanIndian.shp"
 #' getLayer(layerfilepath, bbox)
@@ -2746,4 +2758,112 @@ TADA_CorrectColType <- function(.data) {
   if (nzchar(def)) {
     return(def)
   }
+}
+
+#' Get the excel downloads path for criteria files
+#'
+#' @param filename the name of the .xlsx file to locate. Default is NULL and
+#' will return the location of the Download's folder path of your OS.
+#'
+#' @return the download's folder path for a user's operating system
+#' and file name, if provided, within the path.
+#'
+#' @keywords internal
+#'
+#' @examples
+#' \dontrun{
+#' myfilepath <- .get_downloads_path()
+#' }
+.get_downloads_path <- function(filename = NULL) {
+  # filename arg input must be provided.
+  if (is.null(filename)) {
+    message(
+      ".get_downloads_path:
+  No filename was provided, returning the Downloads folder path only."
+    )
+    filename <- ""
+  }
+
+  # find OneDrive directory if present
+  find_onedrive_root <- function() {
+    os <- Sys.info()[["sysname"]]
+    home <- path.expand("~")
+
+    if (os == "Windows") {
+      # look for official Windows env vars
+      for (v in c("OneDriveCommercial", "OneDriveConsumer", "OneDrive")) {
+        p <- Sys.getenv(v, unset = NA)
+        if (!is.na(p) && nzchar(p) && dir.exists(p)) return(p)
+      }
+      # fallback: look for OneDrive* folders directly under USERPROFILE
+      up <- Sys.getenv("USERPROFILE", unset = NA)
+      if (!is.na(up) && nzchar(up) && dir.exists(up)) {
+        cand <- list.dirs(up, recursive = FALSE, full.names = TRUE)
+        cand <- cand[grepl("^OneDrive", basename(cand))]
+        cand <- cand[dir.exists(cand)]
+        if (length(cand)) return(cand[1])
+      }
+    } else if (os == "Darwin") {
+      # macOS: File Provider locations and legacy paths
+      cand <- c(
+        Sys.glob(file.path(home, "Library", "CloudStorage", "OneDrive*")),
+        Sys.glob(file.path(home, "OneDrive*"))
+      )
+      cand <- cand[dir.exists(cand)]
+      if (length(cand)) return(cand[1])
+    } else {
+      # Linux/other
+      cand <- c(
+        Sys.glob(file.path(home, "OneDrive*")),
+        Sys.glob(file.path(home, "onedrive*"))
+      )
+      cand <- cand[dir.exists(cand)]
+      if (length(cand)) return(cand[1])
+    }
+    NA_character_
+  }
+
+  # default Downloads directory (return a string)
+  default_downloads_dir <- function() {
+    os <- Sys.info()[["sysname"]]
+    home <- path.expand("~")
+    if (os == "Windows") {
+      up <- Sys.getenv("USERPROFILE", unset = home)
+      return(file.path(up, "Downloads"))
+    }
+    # On Linux/macOS
+    # Try xdg-user-dir on Linux if available
+    if (os == "Linux") {
+      xdg <- tryCatch(
+        system("xdg-user-dir DOWNLOAD", intern = TRUE),
+        error = function(e) NA_character_
+      )
+      if (!is.na(xdg) && nzchar(xdg)) return(xdg)
+    }
+    file.path(home, "Downloads")
+  }
+
+  # Choose base_dir
+  od_root <- find_onedrive_root()
+
+  candidate_dirs <- c(
+    if (!is.na(od_root)) file.path(od_root, "Downloads"),
+    default_downloads_dir()
+  )
+
+  candidate_dirs <- candidate_dirs[dir.exists(candidate_dirs)]
+
+  if (length(candidate_dirs) > 0) {
+    base_dir <- candidate_dirs[1]
+  } else {
+    base_dir <- tempdir()
+  }
+
+  utils::capture.output(cat(
+    "File saved to:",
+    gsub("/", "\\\\", file.path(base_dir, filename)),
+    "\n"
+  ))
+
+  return <- file.path(base_dir, filename)
 }

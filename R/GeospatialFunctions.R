@@ -199,7 +199,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
     sf <- purrr::map_df(
       split(sf, sf$HorizontalCoordinateReferenceSystemDatumName),
       function(subset_data) {
-        print(paste(
+        message(paste(
           "Processing CRS:",
           unique(subset_data$HorizontalCoordinateReferenceSystemDatumName)
         ))
@@ -1554,7 +1554,7 @@ TADA_GetATTAINSByAUID <- function(
     # remove intermediate object
     rm(attains_names)
 
-    # print message and stop function
+    # message and stop function
     stop("Your data has already been joined with ATTAINS data.")
   }
 
@@ -1933,7 +1933,7 @@ TADA_GetATTAINSByAUID <- function(
     rm(mismatch_check)
   }
 
-  # Print message if mismatches exist
+  # message if mismatches exist
   if (exists("mismatch_check") && nrow(mismatch_check) > 0) {
     mismatch.text <- mismatch_check |>
       dplyr::mutate(
@@ -1955,7 +1955,7 @@ TADA_GetATTAINSByAUID <- function(
       " and "
     )
 
-    print(paste0(
+    message(paste0(
       "TADA_GetATTAINSByAUID: There are mismatches between the ATTAINS and user-supplied ",
       "ref water type for one or more assessment units. ",
       "The ATTAINS water type has been retained for all mismatched records. ",
@@ -2177,11 +2177,11 @@ TADA_FindNearbySites <- function(
   # remove intermediate objects
   rm(dist.matrix, adj.graph, comp.results)
 
-  # add flag column, stop function, and print message if no nearby sites found
+  # add flag column, stop function, and message if no nearby sites found
   if (nrow(group.sites) == 0) {
     # #if no groups, give a TADA.NearbySiteGroup column filled with
     # "No nearby sites"
-    print(
+    message(
       "TADA_FindNearbySites: No nearby sites detected. Columns for TADA.NearbySitesFlag and TADA.NearbySiteGroup added for tracking purposes."
     )
 
@@ -2238,7 +2238,7 @@ TADA_FindNearbySites <- function(
     if (nrow(group.sites) == 0) {
       # #if no groups, give a TADA.NearbySiteGroup column filled with
       # "No nearby sites"
-      print(
+      message(
         "TADA_FindNearbySites: No nearby sites detected. Columns for TADA.NearbySitesFlag and TADA.NearbySiteGroup added for tracking purposes."
       )
 
@@ -2255,7 +2255,7 @@ TADA_FindNearbySites <- function(
   # and status of by_AU param
   if ("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
     if (by_AU == TRUE) {
-      print(
+      message(
         "TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. Monitoring Locations will only be grouped if they fall within the same assessment unit."
       )
 
@@ -2283,7 +2283,7 @@ TADA_FindNearbySites <- function(
         dplyr::filter(Group.n > 1) |>
         dplyr::select(-Group.n)
     } else {
-      print(
+      message(
         "TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. User has specified that assessment unit should not be considered when grouping nearby sites."
       )
     }
@@ -2367,8 +2367,8 @@ TADA_FindNearbySites <- function(
     # create string for flagging
     org.string <- "Metadata were selected by "
 
-    # print message
-    print(
+    # message
+    message(
       "TADA_FindNearbySites: No org_hierarchy supplied by user. Organization will not be taken into account during metadata selection."
     )
 
@@ -2394,7 +2394,7 @@ TADA_FindNearbySites <- function(
     }
 
     if (length(missing.orgs) > 0) {
-      print(paste0(
+      message(paste0(
         "TADA_FindNearbySites: ",
         length(missing.orgs),
         " organization identifiers are missing from org_hierarchy (",
@@ -2939,7 +2939,7 @@ TADA_CreateAUMLCrosswalk <- function(
 
   # check to see if user supplied ref is NULL
   if (is.null(au_ref)) {
-    print(paste0(
+    message(paste0(
       "TADA_CreateAUMLCrosswalk: no au_ref (user-supplied crosswalk) ",
       "was provided."
     ))
@@ -2949,7 +2949,7 @@ TADA_CreateAUMLCrosswalk <- function(
   if (!is.null(au_ref)) {
     # check to see if user supplied ref is not a data frame
     if (!is.data.frame(au_ref)) {
-      # stop function with printed message if the user supplied ref is not a data frame
+      # stop function with message if the user supplied ref is not a data frame
       stop(paste0(
         "TADA_CreateAUMLCrosswalk: The user supplied au_ref must be a data frame ",
         "containing the columns AssessmentUnitIdentifier, MonitoringLocationIdentifier, and ATTAINS.WaterType.",
@@ -2959,7 +2959,7 @@ TADA_CreateAUMLCrosswalk <- function(
 
     # check to see if user supplied ref is a data frame
     if (is.data.frame(au_ref)) {
-      print(paste0(
+      message(paste0(
         "TADA_CreateAUMLCrosswalk: fetching ATTAINS geospatial data ",
         "for assessment units in the user-supplied crosswalk."
       ))
@@ -3077,7 +3077,7 @@ TADA_CreateAUMLCrosswalk <- function(
   # if no org id is provided, no crosswalk is imported from ATTAINS
   if (!is.null(org_id)) {
     if (org_id == "none" | is.null(org_id)) {
-      print(paste0(
+      message(paste0(
         "TADA_CreateAUMLCrosswalk: User has specified that ATTAINS ",
         "should not be checked for monitoring location and assessment unit matches."
       ))
@@ -3086,12 +3086,12 @@ TADA_CreateAUMLCrosswalk <- function(
 
   # if an org id is provided, ATTAINS is checked for a crosswalk
   if (format(org_id) != "none" & !is.null(org_id)) {
-    print("TADA_CreateAUMLCrosswalk: checking for crosswalk in ATTAINS.")
+    message("TADA_CreateAUMLCrosswalk: checking for crosswalk in ATTAINS.")
 
     # get crosswalk from ATTAINS
     attains.cw <- spsUtil::quiet(TADA_GetATTAINSAUMLCrosswalk(org_id = org_id))
 
-    # create string to describe ATTAINS orgs for print message
+    # create string to describe ATTAINS orgs for message
     org.text <- ifelse(
       is.null(org_id),
       "all organizations",
@@ -3108,8 +3108,8 @@ TADA_CreateAUMLCrosswalk <- function(
     # create text to describe number of records
     count.text <- ifelse(record.count == 0, "no", record.count)
 
-    # print message summarizing the results of fetching crosswalk data from ATTAINS
-    print(paste0(
+    # message summarizing the results of fetching crosswalk data from ATTAINS
+    message(paste0(
       "TADA_CreateAUMLCrosswalk: There are ",
       count.text,
       " MonitoringLocation records ",
@@ -3121,7 +3121,7 @@ TADA_CreateAUMLCrosswalk <- function(
     rm(org.text, record.count, count.text)
 
     if (dim(attains.cw)[1] > 0) {
-      print(
+      message(
         "TADA_CreateAUMLCrosswalk: crosswalk from ATTAINS has been imported."
       )
 
@@ -3181,7 +3181,7 @@ TADA_CreateAUMLCrosswalk <- function(
         attains.cw.mls <- attains.cw.mls |>
           dplyr::mutate(TADA.AURefSource = "ATTAINS Crosswalk")
 
-        print(paste0(
+        message(paste0(
           "TADA_CreateAUMLCrosswalk: fetching ATTAINS geospatial data ",
           "for assessment units from the ATTAINS crosswalk."
         ))
@@ -3244,7 +3244,7 @@ TADA_CreateAUMLCrosswalk <- function(
 
   # TADA_CreateATTAINSAUMLCrosswalk section
 
-  print(paste0(
+  message(paste0(
     "TADA_CreateAUMLCrosswalk: checking to see if any unmatched ",
     "monitoring locations remain in the original TADA data frame."
   ))
@@ -3272,7 +3272,7 @@ TADA_CreateAUMLCrosswalk <- function(
 
   # add code here for if there are no remaining mls to match
   if (dim(get.attains.mls)[1] == 0) {
-    print(paste0(
+    message(paste0(
       "TADA_CreateAUMLCrosswalk: all monitorintg locations have ",
       "already been matched to an assessment unit by the user or ATTAINS."
     ))
@@ -3287,7 +3287,7 @@ TADA_CreateAUMLCrosswalk <- function(
   }
 
   if (dim(get.attains.mls)[1] > 0) {
-    print(
+    message(
       "TADA_CreateAUMLCrosswalk: using TADA_CreateATTAINSAUMLCrosswalk to match remaining monitoring locations to ATTAINS assessment units using a spatial join (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features). Also returning USGS snapshot of NHDPlus V2 HR for monitoring locations not near any ATTAINS assessment unit."
     )
 
@@ -3325,7 +3325,7 @@ TADA_CreateAUMLCrosswalk <- function(
   # join all the resulting tables within each list to return as one large list
   # TADA_with_ATTAINS
 
-  print(
+  message(
     "TADA_CreateAUMLCrosswalk: joining results to return list of dataframes compatible with TADA_ViewATTAINS."
   )
 

@@ -33,9 +33,9 @@ organization.
 }
 \examples{
 # Load dataset
-utils::data(Data_6Tribes_5y)
+utils::data(Data_TribalNations)
 # If duplicates exist, identify and flag them for removal
-Data_6Tribes_5y_dups <- TADA_FindPotentialDuplicatesSingleOrg(Data_6Tribes_5y)
-table(Data_6Tribes_5y_dups$TADA.SingleOrgDup.Flag)
+Data_TribalNations_dups <- TADA_FindPotentialDuplicatesSingleOrg(Data_TribalNations)
+table(Data_TribalNations_dups$TADA.SingleOrgDup.Flag)
 
 }

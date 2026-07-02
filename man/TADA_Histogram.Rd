@@ -30,16 +30,16 @@ Create Histogram(s)
 }
 \examples{
 # Load example dataframe:
-utils::data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_TribalNations_Harmonized)
 
 # Create a histogram for each comparable data group (TADA.ComparableDataIdentifier)
 # in the input dataframe:
-TADA_Histogram(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
+TADA_Histogram(Data_TribalNations_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
 
 # Create a single histogram using defaults. The input dataframe in this example
 # is filtered so it includes only one TADA.ComparableDataIdentifier
 df <- dplyr::filter(
-  Data_6Tribes_5y_Harmonized,
+  Data_TribalNations_Harmonized,
   TADA.ComparableDataIdentifier ==
     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
 )

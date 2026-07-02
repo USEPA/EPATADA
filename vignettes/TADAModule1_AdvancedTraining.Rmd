@@ -186,18 +186,23 @@ about input parameters and to see several examples.
 
 ```{r dataretrieval}
 # download example data
-# dataset_0  <- TADA_DataRetrieval(
-#   organization = c("REDLAKE_WQX",
-#                    "SFNOES_WQX",
-#                    "PUEBLO_POJOAQUE",
-#                    "FONDULAC_WQX",
-#                    "PUEBLOOFTESUQUE",
-#                    "CNENVSER"),
-#   startDate = "2018-01-01",
-#   endDate = "2023-01-01")
+# dataset_0 <- TADA_DataRetrieval(
+#         organization = c(
+#           "REDLAKE_WQX", # Red Lake Band of Chippewa Indians
+#           "FONDULAC_WQX", # Minnesota Chippewa Tribe (Fond du Lac Band)
+#           "PUEBLOOFTESUQUE", # Pueblo of Tesuque
+#           "PENOBSCOTINDIANNATIONDNR", # Penobscot Indian Nation
+#           "UTEMTN", # Ute Mountain Ute Tribe
+#           "BLCKFEET" # Blackfeet Nation
+#         ),
+#         # last 20 years
+#         startDate = "2005-01-01",
+#         endDate = "2025-12-31",
+#         ask = TRUE
+#       )
 
 # For brevity, we'll skip pinging the WQP and instead load the example dataframe:
-dataset_0 <- Data_6Tribes_5y
+dataset_0 <- Data_TribalNations
 ```
 
 Let's take a look at all of the TADA-created columns:
@@ -736,8 +741,8 @@ TADA_DepthProfilePlot(dataset_cens,
     "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M",
     "PH_NONE_NONE_NONE"
   ),
-  location = "REDLAKE_WQX-ANKE",
-  activity_date = "2018-10-04",
+  location = "REDLAKE_WQX-KINN",
+  activity_date = "2025-09-25",
   depthcat = TRUE,
   surfacevalue = 2,
   bottomvalue = 2,

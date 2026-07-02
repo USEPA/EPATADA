@@ -63,13 +63,14 @@ library(EPATADA)
 ## Retrieve Penobscot Nation data
 
 To start, let's find Penobscot Nation water monitoring data that was
-submitted to EPA's Water Quality eXchange. We are interested in Class B
-waters only. In this example, we already have a list of the Monitoring
-Location Identifiers that represent Class B waters. We can use this list
-of locations to query the WQP. In addition, we are interested in E. Coli
-data and can specify that in the characteristicName filter.
+submitted to EPA's Water Quality eXchange (WQX). We are interested in
+Class B waters only. In this example, we already have a list of the
+Monitoring Location Identifiers that represent Class B waters. We can
+use this list of locations to query the WQP. In addition, we are
+interested in E. Coli data and can specify that in the
+characteristicName filter.
 
-```{r get data, eval = T}
+```{r get data, eval = F}
 df_raw <- TADA_DataRetrieval(
   siteid = c(
     "PENOBSCOTINDIANNATIONDNR-130-BM1",
@@ -140,16 +141,17 @@ df_raw <- TADA_DataRetrieval(
     "PENOBSCOTINDIANNATIONDNR-56-WL1"
   ),
   characteristicName = "Escherichia coli",
-  maxrecs = 350000,
   ask = FALSE,
   applyautoclean = TRUE
 )
 ```
 
-```{r use_example_data, eval = F, include = F}
-utils::data("df_raw", package = "EPATADA")
+```{r use_example_data, eval = T, include = F}
+utils::data("Data_Penobscot", package = "EPATADA")
 
-df_raw <- df_raw
+df_raw <- Data_Penobscot
+
+rm(Data_Penobscot)
 ```
 
 ## Explore and refine results
@@ -415,10 +417,11 @@ Filter output to include only Class B waters:
 
 ```{r}
 ME_criteria_ecoli_classB <- unique(subset(
-  ME_criteria_ecoli,
-  CST.Use == "FRESH SURFACE WATERS - CLASS B"
+  ME_criteria_ecoli[[1]],
+  ATTAINS.UseName == "FRESH SURFACE WATERS - CLASS B"
 ))
 
+# Export the criteria methodology table from the list of data frames
 TADA_TableExport(ME_criteria_ecoli_classB)
 ```
 
@@ -687,4 +690,3 @@ TADA_TableExport(res$summary)
 
 Disclaimer: This example workflow is not meant to be representative of
 Penobscot Nation's or Maine's assessment process.
-

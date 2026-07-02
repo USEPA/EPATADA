@@ -69,13 +69,14 @@ these columns:
 \item{displayNA}{A boolean value. If TRUE, this allows user to view MLSummaryRef
 for all uses and parameter assigned to a ML or AU regardless if that site contains
 WQP data for that parameter. This is useful if a user is interested in an explicit
-list of everything that will be analyzed. Default is FALSE.}
+list of parameters and uses for assessment and show NAs for sites without data.
+Default is FALSE.}
 
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 If you have any trouble locating the file, please type the following into
 your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
+The file will be named "ParamUseMLCrosswalks.xlsx". The excel spreadsheet will highlight
 the cells in which users should input information.}
 
 \item{overwrite}{A Boolean value. If overwrite = TRUE, the excel file will be
@@ -104,7 +105,7 @@ Units, users will need to provide an AUMLRef and AU_UsesRef file which
 (see TADA Module 2 tools) to assist in their monitoring location to assessment
 unit crosswalk (see TADA_GetATTAINSAUMLCrosswalk, TADA_CreateAUMLCrosswalk,
 and TADA_GetATTAINSByAUID) and uses to assessment unit crosswalk
-(see TADA_CreateWaterusesRef and TADA_AssignUsesToAU) prior to this step.
+(see TADA_AssignUsesToWaterType and TADA_AssignUsesToAU) prior to this step.
 
 Users can apply any unique site-specific criteria (for example, warm waters,
 cold waters, water classifications, species-based waters, ecoregions etc.) to

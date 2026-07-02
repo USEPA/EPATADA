@@ -147,7 +147,7 @@ TADA_ListCriteriaFiles <- function() {
 # Load a selected criteria file (by org_id or display_name) from local inst/extdata
 TADA_GetCriteriaFile <- function(org_id = NULL, display_name = NULL) {
   # package name should not be modified
-  pkg = "TADACommunityHub"
+  pkg <- "TADACommunityHub"
 
   ref <- TADA_ListCriteriaFiles()
 

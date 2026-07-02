@@ -78,14 +78,14 @@
 #'
 #' @examples
 #' # Load data frame
-#' utils::data(Data_6Tribes_5y)
+#' utils::data(Data_TribalNations)
 #'
 #' # assign TADA.DepthCategory.Flag with no aggregation
-#' Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_6Tribes_5y)
+#' Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_TribalNations)
 #'
 #' # assign TADA.DepthCategory.Flag and determine average values by depth
 #' # category and returning only aggregate values
-#' Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y,
+#' Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_TribalNations,
 #'   bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE
 #' )
 #'
@@ -648,14 +648,14 @@ TADA_FlagDepthCategory <- function(
 #'
 #' @examples
 #' # Load data frame
-#' utils::data(Data_6Tribes_5y)
+#' utils::data(Data_TribalNations)
 #'
 #' # find depth profile data without showing number of results
-#' Data_6Tribes_5y_DepthProfileID_Nresults <-
-#'   TADA_IDDepthProfiles(Data_6Tribes_5y, nresults = FALSE)
+#' Data_TribalNations_DepthProfileID_Nresults <-
+#'   TADA_IDDepthProfiles(Data_TribalNations, nresults = FALSE)
 #'
 #' # find depth profile data showing number of results
-#' Data_6Tribes_5y_DepthProfileID <- TADA_IDDepthProfiles(Data_6Tribes_5y)
+#' Data_TribalNations_DepthProfileID <- TADA_IDDepthProfiles(Data_TribalNations)
 #'
 TADA_IDDepthProfiles <- function(
   .data,
@@ -904,10 +904,10 @@ TADA_IDDepthProfiles <- function(
 #' @examples
 #' \dontrun{
 #' # Load example dataframe:
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #' # Create a depth profile figure with three parameters for a single
 #' # monitoring location and date
-#' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
+#' TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
 #' groups = c(
 #'  "TEMPERATURE_NONE_NONE_DEG C", "PH_NONE_NONE_NONE",
 #'  "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"
@@ -917,10 +917,10 @@ TADA_IDDepthProfiles <- function(
 #' )
 #'
 #' # Load example data frame:
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #' # Create a depth profile figure with two parameters for a single monitoring
 #' # location and date without displaying depth categories
-#' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
+#' TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
 #' groups = c("PH_NONE_NONE_NONE", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"),
 #' location = "REDLAKE_WQX-JOHN",
 #' activity_date = "2018-07-31",
@@ -1668,7 +1668,7 @@ TADA_DepthProfilePlot <- function(
           paste0(
             param1$TADA.ResultMeasureValue,
             " ",
-            param3$TADA.ResultMeasure.MeasureUnitCode
+            param1$TADA.ResultMeasure.MeasureUnitCode
           ),
           "<br>",
           "Activity Start Date:",
