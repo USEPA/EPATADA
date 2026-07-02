@@ -619,18 +619,18 @@ TADAProfile_CharSummary
 ```
 
     ## # A tibble: 104 × 3
-    ##    TADA.CharacteristicName       n_sites n_records
-    ##    <chr>                           <int>     <int>
-    ##  1 .ALPHA.-ENDOSULFAN                  6         7
-    ##  2 .ALPHA.-HEXACHLOROCYCLOHEXANE       6         7
-    ##  3 .BETA.-ENDOSULFAN                   6         7
-    ##  4 .BETA.-HEXACHLOROCYCLOHEXANE        6         7
-    ##  5 .DELTA.-HEXACHLOROCYCLOHEXANE       6         7
-    ##  6 ALDRIN                              6         7
-    ##  7 ALKALINITY, TOTAL                 128       692
-    ##  8 ALPHA PARTICLE                      6        14
-    ##  9 ALUMINUM                            6         7
-    ## 10 AMMONIA-NITROGEN                   83       328
+    ##    TADA.CharacteristicName         n_sites n_records
+    ##    <chr>                             <int>     <int>
+    ##  1 ""                                  128      3580
+    ##  2 ".ALPHA.-ENDOSULFAN"                  6         7
+    ##  3 ".ALPHA.-HEXACHLOROCYCLOHEXANE"       6         7
+    ##  4 ".BETA.-ENDOSULFAN"                   6         7
+    ##  5 ".BETA.-HEXACHLOROCYCLOHEXANE"        6         7
+    ##  6 ".DELTA.-HEXACHLOROCYCLOHEXANE"       6         7
+    ##  7 "ALDRIN"                              6         7
+    ##  8 "ALKALINITY, TOTAL"                 128       692
+    ##  9 "ALPHA PARTICLE"                      6        14
+    ## 10 "ALUMINUM"                            6         7
     ## # ℹ 94 more rows
 
 ## Invalid coordinates
@@ -1233,7 +1233,7 @@ unique(TADAProfileClean3b$TADA.ReplicateSampleID)
     ##  [34] "STORET-738685617" "STORET-738685618" "STORET-738685619"
     ##  [37] "STORET-738687020" "STORET-738687096" "STORET-738687162"
     ##  [40] "STORET-738688568" "STORET-738689666" "STORET-738689761"
-    ##  [43] "STORET-738690356" "STORET-738690360" "STORET-738690877"
+    ##  [43] "STORET-738690356" "STORET-738690360" "STORET-738690508"
     ##  [46] "STORET-738690893" "STORET-738691579" "STORET-738691571"
     ##  [49] "STORET-738691593" "STORET-738691651" "STORET-738691793"
     ##  [52] "STORET-738691845" "STORET-738691902" "STORET-738691903"
@@ -1249,19 +1249,20 @@ unique(TADAProfileClean3b$TADA.ReplicateSampleID)
     ##  [82] "STORET-974498873" "STORET-974498871" "STORET-974498869"
     ##  [85] "STORET-974498870" "STORET-974498874" "STORET-974510302"
     ##  [88] "STORET-974510305" "STORET-974510304" "STORET-974510301"
-    ##  [91] "STORET-974510303" "STORET-974508583" "STORET-974502340"
-    ##  [94] "STORET-974502342" "STORET-974502341" "STORET-974502344"
-    ##  [97] "STORET-974502345" "STORET-974502192" "STORET-974502193"
-    ## [100] "STORET-974502196" "STORET-974502198" "STORET-974502199"
-    ## [103] "STORET-974506891" "STORET-974504800" "STORET-974504801"
-    ## [106] "STORET-974504802" "STORET-974504803" "STORET-974504805"
-    ## [109] "STORET-974506248" "STORET-974506249" "STORET-974506251"
-    ## [112] "STORET-974506252" "STORET-974506253" "STORET-974512254"
-    ## [115] "STORET-974512260" "STORET-974512256" "STORET-974512258"
+    ##  [91] "STORET-974510303" "STORET-974508583" "STORET-974502338"
+    ##  [94] "STORET-974502340" "STORET-974502342" "STORET-974502341"
+    ##  [97] "STORET-974502344" "STORET-974502345" "STORET-974502192"
+    ## [100] "STORET-974502193" "STORET-974502196" "STORET-974502198"
+    ## [103] "STORET-974502199" "STORET-974506891" "STORET-974504800"
+    ## [106] "STORET-974504801" "STORET-974504802" "STORET-974504803"
+    ## [109] "STORET-974504805" "STORET-974506248" "STORET-974506249"
+    ## [112] "STORET-974506251" "STORET-974506252" "STORET-974506253"
+    ## [115] "STORET-974512254" "STORET-974512260" "STORET-974512256"
     ## [118] "STORET-974512261" "STORET-974515119" "STORET-974515115"
     ## [121] "STORET-974515120" "STORET-974515117" "STORET-974515118"
-    ## [124] "STORET-974515122" "STORET-974514935" "STORET-974514940"
-    ## [127] "STORET-974514939" "STORET-974514941" "STORET-974514938"
+    ## [124] "STORET-974515122" "STORET-974517447" "STORET-974514935"
+    ## [127] "STORET-974514940" "STORET-974514939" "STORET-974514941"
+    ## [130] "STORET-974514938"
 
 ``` r
 
@@ -1290,7 +1291,7 @@ unique(TADAProfileClean3b$TADA.ReplicateSampleID)
     ##  [34] "STORET-738685618" "STORET-738685619" "STORET-738687020"
     ##  [37] "STORET-738687096" "STORET-738687162" "STORET-738688568"
     ##  [40] "STORET-738689666" "STORET-738689761" "STORET-738690356"
-    ##  [43] "STORET-738690360" "STORET-738690877" "STORET-738690893"
+    ##  [43] "STORET-738690360" "STORET-738690508" "STORET-738690893"
     ##  [46] "STORET-738691579" "STORET-738691571" "STORET-738691593"
     ##  [49] "STORET-738691651" "STORET-738691793" "STORET-738691845"
     ##  [52] "STORET-738691902" "STORET-738691903" "STORET-738691940"
@@ -1306,19 +1307,19 @@ unique(TADAProfileClean3b$TADA.ReplicateSampleID)
     ##  [82] "STORET-974498869" "STORET-974498870" "STORET-974498874"
     ##  [85] "STORET-974510302" "STORET-974510305" "STORET-974510304"
     ##  [88] "STORET-974510301" "STORET-974510303" "STORET-974508583"
-    ##  [91] "STORET-974502340" "STORET-974502342" "STORET-974502341"
-    ##  [94] "STORET-974502344" "STORET-974502345" "STORET-974502192"
-    ##  [97] "STORET-974502193" "STORET-974502196" "STORET-974502198"
-    ## [100] "STORET-974502199" "STORET-974506891" "STORET-974504800"
-    ## [103] "STORET-974504801" "STORET-974504802" "STORET-974504803"
-    ## [106] "STORET-974504805" "STORET-974506248" "STORET-974506249"
-    ## [109] "STORET-974506251" "STORET-974506252" "STORET-974506253"
-    ## [112] "STORET-974512254" "STORET-974512260" "STORET-974512256"
-    ## [115] "STORET-974512258" "STORET-974512261" "STORET-974515119"
+    ##  [91] "STORET-974502338" "STORET-974502340" "STORET-974502342"
+    ##  [94] "STORET-974502341" "STORET-974502344" "STORET-974502345"
+    ##  [97] "STORET-974502192" "STORET-974502193" "STORET-974502196"
+    ## [100] "STORET-974502198" "STORET-974502199" "STORET-974506891"
+    ## [103] "STORET-974504800" "STORET-974504801" "STORET-974504802"
+    ## [106] "STORET-974504803" "STORET-974504805" "STORET-974506248"
+    ## [109] "STORET-974506249" "STORET-974506251" "STORET-974506252"
+    ## [112] "STORET-974506253" "STORET-974512254" "STORET-974512260"
+    ## [115] "STORET-974512256" "STORET-974512261" "STORET-974515119"
     ## [118] "STORET-974515115" "STORET-974515120" "STORET-974515117"
-    ## [121] "STORET-974515118" "STORET-974515122" "STORET-974514935"
-    ## [124] "STORET-974514940" "STORET-974514939" "STORET-974514941"
-    ## [127] "STORET-974514938"
+    ## [121] "STORET-974515118" "STORET-974515122" "STORET-974517447"
+    ## [124] "STORET-974514935" "STORET-974514940" "STORET-974514939"
+    ## [127] "STORET-974514941" "STORET-974514938"
 
 Now, let’s remove QC samples/measurements from the dataframe.
 
@@ -1668,7 +1669,7 @@ TADA_FieldValuesTable(TADAProfileClean6, field = "TADA.CharacteristicName")
 
     ##                                             Value Count
     ## 1                           DISSOLVED OXYGEN (DO)  3575
-    ## 2                                              PH  3572
+    ## 2                                              NA  3572
     ## 3                                     TEMPERATURE  3564
     ## 4                                       TURBIDITY  1229
     ## 5                   TOTAL PHOSPHORUS, MIXED FORMS   771
@@ -1875,7 +1876,7 @@ unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
 ```
 
     ##  [1] "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"                          
-    ##  [2] "PH_NONE_NONE_NONE"                                             
+    ##  [2] "NA_NONE_NONE_NONE"                                             
     ##  [3] "TEMPERATURE_NONE_NONE_DEG C"                                   
     ##  [4] "TURBIDITY_NONE_NONE_NTU"                                       
     ##  [5] "AMMONIUM_UNFILTERED_AS N_MG/L"                                 
@@ -1902,9 +1903,9 @@ unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
     ## [26] "COUNT_NONE_NONE_COUNT"                                         
     ## [27] "MAGNESIUM_DISSOLVED_NONE_UG/L"                                 
     ## [28] "HARDNESS, CARBONATE_NONE_AS CACO3_UG/L"                        
-    ## [29] "RADIUM-226_NONE_NONE_PCI/L"                                    
-    ## [30] "TRITIUM_NONE_NONE_PCI/L"                                       
-    ## [31] "RADIUM-228_NONE_NONE_PCI/L"                                    
+    ## [29] "RADIUM-228_NONE_NONE_PCI/L"                                    
+    ## [30] "RADIUM-226_NONE_NONE_PCI/L"                                    
+    ## [31] "TRITIUM_NONE_NONE_PCI/L"                                       
     ## [32] "IRON_DISSOLVED_NONE_UG/L"                                      
     ## [33] "ZINC_DISSOLVED_NONE_UG/L"                                      
     ## [34] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        
@@ -1978,7 +1979,7 @@ unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
 ```
 
     ##  [1] "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"                          
-    ##  [2] "PH_NONE_NONE_NONE"                                             
+    ##  [2] "NA_NONE_NONE_NONE"                                             
     ##  [3] "TEMPERATURE_NONE_NONE_DEG C"                                   
     ##  [4] "TURBIDITY_NONE_NONE_NTU"                                       
     ##  [5] "AMMONIUM_UNFILTERED_AS N_MG/L"                                 
@@ -2005,9 +2006,9 @@ unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
     ## [26] "COUNT_NONE_NONE_COUNT"                                         
     ## [27] "MAGNESIUM_DISSOLVED_NONE_UG/L"                                 
     ## [28] "HARDNESS, CARBONATE_NONE_AS CACO3_UG/L"                        
-    ## [29] "RADIUM-226_NONE_NONE_PCI/L"                                    
-    ## [30] "TRITIUM_NONE_NONE_PCI/L"                                       
-    ## [31] "RADIUM-228_NONE_NONE_PCI/L"                                    
+    ## [29] "RADIUM-228_NONE_NONE_PCI/L"                                    
+    ## [30] "RADIUM-226_NONE_NONE_PCI/L"                                    
+    ## [31] "TRITIUM_NONE_NONE_PCI/L"                                       
     ## [32] "IRON_DISSOLVED_NONE_UG/L"                                      
     ## [33] "ZINC_DISSOLVED_NONE_UG/L"                                      
     ## [34] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        

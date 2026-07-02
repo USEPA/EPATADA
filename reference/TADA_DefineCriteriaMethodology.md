@@ -153,7 +153,9 @@ TADA_DefineCriteriaMethodology(
 
 ## Value
 
-A data frame with the criteria and methodology table in TADA format.
+A list containing three data frames with the (1) criteria and
+methodology table in TADA format, (2) the Data Dictionary table, and (3)
+the Allowable Values table.
 
 ## Details
 

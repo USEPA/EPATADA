@@ -90,7 +90,7 @@ Users are expected to modify this ref file as needed.
 
 ``` r
 TADA_AssignUsesToWaterType(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
-#> TADA_CreateWaterusesRef: Importing unique water types and uses by organization from Expert Query.
+#> TADA_AssignUsesToWaterType: Importing unique water types and uses by organization from Expert Query.
 #> # A tibble: 157 × 5
 #>    ATTAINS.OrganizationName ATTAINS.OrganizationIdentifier ATTAINS.UseName      
 #>    <chr>                    <chr>                          <chr>                

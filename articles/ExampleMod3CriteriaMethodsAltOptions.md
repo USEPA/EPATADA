@@ -205,7 +205,25 @@ the excel file.
 
 MT.Criteria.blank <- TADA_DefineCriteriaMethodology()
 
-TADA_TableExport(MT.Criteria.blank)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.blank[[1]])
+```
+
+``` r
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.blank[[2]])
+```
+
+``` r
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.blank[[3]])
+```
+
+``` r
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 ### Option B: View EPA304(a) Recommended Criteria
@@ -220,7 +238,25 @@ MT.Criteria.epa <- TADA_DefineCriteriaMethodology(
   org_id = "USEPA"
 )
 
-TADA_TableExport(MT.Criteria.epa)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.epa[[1]])
+```
+
+``` r
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.epa[[2]])
+```
+
+``` r
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.epa[[3]])
+```
+
+``` r
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 If a user is only interested in showing TADA.CharacteristicName(s) that
@@ -237,7 +273,25 @@ MT.Criteria.epa2 <- TADA_DefineCriteriaMethodology(
   org_id = "USEPA"
 )
 
-TADA_TableExport(MT.Criteria.epa2)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.epa2[[1]])
+```
+
+``` r
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.epa2[[2]])
+```
+
+``` r
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.epa2[[3]])
+```
+
+``` r
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 ### Option C: Auto Fill option (Intermediate Tabs are Hidden)
@@ -263,7 +317,25 @@ MT.Criteria.auto <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.Criteria.auto)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.auto[[1]])
+```
+
+``` r
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.auto[[2]])
+```
+
+``` r
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.auto[[3]])
+```
+
+``` r
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 Users who would like to ensure all Characteristic, Speciation and
@@ -285,7 +357,25 @@ MT.Criteria.auto2 <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.Criteria.auto2)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.auto2[[1]])
+```
+
+``` r
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.auto2[[2]])
+```
+
+``` r
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.auto2[[3]])
+```
+
+``` r
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 We can also choose to append EPA304(a) recommended criteria into the
@@ -304,7 +394,25 @@ MT.Criteria.auto3 <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.Criteria.auto3)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.auto3[[1]])
+```
+
+``` r
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.auto3[[2]])
+```
+
+``` r
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.auto3[[3]])
+```
+
+``` r
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 ### Option D: User Supplied Table
@@ -347,7 +455,25 @@ MT.Criteria.user <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.Criteria.user)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.user[[1]])
+```
+
+``` r
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.user[[2]])
+```
+
+``` r
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.user[[3]])
+```
+
+``` r
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 Users can also choose to append EPA304(a) recommended criteria to their
@@ -375,7 +501,25 @@ MT.Criteria.user2 <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.Criteria.user2)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.user2[[1]])
+```
+
+``` r
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.user2[[2]])
+```
+
+``` r
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.user2[[3]])
+```
+
+``` r
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 ### Choose a Final Criteria Template, Save and Re-use
@@ -388,7 +532,7 @@ TADA_TableExport(MT.Criteria.user2)
 # We can now reuse this criteria table
 MT.Criteria.reuse <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
-  criteriaMethods = MT.Criteria.user2, # user supplied table - all rows are kept from this table
+  criteriaMethods = MT.Criteria.user2[[1]], # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
   displayUniqueId = FALSE,
   excel = FALSE
@@ -396,7 +540,25 @@ MT.Criteria.reuse <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.Criteria.reuse)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.reuse[[1]])
+```
+
+``` r
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.reuse[[2]])
+```
+
+``` r
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.reuse[[3]])
+```
+
+``` r
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 Users are recommended to go through each of the 3 reference files one at
