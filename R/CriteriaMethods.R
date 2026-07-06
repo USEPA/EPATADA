@@ -846,7 +846,8 @@ TADA_DefineCriteriaMethodology <- function(
           CriteriaSearchToolRef_filtered <- CriteriaSearchToolRef |>
             dplyr::right_join(
               CST_ATTAINS_Param,
-              by = c("POLLUTANT_NAME", "STD_POLLUTANT_NAME")
+              by = c("POLLUTANT_NAME", "STD_POLLUTANT_NAME"),
+              relationship = "many-to-many"
             ) |>
             dplyr::right_join(
               dplyr::filter(
@@ -861,12 +862,14 @@ TADA_DefineCriteriaMethodology <- function(
                 CRITERIATYPEFRESHSALTWATER,
                 CRITERIATYPE_ACUTECHRONIC,
                 USE_CLASS_NAME_LOCATION_ETC
-              )
+              ),
+              relationship = "many-to-many"
             ) |>
             # join the CST source link
             dplyr::left_join(
               CriteriaSearchToolRef_Sources,
-              by = c("CRIT_SOURCE_ID")
+              by = c("CRIT_SOURCE_ID"),
+              relationship = "many-to-many"
             ) |>
             dplyr::mutate(
               CST.SourceLink = paste0(SOURCE, "#page=", as.character(PDFPGNO))
