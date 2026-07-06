@@ -883,7 +883,8 @@ TADA_DefineCriteriaMethodology <- function(
               by = c(
                 "ATTAINS.OrganizationIdentifier",
                 "TADA.CharacteristicName" = "CharacteristicName"
-              )
+              ),
+              relationship = "many-to-many"
             ) |>
             dplyr::mutate(
               ATTAINS.UseName = dplyr::if_else(
@@ -901,7 +902,8 @@ TADA_DefineCriteriaMethodology <- function(
                 "ATTAINS.OrganizationIdentifier",
                 "ATTAINS.ParameterName",
                 "TADA.CharacteristicName" = "CharacteristicName"
-              )
+              ),
+              relationship = "many-to-many"
             ) |>
             dplyr::mutate(
               ATTAINS.UseName = dplyr::if_else(
