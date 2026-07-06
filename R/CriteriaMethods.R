@@ -753,7 +753,7 @@ TADA_DefineCriteriaMethodology <- function(
             "TADACharAliasRef.csv",
             package = "EPATADA"
           )) |>
-            dplyr::mutate(across(where(is.character), toupper)) %>%
+            dplyr::mutate(across(where(is.character), toupper)) |>
             dplyr::filter(
               CharacteristicName %in%
                 DefineCriteriaMethodology$TADA.CharacteristicName
