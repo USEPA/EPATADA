@@ -158,7 +158,7 @@ testthat::test_that("TADA_Analysis_Join_WQP_Criteria returns expected row counts
       org_id = "UTAHDWQ",
       auto_assign = TRUE,
       displayUniqueId = TRUE
-    )
+    )[[1]]
   )
   # join the criteria table to the data frame
   UTAH_with_criteria <- TADA_Analysis_Join_WQP_Criteria(
