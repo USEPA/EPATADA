@@ -15,6 +15,9 @@
 #' @param criteria data.frame of TADA compatible criteria table for any
 #' of either TADA.ComparableDataIdentifier and a combination of TADA.CharacteristicName,
 #' TADA.ResultSampleFractionText, and TADA.MethodSpeciationName
+#' @param byChar A boolean value. If byChar = TRUE, this function will join the
+#' WQP data frame with the criteria table by only CharacteristicName, regardless
+#' of what has been filled out in the criteria table.
 #'
 #' @return data.frame with WQP rows and matching criteria columns.
 #'
