@@ -1445,33 +1445,26 @@ getFeatureLayer <- function(url, bbox = NULL) {
 }
 
 
-#' Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists
+#' Download a spatial file from an API and save it to a local folder, overwriting existing file if it exists
 #' writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
 #'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
-#' @param layerfilepath Local path to save the .shp file to
+#' @param layerfilepath Local path to save the .gpkg file
 #'
 #' @examples
 #' \dontrun{
 #' # Get the Oklahoma Tribal Statistical Areas feature layer and write
-#' # local file to inst/extdata/OKTribe.shp
+#' # local file to inst/extdata/Tribal.gpkg/OKTribe
 #' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
-#' writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")
+#' writeLayer(OKTribeUrl, "inst/extdata/Tribal.gpkg","OKTribe")
 #' }
 writeLayer <- function(url, layerfilepath) {
   layer <- getFeatureLayer(url)
-  # Attribute names can only be up to 10 characters long when saved to .dbf as part of sf::st_write.
-  # They are truncated automatically but TOTALAREA_MI and TOTALAREA_KM will not be unique after being
-  # truncated, so explicitly rename them first if they exist to avoid error.
-  if ("TOTALAREA_MI" %in% colnames(layer)) {
-    layer <- layer |>
-      dplyr::rename(TAREA_MI = TOTALAREA_MI, TAREA_KM = TOTALAREA_KM)
-  }
-  sf::st_write(layer, layerfilepath, delete_layer = TRUE)
+  sf::st_write(layer, layerfilepath, layer, delete_layer = TRUE)
 }
 
 
-#' Get a shapefile from a local folder, optionally crop it by a bounding box, and return it as a sf object
+#' Get a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
 #' getLayer is used within TADA_addPolys and TADA_addPoints
 #'
 #' @param layerfilepath Local path to the .shp file for the layer
@@ -1496,11 +1489,12 @@ writeLayer <- function(url, layerfilepath) {
 #' # Get the American Indian Reservations feature layer,
 #' # filtered by the bounding box for the Data_TribalNations_Harmonized
 #' # example dataset
-#' layerfilepath <- "extdata/AmericanIndian.shp"
+#' layerfilepath <- "inst/extdata/Tribal.gpkg" 
+#' layer <- "AmericanIndian"
 #' getLayer(layerfilepath, bbox)
 #' }
-getLayer <- function(layerfilepath, bbox = NULL) {
-  layer <- sf::st_read(system.file(layerfilepath, package = "EPATADA"))
+getLayer <- function(layerfilepath, layer, bbox = NULL) {
+  layer <- sf::st_read(system.file(layerfilepath, layer, package = "EPATADA"))
   if (!(is.null(bbox))) {
     sf::sf_use_s2(FALSE)
     layer <- sf::st_make_valid(layer)
