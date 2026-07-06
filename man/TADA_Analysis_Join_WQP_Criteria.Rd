@@ -12,6 +12,10 @@ TADA_Analysis_Join_WQP_Criteria(.data, criteria, byChar = FALSE)
 \item{criteria}{data.frame of TADA compatible criteria table for any
 of either TADA.ComparableDataIdentifier and a combination of TADA.CharacteristicName,
 TADA.ResultSampleFractionText, and TADA.MethodSpeciationName}
+
+\item{byChar}{A boolean value. If byChar = TRUE, this function will join the
+WQP data frame with the criteria table by only CharacteristicName, regardless
+of what has been filled out in the criteria table.}
 }
 \value{
 data.frame with WQP rows and matching criteria columns.
