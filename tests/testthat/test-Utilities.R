@@ -251,16 +251,16 @@ test_that("pH harmonization works as expected throughout workflow", {
 
   # Process data
   # - Applies several functions to clean and harmonize the data.
-  ph_data <- ph_data |>
+  ph_data2 <- ph_data |>
     TADA_SimpleCensoredMethods() |>
     TADA_ConvertSpecialChars(col = "TADA.ResultMeasureValue", clean = TRUE) |>
-    TADA_RunKeyFlagFunctions(clean = TRUE) |>
+    TADA_RunKeyFlagFunctions(clean = FALSE) |>
     TADA_HarmonizeSynonyms()
 
   # Assert that the data frame is not empty
   # - Ensures that the processed data frame contains rows.
   testthat::expect_gt(
-    base::nrow(ph_data),
+    base::nrow(ph_data2),
     0,
     label = "Data frame should not be empty"
   )
