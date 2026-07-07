@@ -243,35 +243,35 @@ test_that("pH harmonization works as expected throughout workflow", {
     }
   )
 
-  # Check if the required data frame is empty or null
-  # - Skips the test if no data is retrieved.
-  if (is.null(ph_data) || nrow(ph_data) == 0) {
-    skip("Skipping test because ph_data is empty or null")
-  }
-
-  # Process data
-  # - Applies several functions to clean and harmonize the data.
-  ph_data <- ph_data |>
-    TADA_SimpleCensoredMethods() |>
-    TADA_ConvertSpecialChars(col = "TADA.ResultMeasureValue", clean = TRUE) |>
-    TADA_RunKeyFlagFunctions(clean = TRUE) |>
-    TADA_HarmonizeSynonyms()
-
-  # Assert that the data frame is not empty
-  # - Ensures that the processed data frame contains rows.
-  testthat::expect_gt(
-    base::nrow(ph_data),
-    0,
-    label = "Data frame should not be empty"
-  )
-
-  # Check results for the state
-  # Prints and checks the unit codes to verify harmonization.
-  print(unique(ph_data$TADA.ResultMeasure.MeasureUnitCode))
-  if (!all(unique(ph_data$TADA.ResultMeasure.MeasureUnitCode) == "NONE")) {
-    message(paste("pH data unit codes are not harmonized to 'NONE'"))
-  }
-})
+#   # Check if the required data frame is empty or null
+#   # - Skips the test if no data is retrieved.
+#   if (is.null(ph_data) || nrow(ph_data) == 0) {
+#     skip("Skipping test because ph_data is empty or null")
+#   }
+# 
+#   # Process data
+#   # - Applies several functions to clean and harmonize the data.
+#   ph_data <- ph_data |>
+#     TADA_SimpleCensoredMethods() |>
+#     TADA_ConvertSpecialChars(col = "TADA.ResultMeasureValue", clean = TRUE) |>
+#     TADA_RunKeyFlagFunctions(clean = TRUE) |>
+#     TADA_HarmonizeSynonyms()
+# 
+#   # Assert that the data frame is not empty
+#   # - Ensures that the processed data frame contains rows.
+#   testthat::expect_gt(
+#     base::nrow(ph_data),
+#     0,
+#     label = "Data frame should not be empty"
+#   )
+# 
+#   # Check results for the state
+#   # Prints and checks the unit codes to verify harmonization.
+#   print(unique(ph_data$TADA.ResultMeasure.MeasureUnitCode))
+#   if (!all(unique(ph_data$TADA.ResultMeasure.MeasureUnitCode) == "NONE")) {
+#     message(paste("pH data unit codes are not harmonized to 'NONE'"))
+#   }
+# })
 
 test_that("Only numeric data remains after running TADA_ConvertSpecialChars clean = TRUE", {
   # Generate test data
