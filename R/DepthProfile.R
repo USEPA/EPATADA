@@ -912,12 +912,10 @@ TADA_IDDepthProfiles <- function(
 #' # Create a depth profile figure with three parameters for a single
 #' # monitoring location and date
 #' TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-#' groups = c(
-#'  "TEMPERATURE_NONE_NONE_DEG C", "PH_NONE_NONE_NONE",
-#'  "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"
-#' ),
-#' location = "REDLAKE_WQX-ANKE",
-#' activity_date = "2018-10-04"
+#' groups = c("TEMPERATURE_NONE_NONE_DEG C", "PH_NONE_NONE_NONE",
+#' "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
+#' location = "REDLAKE_WQX-BASS-SE",
+#' activity_date = "2025-07-16"
 #' )
 #'
 #' # Load example data frame:
