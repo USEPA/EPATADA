@@ -29,7 +29,8 @@ Join WQP results to a criteria table by the best available key:
 \item TADA.CharacteristicName + TADA.MethodSpeciationName
 \item TADA.CharacteristicName (or when byChar = TRUE)
 }
-
+}
+\details{
 For each fallback pass, rows with NA in any of the pass keys are dropped
 from both inputs for that pass. Left-join semantics are preserved overall.
 }

@@ -1,6 +1,5 @@
 #' Join WQP data to criteria (TADA.ComparableDataIdentifier preferred, else fallbacks)
 #'
-#' @description
 #' Join WQP results to a criteria table by the best available key:
 #' 1) TADA.ComparableDataIdentifier (if present in both and non-NA in criteria)
 #' 2) TADA.CharacteristicName + TADA.ResultSampleFractionText + TADA.MethodSpeciationName
