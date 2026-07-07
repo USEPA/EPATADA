@@ -204,23 +204,23 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
 #   # Set the start and end dates
 #   start_date <- as.Date("2020-01-01")
 #   end_date <- as.Date("2025-08-01")
-# 
+#
 #   # Calculate the number of days between the start and end dates
 #   date_range <- as.numeric(end_date - start_date)
-# 
+#
 #   # Generate a random number of days to add to the start date
 #   random_days <- sample(0:date_range, 1)
-# 
+#
 #   # Calculate the random date
 #   random_date <- start_date + random_days
-# 
+#
 #   # Calculate the date that is two days before the random date
 #   random_date_minus_2 <- random_date - 3
-# 
+#
 #   # Store the dates as character strings
 #   random_date_str <- format(random_date, "%Y-%m-%d")
 #   random_date_minus_2_str <- format(random_date_minus_2, "%Y-%m-%d")
-# 
+#
 #   # Try to retrieve pH data using the TADA_DataRetrieval function.
 #   ph_data <- tryCatch(
 #     {
@@ -242,13 +242,13 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
 #       stop(e)
 #     }
 #   )
-# 
+#
 #   # Check if the required data frame is empty or null
 #   # - Skips the test if no data is retrieved.
 #   if (is.null(ph_data) || nrow(ph_data) == 0) {
 #     skip("Skipping test because ph_data is empty or null")
 #   }
-# 
+#
 #   # Process data
 #   # - Applies several functions to clean and harmonize the data.
 #   ph_data <- ph_data |>
@@ -256,7 +256,7 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
 #     TADA_ConvertSpecialChars(col = "TADA.ResultMeasureValue", clean = TRUE) |>
 #     TADA_RunKeyFlagFunctions(clean = TRUE) |>
 #     TADA_HarmonizeSynonyms()
-# 
+#
 #   # Assert that the data frame is not empty
 #   # - Ensures that the processed data frame contains rows.
 #   testthat::expect_gt(
@@ -264,7 +264,7 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
 #     0,
 #     label = "Data frame should not be empty"
 #   )
-# 
+#
 #   # Check results for the state
 #   # Prints and checks the unit codes to verify harmonization.
 #   print(unique(ph_data$TADA.ResultMeasure.MeasureUnitCode))
