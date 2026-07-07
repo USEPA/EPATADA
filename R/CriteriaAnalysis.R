@@ -46,6 +46,19 @@
 #'
 #' # join the table by best match from what is filled out from the criteria table
 #' MT_data_criteria <- TADA_Analysis_Join_WQP_Criteria(MT_data, criteria_MT)
+#' 
+#' # join the table by best match, along with the AUMLRef
+#' MT_data_criteria2 <- TADA_Analysis_Join_WQP_Criteria(
+#'   MT_data,
+#'   criteria_MT,
+#'   AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk)
+#'   
+#' # join the table by best match, with both the AUMLRef and AU_UsesRef
+#' MT_data_criteria3 <- TADA_Analysis_Join_WQP_Criteria(
+#'   MT_data,
+#'   criteria_MT,
+#'   AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
+#'   AU_UsesRef = Data_MT_AU_UsesRef_Water)
 #'
 TADA_Analysis_Join_WQP_Criteria <- function(
   .data,
@@ -186,7 +199,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     }
     criteria <- dplyr::filter(
       criteria,
-      .data$`ATTAINS.UseName` %in% allowed_uses
+      ATTAINS.UseName %in% allowed_uses
     )
   }
 
@@ -294,7 +307,14 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   # Cross-pass: allow the same WQP row to match in multiple passes
   results <- list()
 
-  join_keys <- function(base_keys) base_keys
+  # If ATTAINS.UseName is populated from the AU_UsesRef, use the criteria table to determine which ATTAINS.Parameter it is associated with
+  join_keys <- function(base_keys) {
+    if ("ATTAINS.UseName" %in% names(.data)) {
+      unique(c(base_keys, "ATTAINS.ParameterName", "ATTAINS.UseName", "ATTAINS.WaterType", "ATTAINS.OrganizationIdentifier"))
+    } else {
+      base_keys
+    }
+  }
 
   do_join <- function(df, crit, keys) {
     if (nrow(crit) == 0) {

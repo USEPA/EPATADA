@@ -68,4 +68,17 @@ criteria_MT <- EPATADA::TADA_GetCriteriaFile(org_id = "MTDEQ")
 # join the table by best match from what is filled out from the criteria table
 MT_data_criteria <- TADA_Analysis_Join_WQP_Criteria(MT_data, criteria_MT)
 
+# join the table by best match, along with the AUMLRef
+MT_data_criteria2 <- TADA_Analysis_Join_WQP_Criteria(
+  MT_data,
+  criteria_MT,
+  AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk)
+  
+# join the table by best match, with both the AUMLRef and AU_UsesRef
+MT_data_criteria3 <- TADA_Analysis_Join_WQP_Criteria(
+  MT_data,
+  criteria_MT,
+  AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
+  AU_UsesRef = Data_MT_AU_UsesRef_Water)
+
 }
