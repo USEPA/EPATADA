@@ -4,7 +4,13 @@
 \alias{TADA_Analysis_Join_WQP_Criteria}
 \title{Join WQP data to criteria (TADA.ComparableDataIdentifier preferred, else fallbacks)}
 \usage{
-TADA_Analysis_Join_WQP_Criteria(.data, criteria, byChar = FALSE)
+TADA_Analysis_Join_WQP_Criteria(
+  .data,
+  criteria,
+  byChar = FALSE,
+  AUMLRef = NULL,
+  AU_UsesRef = NULL
+)
 }
 \arguments{
 \item{.data}{A TADA data frame.}
@@ -16,6 +22,23 @@ TADA.ResultSampleFractionText, and TADA.MethodSpeciationName}
 \item{byChar}{A boolean value. If byChar = TRUE, this function will join the
 WQP data frame with the criteria table by only CharacteristicName, regardless
 of what has been filled out in the criteria table.}
+
+\item{AUMLRef}{An optional data frame input containing a completed crosswalk
+of monitoring location sites associated with an assessment unit. If provided,
+each Monitoring location site will get assigned to an ATTAINS.AssessmentUnitIdentifier
+to allow users to analyze by either assessment units or by monitoring location.
+This data frame must contain the following column names which can be generated
+from the output of TADA_CreateAUMLCrosswalk:
+ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
+ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.}
+
+\item{AU_UsesRef}{An optional data frame input. If provided, the ATTAINS.UseName
+will be filtered by the ATTAINS.UseName found in this data frame. It will also
+assign the uses to each assessment unit defined in this table if an AUMLRef
+is also provided. This data frame must contain the following column names
+which can be generated from the output of TADA_AssignUsesToAU:
+ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
+and ATTAINS.WaterType.}
 }
 \value{
 data.frame with WQP rows and matching criteria columns.

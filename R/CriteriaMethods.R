@@ -66,16 +66,19 @@
 #' retained by default to support MLSummary-based filtering.
 #'
 #' @param AU_UsesRef An optional data frame input. If provided, the ATTAINS.UseName
-#' will be populated from the ATTAINS.UseName found in this data frame rather
-#' than the ATTAINS assessment profile. This data frame must contain the following
-#' column names which can be generated from the output of TADA_AssignUsesToAU:
+#' will be filtered by the ATTAINS.UseName found in this data frame. It will also
+#' assign the uses to each assessment unit defined in this table if an AUMLRef
+#' is also provided. This data frame must contain the following column names
+#' which can be generated from the output of TADA_AssignUsesToAU:
 #' ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
 #' and ATTAINS.WaterType.
 #'
-#' @param AUMLRef An optional data frame input. If provided, this data frame
-#' should contain a completed crosswalk of monitoring location sites associated
-#' with an assessment unit. This data frame must contain the following
-#' column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
+#' @param AUMLRef An optional data frame input containing a completed crosswalk
+#' of monitoring location sites associated with an assessment unit. If provided,
+#' each Monitoring location site will get assigned to an ATTAINS.AssessmentUnitIdentifier
+#' to allow users to analyze by either assessment units or by monitoring location.
+#' This data frame must contain the following column names which can be generated
+#' from the output of TADA_CreateAUMLCrosswalk:
 #' ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
 #' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.
 #'
