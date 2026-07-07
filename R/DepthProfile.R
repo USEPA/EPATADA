@@ -689,8 +689,7 @@ TADA_IDDepthProfiles <- function(
   }
 
   # filter out results equal to NA
-  .data <- .data |>
-    dplyr::filter(!is.na(TADA.ResultMeasureValue))
+  .data <- .data |> dplyr::filter(!is.na(TADA.ResultMeasureValue))
 
   depth.params <- c(
     "DEPTH, SECCHI DISK DEPTH",
