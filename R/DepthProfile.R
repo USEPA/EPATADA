@@ -923,9 +923,9 @@ TADA_IDDepthProfiles <- function(
 #' # location and date without displaying depth categories
 #' TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
 #' groups = c("PH_NONE_NONE_NONE", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"),
-#' location = "REDLAKE_WQX-JOHN",
-#' activity_date = "2018-07-31",
-#'depthcat = FALSE
+#' location = "REDLAKE_WQX-NONA",
+#' activity_date = "2024-02-05",
+#' depthcat = FALSE
 #' )
 #' }
 #'
@@ -939,6 +939,12 @@ TADA_DepthProfilePlot <- function(
   bottomvalue = 2,
   unit = "m"
 ) {
+
+  # helper for debugging: can uncomment if needed
+  # dbg_nrow <- function(x, label) {
+  #   message(label, ": ", nrow(x))
+  #   x
+  # }
   # check to see if TADA.ComparableDataIdentifier column is present
   if ("TADA.ComparableDataIdentifier" %in% colnames(.data)) {
     .data <- .data
@@ -959,7 +965,8 @@ TADA_DepthProfilePlot <- function(
   flag.func.cols <- c(
     "TADA.ConsolidatedDepth",
     "TADA.ConsolidatedDepth.Unit",
-    "TADA.ConsolidatedDepth.Bottom, TADA.DepthCategory.Flag"
+    "TADA.ConsolidatedDepth.Bottom",
+    "TADA.DepthCategory.Flag"
   )
 
   if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
@@ -1024,7 +1031,8 @@ TADA_DepthProfilePlot <- function(
   }
 
   # add convert depth unit (this still needs to be added), for now print warning and stop function if units don't match
-  .data <- .data |> dplyr::filter(!is.na(TADA.ConsolidatedDepth))
+  .data <- .data |> dplyr::filter(!is.na(TADA.ConsolidatedDepth)) |>
+    dbg_nrow("After depth filter")
 
   if (.data$TADA.ConsolidatedDepth.Unit[1] == unit) {
     message(
@@ -1236,19 +1244,57 @@ TADA_DepthProfilePlot <- function(
     "THALWEG DEPTH"
   )
 
+  # check to see if any NA results for selected groups in df
+  checkNA <- .data |>
+    dplyr::filter(TADA.ComparableDataIdentifier %in% groups,
+                  is.na(TADA.ResultMeasureValue)) |>
+    dplyr::select(TADA.MonitoringLocationIdentifier,
+                  ActivityStartDate,
+                  ActivityStartTime.Time,
+                  TADA.ComparableDataIdentifier,
+                  TADA.ResultMeasureValue) |>
+    dplyr::distinct() |>
+    dplyr::group_by(TADA.ComparableDataIdentifier) |>
+    dplyr::summarize(n.NAs = length(ActivityStartTime.Time))
+
+  if(NROW(checkNA) > 0) {
+
+  msgNA <- stringi::stri_replace_last(paste0(paste0(checkNA$TADA.ComparableDataIdentifier,
+                  " (",
+                  checkNA$n.NAs,
+                  ")"), collapse = "; "),
+                  fixed = "; ",
+                  replacement = " and ")
+
+  message(paste0("TADA_DepthProfilePlot: records with a result value of NA have been removed for plotting purposes (",
+               msgNA, ")."))
+
+  # remove intermediate object
+  rm(msgNA)
+
+  }
+
+  # remove intermediate object
+  rm(checkNA)
+
+  # available depth profile data
+  # commented out rows can be uncommented for debugging if required
   depthprofile.avail <- .data |>
     dplyr::filter(
       !is.na(TADA.ConsolidatedDepth),
+      !is.na(TADA.ResultMeasureValue),
       TADA.MonitoringLocationIdentifier %in% location,
       ActivityStartDate %in% activity_date,
       TADA.ActivityMediaName == "WATER"
     ) |>
+    #dbg_nrow("After location/date/media filter") |>
     dplyr::group_by(
       TADA.ComparableDataIdentifier,
       ActivityStartDate,
       TADA.ConsolidatedDepth
     ) |>
     dplyr::slice_sample(n = 1) |>
+    #dbg_nrow("After slice_sample") |>
     dplyr::ungroup() |>
     dplyr::group_by(
       TADA.MonitoringLocationIdentifier,
@@ -1257,12 +1303,13 @@ TADA_DepthProfilePlot <- function(
     ) |>
     dplyr::mutate(N = length(TADA.ResultMeasureValue)) |>
     dplyr::filter(N > 2 | TADA.CharacteristicName %in% depth.params) |>
+    #dbg_nrow("After N filter") |>
     dplyr::ungroup() |>
     dplyr::select(-N)
 
   depth.params.groups <- depthprofile.avail |>
     dplyr::filter(
-      TADA.ComparableDataIdentifier %in% groups,
+      TADA.ComparableDataIdentifier %in% groups |
       TADA.CharacteristicName %in% depth.params
     ) |>
     dplyr::select(TADA.ComparableDataIdentifier) |>
@@ -1309,6 +1356,7 @@ TADA_DepthProfilePlot <- function(
 
     depth.params.avail <- .data |>
       dplyr::filter(
+        !is.na(TADA.ResultMeasureValue),
         TADA.MonitoringLocationIdentifier %in% location,
         TADA.CharacteristicName %in% depth.params,
         ActivityStartDate %in% activity_date,
@@ -1322,9 +1370,8 @@ TADA_DepthProfilePlot <- function(
       dplyr::slice_sample(n = 1) |>
       dplyr::ungroup()
 
-    if (
-      unique(depth.params.avail$TADA.ConsolidatedDepth.Unit) == fig.depth.unit
-    ) {
+    if (NROW(depth.params.avail > 0)) {
+     if (unique(depth.params.avail$TADA.ConsolidatedDepth.Unit) == fig.depth.unit) {
       message(paste(
         "TADA_DepthProfilePlot: Any results for",
         depth.params.string,
@@ -1417,6 +1464,7 @@ TADA_DepthProfilePlot <- function(
         )
       }
     }
+    }
 
     profile.data <- depthprofile.avail |>
       dplyr::full_join(depth.params.avail, by = c(names(depthprofile.avail)))
@@ -1426,10 +1474,10 @@ TADA_DepthProfilePlot <- function(
 
   # this subset must include all fields included in plot hover below
   plot.data <- profile.data |>
-    dplyr::filter(dplyr::if_any(
-      TADA.ComparableDataIdentifier,
-      ~ .x %in% groups
-    )) |>
+    dplyr::filter(
+      TADA.ComparableDataIdentifier %in% groups,
+      !is.na(TADA.ResultMeasureValue)
+    ) |>
     dplyr::select(
       dplyr::all_of(required_cols),
       "TADA.ComparableDataIdentifier",
