@@ -155,9 +155,9 @@
 #'   ask = FALSE
 #' )
 #'
-#' # query by shapefile for Navajo Nation
+#' # query American Indian layer for Navajo Nation
 #'
-#' navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") |>
+#' navajo_sf <- sf::read_sf("inst/extdata/tribal.gpkg","AmericanIndian") |>
 #'   dplyr::filter(NAME == "Navajo Nation")
 #'
 #' tada7 <- TADA_DataRetrieval(

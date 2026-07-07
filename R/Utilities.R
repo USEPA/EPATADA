@@ -1458,7 +1458,7 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
 #' writeLayer(OKTribeUrl, "inst/extdata/Tribal.gpkg","OKTribe")
 #' }
-writeLayer <- function(url, layerfilepath) {
+writeLayer <- function(url, layerfilepath, layer) {
   layer <- getFeatureLayer(url)
   sf::st_write(layer, layerfilepath, layer, delete_layer = TRUE)
 }
@@ -1467,7 +1467,9 @@ writeLayer <- function(url, layerfilepath) {
 #' Get a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
 #' getLayer is used within TADA_addPolys and TADA_addPoints
 #'
-#' @param layerfilepath Local path to the .shp file for the layer
+#' @param layerfilepath Local path to the data folder containing the .gpkg file
+#' @gpkg name of the .gpkg file
+#' @layer name of the layer within the .gpkg file
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return sf object containing the layer
 #'
@@ -1489,12 +1491,14 @@ writeLayer <- function(url, layerfilepath) {
 #' # Get the American Indian Reservations feature layer,
 #' # filtered by the bounding box for the Data_TribalNations_Harmonized
 #' # example dataset
-#' layerfilepath <- "inst/extdata/Tribal.gpkg" 
+#' layerfilepath <- "extdata" 
+#' gpkg <- "Tribal.gpkg"
 #' layer <- "AmericanIndian"
 #' getLayer(layerfilepath, bbox)
 #' }
-getLayer <- function(layerfilepath, layer, bbox = NULL) {
-  layer <- sf::st_read(system.file(layerfilepath, layer, package = "EPATADA"))
+getLayer <- function(layerfilepath, gpkg, layer, bbox = NULL) {
+  gpkg_path <- system.file(layerfilepath, gpkg, package = "EPATADA")
+  layer <- sf::read_sf(dsn=gpkg_path, layer, quiet = TRUE)
   if (!(is.null(bbox))) {
     sf::sf_use_s2(FALSE)
     layer <- sf::st_make_valid(layer)
@@ -1575,7 +1579,9 @@ getTribalPopup <- function(layer, layername) {
 #' Add polygons from an ArcGIS feature layer to a leaflet map
 #'
 #' @param map A leaflet map
-#' @param layerfilepath Local path to the .shp file for the layer
+#' @param layerfilepath Local path to the data folder containing the .gpkg file
+#' @param gpkg name of the .gpkg file
+#' @param layer name of the layer within the .gpkg file
 #' @param layergroup Name of the layer group
 #' @param layername Name of the layer
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -1590,17 +1596,19 @@ getTribalPopup <- function(layer, layername) {
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the American Indian Reservations feature layer to the map
-#' lmap <- TADA_addPolys(lmap, "extdata/AmericanIndian.shp", "Tribes", "American Indian Reservations")
+#' lmap <- TADA_addPolys(lmap, "extdata", "Tribal.gpkg","AmericanIndian", "Tribes", "American Indian Reservations")
 #' lmap
 #' }
 TADA_addPolys <- function(
   map,
   layerfilepath,
+  gpkg, 
+  layer,
   layergroup,
   layername,
   bbox = NULL
 ) {
-  layer <- getLayer(layerfilepath, bbox)
+  layer <- getLayer(layerfilepath, gpkg, layer, bbox)
   if (is.null(layer)) {
     return(map)
   }
@@ -1639,7 +1647,9 @@ TADA_addPolys <- function(
 #' Add points from an ArcGIS feature layer to a leaflet map
 #'
 #' @param map A leaflet map
-#' @param layerfilepath Local path to the .shp file for the layer
+#' @param layerfilepath Local path to the data folder containing the .gpkg file
+#' @param gpkg name of the .gpkg file
+#' @param layer name of the layer within the .gpkg file
 #' @param layergroup Name of the layer group
 #' @param layername Name of the layer
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -1667,7 +1677,7 @@ TADA_addPoints <- function(
   layername,
   bbox = NULL
 ) {
-  layer <- getLayer(layerfilepath, bbox)
+  layer <- getLayer(layerfilepath, gpkg, layer, bbox)
   if (is.null(layer)) {
     return(map)
   }
