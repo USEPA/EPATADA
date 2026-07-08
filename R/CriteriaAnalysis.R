@@ -65,7 +65,8 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   criteria,
   byChar = FALSE,
   AUMLRef = NULL,
-  AU_UsesRef = NULL
+  AU_UsesRef = NULL,
+  clean = FALSE
 ) {
   stopifnot(is.data.frame(.data), is.data.frame(criteria))
 
@@ -423,6 +424,18 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   }
 
   wqp_criteria <- resolve_xy_columns(wqp_criteria)
+  
+  wqp_criteria <- TADA_CorrectColType(wqp_criteria) |>
+    dplyr::mutate(SaltFresh = as.character(SaltFresh))
+  
+  # if TRUE, only displays returning matches that will be used for analysis
+  cols <- names(TADA_DefineCriteriaMethodology()[[1]])[-seq_len(8)]
+  existing_cols <- intersect(cols, names(wqp_criteria))
+  
+  if (clean) {
+    wqp_criteria <- wqp_criteria |>
+      dplyr::filter(!dplyr::if_all(existing_cols, is.na))
+  }
 
   return(wqp_criteria)
 }
