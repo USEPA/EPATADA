@@ -1491,14 +1491,14 @@ writeLayer <- function(url, layerfilepath, layer) {
 #' # Get the American Indian Reservations feature layer,
 #' # filtered by the bounding box for the Data_TribalNations_Harmonized
 #' # example dataset
-#' layerfilepath <- "extdata" 
+#' layerfilepath <- "extdata"
 #' gpkg <- "Tribal.gpkg"
 #' layer <- "AmericanIndian"
 #' getLayer(layerfilepath, gpkg, layer)
 #' }
 getLayer <- function(layerfilepath, gpkg, layer, bbox = NULL) {
   gpkg_path <- system.file(layerfilepath, gpkg, package = "EPATADA")
-  layer <- sf::read_sf(dsn=gpkg_path, layer, quiet = TRUE)
+  layer <- sf::read_sf(dsn = gpkg_path, layer, quiet = TRUE)
   if (!(is.null(bbox))) {
     sf::sf_use_s2(FALSE)
     layer <- sf::st_make_valid(layer)
@@ -1602,7 +1602,7 @@ getTribalPopup <- function(layer, layername) {
 TADA_addPolys <- function(
   map,
   layerfilepath,
-  gpkg, 
+  gpkg,
   layer,
   layergroup,
   layername,
@@ -1664,14 +1664,14 @@ TADA_addPolys <- function(
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
-#' lmap <- TADA_addPoints(lmap, "extdata", "Tribal.gpkg","VATribe", 
+#' lmap <- TADA_addPoints(lmap, "extdata", "Tribal.gpkg","VATribe",
 #'     "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap
 #' }
 TADA_addPoints <- function(
   map,
   layerfilepath,
-  gpkg, 
+  gpkg,
   layer,
   layergroup,
   layername,
