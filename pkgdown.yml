@@ -1,5 +1,5 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   CONTRIBUTING: CONTRIBUTING.html
@@ -19,7 +19,7 @@ articles:
   TADAWorkFlowDemoR8: TADAWorkFlowDemoR8.html
   WQX3-Migration: WQX3-Migration.html
   WQXValidationService: WQXValidationService.html
-last_built: 2026-07-07T21:11Z
+last_built: 2026-07-08T13:31Z
 urls:
   reference: https://usepa.github.io/EPATADA/reference
   article: https://usepa.github.io/EPATADA/articles
