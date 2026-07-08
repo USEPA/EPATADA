@@ -561,7 +561,7 @@ TADA_FlagDepthCategory <- function(
       ) |>
       dplyr::mutate(
         TADA.DepthProfileAggregation.Flag = paste0(
-          "TADA_FlagDepthCategory: Selecting maximum aggregate value.",
+          "Selected as max aggregate value ",
           cattype
         )
       ) |>
