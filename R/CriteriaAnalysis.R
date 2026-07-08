@@ -310,7 +310,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   # If ATTAINS.UseName is populated from the AU_UsesRef, use the criteria table to determine which ATTAINS.Parameter it is associated with
   join_keys <- function(base_keys) {
     if ("ATTAINS.UseName" %in% names(.data)) {
-      unique(c(base_keys, "ATTAINS.ParameterName", "ATTAINS.UseName", "ATTAINS.WaterType", "ATTAINS.OrganizationIdentifier"))
+      unique(c(base_keys, "ATTAINS.UseName"))
     } else {
       base_keys
     }
