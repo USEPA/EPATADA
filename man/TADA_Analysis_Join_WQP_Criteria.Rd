@@ -75,7 +75,7 @@ MT_data_criteria2 <- TADA_Analysis_Join_WQP_Criteria(
   MT_data,
   criteria_MT,
   AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk)
-  
+
 # join the table by best match, with both the AUMLRef and AU_UsesRef
 MT_data_criteria3 <- TADA_Analysis_Join_WQP_Criteria(
   MT_data,
