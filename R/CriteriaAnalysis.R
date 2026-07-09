@@ -60,15 +60,15 @@
 #'   criteria_MT,
 #'   AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
 #'   AU_UsesRef = Data_MT_AU_UsesRef_Water)
-#'   
-#' # only return rows that will be used for analysis 
+#'
+#' # only return rows that will be used for analysis
 #' MT_data_criteria3 <- TADA_Analysis_Join_WQP_Criteria(
 #'   MT_data,
 #'   criteria_MT,
 #'   AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
 #'   AU_UsesRef = Data_MT_AU_UsesRef_Water,
 #'   clean = TRUE)
-#'   
+#'
 TADA_Analysis_Join_WQP_Criteria <- function(
   .data,
   criteria,
@@ -309,15 +309,24 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     if (has_AUUsesRef) {
       unique(c(base_keys, "ATTAINS.UseName"))
     }
-    
+
     if (has_AUUsesRef && has_AUMLRef) {
-      unique(c(base_keys, "ATTAINS.WaterType", "ATTAINS.OrganizationIdentifier", "ATTAINS.UseName")) # add SaltFresh, UniqueSpatialCriteria and DepthCategory in the future
-    } 
-    
-    if (has_AUMLRef && isFALSE(has_AUUsesRef)) {
-      unique(c(base_keys, "ATTAINS.WaterType", "ATTAINS.OrganizationIdentifier"))
+      unique(c(
+        base_keys,
+        "ATTAINS.WaterType",
+        "ATTAINS.OrganizationIdentifier",
+        "ATTAINS.UseName"
+      )) # add SaltFresh, UniqueSpatialCriteria and DepthCategory in the future
     }
-    
+
+    if (has_AUMLRef && isFALSE(has_AUUsesRef)) {
+      unique(c(
+        base_keys,
+        "ATTAINS.WaterType",
+        "ATTAINS.OrganizationIdentifier"
+      ))
+    }
+
     if (isFALSE(has_AUMLRef) && isFALSE(has_AUUsesRef)) {
       base_keys
     }
@@ -333,20 +342,29 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     if (!all(keys %in% names(crit))) {
       return(NULL)
     }
-    
+
     # check to see if spatial criteria column contains NA, if it does, don't join those rows by that spatial column
     crit_NA <- crit |>
       dplyr::filter(is.na(ATTAINS.WaterType)) |>
       dplyr::select(-ATTAINS.WaterType)
-    
+
     # if criteria table explicitly define an ATTAINS.WaterType it applies to, these will be joined by ATTAINS.WaterType
-    crit_not_NA <- crit |>
-      dplyr::filter(!is.na(ATTAINS.WaterType))
-    
-    join_NA <- dplyr::left_join(df, crit_NA, by = setdiff(keys, "ATTAINS.WaterType"), relationship = "many-to-many")
-    
-    join_not_NA <- dplyr::left_join(df, crit_not_NA, by = keys, relationship = "many-to-many")
-    
+    crit_not_NA <- crit |> dplyr::filter(!is.na(ATTAINS.WaterType))
+
+    join_NA <- dplyr::left_join(
+      df,
+      crit_NA,
+      by = setdiff(keys, "ATTAINS.WaterType"),
+      relationship = "many-to-many"
+    )
+
+    join_not_NA <- dplyr::left_join(
+      df,
+      crit_not_NA,
+      by = keys,
+      relationship = "many-to-many"
+    )
+
     return(dplyr::bind_rows(join_NA, join_not_NA) |> dplyr::distinct())
   }
 
@@ -385,10 +403,10 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   } else {
     .data
   }
-  
+
   wqp_criteria <- TADA_CorrectColType(wqp_criteria) |>
     dplyr::mutate(SaltFresh = as.character(SaltFresh))
-  
+
   # if TRUE, only displays returning matches (those filled in from criteria table) that will be used for analysis
   cols <- names(TADA_DefineCriteriaMethodology()[[1]])[-seq_len(8)]
   existing_cols <- intersect(cols, names(wqp_criteria))
