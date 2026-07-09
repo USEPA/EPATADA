@@ -2,42 +2,22 @@
 % Please edit documentation in R/autoClean.R
 \name{TADA_ApplyMod1Defaults}
 \alias{TADA_ApplyMod1Defaults}
-\title{Apply Module 1 defaults (full, standardized TADA workflow)}
+\title{Run all TADA Module 1 functions with defaults}
 \usage{
 TADA_ApplyMod1Defaults(.data)
 }
 \arguments{
-\item{.data}{A data frame or tibble containing results from \code{TADA_DataRetrieval()} or a TADA-formatted dataset.}
+\item{.data}{A data frame containing results from \code{TADA_DataRetrieval()} or a TADA-formatted dataset.}
 }
 \value{
-A data frame/tibble with the full standardized TADA Module 1 workflow applied.
+A data frame with the full standardized TADA Module 1 workflow applied.
 }
 \description{
 Applies the complete standardized TADA Module 1 workflow to a TADA-formatted dataset,
-using fixed parameters for reproducibility and speed.
+using fixed function inputs for reproducibility and speed.
 }
 \details{
 The pipeline executes the following steps in order:
-\enumerate{
-\item Media filter (surface water only): \code{TADA_MediaFilter(clean = TRUE, surface_water = TRUE, ground_water = FALSE, sediment = FALSE)}.
-\item Detect and remove single-organization duplicates: \code{TADA_FindPotentialDuplicatesSingleOrg()} then keep \code{TADA.SingleOrgDup.Flag == "Unique"}.
-\item Autoclean: \code{TADA_AutoClean()}.
-\item Handle censored results (standardized params): \code{TADA_SimpleCensoredMethods(nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")}.
-\item Detect and resolve multiple-organization duplicates: \code{TADA_FindPotentialDuplicatesMultipleOrgs()} then keep \code{TADA.ResultSelectedMultipleOrgs == "Y"}.
-\item Convert special characters in \code{TADA.ResultMeasureValue}: \code{TADA_ConvertSpecialChars(col = "TADA.ResultMeasureValue", clean = TRUE)}.
-\item Remove results with QC issues: \code{TADA_RunKeyFlagFunctions(clean = TRUE)}.
-\item Flag above and below thresholds (do not remove): \code{TADA_FlagAboveThreshold(clean = FALSE, flaggedonly = FALSE)} and \code{TADA_FlagBelowThreshold(clean = FALSE, flaggedonly = FALSE)}.
-\item Harmonize synonyms: \code{TADA_HarmonizeSynonyms()}.
-}
-\itemize{
-\item This function assumes the input is a TADA-formatted dataset.
-\item The media filter restricts to surface water and removes ground water and sediment.
-\item Duplicate resolution: keeps only unique single-org records and, for multiple-org sets, keeps rows marked \code{TADA.ResultSelectedMultipleOrgs == "Y"}.
-\item Censored results are handled with a non-detect multiplier of 0.5 and over-detects kept as-is.
-\item Threshold flagging does not remove rows; it only annotates them.
-\item If expected columns are missing for certain steps (e.g., \code{TADA.SingleOrgDup.Flag}, \code{TADA.ResultSelectedMultipleOrgs},
-\code{TADA.ResultMeasureValue}), the function will issue a warning and skip that specific sub-step.
-}
 }
 \examples{
 \dontrun{
@@ -50,12 +30,5 @@ raw_data <- TADA_DataRetrieval(
 )
 
 clean_data <- TADA_ApplyMod1Defaults(raw_data)
-
-# Inspect result
-dplyr::glimpse(clean_data)
 }
-
-# If you already have a TADA-formatted data frame:
-# clean_data <- TADA_ApplyMod1Defaults(my_tada_df)
-
 }

@@ -425,34 +425,16 @@ TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
   return(.data)
 }
 
-#' Apply Module 1 defaults (full, standardized TADA workflow)
+#' Run all TADA Module 1 functions with defaults
 #'
 #' Applies the complete standardized TADA Module 1 workflow to a TADA-formatted dataset,
-#' using fixed parameters for reproducibility and speed.
+#' using fixed function inputs for reproducibility and speed.
 #'
 #' The pipeline executes the following steps in order:
-#' 1. Media filter (surface water only): `TADA_MediaFilter(clean = TRUE, surface_water = TRUE, ground_water = FALSE, sediment = FALSE)`.
-#' 2. Detect and remove single-organization duplicates: `TADA_FindPotentialDuplicatesSingleOrg()` then keep `TADA.SingleOrgDup.Flag == "Unique"`.
-#' 3. Autoclean: `TADA_AutoClean()`.
-#' 4. Handle censored results (standardized params): `TADA_SimpleCensoredMethods(nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")`.
-#' 5. Detect and resolve multiple-organization duplicates: `TADA_FindPotentialDuplicatesMultipleOrgs()` then keep `TADA.ResultSelectedMultipleOrgs == "Y"`.
-#' 6. Convert special characters in `TADA.ResultMeasureValue`: `TADA_ConvertSpecialChars(col = "TADA.ResultMeasureValue", clean = TRUE)`.
-#' 7. Remove results with QC issues: `TADA_RunKeyFlagFunctions(clean = TRUE)`.
-#' 8. Flag above and below thresholds (do not remove): `TADA_FlagAboveThreshold(clean = FALSE, flaggedonly = FALSE)` and `TADA_FlagBelowThreshold(clean = FALSE, flaggedonly = FALSE)`.
-#' 9. Harmonize synonyms: `TADA_HarmonizeSynonyms()`.
 #'
-#' @param .data A data frame or tibble containing results from `TADA_DataRetrieval()` or a TADA-formatted dataset.
+#' @param .data A data frame containing results from `TADA_DataRetrieval()` or a TADA-formatted dataset.
 #'
-#' @return A data frame/tibble with the full standardized TADA Module 1 workflow applied.
-#'
-#' @details
-#' - This function assumes the input is a TADA-formatted dataset.
-#' - The media filter restricts to surface water and removes ground water and sediment.
-#' - Duplicate resolution: keeps only unique single-org records and, for multiple-org sets, keeps rows marked `TADA.ResultSelectedMultipleOrgs == "Y"`.
-#' - Censored results are handled with a non-detect multiplier of 0.5 and over-detects kept as-is.
-#' - Threshold flagging does not remove rows; it only annotates them.
-#' - If expected columns are missing for certain steps (e.g., `TADA.SingleOrgDup.Flag`, `TADA.ResultSelectedMultipleOrgs`,
-#'   `TADA.ResultMeasureValue`), the function will issue a warning and skip that specific sub-step.
+#' @return A data frame with the full standardized TADA Module 1 workflow applied.
 #'
 #' @examples
 #' \dontrun{
@@ -465,39 +447,16 @@ TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
 #' )
 #'
 #' clean_data <- TADA_ApplyMod1Defaults(raw_data)
-#'
-#' # Inspect result
-#' dplyr::glimpse(clean_data)
 #' }
-#'
-#' # If you already have a TADA-formatted data frame:
-#' # clean_data <- TADA_ApplyMod1Defaults(my_tada_df)
-#'
 #' @export
 TADA_ApplyMod1Defaults <- function(.data) {
+  
   data <- .data
   
-  # 1) Media filter: surface water only (standardized)
-  data <- TADA_MediaFilter(
-    data,
-    clean = TRUE,
-    surface_water = TRUE,
-    ground_water = FALSE,
-    sediment = FALSE
-  )
-  
-  # 2) Single-organization duplicates: keep "Unique"
-  data <- TADA_FindPotentialDuplicatesSingleOrg(data)
-  if ("TADA.SingleOrgDup.Flag" %in% names(data)) {
-    data <- dplyr::filter(data, TADA.SingleOrgDup.Flag == "Unique")
-  } else {
-    warning("Column 'TADA.SingleOrgDup.Flag' not found; skipping single-org duplicate filter.")
-  }
-  
-  # 3) Autoclean
+  # Autoclean
   data <- TADA_AutoClean(data)
   
-  # 4) Censored results (standardized parameters)
+  # Handle censored results
   data <- TADA_SimpleCensoredMethods(
     data,
     nd_method = "multiplier",
@@ -506,29 +465,36 @@ TADA_ApplyMod1Defaults <- function(.data) {
     od_multiplier = "null"
   )
   
-  # 5) Multiple-organization duplicates: keep selected "Y"
-  data <- TADA_FindPotentialDuplicatesMultipleOrgs(data)
-  if ("TADA.ResultSelectedMultipleOrgs" %in% names(data)) {
-    data <- dplyr::filter(data, TADA.ResultSelectedMultipleOrgs == "Y")
-  } else {
-    warning("Column 'TADA.ResultSelectedMultipleOrgs' not found; skipping multi-org duplicate filter.")
-  }
+  # Harmonize synonyms
+  data <- TADA_HarmonizeSynonyms(data)
   
-  # 6) Convert special characters in ResultMeasureValue
-  if ("TADA.ResultMeasureValue" %in% names(data)) {
-    data <- TADA_ConvertSpecialChars(
-      data,
-      col = "TADA.ResultMeasureValue",
-      clean = TRUE
-    )
-  } else {
-    warning("Column 'TADA.ResultMeasureValue' not found; skipping special character conversion.")
-  }
+  # Remove non-SW results
+  data <- TADA_MediaFilter(
+    data,
+    clean = TRUE,
+    surface_water = FALSE,
+    ground_water = TRUE,
+    sediment = TRUE,
+    other = TRUE
+  )
   
-  # 7) Remove results with quality control issues
+  # Remove results with quality control issues
+  # Runs TADA_FlagResultUnit, TADA_FlagFraction, TADA_FindQCActivities, 
+  # TADA_FlagMeasureQualifierCode, and TADA_FlagSpeciation
   data <- TADA_RunKeyFlagFunctions(data, clean = TRUE)
   
-  # 8) Flag above and below thresholds (annotations only)
+  # Remove any remaining non-numeric results
+  data <- TADA_ConvertSpecialChars(data,
+                                   col = "TADA.ResultMeasureValue",
+                                   clean = TRUE)
+  
+  # Remove single-organization duplicates
+  data <- TADA_FindPotentialDuplicatesSingleOrg(data, clean = T)
+  
+  # Remove multiple-organization duplicates
+  data <- TADA_FindPotentialDuplicatesMultipleOrgs(data, clean = T)
+  
+  # Flag results that are above and below thresholds
   data <- TADA_FlagAboveThreshold(
     data,
     clean = FALSE,
@@ -539,9 +505,6 @@ TADA_ApplyMod1Defaults <- function(.data) {
     clean = FALSE,
     flaggedonly = FALSE
   )
-  
-  # 9) Harmonize synonyms
-  data <- TADA_HarmonizeSynonyms(data)
-  
+
   return(data)
 }
