@@ -1,12 +1,13 @@
 # tests for TADA_FlagDepthCategory
 
 testthat::test_that("TADA_FlagDepthCategory adds expected colums", {
-
-  expected.cols <- c("TADA.DepthCategory.Flag",
-                     "TADA.DepthProfileAggregation.Flag",
-                     "TADA.ConsolidatedDepth",
-                     "TADA.ConsolidatedDepth.Bottom",
-                     "TADA.ConsolidatedDepth.Unit")
+  expected.cols <- c(
+    "TADA.DepthCategory.Flag",
+    "TADA.DepthProfileAggregation.Flag",
+    "TADA.ConsolidatedDepth",
+    "TADA.ConsolidatedDepth.Bottom",
+    "TADA.ConsolidatedDepth.Unit"
+  )
 
   testdat <- TADA_FlagDepthCategory(Data_Nutrients_UT)
 
@@ -15,7 +16,6 @@ testthat::test_that("TADA_FlagDepthCategory adds expected colums", {
 
 
 testthat::test_that("TADA_FlagDepthCategory assigns categories as expected", {
-
   # create test df
   testdat <- data.frame(
     TADA.ActivityDepthHeightMeasure.MeasureValue = c(0.5, 1.5, 5, 6, 9, 10),
@@ -44,12 +44,11 @@ testthat::test_that("TADA_FlagDepthCategory assigns categories as expected", {
 })
 
 testthat::test_that("TADA_FlagDepthCategory uses result depth when present", {
-
   # create test df
   testdat <- data.frame(
     TADA.ActivityDepthHeightMeasure.MeasureValue = c(0.5, 1.5),
     TADA.ActivityDepthHeightMeasure.MeasureUnitCode = rep("m", 2),
-    TADA.ResultDepthHeightMeasure.MeasureValue = rep(1,2),
+    TADA.ResultDepthHeightMeasure.MeasureValue = rep(1, 2),
     TADA.ResultDepthHeightMeasure.MeasureUnitCode = rep("m:", 2),
     TADA.ActivityBottomDepthHeightMeasure.MeasureValue = rep(10, 2),
     TADA.CharacteristicName = rep("Chlorophyll", 2),
@@ -70,7 +69,6 @@ testthat::test_that("TADA_FlagDepthCategory uses result depth when present", {
 })
 
 testthat::test_that("TADA_FlagDepthCategory filters out non-cateogory rows when clean = TRUE", {
-
   # create test df
   # create test df
   testdat <- data.frame(
@@ -78,7 +76,14 @@ testthat::test_that("TADA_FlagDepthCategory filters out non-cateogory rows when 
     TADA.ActivityDepthHeightMeasure.MeasureUnitCode = rep("m", 6),
     TADA.ResultDepthHeightMeasure.MeasureValue = rep(NA, 6),
     TADA.ResultDepthHeightMeasure.MeasureUnitCode = rep(NA, 6),
-    TADA.ActivityBottomDepthHeightMeasure.MeasureValue = c(10, 10, 10, 10, 10, NA),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureValue = c(
+      10,
+      10,
+      10,
+      10,
+      10,
+      NA
+    ),
     TADA.CharacteristicName = rep("Chlorophyll", 6),
     TADA.ResultMeasureValue = c(10, 20, 30, 40, 50, 60),
     TADA.ResultMeasure.MeasureUnitCode = rep("mg/L", 6),
@@ -97,7 +102,6 @@ testthat::test_that("TADA_FlagDepthCategory filters out non-cateogory rows when 
 })
 
 testthat::test_that("TADA_FlagDepthCategory consolidated depth columns are NA when no depth data are available", {
-
   # create test df
   testdat <- data.frame(
     TADA.ActivityDepthHeightMeasure.MeasureValue = c(NA),
@@ -124,7 +128,6 @@ testthat::test_that("TADA_FlagDepthCategory consolidated depth columns are NA wh
 })
 
 testthat::test_that("TADA_FlagDepthCategory bycategory filters correctly", {
-
   # create test df
   testdat <- data.frame(
     TADA.ActivityDepthHeightMeasure.MeasureValue = c(0.5, 1.5, 5, 6, 9, 10),
@@ -142,14 +145,16 @@ testthat::test_that("TADA_FlagDepthCategory bycategory filters correctly", {
     ActivityRelativeDepthName = rep(NA, 6)
   )
 
-
-  out <- TADA_FlagDepthCategory(testdat, bycategory = "surface", dailyagg = "none")
+  out <- TADA_FlagDepthCategory(
+    testdat,
+    bycategory = "surface",
+    dailyagg = "none"
+  )
 
   testthat::expect_true(all(out$TADA.DepthCategory.Flag == "Surface"))
 })
 
 testthat::test_that("TADA_FlagDepthCategory does not increase row count when dailyagg equals 'none' and increases rows count when dailyagg equals 'avg'", {
-
   # create test df
   testdat <- data.frame(
     TADA.ActivityDepthHeightMeasure.MeasureValue = c(0.5, 1.5, 1.5, 6, 9, 10),
@@ -167,7 +172,6 @@ testthat::test_that("TADA_FlagDepthCategory does not increase row count when dai
     ActivityRelativeDepthName = rep(NA, 6)
   )
 
-
   out.avg <- TADA_FlagDepthCategory(testdat, dailyagg = "avg")
 
   out.none <- TADA_FlagDepthCategory(testdat, dailyagg = "none")
@@ -178,7 +182,6 @@ testthat::test_that("TADA_FlagDepthCategory does not increase row count when dai
 })
 
 testthat::test_that("TADA_FlagDepthCategory identifies one record per depth profile when dailyagg equals 'min' or 'max'", {
-
   # create test df
   testdat.loc1 <- data.frame(
     TADA.ActivityDepthHeightMeasure.MeasureValue = c(0.5, 1.5, 1.5, 6, 9, 10),
@@ -212,25 +215,27 @@ testthat::test_that("TADA_FlagDepthCategory identifies one record per depth prof
     ActivityRelativeDepthName = rep(NA, 6)
   )
 
-  testdat <- testdat.loc1 |>
-    dplyr::bind_rows(testdat.loc2)
+  testdat <- testdat.loc1 |> dplyr::bind_rows(testdat.loc2)
 
   rm(testdat.loc1, testdat.loc2)
 
-  testdat.min<- TADA_FlagDepthCategory(testdat,
-                                       dailyagg = "min",
-                                       aggregatedonly = TRUE)
+  testdat.min <- TADA_FlagDepthCategory(
+    testdat,
+    dailyagg = "min",
+    aggregatedonly = TRUE
+  )
 
-  testdat.max<- TADA_FlagDepthCategory(testdat, dailyagg = "max",
-                                       aggregatedonly = TRUE)
-
+  testdat.max <- TADA_FlagDepthCategory(
+    testdat,
+    dailyagg = "max",
+    aggregatedonly = TRUE
+  )
 
   testthat::expect_true(NROW(testdat.min) == 2)
   testthat::expect_true(NROW(testdat.max) == 2)
 })
 
 testthat::test_that("TADA_FlagDepthCategory aggregatedonly = TRUE with dailyagg = 'none' errors", {
-
   # create test df
   testdat <- data.frame(
     TADA.ActivityDepthHeightMeasure.MeasureValue = c(2, 4, 8, 12, 14, 18),
@@ -248,14 +253,14 @@ testthat::test_that("TADA_FlagDepthCategory aggregatedonly = TRUE with dailyagg 
     ActivityRelativeDepthName = rep(NA, 6)
   )
 
-
-  testthat::expect_error(TADA_FlagDepthCategory(testdat,
-                                                dailyagg = 'none',
-                                                aggregatedonly = TRUE))
+  testthat::expect_error(TADA_FlagDepthCategory(
+    testdat,
+    dailyagg = 'none',
+    aggregatedonly = TRUE
+  ))
 })
 
 testthat::test_that("TADA_FlagDepthCategory errors when required columns is missing", {
-
   # create test df
   testdat <- data.frame(
     #TADA.ActivityDepthHeightMeasure.MeasureValue = c(2, 4, 8, 12, 14, 18),
@@ -272,7 +277,6 @@ testthat::test_that("TADA_FlagDepthCategory errors when required columns is miss
     ActivityStartDate = as.Date(rep("2025-01-01", 6)),
     ActivityRelativeDepthName = rep(NA, 6)
   )
-
 
   testthat::expect_error(TADA_FlagDepthCategory(testdat))
 })
@@ -303,7 +307,10 @@ testthat::test_that("TADA_IDDepthProfiles works with pre-flagged data", {
     TADA.ConsolidatedDepth.Unit = c("m", "m"),
     TADA.ConsolidatedDepth.Bottom = c(10, 10),
     TADA.DepthCategory.Flag = c("Surface", "Middle"),
-    TADA.DepthProfileAggregation.Flag = c("No aggregation needed", "No aggregation needed"),
+    TADA.DepthProfileAggregation.Flag = c(
+      "No aggregation needed",
+      "No aggregation needed"
+    ),
 
     # columns needed by TADA_FlagDepthCategory
     TADA.ActivityDepthHeightMeasure.MeasureValue = c(1, 3),
@@ -370,7 +377,6 @@ testthat::test_that("TADA_IDDepthProfiles runs TADA_FlagDepthCategory when neede
 
 
 testthat::test_that("TADA_IDDepthProfile nresults param includes or omits counts correctly", {
-
   # create test df
   testdat <- Data_Nutrients_UT
 
@@ -378,28 +384,28 @@ testthat::test_that("TADA_IDDepthProfile nresults param includes or omits counts
 
   out.omit <- TADA_IDDepthProfiles(testdat, nresults = FALSE)
 
-
-  testthat::expect_all_true(grepl("\\(\\d+\\)", out.include$TADA.CharacteristicsForDepthProfile))
-  testthat::expect_all_false(grepl("\\(\\d+\\)$", out.omit$TADA.CharacteristicsForDepthProfile))
+  testthat::expect_all_true(grepl(
+    "\\(\\d+\\)",
+    out.include$TADA.CharacteristicsForDepthProfile
+  ))
+  testthat::expect_all_false(grepl(
+    "\\(\\d+\\)$",
+    out.omit$TADA.CharacteristicsForDepthProfile
+  ))
 })
 
 testthat::test_that("TADA_IDDepthProfile nvalue threshold works", {
+  testdat <- Data_Nutrients_UT
 
-testdat <- Data_Nutrients_UT
-
-
- # id depth profiles
+  # id depth profiles
   profiles.n2 <- TADA_IDDepthProfiles(testdat, nvalue = 2)
   profiles.n3 <- TADA_IDDepthProfiles(testdat, nvalue = 3)
-
-
 
   testthat::expect_true(NROW(profiles.n2) == 26)
   testthat::expect_true(NROW(profiles.n3) == 23)
 })
 
 testthat::test_that("TADA_IDDepthProfile includes all 'depth params' regardless of count", {
-
   depth.params <- c(
     "DEPTH, SECCHI DISK DEPTH",
     "DEPTH, SECCHI DISK DEPTH (CHOICE LIST)",
@@ -422,21 +428,24 @@ testthat::test_that("TADA_IDDepthProfile includes all 'depth params' regardless 
 
   testdat.profile.params <- TADA_IDDepthProfiles(testdat) |>
     dplyr::ungroup() |>
-    tidyr::separate_longer_delim(TADA.CharacteristicsForDepthProfile, delim = "; ") |>
+    tidyr::separate_longer_delim(
+      TADA.CharacteristicsForDepthProfile,
+      delim = "; "
+    ) |>
     dplyr::select(TADA.CharacteristicsForDepthProfile) |>
     dplyr::distinct() |>
     dplyr::pull()
 
-    testdat.params.list <- sub("_.*", "", testdat.profile.params) |>
-      stringr::str_unique() |>
-      intersect(depth.params)
+  testdat.params.list <- sub("_.*", "", testdat.profile.params) |>
+    stringr::str_unique() |>
+    intersect(depth.params)
 
-
-  testthat::expect_all_true(sort(testdat.params.list) == sort(testdat.depth.params))
+  testthat::expect_all_true(
+    sort(testdat.params.list) == sort(testdat.depth.params)
+  )
 })
 
 testthat::test_that("TADA_IDDepthProfile excludes mean-generated aggregate rows", {
-
   # one location for test
   testdat <- Data_Nutrients_UT |>
     dplyr::filter(TADA.MonitoringLocationIdentifier == "UTAHDWQ_WQX-5952770")
@@ -452,93 +461,129 @@ testthat::test_that("TADA_IDDepthProfile excludes mean-generated aggregate rows"
   testid.none <- TADA_IDDepthProfiles(testdat.none)
 
   # compare TADA_IDDepthProfile results
-  testthat::expect_true(NROW(testid.agg |>
-                               dplyr::anti_join(testid.none,
-                                                by = dplyr::join_by(TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName,
-                                                                    TADA.MonitoringLocationTypeName, OrganizationIdentifier, ActivityStartDate,
-                                                                    TADA.CharacteristicsForDepthProfile))) == 0)
+  testthat::expect_true(
+    NROW(
+      testid.agg |>
+        dplyr::anti_join(
+          testid.none,
+          by = dplyr::join_by(
+            TADA.MonitoringLocationIdentifier,
+            TADA.MonitoringLocationName,
+            TADA.MonitoringLocationTypeName,
+            OrganizationIdentifier,
+            ActivityStartDate,
+            TADA.CharacteristicsForDepthProfile
+          )
+        )
+    ) ==
+      0
+  )
 })
 
 # tests for TADA_DepthProfilePlot
 
 testthat::test_that("TADA_DepthProfilePlot returns a plotly object", {
-
-  testplot <- TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-                        groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-                                   "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
-                        location = "REDLAKE_WQX-BASS-SE",
-                        activity_date = "2025-07-16"
-   )
-
+  testplot <- TADA_DepthProfilePlot(
+    Data_TribalNations_Harmonized,
+    groups = c(
+      "TEMPERATURE_NONE_NONE_DEG C",
+      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+      "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"
+    ),
+    location = "REDLAKE_WQX-BASS-SE",
+    activity_date = "2025-07-16"
+  )
 
   testthat::expect_s3_class(testplot, "plotly")
 })
 
 testthat::test_that("TADA_DepthProfilePlot fails when required params are missing", {
+  testthat::expect_error(TADA_DepthProfilePlot(
+    Data_TribalNations_Harmonized,
+    groups = c(
+      "TEMPERATURE_NONE_NONE_DEG C",
+      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+      "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"
+    ),
+    #location = "REDLAKE_WQX-BASS-SE",
+    activity_date = "2025-07-16"
+  ))
 
-  testthat::expect_error(TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-                                    groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-                                               "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
-                                    #location = "REDLAKE_WQX-BASS-SE",
-                                    activity_date = "2025-07-16"
-                                    ))
+  testthat::expect_error(TADA_DepthProfilePlot(
+    Data_TribalNations_Harmonized,
+    groups = c(
+      "TEMPERATURE_NONE_NONE_DEG C",
+      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+      "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"
+    ),
+    location = "REDLAKE_WQX-BASS-SE",
+    #activity_date = "2025-07-16"
+  ))
 
-  testthat::expect_error(TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-                                               groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-                                                          "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
-                                               location = "REDLAKE_WQX-BASS-SE",
-                                               #activity_date = "2025-07-16"
-                                               ))
-
-  testthat::expect_error(TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-                                               #groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-                                                         # "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
-                                               location = "REDLAKE_WQX-BASS-SE",
-                                               activity_date = "2025-07-16"
+  testthat::expect_error(TADA_DepthProfilePlot(
+    Data_TribalNations_Harmonized,
+    #groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+    # "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
+    location = "REDLAKE_WQX-BASS-SE",
+    activity_date = "2025-07-16"
   ))
 })
 
 testthat::test_that("TADA_DepthProfilePlot fails when selected groups, location or activity date are not in df", {
-
-  testthat::expect_error(TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-                                               groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-                                                          "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
-                                               location = "REDLAKE_FAKE_LAKE", # location not in df
-                                               activity_date = "2025-07-16"
+  testthat::expect_error(TADA_DepthProfilePlot(
+    Data_TribalNations_Harmonized,
+    groups = c(
+      "TEMPERATURE_NONE_NONE_DEG C",
+      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+      "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"
+    ),
+    location = "REDLAKE_FAKE_LAKE", # location not in df
+    activity_date = "2025-07-16"
   ))
 
-  testthat::expect_error(TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-                                               groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-                                                          "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
-                                               location = "REDLAKE_WQX-BASS-SE",
-                                               activity_date = "2000-01-01" # activity date not in df
+  testthat::expect_error(TADA_DepthProfilePlot(
+    Data_TribalNations_Harmonized,
+    groups = c(
+      "TEMPERATURE_NONE_NONE_DEG C",
+      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+      "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"
+    ),
+    location = "REDLAKE_WQX-BASS-SE",
+    activity_date = "2000-01-01" # activity date not in df
   ))
 
-  testthat::expect_error(TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-                                               groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-                                                "GROUP_DOESNT_EXIST"),
-                                               location = "REDLAKE_WQX-BASS-SE",
-                                               activity_date = "2025-07-16"
+  testthat::expect_error(TADA_DepthProfilePlot(
+    Data_TribalNations_Harmonized,
+    groups = c(
+      "TEMPERATURE_NONE_NONE_DEG C",
+      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+      "GROUP_DOESNT_EXIST"
+    ),
+    location = "REDLAKE_WQX-BASS-SE",
+    activity_date = "2025-07-16"
   ))
 })
 
 testthat::test_that("TADA_DepthProfilePlot errors on depth unit mismatch", {
   testdat <- Data_TribalNations_Harmonized |>
-    dplyr::filter(TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-BASS-SE",
-                  ActivityStartDate == "2025-07-16") |>
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-BASS-SE",
+      ActivityStartDate == "2025-07-16"
+    ) |>
     TADA_FlagDepthCategory() |>
-    dplyr::mutate(
-      TADA.ConsolidatedDepth.Unit = "ft"
-    )
+    dplyr::mutate(TADA.ConsolidatedDepth.Unit = "ft")
 
   testthat::expect_error(
-    TADA_DepthProfilePlot(testdat,
-                          groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-                                     "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
-                          location = "REDLAKE_WQX-BASS-SE",
-                          activity_date = "2025-07-16"
-    )
-    ,
+    TADA_DepthProfilePlot(
+      testdat,
+      groups = c(
+        "TEMPERATURE_NONE_NONE_DEG C",
+        "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+        "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"
+      ),
+      location = "REDLAKE_WQX-BASS-SE",
+      activity_date = "2025-07-16"
+    ),
     regexp = "unit|convert|ft|m",
     ignore.case = TRUE
   )
