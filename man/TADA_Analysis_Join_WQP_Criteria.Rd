@@ -2,7 +2,8 @@
 % Please edit documentation in R/CriteriaAnalysis.R
 \name{TADA_Analysis_Join_WQP_Criteria}
 \alias{TADA_Analysis_Join_WQP_Criteria}
-\title{Join WQP data to criteria (TADA.ComparableDataIdentifier preferred, else fallbacks)}
+\title{Join WQP data to criteria
+(UNDER ACTIVE DEVELOPMENT)}
 \usage{
 TADA_Analysis_Join_WQP_Criteria(
   .data,
@@ -81,5 +82,13 @@ MT_data_criteria3 <- TADA_Analysis_Join_WQP_Criteria(
   criteria_MT,
   AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
   AU_UsesRef = Data_MT_AU_UsesRef_Water)
-
+  
+# only return rows that will be used for analysis 
+MT_data_criteria3 <- TADA_Analysis_Join_WQP_Criteria(
+  MT_data,
+  criteria_MT,
+  AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
+  AU_UsesRef = Data_MT_AU_UsesRef_Water,
+  clean = TRUE)
+  
 }

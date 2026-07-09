@@ -1,4 +1,5 @@
-#' Join WQP data to criteria (TADA.ComparableDataIdentifier preferred, else fallbacks)
+#' Join WQP data to criteria
+#' (UNDER ACTIVE DEVELOPMENT)
 #'
 #' Join WQP results to a criteria table by the best available key:
 #' 1) TADA.ComparableDataIdentifier (if present in both and non-NA in criteria)
@@ -59,7 +60,15 @@
 #'   criteria_MT,
 #'   AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
 #'   AU_UsesRef = Data_MT_AU_UsesRef_Water)
-#'
+#'   
+#' # only return rows that will be used for analysis 
+#' MT_data_criteria3 <- TADA_Analysis_Join_WQP_Criteria(
+#'   MT_data,
+#'   criteria_MT,
+#'   AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
+#'   AU_UsesRef = Data_MT_AU_UsesRef_Water,
+#'   clean = TRUE)
+#'   
 TADA_Analysis_Join_WQP_Criteria <- function(
   .data,
   criteria,
@@ -100,16 +109,6 @@ TADA_Analysis_Join_WQP_Criteria <- function(
 
   has_AUMLRef <- !is.null(AUMLRef) && nrow(AUMLRef) > 0
   has_AUUsesRef <- !is.null(AU_UsesRef) && nrow(AU_UsesRef) > 0
-
-  # Optional key logic for joining criteria table to wqp data if AUML and/or AU_Uses is supplied
-  # optional_keys <- character(0)
-  # if (has_AUMLRef && has_AUUsesRef) {
-  #   optional_keys <- c("ATTAINS.OrganizationIdentifier", "ATTAINS.UseName", "ATTAINS.WaterType")
-  # } else if (has_AUMLRef) {
-  #   optional_keys <- c("ATTAINS.OrganizationIdentifier", "ATTAINS.WaterType")
-  # } else if (has_AUUsesRef) {
-  #   optional_keys <- c("ATTAINS.OrganizationIdentifier", "ATTAINS.UseName")
-  # }
 
   # ---- join AUMLRef into .data if needed ----
   if (has_AUMLRef) {
@@ -307,9 +306,19 @@ TADA_Analysis_Join_WQP_Criteria <- function(
 
   # If ATTAINS.UseName is populated from the AU_UsesRef, use the criteria table to determine which ATTAINS.Parameter it is associated with
   join_keys <- function(base_keys) {
-    if ("ATTAINS.UseName" %in% names(.data)) {
+    if (has_AUUsesRef) {
       unique(c(base_keys, "ATTAINS.UseName"))
-    } else {
+    }
+    
+    if (has_AUUsesRef && has_AUMLRef) {
+      unique(c(base_keys, "ATTAINS.WaterType", "ATTAINS.OrganizationIdentifier", "ATTAINS.UseName")) # add SaltFresh, UniqueSpatialCriteria and DepthCategory in the future
+    } 
+    
+    if (has_AUMLRef && isFALSE(has_AUUsesRef)) {
+      unique(c(base_keys, "ATTAINS.WaterType", "ATTAINS.OrganizationIdentifier"))
+    }
+    
+    if (isFALSE(has_AUMLRef) && isFALSE(has_AUUsesRef)) {
       base_keys
     }
   }
@@ -324,7 +333,21 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     if (!all(keys %in% names(crit))) {
       return(NULL)
     }
-    dplyr::left_join(df, crit, by = keys, relationship = "many-to-many")
+    
+    # check to see if spatial criteria column contains NA, if it does, don't join those rows by that spatial column
+    crit_NA <- crit |>
+      dplyr::filter(is.na(ATTAINS.WaterType)) |>
+      dplyr::select(-ATTAINS.WaterType)
+    
+    # if criteria table explicitly define an ATTAINS.WaterType it applies to, these will be joined by ATTAINS.WaterType
+    crit_not_NA <- crit |>
+      dplyr::filter(!is.na(ATTAINS.WaterType))
+    
+    join_NA <- dplyr::left_join(df, crit_NA, by = setdiff(keys, "ATTAINS.WaterType"), relationship = "many-to-many")
+    
+    join_not_NA <- dplyr::left_join(df, crit_not_NA, by = keys, relationship = "many-to-many")
+    
+    return(dplyr::bind_rows(join_NA, join_not_NA) |> dplyr::distinct())
   }
 
   # Pass 1: ID (+ optional keys)
@@ -362,70 +385,11 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   } else {
     .data
   }
-
-  # handles mismatches between any joins between criteria table, AUMLRef and AU_UsesRef
-  resolve_xy_columns <- function(df, flag_suffix = "_join_flag") {
-    x_cols <- names(df)[grepl("\\.x$", names(df))] # .x is from AUMLRef or AU_UsesRef
-    y_cols <- names(df)[grepl("\\.y$", names(df))] # .y is from the criteria table
-    base_names <- intersect(sub("\\.x$", "", x_cols), sub("\\.y$", "", y_cols))
-
-    if (length(base_names) == 0) {
-      return(df)
-    }
-
-    for (base in base_names) {
-      x_nm <- paste0(base, ".x")
-      y_nm <- paste0(base, ".y")
-
-      if (x_nm %in% names(df) && y_nm %in% names(df)) {
-        flag_nm <- paste0(base, flag_suffix)
-
-        df[[flag_nm]] <- dplyr::case_when(
-          is.na(df[[x_nm]]) &
-            is.na(df[[
-              y_nm
-            ]]) ~ "Pass: Both criteria table and your AUML and/or AU_Uses Ref are NA for this parameter.",
-          !is.na(df[[x_nm]]) &
-            is.na(df[[
-              y_nm
-            ]]) ~ "Pass: criteria table is NA for this value for this parameter, assume criteria applies to all. Using value populated by your AUML and/or AU_Uses ref.",
-          is.na(df[[x_nm]]) &
-            !is.na(df[[
-              y_nm
-            ]]) ~ "Suspect: criteria table is populated for this parameter, but your AUML and/or AU_Uses Ref is NA, keeping these values as NA.",
-          !is.na(df[[x_nm]]) &
-            !is.na(df[[y_nm]]) &
-            df[[x_nm]] !=
-              df[[
-                y_nm
-              ]] ~ "Suspect: mismatch between criteria and your AUML and/or AU_Uses Ref for this parameter, using value populated by AUML and/or AU_Uses ref",
-          !is.na(df[[x_nm]]) &
-            !is.na(df[[y_nm]]) &
-            df[[x_nm]] ==
-              df[[
-                y_nm
-              ]] ~ "Pass: Both criteria table and your AUML and/or AU_Uses Ref values match",
-          TRUE ~ NA_character_
-        )
-
-        # Keep .x value as final value
-        df[[base]] <- df[[x_nm]]
-
-        # Drop suffix columns
-        df[[x_nm]] <- NULL
-        df[[y_nm]] <- NULL
-      }
-    }
-
-    df
-  }
-
-  wqp_criteria <- resolve_xy_columns(wqp_criteria)
-
+  
   wqp_criteria <- TADA_CorrectColType(wqp_criteria) |>
     dplyr::mutate(SaltFresh = as.character(SaltFresh))
-
-  # if TRUE, only displays returning matches that will be used for analysis
+  
+  # if TRUE, only displays returning matches (those filled in from criteria table) that will be used for analysis
   cols <- names(TADA_DefineCriteriaMethodology()[[1]])[-seq_len(8)]
   existing_cols <- intersect(cols, names(wqp_criteria))
 
