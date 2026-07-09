@@ -288,14 +288,24 @@ test_that("TADA_FindQAPPApproval filters Y, N, and NA correctly", {
 })
 
 test_that("TADA_FlagAboveThreshold treats threshold equality as Pass", {
+  file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+  load(file_path)
+  
+  ref_row <- dplyr::filter(
+    WQXcharValRef,
+    Type == "CharacteristicUnit",
+    TADA.WQXVal.Flag == "Pass",
+    !is.na(Maximum)
+  ) |>
+    dplyr::slice(1)
+  
   dat <- data.frame(
-    TADA.CharacteristicName = "SomeChar",
-    TADA.ActivityMediaName = "Water",
-    TADA.ResultMeasureValue = 10,
-    TADA.ResultMeasure.MeasureUnitCode = "mg/L"
+    TADA.CharacteristicName = ref_row$Characteristic,
+    TADA.ActivityMediaName = ref_row$Source,
+    TADA.ResultMeasureValue = ref_row$Maximum,
+    TADA.ResultMeasure.MeasureUnitCode = ref_row$Value.Unit
   )
   
-  # Requires a mocked or crafted reference match with Maximum = 10
   res <- TADA_FlagAboveThreshold(dat)
   expect_equal(res$TADA.ResultValueAboveUpperThreshold.Flag, "Pass")
 })

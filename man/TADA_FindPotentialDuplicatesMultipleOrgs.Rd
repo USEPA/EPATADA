@@ -74,10 +74,9 @@ organizations.
 \dontrun{
 # Load example dataset with known multiple-organization duplicates
 dat <- TADA_DataRetrieval(
-  startDate = "2022-09-01",
-  endDate = "2023-05-01",
+  startDate = "2023-04-01",
+  endDate = "2023-04-30",
   statecode = "PA",
-  sampleMedia = "Water",
   organization = c("21PA_WQX", "USGS-PA"),
   ask = FALSE
 )
@@ -112,8 +111,9 @@ dat_review <- dat1 |>
   ) |>
   dplyr::arrange(TADA.MultipleOrgDupGroupID)
 
-# Keep only non-duplicate / representative rows
-dat_clean <- TADA_FindPotentialDuplicatesMultipleOrgs(dat, clean = TRUE)
+# Re-run and keep only non-duplicate / representative rows
+# Relies on existing duplicate flag columns to avoid re-computation
+dat_clean <- TADA_FindPotentialDuplicatesMultipleOrgs(dat1, clean = TRUE)
 }
 
 }
