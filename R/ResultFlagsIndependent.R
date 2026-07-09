@@ -1602,8 +1602,9 @@ TADA_FlagCoordinates <- function(
 #'   ) |>
 #'   dplyr::arrange(TADA.MultipleOrgDupGroupID)
 #'
-#' # Keep only non-duplicate / representative rows
-#' dat_clean <- TADA_FindPotentialDuplicatesMultipleOrgs(dat, clean = TRUE)
+#' # Re-run and keep only non-duplicate / representative rows
+#' # Relies on existing duplicate flag columns to avoid re-computation
+#' dat_clean <- TADA_FindPotentialDuplicatesMultipleOrgs(dat1, clean = TRUE)
 #' }
 #'
 #' @export
