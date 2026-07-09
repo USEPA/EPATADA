@@ -250,3 +250,17 @@ test_that("QC results are not flagged as Continuous", {
     expect_true(nrow(cont_QC_disc) > 0)
   }
 })
+
+test_that("TADA_FindPotentialDuplicatesSingleOrg has non-NA values for each row in columns added in function", {
+  testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
+  
+  testthat::skip_if(
+    is.null(testdat) || NROW(testdat) == 0,
+    "Empty test data; skipping test."
+  )
+  
+  testdat <- TADA_FindPotentialDuplicatesSingleOrg(testdat)
+  
+  expect_false(any(is.na(testdat$TADA.SingleOrgDupGroupID)))
+  expect_false(any(is.na(testdat$TADA.SingleOrgDup.Flag)))
+})
