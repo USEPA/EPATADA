@@ -1032,15 +1032,13 @@ TADA_DepthProfilePlot <- function(
     message(
       "TADA_DepthProfilePlot: Depth unit in data set matches depth unit specified by user for plot. No conversion necessary."
     )
-
-    .data <- .data
+  }
 
     if (.data$TADA.ConsolidatedDepth.Unit[1] != unit) {
       stop(
         "TADA_DepthProfilePlot: Depth unit in data set does not match depth unit specified by user for plot. Convert units in data or specify correct unit in TADA_DepthProfilePlot function."
       )
     }
-  }
 
   # create ID Depth Profiles data.frame to check against params
 
@@ -1074,6 +1072,7 @@ TADA_DepthProfilePlot <- function(
     dplyr::filter(ActivityStartDate == activity_date) |>
     tidyr::separate_longer_delim(TADA.CharacteristicsForDepthProfile, delim = "; ") |>
     dplyr::select(TADA.CharacteristicsForDepthProfile) |>
+    dplyr::mutate(TADA.CharacteristicsForDepthProfile = stringr::str_trim(TADA.CharacteristicsForDepthProfile)) |>
     dplyr::pull()
 
 

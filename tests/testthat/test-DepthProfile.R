@@ -459,26 +459,17 @@ testthat::test_that("TADA_IDDepthProfile excludes mean-generated aggregate rows"
                                                                     TADA.CharacteristicsForDepthProfile))) == 0)
 })
 
-# 8) Output has unique rows at expected granularity
-# Check that output is unique by:
-#
-#   TADA.MonitoringLocationIdentifier
-# OrganizationIdentifier
-# ActivityStartDate
-# maybe TADA.CharacteristicsForDepthProfile
-# 9) NA result values are removed
-# Make sure rows with TADA.ResultMeasureValue = NA do not contribute.
-
 # tests for TADA_DepthProfilePlot
 
 testthat::test_that("TADA_DepthProfilePlot returns a plotly object", {
 
   testplot <- TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-                        groups = c("TEMPERATURE_NONE_NONE_DEG C", "PH_NONE_NONE_NONE",
+                        groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
                                    "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
                         location = "REDLAKE_WQX-BASS-SE",
                         activity_date = "2025-07-16"
    )
+
 
   testthat::expect_s3_class(testplot, "plotly")
 })
@@ -486,21 +477,21 @@ testthat::test_that("TADA_DepthProfilePlot returns a plotly object", {
 testthat::test_that("TADA_DepthProfilePlot fails when required params are missing", {
 
   testthat::expect_error(TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-                                    groups = c("TEMPERATURE_NONE_NONE_DEG C", "PH_NONE_NONE_NONE",
+                                    groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
                                                "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
                                     #location = "REDLAKE_WQX-BASS-SE",
                                     activity_date = "2025-07-16"
                                     ))
 
   testthat::expect_error(TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-                                               groups = c("TEMPERATURE_NONE_NONE_DEG C", "PH_NONE_NONE_NONE",
+                                               groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
                                                           "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
                                                location = "REDLAKE_WQX-BASS-SE",
                                                #activity_date = "2025-07-16"
                                                ))
 
   testthat::expect_error(TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-                                               #groups = c("TEMPERATURE_NONE_NONE_DEG C", "PH_NONE_NONE_NONE",
+                                               #groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
                                                          # "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
                                                location = "REDLAKE_WQX-BASS-SE",
                                                activity_date = "2025-07-16"
@@ -531,50 +522,24 @@ testthat::test_that("TADA_DepthProfilePlot fails when selected groups, location 
   ))
 })
 
+testthat::test_that("TADA_DepthProfilePlot errors on depth unit mismatch", {
+  testdat <- Data_TribalNations_Harmonized |>
+    dplyr::filter(TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-BASS-SE",
+                  ActivityStartDate == "2025-07-16") |>
+    TADA_FlagDepthCategory() |>
+    dplyr::mutate(
+      TADA.ConsolidatedDepth.Unit = "ft"
+    )
 
-#
-# 6) Handles data that are not yet flagged
-# Provide raw input without depth category columns and confirm it internally calls TADA_FlagDepthCategory().
-#
-# 7) Rejects depth unit mismatch
-# If input depth unit is "ft" and user asks for "m" but no conversion is present, expect error or at least a warning depending on behavior.
-#
-# 8) Includes or excludes depth category annotation lines
-# Test:
-#
-#   depthcat = TRUE adds annotations/shapes
-# depthcat = FALSE does not
-# You can inspect:
-#
-#   r
-# Copy code
-#
-# expect_true(length(out$x$layout$annotations) > 0)
-# or equivalent depending on plotly object structure.
-#
-# 9) Supports 1, 2, and 3 groups
-# Create separate tests for:
-#
-#   one group
-# two groups
-# three groups
-# Check that the title changes appropriately and traces are added.
-#
-# 10) Handles depth-parameter groups differently
-# If one selected group is a depth parameter like SECCHI DISK DEPTH, confirm it is drawn as a line rather than a scatter trace.
-#
-# 11) Removes NA result rows from plotting
-# Test that NA-result rows are excluded and that the message about NA removal appears.
-#
-# Use expect_message().
-#
-# 12) Surface/bottom line rendering
-# With depthcat = TRUE and numeric surfacevalue/bottomvalue, check that the plot includes the expected horizontal delineation lines.
-#
-
-
-
-
-
-
-
+  testthat::expect_error(
+    TADA_DepthProfilePlot(testdat,
+                          groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+                                     "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
+                          location = "REDLAKE_WQX-BASS-SE",
+                          activity_date = "2025-07-16"
+    )
+    ,
+    regexp = "unit|convert|ft|m",
+    ignore.case = TRUE
+  )
+})
