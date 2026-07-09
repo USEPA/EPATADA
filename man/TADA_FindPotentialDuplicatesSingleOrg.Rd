@@ -4,22 +4,28 @@
 \alias{TADA_FindPotentialDuplicatesSingleOrg}
 \title{Identify Potentially Duplicated Data Uploads by a Single Organization}
 \usage{
-TADA_FindPotentialDuplicatesSingleOrg(.data)
+TADA_FindPotentialDuplicatesSingleOrg(.data, clean = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
+
+\item{clean}{Boolean argument; removes rows flagged as "Duplicate" from the
+dataframe when clean = TRUE. Default is clean = FALSE.}
 }
 \value{
-The same input TADA dataframe with additional columns: a
-TADA.SingleOrgDupGroupID column indicating whether a result is part of a
-group that shares the same date, time, location, characteristic, etc. If
-multiple rows include duplicates within a single organization, the rows will
-have the same number identifier in the TADA.SingleOrgDupGroupID column.
+The same input TADA dataframe with additional columns:
+TADA.SingleOrgDupGroupID indicating whether a result is part of a group that
+shares the same date, time, location, characteristic, etc. If multiple rows
+include duplicates within a single organization, the rows will have the same
+number identifier in the TADA.SingleOrgDupGroupID column.
+
 In addition, the column TADA.SingleOrgDup.Flag is added, which randomly
 flags rows within each TADA.SingleOrgDupGroupID group for removal. Rows
-randomly selected for potential removal within a duplicate group will have the
-TADA.SingleOrgDup.Flag = 'Duplicate' and  all other results in the group will have
-the value TADA.SingleOrgDup.Flag = 'Unique'.
+randomly selected for potential removal within a duplicate group will have
+TADA.SingleOrgDup.Flag = "Unique" and all other results in the group will
+have TADA.SingleOrgDup.Flag = "Duplicate".
+
+When clean = TRUE, rows flagged as "Duplicate" are removed.
 }
 \description{
 Identifies data records uploaded by the same organization with the same date,
@@ -34,8 +40,31 @@ organization.
 \examples{
 # Load dataset
 utils::data(Data_TribalNations)
-# If duplicates exist, identify and flag them for removal
+
+# Identify duplicates and flag them for review
 Data_TribalNations_dups <- TADA_FindPotentialDuplicatesSingleOrg(Data_TribalNations)
 table(Data_TribalNations_dups$TADA.SingleOrgDup.Flag)
+
+# Review a subset of rows showing unique vs duplicate labels
+# Sort by TADA.SingleOrgDupGroupID for easier review
+Data_TribalNations_review <- Data_TribalNations_dups |>
+  dplyr::select(
+    OrganizationIdentifier,
+    MonitoringLocationIdentifier,
+    ActivityStartDate,
+    ActivityStartTime.Time,
+    TADA.CharacteristicName,
+    TADA.ResultMeasureValue,
+    TADA.SingleOrgDupGroupID,
+    TADA.SingleOrgDup.Flag
+  ) |>
+  dplyr::filter(TADA.SingleOrgDup.Flag \%in\% c("Unique", "Duplicate")) |>
+  dplyr::arrange(TADA.SingleOrgDupGroupID)
+
+# Keep only the representative (Unique) rows
+Data_TribalNations_clean <- TADA_FindPotentialDuplicatesSingleOrg(
+  Data_TribalNations,
+  clean = TRUE
+)
 
 }
