@@ -250,3 +250,21 @@ test_that("QC results are not flagged as Continuous", {
     expect_true(nrow(cont_QC_disc) > 0)
   }
 })
+
+test_that("check_location_metadata flags StateCode and CountyCode mismatches", {
+  testdat <- dplyr::tibble(
+    TADA.LatitudeMeasure = c(44.9509, 44.9509, 44.9509),
+    TADA.LongitudeMeasure = c(-89.7590, -89.7590, -89.7590),
+    StateCode = c("55", "17", "55"),
+    CountyCode = c("073", "073", "067")
+  )
+  
+  out <- TADA_FlagCoordinates(
+    testdat,
+    check_location_metadata = TRUE
+  )
+  
+  expect_equal(out$TADA.SuspectCoordinates.Flag[1], "Pass")
+  expect_equal(out$TADA.SuspectCoordinates.Flag[2], "Coordinate_StateMismatch")
+  expect_equal(out$TADA.SuspectCoordinates.Flag[3], "Coordinate_CountyMismatch")
+})
