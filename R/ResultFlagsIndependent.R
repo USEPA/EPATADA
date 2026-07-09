@@ -1491,7 +1491,7 @@ TADA_FlagCoordinates <- function(
 
   # return only flagged data if flaggedonly = true
   if ((flaggedonly == TRUE)) {
-    .data <- dplyr::filter(.data, !TADA.SuspectCoordinates.Flag %in% c("OK"))
+    .data <- dplyr::filter(.data, TADA.SuspectCoordinates.Flag != "Pass")
   }
 
   if (all(.data$TADA.SuspectCoordinates.Flag %in% c("OK")) == TRUE) {
@@ -1565,10 +1565,9 @@ TADA_FlagCoordinates <- function(
 #' \dontrun{
 #' # Load example dataset with known multiple-organization duplicates
 #' dat <- TADA_DataRetrieval(
-#'   startDate = "2022-09-01",
-#'   endDate = "2023-05-01",
+#'   startDate = "2023-04-01",
+#'   endDate = "2023-04-30",
 #'   statecode = "PA",
-#'   sampleMedia = "Water",
 #'   organization = c("21PA_WQX", "USGS-PA"),
 #'   ask = FALSE
 #' )

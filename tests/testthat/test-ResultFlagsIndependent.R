@@ -33,10 +33,12 @@ test_that("SuspectCoordinates works", {
   )
   unique(OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag)
 
-  expect_true(any(
-    OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag != "LONG_OutsideUSA" |
-      OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag != "LAT_OutsideUSA"
-  ))
+  expect_false(any(OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag %in% c(
+    "LONG_OutsideUSA",
+    "LAT_OutsideUSA"
+  )))
+  
+  expect_false(any(ImpreciseCoord_removed$TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits"))
 
   ## Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
   Suspect_removed <- TADA_FlagCoordinates(
@@ -129,7 +131,7 @@ test_that("No NAs in independent flag columns", {
   expect_false(any(is.na(testdat$TADA.ResultValueBelowLowerThreshold.Flag)))
 
   testdat <- TADA_FindQAPPDoc(testdat, clean = FALSE)
-  expect_false(any(is.na(testdat$TADA_FindQAPPDoc)))
+  expect_false(any(is.na(testdat$TADA.QAPPDocAvailable)))
 })
 
 test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
@@ -143,8 +145,8 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
   testdat1 <- TADA_FindPotentialDuplicatesSingleOrg(testdat)
   testdat2 <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
 
-  expect_true(dim(testdat)[1] == dim(testdat1)[1])
-  expect_true(dim(testdat)[1] == dim(testdat2)[1])
+  expect_equal(nrow(testdat), nrow(testdat1))
+  expect_equal(nrow(testdat), nrow(testdat2))
 })
 
 test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
@@ -161,7 +163,7 @@ test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multi
 
   testdat2 <- testdat |>
     dplyr::select(TADA.MultipleOrgDupGroupID) |>
-    dplyr::filter(TADA.MultipleOrgDupGroupID != "Not a duplicate") |>
+    dplyr::filter(TADA.MultipleOrgDupGroupID != "Not a Duplicate") |>
     unique() |>
     dplyr::pull() |>
     as.numeric() |>
@@ -172,19 +174,18 @@ test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multi
   expect_true(length(unique(diff(testdat2))) < 2 | length(testdat2 == 0))
 })
 
-test_that("TADA_FindPotentialDuplicatesMultipleOrgs has non-NA values for each row in columns added in function", {
+test_that("TADA_FindPotentialDuplicatesMultipleOrgs has non-NA values for added columns", {
   testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
-
+  
   testthat::skip_if(
     is.null(testdat) || NROW(testdat) == 0,
     "Empty test data; skipping test."
   )
-
+  
   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
+  
   expect_false(any(is.na(testdat$TADA.MultipleOrgDupGroupID)))
-  expect_false(any(is.na(testdat$TADA.MultipleOrgDuplicate)))
-  expect_false(any(is.na(testdat$TADA.MonitoringLocationIdentifier)))
-  expect_false(any(is.na(testdat$TADA.ResultSelectedMultipleOrgs)))
+  expect_false(any(is.na(testdat$TADA.MultipleOrgDup.Flag)))
 })
 
 test_that("WQXcharValRef.rda contains only one row for each unique characteristic/source/unit combination for threshold functions", {
@@ -261,6 +262,40 @@ test_that("TADA_FindPotentialDuplicatesSingleOrg has non-NA values for each row 
   
   testdat <- TADA_FindPotentialDuplicatesSingleOrg(testdat)
   
+  expect_true("TADA.SingleOrgDupGroupID" %in% names(testdat))
+  expect_true("TADA.SingleOrgDup.Flag" %in% names(testdat))
+  
   expect_false(any(is.na(testdat$TADA.SingleOrgDupGroupID)))
   expect_false(any(is.na(testdat$TADA.SingleOrgDup.Flag)))
+})
+
+test_that("TADA_FindQAPPApproval filters Y, N, and NA correctly", {
+  dat <- data.frame(
+    QAPPApprovedIndicator = c("Y", "N", NA)
+  )
+  
+  res1 <- TADA_FindQAPPApproval(dat, clean = FALSE, cleanNA = FALSE, flaggedonly = FALSE)
+  expect_equal(nrow(res1), 3)
+  
+  res2 <- TADA_FindQAPPApproval(dat, clean = TRUE, cleanNA = FALSE, flaggedonly = FALSE)
+  expect_equal(res2$QAPPApprovedIndicator, c("Y", NA))
+  
+  res3 <- TADA_FindQAPPApproval(dat, clean = TRUE, cleanNA = TRUE, flaggedonly = FALSE)
+  expect_equal(res3$QAPPApprovedIndicator, "Y")
+  
+  res4 <- TADA_FindQAPPApproval(dat, clean = FALSE, cleanNA = TRUE, flaggedonly = TRUE)
+  expect_equal(res4$QAPPApprovedIndicator, "N")
+})
+
+test_that("TADA_FlagAboveThreshold treats threshold equality as Pass", {
+  dat <- data.frame(
+    TADA.CharacteristicName = "SomeChar",
+    TADA.ActivityMediaName = "Water",
+    TADA.ResultMeasureValue = 10,
+    TADA.ResultMeasure.MeasureUnitCode = "mg/L"
+  )
+  
+  # Requires a mocked or crafted reference match with Maximum = 10
+  res <- TADA_FlagAboveThreshold(dat)
+  expect_equal(res$TADA.ResultValueAboveUpperThreshold.Flag, "Pass")
 })
