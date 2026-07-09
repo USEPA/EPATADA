@@ -347,7 +347,6 @@ TADA_FlagDepthCategory <- function(
 
     .data <- .data |> dplyr::filter(TADA.DepthCategory.Flag == "Middle")
   }
-
   if (bycategory == "bottom") {
     message(
       "TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for bottom samples only."
@@ -911,7 +910,7 @@ TADA_IDDepthProfiles <- function(
 #' # Create a depth profile figure with three parameters for a single
 #' # monitoring location and date
 #' TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-#' groups = c("TEMPERATURE_NONE_NONE_DEG C", "PH_NONE_NONE_NONE",
+#' groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
 #' "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
 #' location = "REDLAKE_WQX-BASS-SE",
 #' activity_date = "2025-07-16"
@@ -922,7 +921,7 @@ TADA_IDDepthProfiles <- function(
 #' # Create a depth profile figure with two parameters for a single monitoring
 #' # location and date without displaying depth categories
 #' TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-#' groups = c("PH_NONE_NONE_NONE", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"),
+#' groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"),
 #' location = "REDLAKE_WQX-NONA",
 #' activity_date = "2024-02-05",
 #' depthcat = FALSE
@@ -939,11 +938,7 @@ TADA_DepthProfilePlot <- function(
   bottomvalue = 2,
   unit = "m"
 ) {
-  # helper for debugging: can uncomment if needed
-  # dbg_nrow <- function(x, label) {
-  #   message(label, ": ", nrow(x))
-  #   x
-  # }
+
   # check to see if TADA.ComparableDataIdentifier column is present
   if ("TADA.ComparableDataIdentifier" %in% colnames(.data)) {
     .data <- .data
@@ -1031,8 +1026,7 @@ TADA_DepthProfilePlot <- function(
 
   # add convert depth unit (this still needs to be added), for now print warning and stop function if units don't match
   .data <- .data |>
-    dplyr::filter(!is.na(TADA.ConsolidatedDepth)) |>
-    dbg_nrow("After depth filter")
+    dplyr::filter(!is.na(TADA.ConsolidatedDepth))
 
   if (.data$TADA.ConsolidatedDepth.Unit[1] == unit) {
     message(
@@ -1050,159 +1044,60 @@ TADA_DepthProfilePlot <- function(
 
   # create ID Depth Profiles data.frame to check against params
 
-  param.check <- TADA_IDDepthProfiles(.data)
+  param.check <- TADA_IDDepthProfiles(.data, nresults = FALSE)
 
+  # check for location in TADA df
   if (is.null(location)) {
-    message(
-      "TADA_DepthProfilePlot: No TADA.MonitoringLocationIdentifier selected, a depth profile cannot be generated."
-    )
-
-    stop()
-
-    if (!location %in% param.check$TADA.MonitoringLocationIdentifier) {
-      message(
-        "TADA_DepthProfilePlot: TADA.MonitoringLocationIdentifier selected is not in data set."
-      )
-
-      stop()
-    }
-
-    if (location %in% param.check$TADA.MonitoringLocationIdentifier) {
-      message(
-        "TADA_DepthProfilePlot: TADA.MonitoringLocationIdentifier selected."
-      )
-    }
+    stop("TADA_DepthProfilePlot: No TADA.MonitoringLocationIdentifier selected, a depth profile cannot be generated.")
+  } else if (!location %in% param.check$TADA.MonitoringLocationIdentifier) {
+    stop("TADA_DepthProfilePlot: TADA.MonitoringLocationIdentifier selected is not in data set.")
+  } else {
+    message("TADA_DepthProfilePlot: TADA.MonitoringLocationIdentifier selected.")
   }
 
+  # filter by location
+  param.check <- param.check |>
+    dplyr::filter(TADA.MonitoringLocationIdentifier == location)
+
+  # check for activity date in TADA df
   if (is.null(activity_date)) {
-    message(
-      "TADA_DepthProfilePlot: No ActivityStartDate selected, a depth profile cannot be generated."
-    )
-
-    stop()
-
-    if (!activity_date %in% param.check$ActivityStartDate) {
-      message(
-        "TADA_DepthProfilePlot: ActivityStartDate selected is not in data set."
-      )
-    }
-
-    stop()
-
-    if (activity_date %in% param.check$ActivityStartDate) {
-      message("TADA_DepthProfilePlot: ActivityStartDate selected.")
-    }
+    stop("TADA_DepthProfilePlot: No ActivityStartDate selected, a depth profile cannot be generated.")
+  } else if (!activity_date %in% param.check$ActivityStartDate) {
+    stop("TADA_DepthProfilePlot: ActivityStartDate selected is not in data set for selected TADA.MonitoringLocationIdentifier.")
+  } else {
+    message("TADA_DepthProfilePlot: ActivityStartDate selected.")
   }
 
-  if (is.null(groups)) {
-    message(
-      "TADA_DepthProfilePlot: No groups selected, a depth profile cannot be generated."
-    )
+  # filter by activity date and create list of parameter groups
+  param.check <- param.check |>
+    dplyr::ungroup() |>
+    dplyr::filter(ActivityStartDate == activity_date) |>
+    tidyr::separate_longer_delim(TADA.CharacteristicsForDepthProfile, delim = "; ") |>
+    dplyr::select(TADA.CharacteristicsForDepthProfile) |>
+    dplyr::pull()
 
-    stop()
 
-    if (!is.null(groups)) {
-      groups.length <- length(groups)
-
-      if (groups.length > 0) {
-        if (
-          stringr::str_detect(
-            param.check$TADA.CharacteristicsForDepthProfile,
-            groups[1]
-          ) ==
-            FALSE
-        ) {
-          message(
-            "TADA_DepthProfilePlot: First of groups for depth profile plot does not exist in data set."
-          )
-        }
-
-        stop()
-
-        if (
-          stringr::str_detect(
-            param.check$TADA.CharacteristicsForDepthProfile,
-            groups[1]
-          ) ==
-            TRUE
-        ) {
-          message(
-            "TADA:DepthProfilePlot: First of groups for depth profile exists in data set."
-          )
-        }
-      }
-
-      if (groups.length > 1) {
-        if (
-          stringr::str_detect(
-            param.check$TADA.CharacteristicsForDepthProfile,
-            groups[2]
-          ) ==
-            FALSE
-        ) {
-          message(
-            "TADA_DepthProfilePlot: Second of groups for depth profile plot does not exist in data set."
-          )
-        }
-
-        stop()
-
-        if (
-          stringr::str_detect(
-            param.check$TADA.CharacteristicsForDepthProfile,
-            groups[2]
-          ) ==
-            TRUE
-        ) {
-          message(
-            "TADA:DepthProfilePlot: Second of groups for depth profile exists in data set."
-          )
-        }
-      }
-
-      if (groups.length > 2) {
-        if (
-          stringr::str_detect(
-            param.check$TADA.CharacteristicsForDepthProfile,
-            groups[3]
-          ) ==
-            FALSE
-        ) {
-          message(
-            "TADA_DepthProfilePlot: Third of groups for depth profile plot does not exist in data set."
-          )
-        }
-
-        stop()
-
-        if (
-          stringr::str_detect(
-            param.check$TADA.CharacteristicsForDepthProfile,
-            groups[3]
-          ) ==
-            TRUE
-        ) {
-          message(
-            "TADA:DepthProfilePlot: Third of groups for depth profile exists in data set."
-          )
-        }
-      }
+# check to make sure each group is available in TADA df
+    if (is.null(groups) || length(groups) == 0) {
+      stop("TADA_DepthProfilePlot: No groups selected, a depth profile cannot be generated.")
     }
 
-    if (!activity_date %in% param.check$ActivityStartDate) {
-      message(
-        "TADA_DepthProfilePlot: ActivityStartDate selected is not in data set."
-      )
+    if (length(groups) >= 1 && !groups[1] %in% param.check) {
+      stop("TADA_DepthProfilePlot: First group for depth profile plot does not exist in data set.")
     }
 
-    stop()
-
-    if (activity_date %in% param.check$ActivityStartDate) {
-      message("TADA_DepthProfilePlot: ActivityStartDate selected.")
+    if (length(groups) >= 2 && !groups[2] %in% param.check) {
+      stop("TADA_DepthProfilePlot: Second group for depth profile plot does not exist in data set.")
     }
 
-    param.check <- param.check |>
-      dplyr::filter(ActivityStartDate == activity_date)
+    if (length(groups) >= 3 && !groups[3] %in% param.check) {
+      stop("TADA_DepthProfilePlot: Third group for depth profile plot does not exist in data set.")
+    }
+
+
+  # if all groups present in TADA df, print message
+  if(length(groups) > 0) {
+    message("TADA_DepthProfilePlot: Parameter groups for depth profile plot selected.")
   }
 
   # remove param.check
@@ -1294,14 +1189,12 @@ TADA_DepthProfilePlot <- function(
       ActivityStartDate %in% activity_date,
       TADA.ActivityMediaName == "WATER"
     ) |>
-    #dbg_nrow("After location/date/media filter") |>
     dplyr::group_by(
       TADA.ComparableDataIdentifier,
       ActivityStartDate,
       TADA.ConsolidatedDepth
     ) |>
     dplyr::slice_sample(n = 1) |>
-    #dbg_nrow("After slice_sample") |>
     dplyr::ungroup() |>
     dplyr::group_by(
       TADA.MonitoringLocationIdentifier,
@@ -1310,7 +1203,6 @@ TADA_DepthProfilePlot <- function(
     ) |>
     dplyr::mutate(N = length(TADA.ResultMeasureValue)) |>
     dplyr::filter(N > 2 | TADA.CharacteristicName %in% depth.params) |>
-    #dbg_nrow("After N filter") |>
     dplyr::ungroup() |>
     dplyr::select(-N)
 
