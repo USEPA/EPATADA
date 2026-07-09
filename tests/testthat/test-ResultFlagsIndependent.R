@@ -258,12 +258,9 @@ test_that("check_location_metadata flags StateCode and CountyCode mismatches", {
     StateCode = c("55", "17", "55"),
     CountyCode = c("073", "073", "067")
   )
-  
-  out <- TADA_FlagCoordinates(
-    testdat,
-    check_location_metadata = TRUE
-  )
-  
+
+  out <- TADA_FlagCoordinates(testdat, check_location_metadata = TRUE)
+
   expect_equal(out$TADA.SuspectCoordinates.Flag[1], "Pass")
   expect_equal(out$TADA.SuspectCoordinates.Flag[2], "Coordinate_StateMismatch")
   expect_equal(out$TADA.SuspectCoordinates.Flag[3], "Coordinate_CountyMismatch")
