@@ -130,8 +130,14 @@ TADA_Analysis_Join_WQP_Criteria <- function(
               names(AUMLRef)
           )
       ) {
-        .data <- dplyr::left_join(
-          .data,
+        .data <- .data |>
+          # NOTE: CAN REMOVE THIS MUTATE CHUNK ONCE THEY ARE INCORPORATED INTO AUMLREF
+          dplyr::mutate(
+            ATTAINS.SaltFresh = ifelse(!"ATTAINS.SaltFresh" %in% names(.data), NA_character_, ATTAINS.SaltFresh),
+            ATTAINS.UniqueSpatialCriteria = ifelse(!"ATTAINS.UniqueSpatialCriteria" %in% names(.data), NA_character_, ATTAINS.UniqueSpatialCriteria),
+            ATTAINS.DepthCategory = ifelse(!"ATTAINS.DepthCategory" %in% names(.data), NA_character_, ATTAINS.DepthCategory)
+          ) |>
+          dplyr::left_join(
           AUMLRef,
           by = c("TADA.MonitoringLocationIdentifier", "OrganizationIdentifier"),
           relationship = "many-to-many"
@@ -324,6 +330,13 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   }
 
   do_join <- function(df, crit, keys) {
+    spatial_cols <- c(
+      "ATTAINS.WaterType",
+      "SaltFresh",
+      "UniqueSpatialCriteria",
+      "DepthCategory"
+    )
+    
     if (nrow(crit) == 0) {
       return(NULL)
     }
@@ -334,20 +347,42 @@ TADA_Analysis_Join_WQP_Criteria <- function(
       return(NULL)
     }
     
-    # check to see if spatial criteria column contains NA, if it does, don't join those rows by that spatial column
-    crit_NA <- crit |>
-      dplyr::filter(is.na(ATTAINS.WaterType)) |>
-      dplyr::select(-ATTAINS.WaterType)
+    # only keep spatial cols that actually exist in crit
+    spatial_cols <- intersect(spatial_cols, names(crit))
     
-    # if criteria table explicitly define an ATTAINS.WaterType it applies to, these will be joined by ATTAINS.WaterType
-    crit_not_NA <- crit |>
-      dplyr::filter(!is.na(ATTAINS.WaterType))
+    # if none exist, do a normal join
+    if (length(spatial_cols) == 0) {
+      return(dplyr::left_join(df, crit, by = keys, relationship = "many-to-many"))
+    }
     
-    join_NA <- dplyr::left_join(df, crit_NA, by = setdiff(keys, "ATTAINS.WaterType"), relationship = "many-to-many")
+    # create a pattern describing which spatial columns are NA
+    crit2 <- crit |>
+      dplyr::mutate(
+        .spatial_pattern = apply(
+          dplyr::across(dplyr::all_of(spatial_cols), is.na),
+          1,
+          function(x) paste(names(x)[x], collapse = "|")
+        )
+      )
     
-    join_not_NA <- dplyr::left_join(df, crit_not_NA, by = keys, relationship = "many-to-many")
+    # split by pattern of NA spatial columns
+    crit_split <- split(crit2, crit2$.spatial_pattern)
     
-    return(dplyr::bind_rows(join_NA, join_not_NA) |> dplyr::distinct())
+    joins <- lapply(crit_split, function(x) {
+      na_spatial <- spatial_cols[is.na(x[1, spatial_cols])]
+      
+      by_use <- setdiff(keys, na_spatial)
+      
+      # only keep rows with non-NA values in the spatial columns that are used
+      # (otherwise join by NA is not meaningful)
+      x2 <- x |>
+        dplyr::select(-.spatial_pattern)
+      
+      dplyr::left_join(df, x2, by = by_use, relationship = "many-to-many")
+    })
+    
+    dplyr::bind_rows(joins) |>
+      dplyr::distinct()
   }
 
   # Pass 1: ID (+ optional keys)
