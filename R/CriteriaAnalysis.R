@@ -46,13 +46,13 @@
 #'
 #' # join the table by best match from what is filled out from the criteria table
 #' MT_data_criteria <- TADA_Analysis_Join_WQP_Criteria(MT_data, criteria_MT)
-#' 
+#'
 #' # join the table by best match, along with the AUMLRef
 #' MT_data_criteria2 <- TADA_Analysis_Join_WQP_Criteria(
 #'   MT_data,
 #'   criteria_MT,
 #'   AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk)
-#'   
+#'
 #' # join the table by best match, with both the AUMLRef and AU_UsesRef
 #' MT_data_criteria3 <- TADA_Analysis_Join_WQP_Criteria(
 #'   MT_data,
@@ -198,10 +198,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         "No ATTAINS.UseName matches were found. No criteria table can be joined, please ensure your uses match those found in your criteria table."
       )
     }
-    criteria <- dplyr::filter(
-      criteria,
-      ATTAINS.UseName %in% allowed_uses
-    )
+    criteria <- dplyr::filter(criteria, ATTAINS.UseName %in% allowed_uses)
   }
 
   # Join keys
@@ -424,14 +421,14 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   }
 
   wqp_criteria <- resolve_xy_columns(wqp_criteria)
-  
+
   wqp_criteria <- TADA_CorrectColType(wqp_criteria) |>
     dplyr::mutate(SaltFresh = as.character(SaltFresh))
-  
+
   # if TRUE, only displays returning matches that will be used for analysis
   cols <- names(TADA_DefineCriteriaMethodology()[[1]])[-seq_len(8)]
   existing_cols <- intersect(cols, names(wqp_criteria))
-  
+
   if (clean) {
     wqp_criteria <- wqp_criteria |>
       dplyr::filter(!dplyr::if_all(existing_cols, is.na))
