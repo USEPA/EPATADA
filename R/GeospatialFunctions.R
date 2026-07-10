@@ -2046,7 +2046,7 @@ TADA_GetATTAINSByAUID <- function(
 #' the grouped nearby sites, "count" which selects the metadata associated with
 #' the greatest number of results, and "random" which selects random metadata
 #' from the site group. The default is meta_select = "random".
-#' 
+#'
 #' @param by_org Boolean. When by_org = TRUE, two sites will only be matched
 #' if they are from the same OrganizationIdentifier. When by_org = FALSE,
 #' organization is not considered when matching nearby sites. Default is FALSE.
@@ -2100,7 +2100,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   by_AU = TRUE,
 #'   dist_buffer = 250
 #' )
-#' 
+#'
 #' # example grouping nearby sites by distance and organization
 #' test.org <- TADA_FindNearbySites(testdat,
 #'   catchment = FALSE,
@@ -2264,20 +2264,20 @@ TADA_FindNearbySites <- function(
       return(.data)
     }
   }
-  
+
   # if organization should be factored into site groupings
   if (by_org == TRUE) {
     message(
       "TADA_FindNearbySites: Monitoring Locations will only be grouped if they are from the same organization."
     )
-    
+
     org.ml.cw <- .data |>
       dplyr::select(
         TADA.MonitoringLocationIdentifier,
         OrganizationIdentifier
       ) |>
       dplyr::distinct()
-    
+
     group.sites <- group.sites |>
       sf::st_drop_geometry() |>
       dplyr::left_join(
@@ -2289,22 +2289,22 @@ TADA_FindNearbySites <- function(
       dplyr::filter(Group.n > 1) |>
       dplyr::select(-Group.n) |>
       dplyr::ungroup()
-    
+
     if (nrow(group.sites) == 0) {
       message(
         "TADA_FindNearbySites: No nearby sites detected within the same organization. Columns for TADA.NearbySitesFlag and TADA.NearbySiteGroup added for tracking purposes."
       )
-      
+
       .data <- .data |>
         dplyr::mutate(
           TADA.NearbySites.Flag = "No nearby sites detected within the same organization.",
           TADA.NearbySiteGroup = NA
         )
-      
+
       return(.data)
     }
   }
-  
+
   # check if .data contains the column "ATTAINS.AssessmentUnitIdentifier"
   # and status of by_AU param
   if ("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
