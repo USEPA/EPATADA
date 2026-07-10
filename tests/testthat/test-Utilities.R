@@ -40,27 +40,23 @@ test_that("Column names do not contain the pattern 'TADA.TADA.'", {
 
 test_that("TADA_ConvertSpecialChars removes missing result units when clean is TRUE", {
   testdat <- TADA_RandomTestingData()
-  
+
   # Ensure the test includes both NA and blank result units
   testdat$TADA.ResultMeasure.MeasureUnitCode[1] <- NA_character_
   testdat$TADA.ResultMeasure.MeasureUnitCode[2] <- ""
-  
+
   result <- TADA_ConvertSpecialChars(
     testdat,
     col = "TADA.ResultMeasureValue",
     clean = TRUE
   )
-  
+
   expect_true(is.numeric(result$TADA.ResultMeasureValue))
   expect_false(any(is.na(result$TADA.ResultMeasureValue)))
-  
-  expect_false(any(is.na(
-    result$TADA.ResultMeasure.MeasureUnitCode
-  )))
-  
-  expect_false(any(
-    result$TADA.ResultMeasure.MeasureUnitCode == ""
-  ))
+
+  expect_false(any(is.na(result$TADA.ResultMeasure.MeasureUnitCode)))
+
+  expect_false(any(result$TADA.ResultMeasure.MeasureUnitCode == ""))
 })
 
 test_that("Column names do not contain the pattern 'TADA.TADA.'", {
@@ -77,46 +73,31 @@ test_that("Column names do not contain the pattern 'TADA.TADA.'", {
 
 test_that("TADA_ConvertSpecialChars removes rows with missing result units", {
   testdat <- Data_Nutrients_UT[1:4, ]
-  
+
   testdat$ResultMeasureValue <- c("1.2", "2.3", "3.4", "4.5")
-  testdat$ResultMeasure.MeasureUnitCode <- c(
-    "mg/L",
-    NA_character_,
-    "",
-    "ug/L"
-  )
-  
+  testdat$ResultMeasure.MeasureUnitCode <- c("mg/L", NA_character_, "", "ug/L")
+
   result <- TADA_ConvertSpecialChars(
     testdat,
     col = "ResultMeasureValue",
     clean = TRUE
   )
-  
+
   # Rows with NA or blank result units should be removed
   expect_equal(nrow(result), 2)
-  
+
   # Confirm that the correct converted values remain
-  expect_equal(
-    result$TADA.ResultMeasureValue,
-    c(1.2, 4.5)
-  )
-  
-  expect_equal(
-    result$TADA.ResultMeasure.MeasureUnitCode,
-    c("MG/L", "UG/L")
-  )
-  
+  expect_equal(result$TADA.ResultMeasureValue, c(1.2, 4.5))
+
+  expect_equal(result$TADA.ResultMeasure.MeasureUnitCode, c("MG/L", "UG/L"))
+
   # Confirm the output columns have the expected types and values
   expect_true(is.numeric(result$TADA.ResultMeasureValue))
   expect_false(any(is.na(result$TADA.ResultMeasureValue)))
-  
-  expect_false(any(is.na(
-    result$TADA.ResultMeasure.MeasureUnitCode
-  )))
-  
-  expect_false(any(
-    result$TADA.ResultMeasure.MeasureUnitCode == ""
-  ))
+
+  expect_false(any(is.na(result$TADA.ResultMeasure.MeasureUnitCode)))
+
+  expect_false(any(result$TADA.ResultMeasure.MeasureUnitCode == ""))
 })
 
 test_that("Only numeric data remains after running TADA_ConvertSpecialChars clean = TRUE", {
