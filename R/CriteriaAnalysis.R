@@ -62,7 +62,7 @@
 #'   AU_UsesRef = Data_MT_AU_UsesRef_Water)
 #'
 #' # only return rows that will be used for analysis
-#' MT_data_criteria3 <- TADA_Analysis_Join_WQP_Criteria(
+#' MT_data_criteria3_cleaned <- TADA_Analysis_Join_WQP_Criteria(
 #'   MT_data,
 #'   criteria_MT,
 #'   AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
@@ -133,20 +133,20 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         .data <- .data |>
           # NOTE: CAN REMOVE THIS MUTATE CHUNK ONCE THEY ARE INCORPORATED INTO AUMLREF
           dplyr::mutate(
-            ATTAINS.SaltFresh = ifelse(
-              !"ATTAINS.SaltFresh" %in% names(.data),
+            SaltFresh = ifelse(
+              !"SaltFresh" %in% names(.data),
               NA_character_,
-              ATTAINS.SaltFresh
+              SaltFresh
             ),
-            ATTAINS.UniqueSpatialCriteria = ifelse(
-              !"ATTAINS.UniqueSpatialCriteria" %in% names(.data),
+            UniqueSpatialCriteria = ifelse(
+              !"UniqueSpatialCriteria" %in% names(.data),
               NA_character_,
-              ATTAINS.UniqueSpatialCriteria
+              UniqueSpatialCriteria
             ),
-            ATTAINS.DepthCategory = ifelse(
-              !"ATTAINS.DepthCategory" %in% names(.data),
+            DepthCategory = ifelse(
+              !"DepthCategory" %in% names(.data),
               NA_character_,
-              ATTAINS.DepthCategory
+              DepthCategory
             )
           ) |>
           dplyr::left_join(
@@ -328,39 +328,41 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   # If ATTAINS.UseName is populated from the AU_UsesRef, use the criteria table to determine which ATTAINS.Parameter it is associated with
   join_keys <- function(base_keys) {
     if (has_AUUsesRef) {
-      unique(c(base_keys, "ATTAINS.UseName"))
+      base_keys <- unique(c(base_keys, "ATTAINS.UseName"))
     }
 
     if (has_AUUsesRef && has_AUMLRef) {
-      unique(c(
+      base_keys <- unique(c(
         base_keys,
         "ATTAINS.WaterType",
         "ATTAINS.OrganizationIdentifier",
         "ATTAINS.UseName"
+        #"SaltFresh",
+        #"UniqueSpatialCriteria",
+        #"DepthCategory"
       )) # add SaltFresh, UniqueSpatialCriteria and DepthCategory in the future
     }
 
     if (has_AUMLRef && isFALSE(has_AUUsesRef)) {
-      unique(c(
+      base_keys <- unique(c(
         base_keys,
         "ATTAINS.WaterType",
         "ATTAINS.OrganizationIdentifier"
+        #"SaltFresh",
+        #"UniqueSpatialCriteria",
+        #"DepthCategory"
       ))
     }
 
     if (isFALSE(has_AUMLRef) && isFALSE(has_AUUsesRef)) {
       base_keys
     }
+    return(base_keys)
   }
 
   do_join <- function(df, crit, keys) {
-    spatial_cols <- c(
-      "ATTAINS.WaterType",
-      "SaltFresh",
-      "UniqueSpatialCriteria",
-      "DepthCategory"
-    )
-
+    spatial_cols <- "ATTAINS.WaterType"
+    
     if (nrow(crit) == 0) {
       return(NULL)
     }
@@ -370,48 +372,185 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     if (!all(keys %in% names(crit))) {
       return(NULL)
     }
-
-    # only keep spatial cols that actually exist in crit
-    spatial_cols <- intersect(spatial_cols, names(crit))
-
-    # if none exist, do a normal join
-    if (length(spatial_cols) == 0) {
-      return(dplyr::left_join(
-        df,
-        crit,
-        by = keys,
-        relationship = "many-to-many"
-      ))
-    }
-
-    # create a pattern describing which spatial columns are NA
-    crit2 <- crit |>
-      dplyr::mutate(
-        .spatial_pattern = apply(
-          dplyr::across(dplyr::all_of(spatial_cols), is.na),
-          1,
-          function(x) paste(names(x)[x], collapse = "|")
+    
+    if (has_AUMLRef) {
+      # only keep spatial cols that actually exist in crit
+      spatial_cols <- intersect(spatial_cols, names(crit))
+      
+      if (length(spatial_cols) > 0) {
+        df_combo <- TADA_CorrectColType(
+          df |>
+            dplyr::select(dplyr::all_of(spatial_cols)) |>
+            dplyr::distinct()
         )
-      )
-
-    # split by pattern of NA spatial columns
-    crit_split <- split(crit2, crit2$.spatial_pattern)
-
-    joins <- lapply(crit_split, function(x) {
-      na_spatial <- spatial_cols[is.na(x[1, spatial_cols])]
-
-      by_use <- setdiff(keys, na_spatial)
-
-      # only keep rows with non-NA values in the spatial columns that are used
-      # (otherwise join by NA is not meaningful)
-      x2 <- x |> dplyr::select(-.spatial_pattern)
-
-      dplyr::left_join(df, x2, by = by_use, relationship = "many-to-many")
-    })
-
-    dplyr::bind_rows(joins) |> dplyr::distinct()
+        
+        crit_combo <- TADA_CorrectColType(
+          crit |>
+            dplyr::filter(TADA.CharacteristicName %in% df$TADA.CharacteristicName) |>
+            dplyr::select(dplyr::all_of(spatial_cols)) |>
+            dplyr::distinct()
+        )
+        
+        missing_combos <- dplyr::anti_join(
+          crit_combo,
+          df_combo,
+          by = spatial_cols
+        )
+        
+        if (nrow(missing_combos) > 0) {
+          warning(
+            paste0(
+              "These spatial combinations exist in criteria but not in your WQP .data for your TADA.CharacteristicName(s):\n",
+              "Please ensure these entries are correct or these values cannot be joined due to a mismatch.\n",
+              paste(capture.output(print(missing_combos)), collapse = "\n")
+            )
+          )
+        }
+      }
+      
+      # if none exist, do a normal join
+      if (length(spatial_cols) == 0) {
+        return(dplyr::left_join(
+          df,
+          crit,
+          by = keys,
+          relationship = "many-to-many"
+        ))
+      }
+  
+      # create a pattern describing which spatial columns are NA
+      crit2 <- crit |>
+        dplyr::mutate(
+          .spatial_pattern = apply(
+            dplyr::across(dplyr::all_of(spatial_cols), is.na),
+            1,
+            function(x) paste(names(x)[x], collapse = "|")
+          )
+        )
+  
+      # split by pattern of NA spatial columns
+      crit_split <- split(crit2, crit2$.spatial_pattern)
+  
+      joins <- lapply(crit_split, function(x) {
+        na_spatial <- spatial_cols[is.na(x[1, spatial_cols])]
+  
+        by_use <- setdiff(keys, na_spatial)
+  
+        # only keep rows with non-NA values in the spatial columns that are used
+        # (otherwise join by NA is not meaningful)
+        x2 <- x |> dplyr::select(-.spatial_pattern) |>
+          dplyr::mutate(
+            SeasonStartDate = as.character(SeasonStartDate),
+            SeasonEndDate = as.character(SeasonEndDate)
+            )
+  
+        out <- dplyr::left_join(df, x2, by = by_use, relationship = "many-to-many") |>
+          dplyr::mutate(
+            SeasonStartDate = as.character(SeasonStartDate),
+            SeasonEndDate = as.character(SeasonEndDate)
+          )
+  
+        out
+      })
+  
+      return(dplyr::bind_rows(joins) |> dplyr::distinct())
+    }
+    
+    if (isFALSE(has_AUMLRef)) {
+      df$SeasonStartDate <- as.character(df$SeasonStartDate)
+      crit$SeasonStartDate <- as.character(crit$SeasonStartDate)
+      
+      return(dplyr::left_join(df, crit, by = keys, relationship = "many-to-many"))
+    }
+    ######## NOTE: ADD BACK TO CODE ONCE ADDITIONAL SPATIAL COLUMNS ARE INCLUDED IN AUMLREF
+    # spatial_cols <- c(
+    #   "ATTAINS.WaterType",
+    #   "SaltFresh",
+    #   "UniqueSpatialCriteria",
+    #   "DepthCategory"
+    # )
+    # 
+    # if (nrow(crit) == 0) {
+    #   return(NULL)
+    # }
+    # if (!all(keys %in% names(df))) {
+    #   return(NULL)
+    # }
+    # if (!all(keys %in% names(crit))) {
+    #   return(NULL)
+    # }
+    # 
+    # # only keep spatial cols that actually exist in crit (should be all)
+    # spatial_cols <- intersect(spatial_cols, names(crit))
+    # 
+    # if (length(spatial_cols) > 0) {
+    #   df_combo <- TADA_CorrectColType(
+    #     dplyr::distinct(df[, spatial_cols, drop = FALSE])
+    #   )
+    # 
+    #   crit_combo <- TADA_CorrectColType(
+    #     crit |>
+    #       dplyr::filter(TADA.CharacteristicName %in% df$TADA.CharacteristicName) |>
+    #       dplyr::select(dplyr::all_of(spatial_cols)) |>
+    #       dplyr::distinct()
+    #   )
+    #   
+    #   missing_combos <- dplyr::anti_join(
+    #     crit_combo,
+    #     df_combo,
+    #     by = spatial_cols
+    #   )
+    #   
+    #   if (nrow(missing_combos) > 0) {
+    #     warning(
+    #       paste0(
+    #         "These spatial combinations exist in criteria but not in your WQP .data for your TADA.CharacteristicName(s):\n",
+    #         "Please ensure these entries are correct or these values cannot be joined due to a mismatch.\n",
+    #         paste(capture.output(print(missing_combos)), collapse = "\n")
+    #       )
+    #     )
+    #   }
+    #}
+    # # if none exist, do a normal join
+    # if (length(spatial_cols) == 0) {
+    #   return(dplyr::left_join(
+    #     df,
+    #     crit,
+    #     by = keys,
+    #     relationship = "many-to-many"
+    #   ))
+    # }
+    # 
+    # # create a pattern describing which spatial columns are NA
+    # crit2 <- crit |>
+    #   dplyr::mutate(
+    #     .spatial_pattern = apply(
+    #       dplyr::across(dplyr::all_of(spatial_cols), is.na),
+    #       1,
+    #       function(x) paste(names(x)[x], collapse = "|")
+    #     )
+    #   )
+    # 
+    # # split by pattern of NA spatial columns
+    # crit_split <- split(crit2, crit2$.spatial_pattern)
+    # 
+    # joins <- lapply(crit_split, function(x) {
+    #   na_spatial <- spatial_cols[is.na(x[1, spatial_cols])]
+    # 
+    #   by_use <- setdiff(keys, na_spatial)
+    # 
+    #   # only keep rows with non-NA values in the spatial columns that are used
+    #   # (otherwise join by NA is not meaningful)
+    #   x2 <- x |> dplyr::select(-.spatial_pattern) |> TADA_CorrectColType()
+    # 
+    #   out <- dplyr::left_join(df, x2, by = by_use, relationship = "many-to-many") |>
+    #     TADA_CorrectColType()
+    # 
+    #   out
+    #})
+    #  
+    #dplyr::bind_rows(joins) |> dplyr::distinct()
   }
-
   # Pass 1: ID (+ optional keys)
   j1 <- do_join(.data, criteria1, join_keys(id_col1))
   if (!is.null(j1)) {
@@ -448,8 +587,66 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     .data
   }
 
-  wqp_criteria <- TADA_CorrectColType(wqp_criteria) |>
-    dplyr::mutate(SaltFresh = as.character(SaltFresh))
+  # handles mismatches between any joins between criteria table, AUMLRef and AU_UsesRef
+  resolve_xy_columns <- function(df, flag_suffix = "_join_flag") {
+    x_cols <- names(df)[grepl("\\.x$", names(df))] # .x is from AUMLRef or AU_UsesRef
+    y_cols <- names(df)[grepl("\\.y$", names(df))] # .y is from the criteria table
+    base_names <- intersect(sub("\\.x$", "", x_cols), sub("\\.y$", "", y_cols))
+    
+    if (length(base_names) == 0) {
+      return(df)
+    }
+    
+    for (base in base_names) {
+      x_nm <- paste0(base, ".x")
+      y_nm <- paste0(base, ".y")
+      
+      if (x_nm %in% names(df) && y_nm %in% names(df)) {
+        flag_nm <- paste0(base, flag_suffix)
+        
+        df[[flag_nm]] <- dplyr::case_when(
+          is.na(df[[x_nm]]) &
+            is.na(df[[
+              y_nm
+            ]]) ~ "Pass: Both criteria table and your AUML and/or AU_Uses Ref are NA for this parameter.",
+          !is.na(df[[x_nm]]) &
+            is.na(df[[
+              y_nm
+            ]]) ~ "Pass: criteria table is NA for this value for this parameter, assume criteria applies to all. Using value populated by your AUML and/or AU_Uses ref.",
+          is.na(df[[x_nm]]) &
+            !is.na(df[[
+              y_nm
+            ]]) ~ "Suspect: criteria table is populated for this parameter, but your AUML and/or AU_Uses Ref is NA, keeping these values as NA.",
+          !is.na(df[[x_nm]]) &
+            !is.na(df[[y_nm]]) &
+            df[[x_nm]] !=
+            df[[
+              y_nm
+            ]] ~ "Suspect: mismatch between criteria and your AUML and/or AU_Uses Ref for this parameter, using value populated by AUML and/or AU_Uses ref",
+          !is.na(df[[x_nm]]) &
+            !is.na(df[[y_nm]]) &
+            df[[x_nm]] ==
+            df[[
+              y_nm
+            ]] ~ "Pass: Both criteria table and your AUML and/or AU_Uses Ref values match",
+          TRUE ~ NA_character_
+        )
+        
+        # Keep .x value as final value
+        df[[base]] <- df[[x_nm]]
+        
+        # Drop suffix columns
+        df[[x_nm]] <- NULL
+        df[[y_nm]] <- NULL
+      }
+    }
+    
+    df
+  }
+  
+  wqp_criteria <- resolve_xy_columns(wqp_criteria)
+
+  wqp_criteria <- TADA_CorrectColType(wqp_criteria)
 
   # if TRUE, only displays returning matches (those filled in from criteria table) that will be used for analysis
   cols <- names(TADA_DefineCriteriaMethodology()[[1]])[-seq_len(8)]
