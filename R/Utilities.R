@@ -867,7 +867,19 @@ TADA_ConvertSpecialChars <- function(
               "Coerced to NA"
             )
         )
-
+      
+      # Remove records with missing result units when cleaning result values
+      if (
+        col %in% c("ResultMeasureValue", "TADA.ResultMeasureValue") &&
+        "TADA.ResultMeasure.MeasureUnitCode" %in% names(clean.data)
+      ) {
+        clean.data <- clean.data |>
+          dplyr::filter(
+            !is.na(TADA.ResultMeasure.MeasureUnitCode),
+            TADA.ResultMeasure.MeasureUnitCode != ""
+          )
+      }
+      
       return(clean.data)
     }
 
