@@ -1811,23 +1811,33 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
 #' determine with certainty whether records are truly duplicated. Users should
 #' review flagged records before removing them.
 #'
-#' @param .data A TADA dataframe.
-#' @param clean Logical. If TRUE, rows flagged as "Duplicate Not Selected"
-#'   are removed before returning the result. Default is FALSE.
+#' If the input data already contains the columns
+#' `TADA.SingleOrgDupGroupID` and `TADA.SingleOrgDup.Flag`, then `clean = TRUE`
+#' will reuse those columns and simply remove rows flagged as
+#' `"Duplicate Not Selected"` without recomputing duplicate groups. If
+#' `clean = FALSE`, duplicate flags are recomputed and any existing values in
+#' those columns are overwritten.
 #'
-#' @return The input TADA dataframe with these additional columns: 
-#' TADA.SingleOrgDupGroupID and TADA.SingleOrgDup.Flag.
-#'  
-#' TADA.SingleOrgDupGroupID: Identifier for a group of potentially duplicated 
-#' results within a single organization. Rows not in a duplicate group are 
-#' labeled "Not a Duplicate". 
-#' 
-#' TADA.SingleOrgDup.Flag: Duplicate status for each row. 
+#' @param .data A TADA dataframe.
+#' @param clean Logical. If TRUE, rows flagged as `"Duplicate Not Selected"`
+#'   are removed before returning the result. If the duplicate flag columns
+#'   already exist, they are reused when `clean = TRUE`; otherwise they are
+#'   computed first. If `clean = FALSE`, duplicate flags are always recomputed.
+#'   Default is FALSE.
+#'
+#' @return The input TADA dataframe with these additional columns:
+#' `TADA.SingleOrgDupGroupID` and `TADA.SingleOrgDup.Flag`.
+#'
+#' `TADA.SingleOrgDupGroupID`: Identifier for a group of potentially duplicated
+#' results within a single organization. Rows not in a duplicate group are
+#' labeled `"Not a Duplicate"`.
+#'
+#' `TADA.SingleOrgDup.Flag`: Duplicate status for each row.
 #' For each duplicate group, one row is randomly selected to represent the
-#' group and is marked "Duplicate Selected". The remaining rows in that group
-#' are marked "Duplicate Not Selected". Rows outside duplicate groups are
-#' marked "Not a Duplicate". When clean = TRUE, rows flagged as 
-#' "Duplicate Not Selected" are removed and only representative rows plus 
+#' group and is marked `"Duplicate Selected"`. The remaining rows in that group
+#' are marked `"Duplicate Not Selected"`. Rows outside duplicate groups are
+#' marked `"Not a Duplicate"`. When `clean = TRUE`, rows flagged as
+#' `"Duplicate Not Selected"` are removed and only representative rows plus
 #' non-duplicate rows are returned.
 #'
 #' @examples
@@ -1862,6 +1872,12 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
 #'   clean = TRUE
 #' )
 #'
+#' # Clean an already-flagged dataset without recomputing flags
+#' Data_TribalNations_clean2 <- TADA_FindPotentialDuplicatesSingleOrg(
+#'   Data_TribalNations_dups,
+#'   clean = TRUE
+#' )
+#'
 #' @export
 TADA_FindPotentialDuplicatesSingleOrg <- function(.data, clean = FALSE) {
   expected_cols <- c(
@@ -1880,100 +1896,98 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data, clean = FALSE) {
   TADA_CheckColumns(.data, expected_cols)
   TADA_CheckType(clean, "logical")
   
-  depthcols <- names(.data)[grepl(
-    "^TADA.*DepthHeightMeasure.MeasureValue$",
-    names(.data)
-  )]
+  dup_cols <- c("TADA.SingleOrgDupGroupID", "TADA.SingleOrgDup.Flag")
+  has_dup_cols <- all(dup_cols %in% names(.data))
   
-  cols <- c(
-    "OrganizationIdentifier",
-    "MonitoringLocationIdentifier",
-    "ActivityStartDate",
-    "ActivityStartTime.Time",
-    "ActivityTypeCode",
-    "TADA.CharacteristicName",
-    "SubjectTaxonomicName",
-    "TADA.ResultSampleFractionText",
-    "TADA.ResultMeasureValue",
-    depthcols
-  )
-  
-  dups_sum_org <- .data |>
-    dplyr::group_by(dplyr::across(tidyselect::any_of(cols))) |>
-    dplyr::summarise(
-      numres = dplyr::n_distinct(ResultIdentifier),
-      .groups = "drop"
-    ) |>
-    dplyr::filter(numres > 1) |>
-    dplyr::mutate(TADA.SingleOrgDupGroupID = dplyr::row_number())
-  
-  join_cols <- c(
-    "OrganizationIdentifier",
-    "MonitoringLocationIdentifier",
-    "ActivityStartDate",
-    "ActivityStartTime.Time",
-    "ActivityTypeCode",
-    "TADA.CharacteristicName",
-    "SubjectTaxonomicName",
-    "TADA.ResultSampleFractionText",
-    "TADA.ResultMeasureValue",
-    depthcols
-  )
-  
-  .data <- dplyr::left_join(
-    .data,
-    dups_sum_org |>
-      dplyr::select(-numres),
-    by = join_cols
-  )
-  
-  .data <- .data |>
-    dplyr::mutate(
-      TADA.SingleOrgDupGroupID = ifelse(
-        is.na(TADA.SingleOrgDupGroupID),
-        "Not a Duplicate",
-        as.character(TADA.SingleOrgDupGroupID)
-      ),
-      TADA.SingleOrgDup.Flag = "Not a Duplicate"
+  # Recompute duplicate flags unless clean = TRUE and the duplicate
+  # columns already exist. In that case, preserve existing flags and
+  # only apply the clean filter below.
+  if (!(clean && has_dup_cols)) {
+    depthcols <- names(.data)[grepl(
+      "^TADA.*DepthHeightMeasure.MeasureValue$",
+      names(.data)
+    )]
+    
+    cols <- c(
+      "OrganizationIdentifier",
+      "MonitoringLocationIdentifier",
+      "ActivityStartDate",
+      "ActivityStartTime.Time",
+      "ActivityTypeCode",
+      "TADA.CharacteristicName",
+      "SubjectTaxonomicName",
+      "TADA.ResultSampleFractionText",
+      "TADA.ResultMeasureValue",
+      depthcols
     )
-  
-  if (nrow(dups_sum_org) > 0) {
-    picks <- .data |>
-      dplyr::filter(TADA.SingleOrgDupGroupID != "Not a Duplicate") |>
-      dplyr::group_by(TADA.SingleOrgDupGroupID) |>
-      dplyr::slice_sample(n = 1) |>
-      dplyr::ungroup()
+    
+    dups_sum_org <- .data |>
+      dplyr::group_by(dplyr::across(tidyselect::any_of(cols))) |>
+      dplyr::summarise(
+        numres = dplyr::n_distinct(ResultIdentifier),
+        .groups = "drop"
+      ) |>
+      dplyr::filter(numres > 1) |>
+      dplyr::mutate(TADA.SingleOrgDupGroupID = dplyr::row_number())
+    
+    .data <- dplyr::left_join(
+      .data,
+      dups_sum_org |>
+        dplyr::select(-numres),
+      by = cols
+    )
     
     .data <- .data |>
       dplyr::mutate(
-        TADA.SingleOrgDup.Flag = ifelse(
-          ResultIdentifier %in% picks$ResultIdentifier,
-          "Duplicate Selected",
-          ifelse(
-            TADA.SingleOrgDupGroupID == "Not a Duplicate",
-            "Not a Duplicate",
-            "Duplicate Not Selected"
-          )
-        )
+        TADA.SingleOrgDupGroupID = ifelse(
+          is.na(TADA.SingleOrgDupGroupID),
+          "Not a Duplicate",
+          as.character(TADA.SingleOrgDupGroupID)
+        ),
+        TADA.SingleOrgDup.Flag = "Not a Duplicate"
       )
     
-    message(paste0(
-      "TADA_FindPotentialDuplicatesSingleOrg: ",
-      nrow(dups_sum_org),
-      " groups of potentially duplicated results found in dataset. ",
-      "These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column ",
-      "and one result from each group was randomly selected to represent a single, ",
-      "unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag ",
-      "as 'Duplicate Selected', while duplicates are flagged as 'Duplicate Not Selected' ",
-      "for easy filtering."
-    ))
-  } else {
-    message(
-      "No duplicate results detected. Returning input dataframe with TADA.SingleOrgDup.Flag set to 'Not a Duplicate'."
-    )
+    if (nrow(dups_sum_org) > 0) {
+      picks <- .data |>
+        dplyr::filter(TADA.SingleOrgDupGroupID != "Not a Duplicate") |>
+        dplyr::group_by(TADA.SingleOrgDupGroupID) |>
+        dplyr::slice_sample(n = 1) |>
+        dplyr::ungroup()
+      
+      .data <- .data |>
+        dplyr::mutate(
+          TADA.SingleOrgDup.Flag = ifelse(
+            ResultIdentifier %in% picks$ResultIdentifier,
+            "Duplicate Selected",
+            ifelse(
+              TADA.SingleOrgDupGroupID == "Not a Duplicate",
+              "Not a Duplicate",
+              "Duplicate Not Selected"
+            )
+          )
+        )
+      
+      message(paste0(
+        "TADA_FindPotentialDuplicatesSingleOrg: ",
+        nrow(dups_sum_org),
+        " groups of potentially duplicated results found in dataset. ",
+        "These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column ",
+        "and one result from each group was randomly selected to represent a single, ",
+        "unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag ",
+        "as 'Duplicate Selected', while duplicates are flagged as 'Duplicate Not Selected' ",
+        "for easy filtering."
+      ))
+    } else {
+      message(
+        "No duplicate results detected. Returning input dataframe with TADA.SingleOrgDup.Flag set to 'Not a Duplicate'."
+      )
+    }
   }
   
   if (clean == TRUE) {
+    if (!"TADA.SingleOrgDup.Flag" %in% names(.data)) {
+      stop("TADA.SingleOrgDup.Flag not found and could not be created.")
+    }
     .data <- dplyr::filter(.data, TADA.SingleOrgDup.Flag != "Duplicate Not Selected")
   }
   

@@ -9,23 +9,26 @@ TADA_FindPotentialDuplicatesSingleOrg(.data, clean = FALSE)
 \arguments{
 \item{.data}{A TADA dataframe.}
 
-\item{clean}{Logical. If TRUE, rows flagged as "Duplicate Not Selected"
-are removed before returning the result. Default is FALSE.}
+\item{clean}{Logical. If TRUE, rows flagged as \code{"Duplicate Not Selected"}
+are removed before returning the result. If the duplicate flag columns
+already exist, they are reused when \code{clean = TRUE}; otherwise they are
+computed first. If \code{clean = FALSE}, duplicate flags are always recomputed.
+Default is FALSE.}
 }
 \value{
 The input TADA dataframe with these additional columns:
-TADA.SingleOrgDupGroupID and TADA.SingleOrgDup.Flag.
+\code{TADA.SingleOrgDupGroupID} and \code{TADA.SingleOrgDup.Flag}.
 
-TADA.SingleOrgDupGroupID: Identifier for a group of potentially duplicated
+\code{TADA.SingleOrgDupGroupID}: Identifier for a group of potentially duplicated
 results within a single organization. Rows not in a duplicate group are
-labeled "Not a Duplicate".
+labeled \code{"Not a Duplicate"}.
 
-TADA.SingleOrgDup.Flag: Duplicate status for each row.
+\code{TADA.SingleOrgDup.Flag}: Duplicate status for each row.
 For each duplicate group, one row is randomly selected to represent the
-group and is marked "Duplicate Selected". The remaining rows in that group
-are marked "Duplicate Not Selected". Rows outside duplicate groups are
-marked "Not a Duplicate". When clean = TRUE, rows flagged as
-"Duplicate Not Selected" are removed and only representative rows plus
+group and is marked \code{"Duplicate Selected"}. The remaining rows in that group
+are marked \code{"Duplicate Not Selected"}. Rows outside duplicate groups are
+marked \code{"Not a Duplicate"}. When \code{clean = TRUE}, rows flagged as
+\code{"Duplicate Not Selected"} are removed and only representative rows plus
 non-duplicate rows are returned.
 }
 \description{
@@ -39,6 +42,13 @@ The duplicate detection is performed independently within each organization.
 This is a heuristic intended to identify likely duplicate uploads, not to
 determine with certainty whether records are truly duplicated. Users should
 review flagged records before removing them.
+
+If the input data already contains the columns
+\code{TADA.SingleOrgDupGroupID} and \code{TADA.SingleOrgDup.Flag}, then \code{clean = TRUE}
+will reuse those columns and simply remove rows flagged as
+\code{"Duplicate Not Selected"} without recomputing duplicate groups. If
+\code{clean = FALSE}, duplicate flags are recomputed and any existing values in
+those columns are overwritten.
 }
 \examples{
 # Load example dataset
@@ -69,6 +79,12 @@ Data_TribalNations_review <- Data_TribalNations_dups |>
 # Keep only representative rows
 Data_TribalNations_clean <- TADA_FindPotentialDuplicatesSingleOrg(
   Data_TribalNations,
+  clean = TRUE
+)
+
+# Clean an already-flagged dataset without recomputing flags
+Data_TribalNations_clean2 <- TADA_FindPotentialDuplicatesSingleOrg(
+  Data_TribalNations_dups,
   clean = TRUE
 )
 
