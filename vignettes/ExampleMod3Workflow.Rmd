@@ -1149,3 +1149,14 @@ MT.CriteriaMethods.Final2 <- TADA_DefineCriteriaMethodology(
 
 TADA_TableExport(MT.CriteriaMethods.Final2[[1]])
 ```
+
+### Join Criteria Table to Your WQP Data
+
+Now that your criteria table is ready, the next step is to join it to your WQP data frame.
+In the next section, we’ll also use the AUMLRef and AU_UsesRef crosswalk outputs from ExampleModule2Workflow.Rmd to show how to work with assessment unit–level analysis.
+
+First, join the criteria table to your WQP data frame.
+
+```{r}
+MT_data_w_criteria <- TADA_Analysis_Join_WQP_Criteria(Data_MT_MissoulaCounty, MT.CriteriaMethods.Final)
+```
