@@ -1,4 +1,4 @@
-#' Join WQP data to criteria
+#' Join WQP data to criteria, AUMLRef and AU_UsesRef
 #' (UNDER ACTIVE DEVELOPMENT)
 #'
 #' Join WQP results to a criteria table by the best available key:
@@ -10,6 +10,20 @@
 #'
 #' For each fallback pass, rows with NA in any of the pass keys are dropped
 #' from both inputs for that pass. Left-join semantics are preserved overall.
+#' 
+#' When AUMLRef is provided (optional), this function first joins the WQP .data
+#' to the AUMLRef by TADA.MonitoringLocationTypeName and OrganizationIdentifier
+#' (from the WQP). NOTE: AUMLRef is in active development and will contain the
+#' proper identification of SaltFresh, UniqueSpatialCriteria and DepthCategory as
+#' needed for assessments. If a user would like to populate the criteria table by
+#' these fields, users must define the proper definitions in the AUMLref.
+#' 
+#' If an AU_UsesRef is provided (optional), this will filter the criteria table
+#' to only uses contained in this AU_UsesRef. If both AUMLRef and AU_UsesRef is
+#' supplied, this function first joins the AUMLRef as defined above followed by
+#' joining in the ATTAINS.UseName. Users are responsible for ensuring the defined
+#' ATTAINS.UseName in their criteria table matches those found in the AU_UsesRef
+#' input.
 #'
 #' @param .data A TADA data frame.
 #' @param criteria data.frame of TADA compatible criteria table for any
@@ -327,36 +341,36 @@ TADA_Analysis_Join_WQP_Criteria <- function(
 
   # If ATTAINS.UseName is populated from the AU_UsesRef, use the criteria table to determine which ATTAINS.Parameter it is associated with
   join_keys <- function(base_keys) {
+    spatial_extra <- c("SaltFresh", "UniqueSpatialCriteria", "DepthCategory")
+    
     if (has_AUUsesRef) {
       base_keys <- unique(c(base_keys, "ATTAINS.UseName"))
     }
-
-    if (has_AUUsesRef && has_AUMLRef) {
-      base_keys <- unique(c(
-        base_keys,
-        "ATTAINS.WaterType",
-        "ATTAINS.OrganizationIdentifier",
-        "ATTAINS.UseName"
-        #"SaltFresh",
-        #"UniqueSpatialCriteria",
-        #"DepthCategory"
-      )) # add SaltFresh, UniqueSpatialCriteria and DepthCategory in the future
-    }
-
-    if (has_AUMLRef && isFALSE(has_AUUsesRef)) {
+    
+    if (has_AUMLRef) {
       base_keys <- unique(c(
         base_keys,
         "ATTAINS.WaterType",
         "ATTAINS.OrganizationIdentifier"
-        #"SaltFresh",
-        #"UniqueSpatialCriteria",
-        #"DepthCategory"
       ))
+      
+      # add spatial extras only if they exist in AUMLRef and are not all NA
+      spatial_extra_present <- spatial_extra[spatial_extra %in% names(AUMLRef)]
+      spatial_extra_present <- spatial_extra_present[
+        !vapply(
+          AUMLRef[spatial_extra_present],
+          function(x) all(is.na(x)),
+          logical(1)
+        )
+      ]
+      
+      base_keys <- unique(c(base_keys, spatial_extra_present))
     }
-
+    
     if (isFALSE(has_AUMLRef) && isFALSE(has_AUUsesRef)) {
       base_keys
     }
+    
     return(base_keys)
   }
 

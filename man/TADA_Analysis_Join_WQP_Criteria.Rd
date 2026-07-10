@@ -2,7 +2,7 @@
 % Please edit documentation in R/CriteriaAnalysis.R
 \name{TADA_Analysis_Join_WQP_Criteria}
 \alias{TADA_Analysis_Join_WQP_Criteria}
-\title{Join WQP data to criteria
+\title{Join WQP data to criteria, AUMLRef and AU_UsesRef
 (UNDER ACTIVE DEVELOPMENT)}
 \usage{
 TADA_Analysis_Join_WQP_Criteria(
@@ -58,6 +58,20 @@ Join WQP results to a criteria table by the best available key:
 \details{
 For each fallback pass, rows with NA in any of the pass keys are dropped
 from both inputs for that pass. Left-join semantics are preserved overall.
+
+When AUMLRef is provided (optional), this function first joins the WQP .data
+to the AUMLRef by TADA.MonitoringLocationTypeName and OrganizationIdentifier
+(from the WQP). NOTE: AUMLRef is in active development and will contain the
+proper identification of SaltFresh, UniqueSpatialCriteria and DepthCategory as
+needed for assessments. If a user would like to populate the criteria table by
+these fields, users must define the proper definitions in the AUMLref.
+
+If an AU_UsesRef is provided (optional), this will filter the criteria table
+to only uses contained in this AU_UsesRef. If both AUMLRef and AU_UsesRef is
+supplied, this function first joins the AUMLRef as defined above followed by
+joining in the ATTAINS.UseName. Users are responsible for ensuring the defined
+ATTAINS.UseName in their criteria table matches those found in the AU_UsesRef
+input.
 }
 \examples{
 # load example data.frame
