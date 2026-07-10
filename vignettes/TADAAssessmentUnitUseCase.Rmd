@@ -369,12 +369,10 @@ organizations monitor the same location and may submit duplicate
 results).
 
 We will select to keep only unique samples from
-`TADA_FindPotentialDuplicatesSingleOrg` by filtering for
-TADA.SingleOrgDup.Flag equals "Unique". Then we will search for
+`TADA_FindPotentialDuplicatesSingleOrg`. Then we will search for
 potential duplicates from multiple orgs with
 `TADA_FindPotentialDuplicatesMultipleOrgs` and filter only to retain
-only one value per potential duplicate by filtering for
-TADA.ResultSelectedMultipleOrgs equals "Y".
+only one value per potential duplicate.
 
 If you would like to prioritize results from one organization over
 another, this can be done using the org_hierarchy argument in
@@ -392,9 +390,9 @@ Analysis_data <- Analysis_data |>
   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
   TADA_FindPotentialDuplicatesMultipleOrgs(
     dist_buffer = 100,
-    org_hierarchy = "none"
-  ) |>
-  dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
+    org_hierarchy = "none",
+    clean = T
+  )
 ```
 
 Next we can remove QC and qualified samples (with qualifiers identified
