@@ -1479,7 +1479,7 @@ TADA_JoinWQPProfiles <- function(
   Projects.df <- Projects
 
   # Join station data to full phys/chem (FullPhysChem.df)
-  if (length(Sites.df > 1)) {
+  if (length(Sites.df) > 1) {
     if (nrow(Sites.df) > 0) {
       join1 <- FullPhysChem.df |>
         # join stations to results
