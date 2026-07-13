@@ -1188,13 +1188,13 @@ TADA_DefineCriteriaMethodology <- function(
         warning(paste0(
           "Your user supplied criteriaMethods file is missing ",
           length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
-          " unique TADA.ComparableDataIdentifier(s):\n  ",
+          " unique TADA.ComparableDataIdentifier(s):\n\n  ",
           paste0(
             unique(non_definedCriteria$TADA.ComparableDataIdentifier),
             collapse = ", "
           ),
-          "\n",
-          "  without an ATTAINS.ParameterName crosswalk.\n",
+          "\n\n",
+          "  without criteria information filled out.\n",
           "  Please review if these entries are applicable to your analysis or ignore this message if they are not relevant.\n"
         ))
       }
@@ -1203,13 +1203,13 @@ TADA_DefineCriteriaMethodology <- function(
         warning(paste0(
           "Your user supplied criteriaMethods file is missing ",
           length(unique(non_definedCriteria$TADA.CharacteristicName)),
-          " unique TADA.CharacteristicName(s) :\n  ",
+          " unique TADA.CharacteristicName(s) :\n\n  ",
           paste0(
             unique(non_definedCriteria$TADA.CharacteristicName),
             collapse = ", "
           ),
-          "\n",
-          "  without an ATTAINS.ParameterName crosswalk.\n",
+          "\n\n",
+          "  without criteria information filled out.\n",
           "  Please review if these entries are applicable to your analysis or ignore this message if they are not relevant.\n"
         ))
       }

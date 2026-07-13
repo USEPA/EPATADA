@@ -113,6 +113,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   }
 
   .data <- upperize(.data)
+    
   criteria <- upperize(criteria)
   if (!is.null(AUMLRef) && is.data.frame(AUMLRef)) {
     AUMLRef <- upperize(AUMLRef)
