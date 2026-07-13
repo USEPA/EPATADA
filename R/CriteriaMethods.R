@@ -1183,7 +1183,7 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::filter(TADA.CharacteristicName %in% unique_param) |>
         dplyr::select(dplyr::all_of(desired_cols)) |>
         as.data.frame()
-      
+
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == TRUE) {
         warning(paste0(
           "Your user supplied criteriaMethods file is missing ",
@@ -1198,7 +1198,7 @@ TADA_DefineCriteriaMethodology <- function(
           "  Please review if these entries are applicable to your analysis or ignore this message if they are not relevant.\n"
         ))
       }
-      
+
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == FALSE) {
         warning(paste0(
           "Your user supplied criteriaMethods file is missing ",
@@ -1213,7 +1213,7 @@ TADA_DefineCriteriaMethodology <- function(
           "  Please review if these entries are applicable to your analysis or ignore this message if they are not relevant.\n"
         ))
       }
-      
+
       # If the source of the ATTAINS param and uses is the prior ATTAINS assessment cycle.
       # NOTE: If criteriaMethods is provided, we are now setting auto_assign = FALSE as default. These code chunks
       # for auto_assign == TRUE may no longer be needed. Leaving it in though for in case we decide otherwise. KW 12/12/25
@@ -1461,53 +1461,73 @@ TADA_DefineCriteriaMethodology <- function(
       cols <- intersect(
         names(df),
         c(
-          "TADA.ComparableDataIdentifier","TADA.CharacteristicName",
-          "TADA.ResultSampleFractionText","TADA.MethodSpeciationName",
-          "ATTAINS.UseName","ATTAINS.WaterType","ATTAINS.ParameterName"
+          "TADA.ComparableDataIdentifier",
+          "TADA.CharacteristicName",
+          "TADA.ResultSampleFractionText",
+          "TADA.MethodSpeciationName",
+          "ATTAINS.UseName",
+          "ATTAINS.WaterType",
+          "ATTAINS.ParameterName"
         )
       )
-      for (nm in cols) df[[nm]] <- toupper(as.character(df[[nm]]))
+      for (nm in cols) {
+        df[[nm]] <- toupper(as.character(df[[nm]]))
+      }
       df
     }
-    
-    wrap_vals <- function(x) paste0("\n\n  ", paste(unique(stats::na.omit(trimws(as.character(x)))), collapse = "\n  "))
-    
+
+    wrap_vals <- function(x) {
+      paste0(
+        "\n\n  ",
+        paste(
+          unique(stats::na.omit(trimws(as.character(x)))),
+          collapse = "\n  "
+        )
+      )
+    }
+
     .data <- upperize(.data)
     DefineCriteriaMethodology <- upperize(DefineCriteriaMethodology)
     AUMLRef <- upperize(AUMLRef)
     AU_UsesRef <- upperize(AU_UsesRef)
-    
+
     cmp_warn <- function(x, y, cols, label, value_col) {
       cols <- intersect(cols, intersect(names(x), names(y)))
-      if (!length(cols)) return(NULL)
-      
+      if (!length(cols)) {
+        return(NULL)
+      }
+
       out <- dplyr::anti_join(
         dplyr::distinct(dplyr::select(x, dplyr::all_of(cols))),
         dplyr::distinct(dplyr::select(y, dplyr::all_of(cols))),
         by = cols
       )
-      
+
       vals <- unique(stats::na.omit(trimws(as.character(out[[value_col]]))))
-      if (!length(vals)) return(NULL)
-      
+      if (!length(vals)) {
+        return(NULL)
+      }
+
       warning(
         paste0(label, " for these ", value_col, "(s):", wrap_vals(vals)),
         call. = FALSE
       )
       out
     }
-    
+
     # missing in AU_UsesRef
     cmp_warn(
-      DefineCriteriaMethodology, AU_UsesRef,
+      DefineCriteriaMethodology,
+      AU_UsesRef,
       c("TADA.CharacteristicName", "ATTAINS.UseName"),
       "Your final criteria table output contains values not found in your AU_UsesRef",
       "ATTAINS.UseName"
     )
-    
+
     # missing in AUMLRef
     cmp_warn(
-      DefineCriteriaMethodology, AUMLRef,
+      DefineCriteriaMethodology,
+      AUMLRef,
       c("ATTAINS.WaterType"),
       "Your final criteria table output contains values not found in your AUMLRef",
       "ATTAINS.WaterType"
