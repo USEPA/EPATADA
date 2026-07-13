@@ -377,7 +377,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   }
 
   do_join <- function(df, crit, keys) {
-    spatial_cols <- "ATTAINS.WaterType"
+    spatial_cols <- "ATTAINS.WaterType" # add "SaltFresh", "UniqueSpatialCriteria", "DepthCategory" when AUMLRef contains these columns in the future.
     
     if (nrow(crit) == 0) {
       return(NULL)
@@ -676,7 +676,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   wqp_criteria <- TADA_CorrectColType(wqp_criteria)
 
   # if TRUE, only displays returning matches (those filled in from criteria table) that will be used for analysis
-  cols <- names(TADA_DefineCriteriaMethodology()[[1]])[-seq_len(8)]
+  cols <- spsUtil::quiet(names(TADA_DefineCriteriaMethodology()[[1]])[-seq_len(8)])
   existing_cols <- intersect(cols, names(wqp_criteria))
 
   if (clean) {
@@ -685,4 +685,63 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   }
 
   return(wqp_criteria)
+}
+
+TADA_Analysis_Validate_Ref2 <- function(.data, criteria, AUMLRef = NULL, AU_UsesRef = NULL) {
+  # validations - does criteria table inputs match the AUMLRef and AU_UsesRef if provided?
+  if (!is.null(AUMLRef) && !is.null(AU_UsesRef)) {
+    upperize <- function(df) {
+      cols <- intersect(
+        names(df),
+        c(
+          "TADA.ComparableDataIdentifier","TADA.CharacteristicName",
+          "TADA.ResultSampleFractionText","TADA.MethodSpeciationName",
+          "ATTAINS.UseName","ATTAINS.WaterType"
+        )
+      )
+      for (nm in cols) df[[nm]] <- toupper(as.character(df[[nm]]))
+      df
+    }
+    
+    wrap_vals <- function(x) paste0("\n\n  ", paste(unique(stats::na.omit(trimws(as.character(x)))), collapse = "\n  "))
+    
+    .data <- upperize(.data)
+    DefineCriteriaMethodology <- upperize(DefineCriteriaMethodology)
+    AUMLRef <- upperize(AUMLRef)
+    AU_UsesRef <- upperize(AU_UsesRef)
+    
+    cmp_warn <- function(x, y, cols, label, value_col) {
+      cols <- intersect(cols, intersect(names(x), names(y)))
+      if (!length(cols)) return(NULL)
+      
+      out <- dplyr::anti_join(
+        dplyr::distinct(dplyr::select(x, dplyr::all_of(cols))),
+        dplyr::distinct(dplyr::select(y, dplyr::all_of(cols))),
+        by = cols
+      )
+      
+      vals <- unique(stats::na.omit(trimws(as.character(out[[value_col]]))))
+      if (!length(vals)) return(NULL)
+      
+      warning(
+        paste0(label, " for these ", value_col, "(s):", wrap_vals(vals)),
+        call. = FALSE
+      )
+      out
+    }
+    
+    cmp_warn(
+      DefineCriteriaMethodology, AU_UsesRef,
+      c("TADA.CharacteristicName", "ATTAINS.UseName"),
+      "Your final criteria table output contains values not found in your AU_UsesRef",
+      "ATTAINS.UseName"
+    )
+    
+    cmp_warn(
+      DefineCriteriaMethodology, AUMLRef,
+      c("ATTAINS.WaterType"),
+      "Your final criteria table output contains values not found in your AUMLRef",
+      "ATTAINS.WaterType"
+    )
+  }
 }
