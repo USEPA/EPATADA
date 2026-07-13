@@ -81,7 +81,7 @@ dat <- TADA_DataRetrieval(
   ask = FALSE
 )
 
-# Review unique organizations and consider prioritizing for 
+# Review unique organizations and consider prioritizing for
 # duplicate selection (using optional org_hierarchy input)
 unique(dat$OrganizationIdentifier)
 
