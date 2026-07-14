@@ -2,7 +2,7 @@
 # Tests for the functions in GeoSpatialFunctions.R using sample data
 
 TADA_dataframe <- Data_HUC8_02070004_Mod1Output |>
-  dplyr::filter(TADA.CharacteristicName == "NITRATE")
+  dplyr::filter(TADA.CharacteristicName == "PH")
 
 TADA_spatial <- TADA_MakeSpatial(TADA_dataframe)
 
@@ -471,4 +471,70 @@ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
     test_org_filt$TADA.NearbySites.Flag,
     "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly."
   )
+})
+
+testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
+  # Without organization filtering, at least one nearby-site group
+  # should contain sites from multiple organizations.
+  test_no_org_filter <- TADA_FindNearbySites(
+    nearby_data,
+    catchment = FALSE,
+    by_AU = FALSE,
+    by_org = FALSE,
+    dist_buffer = 100
+  )
+
+  mixed_org_groups <- test_no_org_filter |>
+    sf::st_drop_geometry() |>
+    dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
+    dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+    dplyr::summarise(
+      n_orgs = dplyr::n_distinct(OrganizationIdentifier),
+      .groups = "drop"
+    ) |>
+    dplyr::filter(n_orgs > 1)
+
+  testthat::expect_gt(nrow(mixed_org_groups), 0)
+
+  # With organization filtering, no nearby-site group should contain
+  # monitoring locations from more than one organization.
+  test_by_org <- TADA_FindNearbySites(
+    nearby_data,
+    catchment = FALSE,
+    by_AU = FALSE,
+    by_org = TRUE,
+    dist_buffer = 100
+  )
+
+  orgs_per_group <- test_by_org |>
+    sf::st_drop_geometry() |>
+    dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
+    dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+    dplyr::summarise(
+      n_orgs = dplyr::n_distinct(OrganizationIdentifier),
+      .groups = "drop"
+    )
+
+  testthat::expect_true(nrow(orgs_per_group) > 0)
+  testthat::expect_true(all(orgs_per_group$n_orgs == 1))
+})
+
+testthat::test_that("TADA_FindNearbySites does not combine known sites from different organizations", {
+  test_by_org <- TADA_FindNearbySites(
+    nearby_data,
+    catchment = FALSE,
+    by_AU = FALSE,
+    by_org = TRUE,
+    dist_buffer = 100
+  )
+
+  usgs_result <- test_by_org |>
+    sf::st_drop_geometry() |>
+    dplyr::filter(ResultIdentifier == "NWIS-33738169")
+
+  testthat::expect_false(any(grepl(
+    "CHIPCREE_WQX-LBS4",
+    usgs_result$TADA.MonitoringLocationIdentifier,
+    fixed = TRUE
+  )))
 })
