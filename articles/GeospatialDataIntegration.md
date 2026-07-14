@@ -163,11 +163,9 @@ analysis. For this example, we will retain only results flagged as
 
 ``` r
 
-# find duplicate results submitted by single org
-GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesSingleOrg(GreenBay_FoxRiver)
-
-# retain unique flagged results
-GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.SingleOrgDup.Flag == "Unique")
+# remove duplicate results submitted by single org
+GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesSingleOrg(GreenBay_FoxRiver, 
+                                                           clean = T)
 ```
 
 ##### **Nondetects**

@@ -83,7 +83,7 @@
 
       <h1>Geospatial Data Integration</h1>
             
-            <h4 data-toc-skip class="date">2026-07-08</h4>
+            <h4 data-toc-skip class="date">2026-07-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/GeospatialDataIntegration.Rmd" class="external-link"><code>vignettes/GeospatialDataIntegration.Rmd</code></a></small>
       <div class="d-none name"><code>GeospatialDataIntegration.Rmd</code></div>
@@ -232,11 +232,9 @@ data records are unique or represent overlap that could cause issues in
 analysis. For this example, we will retain only results flagged as
 “Unique”.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># find duplicate results submitted by single org</span></span>
-<span><span class="va">GreenBay_FoxRiver</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FindPotentialDuplicatesSingleOrg.html">TADA_FindPotentialDuplicatesSingleOrg</a></span><span class="op">(</span><span class="va">GreenBay_FoxRiver</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># retain unique flagged results</span></span>
-<span><span class="va">GreenBay_FoxRiver</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">GreenBay_FoxRiver</span>, <span class="va">TADA.SingleOrgDup.Flag</span> <span class="op">==</span> <span class="st">"Unique"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># remove duplicate results submitted by single org</span></span>
+<span><span class="va">GreenBay_FoxRiver</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FindPotentialDuplicatesSingleOrg.html">TADA_FindPotentialDuplicatesSingleOrg</a></span><span class="op">(</span><span class="va">GreenBay_FoxRiver</span>, </span>
+<span>                                                           clean <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level5">
 <h5 id="nondetects">

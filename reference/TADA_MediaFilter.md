@@ -164,7 +164,7 @@ Data_Flag <- TADA_MediaFilter(
   Data_R5_TADAPackageDemo,
   clean = FALSE
 )
-#> TADA_MediaFilter: Counts by media - SURFACE WATER: 167,131 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,244
+#> TADA_MediaFilter: Counts by media - SURFACE WATER: 166,830 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,207
 #> TADA_MediaFilter: Returning all results with TADA.Media.Flag; media toggles ignored because clean = FALSE.
 unique(Data_Flag$TADA.Media.Flag)
 #> [1] "SURFACE WATER" "GROUNDWATER"   "SEDIMENT"      "OTHER"        
@@ -176,7 +176,7 @@ Data_Clean1 <- TADA_MediaFilter(
   ground_water = TRUE,
   sediment = TRUE
 )
-#> TADA_MediaFilter: Counts by media (before filter) - SURFACE WATER: 167,131 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,244
+#> TADA_MediaFilter: Counts by media (before filter) - SURFACE WATER: 166,830 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,207
 #> TADA_MediaFilter: Removed 3,560 rows matching media types: GROUNDWATER, SEDIMENT. Returning cleaned data without flag columns.
 "TADA.Media.Flag" %in% names(Data_Clean1) # FALSE
 #> [1] FALSE
@@ -189,8 +189,8 @@ Data_Clean2 <- TADA_MediaFilter(
   sediment = TRUE,
   other = TRUE
 )
-#> TADA_MediaFilter: Counts by media (before filter) - SURFACE WATER: 167,131 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,244
-#> TADA_MediaFilter: Removed 5,804 rows matching media types: GROUNDWATER, SEDIMENT, OTHER. Returning cleaned data without flag columns.
+#> TADA_MediaFilter: Counts by media (before filter) - SURFACE WATER: 166,830 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,207
+#> TADA_MediaFilter: Removed 5,767 rows matching media types: GROUNDWATER, SEDIMENT, OTHER. Returning cleaned data without flag columns.
 
 # Example 4: Remove surface water only
 Data_Clean3 <- TADA_MediaFilter(
@@ -198,6 +198,6 @@ Data_Clean3 <- TADA_MediaFilter(
   clean = TRUE,
   surface_water = TRUE
 )
-#> TADA_MediaFilter: Counts by media (before filter) - SURFACE WATER: 167,131 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,244
-#> TADA_MediaFilter: Removed 167,131 rows matching media types: SURFACE WATER. Returning cleaned data without flag columns.
+#> TADA_MediaFilter: Counts by media (before filter) - SURFACE WATER: 166,830 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,207
+#> TADA_MediaFilter: Removed 166,830 rows matching media types: SURFACE WATER. Returning cleaned data without flag columns.
 ```

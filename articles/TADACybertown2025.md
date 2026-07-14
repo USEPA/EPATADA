@@ -226,25 +226,23 @@ Let’s review the duplicates:
 
 ``` r
 
+# Review duplicate groupings
 WQP_flag_review <- WQP_flag |>
   dplyr::select(
-    MonitoringLocationName,
-    TADA.MonitoringLocationIdentifier,
-    # TADA.MultipleOrgDuplicate,
-    # TADA.MultipleOrgDupGroupID,
-    # TADA.ResultSelectedMultipleOrgs,
-    TADA.SingleOrgDupGroupID,
-    TADA.SingleOrgDup.Flag,
+    OrganizationIdentifier,
+    MonitoringLocationIdentifier,
+    ActivityTypeCode,
+    ActivityStartDate,
+    ActivityStartTime.Time,
     TADA.ComparableDataIdentifier,
-    ResultMeasureValue,
-    TADA.ResultMeasure.MeasureUnitCode,
-    TADA.MonitoringLocationName,
-    TADA.NearbySites.Flag,
-    TADA.NearbySiteGroup,
-    OrganizationIdentifier
+    SubjectTaxonomicName,
+    TADA.ResultMeasureValue,
+    TADA.ResultDepthHeightMeasure.MeasureValue,
+    TADA.ResultDepthHeightMeasure.MeasureUnitCode,
+    TADA.MultipleOrgDupGroupID,
+    TADA.MultipleOrgDup.Flag
   ) |>
-  dplyr::filter(TADA.SingleOrgDupGroupID != "Not a duplicate") |>
-  dplyr::distinct()
+  dplyr::arrange(TADA.MultipleOrgDupGroupID)
 ```
 
 We will select to keep only unique samples from
@@ -258,9 +256,8 @@ TADA.ResultSelectedMultipleOrgs equals “Y”.
 
 ``` r
 
-WQP_clean <- WQP_flag |>
-  dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
-  dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
+WQP_clean <- TADA_FindPotentialDuplicatesMultipleOrgs(WQP_flag, clean = T) |>
+  TADA_FindPotentialDuplicatesSingleOrg(WQP_flag, clean = T)
 ```
 
 Remove intermediate variables in R by using ‘rm()’. In the remainder of

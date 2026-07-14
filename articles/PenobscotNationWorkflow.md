@@ -150,40 +150,22 @@ Use `TADA_OverviewMap` to generate a map:
 EPATADA::TADA_OverviewMap(df_raw)
 ```
 
-Review and remove duplicate results if present:
+Flag duplicate results:
 
 ``` r
 
-df_flag <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(df_raw)
+df_flag <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(df_raw,
+                                                          clean = F)
 ```
 
-    ## TADA_FindPotentialDuplicatesSingleOrg: 13 groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering.
-
-Select a small number of columns to review duplicates:
-
-``` r
-
-TADA_TableExport(subset(
-  df_flag,
-  TADA.SingleOrgDupGroupID != "Not a duplicate",
-  select = c(
-    ResultIdentifier,
-    ActivityStartDate,
-    TADA.ActivityMediaName,
-    TADA.MonitoringLocationIdentifier,
-    TADA.CharacteristicName,
-    TADA.ResultMeasureValue,
-    TADA.ResultMeasure.MeasureUnitCode,
-    ResultAnalyticalMethod.MethodName
-  )
-))
-```
+    ## TADA_FindPotentialDuplicatesSingleOrg: 13 groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and one result from each group was randomly selected to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Duplicate Selected', while duplicates are flagged as 'Duplicate Not Selected' for easy filtering.
 
 Remove duplicates:
 
 ``` r
 
-df_clean <- dplyr::filter(df_flag, TADA.SingleOrgDup.Flag == "Unique")
+df_clean <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(df_flag,
+                                                          clean = T)
 ```
 
 Run key TADA quality control flagging functions. Review carefully and
@@ -258,7 +240,7 @@ Generate pie chart:
 EPATADA::TADA_FieldValuesPie(df_clean, field = "MonitoringLocationName")
 ```
 
-![](PenobscotNationWorkflow_files/figure-html/unnamed-chunk-11-1.png)
+![](PenobscotNationWorkflow_files/figure-html/unnamed-chunk-10-1.png)
 
 Remove non-numeric results:
 

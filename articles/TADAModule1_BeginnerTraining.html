@@ -86,7 +86,7 @@
       <h1>TADA Module 1: Training for Beginner R Users</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2026-07-08</h4>
+            <h4 data-toc-skip class="date">2026-07-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule1_BeginnerTraining.Rmd" class="external-link"><code>vignettes/TADAModule1_BeginnerTraining.Rmd</code></a></small>
       <div class="d-none name"><code>TADAModule1_BeginnerTraining.Rmd</code></div>
@@ -531,10 +531,8 @@ by entering the following into the console:</p>
 <p>Remove flagged duplicates from a single organization (random
 selection of single result):</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">R5ProfileClean4</span> <span class="op">&lt;-</span> <span class="va">R5ProfileClean3</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
-<span>    <span class="va">TADA.SingleOrgDup.Flag</span> <span class="op">==</span> <span class="st">"Unique"</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">R5ProfileClean4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FindPotentialDuplicatesSingleOrg.html">TADA_FindPotentialDuplicatesSingleOrg</a></span><span class="op">(</span><span class="va">R5ProfileClean3</span>, </span>
+<span>                                                         clean <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Question 9: How many total duplicate results were removed?
 How could you prioritize retaining results from your organization when
 duplicate results are identified?</strong></p>

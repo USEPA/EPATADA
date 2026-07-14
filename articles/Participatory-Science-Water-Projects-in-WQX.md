@@ -199,15 +199,12 @@ Review and remove duplicate results if present:
 
 ``` r
 
-volunteer_data <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(volunteer_data)
+volunteer_data <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(
+  volunteer_data, 
+  clean = T)
 ```
 
-    ## TADA_FindPotentialDuplicatesSingleOrg: 355 groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering.
-
-``` r
-
-volunteer_data <- dplyr::filter(volunteer_data, TADA.SingleOrgDup.Flag == "Unique")
-```
+    ## TADA_FindPotentialDuplicatesSingleOrg: 355 groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and one result from each group was randomly selected to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Duplicate Selected', while duplicates are flagged as 'Duplicate Not Selected' for easy filtering.
 
 Prepare censored (nondetects and overdetects) results for analysis:
 

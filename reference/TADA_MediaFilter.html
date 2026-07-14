@@ -176,7 +176,7 @@ whether no rows matched the selected media, or whether no toggles were selected.
 <span class="r-in"><span>  <span class="va">Data_R5_TADAPackageDemo</span>,</span></span>
 <span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_MediaFilter: Counts by media - SURFACE WATER: 167,131 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,244</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_MediaFilter: Counts by media - SURFACE WATER: 166,830 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,207</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_MediaFilter: Returning all results with TADA.Media.Flag; media toggles ignored because clean = FALSE.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">Data_Flag</span><span class="op">$</span><span class="va">TADA.Media.Flag</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "SURFACE WATER" "GROUNDWATER"   "SEDIMENT"      "OTHER"        </span>
@@ -188,7 +188,7 @@ whether no rows matched the selected media, or whether no toggles were selected.
 <span class="r-in"><span>  ground_water <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  sediment <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_MediaFilter: Counts by media (before filter) - SURFACE WATER: 167,131 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,244</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_MediaFilter: Counts by media (before filter) - SURFACE WATER: 166,830 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,207</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_MediaFilter: Removed 3,560 rows matching media types: GROUNDWATER, SEDIMENT. Returning cleaned data without flag columns.</span>
 <span class="r-in"><span><span class="st">"TADA.Media.Flag"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">Data_Clean1</span><span class="op">)</span> <span class="co"># FALSE</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
@@ -201,8 +201,8 @@ whether no rows matched the selected media, or whether no toggles were selected.
 <span class="r-in"><span>  sediment <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  other <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_MediaFilter: Counts by media (before filter) - SURFACE WATER: 167,131 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,244</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_MediaFilter: Removed 5,804 rows matching media types: GROUNDWATER, SEDIMENT, OTHER. Returning cleaned data without flag columns.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_MediaFilter: Counts by media (before filter) - SURFACE WATER: 166,830 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,207</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_MediaFilter: Removed 5,767 rows matching media types: GROUNDWATER, SEDIMENT, OTHER. Returning cleaned data without flag columns.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example 4: Remove surface water only</span></span></span>
 <span class="r-in"><span><span class="va">Data_Clean3</span> <span class="op">&lt;-</span> <span class="fu">TADA_MediaFilter</span><span class="op">(</span></span></span>
@@ -210,8 +210,8 @@ whether no rows matched the selected media, or whether no toggles were selected.
 <span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  surface_water <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_MediaFilter: Counts by media (before filter) - SURFACE WATER: 167,131 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,244</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_MediaFilter: Removed 167,131 rows matching media types: SURFACE WATER. Returning cleaned data without flag columns.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_MediaFilter: Counts by media (before filter) - SURFACE WATER: 166,830 | GROUNDWATER:   3,315 | SEDIMENT:     245 | OTHER:   2,207</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_MediaFilter: Removed 166,830 rows matching media types: SURFACE WATER. Returning cleaned data without flag columns.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

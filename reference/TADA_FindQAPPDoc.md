@@ -41,7 +41,9 @@ utils::data(Data_R5_TADAPackageDemo)
 # Flag, but do not remove, data without an associated QAPP document in
 # new column titled "TADA.QAPPDocAvailable":
 FlagData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Data_R5_TADAPackageDemo)
+#> No QAPP document url data found in your dataframe. Returning input dataframe with TADA.QAPPDocAvailable column for tracking.
 
 # Remove data without an associated QAPP document available:
 RemoveData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Data_R5_TADAPackageDemo, clean = TRUE)
+#> This dataframe is empty because we did not find any QAPP document url data in your dataframe
 ```

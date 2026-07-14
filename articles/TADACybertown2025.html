@@ -86,7 +86,7 @@
       <h1>TADA Cybertown Workshop June 2025</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2026-07-08</h4>
+            <h4 data-toc-skip class="date">2026-07-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADACybertown2025.Rmd" class="external-link"><code>vignettes/TADACybertown2025.Rmd</code></a></small>
       <div class="d-none name"><code>TADACybertown2025.Rmd</code></div>
@@ -273,25 +273,23 @@ another, this can be done using the org_hierarchy argument in
 <span><span class="op">)</span></span></code></pre></div>
 <p>Let’s review the duplicates:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">WQP_flag_review</span> <span class="op">&lt;-</span> <span class="va">WQP_flag</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="co"># Review duplicate groupings</span></span>
+<span><span class="va">WQP_flag_review</span> <span class="op">&lt;-</span> <span class="va">WQP_flag</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
-<span>    <span class="va">MonitoringLocationName</span>,</span>
-<span>    <span class="va">TADA.MonitoringLocationIdentifier</span>,</span>
-<span>    <span class="co"># TADA.MultipleOrgDuplicate,</span></span>
-<span>    <span class="co"># TADA.MultipleOrgDupGroupID,</span></span>
-<span>    <span class="co"># TADA.ResultSelectedMultipleOrgs,</span></span>
-<span>    <span class="va">TADA.SingleOrgDupGroupID</span>,</span>
-<span>    <span class="va">TADA.SingleOrgDup.Flag</span>,</span>
+<span>    <span class="va">OrganizationIdentifier</span>,</span>
+<span>    <span class="va">MonitoringLocationIdentifier</span>,</span>
+<span>    <span class="va">ActivityTypeCode</span>,</span>
+<span>    <span class="va">ActivityStartDate</span>,</span>
+<span>    <span class="va">ActivityStartTime.Time</span>,</span>
 <span>    <span class="va">TADA.ComparableDataIdentifier</span>,</span>
-<span>    <span class="va">ResultMeasureValue</span>,</span>
-<span>    <span class="va">TADA.ResultMeasure.MeasureUnitCode</span>,</span>
-<span>    <span class="va">TADA.MonitoringLocationName</span>,</span>
-<span>    <span class="va">TADA.NearbySites.Flag</span>,</span>
-<span>    <span class="va">TADA.NearbySiteGroup</span>,</span>
-<span>    <span class="va">OrganizationIdentifier</span></span>
+<span>    <span class="va">SubjectTaxonomicName</span>,</span>
+<span>    <span class="va">TADA.ResultMeasureValue</span>,</span>
+<span>    <span class="va">TADA.ResultDepthHeightMeasure.MeasureValue</span>,</span>
+<span>    <span class="va">TADA.ResultDepthHeightMeasure.MeasureUnitCode</span>,</span>
+<span>    <span class="va">TADA.MultipleOrgDupGroupID</span>,</span>
+<span>    <span class="va">TADA.MultipleOrgDup.Flag</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.SingleOrgDupGroupID</span> <span class="op">!=</span> <span class="st">"Not a duplicate"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">TADA.MultipleOrgDupGroupID</span><span class="op">)</span></span></code></pre></div>
 <p>We will select to keep only unique samples from
 <code>TADA_FindPotentialDuplicatesSingleOrg</code> by filtering for
 TADA.SingleOrgDup.Flag equals “Unique”.</p>
@@ -300,9 +298,8 @@ TADA.SingleOrgDup.Flag equals “Unique”.</p>
 but if there were, duplicates can by removed by filtering for
 TADA.ResultSelectedMultipleOrgs equals “Y”.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">WQP_clean</span> <span class="op">&lt;-</span> <span class="va">WQP_flag</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.SingleOrgDup.Flag</span> <span class="op">==</span> <span class="st">"Unique"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.ResultSelectedMultipleOrgs</span> <span class="op">==</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">WQP_clean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FindPotentialDuplicatesMultipleOrgs.html">TADA_FindPotentialDuplicatesMultipleOrgs</a></span><span class="op">(</span><span class="va">WQP_flag</span>, clean <span class="op">=</span> <span class="cn">T</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/TADA_FindPotentialDuplicatesSingleOrg.html">TADA_FindPotentialDuplicatesSingleOrg</a></span><span class="op">(</span><span class="va">WQP_flag</span>, clean <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
 <p>Remove intermediate variables in R by using ‘rm()’. In the remainder
 of this workshop, we will work with the clean data set.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">

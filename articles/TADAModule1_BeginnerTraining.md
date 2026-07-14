@@ -541,10 +541,8 @@ of single result):
 
 ``` r
 
-R5ProfileClean4 <- R5ProfileClean3 |>
-  dplyr::filter(
-    TADA.SingleOrgDup.Flag == "Unique"
-  )
+R5ProfileClean4 <- TADA_FindPotentialDuplicatesSingleOrg(R5ProfileClean3, 
+                                                         clean = T)
 ```
 
 **Question 9: How many total duplicate results were removed? How could

@@ -86,7 +86,7 @@
       <h1>TADA: Assessment Unit Use Case Demo</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2026-07-08</h4>
+            <h4 data-toc-skip class="date">2026-07-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAAssessmentUnitUseCase.Rmd" class="external-link"><code>vignettes/TADAAssessmentUnitUseCase.Rmd</code></a></small>
       <div class="d-none name"><code>TADAAssessmentUnitUseCase.Rmd</code></div>
@@ -383,12 +383,10 @@ duplicates from within multiple organizations (such as when two or more
 organizations monitor the same location and may submit duplicate
 results).</p>
 <p>We will select to keep only unique samples from
-<code>TADA_FindPotentialDuplicatesSingleOrg</code> by filtering for
-TADA.SingleOrgDup.Flag equals “Unique”. Then we will search for
-potential duplicates from multiple orgs with
-<code>TADA_FindPotentialDuplicatesMultipleOrgs</code> and filter only to
-retain only one value per potential duplicate by filtering for
-TADA.ResultSelectedMultipleOrgs equals “Y”.</p>
+<code>TADA_FindPotentialDuplicatesSingleOrg</code>. Then we will search
+for potential duplicates from multiple orgs with
+<code>TADA_FindPotentialDuplicatesMultipleOrgs</code> and filter to
+retain only one value per potential duplicate.</p>
 <p>If you would like to prioritize results from one organization over
 another, this can be done using the org_hierarchy argument in
 <code>TADA_FindPotentialDuplicatesMultipleOrgs</code>. Information on
@@ -403,9 +401,9 @@ representative is selected randomly from each duplicate group.</p>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.SingleOrgDup.Flag</span> <span class="op">==</span> <span class="st">"Unique"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/TADA_FindPotentialDuplicatesMultipleOrgs.html">TADA_FindPotentialDuplicatesMultipleOrgs</a></span><span class="op">(</span></span>
 <span>    dist_buffer <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>    org_hierarchy <span class="op">=</span> <span class="st">"none"</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.ResultSelectedMultipleOrgs</span> <span class="op">==</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
+<span>    org_hierarchy <span class="op">=</span> <span class="st">"none"</span>,</span>
+<span>    clean <span class="op">=</span> <span class="cn">T</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <p>Next we can remove QC and qualified samples (with qualifiers
 identified as suspect) using <code>TADA_FindQCActivities</code> and
 <code>TADA_FlagMeasureQualifierCode</code>, respectively. See the TADA
