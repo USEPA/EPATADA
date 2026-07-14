@@ -206,6 +206,8 @@ MonitoringLocationType
 MonitoringLocationTypeName
 MonitoringLocations
 Msr
+MultipleOrgDup
+MultipleOrgDupGroupID
 NCTC
 NDs
 NHD
@@ -320,7 +322,6 @@ SeasonStartDate
 Signup
 SimpleCensoredMethods
 SingleOrgDup
-SingleOrgDupGroupID
 SiteGroup
 Speciation
 SpeciationAssumptions
@@ -554,6 +555,7 @@ rExpertQuery
 randombelowlimit
 rda
 readWQPdata
+recomputation
 renameATTAINSCols
 reportingCycle
 resultCount
