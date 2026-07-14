@@ -371,8 +371,8 @@ results).
 We will select to keep only unique samples from
 `TADA_FindPotentialDuplicatesSingleOrg`. Then we will search for
 potential duplicates from multiple orgs with
-`TADA_FindPotentialDuplicatesMultipleOrgs` and filter only to retain
-only one value per potential duplicate.
+`TADA_FindPotentialDuplicatesMultipleOrgs` and filter to retain only one
+value per potential duplicate.
 
 If you would like to prioritize results from one organization over
 another, this can be done using the org_hierarchy argument in
