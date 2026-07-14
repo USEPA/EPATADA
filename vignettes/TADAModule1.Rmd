@@ -803,13 +803,12 @@ console:
 -   ?**TADA_FindPotentialDuplicatesSingleOrg**
 
 ```{r FindPotentialDuplicates_single}
-TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3)
+TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3,
+                                                           clean = F)
 
-# filter to keep only unique rows using TADA.SingleOrgDup.Flag
-TADAProfileClean3 <- dplyr::filter(
-  TADAProfileClean3,
-  TADA.SingleOrgDup.Flag == "Unique"
-)
+# filter to keep only unique rows
+TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3, 
+                                                           clean = T)
 ```
 
 -   ?**TADA_FindPotentialDuplicatesMultipleOrgs**
