@@ -425,16 +425,22 @@ TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
   return(.data)
 }
 
-#' Run all TADA Module 1 functions with defaults
+#' Apply standardized TADA Module 1 workflow
 #'
-#' Applies the complete standardized TADA Module 1 workflow to a TADA-formatted dataset,
-#' using fixed function inputs for reproducibility and speed.
+#' Applies a standardized TADA Module 1 workflow using fixed function inputs 
+#' for reproducibility.
 #'
 #' The pipeline executes the following steps in order:
+#' autocleaning, censored result handling, synonym harmonization, media
+#' filtering, QC flagging/removal, special character conversion, duplicate
+#' removal, and threshold flagging.
 #'
-#' @param .data A data frame containing results from `TADA_DataRetrieval()` or a TADA-formatted dataset.
+#' @param .data A data frame containing results from `TADA_DataRetrieval()` 
+#'   or a TADA-formatted data frame.
 #'
-#' @return A data frame with the full standardized TADA Module 1 workflow applied.
+#' @return A TADA-formatted data frame after standardized Module 1 processing.
+#'   Rows may be removed and flag columns may be added or updated during
+#'   processing.
 #'
 #' @examples
 #' \dontrun{
@@ -448,8 +454,25 @@ TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
 #'
 #' clean_data <- TADA_ApplyMod1Defaults(raw_data)
 #' }
+#' @details
+#' This function applies a fixed sequence of TADA Module 1 cleaning and
+#' filtering steps. The order of operations is intentional and should be
+#' changed only if downstream function behavior is also updated.
+#'
+#' @seealso
+#' `TADA_AutoClean()`, `TADA_SimpleCensoredMethods()`,
+#' `TADA_HarmonizeSynonyms()`, `TADA_MediaFilter()`,
+#' `TADA_RunKeyFlagFunctions()`, `TADA_ConvertSpecialChars()`,
+#' `TADA_FindPotentialDuplicatesSingleOrg()`,
+#' `TADA_FindPotentialDuplicatesMultipleOrgs()`,
+#' `TADA_FlagAboveThreshold()`, `TADA_FlagBelowThreshold()`
+#'
 #' @export
 TADA_ApplyMod1Defaults <- function(.data) {
+  
+  if (!is.data.frame(.data)) {
+    stop(".data must be a data frame.")
+  }
   
   data <- .data
   
@@ -484,15 +507,17 @@ TADA_ApplyMod1Defaults <- function(.data) {
   data <- TADA_RunKeyFlagFunctions(data, clean = TRUE)
   
   # Remove any remaining non-numeric results
-  data <- TADA_ConvertSpecialChars(data,
-                                   col = "TADA.ResultMeasureValue",
-                                   clean = TRUE)
+  data <- TADA_ConvertSpecialChars(
+    data,
+    col = "TADA.ResultMeasureValue",
+    clean = TRUE
+  )
   
   # Remove single-organization duplicates
-  data <- TADA_FindPotentialDuplicatesSingleOrg(data, clean = T)
+  data <- TADA_FindPotentialDuplicatesSingleOrg(data, clean = TRUE)
   
   # Remove multiple-organization duplicates
-  data <- TADA_FindPotentialDuplicatesMultipleOrgs(data, clean = T)
+  data <- TADA_FindPotentialDuplicatesMultipleOrgs(data, clean = TRUE)
   
   # Flag results that are above and below thresholds
   data <- TADA_FlagAboveThreshold(
@@ -505,6 +530,6 @@ TADA_ApplyMod1Defaults <- function(.data) {
     clean = FALSE,
     flaggedonly = FALSE
   )
-
-  return(data)
+  
+  data
 }
