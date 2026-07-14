@@ -443,17 +443,11 @@ TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
 #'   processing.
 #'
 #' @examples
-#' \dontrun{
 #' # Example: retrieve data, then apply Module 1 defaults
-#' raw_data <- TADA_DataRetrieval(
-#'   startDate = "2020-03-14",
-#'   huc = "02070004",
-#'   applyautoclean = FALSE,
-#'   ask = FALSE
-#' )
-#'
-#' clean_data <- TADA_ApplyMod1Defaults(raw_data)
-#' }
+#' raw_data <- TADA_RandomTestingData(number_of_days = 1, 
+#' choose_random_state = FALSE, autoclean = FALSE, max_attempts = 3)
+#' clean_data <- TADA_ApplyModule1Defaults(raw_data)
+#' 
 #' @details
 #' This function applies a fixed sequence of TADA Module 1 cleaning and
 #' filtering steps. The order of operations is intentional and should be
@@ -468,7 +462,7 @@ TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
 #' `TADA_FlagAboveThreshold()`, `TADA_FlagBelowThreshold()`
 #'
 #' @export
-TADA_ApplyMod1Defaults <- function(.data) {
+TADA_ApplyModule1Defaults <- function(.data) {
   
   if (!is.data.frame(.data)) {
     stop(".data must be a data frame.")
