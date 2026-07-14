@@ -32,7 +32,8 @@ TADA_FindNearbySites(
   org_hierarchy = "none",
   meta_select = "random",
   catchment = TRUE,
-  by_AU = TRUE
+  by_AU = TRUE,
+  by_org = FALSE
 )
 ```
 
@@ -91,6 +92,13 @@ TADA_FindNearbySites(
   contain the column ATTAINS.AssessmentUnitIdentifier. Default is by_AU
   = TRUE.
 
+- by_org:
+
+  Boolean. When by_org = TRUE, two sites will only be matched if they
+  are from the same OrganizationIdentifier. When by_org = FALSE,
+  organization is not considered when matching nearby sites. Default is
+  FALSE.
+
 ## Value
 
 Input dataframe with a TADA.SiteGroup column that indicates the nearby
@@ -141,6 +149,14 @@ test.au.only <- TADA_FindNearbySites(testdat,
 test.all <- TADA_FindNearbySites(testdat,
   catchment = TRUE,
   by_AU = TRUE,
+  dist_buffer = 250
+)
+
+# example grouping nearby sites by distance and organization
+test.org <- TADA_FindNearbySites(testdat,
+  catchment = FALSE,
+  by_AU = FALSE,
+  by_org = TRUE,
   dist_buffer = 250
 )
 } # }

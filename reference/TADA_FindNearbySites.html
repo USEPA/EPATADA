@@ -127,7 +127,8 @@ TADA.LatitudeMeasure) were determined.</p>
 <span>  org_hierarchy <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>  meta_select <span class="op">=</span> <span class="st">"random"</span>,</span>
 <span>  catchment <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  by_AU <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  by_AU <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  by_org <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -185,6 +186,12 @@ assessment unit is not considered when matching nearby sites. In order to
 consider assessment unit when matching, the TADA data frame must contain the
 column ATTAINS.AssessmentUnitIdentifier. Default is by_AU = TRUE.</p></dd>
 
+
+<dt id="arg-by-org">by_org<a class="anchor" aria-label="anchor" href="#arg-by-org"></a></dt>
+<dd><p>Boolean. When by_org = TRUE, two sites will only be matched
+if they are from the same OrganizationIdentifier. When by_org = FALSE,
+organization is not considered when matching nearby sites. Default is FALSE.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -235,6 +242,14 @@ or by the site with the greatest number of overall results in the TADA df.</p>
 <span class="r-in"><span><span class="va">test.all</span> <span class="op">&lt;-</span> <span class="fu">TADA_FindNearbySites</span><span class="op">(</span><span class="va">testdat</span>,</span></span>
 <span class="r-in"><span>  catchment <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  by_AU <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  dist_buffer <span class="op">=</span> <span class="fl">250</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># example grouping nearby sites by distance and organization</span></span></span>
+<span class="r-in"><span><span class="va">test.org</span> <span class="op">&lt;-</span> <span class="fu">TADA_FindNearbySites</span><span class="op">(</span><span class="va">testdat</span>,</span></span>
+<span class="r-in"><span>  catchment <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>  by_AU <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>  by_org <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  dist_buffer <span class="op">=</span> <span class="fl">250</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
