@@ -3649,14 +3649,14 @@ TADA_AssignUsesToWaterType <- function(
       0
   ) {
     warning(paste0(
-      "TADA_CreateWaterusesRef: ",
+      "TADA_AssignUsesToWaterType: ",
       "One or more organization identifiers entered by user is not found in ATTAINS. "
     ))
   }
 
   # Calls on EQ_Assessments from latest assessment cycle. Pulls in unique water types and uses by org
   message(paste0(
-    "TADA_CreateWaterusesRef: Importing unique water types and uses ",
+    "TADA_AssignUsesToWaterType: Importing unique water types and uses ",
     "by organization from Expert Query."
   ))
 
@@ -3713,7 +3713,7 @@ TADA_AssignUsesToWaterType <- function(
 #' (see TADA Module 2 tools) to assist in their monitoring location to assessment
 #' unit crosswalk (see TADA_GetATTAINSAUMLCrosswalk, TADA_CreateAUMLCrosswalk,
 #' and TADA_GetATTAINSByAUID) and uses to assessment unit crosswalk
-#' (see TADA_CreateWaterusesRef and TADA_AssignUsesToAU) prior to this step.
+#' (see TADA_AssignUsesToWaterType and TADA_AssignUsesToAU) prior to this step.
 #'
 #' Users can apply any unique site-specific criteria (for example, warm waters,
 #' cold waters, water classifications, species-based waters, ecoregions etc.) to

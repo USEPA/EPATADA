@@ -73,7 +73,6 @@ CreateAUMLCrosswalk
 CreateComparableID
 CreatePairRef
 CreateUnitRef
-CreateWaterusesRef
 CriteriaMethodology
 CriteriaMethods
 Cybertown
@@ -207,6 +206,8 @@ MonitoringLocationTypeName
 MonitoringLocationTypeNames
 MonitoringLocations
 Msr
+MultipleOrgDup
+MultipleOrgDupGroupID
 NCTC
 NDs
 NHD
@@ -321,7 +322,6 @@ SeasonStartDate
 Signup
 SimpleCensoredMethods
 SingleOrgDup
-SingleOrgDupGroupID
 SiteGroup
 Speciation
 SpeciationAssumptions
@@ -555,6 +555,7 @@ rExpertQuery
 randombelowlimit
 rda
 readWQPdata
+recomputation
 renameATTAINSCols
 reportingCycle
 resultCount

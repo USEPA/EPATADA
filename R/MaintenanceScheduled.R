@@ -196,10 +196,9 @@
       rm(Data_TribalNations)
 
       # Remove single organization duplicates
-      harmonized_data <- TADA_FindPotentialDuplicatesSingleOrg(harmonized_data)
-      harmonized_data <- dplyr::filter(
+      harmonized_data <- TADA_FindPotentialDuplicatesSingleOrg(
         harmonized_data,
-        TADA.SingleOrgDup.Flag == "Unique"
+        clean = T
       )
 
       # Handle censored results
@@ -304,8 +303,8 @@
         od_multiplier = "null"
       )
       # Remove multiple organization duplicates (optional)
-      Data_WV <- TADA_FindPotentialDuplicatesMultipleOrgs(Data_WV)
-      Data_WV <- dplyr::filter(Data_WV, TADA.ResultSelectedMultipleOrgs == "Y")
+      Data_WV <- TADA_FindPotentialDuplicatesMultipleOrgs(Data_WV, clean = T)
+
       # Convert special characters
       Data_WV <- TADA_ConvertSpecialChars(
         Data_WV,

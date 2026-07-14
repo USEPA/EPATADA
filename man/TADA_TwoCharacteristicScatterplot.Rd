@@ -50,7 +50,7 @@ TADA_TwoCharacteristicScatterplot(Data_TribalNations_Harmonized,
   id_cols = "TADA.ComparableDataIdentifier",
   groups = c(
     "TEMPERATURE_NONE_NONE_DEG C",
-    "PH_NONE_NONE_NONE"
+    "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
   )
 )
 

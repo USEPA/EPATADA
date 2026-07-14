@@ -174,35 +174,18 @@ Use `TADA_OverviewMap` to generate a map:
 EPATADA::TADA_OverviewMap(df_raw)
 ```
 
-Review and remove duplicate results if present:
+Flag duplicate results:
 
 ```{r}
-df_flag <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(df_raw)
-```
-
-Select a small number of columns to review duplicates:
-
-```{r}
-TADA_TableExport(subset(
-  df_flag,
-  TADA.SingleOrgDupGroupID != "Not a duplicate",
-  select = c(
-    ResultIdentifier,
-    ActivityStartDate,
-    TADA.ActivityMediaName,
-    TADA.MonitoringLocationIdentifier,
-    TADA.CharacteristicName,
-    TADA.ResultMeasureValue,
-    TADA.ResultMeasure.MeasureUnitCode,
-    ResultAnalyticalMethod.MethodName
-  )
-))
+df_flag <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(df_raw,
+                                                          clean = F)
 ```
 
 Remove duplicates:
 
 ```{r}
-df_clean <- dplyr::filter(df_flag, TADA.SingleOrgDup.Flag == "Unique")
+df_clean <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(df_flag,
+                                                          clean = T)
 ```
 
 Run key TADA quality control flagging functions. Review carefully and
@@ -417,10 +400,11 @@ Filter output to include only Class B waters:
 
 ```{r}
 ME_criteria_ecoli_classB <- unique(subset(
-  ME_criteria_ecoli,
-  CST.Use == "FRESH SURFACE WATERS - CLASS B"
+  ME_criteria_ecoli[[1]],
+  ATTAINS.UseName == "FRESH SURFACE WATERS - CLASS B"
 ))
 
+# Export the criteria methodology table from the list of data frames
 TADA_TableExport(ME_criteria_ecoli_classB)
 ```
 

@@ -121,39 +121,37 @@ testthat::test_that("TADA_ParametersForAnalysis ", {
   )
 })
 
-# Test: Auto_assign criteria table should contain all unique TADA.Characteristics/TADA.ComparableDataIdentifier
-testthat::test_that("TADA_DefineCriteriaMethodology ", {
+testthat::test_that("TADA_DefineCriteriaMethodology auto_assign table contains all unique TADA.ComparableDataIdentifier", {
   suppressWarnings(
     Criteria_autofill <- TADA_DefineCriteriaMethodology(
       test_dat,
-      org_id = NULL, # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+      org_id = NULL,
       auto_assign = TRUE,
       displayUniqueId = FALSE,
       excel = FALSE
-      # uncomment to run the excel file
-      # excel = TRUE, overwrite = TRUE
     )
   )
 
   suppressWarnings(
     Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
       test_dat,
-      org_id = NULL, # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+      org_id = NULL,
       auto_assign = TRUE,
       displayUniqueId = TRUE,
       excel = FALSE
-      # uncomment to run the excel file
-      # excel = TRUE, overwrite = TRUE
     )
   )
-  # check to make sure all criteria table has same number of TADA.Characteristics/TADA.ComparableDataIdentifiers
-  testthat::expect_true(
-    length(unique(test_dat$TADA.ComparableDataIdentifier)) ==
-      length(unique(
-        Criteria_autofill_w_uniqueID$TADA.ComparableDataIdentifier
-      )) &&
-      length(unique(test_dat$TADA.CharacteristicName)) ==
-        length(unique(Criteria_autofill$TADA.CharacteristicName))
+
+  testthat::expect_setequal(
+    unique(test_dat$TADA.ComparableDataIdentifier),
+    unique(
+      Criteria_autofill_w_uniqueID$DefineCriteriaMethodology$TADA.ComparableDataIdentifier
+    )
+  )
+
+  testthat::expect_setequal(
+    unique(test_dat$TADA.CharacteristicName),
+    unique(Criteria_autofill$DefineCriteriaMethodology$TADA.CharacteristicName)
   )
 })
 
