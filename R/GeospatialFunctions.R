@@ -523,9 +523,9 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
     suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))),
     add = TRUE
   )
-  
+
   out_epsg <- 4326
-  
+
   suppressMessages(suppressWarnings({
     # If data is already spatial, just make sure it is in the right CRS
     if (!is.null(.data) & inherits(.data, "sf")) {
@@ -542,32 +542,32 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
         dplyr::mutate(geometry_join = geometry)
     }
   }))
-  
+
   # Reduce WQP data to unique coordinates
   unique_sites <- dplyr::distinct(geospatial_data, geometry)
-  
+
   # If user wants HighRes NHD...
   if (resolution %in% c("Hi", "hi")) {
     suppressMessages(suppressWarnings({
       # Map server for NHDPlus_HR that is used to download features:
       nhd_plus_hr_url <- "https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer"
-      
+
       # bounding box of user's WQP data
       wqp_bboxes <- unique_sites |>
         sf::st_buffer(1e-07) |>
         dplyr::rowwise() |>
         dplyr::mutate(bbox = purrr::map(geometry, sf::st_bbox)) |>
         sf::st_as_sfc()
-      
+
       # open the nhd_hr - which contains a bunch of layers
       nhd_hr <- arcgislayers::arc_open(nhd_plus_hr_url)
-      
+
       # select the layer by id from the items list called above (10 is HR catchments)
       nhd_hr_catchments <- arcgislayers::get_layer(nhd_hr, 10)
-      
+
       # use bboxes of the sites to return their associated catchments
       fill_USGS_catchments_stored <- vector("list", length = length(wqp_bboxes))
-      
+
       for (i in 1:length(wqp_bboxes)) {
         try(
           fill_USGS_catchments_stored[[i]] <- arcgislayers::arc_select(
@@ -579,12 +579,12 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
           silent = TRUE
         )
       }
-      
+
       fill_USGS_catchments_stored <- fill_USGS_catchments_stored |>
         purrr::keep(~ !is.null(.)) |>
         dplyr::bind_rows() |>
         dplyr::distinct()
-      
+
       try(
         fill_USGS_catchments_stored <- fill_USGS_catchments_stored |>
           dplyr::select(nhdplusid, catchmentareasqkm = areasqkm) |>
@@ -602,7 +602,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
         silent = TRUE
       )
     }))
-    
+
     # Empty version of the df will be returned if no associated catchments
     # to avoid breaking downstream fxns reliant on catchment info.
     if (nrow(fill_USGS_catchments_stored) == 0 && "catchments" %in% features) {
@@ -613,27 +613,27 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
         NHD.catchmentareasqkm = numeric()
       )
     }
-    
+
     if (nrow(fill_USGS_catchments_stored) == 0 && !"catchments" %in% features) {
       stop("No NHD HR features associated with your WQP observations.")
     }
-    
+
     if (length(features) == 1 && features == "catchments") {
       return(fill_USGS_catchments_stored)
     }
-    
+
     # Grab flowlines -
     if ("flowlines" %in% features && nrow(fill_USGS_catchments_stored) > 0) {
       suppressMessages(suppressWarnings({
         # use catchments to grab other NHD features
         geospatial_aoi <- fill_USGS_catchments_stored |> sf::st_as_sfc()
-        
+
         # select the layer by id from the items list (3 is HR flowlines)
         nhd_hr_flowlines <- arcgislayers::get_layer(nhd_hr, 3)
-        
+
         # use catchments to return associated flowlines
         nhd_flowlines_stored <- vector("list", length = length(geospatial_aoi))
-        
+
         for (i in 1:length(geospatial_aoi)) {
           try(
             nhd_flowlines_stored[[i]] <- arcgislayers::arc_select(
@@ -644,14 +644,14 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
               sf::st_make_valid(),
             silent = TRUE
           )
-          
+
           # so all returned meta data binds properly, must transform all columns into characters,
           # EXCEPT for the geometry column:
           try(
             geometry_col <- sf::st_geometry(nhd_flowlines_stored[[i]]),
             silent = TRUE
           )
-          
+
           try(
             nhd_flowlines_stored[[i]] <- nhd_flowlines_stored[[i]] |>
               dplyr::mutate(dplyr::across(
@@ -661,14 +661,14 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
             silent = TRUE
           )
         }
-        
+
         nhd_flowlines_stored <- nhd_flowlines_stored |>
           purrr::keep(~ !is.null(.)) |>
           purrr::keep(~ !is.character(.)) |>
           dplyr::bind_rows() |>
           dplyr::distinct()
       }))
-      
+
       if (length(features) == 1 && features == "flowlines") {
         if (
           length(nhd_flowlines_stored) == 0 || is.null(nhd_flowlines_stored)
@@ -677,31 +677,31 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
             "There are no NHD flowlines associated with your WQP observations."
           )
         }
-        
+
         return(nhd_flowlines_stored)
       }
-      
+
       if (length(nhd_flowlines_stored) == 0 || is.null(nhd_flowlines_stored)) {
         message(
           "There are no NHD flowlines associated with your WQP observations."
         )
       }
     }
-    
+
     # Grab waterbodies -
     if ("waterbodies" %in% features & nrow(fill_USGS_catchments_stored) > 0) {
       suppressMessages(suppressWarnings({
         geospatial_aoi <- fill_USGS_catchments_stored |> sf::st_as_sfc()
-        
+
         # select the layer by id from the items list called above (9 is HR waterbodies)
         nhd_hr_waterbodies <- arcgislayers::get_layer(nhd_hr, 9)
-        
+
         # use catchments to return associated waterbodies
         nhd_waterbodies_stored <- vector(
           "list",
           length = length(geospatial_aoi)
         )
-        
+
         for (i in 1:length(geospatial_aoi)) {
           try(
             nhd_waterbodies_stored[[i]] <- arcgislayers::arc_select(
@@ -713,14 +713,14 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
               sf::st_make_valid(),
             silent = TRUE
           )
-          
+
           # so all returned meta data binds properly, must transform all columns into characters,
           # EXCEPT for the geometry column:
           try(
             geometry_col <- sf::st_geometry(nhd_waterbodies_stored[[i]]),
             silent = TRUE
           )
-          
+
           try(
             nhd_waterbodies_stored[[i]] <- nhd_waterbodies_stored[[i]] |>
               dplyr::mutate(dplyr::across(
@@ -730,14 +730,14 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
             silent = TRUE
           )
         }
-        
+
         nhd_waterbodies_stored <- nhd_waterbodies_stored |>
           purrr::keep(~ !is.null(.)) |>
           purrr::keep(~ !is.character(.)) |>
           dplyr::bind_rows() |>
           dplyr::distinct()
       }))
-      
+
       if (length(features) == 1 && features == "waterbodies") {
         if (
           length(nhd_waterbodies_stored) == 0 || is.null(nhd_waterbodies_stored)
@@ -746,10 +746,10 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
             "There are no NHD waterbodies associated with your WQP observations."
           )
         }
-        
+
         return(nhd_waterbodies_stored)
       }
-      
+
       if (
         length(nhd_waterbodies_stored) == 0 || is.null(nhd_waterbodies_stored)
       ) {
@@ -758,46 +758,46 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
         )
       }
     }
-    
+
     # Combinations of features selected, and what they return:
     if (
       length(features) == 2 &&
-      "catchments" %in% features &&
-      "flowlines" %in% features
+        "catchments" %in% features &&
+        "flowlines" %in% features
     ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments_stored,
         "NHD_flowlines" = nhd_flowlines_stored
       )
-      
+
       return(nhd_list)
     } else if (
       length(features) == 2 &&
-      "catchments" %in% features &&
-      "waterbodies" %in% features
+        "catchments" %in% features &&
+        "waterbodies" %in% features
     ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments_stored,
         "NHD_waterbodies" = nhd_waterbodies_stored
       )
-      
+
       return(nhd_list)
     } else if (
       length(features) == 2 &&
-      "flowlines" %in% features &&
-      "waterbodies" %in% features
+        "flowlines" %in% features &&
+        "waterbodies" %in% features
     ) {
       nhd_list <- list(
         "NHD_flowlines" = nhd_flowlines_stored,
         "NHD_waterbodies" = nhd_waterbodies_stored
       )
-      
+
       return(nhd_list)
     } else if (
       length(features) == 3 &&
-      "catchments" %in% features &&
-      "flowlines" %in% features &&
-      "waterbodies" %in% features
+        "catchments" %in% features &&
+        "flowlines" %in% features &&
+        "waterbodies" %in% features
     ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments_stored,
@@ -809,12 +809,12 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
         "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
       )
     }
-    
+
     # If user wants NHDPlus V2...
   } else if (resolution %in% c("Med", "med")) {
     suppressMessages(suppressWarnings({
       fill_USGS_catchments <- vector("list", length = nrow(unique_sites))
-      
+
       for (i in 1:nrow(unique_sites)) {
         # Use {nhdplusTools} to grab associated catchments...
         try(
@@ -838,15 +838,15 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
           silent = TRUE
         )
       }
-      
+
       fill_USGS_catchments <- fill_USGS_catchments |> purrr::keep(~ !is.null(.))
-      
+
       try(
         fill_USGS_catchments <- dplyr::bind_rows(fill_USGS_catchments) |>
           dplyr::distinct(),
         silent = TRUE
       )
-      
+
       # if NHD catchments are not in the correct CRS, transform them
       try(
         if (sf::st_crs(fill_USGS_catchments) != sf::st_crs(geospatial_data)) {
@@ -856,7 +856,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
         silent = TRUE
       )
     }))
-    
+
     if (nrow(fill_USGS_catchments) == 0 && "catchments" %in% features) {
       message("No NHDPlus V2 features associated with your WQP observations.")
       fill_USGS_catchments <- tibble::tibble(
@@ -865,23 +865,23 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
         NHD.catchmentareasqkm = numeric()
       )
     }
-    
+
     if (nrow(fill_USGS_catchments) == 0 && !"catchments" %in% features) {
       stop("No NHDPlus V2 features associated with your WQP observations.")
     }
-    
+
     if (length(features) == 1 && features == "catchments") {
       return(fill_USGS_catchments)
     }
-    
+
     # Grab flowlines -
     if ("flowlines" %in% features && nrow(fill_USGS_catchments) > 0) {
       suppressMessages(suppressWarnings({
         nhd_flowlines <- vector("list", length = nrow(fill_USGS_catchments))
-        
+
         # use catchments to grab other NHD features:
         unique_sites <- fill_USGS_catchments
-        
+
         for (i in 1:nrow(unique_sites)) {
           # Use {nhdplusTools} to grab associated flowlines...
           try(
@@ -892,12 +892,12 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
               sf::st_make_valid(),
             silent = TRUE
           )
-          
+
           try(
             geometry_col <- sf::st_geometry(nhd_flowlines[[i]]),
             silent = TRUE
           )
-          
+
           try(
             nhd_flowlines[[i]] <- nhd_flowlines[[i]] |>
               dplyr::mutate(dplyr::across(
@@ -907,12 +907,12 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
             silent = TRUE
           )
         }
-        
+
         nhd_flowlines <- nhd_flowlines |> purrr::keep(~ !is.null(.))
-        
+
         try(nhd_flowlines <- dplyr::bind_rows(nhd_flowlines)) |>
           dplyr::distinct()
-        
+
         # if NHD flowlines are not in the correct CRS, transform them
         try(
           if (sf::st_crs(nhd_flowlines) != sf::st_crs(geospatial_data)) {
@@ -922,26 +922,26 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
           silent = TRUE
         )
       }))
-      
+
       if (nrow(nhd_flowlines) == 0 && "flowlines" %in% features) {
         message(
           "No NHDPlus V2 flowlines associated with your WQP observations."
         )
       }
-      
+
       if (length(features) == 1 && features == "flowlines") {
         return(nhd_flowlines)
       }
     }
-    
+
     # Grab waterbodies -
     if ("waterbodies" %in% features && nrow(fill_USGS_catchments) > 0) {
       suppressMessages(suppressWarnings({
         nhd_waterbodies <- vector("list", length = nrow(fill_USGS_catchments))
-        
+
         # use catchments to grab other NHD features:
         unique_sites <- fill_USGS_catchments
-        
+
         for (i in 1:nrow(unique_sites)) {
           # Use {nhdplusTools} to grab associated flowlines...
           try(
@@ -951,12 +951,12 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
               sf::st_make_valid(),
             silent = TRUE
           )
-          
+
           try(
             geometry_col <- sf::st_geometry(nhd_waterbodies[[i]]),
             silent = TRUE
           )
-          
+
           try(
             nhd_waterbodies[[i]] <- nhd_waterbodies[[i]] |>
               dplyr::mutate(dplyr::across(
@@ -966,15 +966,15 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
             silent = TRUE
           )
         }
-        
+
         nhd_waterbodies <- nhd_waterbodies |> purrr::keep(~ !is.null(.))
-        
+
         try(
           nhd_waterbodies <- dplyr::bind_rows(nhd_waterbodies) |>
             dplyr::distinct(),
           silent = TRUE
         )
-        
+
         # if NHD waterbodies are not in the correct CRS, transform them
         try(
           if (sf::st_crs(nhd_waterbodies) != sf::st_crs(geospatial_data)) {
@@ -984,57 +984,57 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
           silent = TRUE
         )
       }))
-      
+
       if (nrow(nhd_waterbodies) == 0 && "waterbodies" %in% features) {
         message(
           "No NHDPlus V2 waterbodies associated with your WQP observations."
         )
       }
-      
+
       if (length(features) == 1 && features == "waterbodies") {
         return(nhd_waterbodies)
       }
     }
-    
+
     # Combinations of features selected, and what they return:
     if (
       length(features) == 2 &&
-      "catchments" %in% features &&
-      "flowlines" %in% features
+        "catchments" %in% features &&
+        "flowlines" %in% features
     ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments,
         "NHD_flowlines" = nhd_flowlines
       )
-      
+
       return(nhd_list)
     } else if (
       length(features) == 2 &&
-      "catchments" %in% features &&
-      "waterbodies" %in% features
+        "catchments" %in% features &&
+        "waterbodies" %in% features
     ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments,
         "NHD_waterbodies" = nhd_waterbodies
       )
-      
+
       return(nhd_list)
     } else if (
       length(features) == 2 &&
-      "flowlines" %in% features &&
-      "waterbodies" %in% features
+        "flowlines" %in% features &&
+        "waterbodies" %in% features
     ) {
       nhd_list <- list(
         "NHD_flowlines" = nhd_flowlines,
         "NHD_waterbodies" = nhd_waterbodies
       )
-      
+
       return(nhd_list)
     } else if (
       length(features) == 3 &&
-      "catchments" %in% features &&
-      "flowlines" %in% features &&
-      "waterbodies" %in% features
+        "catchments" %in% features &&
+        "flowlines" %in% features &&
+        "waterbodies" %in% features
     ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments,
