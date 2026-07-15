@@ -40,9 +40,9 @@ Create Nearby Sites Map
 }
 \examples{
 \dontrun{
-# Load example dataframe:
+# Load example data:
 utils::data(Data_Nutrients_UT)
-
+utils::data(Data_TribalNations_Harmonized)
 
 # Create maps:
 TADA_NearbySitesMap(Data_Nutrients_UT)

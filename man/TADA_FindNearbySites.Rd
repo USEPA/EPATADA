@@ -2,137 +2,104 @@
 % Please edit documentation in R/GeospatialFunctions.R
 \name{TADA_FindNearbySites}
 \alias{TADA_FindNearbySites}
-\title{Identify and group nearby monitoring locations (UNDER ACTIVE DEVELOPMENT)}
+\title{Identify and group nearby monitoring locations}
 \usage{
 TADA_FindNearbySites(
   .data,
   dist_buffer = 100,
   nhd_res = "Hi",
-  org_hierarchy = "none",
-  meta_select = "random",
+  org_hierarchy = NULL,
+  meta_select = c("random", "oldest", "newest", "count"),
   catchment = TRUE,
   by_AU = TRUE,
   by_org = FALSE
 )
 }
 \arguments{
-\item{.data}{TADA dataframe OR TADA sites dataframe.}
+\item{.data}{A TADA data frame or TADA sites data frame.}
 
-\item{dist_buffer}{Numeric. The maximum distance (in meters) two sites can be
-from one another to be considered "nearby" and grouped together.}
+\item{dist_buffer}{Numeric. Maximum distance in meters between two sites to
+be considered nearby.}
 
-\item{nhd_res}{Character argument to determine whether the NHD catchments
-used should be high ("Hi") or medium ("Med") res. Default = "Hi" for
-consistency with other TADA geospatial functions.}
+\item{nhd_res}{Character. NHD catchment resolution used when \code{catchment = TRUE}. Must be \code{"Hi"} or \code{"Med"}. Default is \code{"Hi"}.}
 
-\item{org_hierarchy}{Vector of organization identifiers that acts as the
-order in which the function should select representative metadata for
-grouped sites based on the organization that collected the data. If left
-blank, the function does not factor organization in to the metadata
-selection process. When a vector is provided, the metadata will first be
-selected by organization and the "meta_select" argument will only be
-applied in cases where more than one set of metadata per site grouping are
-available from the highest ranking organization available.}
+\item{org_hierarchy}{Character vector of organization identifiers used to
+prioritize representative metadata. The first organization has highest
+priority. Use \code{NULL} to ignore organization ranking.}
 
-\item{meta_select}{Character argument to determine how metadata should be
-selected if no org_hierarchy is specified or if multiple options for metadata
-from the same organization exist. Options are "oldest", which selects the
-metadata associated with the oldest result from the grouped nearby sites,
-"newest", which selects the metadata associated with the newest result from
-the grouped nearby sites, "count" which selects the metadata associated with
-the greatest number of results, and "random" which selects random metadata
-from the site group. The default is meta_select = "random".}
+\item{meta_select}{Character. Method used to choose representative metadata
+when multiple candidates remain after organization ranking. Options are
+\code{"random"}, \code{"oldest"}, \code{"newest"}, and \code{"count"}. Default is \code{"random"}.}
 
-\item{catchment}{Boolean. When catchment = TRUE, two sites will only be matched
-if they are within the same NHD catchment. When catchment = FALSE catchment
-is not considered when matching sites. Default is catchment = TRUE.}
+\item{catchment}{Logical. If \code{TRUE}, sites are only grouped when they share
+an NHD catchment. Default is \code{TRUE}.}
 
-\item{by_AU}{Boolean. When by_AU = TRUE, two sites will only be matched
-if they are within the same ATTAINS assessment unit. When by_AU = FALSE the
-assessment unit is not considered when matching nearby sites. In order to
-consider assessment unit when matching, the TADA data frame must contain the
-column ATTAINS.AssessmentUnitIdentifier. Default is by_AU = TRUE.}
+\item{by_AU}{Logical. If \code{TRUE}, sites are only grouped when they share an
+ATTAINS assessment unit, if present. Default is \code{TRUE}.}
 
-\item{by_org}{Boolean. When by_org = TRUE, two sites will only be matched
-if they are from the same OrganizationIdentifier. When by_org = FALSE,
-organization is not considered when matching nearby sites. Default is FALSE.}
+\item{by_org}{Logical. If \code{TRUE}, sites are only grouped when they share an
+\code{OrganizationIdentifier}. Default is \code{FALSE}.}
 }
 \value{
-Input dataframe with a TADA.SiteGroup column that indicates the
-nearby site group each monitoring location belongs to. Grouped sites are
-concatenated in the TADA.MonitoringLocationIdentifier column
-(e.g. "USGS-10010025","USGS-10010026" enclosed in square brackets []).
-This JSON array is the new TADA monitoring location ID for the grouped sites.
-TADA.MonitoringLocationIdentifier can be leveraged to analyze data from
-nearby sites together (as the same general location). Related metadata,
-including TADA.MonitoringLocationName, TADA.LatitudeMeasure,
-TADA.LongitudeMeasure, and TADA.MonitoringLocationTypeName are added to the
-input df. Meta data selection is determined by user inputs as users may
-provide an organization hierarchy to determine which organization's
-metadata should be preferentially selected and further specify whether
-metadata should be selected: randomly, by the oldest or newest sampling date,
-or by the site with the greatest number of overall results in the TADA df.
+The input data frame with nearby-site grouping columns added.
+Grouped sites receive updated representative metadata.
 }
 \description{
-This function takes a TADA dataset and identifies the NHD catchments that
-each MonitoringLocation is in. Within each group of MonitoringLocations in
-the same catchment, a distance matrix is created and an adjacency matrix
-is used to identify groups of nearby sites within the same catchment.
-Groups of nearby sites are given a new TADA.MonitoringLocationIdentifier
-which is created by concatenating the original
-TADA.MonitoringLocationIdentifiers of all sites within the group. If the
-ATTAINS.AssessmentUnitIdentifier column in present, the default is
-only monitoring locations within the same assessment unit will be grouped together.
-It is recommended to assign monitoring locations to assessment units before running
-this function. If ATTAINS.AssessmentUnitIdentifier is present and the user does not
-want it to be factored into to nearby site groupings, the by_AU param can be set to
-FALSE. Two additional columns, TADA.NearbySiteGroup and TADA.NearbySites.Flag are added.
-TADA.NearbySiteGroup contains a unique numeric value for each group of sites
-within the same catchment. TADA.NearbySites.Flag identifies whether or not
-a result is from a grouped site or not and for grouped sites identifies how
-the TADA prefixed metadata columns (TADA.MonitoringLocationName,
-TADA.MonitoringLocationTypeName, TADA.LongitudeMeasure, and
-TADA.LatitudeMeasure) were determined.
+Groups monitoring locations in a TADA dataset when they fall within
+\code{dist_buffer} meters of one another, using connected components on pairwise
+distances between unique sites. Optional filters can further restrict groups
+to sites in the same NHD catchment, ATTAINS assessment unit, or organization.
+}
+\details{
+Grouped sites receive a bracketed, concatenated
+\code{TADA.MonitoringLocationIdentifier}, along with \code{TADA.NearbySiteGroup} and
+\code{TADA.NearbySites.Flag}. For grouped sites, representative metadata for
+\code{TADA.MonitoringLocationName}, \code{TADA.LatitudeMeasure},
+\code{TADA.LongitudeMeasure}, and \code{TADA.MonitoringLocationTypeName} are updated
+using \code{org_hierarchy} and \code{meta_select}.
 }
 \examples{
-\dontrun{
 # use MT example data set
 testdat <- Data_MT_AUMLRef$TADA_with_ATTAINS
 
-# example grouping nearby sites by distance only
-test.dist <- TADA_FindNearbySites(testdat,
+# grouping nearby sites by distance only
+test.dist <- TADA_FindNearbySites(
+  testdat,
   catchment = FALSE,
   by_AU = FALSE,
   dist_buffer = 250
 )
 
-# example grouping nearby sites by distance and catchment
-test.catch <- TADA_FindNearbySites(testdat,
+# grouping nearby sites by distance and catchment
+test.catch <- TADA_FindNearbySites(
+  testdat,
   catchment = TRUE,
   by_AU = FALSE,
   dist_buffer = 250
 )
 
-# example grouping nearby sites by distance and assessment unit
-test.au.only <- TADA_FindNearbySites(testdat,
+# grouping nearby sites by distance and assessment unit
+test.au.only <- TADA_FindNearbySites(
+  testdat,
   catchment = FALSE,
   by_AU = TRUE,
   dist_buffer = 250
 )
 
-# example grouping nearby sites by distance, catchment, and assessment unit
-test.all <- TADA_FindNearbySites(testdat,
+# grouping nearby sites by distance, catchment, and assessment unit
+test.all <- TADA_FindNearbySites(
+  testdat,
   catchment = TRUE,
   by_AU = TRUE,
   dist_buffer = 250
 )
 
-# example grouping nearby sites by distance and organization
-test.org <- TADA_FindNearbySites(testdat,
+# grouping nearby sites by distance and organization
+test.org <- TADA_FindNearbySites(
+  testdat,
   catchment = FALSE,
   by_AU = FALSE,
   by_org = TRUE,
   dist_buffer = 250
 )
-}
 }
