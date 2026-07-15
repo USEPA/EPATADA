@@ -115,6 +115,62 @@ etc.).</p>
     <p>Synonym Reference Table unique to the input dataframe</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Return the default internal synonym reference table</span></span></span>
+<span class="r-in"><span><span class="va">syn_ref_default</span> <span class="op">&lt;-</span> <span class="fu">TADA_GetSynonymRef</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">syn_ref_default</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   TADA.CharacteristicName Target.TADA.CharacteristicName</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 AMMONIA                           &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                 AMMONIA                           &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                 AMMONIA                           &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                 AMMONIA                           &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                 AMMONIA                           &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                 AMMONIA                           &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   TADA.CharacteristicNameAssumptions TADA.ResultSampleFractionText</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                               &lt;NA&gt;                     DISSOLVED</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                               &lt;NA&gt;                     DISSOLVED</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                               &lt;NA&gt;                     DISSOLVED</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                               &lt;NA&gt;                     DISSOLVED</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                               &lt;NA&gt;                    FILTERABLE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                               &lt;NA&gt;                    FILTERABLE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Target.TADA.ResultSampleFractionText</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                             FILTERED</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                             FILTERED</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                             FILTERED</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                             FILTERED</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                             FILTERED</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                             FILTERED</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                                  TADA.FractionAssumptions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                      Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                      Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                      Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                      Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 Assumes FILTERED, LAB and FILTERED, FIELD are equivalent to FILTERABLE and FILTERED. FILTERED is precise and preferred.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 Assumes FILTERED, LAB and FILTERED, FIELD are equivalent to FILTERABLE and FILTERED. FILTERED is precise and preferred.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   TADA.MethodSpeciationName Target.TADA.MethodSpeciationName</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                      AS N                             &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                    AS NH3                             AS N</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                    AS NH4                             AS N</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                      &lt;NA&gt;                             AS N</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                      AS N                             &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                    AS NH3                             AS N</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                               TADA.SpeciationAssumptions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                                                                   &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2              Converts speciation and result values from AS NH3 to AS N</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3              Converts speciation and result values from AS NH4 to AS N</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 Assumes original speciation for AMMONIA is AS NH3 and converts to AS N</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                                                                   &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6              Converts speciation and result values from AS NH3 to AS N</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Target.TADA.SpeciationConversionFactor HarmonizationGroup</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                                     NA           Nitrogen</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                                  0.822           Nitrogen</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                                  0.776           Nitrogen</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                                  0.822           Nitrogen</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                                     NA           Nitrogen</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                                  0.822           Nitrogen</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

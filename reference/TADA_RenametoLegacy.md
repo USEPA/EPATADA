@@ -47,7 +47,8 @@ DeWitt_wqx3 <- dataRetrieval::readWQPdata(
 #> GET: https://api.waterdata.usgs.gov/samples-data/codeservice/states?mimeType=application%2Fjson
 #> GET: https://api.waterdata.usgs.gov/samples-data/codeservice/states?mimeType=application%2Fjson
 #> GET: https://www.waterqualitydata.us/wqx3/Result/search?countycode=US%3A17%3A039&characteristicName=Nitrogen&dataProfile=fullPhysChem&mimeType=csv
-#> WQX3 services are in-development, use with caution.
+#> Error in importWQP(baseURL, tz = tz, convertType = convertType): ERROR: INCOMPLETE DATA - THE RESULTS FOR THIS REQUEST ARE NOT COMPLETE AND MORE DATA IS LIKELY AVAILABLE.  PLEASE RETRY THE REQUEST.
 
 DeWitt_wqx3_withlegacynames <- EPATADA::TADA_RenametoLegacy(DeWitt_wqx3)
+#> Error: object 'DeWitt_wqx3' not found
 ```
