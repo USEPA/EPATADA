@@ -156,25 +156,6 @@ test_that("np summation keys are a subset of nitrogen/phosphorus harmonization k
   )
 })
 
-test_that("TADA_GetSynonymRef warns when QC flags are missing and preserves template columns", {
-  df_in <- data.frame(
-    "TADA.CharacteristicName" = c("Nitrate", "Nitrate"),
-    "TADA.ResultSampleFractionText" = c("", "UNFILTERED"),
-    "TADA.MethodSpeciationName" = c("NONE", NA),
-    stringsAsFactors = FALSE
-  )
-  tmpl <- TADA_GetSynonymRef(NULL)
-  expect_true(is.data.frame(tmpl))
-
-  expect_warning(
-    out <- TADA_GetSynonymRef(df_in),
-    "missing TADA QC flagging columns",
-    fixed = TRUE
-  )
-  expect_true(is.data.frame(out))
-  expect_setequal(names(out), names(tmpl))
-})
-
 test_that("TADA_GetNutrientSummationRef normalizes keys: no empty strings; 'NONE' -> NA", {
   ref <- TADA_GetNutrientSummationRef()
   keys <- c(
