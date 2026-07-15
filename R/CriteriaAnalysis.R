@@ -378,7 +378,12 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   }
 
   do_join <- function(df, crit, keys) {
-    spatial_cols <- c("ATTAINS.WaterType", "SaltFresh", "UniqueSpatialCriteria", "DepthCategory")
+    spatial_cols <- c(
+      "ATTAINS.WaterType",
+      "SaltFresh",
+      "UniqueSpatialCriteria",
+      "DepthCategory"
+    )
 
     if (nrow(crit) == 0) {
       return(NULL)
@@ -391,8 +396,6 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     }
 
     if (has_AUMLRef) {
-
-
       # if none exist, do a normal join
       if (length(spatial_cols) == 0) {
         return(dplyr::left_join(

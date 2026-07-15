@@ -1212,7 +1212,7 @@ TADA_DefineCriteriaMethodology <- function(
           "  without criteria information filled out.\n",
           "  Please review if these entries are applicable to your analysis,\n",
           "  or ignore this message if they are not relevant.\n"
-          ))
+        ))
       }
 
       # If the source of the ATTAINS param and uses is the prior ATTAINS assessment cycle.
@@ -1537,17 +1537,22 @@ TADA_DefineCriteriaMethodology <- function(
       "Your final criteria table output contains values not found in your AUMLRef",
       "ATTAINS.WaterType"
     )
-    
-    spatial_cols <- c("ATTAINS.WaterType", "SaltFresh", "UniqueSpatialCriteria", "DepthCategory")
-    
+
+    spatial_cols <- c(
+      "ATTAINS.WaterType",
+      "SaltFresh",
+      "UniqueSpatialCriteria",
+      "DepthCategory"
+    )
+
     # only keep spatial cols that actually exist in WQP data - which contains whatever columns are in AUMLRef now (already joined)
     spatial_cols <- intersect(spatial_cols, names(.data))
-    
+
     if (length(spatial_cols) > 0) {
       df_combo <- TADA_CorrectColType(
         df |> dplyr::select(dplyr::all_of(spatial_cols)) |> dplyr::distinct()
       )
-      
+
       crit_combo <- TADA_CorrectColType(
         crit |>
           dplyr::filter(
@@ -1556,13 +1561,13 @@ TADA_DefineCriteriaMethodology <- function(
           dplyr::select(dplyr::all_of(spatial_cols)) |>
           dplyr::distinct()
       )
-      
+
       missing_combos <- dplyr::anti_join(
         crit_combo,
         df_combo,
         by = spatial_cols
       )
-      
+
       if (nrow(missing_combos) > 0) {
         warning(paste0(
           "These spatial combinations exist in criteria but not in your WQP .data for your TADA.CharacteristicName(s):\n",
