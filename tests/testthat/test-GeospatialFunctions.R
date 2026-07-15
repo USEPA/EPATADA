@@ -425,48 +425,48 @@ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
     org_hierarchy = "none",
     meta_select = "count"
   )
-  
+
   test_count_filt <- test_count |>
     dplyr::filter(ResultIdentifier == "NWIS-33738169")
-  
+
   testthat::expect_equal(
     test_count_filt$TADA.MonitoringLocationIdentifier,
     "[USGS-06138570, CHIPCREE_WQX-LBS4]"
   )
-  
+
   testthat::expect_equal(test_count_filt$TADA.LatitudeMeasure, 48.4091576)
-  
+
   testthat::expect_equal(
     test_count_filt$TADA.MonitoringLocationTypeName,
     "STREAM"
   )
-  
+
   testthat::expect_equal(
     test_count_filt$TADA.NearbySites.Flag,
     "Grouped with nearby site(s). Metadata selected from the monitoring location with the most results available across all characteristics."
   )
-  
+
   # select by org hierarchy
   test_org <- TADA_FindNearbySites(
     nearby_data,
     org_hierarchy = c("CHIPCREE_WQX", "USGS-MT")
   )
-  
+
   test_org_filt <- test_org |>
     dplyr::filter(ResultIdentifier == "NWIS-33738169")
-  
+
   testthat::expect_equal(
     test_org_filt$TADA.MonitoringLocationIdentifier,
     "[USGS-06138570, CHIPCREE_WQX-LBS4]"
   )
-  
+
   testthat::expect_equal(test_org_filt$TADA.LatitudeMeasure, 48.4091576)
-  
+
   testthat::expect_equal(
     test_org_filt$TADA.MonitoringLocationTypeName,
     "STREAM"
   )
-  
+
   testthat::expect_equal(
     test_org_filt$TADA.NearbySites.Flag,
     "Grouped with nearby site(s). Metadata selected randomly."
@@ -547,17 +547,26 @@ nearby_fixture <- tibble::tibble(
   TADA.MonitoringLocationName = c("Site 1", "Site 2", "Site 3", "Site 4"),
   TADA.LongitudeMeasure = c(-112.00000, -112.00005, -113.00000, -113.00005),
   TADA.LatitudeMeasure = c(46.00000, 46.00005, 47.00000, 47.00005),
-  HorizontalCoordinateReferenceSystemDatumName = c("WGS84", "WGS84", "WGS84", "WGS84"),
+  HorizontalCoordinateReferenceSystemDatumName = c(
+    "WGS84",
+    "WGS84",
+    "WGS84",
+    "WGS84"
+  ),
   TADA.MonitoringLocationTypeName = c("STREAM", "STREAM", "LAKE", "LAKE"),
   OrganizationIdentifier = c("ORG1", "ORG1", "ORG2", "ORG3"),
-  ActivityStartDate = as.Date(c("2020-01-01", "2021-01-01", "2022-01-01", "2023-01-01")),
+  ActivityStartDate = as.Date(c(
+    "2020-01-01",
+    "2021-01-01",
+    "2022-01-01",
+    "2023-01-01"
+  )),
   TADA.ResultMeasureValue = c(1.1, 2.2, 3.3, 4.4)
 )
 
 testthat::test_that("TADA_FindNearbySites errors when required columns are missing", {
-  bad_data <- nearby_fixture |>
-    dplyr::select(-TADA.LongitudeMeasure)
-  
+  bad_data <- nearby_fixture |> dplyr::select(-TADA.LongitudeMeasure)
+
   testthat::expect_error(
     TADA_FindNearbySites(bad_data),
     "required field\\(s\\).*TADA\\.LongitudeMeasure"
@@ -591,7 +600,7 @@ testthat::test_that("TADA_FindNearbySites returns no-nearby output when no sites
     ActivityStartDate = as.Date(c("2020-01-01", "2021-01-01", "2022-01-01")),
     TADA.ResultMeasureValue = c(1.1, 2.2, 3.3)
   )
-  
+
   result <- TADA_FindNearbySites(
     far_apart,
     catchment = FALSE,
@@ -599,17 +608,17 @@ testthat::test_that("TADA_FindNearbySites returns no-nearby output when no sites
     by_org = FALSE,
     dist_buffer = 1
   )
-  
+
   testthat::expect_true(all(is.na(result$TADA.NearbySiteGroup)))
-  testthat::expect_true(all(
-    grepl("No nearby sites detected", result$TADA.NearbySites.Flag)
-  ))
+  testthat::expect_true(all(grepl(
+    "No nearby sites detected",
+    result$TADA.NearbySites.Flag
+  )))
 })
 
 testthat::test_that("TADA_FindNearbySites returns no-nearby output when by_org = TRUE and OrganizationIdentifier is missing", {
-  no_org <- nearby_fixture |>
-    dplyr::select(-OrganizationIdentifier)
-  
+  no_org <- nearby_fixture |> dplyr::select(-OrganizationIdentifier)
+
   result <- TADA_FindNearbySites(
     no_org,
     catchment = FALSE,
@@ -617,7 +626,7 @@ testthat::test_that("TADA_FindNearbySites returns no-nearby output when by_org =
     by_org = TRUE,
     dist_buffer = 100
   )
-  
+
   testthat::expect_true(all(is.na(result$TADA.NearbySiteGroup)))
   testthat::expect_true(all(!is.na(result$TADA.NearbySites.Flag)))
 })
@@ -634,7 +643,7 @@ testthat::test_that("TADA_FindNearbySites handles partial org_hierarchy", {
     ),
     "missing from org_hierarchy"
   )
-  
+
   testthat::expect_true(is.data.frame(result))
   testthat::expect_true("TADA.NearbySites.Flag" %in% names(result))
   testthat::expect_true("TADA.NearbySiteGroup" %in% names(result))
@@ -648,7 +657,7 @@ testthat::test_that("TADA_FindNearbySites supports meta_select = oldest and newe
     meta_select = "oldest",
     dist_buffer = 100
   )
-  
+
   new <- TADA_FindNearbySites(
     nearby_fixture,
     catchment = FALSE,
@@ -656,7 +665,7 @@ testthat::test_that("TADA_FindNearbySites supports meta_select = oldest and newe
     meta_select = "newest",
     dist_buffer = 100
   )
-  
+
   testthat::expect_true(is.data.frame(old))
   testthat::expect_true(is.data.frame(new))
   testthat::expect_true("TADA.NearbySites.Flag" %in% names(old))
@@ -665,7 +674,7 @@ testthat::test_that("TADA_FindNearbySites supports meta_select = oldest and newe
 
 testthat::test_that("TADA_FindNearbySites handles duplicated observations", {
   dup_data <- dplyr::bind_rows(nearby_fixture, nearby_fixture[1, ])
-  
+
   result <- TADA_FindNearbySites(
     dup_data,
     catchment = FALSE,
@@ -673,46 +682,49 @@ testthat::test_that("TADA_FindNearbySites handles duplicated observations", {
     by_org = FALSE,
     dist_buffer = 100
   )
-  
+
   testthat::expect_equal(nrow(result), nrow(dup_data))
 })
 
 testthat::test_that("TADA_FindNearbySites respects by_AU = FALSE when AU column is present", {
   au_fixture <- nearby_fixture |>
-    dplyr::mutate(ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU1", "AU2", "AU3"))
-  
+    dplyr::mutate(
+      ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU1", "AU2", "AU3")
+    )
+
   result <- TADA_FindNearbySites(
     au_fixture,
     by_AU = FALSE,
     catchment = FALSE,
     dist_buffer = 100
   )
-  
+
   testthat::expect_true(is.data.frame(result))
   testthat::expect_true("TADA.NearbySiteGroup" %in% names(result))
 })
 
 testthat::test_that("TADA_FindNearbySites respects by_AU = TRUE when AU column is present", {
   au_fixture <- nearby_fixture |>
-    dplyr::mutate(ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU1", "AU2", "AU3"))
-  
+    dplyr::mutate(
+      ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU1", "AU2", "AU3")
+    )
+
   result <- TADA_FindNearbySites(
     au_fixture,
     by_AU = TRUE,
     catchment = FALSE,
     dist_buffer = 100
   )
-  
+
   testthat::expect_true(is.data.frame(result))
   testthat::expect_true("TADA.NearbySiteGroup" %in% names(result))
 })
 
 testthat::test_that("TADA_FindNearbySites mocked catchment filtering works", {
   testthat::skip_if_not_installed("sf")
-  
-  tiny_data <- nearby_fixture |>
-    dplyr::slice(1:3)
-  
+
+  tiny_data <- nearby_fixture |> dplyr::slice(1:3)
+
   fake_catchments <- sf::st_as_sf(
     tibble::tibble(
       NHD.nhdplusid = c("C1", "C2"),
@@ -726,7 +738,7 @@ testthat::test_that("TADA_FindNearbySites mocked catchment filtering works", {
     wkt = "wkt",
     crs = 4326
   )
-  
+
   result <- testthat::with_mocked_bindings(
     fetchNHD = function(...) fake_catchments,
     {
@@ -739,17 +751,16 @@ testthat::test_that("TADA_FindNearbySites mocked catchment filtering works", {
       )
     }
   )
-  
+
   testthat::expect_true(is.data.frame(result))
   testthat::expect_true("TADA.NearbySiteGroup" %in% names(result))
 })
 
 testthat::test_that("TADA_FindNearbySites mocked catchment filtering can remove all groups", {
   testthat::skip_if_not_installed("sf")
-  
-  tiny_data <- nearby_fixture |>
-    dplyr::slice(1:2)
-  
+
+  tiny_data <- nearby_fixture |> dplyr::slice(1:2)
+
   fake_catchments <- sf::st_as_sf(
     tibble::tibble(
       NHD.nhdplusid = c("C1", "C2"),
@@ -763,7 +774,7 @@ testthat::test_that("TADA_FindNearbySites mocked catchment filtering can remove 
     wkt = "wkt",
     crs = 4326
   )
-  
+
   result <- testthat::with_mocked_bindings(
     fetchNHD = function(...) fake_catchments,
     {
@@ -776,7 +787,7 @@ testthat::test_that("TADA_FindNearbySites mocked catchment filtering can remove 
       )
     }
   )
-  
+
   testthat::expect_true(is.data.frame(result))
   testthat::expect_true("TADA.NearbySites.Flag" %in% names(result))
 })
