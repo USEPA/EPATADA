@@ -176,7 +176,8 @@ test_that("TADA_GetNutrientSummationRef normalizes keys: no empty strings; 'NONE
 test_that("Is the saved TADACharAliasRef.csv up to date?", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
-
+  skip_if_offline()
+  
   ATTAINS.raw <- suppressWarnings(suppressMessages(rExpertQuery::EQ_DomainValues(
     "param_name"
   )))
@@ -204,7 +205,8 @@ test_that("Is the saved TADACharAliasRef.csv up to date?", {
 test_that("TADA_GetTADACharAliasRef caches by tolerance", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
-
+  skip_if_offline()
+  
   TADA_ClearCache()
   keys_before <- TADA_ListCacheKeys()
 
@@ -247,7 +249,8 @@ test_that("TADA_GetTADACharAliasRef caches by tolerance", {
 test_that("set.all.tolerance propagates to all tolerance notes", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
-
+  skip_if_offline()
+  
   ref <- TADA_GetTADACharAliasRef(set.all.tolerance = 0.5)
   expect_true(is.data.frame(ref))
   expect_true("Status.Notes" %in% names(ref))
@@ -274,7 +277,8 @@ test_that("set.all.tolerance propagates to all tolerance notes", {
 test_that("TADA_GetTADAUsesAliasRef caches by tolerance", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
-
+  skip_if_offline()
+  
   TADA_ClearCache()
   keys_before <- TADA_ListCacheKeys()
 
@@ -304,7 +308,8 @@ test_that("TADA_GetTADAUsesAliasRef caches by tolerance", {
 test_that("TADA_GetTADACharAliasRef emits reviewed-rows or empty-review message", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
-
+  skip_if_offline()
+  
   TADA_ClearCache()
   expect_message(
     try(
@@ -326,7 +331,8 @@ test_that("TADA_GetTADACharAliasRef emits reviewed-rows or empty-review message"
 test_that("TADA_GetTADAUsesAliasRef emits reviewed-rows or empty-review message", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
-
+  skip_if_offline()
+  
   TADA_ClearCache()
   expect_message(
     try(
