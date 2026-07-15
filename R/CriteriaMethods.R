@@ -1186,7 +1186,8 @@ TADA_DefineCriteriaMethodology <- function(
 
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == TRUE) {
         warning(paste0(
-          "Your user supplied criteriaMethods file is missing ",
+          "displayUniqueId = TRUE, displaying all unique TADA.ComparableDataIdentifiers in your WQP data.\n",
+          "  Your *user supplied* criteriaMethods data is missing ",
           length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
           " unique TADA.ComparableDataIdentifier(s):\n\n  ",
           paste0(
@@ -1194,14 +1195,13 @@ TADA_DefineCriteriaMethodology <- function(
             collapse = ", "
           ),
           "\n\n",
-          "  without criteria information filled out.\n",
-          "  Please review if these entries are applicable to your analysis or ignore this message if they are not relevant.\n"
+          "  without criteria information filled out.\n"
         ))
       }
 
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == FALSE) {
         warning(paste0(
-          "Your user supplied criteriaMethods file is missing ",
+          "  Your *user supplied* criteriaMethods data is missing ",
           length(unique(non_definedCriteria$TADA.CharacteristicName)),
           " unique TADA.CharacteristicName(s) :\n\n  ",
           paste0(
@@ -1210,8 +1210,9 @@ TADA_DefineCriteriaMethodology <- function(
           ),
           "\n\n",
           "  without criteria information filled out.\n",
-          "  Please review if these entries are applicable to your analysis or ignore this message if they are not relevant.\n"
-        ))
+          "  Please review if these entries are applicable to your analysis,\n",
+          "  or ignore this message if they are not relevant.\n"
+          ))
       }
 
       # If the source of the ATTAINS param and uses is the prior ATTAINS assessment cycle.
@@ -1220,16 +1221,20 @@ TADA_DefineCriteriaMethodology <- function(
       if (auto_assign == TRUE & is.null(AU_UsesRef)) {
         warning(paste0(
           "You selected auto_assign == TRUE. No AU_UsesRef was provided. ",
-          "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from the prior ATTAINS Assessment Cycle. ",
-          "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
+          "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName ",
+          "pulled in from the prior ATTAINS Assessment Cycle. ",
+          "Please review or edit these entries in your crosswalk or remove ",
+          "them/leave them unfilled if not applicable to analysis."
         ))
       }
       # If the source of the ATTAINS param and uses is from the user supplied AU_UsesRef.
       if (auto_assign == TRUE & !is.null(AU_UsesRef)) {
         warning(paste0(
           "You selected auto_assign == TRUE. An AU_UsesRef was provided. ",
-          "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from your AU_UsesRef. ",
-          "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
+          "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName ",
+          "pulled in from your AU_UsesRef. ",
+          "Please review or edit these entries in your crosswalk or remove ",
+          "them/leave them unfilled if not applicable to analysis."
         ))
       }
 
@@ -1456,7 +1461,7 @@ TADA_DefineCriteriaMethodology <- function(
   )
 
   # validations - does criteria table inputs match the AUMLRef and AU_UsesRef if provided?
-  if (!is.null(AUMLRef) && !is.null(AU_UsesRef)) {
+  if (!is.null(AUMLRef) | !is.null(AU_UsesRef)) {
     upperize <- function(df) {
       cols <- intersect(
         names(df),
@@ -1532,6 +1537,40 @@ TADA_DefineCriteriaMethodology <- function(
       "Your final criteria table output contains values not found in your AUMLRef",
       "ATTAINS.WaterType"
     )
+    
+    spatial_cols <- c("ATTAINS.WaterType", "SaltFresh", "UniqueSpatialCriteria", "DepthCategory")
+    
+    # only keep spatial cols that actually exist in WQP data - which contains whatever columns are in AUMLRef now (already joined)
+    spatial_cols <- intersect(spatial_cols, names(.data))
+    
+    if (length(spatial_cols) > 0) {
+      df_combo <- TADA_CorrectColType(
+        df |> dplyr::select(dplyr::all_of(spatial_cols)) |> dplyr::distinct()
+      )
+      
+      crit_combo <- TADA_CorrectColType(
+        crit |>
+          dplyr::filter(
+            TADA.CharacteristicName %in% df$TADA.CharacteristicName
+          ) |>
+          dplyr::select(dplyr::all_of(spatial_cols)) |>
+          dplyr::distinct()
+      )
+      
+      missing_combos <- dplyr::anti_join(
+        crit_combo,
+        df_combo,
+        by = spatial_cols
+      )
+      
+      if (nrow(missing_combos) > 0) {
+        warning(paste0(
+          "These spatial combinations exist in criteria but not in your WQP .data for your TADA.CharacteristicName(s):\n",
+          "Please ensure these entries are correct or these values cannot be joined due to a mismatch.\n",
+          paste(capture.output(print(missing_combos)), collapse = "\n")
+        ))
+      }
+    }
   }
 
   # Generates the excel function (HIGHLY Recommended for users to export)

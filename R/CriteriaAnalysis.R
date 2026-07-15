@@ -12,11 +12,11 @@
 #' from both inputs for that pass. Left-join semantics are preserved overall.
 #'
 #' When AUMLRef is provided (optional), this function first joins the WQP .data
-#' to the AUMLRef by TADA.MonitoringLocationTypeName and OrganizationIdentifier
+#' to the AUMLRef by TADA.MonitoringLocationIdentifier and OrganizationIdentifier
 #' (from the WQP). NOTE: AUMLRef is in active development and will contain the
 #' proper identification of SaltFresh, UniqueSpatialCriteria and DepthCategory as
 #' needed for assessments. If a user would like to populate the criteria table by
-#' these fields, users must define the proper definitions in the AUMLref.
+#' these fields, users must define these proper definitions in the AUMLref.
 #'
 #' If an AU_UsesRef is provided (optional), this will filter the criteria table
 #' to only uses contained in this AU_UsesRef. If both AUMLRef and AU_UsesRef is
@@ -378,7 +378,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   }
 
   do_join <- function(df, crit, keys) {
-    spatial_cols <- "ATTAINS.WaterType" # add "SaltFresh", "UniqueSpatialCriteria", "DepthCategory" when AUMLRef contains these columns in the future.
+    spatial_cols <- c("ATTAINS.WaterType", "SaltFresh", "UniqueSpatialCriteria", "DepthCategory")
 
     if (nrow(crit) == 0) {
       return(NULL)
@@ -391,37 +391,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     }
 
     if (has_AUMLRef) {
-      # only keep spatial cols that actually exist in crit
-      spatial_cols <- intersect(spatial_cols, names(crit))
 
-      if (length(spatial_cols) > 0) {
-        df_combo <- TADA_CorrectColType(
-          df |> dplyr::select(dplyr::all_of(spatial_cols)) |> dplyr::distinct()
-        )
-
-        crit_combo <- TADA_CorrectColType(
-          crit |>
-            dplyr::filter(
-              TADA.CharacteristicName %in% df$TADA.CharacteristicName
-            ) |>
-            dplyr::select(dplyr::all_of(spatial_cols)) |>
-            dplyr::distinct()
-        )
-
-        missing_combos <- dplyr::anti_join(
-          crit_combo,
-          df_combo,
-          by = spatial_cols
-        )
-
-        if (nrow(missing_combos) > 0) {
-          warning(paste0(
-            "These spatial combinations exist in criteria but not in your WQP .data for your TADA.CharacteristicName(s):\n",
-            "Please ensure these entries are correct or these values cannot be joined due to a mismatch.\n",
-            paste(capture.output(print(missing_combos)), collapse = "\n")
-          ))
-        }
-      }
 
       # if none exist, do a normal join
       if (length(spatial_cols) == 0) {

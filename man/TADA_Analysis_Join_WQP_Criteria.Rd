@@ -60,11 +60,11 @@ For each fallback pass, rows with NA in any of the pass keys are dropped
 from both inputs for that pass. Left-join semantics are preserved overall.
 
 When AUMLRef is provided (optional), this function first joins the WQP .data
-to the AUMLRef by TADA.MonitoringLocationTypeName and OrganizationIdentifier
+to the AUMLRef by TADA.MonitoringLocationIdentifier and OrganizationIdentifier
 (from the WQP). NOTE: AUMLRef is in active development and will contain the
 proper identification of SaltFresh, UniqueSpatialCriteria and DepthCategory as
 needed for assessments. If a user would like to populate the criteria table by
-these fields, users must define the proper definitions in the AUMLref.
+these fields, users must define these proper definitions in the AUMLref.
 
 If an AU_UsesRef is provided (optional), this will filter the criteria table
 to only uses contained in this AU_UsesRef. If both AUMLRef and AU_UsesRef is

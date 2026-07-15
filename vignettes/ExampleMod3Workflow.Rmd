@@ -1015,15 +1015,9 @@ nrow(MT.MLSummaryRef.ML)
 # TADA DefineCriteriaMethodology()
 
 Now, lets get to generating the criteria and methodology file for MTDEQ
-to fill out. We will showcase how this table will be generated for the
-first time using the recommended step-by-step workflow and showcase how
-a user can go about updating their criteria and methodology file as
-needed.
+to fill out. We will demonstrate how this table is created for the first time using the recommended step-by-step workflow, and then show how a user can update and validate their criteria and methodology file as needed.
 
-First, let's show how our step-by-step process all come together. Users
-will need to fill out this template that is generated. It is highly
-recommended to export this to the excel spreadsheet to show the
-allowable values and easy interface for inputs to the table.
+First, let’s look at how the step-by-step process comes together. Users will need to complete the generated template. It is highly recommended to export this template to an Excel spreadsheet, as this provides a user-friendly interface for entering values and displaying the allowable options for each table field.
 
 ```{r step-by-step-output}
 MT.CriteriaMethods <- TADA_DefineCriteriaMethodology(
@@ -1150,13 +1144,23 @@ MT.CriteriaMethods.Final2 <- TADA_DefineCriteriaMethodology(
 TADA_TableExport(MT.CriteriaMethods.Final2[[1]])
 ```
 
-### Join Criteria Table to Your WQP Data
+## Join Criteria Table to Your WQP Data
 
 Now that your criteria table is ready, the next step is to join it to your WQP data frame.
 In the next section, we’ll also use the AUMLRef and AU_UsesRef crosswalk outputs from ExampleModule2Workflow.Rmd to show how to work with assessment unit–level analysis.
 
-First, join the criteria table to your WQP data frame.
+First, join the criteria table to your WQP data frame. The criteria table will automatically be joined by the best match of either TADA.ComparableDataIdentifier or by combinations of TADA.CharacterisiticName, TADA.ResultSampleFractionText, and TADA.MethodSpeciationName.
 
 ```{r}
 MT_data_w_criteria <- TADA_Analysis_Join_WQP_Criteria(Data_MT_MissoulaCounty, MT.CriteriaMethods.Final)
 ```
+
+How many columns do you see?
+
+```{r}
+ncol(Data_MT_MissoulaCounty)
+ncol(MT.CriteriaMethods.Final)
+ncol(MT_data_w_criteria)
+length(union(names(Data_MT_MissoulaCounty),names(MT.CriteriaMethods.Final)))
+```
+
