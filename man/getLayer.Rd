@@ -8,20 +8,20 @@ getLayer is used within TADA_addPolys and TADA_addPoints}
 getLayer(layerfilepath, gpkg, layer, bbox = NULL)
 }
 \arguments{
-
 \item{layerfilepath}{Local path to the data folder containing the .gpkg file}
 
 \item{gpkg}{name of the .gpkg file}
 
 \item{layer}{name of the layer within the .gpkg file}
 
-\item{bbox}{A bounding box from \code{sf::st_bbox()}, used to filter the query results. Optional; defaults to \code{NULL}.}
+\item{bbox}{A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.}
 }
 \value{
-An \code{sf} object containing the layer.
+sf object containing the layer
 }
 \description{
-\code{getLayer} is used within \code{TADA_addPolys} and \code{TADA_addPoints}.
+Get a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
+getLayer is used within TADA_addPolys and TADA_addPoints
 }
 \examples{
 \dontrun{
