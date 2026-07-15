@@ -182,8 +182,9 @@ EPATADA::TADA_OverviewMap(volunteer_data)
 Review and remove duplicate results if present:
 
 ```{r}
-volunteer_data <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(volunteer_data)
-volunteer_data <- dplyr::filter(volunteer_data, TADA.SingleOrgDup.Flag == "Unique")
+volunteer_data <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(
+  volunteer_data, 
+  clean = T)
 ```
 
 Prepare censored (nondetects and overdetects) results for analysis:
