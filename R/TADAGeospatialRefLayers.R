@@ -7,7 +7,7 @@
 TADA_UpdateTribalLayers <- function() {
   writeLayer(AKAllotmentsUrl, "inst/extdata/Tribal.gpkg", "AKAllotments")
   writeLayer(AKVillagesUrl, "inst/extdata/Tribal.gpkg", "AKVillages")
-  writeLayer(AmericanIndianUrl, "inst/extdata/Tribal.gpkg","AmericanIndian")
+  writeLayer(AmericanIndianUrl, "inst/extdata/Tribal.gpkg", "AmericanIndian")
   writeLayer(OffReservationUrl, "inst/extdata/Tribal.gpkg", "OffReservation")
   writeLayer(OKTribeUrl, "inst/extdata/Tribal.gpkg", "OKTribe")
   writeLayer(VATribeUrl, "inst/extdata/Tribal.gpkg", "VATribe")

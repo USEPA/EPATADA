@@ -487,13 +487,13 @@ flowlines
 fullPhysChem
 geeksforgeeks
 geo
+geopackage
 geopub
 geospatial
 geospatially
 getATTAINSColorRef
 getATTAINSColorsRef
 getFeatureLayer
-getLayer
 getMapIconLabels
 getTribalPopup
 getWQPSiteStats
@@ -501,6 +501,7 @@ getenv
 ggplot
 github
 gitignore
+gpkg
 helpdesk
 https
 huc
@@ -565,7 +566,6 @@ secchi
 setEQKey
 setnames
 showMissingATTAINSAUs
-shp
 siteType
 siteid
 sitetype
