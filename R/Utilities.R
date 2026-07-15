@@ -1467,20 +1467,22 @@ writeLayer <- function(url, layerfilepath, layer) {
 }
 
 
-#' Get a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
-#' getLayer is used within TADA_addPolys and TADA_addPoints
+#' Get a spatial file from a local folder, optionally crop it by a bounding box, and return it as an sf object
 #'
-#' @param layerfilepath Local path to the data folder containing the .gpkg file
-#' @gpkg name of the .gpkg file
-#' @layer name of the layer within the .gpkg file
-#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
-#' @return sf object containing the layer
+#' `getLayer` is used within `TADA_addPolys` and `TADA_addPoints`.
 #'
+#' @param layerfilepath Local path to the data folder containing the `.gpkg` file.
+#' @param gpkg Name of the `.gpkg` file.
+#' @param layer Name of the layer within the `.gpkg` file.
+#' @param bbox A bounding box from `sf::st_bbox()`, used to filter the query results. Optional; defaults to `NULL`.
+#'
+#' @return An `sf` object containing the layer.
 #'
 #' @examples
 #' \dontrun{
 #' # Load example dataset
 #' utils::data(Data_TribalNations_Harmonized)
+#'
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(
 #'   c(
@@ -1491,6 +1493,7 @@ writeLayer <- function(url, layerfilepath, layer) {
 #'   ),
 #'   crs = sf::st_crs(Data_TribalNations_Harmonized)
 #' )
+#'
 #' # Get the American Indian Reservations feature layer,
 #' # filtered by the bounding box for the Data_TribalNations_Harmonized
 #' # example dataset
