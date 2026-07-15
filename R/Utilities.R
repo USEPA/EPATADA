@@ -1453,6 +1453,7 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
 #' @param layerfilepath Local path to save the .gpkg file
+#' @param layername Name of the layer within the .gpkg file
 #'
 #' @examples
 #' \dontrun{
@@ -1461,18 +1462,17 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
 #' writeLayer(OKTribeUrl, "inst/extdata/Tribal.gpkg","OKTribe")
 #' }
-writeLayer <- function(url, layerfilepath, layer) {
-  layer <- getFeatureLayer(url)
-  sf::st_write(layer, layerfilepath, layer, delete_layer = TRUE)
+writeLayer <- function(url, layerfilepath, layername) {
+  feature <- getFeatureLayer(url)
+  sf::st_write(feature, layerfilepath, layer = layername, delete_layer = TRUE)
 }
-
 
 #' Get a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
 #' getLayer is used within TADA_addPolys and TADA_addPoints
 #'
 #' @param layerfilepath Local path to the data folder containing the .gpkg file
-#' @gpkg name of the .gpkg file
-#' @layer name of the layer within the .gpkg file
+#' @param gpkg name of the .gpkg file
+#' @param layer name of the layer within the .gpkg file
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return sf object containing the layer
 #'
