@@ -2,27 +2,30 @@
 % Please edit documentation in R/Utilities.R
 \name{getLayer}
 \alias{getLayer}
-\title{Get a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
-getLayer is used within TADA_addPolys and TADA_addPoints}
+\title{Get a spatial file from a local folder, optionally crop it by a bounding box, and return it as an sf object}
 \usage{
 getLayer(layerfilepath, gpkg, layer, bbox = NULL)
 }
 \arguments{
-\item{layerfilepath}{Local path to the data folder containing the .gpkg file}
+\item{layerfilepath}{Local path to the data folder containing the \code{.gpkg} file.}
 
-\item{bbox}{A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.}
+\item{gpkg}{Name of the \code{.gpkg} file.}
+
+\item{layer}{Name of the layer within the \code{.gpkg} file.}
+
+\item{bbox}{A bounding box from \code{sf::st_bbox()}, used to filter the query results. Optional; defaults to \code{NULL}.}
 }
 \value{
-sf object containing the layer
+An \code{sf} object containing the layer.
 }
 \description{
-Get a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
-getLayer is used within TADA_addPolys and TADA_addPoints
+\code{getLayer} is used within \code{TADA_addPolys} and \code{TADA_addPoints}.
 }
 \examples{
 \dontrun{
 # Load example dataset
 utils::data(Data_TribalNations_Harmonized)
+
 # Get the bounding box of the data
 bbox <- sf::st_bbox(
   c(
@@ -33,6 +36,7 @@ bbox <- sf::st_bbox(
   ),
   crs = sf::st_crs(Data_TribalNations_Harmonized)
 )
+
 # Get the American Indian Reservations feature layer,
 # filtered by the bounding box for the Data_TribalNations_Harmonized
 # example dataset
