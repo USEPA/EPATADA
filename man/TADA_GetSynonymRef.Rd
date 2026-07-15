@@ -26,3 +26,8 @@ the user has already removed any data containing suspect characteristic-unit-fra
 combinations (i.e. user has already run TADA_FlagFraction, TADA_FlagSpeciation, TADA_FlagResultUnit,
 etc.).
 }
+\examples{
+# Return the default internal synonym reference table
+syn_ref_default <- TADA_GetSynonymRef()
+head(syn_ref_default)
+}
