@@ -363,7 +363,6 @@ TADA_DefineCriteriaMethodology <- function(
         TADA_ParamRef <- TADA_ParametersForAnalysis(
           .data = .data,
           org_id = org_id,
-          auto_assign = "None",
           excel = excel,
           overwrite = overwrite
         )
@@ -386,7 +385,12 @@ TADA_DefineCriteriaMethodology <- function(
           org_id = org_id,
           excel = excel,
           overwrite = overwrite
-        )
+        ) |>
+          dplyr::mutate(
+            ATTAINS.ParameterName = NA,
+            ATTAINS.UseName = NA
+            ) |>
+          dplyr::distinct()
       )
     }
 
