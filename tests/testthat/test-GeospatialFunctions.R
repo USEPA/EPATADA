@@ -422,7 +422,7 @@ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
   # select by count
   test_count <- TADA_FindNearbySites(
     nearby_data,
-    org_hierarchy = "none",
+    org_hierarchy = NULL,
     meta_select = "count"
   )
 
@@ -434,7 +434,7 @@ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
     "[USGS-06138570, CHIPCREE_WQX-LBS4]"
   )
 
-  testthat::expect_equal(test_count_filt$TADA.LatitudeMeasure, 48.4091576)
+  testthat::expect_equal(test_count_filt$TADA.LatitudeMeasure, 48.40916)
 
   testthat::expect_equal(
     test_count_filt$TADA.MonitoringLocationTypeName,
@@ -460,11 +460,11 @@ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
     "[USGS-06138570, CHIPCREE_WQX-LBS4]"
   )
 
-  testthat::expect_equal(test_org_filt$TADA.LatitudeMeasure, 48.4091576)
+  testthat::expect_equal(test_org_filt$TADA.LatitudeMeasure, 48.4093590)
 
   testthat::expect_equal(
     test_org_filt$TADA.MonitoringLocationTypeName,
-    "STREAM"
+    "RIVER/STREAM"
   )
 
   testthat::expect_equal(

@@ -7,17 +7,33 @@
 fetchNHD(.data, resolution = "Hi", features = "catchments")
 }
 \arguments{
-\item{.data}{A dataframe created by \code{TADA_DataRetrieval()} or the geospatial equivalent made by \code{TADA_MakeSpatial()}.}
+\item{.data}{A dataframe created by \code{TADA_DataRetrieval()} or the geospatial
+equivalent made by \code{TADA_MakeSpatial()}.}
 
-\item{resolution}{Whether to download the NHDPlus HiRes resolution ("Hi") or medium NHDPlus V2 resolution ("Med") version of the National Hydrography Dataset (NHD). Default is "Hi".}
+\item{resolution}{Character. Whether to download the NHDPlus HiRes
+resolution ("Hi") or medium NHDPlus V2 resolution ("Med") version of the
+National Hydrography Dataset (NHD). Default is "Hi".}
 
-\item{features}{Which NHD features to return: "catchments", "flowlines", "waterbodies", or any combination.}
+\item{features}{Character vector indicating which NHD features to return.
+Valid options are "catchments", "flowlines", and "waterbodies". Any single
+feature or combination of features may be requested. Order does not matter.
+Default is "catchments".}
 }
 \value{
-A list containing all selected NHD features associated with the WQP observations of interest. Or, if a single feature type is selected, a single geospatial object instead of a list. Default is "catchments" only.
+If a single feature type is requested, returns an \code{sf} object for that
+feature. If multiple feature types are requested, returns a named list of
+\code{sf} objects. When no features are found, empty feature tables are returned
+for catchments or \code{NULL}/empty results depending on the requested feature.
 }
 \description{
-Fetches NHD features from either the high resolution or medium resolution version of the National Hydrography Dataset (NHD) that intersect catchments containing TADA Water Quality Portal observations.
+Fetches NHD features from either the high resolution or medium resolution
+version of the National Hydrography Dataset (NHD) that intersect catchments
+containing TADA Water Quality Portal observations. For HighRes requests,
+catchments are first fetched from the AOI of unique observation locations,
+and HighRes flowlines and waterbodies are then fetched from those catchment
+AOIs rather than from the full bounding box. For Medium resolution requests,
+features are fetched using \code{nhdplusTools} from the unique observation
+locations and derived catchments.
 }
 \examples{
 \dontrun{
@@ -31,7 +47,8 @@ tada_data <- TADA_DataRetrieval(
 )
 
 nhd_data <- fetchNHD(
-  .data = tada_data, resolution = "Hi",
+  .data = tada_data,
+  resolution = "Hi",
   features = c("catchments", "waterbodies", "flowlines")
 )
 }
