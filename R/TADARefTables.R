@@ -113,7 +113,7 @@ TADA_GetSynonymRef <- function(.data = NULL) {
     "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName"
   )
-  
+
   # ---- helpers ----
   normalize_keys <- function(df, cols) {
     df |>
@@ -128,7 +128,7 @@ TADA_GetSynonymRef <- function(.data = NULL) {
         }
       ))
   }
-  
+
   trim_to_na <- function(df, cols) {
     df |>
       dplyr::mutate(dplyr::across(
@@ -143,11 +143,11 @@ TADA_GetSynonymRef <- function(.data = NULL) {
         }
       ))
   }
-  
+
   left_join_na <- function(x, y, by) {
     dplyr::left_join(x, y, by = by, na_matches = "na")
   }
-  
+
   # ---- load and normalize template ----
   harm.raw <- utils::read.csv(
     system.file("extdata", "HarmonizationTemplate.csv", package = "EPATADA"),
@@ -156,19 +156,19 @@ TADA_GetSynonymRef <- function(.data = NULL) {
     comment.char = "",
     na.strings = c("", "NA")
   )
-  
+
   harm.raw <- normalize_keys(harm.raw, expected_cols)
   harm.raw <- trim_to_na(harm.raw, names(harm.raw))
   harm.raw <- dplyr::distinct(harm.raw)
-  
+
   # If no data supplied, return default reference table
   if (is.null(.data)) {
     return(harm.raw)
   }
-  
+
   # Check required input columns
   TADA_CheckColumns(.data, expected_cols)
-  
+
   # ---- optional QC-flag warning logic ----
   qc_flag_cols <- c(
     "TADA.MethodSpeciation.Flag",
@@ -176,7 +176,7 @@ TADA_GetSynonymRef <- function(.data = NULL) {
     "TADA.ResultUnit.Flag"
   )
   present_flag_cols <- intersect(qc_flag_cols, names(.data))
-  
+
   if (length(present_flag_cols) > 0) {
     suspect_counts <- .data |>
       dplyr::select(dplyr::all_of(present_flag_cols)) |>
@@ -186,31 +186,31 @@ TADA_GetSynonymRef <- function(.data = NULL) {
         values_to = "Flag_Value"
       ) |>
       dplyr::filter(.data$Flag_Value == "Suspect")
-    
+
     if (nrow(suspect_counts) > 0) {
       summary_inv <- suspect_counts |>
         dplyr::group_by(.data$Flag_Column) |>
         dplyr::summarise(`Result Count` = dplyr::n(), .groups = "drop")
-      
+
       message(
         "Warning: Your dataframe contains suspect metadata combinations in the following flag columns:"
       )
       print(as.data.frame(summary_inv))
     }
   }
-  
+
   # ---- build unique combinations from input ----
   combos <- .data[, expected_cols, drop = FALSE]
   combos <- dplyr::distinct(combos)
   combos <- normalize_keys(combos, expected_cols)
-  
+
   # ---- join to harmonization template ----
   join.data <- left_join_na(combos, harm.raw, by = expected_cols)
-  
+
   # ---- return aligned unique rows ----
   unique.data <- dplyr::distinct(join.data)
   unique.data <- unique.data[, names(harm.raw), drop = FALSE]
-  
+
   unique.data
 }
 
