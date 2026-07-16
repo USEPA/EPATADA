@@ -494,6 +494,7 @@ geospatially
 getATTAINSColorRef
 getATTAINSColorsRef
 getFeatureLayer
+getLayer
 getMapIconLabels
 getTribalPopup
 getWQPSiteStats
