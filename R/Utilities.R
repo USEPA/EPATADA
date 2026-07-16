@@ -1475,7 +1475,7 @@ writeLayer <- function(url, layerfilepath, layername) {
 #' @param layer name of the layer within the .gpkg file
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return sf object containing the layer
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' # Load example dataset
