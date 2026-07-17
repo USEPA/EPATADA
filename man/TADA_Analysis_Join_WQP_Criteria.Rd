@@ -64,7 +64,7 @@ to the AUMLRef by TADA.MonitoringLocationIdentifier and OrganizationIdentifier
 (from the WQP). NOTE: AUMLRef is in active development and will contain the
 proper identification of SaltFresh, UniqueSpatialCriteria and DepthCategory as
 needed for assessments. If a user would like to populate the criteria table by
-these fields, users must define these proper definitions in the AUMLref.
+these fields, users must define these proper definitions in the AUMLRef.
 
 If an AU_UsesRef is provided (optional), this will filter the criteria table
 to only uses contained in this AU_UsesRef. If both AUMLRef and AU_UsesRef is
