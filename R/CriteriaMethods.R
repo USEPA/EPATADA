@@ -244,114 +244,53 @@ TADA_DefineCriteriaMethodology <- function(
     "MaxEqMagnitude"
   )
 
-  # If MLSummaryRef is provided and user did not explicitly set displayUniqueId,
-  # default to TRUE to retain ComparableDataIdentifier for MLSummary-based filtering/assertions.
-  if (!is.null(MLSummaryRef) && missing(displayUniqueId)) {
-    displayUniqueId <- TRUE
-  }
-
-  # Return an empty data frame with column names only if a user does not define any arg inputs.
-  if (
-    missing(.data) &&
-      missing(MLSummaryRef) &&
-      missing(criteriaMethods) &&
-      missing(AUMLRef) &&
-      missing(AU_UsesRef)
-  ) {
-    # if (!"USEPA" %in% org_id) {
-    #   stop("org_id can only equal NULL or 'USEPA' if all other argument inputs are left blank.")
-    # }
-    message(
-      "All arguments are blank, returning an empty dataframe with column names only."
+  # Default displayUniqueId when MLSummaryRef is supplied.
+  if (!is.null(MLSummaryRef) && missing(displayUniqueId)) displayUniqueId <- TRUE
+  
+  # Return blank template when all inputs are missing.
+  if (all(missing(.data), missing(MLSummaryRef), missing(criteriaMethods),
+          missing(AUMLRef), missing(AU_UsesRef))) {
+    message("All arguments are blank, returning an empty dataframe with column names only.")
+    DefineCriteriaMethodology <- TADA_CorrectColType(
+      setNames(data.frame(matrix(ncol = length(desired_cols), nrow = 0)), desired_cols)
     )
-
-    DefineCriteriaMethodology <- data.frame(matrix(
-      ncol = length(desired_cols),
-      nrow = 0
-    ))
-
-    names(DefineCriteriaMethodology) <- desired_cols
-
-    DefineCriteriaMethodology <- TADA_CorrectColType(DefineCriteriaMethodology)
   } else {
-    # Check if auto_assign is boolean
     if (!is.logical(auto_assign)) {
-      stop(
-        "TADA_DefineCriteriaMethodology: auto_assign must be a boolean (TRUE/FALSE) value."
-      )
+      stop("TADA_DefineCriteriaMethodology: auto_assign must be TRUE/FALSE.")
     }
-
-    # If auto_assign = TRUE and no MLSummaryRef OR criteriaMethods arg input is provided, this results in error.
-    if (auto_assign == TRUE && !is.null(criteriaMethods)) {
-      stop(
-        "TADA_DefineCriteriaMethodology: criteriaMethods is provided and auto_assign = TRUE are not valid function argument input combinations."
-      )
+    if (auto_assign && !is.null(criteriaMethods)) {
+      stop("TADA_DefineCriteriaMethodology: criteriaMethods and auto_assign = TRUE are not valid together.")
     }
-
-    # Invalid function input combos - supply one or the other.
     if (!is.null(MLSummaryRef) && !is.null(criteriaMethods)) {
-      stop(
-        "TADA_DefineCriteriaMethodology: MLSummaryRef and criteriaMethods are both provided. You can only proceed with one (or none) of these options provided."
-      )
+      stop("TADA_DefineCriteriaMethodology: provide only one of MLSummaryRef or criteriaMethods.")
     }
-
-    # If MLSummaryRef and auto_assign = TRUE, assign a final filter dataframe
-    if (!is.null(MLSummaryRef) && auto_assign == TRUE) {
-      MLSummary_params <- unique(MLSummaryRef$TADA.ComparableDataIdentifier)
-    } else {
-      MLSummary_params <- NULL
-    }
-
-    # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
+    
+    MLSummary_params <- if (!is.null(MLSummaryRef) && auto_assign) {
+      unique(MLSummaryRef$TADA.ComparableDataIdentifier)
+    } else NULL
+    
     if (is.null(org_id)) {
       org_id <- ""
-      message(
-        "TADA_DefineCriteriaMethodology: Proceeding with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
-      )
+      message("TADA_DefineCriteriaMethodology: Proceeding with 'org_id = NULL'.")
     }
-
-    # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
-    if (tolower("all") %in% tolower(org_id)) {
-      if (is.null(criteriaMethods)) {
+    
+    if ("all" %in% tolower(org_id)) {
+      org_id <- if (is.null(criteriaMethods)) {
         if (is.null(AUMLRef)) {
-          # Emit a simple, early message unconditionally
-          message(
-            "org_id == 'All' was selected, no AUMLRef provided; attempting to pull domain orgs."
-          )
-
-          # Attempt to retrieve domain orgs; warn on failure but keep going
-          org_id <- tryCatch(
-            {
-              dv <- rExpertQuery::EQ_DomainValues("org_id")
-              if (!is.null(dv) && "code" %in% names(dv)) {
-                dv[["code"]]
-              } else {
-                warning(
-                  "EQ_DomainValues('org_id') returned no 'code' column; proceeding with empty org list."
-                )
-                character()
-              }
-            },
-            error = function(e) {
-              warning(
-                "Failed to retrieve ATTAINS org domain values: ",
-                conditionMessage(e)
-              )
-              character()
-            }
-          )
+          message("org_id == 'All' selected, no AUMLRef provided; attempting to pull domain orgs.")
+          tryCatch({
+            dv <- rExpertQuery::EQ_DomainValues("org_id")
+            if (!is.null(dv) && "code" %in% names(dv)) dv[["code"]] else character()
+          }, error = function(e) {
+            warning("Failed to retrieve ATTAINS org domain values: ", conditionMessage(e))
+            character()
+          })
         } else {
-          message(
-            "org_id == 'All' was selected, AUMLRef provided; using orgs found in AUMLRef."
-          )
-          org_id <- unique(stats::na.omit(
-            AUMLRef$ATTAINS.OrganizationIdentifier
-          ))
+          message("org_id == 'All' selected, using orgs found in AUMLRef.")
+          unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
         }
       } else {
-        org_id <- unique(stats::na.omit(
-          criteriaMethods$ATTAINS.OrganizationIdentifier
-        ))
+        unique(stats::na.omit(criteriaMethods$ATTAINS.OrganizationIdentifier))
       }
     }
 
