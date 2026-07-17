@@ -2671,26 +2671,26 @@ TADA_CorrectColType <- function(.data) {
         if (inherits(x, "Date")) {
           return(format(x, "%b-%d"))
         }
-        
+
         x <- as.character(x)
-        
+
         # Preserve zero-length explicitly
         if (length(x) == 0L) {
           return(character())
         }
-        
+
         x <- ifelse(is.na(x) | trimws(x) == "", NA_character_, x)
-        
+
         # Use a fixed internal year just for parsing
         dummy_year <- 2000L
-        
+
         out <- as.Date(paste(x, dummy_year), format = "%b %d %Y")
         bad <- is.na(out)
-        
+
         if (any(bad)) {
           out[bad] <- as.Date(paste(x[bad], dummy_year), format = "%m-%d %Y")
         }
-        
+
         format(out, "%b-%d")
       },
       # Default: unknown type -> leave unchanged

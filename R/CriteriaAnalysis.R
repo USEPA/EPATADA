@@ -136,15 +136,16 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         "TADA.MonitoringLocationIdentifier",
         "OrganizationIdentifier"
       )
-      
-      if (all(required_cols %in% names(.data)) &&
-          all(required_cols %in% names(AUMLRef))) {
-        
+
+      if (
+        all(required_cols %in% names(.data)) &&
+          all(required_cols %in% names(AUMLRef))
+      ) {
         # Add missing columns as NA and warn
         cols_to_add <- c("SaltFresh", "UniqueSpatialCriteria", "DepthCategory")
         missing_cols <- setdiff(cols_to_add, names(.data))
         missing_cols_AUML <- setdiff(cols_to_add, names(AUMLRef))
-        
+
         if (length(missing_cols) > 0) {
           warning(
             paste(
@@ -153,12 +154,12 @@ TADA_Analysis_Join_WQP_Criteria <- function(
             ),
             call. = FALSE
           )
-          
+
           for (col in missing_cols) {
             .data[[col]] <- NA_character_
           }
         }
-        
+
         if (length(missing_cols_AUML) > 0) {
           warning(
             paste(
@@ -171,19 +172,18 @@ TADA_Analysis_Join_WQP_Criteria <- function(
             ),
             call. = FALSE
           )
-          
+
           for (col in missing_cols) {
             .data[[col]] <- NA_character_
           }
         }
-        
+
         .data <- .data |>
           dplyr::left_join(
             AUMLRef,
             by = required_cols,
             relationship = "many-to-many"
           )
-        
       } else {
         warning(
           "AUMLRef could not be joined because required columns are missing.",
@@ -666,9 +666,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   wqp_criteria <- TADA_CorrectColType(wqp_criteria)
 
   # if TRUE, only displays returning matches (those filled in from criteria table) that will be used for analysis
-  cols <- spsUtil::quiet(names(TADA_criteria()[[1]])[
-    -seq_len(8)
-  ])
+  cols <- spsUtil::quiet(names(TADA_criteria()[[1]])[-seq_len(8)])
   existing_cols <- intersect(cols, names(wqp_criteria))
 
   if (clean) {
@@ -681,13 +679,12 @@ TADA_Analysis_Join_WQP_Criteria <- function(
 
 # checks for mismatching combinations between .data, refs, and criteria table
 TADA_Analysis_Validate_Ref2 <- function(
-    .data,
-    criteria,
-    AUMLRef = NULL,
-    AU_UsesRef = NULL
+  .data,
+  criteria,
+  AUMLRef = NULL,
+  AU_UsesRef = NULL
 ) {
   if (!is.null(AUMLRef) || !is.null(AU_UsesRef)) {
-    
     upperize <- function(df) {
       cols <- intersect(
         names(df),
@@ -701,29 +698,43 @@ TADA_Analysis_Validate_Ref2 <- function(
           "ATTAINS.ParameterName"
         )
       )
-      
+
       for (nm in cols) {
         df[[nm]] <- toupper(as.character(df[[nm]]))
       }
       df
     }
-    
+
     wrap_vals <- function(x) {
       vals <- unique(stats::na.omit(trimws(as.character(x))))
-      if (!length(vals)) return("")
+      if (!length(vals)) {
+        return("")
+      }
       paste0("\n\n  ", paste(vals, collapse = "\n  "))
     }
-    
-    .data    <- upperize(.data)
+
+    .data <- upperize(.data)
     criteria <- upperize(criteria)
-    if (!is.null(AUMLRef)) AUMLRef <- upperize(AUMLRef)
-    if (!is.null(AU_UsesRef)) AU_UsesRef <- upperize(AU_UsesRef)
-    
-    cmp_vals <- function(x, y, cols, value_col, direction = c("x_not_in_y", "y_not_in_x")) {
+    if (!is.null(AUMLRef)) {
+      AUMLRef <- upperize(AUMLRef)
+    }
+    if (!is.null(AU_UsesRef)) {
+      AU_UsesRef <- upperize(AU_UsesRef)
+    }
+
+    cmp_vals <- function(
+      x,
+      y,
+      cols,
+      value_col,
+      direction = c("x_not_in_y", "y_not_in_x")
+    ) {
       direction <- match.arg(direction)
       cols <- intersect(cols, intersect(names(x), names(y)))
-      if (!length(cols)) return(NULL)
-      
+      if (!length(cols)) {
+        return(NULL)
+      }
+
       if (direction == "x_not_in_y") {
         out <- dplyr::anti_join(
           dplyr::distinct(dplyr::select(x, dplyr::all_of(cols))),
@@ -737,12 +748,14 @@ TADA_Analysis_Validate_Ref2 <- function(
           by = cols
         )
       }
-      
+
       vals <- unique(stats::na.omit(trimws(as.character(out[[value_col]]))))
-      if (!length(vals)) return(NULL)
+      if (!length(vals)) {
+        return(NULL)
+      }
       vals
     }
-    
+
     # AU_UsesRef checks
     if (!is.null(AU_UsesRef)) {
       vals1 <- cmp_vals(
@@ -752,7 +765,7 @@ TADA_Analysis_Validate_Ref2 <- function(
         "ATTAINS.UseName",
         direction = "x_not_in_y"
       )
-      
+
       vals2 <- cmp_vals(
         criteria,
         AU_UsesRef,
@@ -760,7 +773,7 @@ TADA_Analysis_Validate_Ref2 <- function(
         "ATTAINS.UseName",
         direction = "y_not_in_x"
       )
-      
+
       if (!is.null(vals1) || !is.null(vals2)) {
         msg <- character()
         if (!is.null(vals1)) {
@@ -786,7 +799,7 @@ TADA_Analysis_Validate_Ref2 <- function(
         warning(paste(msg, collapse = "\n\n"), call. = FALSE)
       }
     }
-    
+
     # AUMLRef checks
     if (!is.null(AUMLRef)) {
       vals1 <- cmp_vals(
@@ -796,7 +809,7 @@ TADA_Analysis_Validate_Ref2 <- function(
         "ATTAINS.WaterType",
         direction = "x_not_in_y"
       )
-      
+
       vals2 <- cmp_vals(
         criteria,
         AUMLRef,
@@ -804,7 +817,7 @@ TADA_Analysis_Validate_Ref2 <- function(
         "ATTAINS.WaterType",
         direction = "y_not_in_x"
       )
-      
+
       if (!is.null(vals1) || !is.null(vals2)) {
         msg <- character()
         if (!is.null(vals1)) {
@@ -830,7 +843,7 @@ TADA_Analysis_Validate_Ref2 <- function(
         warning(paste(msg, collapse = "\n\n"), call. = FALSE)
       }
     }
-    
+
     spatial_cols <- c(
       "ATTAINS.WaterType",
       "SaltFresh",
@@ -838,23 +851,27 @@ TADA_Analysis_Validate_Ref2 <- function(
       "DepthCategory"
     )
     spatial_cols <- intersect(spatial_cols, names(.data))
-    
+
     if (length(spatial_cols) > 0) {
       df_combo <- TADA_CorrectColType(
-        .data |>
-          dplyr::select(dplyr::all_of(spatial_cols)) |>
-          dplyr::distinct()
+        .data |> dplyr::select(dplyr::all_of(spatial_cols)) |> dplyr::distinct()
       )
-      
+
       crit_combo <- TADA_CorrectColType(
         criteria |>
-          dplyr::filter(TADA.CharacteristicName %in% .data$TADA.CharacteristicName) |>
+          dplyr::filter(
+            TADA.CharacteristicName %in% .data$TADA.CharacteristicName
+          ) |>
           dplyr::select(dplyr::all_of(spatial_cols)) |>
           dplyr::distinct()
       )
-      
-      missing_combos <- dplyr::anti_join(crit_combo, df_combo, by = spatial_cols)
-      
+
+      missing_combos <- dplyr::anti_join(
+        crit_combo,
+        df_combo,
+        by = spatial_cols
+      )
+
       if (nrow(missing_combos) > 0) {
         warning(
           paste0(
@@ -867,6 +884,6 @@ TADA_Analysis_Validate_Ref2 <- function(
       }
     }
   }
-  
+
   invisible(NULL)
 }
