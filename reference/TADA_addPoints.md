@@ -5,7 +5,15 @@ Add points from an ArcGIS feature layer to a leaflet map
 ## Usage
 
 ``` r
-TADA_addPoints(map, layerfilepath, layergroup, layername, bbox = NULL)
+TADA_addPoints(
+  map,
+  layerfilepath,
+  gpkg,
+  layer,
+  layergroup,
+  layername,
+  bbox = NULL
+)
 ```
 
 ## Arguments
@@ -16,7 +24,15 @@ TADA_addPoints(map, layerfilepath, layergroup, layername, bbox = NULL)
 
 - layerfilepath:
 
-  Local path to the .shp file for the layer
+  Local path to the data folder containing the .gpkg file
+
+- gpkg:
+
+  name of the .gpkg file
+
+- layer:
+
+  name of the layer within the .gpkg file
 
 - layergroup:
 
@@ -44,10 +60,8 @@ lmap <- leaflet::leaflet() |>
   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
   leaflet::addMapPane("featurelayers", zIndex = 300)
 # Add the Virginia Federally Recognized Tribes feature layer to the map
-lmap <- TADA_addPoints(
-  lmap, "extdata/VATribe.shp",
-  "Tribes", "Virginia Federally Recognized Tribes"
-)
+lmap <- TADA_addPoints(lmap, "extdata", "Tribal.gpkg","VATribe",
+    "Tribes", "Virginia Federally Recognized Tribes")
 lmap
 } # }
 ```

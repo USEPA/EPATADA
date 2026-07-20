@@ -558,9 +558,9 @@ mywaterway@epa.gov.
   Crosswalk in ATTAINS
 
 - [`TADA_UpdateTribalLayers()`](https://usepa.github.io/EPATADA/reference/TADA_UpdateTribalLayers.md)
-  : Function to update tribal layer shapefiles. Shapefiles are stored in
-  inst/extdata. Existing shapefiles with the same name will be deleted
-  first if they exist.
+  : Function to update tribal layer shapefiles. Tribal geopackage is
+  stored in inst/extdata. Existing layers with the same name will be
+  deleted first if they exist.
 
 - [`TADA_UsesForAnalysis()`](https://usepa.github.io/EPATADA/reference/TADA_UsesForAnalysis.md)
   : Create or Update ATTAINS Parameter and Use crosswalk
@@ -667,7 +667,7 @@ mywaterway@epa.gov.
   used by writeLayer to write feature layers to local files
 
 - [`getLayer()`](https://usepa.github.io/EPATADA/reference/getLayer.md)
-  : Get a shapefile from a local folder, optionally crop it by a
+  : Get a spatial file from a local folder, optionally crop it by a
   bounding box, and return it as a sf object getLayer is used within
   TADA_addPolys and TADA_addPoints
 
@@ -707,7 +707,7 @@ mywaterway@epa.gov.
   : wqx3_fullPhysChem
 
 - [`writeLayer()`](https://usepa.github.io/EPATADA/reference/writeLayer.md)
-  : Download a shapefile from an API and save it to a local folder,
+  : Download a spatial file from an API and save it to a local folder,
   overwriting existing file if it exists writeLayer is used by
   TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
 
