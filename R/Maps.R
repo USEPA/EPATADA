@@ -212,42 +212,54 @@ TADA_OverviewMap <- function(.data) {
       # TADA_addPolys and TADA_addPoints are in Utilities.R
       map <- TADA_addPolys(
         map,
-        "extdata/AKAllotments.shp",
+        "extdata",
+        "Tribal.gpkg",
+        "AKAllotments",
         "Tribes",
         "Alaska Allotments",
         bbox
       )
       map <- TADA_addPolys(
         map,
-        "extdata/AmericanIndian.shp",
+        "extdata",
+        "Tribal.gpkg",
+        "AmericanIndian",
         "Tribes",
         "American Indian",
         bbox
       )
       map <- TADA_addPolys(
         map,
-        "extdata/OffReservation.shp",
+        "extdata",
+        "Tribal.gpkg",
+        "OffReservation",
         "Tribes",
         "Off Reservation",
         bbox
       )
       map <- TADA_addPolys(
         map,
-        "extdata/OKTribe.shp",
+        "extdata",
+        "Tribal.gpkg",
+        "OKTribe",
         "Tribes",
         "Oklahoma Tribe",
         bbox
       )
       map <- TADA_addPoints(
         map,
-        "extdata/AKVillages.shp",
+        "extdata",
+        "Tribal.gpkg",
+        "AKVillages",
         "Tribes",
         "Alaska Native Villages",
         bbox
       )
       map <- TADA_addPoints(
         map,
-        "extdata/VATribe.shp",
+        "extdata",
+        "Tribal.gpkg",
+        "VATribe",
         "Tribes",
         "Virginia Tribe",
         bbox

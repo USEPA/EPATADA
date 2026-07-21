@@ -1,5 +1,28 @@
-# Testing the Geospatial Functions ----
-# Tests for the functions in GeoSpatialFunctions.R using sample data
+# Testing the Geospatial Functions
+
+# skip tests if nhd is offline
+skip_if_nhd_offline <- function() {
+  ok <- tryCatch(
+    {
+      dummy <- tibble::tibble(
+        TADA.MonitoringLocationIdentifier = "dummy",
+        TADA.MonitoringLocationName = "dummy",
+        TADA.LongitudeMeasure = -110,
+        TADA.LatitudeMeasure = 45,
+        HorizontalCoordinateReferenceSystemDatumName = "WGS84"
+      )
+
+      dummy_sf <- TADA_MakeSpatial(dummy)
+      invisible(EPATADA:::fetchNHD(.data = dummy_sf, resolution = "Hi"))
+      TRUE
+    },
+    error = function(e) FALSE
+  )
+
+  if (!ok) {
+    testthat::skip("NHD service is unavailable")
+  }
+}
 
 TADA_dataframe <- Data_HUC8_02070004_Mod1Output |>
   dplyr::filter(TADA.CharacteristicName == "PH")
@@ -146,30 +169,68 @@ testthat::test_that("fetchATTAINS catchments_only parameter", {
 })
 
 testthat::test_that("fetchATTAINS org_id parameter", {
-  # Test when non-default (default is 'all')
   org <- "RIDEM"
-  testthat::expect_no_error(
-    org_results <- EPATADA:::fetchATTAINS(
-      .data = RI_CT_secchi,
-      catchments_only = TRUE,
-      org_id = org
-    )
-  )
-  # Test against normal result when filtered on org_id
-  all_org_results <- EPATADA:::fetchATTAINS(
-    .data = RI_CT_secchi,
-    catchments_only = TRUE
-  )
-  all_orgs_filtered <- all_org_results$ATTAINS_catchments[
-    "organizationid" == org
-  ]
-  # Compare the two sets of results (should be same)
-  testthat::expect_equal(
-    NROW(org_results$ATTAINS_catchments),
-    NROW(all_orgs_filtered)
-  )
-})
 
+  # Minimal input data with required columns
+  input_data <- sf::st_as_sf(
+    data.frame(
+      TADA.LongitudeMeasure = c(-71.4, -71.5),
+      TADA.LatitudeMeasure = c(41.8, 41.9),
+      HorizontalCoordinateReferenceSystemDatumName = c("WGS84", "WGS84"),
+      row_id = c(1, 2)
+    ),
+    coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+    crs = 4326,
+    remove = FALSE
+  )
+
+  # Fake catchments returned by fetch_bbox()
+  fake_catchments <- sf::st_as_sf(
+    data.frame(
+      assessmentunitidentifier = c("AU1", "AU2"),
+      geometry = c("POINT(0 0)", "POINT(1 1)")
+    ),
+    wkt = "geometry",
+    crs = 4326
+  )
+
+  # Fake AU features returned by fetch_au()
+  fake_au <- sf::st_as_sf(
+    data.frame(
+      assessmentunitidentifier = c("AU1", "AU2"),
+      organizationid = c("RIDEM", "RIDEM"),
+      geometry = c("POINT(0 0)", "POINT(1 1)")
+    ),
+    wkt = "geometry",
+    crs = 4326
+  )
+
+  fake_water_types <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU2"),
+    WaterType = c("Lake", "River")
+  )
+
+  testthat::local_mocked_bindings(
+    .env = asNamespace("EPATADA"),
+    fetch_bbox = function(...) fake_catchments,
+    fetch_au = function(baseurl, assessment_unit_ids, org_filter) {
+      testthat::expect_equal(org_filter, org)
+      fake_au
+    },
+    fetchWaterType = function(...) fake_water_types
+  )
+
+  org_results <- EPATADA:::fetchATTAINS(
+    .data = input_data,
+    catchments_only = FALSE,
+    org_id = org
+  )
+
+  testthat::expect_true("ATTAINS_catchments" %in% names(org_results))
+  testthat::expect_true("ATTAINS_points" %in% names(org_results))
+  testthat::expect_true("ATTAINS_lines" %in% names(org_results))
+  testthat::expect_true("ATTAINS_polygons" %in% names(org_results))
+})
 
 testthat::test_that("fetchNHD handles small areas with defaults", {
   # small_bbox_data subset of large_bbox_data fixture (testdata/Hill_MT_pH.Rd)
@@ -371,6 +432,7 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
 })
 
 testthat::test_that("TADA_FindNearbySites returns expected number of site groups", {
+  skip_if_nhd_offline()
   # find nearby sites tests
 
   # with defaults
@@ -419,6 +481,7 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
 })
 
 testthat::test_that("TADA_FindNearbySites returns expected metadata", {
+  skip_if_nhd_offline()
   # select by count
   test_count <- TADA_FindNearbySites(
     nearby_data,
