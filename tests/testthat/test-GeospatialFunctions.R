@@ -170,7 +170,7 @@ testthat::test_that("fetchATTAINS catchments_only parameter", {
 
 testthat::test_that("fetchATTAINS org_id parameter", {
   org <- "RIDEM"
-  
+
   # Minimal input data with required columns
   input_data <- sf::st_as_sf(
     data.frame(
@@ -183,7 +183,7 @@ testthat::test_that("fetchATTAINS org_id parameter", {
     crs = 4326,
     remove = FALSE
   )
-  
+
   # Fake catchments returned by fetch_bbox()
   fake_catchments <- sf::st_as_sf(
     data.frame(
@@ -193,7 +193,7 @@ testthat::test_that("fetchATTAINS org_id parameter", {
     wkt = "geometry",
     crs = 4326
   )
-  
+
   # Fake AU features returned by fetch_au()
   fake_au <- sf::st_as_sf(
     data.frame(
@@ -204,12 +204,12 @@ testthat::test_that("fetchATTAINS org_id parameter", {
     wkt = "geometry",
     crs = 4326
   )
-  
+
   fake_water_types <- data.frame(
     ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU2"),
     WaterType = c("Lake", "River")
   )
-  
+
   testthat::local_mocked_bindings(
     .env = asNamespace("EPATADA"),
     fetch_bbox = function(...) fake_catchments,
@@ -219,13 +219,13 @@ testthat::test_that("fetchATTAINS org_id parameter", {
     },
     fetchWaterType = function(...) fake_water_types
   )
-  
+
   org_results <- EPATADA:::fetchATTAINS(
     .data = input_data,
     catchments_only = FALSE,
     org_id = org
   )
-  
+
   testthat::expect_true("ATTAINS_catchments" %in% names(org_results))
   testthat::expect_true("ATTAINS_points" %in% names(org_results))
   testthat::expect_true("ATTAINS_lines" %in% names(org_results))
