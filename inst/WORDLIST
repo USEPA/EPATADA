@@ -1,5 +1,6 @@
 ANDs
 AOI
+AOIs
 ATTAINSWaterType
 AUIDs
 AUML
@@ -150,6 +151,7 @@ HUCs
 HarmonizeSynonyms
 Helpdesk
 HiRes
+HighRes
 HorizontalCoordinateReferenceSystemDatumName
 Hydrography
 Hydrologic
@@ -204,7 +206,6 @@ MonitoringLocationIdentifiers
 MonitoringLocationName
 MonitoringLocationType
 MonitoringLocationTypeName
-MonitoringLocations
 Msr
 MultipleOrgDup
 MultipleOrgDupGroupID
@@ -218,8 +219,6 @@ NLDI
 NONEs
 NWIS
 NationalExtract
-NearbySiteGroup
-NearbySites
 NoResultValue
 NoTargetUnit
 NonStandardized
@@ -322,7 +321,6 @@ SeasonStartDate
 Signup
 SimpleCensoredMethods
 SingleOrgDup
-SiteGroup
 Speciation
 SpeciationAssumptions
 SpeciationUnitConversion
