@@ -47,10 +47,10 @@ load(testthat::test_path("testdata", "test_au_ref_MTDEQ.rda"))
 # TADA_MakeSpatial Tests ----
 testthat::test_that("TADA_MakeSpatial converts non-spatial data to sf object", {
   test_sf <- TADA_MakeSpatial(.data = TADA_dataframe)
-  
+
   # Check that result is an sf object
   testthat::expect_s3_class(test_sf, "sf")
-  
+
   # Check that geometry column exists and contains points
   testthat::expect_true("geometry" %in% names(test_sf))
   testthat::expect_s3_class(sf::st_geometry(test_sf), "sfc_POINT")
@@ -58,13 +58,13 @@ testthat::test_that("TADA_MakeSpatial converts non-spatial data to sf object", {
 
 testthat::test_that("TADA_MakeSpatial preserves input data structure and content", {
   test_sf <- TADA_MakeSpatial(.data = TADA_dataframe)
-  
+
   # Row count should be preserved
   testthat::expect_equal(nrow(TADA_dataframe), nrow(test_sf))
-  
+
   # All original columns should be preserved
   testthat::expect_true(all(names(TADA_dataframe) %in% names(test_sf)))
-  
+
   # Data values should be preserved
   no_geom_test <- sf::st_drop_geometry(test_sf)
   testthat::expect_equal(dim(TADA_dataframe)[1], dim(no_geom_test)[1])
@@ -73,7 +73,7 @@ testthat::test_that("TADA_MakeSpatial preserves input data structure and content
 testthat::test_that("TADA_MakeSpatial handles custom CRS correctly", {
   test_wgs84 <- TADA_MakeSpatial(.data = TADA_dataframe, crs = 4326)
   test_nad83 <- TADA_MakeSpatial(.data = TADA_dataframe, crs = 4269)
-  
+
   # Check that the CRS is set correctly
   testthat::expect_equal(sf::st_crs(test_wgs84)$epsg, 4326)
   testthat::expect_equal(sf::st_crs(test_nad83)$epsg, 4269)
@@ -83,13 +83,13 @@ testthat::test_that("TADA_MakeSpatial fails with appropriate errors", {
   # Test with data that's missing required columns
   invalid_data <- data.frame(a = 1, b = 2)
   testthat::expect_error(TADA_MakeSpatial(.data = invalid_data))
-  
+
   # Test with data that's already spatial
   testthat::expect_error(
     TADA_MakeSpatial(.data = TADA_spatial),
     "Your data is already a spatial object"
   )
-  
+
   # Test with NULL data
   testthat::expect_error(TADA_MakeSpatial(.data = NULL))
 })
@@ -224,7 +224,7 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk correctly identifies alread
   # Create mock data with ATTAINS columns
   mock_attains_data <- TADA_dataframe
   mock_attains_data$ATTAINS.AssessmentUnitIdentifier <- "TEST"
-  
+
   testthat::expect_error(
     TADA_CreateATTAINSAUMLCrosswalk(mock_attains_data),
     "Your data has already been joined with ATTAINS data"
@@ -239,7 +239,7 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk handles empty datasets appr
     LatitudeMeasure = character(0),
     HorizontalCoordinateReferenceSystemDatumName = character(0)
   )
-  
+
   result <- TADA_CreateATTAINSAUMLCrosswalk(.data = empty_df, return_sf = FALSE)
   testthat::expect_true(NROW(result) == 0)
   testthat::expect_true("ResultIdentifier" %in% names(result))
@@ -249,7 +249,7 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk handles empty datasets appr
 
 testthat::test_that("Get ATTAINS by Assessment Unit ID", {
   # au_id_list <- test_au_ref_MTDEQ$ATTAINS.AssessmentUnitIdentifier
-  
+
   # When run with defaults (no ExpertQuery fields)
   testthat::expect_no_error(
     actual_default <- TADA_GetATTAINSByAUID(
@@ -266,7 +266,7 @@ testthat::test_that("Get ATTAINS by Assessment Unit ID", {
   expect_equal(NROW(actual_default$ATTAINS_polygons), expected_rows[3])
   # When default fill_ATTAINS_catch = FALSE, catchments are NULL
   expect_null(actual_default$ATTAINS_catchments)
-  
+
   # Run with catchments
   testthat::expect_no_error(
     actual_catchments <- TADA_GetATTAINSByAUID(
@@ -288,7 +288,7 @@ testthat::test_that("TADA_CreateAUMLCrosswalk correctly identifies already joine
   # Create mock data with ATTAINS columns
   mock_attains_data <- TADA_dataframe
   mock_attains_data$ATTAINS.AssessmentUnitIdentifier <- "TEST"
-  
+
   testthat::expect_error(
     TADA_CreateATTAINSAUMLCrosswalk(mock_attains_data),
     "Your data has already been joined with ATTAINS data"
@@ -303,7 +303,7 @@ testthat::test_that("TADA_CreateAUMLCrosswalk handles empty datasets appropriate
     LatitudeMeasure = character(0),
     HorizontalCoordinateReferenceSystemDatumName = character(0)
   )
-  
+
   result <- TADA_CreateAUMLCrosswalk(.data = empty_df)
   testthat::expect_true(length(result) == 5)
   testthat::expect_true("ResultIdentifier" %in% names(result$TADA_with_ATTAINS))
@@ -317,13 +317,13 @@ testthat::test_that("TADA_CreateAUMLCrosswalk handles empty datasets appropriate
 testthat::test_that("TADA_CreateAUMLCrosswalk contains expected AU Ref Source values", {
   # Uses example data set that has already had TADA_CreateAUMLCrosswalk applied
   au.sources <- sort(unique(Data_MT_AUMLRef$ATTAINS_crosswalk$TADA.AURefSource))
-  
+
   expected <- c(
     "User-supplied Ref",
     "ATTAINS Crosswalk",
     "TADA_CreateATTAINSAUMLCrosswalk"
   )
-  
+
   # Tests to ensure that all expected values of TADA.AURefSource are returned
   missing <- setdiff(expected, au.sources)
   testthat::expect_equal(missing, character(0))
@@ -336,7 +336,7 @@ testthat::test_that("TADA_ViewATTAINS validates input structure", {
     TADA_ViewATTAINS(invalid_data),
     "Your input dataframe was not produced from"
   )
-  
+
   # Test with single dataframe instead of list
   testthat::expect_error(
     TADA_ViewATTAINS(TADA_dataframe),
@@ -356,7 +356,7 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
     ActivityStartDate = character(0),
     OrganizationIdentifier = character(0)
   )
-  
+
   invalid_list <- list(
     "TADA_with_ATTAINS" = empty_attains_df,
     "ATTAINS_catchments" = data.frame(),
@@ -364,7 +364,7 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
     "ATTAINS_lines" = data.frame(),
     "ATTAINS_polygons" = data.frame()
   )
-  
+
   testthat::expect_error(
     TADA_ViewATTAINS(invalid_list),
     "Your WQP dataframe has no observations"
@@ -374,49 +374,49 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
 # takes too long to run as of 7/21/26
 # testthat::test_that("TADA_FindNearbySites returns expected number of site groups", {
 #   # find nearby sites tests
-#   
+#
 #   # with defaults
 #   test_defaults <- TADA_FindNearbySites(nearby_data)
-#   
+#
 #   n_defaults <- test_defaults |>
 #     dplyr::select(TADA.NearbySiteGroup) |>
 #     dplyr::n_distinct()
-#   
+#
 #   testthat::expect_equal(n_defaults, 12)
-#   
+#
 #   # at 50 m with catchment
 #   test_fifty <- TADA_FindNearbySites(nearby_data, dist_buffer = 50)
-#   
+#
 #   n_fifty <- test_fifty |>
 #     dplyr::select(TADA.NearbySiteGroup) |>
 #     dplyr::n_distinct()
-#   
+#
 #   testthat::expect_equal(n_fifty, 8)
-#   
+#
 #   # without catchment
 #   test_bufferonly <- TADA_FindNearbySites(
 #     nearby_data,
 #     catchment = FALSE,
 #     dist_buffer = 100
 #   )
-#   
+#
 #   n_bufferonly <- test_bufferonly |>
 #     dplyr::select(TADA.NearbySiteGroup) |>
 #     dplyr::n_distinct()
-#   
+#
 #   testthat::expect_equal(n_bufferonly, 15)
-#   
+#
 #   # with AU
 #   # the expected value here may need to be updated if geospatial data for Data_MT_AUMLRef change
 #   test_au <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
 #     dplyr::filter(OrganizationIdentifier == "MTVOLWQM_WQX") |>
 #     TADA_FindNearbySites(by_AU = TRUE)
-#   
+#
 #   n_au <- test_au |>
 #     sf::st_drop_geometry() |>
 #     dplyr::select(TADA.NearbySiteGroup) |>
 #     dplyr::n_distinct()
-#   
+#
 #   testthat::expect_equal(n_au, 2)
 # })
 
@@ -427,48 +427,48 @@ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
     org_hierarchy = "none",
     meta_select = "count"
   )
-  
+
   test_count_filt <- test_count |>
     dplyr::filter(ResultIdentifier == "NWIS-33738169")
-  
+
   testthat::expect_equal(
     test_count_filt$TADA.MonitoringLocationIdentifier,
     "[USGS-06138570, CHIPCREE_WQX-LBS4]"
   )
-  
+
   testthat::expect_equal(test_count_filt$TADA.LatitudeMeasure, 48.4091576)
-  
+
   testthat::expect_equal(
     test_count_filt$TADA.MonitoringLocationTypeName,
     "STREAM"
   )
-  
+
   testthat::expect_equal(
     test_count_filt$TADA.NearbySites.Flag,
     "This monitoring location was grouped with other nearby site(s). Metadata were selected from MonitoringLocation with the most results available across all characteristics."
   )
-  
+
   # select by org hierarchy
   test_org <- TADA_FindNearbySites(
     nearby_data,
     org_hierarchy = c("CHIPCREE_WQX", "USGS-MT")
   )
-  
+
   test_org_filt <- test_org |>
     dplyr::filter(ResultIdentifier == "NWIS-33738169")
-  
+
   testthat::expect_equal(
     test_org_filt$TADA.MonitoringLocationIdentifier,
     "[USGS-06138570, CHIPCREE_WQX-LBS4]"
   )
-  
+
   testthat::expect_equal(test_org_filt$TADA.LatitudeMeasure, 48.40935910)
-  
+
   testthat::expect_equal(
     test_org_filt$TADA.MonitoringLocationTypeName,
     "RIVER/STREAM"
   )
-  
+
   testthat::expect_equal(
     test_org_filt$TADA.NearbySites.Flag,
     "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly."
@@ -485,7 +485,7 @@ testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
     by_org = FALSE,
     dist_buffer = 100
   )
-  
+
   mixed_org_groups <- test_no_org_filter |>
     sf::st_drop_geometry() |>
     dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
@@ -495,9 +495,9 @@ testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
       .groups = "drop"
     ) |>
     dplyr::filter(n_orgs > 1)
-  
+
   testthat::expect_gt(nrow(mixed_org_groups), 0)
-  
+
   # With organization filtering, no nearby-site group should contain
   # monitoring locations from more than one organization.
   test_by_org <- TADA_FindNearbySites(
@@ -507,7 +507,7 @@ testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
     by_org = TRUE,
     dist_buffer = 100
   )
-  
+
   orgs_per_group <- test_by_org |>
     sf::st_drop_geometry() |>
     dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
@@ -516,7 +516,7 @@ testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
       n_orgs = dplyr::n_distinct(OrganizationIdentifier),
       .groups = "drop"
     )
-  
+
   testthat::expect_true(nrow(orgs_per_group) > 0)
   testthat::expect_true(all(orgs_per_group$n_orgs == 1))
 })
@@ -529,11 +529,11 @@ testthat::test_that("TADA_FindNearbySites does not combine known sites from diff
     by_org = TRUE,
     dist_buffer = 100
   )
-  
+
   usgs_result <- test_by_org |>
     sf::st_drop_geometry() |>
     dplyr::filter(ResultIdentifier == "NWIS-33738169")
-  
+
   testthat::expect_false(any(grepl(
     "CHIPCREE_WQX-LBS4",
     usgs_result$TADA.MonitoringLocationIdentifier,
