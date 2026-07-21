@@ -2,20 +2,23 @@
 
 # skip tests if nhd is offline
 skip_if_nhd_offline <- function() {
-  ok <- tryCatch({
-    dummy <- tibble::tibble(
-      TADA.MonitoringLocationIdentifier = "dummy",
-      TADA.MonitoringLocationName = "dummy",
-      TADA.LongitudeMeasure = -110,
-      TADA.LatitudeMeasure = 45,
-      HorizontalCoordinateReferenceSystemDatumName = "WGS84"
-    )
-    
-    dummy_sf <- TADA_MakeSpatial(dummy)
-    invisible(EPATADA:::fetchNHD(.data = dummy_sf, resolution = "Hi"))
-    TRUE
-  }, error = function(e) FALSE)
-  
+  ok <- tryCatch(
+    {
+      dummy <- tibble::tibble(
+        TADA.MonitoringLocationIdentifier = "dummy",
+        TADA.MonitoringLocationName = "dummy",
+        TADA.LongitudeMeasure = -110,
+        TADA.LatitudeMeasure = 45,
+        HorizontalCoordinateReferenceSystemDatumName = "WGS84"
+      )
+
+      dummy_sf <- TADA_MakeSpatial(dummy)
+      invisible(EPATADA:::fetchNHD(.data = dummy_sf, resolution = "Hi"))
+      TRUE
+    },
+    error = function(e) FALSE
+  )
+
   if (!ok) {
     testthat::skip("NHD service is unavailable")
   }
@@ -167,18 +170,23 @@ testthat::test_that("fetchATTAINS catchments_only parameter", {
 
 testthat::test_that("fetchATTAINS org_id parameter", {
   # Skip if ATTAINS is unavailable
-  if (!tryCatch({
-    invisible(EPATADA:::fetchATTAINS(
-      .data = RI_CT_secchi,
-      catchments_only = FALSE
-    ))
-    TRUE
-  }, error = function(e) FALSE)) {
+  if (
+    !tryCatch(
+      {
+        invisible(EPATADA:::fetchATTAINS(
+          .data = RI_CT_secchi,
+          catchments_only = FALSE
+        ))
+        TRUE
+      },
+      error = function(e) FALSE
+    )
+  ) {
     testthat::skip("ATTAINS service is unavailable")
   }
-  
+
   org <- "RIDEM"
-  
+
   testthat::expect_no_error(
     org_results <- EPATADA:::fetchATTAINS(
       .data = RI_CT_secchi,
@@ -186,7 +194,7 @@ testthat::test_that("fetchATTAINS org_id parameter", {
       org_id = org
     )
   )
-  
+
   # Check that returned features are for the requested org, where applicable
   if (!is.null(org_results$ATTAINS_points)) {
     testthat::expect_true(all(org_results$ATTAINS_points$organizationid == org))
@@ -195,13 +203,13 @@ testthat::test_that("fetchATTAINS org_id parameter", {
     testthat::expect_true(all(org_results$ATTAINS_lines$organizationid == org))
   }
   if (!is.null(org_results$ATTAINS_polygons)) {
-    testthat::expect_true(all(org_results$ATTAINS_polygons$organizationid == org))
+    testthat::expect_true(all(
+      org_results$ATTAINS_polygons$organizationid == org
+    ))
   }
-  
+
   # Catchments are independent of org_id in this function
-  testthat::expect_true(
-    "ATTAINS_catchments" %in% names(org_results)
-  )
+  testthat::expect_true("ATTAINS_catchments" %in% names(org_results))
 })
 
 testthat::test_that("fetchNHD handles small areas with defaults", {
