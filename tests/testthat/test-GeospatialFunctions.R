@@ -169,47 +169,67 @@ testthat::test_that("fetchATTAINS catchments_only parameter", {
 })
 
 testthat::test_that("fetchATTAINS org_id parameter", {
-  # Skip if ATTAINS is unavailable
-  if (
-    !tryCatch(
-      {
-        invisible(EPATADA:::fetchATTAINS(
-          .data = RI_CT_secchi,
-          catchments_only = FALSE
-        ))
-        TRUE
-      },
-      error = function(e) FALSE
-    )
-  ) {
-    testthat::skip("ATTAINS service is unavailable")
-  }
-
   org <- "RIDEM"
-
-  testthat::expect_no_error(
-    org_results <- EPATADA:::fetchATTAINS(
-      .data = RI_CT_secchi,
-      catchments_only = FALSE,
-      org_id = org
-    )
+  
+  # Minimal input data with required columns
+  input_data <- sf::st_as_sf(
+    data.frame(
+      TADA.LongitudeMeasure = c(-71.4, -71.5),
+      TADA.LatitudeMeasure = c(41.8, 41.9),
+      HorizontalCoordinateReferenceSystemDatumName = c("WGS84", "WGS84"),
+      row_id = c(1, 2)
+    ),
+    coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+    crs = 4326,
+    remove = FALSE
   )
-
-  # Check that returned features are for the requested org, where applicable
-  if (!is.null(org_results$ATTAINS_points)) {
-    testthat::expect_true(all(org_results$ATTAINS_points$organizationid == org))
-  }
-  if (!is.null(org_results$ATTAINS_lines)) {
-    testthat::expect_true(all(org_results$ATTAINS_lines$organizationid == org))
-  }
-  if (!is.null(org_results$ATTAINS_polygons)) {
-    testthat::expect_true(all(
-      org_results$ATTAINS_polygons$organizationid == org
-    ))
-  }
-
-  # Catchments are independent of org_id in this function
+  
+  # Fake catchments returned by fetch_bbox()
+  fake_catchments <- sf::st_as_sf(
+    data.frame(
+      assessmentunitidentifier = c("AU1", "AU2"),
+      geometry = c("POINT(0 0)", "POINT(1 1)")
+    ),
+    wkt = "geometry",
+    crs = 4326
+  )
+  
+  # Fake AU features returned by fetch_au()
+  fake_au <- sf::st_as_sf(
+    data.frame(
+      assessmentunitidentifier = c("AU1", "AU2"),
+      organizationid = c("RIDEM", "RIDEM"),
+      geometry = c("POINT(0 0)", "POINT(1 1)")
+    ),
+    wkt = "geometry",
+    crs = 4326
+  )
+  
+  fake_water_types <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU2"),
+    WaterType = c("Lake", "River")
+  )
+  
+  testthat::local_mocked_bindings(
+    .env = asNamespace("EPATADA"),
+    fetch_bbox = function(...) fake_catchments,
+    fetch_au = function(baseurl, assessment_unit_ids, org_filter) {
+      testthat::expect_equal(org_filter, org)
+      fake_au
+    },
+    fetchWaterType = function(...) fake_water_types
+  )
+  
+  org_results <- EPATADA:::fetchATTAINS(
+    .data = input_data,
+    catchments_only = FALSE,
+    org_id = org
+  )
+  
   testthat::expect_true("ATTAINS_catchments" %in% names(org_results))
+  testthat::expect_true("ATTAINS_points" %in% names(org_results))
+  testthat::expect_true("ATTAINS_lines" %in% names(org_results))
+  testthat::expect_true("ATTAINS_polygons" %in% names(org_results))
 })
 
 testthat::test_that("fetchNHD handles small areas with defaults", {
