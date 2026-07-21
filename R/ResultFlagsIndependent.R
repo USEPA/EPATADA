@@ -1510,16 +1510,30 @@ TADA_FlagCoordinates <- function(
       dplyr::left_join(coord_metadata, by = ".row_id") |>
       dplyr::mutate(
         TADA.SuspectCoordinates.Flag = dplyr::case_when(
-          TADA.SuspectCoordinates.Flag == "Pass" &
-            !is.na(StateCode) &
+          !is.na(StateCode) &
             !is.na(CoordinateStateCode) &
-            StateCode != CoordinateStateCode ~ "Coordinate_StateMismatch",
-
-          TADA.SuspectCoordinates.Flag == "Pass" &
-            !is.na(CountyCode) &
+            StateCode != CoordinateStateCode ~ dplyr::if_else(
+              TADA.SuspectCoordinates.Flag == "Pass",
+              "Coordinate_StateMismatch",
+              paste(
+                TADA.SuspectCoordinates.Flag,
+                "Coordinate_StateMismatch",
+                sep = "; "
+              )
+            ),
+          
+          !is.na(CountyCode) &
             !is.na(CoordinateCountyCode) &
-            CountyCode != CoordinateCountyCode ~ "Coordinate_CountyMismatch",
-
+            CountyCode != CoordinateCountyCode ~ dplyr::if_else(
+              TADA.SuspectCoordinates.Flag == "Pass",
+              "Coordinate_CountyMismatch",
+              paste(
+                TADA.SuspectCoordinates.Flag,
+                "Coordinate_CountyMismatch",
+                sep = "; "
+              )
+            ),
+          
           TRUE ~ TADA.SuspectCoordinates.Flag
         )
       ) |>
