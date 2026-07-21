@@ -492,7 +492,6 @@ geospatially
 getATTAINSColorRef
 getATTAINSColorsRef
 getFeatureLayer
-getLayer
 getMapIconLabels
 getTribalPopup
 getWQPSiteStats
@@ -554,6 +553,7 @@ qaqc
 rExpertQuery
 randombelowlimit
 rda
+readLayer
 readWQPdata
 recomputation
 renameATTAINSCols
