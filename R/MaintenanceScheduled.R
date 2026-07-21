@@ -211,7 +211,10 @@
         clean = TRUE
       )
       # Remove results with quality control issues
-      Data_TribalNations_Harmonized <- TADA_RunKeyFlagFunctions(Data_TribalNations_Harmonized, clean = TRUE)
+      Data_TribalNations_Harmonized <- TADA_RunKeyFlagFunctions(
+        Data_TribalNations_Harmonized,
+        clean = TRUE
+      )
       # Flag above and below threshold
       Data_TribalNations_Harmonized <- TADA_FlagAboveThreshold(
         Data_TribalNations_Harmonized,
@@ -224,7 +227,9 @@
         flaggedonly = FALSE
       )
       # Harmonize synonyms
-      Data_TribalNations_Harmonized <- TADA_HarmonizeSynonyms(Data_TribalNations_Harmonized)
+      Data_TribalNations_Harmonized <- TADA_HarmonizeSynonyms(
+        Data_TribalNations_Harmonized
+      )
       message("Data_TribalNations_Harmonized")
       dim(Data_TribalNations_Harmonized)
       usethis::use_data(
@@ -334,7 +339,9 @@
         countycode = "Missoula County",
         ask = FALSE
       )
-      Data_MT_MissoulaCounty <- TADA_SimpleCensoredMethods(Data_MT_MissoulaCounty)
+      Data_MT_MissoulaCounty <- TADA_SimpleCensoredMethods(
+        Data_MT_MissoulaCounty
+      )
       Data_MT_MissoulaCounty <- TADA_HarmonizeSynonyms(Data_MT_MissoulaCounty)
       Data_MT_MissoulaCounty <- TADA_RunKeyFlagFunctions(Data_MT_MissoulaCounty)
       message("Data_MT_MissoulaCounty")
@@ -453,7 +460,7 @@
         Data_MT_AU_UsesRef,
         Data_MT_AU_UsesRef_Water
       )
-      
+
       # =======================================
       # Generate Data_Penobscot
       # =======================================
@@ -541,7 +548,7 @@
         ascii = FALSE
       )
       rm(Data_Penobscot)
-      
+
       # =======================================
       # Generate Data_Participatory_Scientists
       # =======================================
@@ -568,7 +575,7 @@
         ascii = FALSE
       )
       rm(Data_Participatory_Scientists, selected_orgs)
-      
+
       # =======================================
       # Generate wqx3_fullPhysChem for use in WQX3-Migration.Rmd
       # =======================================
