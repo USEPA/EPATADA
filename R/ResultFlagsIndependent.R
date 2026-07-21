@@ -1513,27 +1513,27 @@ TADA_FlagCoordinates <- function(
           !is.na(StateCode) &
             !is.na(CoordinateStateCode) &
             StateCode != CoordinateStateCode ~ dplyr::if_else(
-              TADA.SuspectCoordinates.Flag == "Pass",
+            TADA.SuspectCoordinates.Flag == "Pass",
+            "Coordinate_StateMismatch",
+            paste(
+              TADA.SuspectCoordinates.Flag,
               "Coordinate_StateMismatch",
-              paste(
-                TADA.SuspectCoordinates.Flag,
-                "Coordinate_StateMismatch",
-                sep = "; "
-              )
-            ),
-          
+              sep = "; "
+            )
+          ),
+
           !is.na(CountyCode) &
             !is.na(CoordinateCountyCode) &
             CountyCode != CoordinateCountyCode ~ dplyr::if_else(
-              TADA.SuspectCoordinates.Flag == "Pass",
+            TADA.SuspectCoordinates.Flag == "Pass",
+            "Coordinate_CountyMismatch",
+            paste(
+              TADA.SuspectCoordinates.Flag,
               "Coordinate_CountyMismatch",
-              paste(
-                TADA.SuspectCoordinates.Flag,
-                "Coordinate_CountyMismatch",
-                sep = "; "
-              )
-            ),
-          
+              sep = "; "
+            )
+          ),
+
           TRUE ~ TADA.SuspectCoordinates.Flag
         )
       ) |>

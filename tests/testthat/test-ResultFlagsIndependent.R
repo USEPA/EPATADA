@@ -1,59 +1,49 @@
 test_that("SuspectCoordinates works", {
   # Flag suspect coordinates
   SuspectCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
-  
-  expect_true(
-    "TADA.SuspectCoordinates.Flag" %in% names(SuspectCoord_flags)
-  )
-  
-  expect_false(
-    any(is.na(SuspectCoord_flags$TADA.SuspectCoordinates.Flag))
-  )
-  
+
+  expect_true("TADA.SuspectCoordinates.Flag" %in% names(SuspectCoord_flags))
+
+  expect_false(any(is.na(SuspectCoord_flags$TADA.SuspectCoordinates.Flag)))
+
   # Remove imprecise coordinates
   ImpreciseCoord_removed <- TADA_FlagCoordinates(
     Data_Nutrients_UT,
     clean_imprecise = TRUE
   )
-  
-  expect_false(any(
-    stringr::str_detect(
-      ImpreciseCoord_removed$TADA.SuspectCoordinates.Flag,
-      stringr::fixed("Imprecise_lessthan3decimaldigits")
-    )
-  ))
-  
+
+  expect_false(any(stringr::str_detect(
+    ImpreciseCoord_removed$TADA.SuspectCoordinates.Flag,
+    stringr::fixed("Imprecise_lessthan3decimaldigits")
+  )))
+
   # Remove data with coordinates outside the USA, but keep flagged data with imprecise coordinates:
   OutsideUSACoord_removed <- TADA_FlagCoordinates(
     Data_Nutrients_UT,
     clean_outsideUSA = "remove"
   )
-  
-  expect_false(any(
-    stringr::str_detect(
-      OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag,
-      "LAT_OutsideUSA|LONG_OutsideUSA"
-    )
-  ))
-  
+
+  expect_false(any(stringr::str_detect(
+    OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag,
+    "LAT_OutsideUSA|LONG_OutsideUSA"
+  )))
+
   # Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
   Suspect_removed <- TADA_FlagCoordinates(
     Data_Nutrients_UT,
     clean_outsideUSA = "remove",
     clean_imprecise = TRUE
   )
-  
-  expect_false(any(
-    stringr::str_detect(
-      Suspect_removed$TADA.SuspectCoordinates.Flag,
-      paste(
-        "Imprecise_lessthan3decimaldigits",
-        "LAT_OutsideUSA",
-        "LONG_OutsideUSA",
-        sep = "|"
-      )
+
+  expect_false(any(stringr::str_detect(
+    Suspect_removed$TADA.SuspectCoordinates.Flag,
+    paste(
+      "Imprecise_lessthan3decimaldigits",
+      "LAT_OutsideUSA",
+      "LONG_OutsideUSA",
+      sep = "|"
     )
-  ))
+  )))
 })
 
 
@@ -280,63 +270,27 @@ test_that("check_location_metadata flags StateCode and CountyCode mismatches", {
 
 test_that("check_location_metadata flags StateCode and CountyCode mismatches", {
   testdat <- dplyr::tibble(
-    TADA.LatitudeMeasure = c(
-      44.9509,
-      44.9509,
-      44.9509,
-      44.95
-    ),
-    TADA.LongitudeMeasure = c(
-      -89.7590,
-      -89.7590,
-      -89.7590,
-      -89.75
-    ),
-    StateCode = c(
-      "55",
-      "17",
-      "55",
-      "17"
-    ),
-    CountyCode = c(
-      "073",
-      "073",
-      "067",
-      "073"
-    )
+    TADA.LatitudeMeasure = c(44.9509, 44.9509, 44.9509, 44.95),
+    TADA.LongitudeMeasure = c(-89.7590, -89.7590, -89.7590, -89.75),
+    StateCode = c("55", "17", "55", "17"),
+    CountyCode = c("073", "073", "067", "073")
   )
-  
-  out <- TADA_FlagCoordinates(
-    testdat,
-    check_location_metadata = TRUE
-  )
-  
-  expect_equal(
-    out$TADA.SuspectCoordinates.Flag[1],
-    "Pass"
-  )
-  
-  expect_equal(
-    out$TADA.SuspectCoordinates.Flag[2],
-    "Coordinate_StateMismatch"
-  )
-  
-  expect_equal(
-    out$TADA.SuspectCoordinates.Flag[3],
-    "Coordinate_CountyMismatch"
-  )
-  
-  expect_true(
-    stringr::str_detect(
-      out$TADA.SuspectCoordinates.Flag[4],
-      stringr::fixed("Imprecise_lessthan3decimaldigits")
-    )
-  )
-  
-  expect_true(
-    stringr::str_detect(
-      out$TADA.SuspectCoordinates.Flag[4],
-      stringr::fixed("Coordinate_StateMismatch")
-    )
-  )
+
+  out <- TADA_FlagCoordinates(testdat, check_location_metadata = TRUE)
+
+  expect_equal(out$TADA.SuspectCoordinates.Flag[1], "Pass")
+
+  expect_equal(out$TADA.SuspectCoordinates.Flag[2], "Coordinate_StateMismatch")
+
+  expect_equal(out$TADA.SuspectCoordinates.Flag[3], "Coordinate_CountyMismatch")
+
+  expect_true(stringr::str_detect(
+    out$TADA.SuspectCoordinates.Flag[4],
+    stringr::fixed("Imprecise_lessthan3decimaldigits")
+  ))
+
+  expect_true(stringr::str_detect(
+    out$TADA.SuspectCoordinates.Flag[4],
+    stringr::fixed("Coordinate_StateMismatch")
+  ))
 })
