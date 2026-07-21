@@ -4620,6 +4620,11 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     ))) |>
     dplyr::distinct()
 
+  # check that replace_all is Boolean
+  if(!is.logical(replace_all) | (is.logical(replace_all)) & length(replace_all) > 1) {
+    stop("TADA_CrosswalkATTAINSWaterTypes: replace_all must be a single logical")
+  }
+
   # if replace_all equals TRUE, remove all existing ATTAINS.WaterTypes
   if (replace_all == TRUE) {
     if ("ATTAINS.WaterType" %in% names(wqp.mls)) {
@@ -4636,7 +4641,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   }
 
   # load water type crosswalk
-  wattype.crosswalk <- utils::read.csv(system.file(
+  wattype.crosswalk <-read_csv(system.file(
     "extdata",
     "ATTAINSWaterTypeToWQPMonLocType.csv",
     package = "EPATADA"
