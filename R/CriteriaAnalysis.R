@@ -666,7 +666,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   wqp_criteria <- TADA_CorrectColType(wqp_criteria)
 
   # if TRUE, only displays returning matches (those filled in from criteria table) that will be used for analysis
-  cols <- spsUtil::quiet(names(TADA_criteria()[[1]])[
+  cols <- spsUtil::quiet(names(TADA_DefineCriteriaMethodology()[[1]])[
     -seq_len(8)
   ])
   existing_cols <- intersect(cols, names(wqp_criteria))
