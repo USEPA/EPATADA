@@ -1,6 +1,6 @@
 test_that(".TADA_UpdateRefFiles orchestrates all update steps in order", {
   calls <- character()
-  
+
   fake_fun <- function(name) {
     force(name)
     function(...) {
@@ -8,7 +8,7 @@ test_that(".TADA_UpdateRefFiles orchestrates all update steps in order", {
       invisible(NULL)
     }
   }
-  
+
   testthat::with_mocked_bindings(
     .TADA_UpdateATTAINSOrgIDsRef = fake_fun("orgids"),
     .TADA_UpdateATTAINSParamUseOrgRef = fake_fun("paramuse"),
@@ -31,7 +31,7 @@ test_that(".TADA_UpdateRefFiles orchestrates all update steps in order", {
       expect_silent(.TADA_UpdateRefFiles())
     }
   )
-  
+
   expect_identical(
     calls,
     c(
@@ -59,7 +59,9 @@ test_that(".TADA_UpdateRefFiles reports ATTAINS errors and stops that block", {
   testthat::with_mocked_bindings(
     .TADA_UpdateATTAINSOrgIDsRef = function(...) stop("org id failure"),
     .TADA_UpdateATTAINSParamUseOrgRef = function(...) {
-      testthat::fail("should not be called after failure in same tryCatch block")
+      testthat::fail(
+        "should not be called after failure in same tryCatch block"
+      )
     },
     .TADA_UpdateWQXCharValRef = function(...) invisible(NULL),
     .TADA_UpdateMeasureUnitRef = function(...) invisible(NULL),
@@ -87,7 +89,7 @@ test_that(".TADA_UpdateRefFiles reports ATTAINS errors and stops that block", {
 
 test_that(".TADA_UpdateRefFiles reports WQPWQX errors independently", {
   calls <- character()
-  
+
   testthat::with_mocked_bindings(
     .TADA_UpdateATTAINSOrgIDsRef = function(...) {
       calls <<- c(calls, "orgids")
@@ -102,7 +104,9 @@ test_that(".TADA_UpdateRefFiles reports WQPWQX errors independently", {
       stop("wqx failure")
     },
     .TADA_UpdateMeasureUnitRef = function(...) {
-      testthat::fail("should not be called after failure in same tryCatch block")
+      testthat::fail(
+        "should not be called after failure in same tryCatch block"
+      )
     },
     .TADA_UpdateDetCondRef = function(...) invisible(NULL),
     .TADA_UpdateDetLimitRef = function(...) invisible(NULL),
@@ -124,6 +128,6 @@ test_that(".TADA_UpdateRefFiles reports WQPWQX errors independently", {
       )
     }
   )
-  
+
   expect_identical(calls, c("orgids", "paramuse", "wqxcharval"))
 })
