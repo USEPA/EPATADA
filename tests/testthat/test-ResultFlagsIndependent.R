@@ -147,9 +147,28 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 })
 
 test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
-  testdat <- Data_R5_TADAPackageDemo
-  testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat) |>
-    dplyr::filter(StateCode == "17")
+  testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
+
+  testthat::skip_if(
+    is.null(testdat) || NROW(testdat) == 0,
+    "Empty test data; skipping test."
+  )
+
+  testdat <- tryCatch(
+    TADA_FindPotentialDuplicatesMultipleOrgs(testdat),
+    error = function(e) {
+      if (
+        grepl(
+          "HTTP 502|Bad Gateway|NHD",
+          conditionMessage(e),
+          ignore.case = TRUE
+        )
+      ) {
+        testthat::skip("NHD service unavailable; skipping test.")
+      }
+      stop(e)
+    }
+  )
 
   testdat1 <- testdat |>
     dplyr::distinct(TADA.NearbySiteGroup) |>
@@ -169,9 +188,8 @@ test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multi
     as.numeric() |>
     sort()
 
-  expect_true(length(unique(diff(testdat1))) < 2 | length(testdat1 == 0))
-
-  expect_true(length(unique(diff(testdat2))) < 2 | length(testdat2 == 0))
+  expect_true(length(testdat1) == 0 || length(unique(diff(testdat1))) < 2)
+  expect_true(length(testdat2) == 0 || length(unique(diff(testdat2))) < 2)
 })
 
 test_that("TADA_FindPotentialDuplicatesMultipleOrgs has non-NA values for each row in columns added in function", {
