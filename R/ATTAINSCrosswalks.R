@@ -131,9 +131,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(
 
   # Build normalized crosswalk
   au.crosswalk <- au.info |>
-    dplyr::filter(
-      !is.na(monitoringLocationId) & monitoringLocationId != ""
-    ) |>
+    dplyr::filter(!is.na(monitoringLocationId) & monitoringLocationId != "") |>
     dplyr::distinct() |>
     dplyr::transmute(
       OrganizationIdentifier = monitoringLocationOrgId,
