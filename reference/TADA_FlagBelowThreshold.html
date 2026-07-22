@@ -143,7 +143,7 @@ the flag column will be deleted and regenerated.</p>
 <span class="r-in"><span>  <span class="va">Data_R5_TADAPackageDemo</span>,</span></span>
 <span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagBelowThreshold: Returning cleaned dataframe with 'Suspect' rows removed. Counts:  NA - Not Available: 18905, Pass: 152904, Suspect: 788</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagBelowThreshold: Returning cleaned dataframe with 'Suspect' rows removed. Counts:  NA - Not Available: 17505, Pass: 154639, Suspect: 791</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Flag, but do not remove, data that is below the lower WQX threshold in</span></span></span>
 <span class="r-in"><span><span class="co"># new column titled "TADA.ResultValueBelowLowerThreshold.Flag":</span></span></span>
@@ -151,14 +151,14 @@ the flag column will be deleted and regenerated.</p>
 <span class="r-in"><span>  <span class="va">Data_R5_TADAPackageDemo</span>,</span></span>
 <span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagBelowThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 18905, Pass: 152904, Suspect: 788</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagBelowThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 17505, Pass: 154639, Suspect: 791</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show only data that is below the lower WQX threshold:</span></span></span>
 <span class="r-in"><span><span class="va">WQXLowerThreshold_flagsonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagBelowThreshold</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">Data_R5_TADAPackageDemo</span>,</span></span>
 <span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">FALSE</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagBelowThreshold: Returning dataframe with only 'Suspect' rows. Counts:  NA - Not Available: 18905, Pass: 152904, Suspect: 788</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagBelowThreshold: Returning dataframe with only 'Suspect' rows. Counts:  NA - Not Available: 17505, Pass: 154639, Suspect: 791</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

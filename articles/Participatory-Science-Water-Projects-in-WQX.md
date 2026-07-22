@@ -204,7 +204,7 @@ volunteer_data <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(
   clean = T)
 ```
 
-    ## TADA_FindPotentialDuplicatesSingleOrg: 355 groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and one result from each group was randomly selected to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Duplicate Selected', while duplicates are flagged as 'Duplicate Not Selected' for easy filtering.
+    ## TADA_FindPotentialDuplicatesSingleOrg: 633 groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and one result from each group was randomly selected to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Duplicate Selected', while duplicates are flagged as 'Duplicate Not Selected' for easy filtering.
 
 Prepare censored (nondetects and overdetects) results for analysis:
 
@@ -247,7 +247,7 @@ volunteer_data <- EPATADA::TADA_FlagAboveThreshold(volunteer_data,
 )
 ```
 
-    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3156, Pass: 34741, Suspect: 1830
+    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3156, Pass: 150434, Suspect: 1830
 
 ``` r
 
@@ -257,7 +257,7 @@ volunteer_data <- EPATADA::TADA_FlagBelowThreshold(volunteer_data,
 )
 ```
 
-    ## TADA_FlagBelowThreshold: No data below the WQX Lower Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking. Counts:  NA - Not Available: 3156, Pass: 36571
+    ## TADA_FlagBelowThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3156, Pass: 152255, Suspect: 9
 
 Harmonize synonyms if found:
 
@@ -273,9 +273,9 @@ Generate table:
 EPATADA::TADA_FieldValuesTable(volunteer_data, field = "ActivityTypeCode")
 ```
 
-    ##            Value Count
-    ## 1 Sample-Routine 35883
-    ## 2  Field Msr/Obs  3844
+    ##            Value  Count
+    ## 1  Field Msr/Obs 119537
+    ## 2 Sample-Routine  35883
 
 Generate pie chart:
 

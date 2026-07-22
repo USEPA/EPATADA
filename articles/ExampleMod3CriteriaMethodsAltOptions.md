@@ -106,18 +106,9 @@ tada.MT.clean <- tada.MT |>
   TADA_RunKeyFlagFunctions() |>
   TADA_SimpleCensoredMethods() |>
   TADA_HarmonizeSynonyms()
-```
-
-    ##                Flag_Column Result Count
-    ## 1 TADA.SampleFraction.Flag          135
-
-``` r
 
 # remove intermediate objects
 rm(tada.MT)
-
-# or uncomment the code below and load internal copy of TADA df from EPATADA
-# tada.MT.clean <- Data_MT_MissoulaCounty
 ```
 
 ### Expert Query API Key
