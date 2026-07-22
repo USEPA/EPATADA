@@ -8,51 +8,25 @@ TADA_CrosswalkATTAINSWaterTypes(
   .data,
   org_id = NULL,
   org_only = FALSE,
-  replace_all = FALSE,
-  review_all = FALSE,
-  review_action = "flag"
+  replace_all = FALSE
 )
 }
 \arguments{
 \item{.data}{A TADA data frame.}
 
-\item{org_id}{Character string. This optional parameter filters the
-ATTAINS.WaterType values that will be matched to WQP Monitoring Location Type
-to only those used by the selected org. When org_id equals NULL, this filtering
-does not occur and WQP Monitoring Location Types are matched with the default
-TADA ATTAINS.WaterType.}
+\item{org_id}{Character string. Optional organization ID used to prioritize
+organization-specific ATTAINS values.}
 
-\item{org_only}{Boolean. When org_only equals TRUE, only TADA.MonitoringLocationTypeNames
-that match an existing ATTAINS.WaterType will be assigned an ATTAINS.WaterType.
-When org_only = FALSE, any TADA.MonitoringLocationTypeNames that do not match
-with an ATTAINS.WaterType in use by the selected org will be matched with the TADA
-defaults. Default is org equals FALSE.}
+\item{org_only}{Logical. If TRUE, only org-specific ATTAINS values are used.
+If FALSE, unmatched types fall back to the TADA default crosswalk.}
 
-\item{replace_all}{Logical. If TRUE, replace all ATTAINS.WaterType values in the
-TADA data frame with the recommended ATTAINS Water Type values. If FALSE, only
-assigns an ATTAINS Water Type to rows with no ATTAINS Water Type value. Default
-equals FALSE.}
-
-\item{review_all}{Logical. If TRUE, review all ATTAINS.WaterType values to ensure
-they are allowable values. Default equals FALSE.}
-
-\item{review_action}{Character string. Required when review_all = TRUE.
-Options are "flag" or "update". If review_action equals "flag", the flagging
-column TADA.ATTAINSWaterTypeFlag will be added to .data and identify any rows
-where the ATTAINS.WaterType value does not match any of the allowable values
-for water type in ATTAINS. When review_action equals "update", the flagging
-column will be added and any flagged rows will have their ATTAINS.WaterType
-values updated by crosswalking the TADA.MonitoringLocationTypeName to
-ATTAINS.WaterType. The TADA.ATTAINSWaterTypeFlag column will be updated to
-reflect this action.}
+\item{replace_all}{Logical. If TRUE, replace all ATTAINS.WaterType values.
+If FALSE, only fill missing values. Default is FALSE.}
 }
 \value{
-A TADA data frame with ATTAINS.WaterType column created (if not already
-existing) and populated.
+A TADA data frame with ATTAINS.WaterType populated.
 }
 \description{
-The WQP Monitoring Location Types and ATTAINS Water Types are not direct one to
-one matches. This function crosswalks the WQP Monitoring Location Type to the
-recommended ATTAINS Water Type. The crosswalk used in this function was created
-and maintained by the TADA team.
+Adds or updates ATTAINS.WaterType using TADA.MonitoringLocationTypeName.
+By default, only missing ATTAINS.WaterType values are populated.
 }

@@ -132,16 +132,16 @@ TADA_GetATTAINSAUMLCrosswalk <- function(
   # Build normalized crosswalk
   au.crosswalk <- au.info |>
     dplyr::filter(
-      !is.na(.data$monitoringLocationId) & .data$monitoringLocationId != ""
+      !is.na(monitoringLocationId) & monitoringLocationId != ""
     ) |>
     dplyr::distinct() |>
     dplyr::transmute(
-      OrganizationIdentifier = .data$monitoringLocationOrgId,
-      ATTAINS.OrganizationIdentifier = .data$organizationId,
-      ATTAINS.MonitoringLocationIdentifier = .data$monitoringLocationId,
-      ATTAINS.AssessmentUnitIdentifier = .data$assessmentUnitId,
-      ATTAINS.MonitoringDataLinkText = .data$monitoringLocationDataLink,
-      ATTAINS.WaterType = .data$waterType
+      OrganizationIdentifier = monitoringLocationOrgId,
+      ATTAINS.OrganizationIdentifier = organizationId,
+      ATTAINS.MonitoringLocationIdentifier = monitoringLocationId,
+      ATTAINS.AssessmentUnitIdentifier = assessmentUnitId,
+      ATTAINS.MonitoringDataLinkText = monitoringLocationDataLink,
+      ATTAINS.WaterType = waterType
     ) |>
     dplyr::distinct()
 
@@ -184,10 +184,10 @@ TADA_GetATTAINSAUMLCrosswalk <- function(
         -dplyr::any_of(c("ATTAINS.WaterType", "ATTAINS.OrganizationIdentifier"))
       ) |>
       dplyr::rename(
-        ASSESSMENT_UNIT_ID = .data$ATTAINS.AssessmentUnitIdentifier,
-        MS_ORG_ID = .data$OrganizationIdentifier,
-        MS_LOCATION_ID = .data$ATTAINS.MonitoringLocationIdentifier,
-        MS_DATA_LINK = .data$ATTAINS.MonitoringDataLinkText
+        ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
+        MS_ORG_ID = OrganizationIdentifier,
+        MS_LOCATION_ID = ATTAINS.MonitoringLocationIdentifier,
+        MS_DATA_LINK = ATTAINS.MonitoringDataLinkText
       )
   }
 
@@ -586,7 +586,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
     checkUrlResp <- function(.data, url.col) {
       urls <- .data[[url.col]]
       idx <- which(!is.na(urls) & nzchar(urls))
-      .data$response.code <- NA_character_
+      response.code <- NA_character_
       if (!length(idx)) {
         return(.data)
       }
@@ -604,7 +604,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
         },
         character(1)
       )
-      .data$response.code[idx] <- codes
+      response.code[idx] <- codes
       .data
     }
   }
@@ -621,8 +621,8 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
           ATTAINS.MonitoringDataLinkText = dplyr::if_else(
-            !is.na(.data$response.code) & .data$response.code == "200",
-            .data$ATTAINS.MonitoringDataLinkText,
+            !is.na(response.code) & response.code == "200",
+            ATTAINS.MonitoringDataLinkText,
             NA_character_
           )
         ) |>
@@ -648,8 +648,8 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
       update.crosswalk <- update.crosswalk |>
         dplyr::mutate(
           ATTAINS.MonitoringDataLinkText = dplyr::if_else(
-            !is.na(.data$response.code) & .data$response.code == "200",
-            .data$ATTAINS.MonitoringDataLinkText,
+            !is.na(response.code) & response.code == "200",
+            ATTAINS.MonitoringDataLinkText,
             NA_character_
           )
         ) |>
@@ -3959,7 +3959,7 @@ TADA_MLSummary <- function(
     usesRef <- dplyr::filter(usesRef, IncludeOrExclude == "Include")
 
     # Identify all unique monitoring location id in the .data data frame to filter by.
-    unique_ML <- unique(.data$MonitoringLocationIdentifier)
+    unique_ML <- unique(MonitoringLocationIdentifier)
 
     # set a limit of 1k if we want to display all sites-param-use combinations.
     if (
@@ -4182,7 +4182,7 @@ TADA_MLSummary <- function(
         dplyr::select(-IncludeOrExclude)
 
       # Identify all unique monitoring location id in the .data data frame to filter by.
-      unique_ML <- unique(.data$MonitoringLocationIdentifier)
+      unique_ML <- unique(MonitoringLocationIdentifier)
 
       # Define the user's defined uses, param, sites and AU crosswalks.
       useParamAUMLRef <- AU_UsesRef |>
@@ -4804,12 +4804,12 @@ TADA_ReviewATTAINSWaterTypes <- function(
 
   # Normalize blanks to NA
   .data <- .data |>
-    dplyr::mutate(ATTAINS.WaterType = dplyr::na_if(.data$ATTAINS.WaterType, ""))
+    dplyr::mutate(ATTAINS.WaterType = dplyr::na_if(ATTAINS.WaterType, ""))
 
   # Allowed ATTAINS water types
   attains.types <- quiet(
     rExpertQuery::EQ_DomainValues("water_type") |>
-      dplyr::select(.data$name) |>
+      dplyr::select(name) |>
       dplyr::distinct() |>
       dplyr::pull()
   ) |>
@@ -4817,7 +4817,7 @@ TADA_ReviewATTAINSWaterTypes <- function(
 
   # Identify invalid values
   invalid_lookup <- .data |>
-    dplyr::filter(!.data$ATTAINS.WaterType %in% attains.types) |>
+    dplyr::filter(!ATTAINS.WaterType %in% attains.types) |>
     dplyr::distinct(
       TADA.MonitoringLocationIdentifier,
       TADA.MonitoringLocationTypeName
@@ -4848,9 +4848,9 @@ TADA_ReviewATTAINSWaterTypes <- function(
       ) |>
       dplyr::mutate(
         TADA.ATTAINSWaterType.Flag = dplyr::if_else(
-          is.na(.data$TADA.ATTAINSWaterType.Flag),
+          is.na(TADA.ATTAINSWaterType.Flag),
           "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value.",
-          .data$TADA.ATTAINSWaterType.Flag
+          TADA.ATTAINSWaterType.Flag
         )
       )
 
@@ -4891,9 +4891,9 @@ TADA_ReviewATTAINSWaterTypes <- function(
         ATTAINS.WaterType
       ),
       TADA.ATTAINSWaterType.Flag = dplyr::if_else(
-        is.na(.data$TADA.ATTAINSWaterType.Flag),
+        is.na(TADA.ATTAINSWaterType.Flag),
         "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value.",
-        .data$TADA.ATTAINSWaterType.Flag
+        TADA.ATTAINSWaterType.Flag
       )
     ) |>
     dplyr::select(-New.ATTAINS.WaterType)

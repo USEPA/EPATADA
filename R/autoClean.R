@@ -171,7 +171,7 @@ TADA_AutoClean <- function(.data) {
     .data <- .data
   } else {
     # create uppercase version of original DetectionQuantitationLimitMeasure.MeasureUnitCode
-    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <- toupper(
+    TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <- toupper(
       .data$DetectionQuantitationLimitMeasure.MeasureUnitCode
     )
   }
