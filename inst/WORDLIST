@@ -487,6 +487,7 @@ flowlines
 fullPhysChem
 geeksforgeeks
 geo
+geopackage
 geopub
 geospatial
 geospatially
@@ -501,6 +502,7 @@ getenv
 ggplot
 github
 gitignore
+gpkg
 helpdesk
 https
 huc
@@ -565,7 +567,6 @@ secchi
 setEQKey
 setnames
 showMissingATTAINSAUs
-shp
 siteType
 siteid
 sitetype
