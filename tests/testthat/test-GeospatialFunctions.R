@@ -428,48 +428,48 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
 #     org_hierarchy = "none",
 #     meta_select = "count"
 #   )
-# 
+#
 #   test_count_filt <- test_count |>
 #     dplyr::filter(ResultIdentifier == "NWIS-33738169")
-# 
+#
 #   testthat::expect_equal(
 #     test_count_filt$TADA.MonitoringLocationIdentifier,
 #     "[USGS-06138570, CHIPCREE_WQX-LBS4]"
 #   )
-# 
+#
 #   testthat::expect_equal(test_count_filt$TADA.LatitudeMeasure, 48.4091576)
-# 
+#
 #   testthat::expect_equal(
 #     test_count_filt$TADA.MonitoringLocationTypeName,
 #     "STREAM"
 #   )
-# 
+#
 #   testthat::expect_equal(
 #     test_count_filt$TADA.NearbySites.Flag,
 #     "This monitoring location was grouped with other nearby site(s). Metadata were selected from MonitoringLocation with the most results available across all characteristics."
 #   )
-# 
+#
 #   # select by org hierarchy
 #   test_org <- TADA_FindNearbySites(
 #     nearby_data,
 #     org_hierarchy = c("CHIPCREE_WQX", "USGS-MT")
 #   )
-# 
+#
 #   test_org_filt <- test_org |>
 #     dplyr::filter(ResultIdentifier == "NWIS-33738169")
-# 
+#
 #   testthat::expect_equal(
 #     test_org_filt$TADA.MonitoringLocationIdentifier,
 #     "[USGS-06138570, CHIPCREE_WQX-LBS4]"
 #   )
-# 
+#
 #   testthat::expect_equal(test_org_filt$TADA.LatitudeMeasure, 48.40935910)
-# 
+#
 #   testthat::expect_equal(
 #     test_org_filt$TADA.MonitoringLocationTypeName,
 #     "RIVER/STREAM"
 #   )
-# 
+#
 #   testthat::expect_equal(
 #     test_org_filt$TADA.NearbySites.Flag,
 #     "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly."
