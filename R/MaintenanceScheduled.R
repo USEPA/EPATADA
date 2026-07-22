@@ -182,9 +182,8 @@
       # =======================================
       # Harmonize Data_TribalNations
       # =======================================
-
       # Filter for surface water data only
-      harmonized_data <- TADA_MediaFilter(
+      Data_TribalNations_Harmonized <- TADA_MediaFilter(
         Data_TribalNations,
         clean = TRUE,
         surface_water = FALSE,
@@ -192,53 +191,48 @@
         sediment = TRUE,
         other = TRUE
       )
-
       rm(Data_TribalNations)
-
       # Remove single organization duplicates
-      harmonized_data <- TADA_FindPotentialDuplicatesSingleOrg(
-        harmonized_data,
+      Data_TribalNations_Harmonized <- TADA_FindPotentialDuplicatesSingleOrg(
+        Data_TribalNations_Harmonized,
         clean = T
       )
-
       # Handle censored results
-      harmonized_data <- TADA_SimpleCensoredMethods(
-        harmonized_data,
+      Data_TribalNations_Harmonized <- TADA_SimpleCensoredMethods(
+        Data_TribalNations_Harmonized,
         nd_method = "multiplier",
         nd_multiplier = 0.5,
         od_method = "as-is",
         od_multiplier = "null"
       )
-
       # Convert special characters
-      harmonized_data <- TADA_ConvertSpecialChars(
-        harmonized_data,
+      Data_TribalNations_Harmonized <- TADA_ConvertSpecialChars(
+        Data_TribalNations_Harmonized,
         col = "TADA.ResultMeasureValue",
         clean = TRUE
       )
-
       # Remove results with quality control issues
-      harmonized_data <- TADA_RunKeyFlagFunctions(harmonized_data, clean = TRUE)
-
+      Data_TribalNations_Harmonized <- TADA_RunKeyFlagFunctions(
+        Data_TribalNations_Harmonized,
+        clean = TRUE
+      )
       # Flag above and below threshold
-      harmonized_data <- TADA_FlagAboveThreshold(
-        harmonized_data,
+      Data_TribalNations_Harmonized <- TADA_FlagAboveThreshold(
+        Data_TribalNations_Harmonized,
         clean = FALSE,
         flaggedonly = FALSE
       )
-      harmonized_data <- TADA_FlagBelowThreshold(
-        harmonized_data,
+      Data_TribalNations_Harmonized <- TADA_FlagBelowThreshold(
+        Data_TribalNations_Harmonized,
         clean = FALSE,
         flaggedonly = FALSE
       )
-
       # Harmonize synonyms
-      harmonized_data <- TADA_HarmonizeSynonyms(harmonized_data)
-      Data_TribalNations_Harmonized <- TADA_HarmonizeSynonyms(harmonized_data)
-
+      Data_TribalNations_Harmonized <- TADA_HarmonizeSynonyms(
+        Data_TribalNations_Harmonized
+      )
       message("Data_TribalNations_Harmonized")
       dim(Data_TribalNations_Harmonized)
-
       usethis::use_data(
         Data_TribalNations_Harmonized,
         internal = FALSE,
@@ -247,8 +241,7 @@
         version = 3,
         ascii = FALSE
       )
-
-      rm(Data_TribalNations_Harmonized, harmonized_data)
+      rm(Data_TribalNations_Harmonized)
 
       # =======================================
       # Generate Data_R5_TADAPackageDemo
@@ -289,9 +282,6 @@
         sediment = TRUE,
         other = TRUE
       )
-      # Remove single organization duplicates (required)
-      Data_WV <- TADA_FindPotentialDuplicatesSingleOrg(Data_WV)
-      Data_WV <- dplyr::filter(Data_WV, TADA.SingleOrgDup.Flag == "Unique")
       # Perform autocleaning (required)
       Data_WV <- TADA_AutoClean(Data_WV)
       # Handle censored results (required)
@@ -302,9 +292,8 @@
         od_method = "as-is",
         od_multiplier = "null"
       )
-      # Remove multiple organization duplicates (optional)
-      Data_WV <- TADA_FindPotentialDuplicatesMultipleOrgs(Data_WV, clean = T)
-
+      # Harmonize synonyms
+      Data_WV <- TADA_HarmonizeSynonyms(Data_WV)
       # Convert special characters
       Data_WV <- TADA_ConvertSpecialChars(
         Data_WV,
@@ -324,9 +313,8 @@
         clean = FALSE,
         flaggedonly = FALSE
       )
-      # Harmonize synonyms
-      Data_WV <- TADA_HarmonizeSynonyms(Data_WV)
-
+      # Remove single organization duplicates (required)
+      Data_WV <- TADA_FindPotentialDuplicatesSingleOrg(Data_WV, clean = T)
       # Save example data
       Data_HUC8_02070004_Mod1Output <- Data_WV
       message("Data_HUC8_02070004_Mod1Output")
@@ -351,11 +339,12 @@
         characteristicName = c("Escherichia", "Escherichia coli", "pH"),
         countycode = "Missoula County",
         ask = FALSE
-      ) |>
-        TADA_RunKeyFlagFunctions() |>
-        TADA_SimpleCensoredMethods() |>
-        TADA_HarmonizeSynonyms()
-
+      )
+      Data_MT_MissoulaCounty <- TADA_SimpleCensoredMethods(
+        Data_MT_MissoulaCounty
+      )
+      Data_MT_MissoulaCounty <- TADA_HarmonizeSynonyms(Data_MT_MissoulaCounty)
+      Data_MT_MissoulaCounty <- TADA_RunKeyFlagFunctions(Data_MT_MissoulaCounty)
       message("Data_MT_MissoulaCounty")
       dim(Data_MT_MissoulaCounty)
       usethis::use_data(
@@ -375,7 +364,6 @@
       clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(
         org_id = "MTDEQ"
       )
-
       # Create a user-supplied crosswalk for demonstration purposes
       user_supplied_cw <- clean.existing.attains.MT |>
         dplyr::select(
@@ -404,7 +392,6 @@
           MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184",
           WaterType = "LAKE, FRESHWATER"
         ))
-
       MT_AUMLRef <- TADA_CreateAUMLCrosswalk(
         Data_MT_MissoulaCounty,
         au_ref = user_supplied_cw,
@@ -413,9 +400,7 @@
         return_nearest = TRUE,
         batch_upload = TRUE
       )
-
       Data_MT_AUMLRef <- MT_AUMLRef
-
       message("Data_MT_AUMLRef")
       dim(Data_MT_AUMLRef)
       usethis::use_data(
@@ -435,7 +420,6 @@
         AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
       )
-
       message("Data_MT_AU_UsesRef")
       dim(Data_MT_AU_UsesRef)
       usethis::use_data(
@@ -456,7 +440,6 @@
         AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
       )
-
       message("Data_MT_AU_UsesRef_Water")
       dim(Data_MT_AU_UsesRef_Water)
 
@@ -472,37 +455,16 @@
         attains.existing.MT,
         clean.existing.attains.MT,
         user_supplied_cw,
-        MT_AUMLRef
+        MT_AUMLRef,
+        Data_MT_MissoulaCounty,
+        Data_MT_AUMLRef,
+        Data_MT_AU_UsesRef,
+        Data_MT_AU_UsesRef_Water
       )
-      # =======================================
-      # Generate wqx3_fullPhysChem for use in WQX3-Migration.Rmd
-      # =======================================
-      wqx3_fullPhysChem <- dataRetrieval::readWQPdata(
-        statecode = "Illinois",
-        countycode = "DeWitt",
-        characteristicName = "Nitrogen",
-        service = "ResultWQX3",
-        dataProfile = "fullPhysChem",
-        ignore_attributes = TRUE
-      )
-
-      message("wqx3_fullPhysChem")
-      dim(wqx3_fullPhysChem)
-
-      usethis::use_data(
-        wqx3_fullPhysChem,
-        internal = FALSE,
-        overwrite = TRUE,
-        compress = "xz",
-        version = 3,
-        ascii = FALSE
-      )
-      rm(wqx3_fullPhysChem)
 
       # =======================================
       # Generate Data_Penobscot
       # =======================================
-
       Data_Penobscot <- TADA_DataRetrieval(
         siteid = c(
           "PENOBSCOTINDIANNATIONDNR-130-BM1",
@@ -576,10 +538,8 @@
         ask = FALSE,
         applyautoclean = TRUE
       )
-
       message("Data_Penobscot")
       dim(Data_Penobscot)
-
       usethis::use_data(
         Data_Penobscot,
         internal = FALSE,
@@ -588,6 +548,7 @@
         version = 3,
         ascii = FALSE
       )
+      rm(Data_Penobscot)
 
       # =======================================
       # Generate Data_Participatory_Scientists
@@ -599,16 +560,13 @@
         "CTVOLMON",
         "CT_NERR"
       )
-
       Data_Participatory_Scientists <- EPATADA::TADA_DataRetrieval(
         organization = selected_orgs,
         ask = FALSE,
         applyautoclean = TRUE
       )
-
       message("Data_Participatory_Scientists")
       dim(Data_Participatory_Scientists)
-
       usethis::use_data(
         Data_Participatory_Scientists,
         internal = FALSE,
@@ -617,6 +575,33 @@
         version = 3,
         ascii = FALSE
       )
+      rm(Data_Participatory_Scientists, selected_orgs)
+
+      # =======================================
+      # Generate wqx3_fullPhysChem for use in WQX3-Migration.Rmd
+      # =======================================
+      # not working as of 7/20/2026
+      wqx3_fullPhysChem <- dataRetrieval::readWQPdata(
+        statecode = "Illinois",
+        countycode = "DeWitt",
+        characteristicName = "Nitrogen",
+        service = "ResultWQX3",
+        dataProfile = "fullPhysChem",
+        ignore_attributes = TRUE
+      )
+
+      message("wqx3_fullPhysChem")
+      dim(wqx3_fullPhysChem)
+
+      usethis::use_data(
+        wqx3_fullPhysChem,
+        internal = FALSE,
+        overwrite = TRUE,
+        compress = "xz",
+        version = 3,
+        ascii = FALSE
+      )
+      rm(wqx3_fullPhysChem)
     },
     error = function(e) {
       message("An error occurred during data update: ", e$message)

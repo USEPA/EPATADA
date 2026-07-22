@@ -103,6 +103,10 @@ TADA_GetNutrientSummationRef <- function() {
 #'
 #' @return Synonym Reference Table unique to the input dataframe
 #' @export
+#' @examples
+#' # Return the default internal synonym reference table
+#' syn_ref_default <- TADA_GetSynonymRef()
+#' head(syn_ref_default)
 TADA_GetSynonymRef <- function(.data = NULL) {
   expected_cols <- c(
     "TADA.CharacteristicName",
@@ -110,7 +114,7 @@ TADA_GetSynonymRef <- function(.data = NULL) {
     "TADA.MethodSpeciationName"
   )
 
-  # Helpers for normalization
+  # ---- helpers ----
   normalize_keys <- function(df, cols) {
     df |>
       dplyr::mutate(dplyr::across(
@@ -124,6 +128,7 @@ TADA_GetSynonymRef <- function(.data = NULL) {
         }
       ))
   }
+
   trim_to_na <- function(df, cols) {
     df |>
       dplyr::mutate(dplyr::across(
@@ -139,12 +144,11 @@ TADA_GetSynonymRef <- function(.data = NULL) {
       ))
   }
 
-  # NA-safe left join (requires dplyr >= 1.1.0)
   left_join_na <- function(x, y, by) {
     dplyr::left_join(x, y, by = by, na_matches = "na")
   }
 
-  # Load and normalize the harmonization template
+  # ---- load and normalize template ----
   harm.raw <- utils::read.csv(
     system.file("extdata", "HarmonizationTemplate.csv", package = "EPATADA"),
     stringsAsFactors = FALSE,
@@ -152,50 +156,30 @@ TADA_GetSynonymRef <- function(.data = NULL) {
     comment.char = "",
     na.strings = c("", "NA")
   )
+
   harm.raw <- normalize_keys(harm.raw, expected_cols)
   harm.raw <- trim_to_na(harm.raw, names(harm.raw))
   harm.raw <- dplyr::distinct(harm.raw)
 
-  # If no data supplied, return the normalized internal template
+  # If no data supplied, return default reference table
   if (is.null(.data)) {
     return(harm.raw)
   }
 
-  # Check input columns
+  # Check required input columns
   TADA_CheckColumns(.data, expected_cols)
 
-  # Warnings about QC flag columns
-  if (
-    !any(
-      c(
-        "TADA.MethodSpeciation.Flag",
-        "TADA.SampleFraction.Flag",
-        "TADA.ResultUnit.Flag"
-      ) %in%
-        names(.data)
-    )
-  ) {
-    warning(
-      "This dataframe is missing TADA QC flagging columns. ",
-      "Run TADA_FlagResultUnit, TADA_FlagFraction, and TADA_FlagSpeciation and remove Suspect combinations before this step."
-    )
-  }
-
-  flag_cols <- intersect(
-    c(
-      "TADA.MethodSpeciation.Flag",
-      "TADA.SampleFraction.Flag",
-      "TADA.ResultUnit.Flag"
-    ),
-    names(.data)
+  # ---- optional QC-flag warning logic ----
+  qc_flag_cols <- c(
+    "TADA.MethodSpeciation.Flag",
+    "TADA.SampleFraction.Flag",
+    "TADA.ResultUnit.Flag"
   )
+  present_flag_cols <- intersect(qc_flag_cols, names(.data))
 
-  if (length(flag_cols) > 0) {
-    # Use a local alias to avoid ambiguity with the rlang .data pronoun
-    df <- .data
-
-    check_inv <- df |>
-      dplyr::select(dplyr::all_of(flag_cols)) |>
+  if (length(present_flag_cols) > 0) {
+    suspect_counts <- .data |>
+      dplyr::select(dplyr::all_of(present_flag_cols)) |>
       tidyr::pivot_longer(
         cols = dplyr::everything(),
         names_to = "Flag_Column",
@@ -203,8 +187,8 @@ TADA_GetSynonymRef <- function(.data = NULL) {
       ) |>
       dplyr::filter(.data$Flag_Value == "Suspect")
 
-    if (nrow(check_inv) > 0) {
-      summary_inv <- check_inv |>
+    if (nrow(suspect_counts) > 0) {
+      summary_inv <- suspect_counts |>
         dplyr::group_by(.data$Flag_Column) |>
         dplyr::summarise(`Result Count` = dplyr::n(), .groups = "drop")
 
@@ -215,15 +199,15 @@ TADA_GetSynonymRef <- function(.data = NULL) {
     }
   }
 
-  # Unique combinations from the data, normalized like the template
+  # ---- build unique combinations from input ----
   combos <- .data[, expected_cols, drop = FALSE]
   combos <- dplyr::distinct(combos)
   combos <- normalize_keys(combos, expected_cols)
 
-  # NA-aware join to pull target columns
+  # ---- join to harmonization template ----
   join.data <- left_join_na(combos, harm.raw, by = expected_cols)
 
-  # Return unique rows aligned to template columns
+  # ---- return aligned unique rows ----
   unique.data <- dplyr::distinct(join.data)
   unique.data <- unique.data[, names(harm.raw), drop = FALSE]
 

@@ -347,7 +347,6 @@ TADA_FlagDepthCategory <- function(
 
     .data <- .data |> dplyr::filter(TADA.DepthCategory.Flag == "Middle")
   }
-
   if (bycategory == "bottom") {
     message(
       "TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for bottom samples only."
@@ -561,7 +560,7 @@ TADA_FlagDepthCategory <- function(
       ) |>
       dplyr::mutate(
         TADA.DepthProfileAggregation.Flag = paste0(
-          "TADA_FlagDepthCategory: Selecting maximum aggregate value.",
+          "Selected as max aggregate value ",
           cattype
         )
       ) |>
@@ -687,6 +686,9 @@ TADA_IDDepthProfiles <- function(
 
     .data <- TADA_FlagDepthCategory(.data)
   }
+
+  # filter out results equal to NA
+  .data <- .data |> dplyr::filter(!is.na(TADA.ResultMeasureValue))
 
   depth.params <- c(
     "DEPTH, SECCHI DISK DEPTH",
@@ -908,12 +910,10 @@ TADA_IDDepthProfiles <- function(
 #' # Create a depth profile figure with three parameters for a single
 #' # monitoring location and date
 #' TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-#' groups = c(
-#'  "TEMPERATURE_NONE_NONE_DEG C", "PH_NONE_NONE_NONE",
-#'  "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"
-#' ),
-#' location = "REDLAKE_WQX-ANKE",
-#' activity_date = "2018-10-04"
+#' groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+#' "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
+#' location = "REDLAKE_WQX-BASS-SE",
+#' activity_date = "2025-07-16"
 #' )
 #'
 #' # Load example data frame:
@@ -921,10 +921,10 @@ TADA_IDDepthProfiles <- function(
 #' # Create a depth profile figure with two parameters for a single monitoring
 #' # location and date without displaying depth categories
 #' TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
-#' groups = c("PH_NONE_NONE_NONE", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"),
-#' location = "REDLAKE_WQX-JOHN",
-#' activity_date = "2018-07-31",
-#'depthcat = FALSE
+#' groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"),
+#' location = "REDLAKE_WQX-NONA",
+#' activity_date = "2024-02-05",
+#' depthcat = FALSE
 #' )
 #' }
 #'
@@ -958,7 +958,8 @@ TADA_DepthProfilePlot <- function(
   flag.func.cols <- c(
     "TADA.ConsolidatedDepth",
     "TADA.ConsolidatedDepth.Unit",
-    "TADA.ConsolidatedDepth.Bottom, TADA.DepthCategory.Flag"
+    "TADA.ConsolidatedDepth.Bottom",
+    "TADA.DepthCategory.Flag"
   )
 
   if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
@@ -1029,171 +1030,96 @@ TADA_DepthProfilePlot <- function(
     message(
       "TADA_DepthProfilePlot: Depth unit in data set matches depth unit specified by user for plot. No conversion necessary."
     )
+  }
 
-    .data <- .data
-
-    if (.data$TADA.ConsolidatedDepth.Unit[1] != unit) {
-      stop(
-        "TADA_DepthProfilePlot: Depth unit in data set does not match depth unit specified by user for plot. Convert units in data or specify correct unit in TADA_DepthProfilePlot function."
-      )
-    }
+  if (.data$TADA.ConsolidatedDepth.Unit[1] != unit) {
+    stop(
+      "TADA_DepthProfilePlot: Depth unit in data set does not match depth unit specified by user for plot. Convert units in data or specify correct unit in TADA_DepthProfilePlot function."
+    )
   }
 
   # create ID Depth Profiles data.frame to check against params
 
-  param.check <- TADA_IDDepthProfiles(.data)
+  param.check <- TADA_IDDepthProfiles(.data, nresults = FALSE)
 
+  # check for location in TADA df
   if (is.null(location)) {
-    message(
+    stop(
       "TADA_DepthProfilePlot: No TADA.MonitoringLocationIdentifier selected, a depth profile cannot be generated."
     )
-
-    stop()
-
-    if (!location %in% param.check$TADA.MonitoringLocationIdentifier) {
-      message(
-        "TADA_DepthProfilePlot: TADA.MonitoringLocationIdentifier selected is not in data set."
-      )
-
-      stop()
-    }
-
-    if (location %in% param.check$TADA.MonitoringLocationIdentifier) {
-      message(
-        "TADA_DepthProfilePlot: TADA.MonitoringLocationIdentifier selected."
-      )
-    }
+  } else if (!location %in% param.check$TADA.MonitoringLocationIdentifier) {
+    stop(
+      "TADA_DepthProfilePlot: TADA.MonitoringLocationIdentifier selected is not in data set."
+    )
+  } else {
+    message(
+      "TADA_DepthProfilePlot: TADA.MonitoringLocationIdentifier selected."
+    )
   }
 
+  # filter by location
+  param.check <- param.check |>
+    dplyr::filter(TADA.MonitoringLocationIdentifier == location)
+
+  # check for activity date in TADA df
   if (is.null(activity_date)) {
-    message(
+    stop(
       "TADA_DepthProfilePlot: No ActivityStartDate selected, a depth profile cannot be generated."
     )
-
-    stop()
-
-    if (!activity_date %in% param.check$ActivityStartDate) {
-      message(
-        "TADA_DepthProfilePlot: ActivityStartDate selected is not in data set."
-      )
-    }
-
-    stop()
-
-    if (activity_date %in% param.check$ActivityStartDate) {
-      message("TADA_DepthProfilePlot: ActivityStartDate selected.")
-    }
+  } else if (!activity_date %in% param.check$ActivityStartDate) {
+    stop(
+      "TADA_DepthProfilePlot: ActivityStartDate selected is not in data set for selected TADA.MonitoringLocationIdentifier."
+    )
+  } else {
+    message("TADA_DepthProfilePlot: ActivityStartDate selected.")
   }
 
-  if (is.null(groups)) {
-    message(
+  # filter by activity date and create list of parameter groups
+  param.check <- param.check |>
+    dplyr::ungroup() |>
+    dplyr::filter(ActivityStartDate == activity_date) |>
+    tidyr::separate_longer_delim(
+      TADA.CharacteristicsForDepthProfile,
+      delim = "; "
+    ) |>
+    dplyr::select(TADA.CharacteristicsForDepthProfile) |>
+    dplyr::mutate(
+      TADA.CharacteristicsForDepthProfile = stringr::str_trim(
+        TADA.CharacteristicsForDepthProfile
+      )
+    ) |>
+    dplyr::pull()
+
+  # check to make sure each group is available in TADA df
+  if (is.null(groups) || length(groups) == 0) {
+    stop(
       "TADA_DepthProfilePlot: No groups selected, a depth profile cannot be generated."
     )
+  }
 
-    stop()
+  if (length(groups) >= 1 && !groups[1] %in% param.check) {
+    stop(
+      "TADA_DepthProfilePlot: First group for depth profile plot does not exist in data set."
+    )
+  }
 
-    if (!is.null(groups)) {
-      groups.length <- length(groups)
+  if (length(groups) >= 2 && !groups[2] %in% param.check) {
+    stop(
+      "TADA_DepthProfilePlot: Second group for depth profile plot does not exist in data set."
+    )
+  }
 
-      if (groups.length > 0) {
-        if (
-          stringr::str_detect(
-            param.check$TADA.CharacteristicsForDepthProfile,
-            groups[1]
-          ) ==
-            FALSE
-        ) {
-          message(
-            "TADA_DepthProfilePlot: First of groups for depth profile plot does not exist in data set."
-          )
-        }
+  if (length(groups) >= 3 && !groups[3] %in% param.check) {
+    stop(
+      "TADA_DepthProfilePlot: Third group for depth profile plot does not exist in data set."
+    )
+  }
 
-        stop()
-
-        if (
-          stringr::str_detect(
-            param.check$TADA.CharacteristicsForDepthProfile,
-            groups[1]
-          ) ==
-            TRUE
-        ) {
-          message(
-            "TADA:DepthProfilePlot: First of groups for depth profile exists in data set."
-          )
-        }
-      }
-
-      if (groups.length > 1) {
-        if (
-          stringr::str_detect(
-            param.check$TADA.CharacteristicsForDepthProfile,
-            groups[2]
-          ) ==
-            FALSE
-        ) {
-          message(
-            "TADA_DepthProfilePlot: Second of groups for depth profile plot does not exist in data set."
-          )
-        }
-
-        stop()
-
-        if (
-          stringr::str_detect(
-            param.check$TADA.CharacteristicsForDepthProfile,
-            groups[2]
-          ) ==
-            TRUE
-        ) {
-          message(
-            "TADA:DepthProfilePlot: Second of groups for depth profile exists in data set."
-          )
-        }
-      }
-
-      if (groups.length > 2) {
-        if (
-          stringr::str_detect(
-            param.check$TADA.CharacteristicsForDepthProfile,
-            groups[3]
-          ) ==
-            FALSE
-        ) {
-          message(
-            "TADA_DepthProfilePlot: Third of groups for depth profile plot does not exist in data set."
-          )
-        }
-
-        stop()
-
-        if (
-          stringr::str_detect(
-            param.check$TADA.CharacteristicsForDepthProfile,
-            groups[3]
-          ) ==
-            TRUE
-        ) {
-          message(
-            "TADA:DepthProfilePlot: Third of groups for depth profile exists in data set."
-          )
-        }
-      }
-    }
-
-    if (!activity_date %in% param.check$ActivityStartDate) {
-      message(
-        "TADA_DepthProfilePlot: ActivityStartDate selected is not in data set."
-      )
-    }
-
-    stop()
-
-    if (activity_date %in% param.check$ActivityStartDate) {
-      message("TADA_DepthProfilePlot: ActivityStartDate selected.")
-    }
-
-    param.check <- param.check |>
-      dplyr::filter(ActivityStartDate == activity_date)
+  # if all groups present in TADA df, print message
+  if (length(groups) > 0) {
+    message(
+      "TADA_DepthProfilePlot: Parameter groups for depth profile plot selected."
+    )
   }
 
   # remove param.check
@@ -1235,9 +1161,52 @@ TADA_DepthProfilePlot <- function(
     "THALWEG DEPTH"
   )
 
+  # check to see if any NA results for selected groups in df
+  checkNA <- .data |>
+    dplyr::filter(
+      TADA.ComparableDataIdentifier %in% groups,
+      is.na(TADA.ResultMeasureValue)
+    ) |>
+    dplyr::select(
+      TADA.MonitoringLocationIdentifier,
+      ActivityStartDate,
+      ActivityStartTime.Time,
+      TADA.ComparableDataIdentifier,
+      TADA.ResultMeasureValue
+    ) |>
+    dplyr::distinct() |>
+    dplyr::group_by(TADA.ComparableDataIdentifier) |>
+    dplyr::summarize(n.NAs = length(ActivityStartTime.Time))
+
+  if (NROW(checkNA) > 0) {
+    msgNA <- stringi::stri_replace_last(
+      paste0(
+        paste0(checkNA$TADA.ComparableDataIdentifier, " (", checkNA$n.NAs, ")"),
+        collapse = "; "
+      ),
+      fixed = "; ",
+      replacement = " and "
+    )
+
+    message(paste0(
+      "TADA_DepthProfilePlot: records with a result value of NA have been removed for plotting purposes (",
+      msgNA,
+      ")."
+    ))
+
+    # remove intermediate object
+    rm(msgNA)
+  }
+
+  # remove intermediate object
+  rm(checkNA)
+
+  # available depth profile data
+  # commented out rows can be uncommented for debugging if required
   depthprofile.avail <- .data |>
     dplyr::filter(
       !is.na(TADA.ConsolidatedDepth),
+      !is.na(TADA.ResultMeasureValue),
       TADA.MonitoringLocationIdentifier %in% location,
       ActivityStartDate %in% activity_date,
       TADA.ActivityMediaName == "WATER"
@@ -1261,8 +1230,9 @@ TADA_DepthProfilePlot <- function(
 
   depth.params.groups <- depthprofile.avail |>
     dplyr::filter(
-      TADA.ComparableDataIdentifier %in% groups,
-      TADA.CharacteristicName %in% depth.params
+      TADA.ComparableDataIdentifier %in%
+        groups |
+        TADA.CharacteristicName %in% depth.params
     ) |>
     dplyr::select(TADA.ComparableDataIdentifier) |>
     unique() |>
@@ -1308,6 +1278,7 @@ TADA_DepthProfilePlot <- function(
 
     depth.params.avail <- .data |>
       dplyr::filter(
+        !is.na(TADA.ResultMeasureValue),
         TADA.MonitoringLocationIdentifier %in% location,
         TADA.CharacteristicName %in% depth.params,
         ActivityStartDate %in% activity_date,
@@ -1321,99 +1292,102 @@ TADA_DepthProfilePlot <- function(
       dplyr::slice_sample(n = 1) |>
       dplyr::ungroup()
 
-    if (
-      unique(depth.params.avail$TADA.ConsolidatedDepth.Unit) == fig.depth.unit
-    ) {
-      message(paste(
-        "TADA_DepthProfilePlot: Any results for",
-        depth.params.string,
-        "match the depth unit selected for the figure."
-      ))
-
-      depth.params.avail <- depth.params.avail
-
+    if (NROW(depth.params.avail > 0)) {
       if (
-        unique(depth.params.avail$TADA.ConsolidatedDepth.Unit) != fig.depth.unit
+        unique(depth.params.avail$TADA.ConsolidatedDepth.Unit) == fig.depth.unit
       ) {
         message(paste(
-          "TADA_DepthProfilePlot: Converting depth units for any results for",
+          "TADA_DepthProfilePlot: Any results for",
           depth.params.string,
-          "results to match depth units selected for the figure."
+          "match the depth unit selected for the figure."
         ))
 
-        depth.units <- c(
-          "m",
-          "ft",
-          "in",
-          "m",
-          "m",
-          "ft",
-          "ft",
-          "in",
-          "in",
-          "m",
-          "ft",
-          "in"
-        )
+        depth.params.avail <- depth.params.avail
 
-        result.units <- c(
-          "m",
-          "ft",
-          "in",
-          "ft",
-          "in",
-          "m",
-          "in",
-          "m",
-          "ft",
-          "cm",
-          "cm",
-          "cm"
-        )
+        if (
+          unique(depth.params.avail$TADA.ConsolidatedDepth.Unit) !=
+            fig.depth.unit
+        ) {
+          message(paste(
+            "TADA_DepthProfilePlot: Converting depth units for any results for",
+            depth.params.string,
+            "results to match depth units selected for the figure."
+          ))
 
-        convert.factor <- c(
-          "1",
-          "1",
-          "1",
-          "0.3048",
-          "0.0254",
-          "3.281",
-          "0.083",
-          "39.3701",
-          "12",
-          "0.01",
-          "0.032808",
-          "0.39"
-        )
-
-        secchi.conversion <- data.frame(
-          result.units,
-          depth.units,
-          convert.factor
-        ) |>
-          dplyr::rename(
-            TADA.ConsolidatedDepth.Unit = result.units,
-            YAxis.DepthUnit = depth.units,
-            SecchiConversion = convert.factor
+          depth.units <- c(
+            "m",
+            "ft",
+            "in",
+            "m",
+            "m",
+            "ft",
+            "ft",
+            "in",
+            "in",
+            "m",
+            "ft",
+            "in"
           )
 
-        depth.params.avail <- depth.params.avail |>
-          dplyr::mutate(YAxis.DepthUnit = fig.depth.unit) |>
-          dplyr::left_join(secchi.conversion) |>
-          dplyr::mutate(
-            TADA.ConsolidatedDepth.Unit = fig.depth.unit,
-            TADA.ConsolidatedDepth = TADA.ResultMeasureValue *
-              as.numeric(SecchiConversion)
-          ) |>
-          dplyr::select(-YAxis.DepthUnit, -SecchiConversion)
+          result.units <- c(
+            "m",
+            "ft",
+            "in",
+            "ft",
+            "in",
+            "m",
+            "in",
+            "m",
+            "ft",
+            "cm",
+            "cm",
+            "cm"
+          )
 
-        rm(
-          secchi.conversion,
-          depth.params.string,
-          depth.units,
-          result.units,
-          convert.factor
-        )
+          convert.factor <- c(
+            "1",
+            "1",
+            "1",
+            "0.3048",
+            "0.0254",
+            "3.281",
+            "0.083",
+            "39.3701",
+            "12",
+            "0.01",
+            "0.032808",
+            "0.39"
+          )
+
+          secchi.conversion <- data.frame(
+            result.units,
+            depth.units,
+            convert.factor
+          ) |>
+            dplyr::rename(
+              TADA.ConsolidatedDepth.Unit = result.units,
+              YAxis.DepthUnit = depth.units,
+              SecchiConversion = convert.factor
+            )
+
+          depth.params.avail <- depth.params.avail |>
+            dplyr::mutate(YAxis.DepthUnit = fig.depth.unit) |>
+            dplyr::left_join(secchi.conversion) |>
+            dplyr::mutate(
+              TADA.ConsolidatedDepth.Unit = fig.depth.unit,
+              TADA.ConsolidatedDepth = TADA.ResultMeasureValue *
+                as.numeric(SecchiConversion)
+            ) |>
+            dplyr::select(-YAxis.DepthUnit, -SecchiConversion)
+
+          rm(
+            secchi.conversion,
+            depth.params.string,
+            depth.units,
+            result.units,
+            convert.factor
+          )
+        }
       }
     }
 
@@ -1425,10 +1399,10 @@ TADA_DepthProfilePlot <- function(
 
   # this subset must include all fields included in plot hover below
   plot.data <- profile.data |>
-    dplyr::filter(dplyr::if_any(
-      TADA.ComparableDataIdentifier,
-      ~ .x %in% groups
-    )) |>
+    dplyr::filter(
+      TADA.ComparableDataIdentifier %in% groups,
+      !is.na(TADA.ResultMeasureValue)
+    ) |>
     dplyr::select(
       dplyr::all_of(required_cols),
       "TADA.ComparableDataIdentifier",
