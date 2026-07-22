@@ -517,9 +517,7 @@ test_that("TADA_CrosswalkATTAINSWaterTypes creates ATTAINS.WaterType when missin
 })
 
 test_that("TADA_CrosswalkATTAINSWaterTypes errors when required columns are missing", {
-  df <- tibble::tibble(
-    TADA.MonitoringLocationIdentifier = c("id1", "id2")
-  )
+  df <- tibble::tibble(TADA.MonitoringLocationIdentifier = c("id1", "id2"))
 
   expect_error(
     TADA_CrosswalkATTAINSWaterTypes(df),
@@ -576,7 +574,10 @@ test_that("TADA_ReviewATTAINSWaterTypes creates a flag column for invalid values
   out <- TADA_ReviewATTAINSWaterTypes(df, review_action = "flag")
 
   expect_true("TADA.ATTAINSWaterType.Flag" %in% names(out))
-  expect_true(any(grepl("does not match any allowable", out$TADA.ATTAINSWaterType.Flag)))
+  expect_true(any(grepl(
+    "does not match any allowable",
+    out$TADA.ATTAINSWaterType.Flag
+  )))
 })
 
 test_that("TADA_ReviewATTAINSWaterTypes leaves valid values flagged as valid", {
@@ -593,8 +594,10 @@ test_that("TADA_ReviewATTAINSWaterTypes leaves valid values flagged as valid", {
   out <- TADA_ReviewATTAINSWaterTypes(df, review_action = "flag")
 
   expect_true("TADA.ATTAINSWaterType.Flag" %in% names(out))
-  expect_true(any(grepl("matches an allowable", out$TADA.ATTAINSWaterType.Flag)) ||
-                any(is.na(out$TADA.ATTAINSWaterType.Flag)))
+  expect_true(
+    any(grepl("matches an allowable", out$TADA.ATTAINSWaterType.Flag)) ||
+      any(is.na(out$TADA.ATTAINSWaterType.Flag))
+  )
 })
 
 test_that("TADA_ReviewATTAINSWaterTypes updates invalid values when review_action = 'update'", {
@@ -609,7 +612,9 @@ test_that("TADA_ReviewATTAINSWaterTypes updates invalid values when review_actio
   out <- TADA_ReviewATTAINSWaterTypes(df, review_action = "update")
 
   expect_true("TADA.ATTAINSWaterType.Flag" %in% names(out))
-  expect_false(any(out$ATTAINS.WaterType %in% c("INVALID WATER TYPE 1", "INVALID WATER TYPE 2")))
+  expect_false(any(
+    out$ATTAINS.WaterType %in% c("INVALID WATER TYPE 1", "INVALID WATER TYPE 2")
+  ))
 })
 
 # Test TADA_CreatePointAUs
@@ -794,5 +799,3 @@ test_that("TADA_CreatePointAUs does not modify existing non-missing, non-blank A
     c("EXISTING_AU_001", "WQX_LOC2")
   )
 })
-
-

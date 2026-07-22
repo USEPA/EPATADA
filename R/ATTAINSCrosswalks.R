@@ -4527,13 +4527,23 @@ TADA_MLSummary <- function(
 #' }
 #'
 #' @keywords internal
-build_attains_water_type_crosswalk <- function(org_id = NULL, org_only = FALSE) {
-  if (!is.null(org_id) && (!is.character(org_id) || length(org_id) != 1 || is.na(org_id))) {
-    stop("build_attains_water_type_crosswalk: org_id must be NULL or a single non-NA character string.")
+build_attains_water_type_crosswalk <- function(
+  org_id = NULL,
+  org_only = FALSE
+) {
+  if (
+    !is.null(org_id) &&
+      (!is.character(org_id) || length(org_id) != 1 || is.na(org_id))
+  ) {
+    stop(
+      "build_attains_water_type_crosswalk: org_id must be NULL or a single non-NA character string."
+    )
   }
 
   if (!is.logical(org_only) || length(org_only) != 1 || is.na(org_only)) {
-    stop("build_attains_water_type_crosswalk: org_only must be a single non-NA logical.")
+    stop(
+      "build_attains_water_type_crosswalk: org_only must be a single non-NA logical."
+    )
   }
 
   # Load base crosswalk
@@ -4576,7 +4586,9 @@ build_attains_water_type_crosswalk <- function(org_id = NULL, org_only = FALSE) 
   ))
 
   if (!exists("ATTAINSWaterTypeByOrgName", inherits = FALSE)) {
-    stop("build_attains_water_type_crosswalk: could not load ATTAINSWaterTypeByOrgName.")
+    stop(
+      "build_attains_water_type_crosswalk: could not load ATTAINSWaterTypeByOrgName."
+    )
   }
 
   org_watertypes <- ATTAINSWaterTypeByOrgName |>
@@ -4587,7 +4599,8 @@ build_attains_water_type_crosswalk <- function(org_id = NULL, org_only = FALSE) 
 
   if (length(org_watertypes) == 0) {
     stop(paste0(
-      "build_attains_water_type_crosswalk: org_id '", org_id,
+      "build_attains_water_type_crosswalk: org_id '",
+      org_id,
       "' not found in ATTAINSWaterTypeByOrgName."
     ))
   }
@@ -4607,11 +4620,7 @@ build_attains_water_type_crosswalk <- function(org_id = NULL, org_only = FALSE) 
   dplyr::bind_rows(org_cw, default_cw) |>
     dplyr::group_by(TADA.MonitoringLocationTypeName) |>
     dplyr::slice_min(
-      order_by = dplyr::if_else(
-        !is.na(TADA.ATTAINS.WaterType),
-        1L,
-        2L
-      ),
+      order_by = dplyr::if_else(!is.na(TADA.ATTAINS.WaterType), 1L, 2L),
       with_ties = FALSE
     ) |>
     dplyr::ungroup() |>
@@ -4635,11 +4644,11 @@ build_attains_water_type_crosswalk <- function(org_id = NULL, org_only = FALSE) 
 #' @return A TADA data frame with ATTAINS.WaterType populated.
 #' @export
 TADA_CrosswalkATTAINSWaterTypes <- function(
-    .data,
-    org_id = NULL,
-    org_only = FALSE,
-    replace_all = FALSE) {
-
+  .data,
+  org_id = NULL,
+  org_only = FALSE,
+  replace_all = FALSE
+) {
   required_cols <- c(
     "TADA.MonitoringLocationIdentifier",
     "TADA.MonitoringLocationTypeName"
@@ -4652,16 +4661,27 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     )
   }
 
-  if (!is.null(org_id) && (!is.character(org_id) || length(org_id) != 1 || is.na(org_id))) {
-    stop("TADA_CrosswalkATTAINSWaterTypes: org_id must be NULL or a single non-NA character string.")
+  if (
+    !is.null(org_id) &&
+      (!is.character(org_id) || length(org_id) != 1 || is.na(org_id))
+  ) {
+    stop(
+      "TADA_CrosswalkATTAINSWaterTypes: org_id must be NULL or a single non-NA character string."
+    )
   }
 
   if (!is.logical(org_only) || length(org_only) != 1 || is.na(org_only)) {
-    stop("TADA_CrosswalkATTAINSWaterTypes: org_only must be a single non-NA logical.")
+    stop(
+      "TADA_CrosswalkATTAINSWaterTypes: org_only must be a single non-NA logical."
+    )
   }
 
-  if (!is.logical(replace_all) || length(replace_all) != 1 || is.na(replace_all)) {
-    stop("TADA_CrosswalkATTAINSWaterTypes: replace_all must be a single non-NA logical.")
+  if (
+    !is.logical(replace_all) || length(replace_all) != 1 || is.na(replace_all)
+  ) {
+    stop(
+      "TADA_CrosswalkATTAINSWaterTypes: replace_all must be a single non-NA logical."
+    )
   }
 
   # normalize NA to blanks
@@ -4680,10 +4700,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     dplyr::distinct()
 
   # Build crosswalk
-  cw <- build_attains_water_type_crosswalk(
-    org_id = org_id,
-    org_only = org_only
-  )
+  cw <- build_attains_water_type_crosswalk(org_id = org_id, org_only = org_only)
 
   # Add crosswalk recommendation by monitoring location type
   lookup <- lookup |>
@@ -4709,12 +4726,12 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   } else {
     lookup <- lookup |>
       dplyr::mutate(
-        TADA.ATTAINS.WaterType = dplyr::coalesce(ATTAINS.WaterType, TADA.ATTAINS.WaterType)
+        TADA.ATTAINS.WaterType = dplyr::coalesce(
+          ATTAINS.WaterType,
+          TADA.ATTAINS.WaterType
+        )
       ) |>
-      dplyr::select(
-        TADA.MonitoringLocationIdentifier,
-        TADA.ATTAINS.WaterType
-      )
+      dplyr::select(TADA.MonitoringLocationIdentifier, TADA.ATTAINS.WaterType)
   }
 
   # Join back to original data
@@ -4729,8 +4746,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   } else if (isTRUE(replace_all)) {
     .data <- .data |>
       dplyr::left_join(
-        lookup |>
-          dplyr::rename(New.ATTAINS.WaterType = TADA.ATTAINS.WaterType),
+        lookup |> dplyr::rename(New.ATTAINS.WaterType = TADA.ATTAINS.WaterType),
         by = dplyr::join_by(TADA.MonitoringLocationIdentifier),
         relationship = "many-to-many"
       ) |>
@@ -4739,19 +4755,20 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   } else {
     .data <- .data |>
       dplyr::left_join(
-        lookup |>
-          dplyr::rename(New.ATTAINS.WaterType = TADA.ATTAINS.WaterType),
+        lookup |> dplyr::rename(New.ATTAINS.WaterType = TADA.ATTAINS.WaterType),
         by = dplyr::join_by(TADA.MonitoringLocationIdentifier),
         relationship = "many-to-many"
       ) |>
       dplyr::mutate(
-        ATTAINS.WaterType = dplyr::coalesce(ATTAINS.WaterType, New.ATTAINS.WaterType)
+        ATTAINS.WaterType = dplyr::coalesce(
+          ATTAINS.WaterType,
+          New.ATTAINS.WaterType
+        )
       ) |>
       dplyr::select(-New.ATTAINS.WaterType)
   }
 
-  .data |>
-    TADA_OrderCols()
+  .data |> TADA_OrderCols()
 }
 
 
@@ -4767,9 +4784,9 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' If `review_action = "update"`, invalid values may also be replaced.
 #' @export
 TADA_ReviewATTAINSWaterTypes <- function(
-    .data,
-    review_action = c("flag", "update")) {
-
+  .data,
+  review_action = c("flag", "update")
+) {
   required_cols <- c(
     "TADA.MonitoringLocationIdentifier",
     "TADA.MonitoringLocationTypeName",
@@ -4811,8 +4828,7 @@ TADA_ReviewATTAINSWaterTypes <- function(
       dplyr::mutate(
         TADA.ATTAINSWaterType.Flag = "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value."
       )
-    return(.data |>
-             TADA_OrderCols())
+    return(.data |> TADA_OrderCols())
   }
 
   if (review_action == "flag") {
@@ -4838,8 +4854,7 @@ TADA_ReviewATTAINSWaterTypes <- function(
         )
       )
 
-    return(.data |>
-             TADA_OrderCols())
+    return(.data |> TADA_OrderCols())
   }
 
   # review_action == "update"
@@ -4871,7 +4886,10 @@ TADA_ReviewATTAINSWaterTypes <- function(
       relationship = "many-to-many"
     ) |>
     dplyr::mutate(
-      ATTAINS.WaterType = dplyr::coalesce(New.ATTAINS.WaterType, ATTAINS.WaterType),
+      ATTAINS.WaterType = dplyr::coalesce(
+        New.ATTAINS.WaterType,
+        ATTAINS.WaterType
+      ),
       TADA.ATTAINSWaterType.Flag = dplyr::if_else(
         is.na(.data$TADA.ATTAINSWaterType.Flag),
         "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value.",
@@ -4880,6 +4898,5 @@ TADA_ReviewATTAINSWaterTypes <- function(
     ) |>
     dplyr::select(-New.ATTAINS.WaterType)
 
-  .data |>
-    TADA_OrderCols()
+  .data |> TADA_OrderCols()
 }
