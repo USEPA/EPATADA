@@ -113,7 +113,7 @@ their decision making processes. Use of EPATADA is not required.
 
 Get bacteria and pH data from Missoula County, Montana.
 
-```{r tada-data}
+```{r tada-data, eval = F}
 # get MT data
 tada.MT <- TADA_DataRetrieval(
   startDate = "2020-01-01",
@@ -136,9 +136,11 @@ tada.MT.clean <- tada.MT |>
 
 # remove intermediate objects
 rm(tada.MT)
+```
 
-# or uncomment the code below and load internal copy of TADA df from EPATADA
-# tada.MT.clean <- Data_MT_MissoulaCounty
+```{r tada-data-load, eval = T, include = F}
+# Load internal copy of example data set for Missoula County, Montana
+tada.MT.clean <- Data_MT_MissoulaCounty
 ```
 
 ## Expert Query API Key
