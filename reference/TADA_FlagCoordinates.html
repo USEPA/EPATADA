@@ -115,7 +115,8 @@ with changing raw data, email the WQX help desk: <a href="mailto:WQX@epa.gov">WQ
 <span>  <span class="va">.data</span>,</span>
 <span>  clean_outsideUSA <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"no"</span>, <span class="st">"remove"</span>, <span class="st">"change sign"</span><span class="op">)</span>,</span>
 <span>  clean_imprecise <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  flaggedonly <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  flaggedonly <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  check_location_metadata <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -143,6 +144,11 @@ clean_imprecise = TRUE. Default is clean_imprecise = FALSE.</p></dd>
 <dt id="arg-flaggedonly">flaggedonly<a class="anchor" aria-label="anchor" href="#arg-flaggedonly"></a></dt>
 <dd><p>Boolean argument; Return only flagged data when flaggedonly = TRUE;
 default is flaggedonly = FALSE.</p></dd>
+
+
+<dt id="arg-check-location-metadata">check_location_metadata<a class="anchor" aria-label="anchor" href="#arg-check-location-metadata"></a></dt>
+<dd><p>Boolean argument; Flags coordinates if location metadata
+does not match with coordinate location; default is check_location_metadata = FALSE.</p></dd>
 
 </dl></div>
     <div class="section level2">

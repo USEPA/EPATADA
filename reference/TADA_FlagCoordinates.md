@@ -26,7 +26,8 @@ TADA_FlagCoordinates(
   .data,
   clean_outsideUSA = c("no", "remove", "change sign"),
   clean_imprecise = FALSE,
-  flaggedonly = FALSE
+  flaggedonly = FALSE,
+  check_location_metadata = FALSE
 )
 ```
 
@@ -54,6 +55,12 @@ TADA_FlagCoordinates(
 
   Boolean argument; Return only flagged data when flaggedonly = TRUE;
   default is flaggedonly = FALSE.
+
+- check_location_metadata:
+
+  Boolean argument; Flags coordinates if location metadata does not
+  match with coordinate location; default is check_location_metadata =
+  FALSE.
 
 ## Value
 
