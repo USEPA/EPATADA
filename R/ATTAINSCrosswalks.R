@@ -4781,6 +4781,10 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' @return A TADA data frame with `TADA.ATTAINSWaterType.Flag` added.
 #' If `review_action = "update"`, invalid values may also be replaced.
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' }
 TADA_ReviewATTAINSWaterTypes <- function(
   .data,
   review_action = c("flag", "update")
