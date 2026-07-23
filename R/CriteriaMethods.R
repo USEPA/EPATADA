@@ -245,46 +245,78 @@ TADA_DefineCriteriaMethodology <- function(
   )
 
   # Default displayUniqueId when MLSummaryRef is supplied.
-  if (!is.null(MLSummaryRef) && missing(displayUniqueId)) displayUniqueId <- TRUE
-  
+  if (!is.null(MLSummaryRef) && missing(displayUniqueId)) {
+    displayUniqueId <- TRUE
+  }
+
   # Return blank template when all inputs are missing.
-  if (all(missing(.data), missing(MLSummaryRef), missing(criteriaMethods),
-          missing(AUMLRef), missing(AU_UsesRef))) {
-    message("All arguments are blank, returning an empty dataframe with column names only.")
-    DefineCriteriaMethodology <- TADA_CorrectColType(
-      setNames(data.frame(matrix(ncol = length(desired_cols), nrow = 0)), desired_cols)
+  if (
+    all(
+      missing(.data),
+      missing(MLSummaryRef),
+      missing(criteriaMethods),
+      missing(AUMLRef),
+      missing(AU_UsesRef)
     )
+  ) {
+    message(
+      "All arguments are blank, returning an empty dataframe with column names only."
+    )
+    DefineCriteriaMethodology <- TADA_CorrectColType(setNames(
+      data.frame(matrix(ncol = length(desired_cols), nrow = 0)),
+      desired_cols
+    ))
   } else {
     if (!is.logical(auto_assign)) {
       stop("TADA_DefineCriteriaMethodology: auto_assign must be TRUE/FALSE.")
     }
     if (auto_assign && !is.null(criteriaMethods)) {
-      stop("TADA_DefineCriteriaMethodology: criteriaMethods and auto_assign = TRUE are not valid together.")
+      stop(
+        "TADA_DefineCriteriaMethodology: criteriaMethods and auto_assign = TRUE are not valid together."
+      )
     }
     if (!is.null(MLSummaryRef) && !is.null(criteriaMethods)) {
-      stop("TADA_DefineCriteriaMethodology: provide only one of MLSummaryRef or criteriaMethods.")
+      stop(
+        "TADA_DefineCriteriaMethodology: provide only one of MLSummaryRef or criteriaMethods."
+      )
     }
-    
+
     MLSummary_params <- if (!is.null(MLSummaryRef) && auto_assign) {
       unique(MLSummaryRef$TADA.ComparableDataIdentifier)
-    } else NULL
-    
+    } else {
+      NULL
+    }
+
     if (is.null(org_id)) {
       org_id <- ""
-      message("TADA_DefineCriteriaMethodology: Proceeding with 'org_id = NULL'.")
+      message(
+        "TADA_DefineCriteriaMethodology: Proceeding with 'org_id = NULL'."
+      )
     }
-    
+
     if ("all" %in% tolower(org_id)) {
       org_id <- if (is.null(criteriaMethods)) {
         if (is.null(AUMLRef)) {
-          message("org_id == 'All' selected, no AUMLRef provided; attempting to pull domain orgs.")
-          tryCatch({
-            dv <- rExpertQuery::EQ_DomainValues("org_id")
-            if (!is.null(dv) && "code" %in% names(dv)) dv[["code"]] else character()
-          }, error = function(e) {
-            warning("Failed to retrieve ATTAINS org domain values: ", conditionMessage(e))
-            character()
-          })
+          message(
+            "org_id == 'All' selected, no AUMLRef provided; attempting to pull domain orgs."
+          )
+          tryCatch(
+            {
+              dv <- rExpertQuery::EQ_DomainValues("org_id")
+              if (!is.null(dv) && "code" %in% names(dv)) {
+                dv[["code"]]
+              } else {
+                character()
+              }
+            },
+            error = function(e) {
+              warning(
+                "Failed to retrieve ATTAINS org domain values: ",
+                conditionMessage(e)
+              )
+              character()
+            }
+          )
         } else {
           message("org_id == 'All' selected, using orgs found in AUMLRef.")
           unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
@@ -325,10 +357,7 @@ TADA_DefineCriteriaMethodology <- function(
           excel = excel,
           overwrite = overwrite
         ) |>
-          dplyr::mutate(
-            ATTAINS.ParameterName = NA,
-            ATTAINS.UseName = NA
-            ) |>
+          dplyr::mutate(ATTAINS.ParameterName = NA, ATTAINS.UseName = NA) |>
           dplyr::distinct()
       )
     }
@@ -1324,7 +1353,12 @@ TADA_DefineCriteriaMethodology <- function(
   )
 
   # validations - does criteria table inputs match the AUMLRef and AU_UsesRef if provided?
-  TADA_Analysis_Validate_Ref2(.data, criteria = DefineCriteriaMethodology, AUMLRef = AUMLRef, AU_UsesRef = AU_UsesRef)
+  TADA_Analysis_Validate_Ref2(
+    .data,
+    criteria = DefineCriteriaMethodology,
+    AUMLRef = AUMLRef,
+    AU_UsesRef = AU_UsesRef
+  )
 
   # Generates the excel function (HIGHLY Recommended for users to export)
   if (excel == TRUE) {
