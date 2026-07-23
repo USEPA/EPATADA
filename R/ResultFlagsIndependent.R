@@ -1304,6 +1304,8 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' clean_imprecise = TRUE. Default is clean_imprecise = FALSE.
 #' @param flaggedonly Boolean argument; Return only flagged data when flaggedonly = TRUE;
 #' default is flaggedonly = FALSE.
+#' @param check_location_metadata Boolean argument; Flags coordinates if location metadata
+#' does not match with coordinate location; default is check_location_metadata = FALSE.
 #'
 #' @return Returns input TADA dataset with the added "TADA.SuspectCoordinates.Flag" column.
 #' When clean_outsideUSA is "no", "change sign", or clean_imprecise argument is FALSE,
@@ -1395,11 +1397,19 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #'   clean_imprecise = TRUE
 #' )
 #'
+#' # Flag data with coordinates not matching metadata
+#' # from the dataframe:
+#' SuspectCoord_removed <- TADA_FlagCoordinates(
+#'   mock_coords,
+#'   check_location_metadata = TRUE
+#' )
+#'
 TADA_FlagCoordinates <- function(
   .data,
   clean_outsideUSA = c("no", "remove", "change sign"),
   clean_imprecise = FALSE,
-  flaggedonly = FALSE
+  flaggedonly = FALSE,
+  check_location_metadata = FALSE
 ) {
   # check .data is data.frame and has required columns
   TADA_CheckColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
@@ -1407,6 +1417,8 @@ TADA_FlagCoordinates <- function(
   TADA_CheckType(clean_outsideUSA, "character")
   # check clean_imprecise is boolean
   TADA_CheckType(clean_imprecise, "logical")
+  # check check_location_metadata is boolean
+  TADA_CheckType(check_location_metadata, "logical")
   # check lat and long are "numeric"
   if (!is.numeric(.data$TADA.LongitudeMeasure)) {
     warning("TADA.LongitudeMeasure field must be numeric")
@@ -1415,6 +1427,20 @@ TADA_FlagCoordinates <- function(
   if (!is.numeric(.data$TADA.LatitudeMeasure)) {
     warning("TADA.LatitudeMeasure field must be numeric")
   }
+
+  # check for required columns
+  if (check_location_metadata == TRUE) {
+    TADA_CheckColumns(
+      .data,
+      c(
+        "TADA.LatitudeMeasure",
+        "TADA.LongitudeMeasure",
+        "StateCode",
+        "CountyCode"
+      )
+    )
+  }
+
   # check that clean_outsideUSA is either "no", "remove", or "change sign"
   clean_outsideUSA <- match.arg(clean_outsideUSA)
 
@@ -1452,6 +1478,67 @@ TADA_FlagCoordinates <- function(
   .data$TADA.SuspectCoordinates.Flag[is.na(
     .data$TADA.SuspectCoordinates.Flag
   )] <- "Pass"
+
+  # Optional StateCode / CountyCode coordinate consistency check
+  if (check_location_metadata == TRUE) {
+    counties <- tigris::counties(cb = TRUE, year = 2023, class = "sf") |>
+      dplyr::mutate(
+        CoordinateStateCode = STATEFP,
+        CoordinateCountyCode = COUNTYFP
+      ) |>
+      dplyr::select(CoordinateStateCode, CoordinateCountyCode, geometry) |>
+      sf::st_transform(4326)
+
+    pts <- .data |>
+      dplyr::mutate(.row_id = dplyr::row_number()) |>
+      sf::st_as_sf(
+        coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+        crs = 4326,
+        remove = FALSE
+      )
+
+    coord_metadata <- sf::st_join(pts, counties, join = sf::st_within) |>
+      sf::st_drop_geometry() |>
+      dplyr::select(.row_id, CoordinateStateCode, CoordinateCountyCode)
+
+    .data <- .data |>
+      dplyr::mutate(
+        .row_id = dplyr::row_number(),
+        StateCode = stringr::str_pad(as.character(StateCode), 2, pad = "0"),
+        CountyCode = stringr::str_pad(as.character(CountyCode), 3, pad = "0")
+      ) |>
+      dplyr::left_join(coord_metadata, by = ".row_id") |>
+      dplyr::mutate(
+        TADA.SuspectCoordinates.Flag = dplyr::case_when(
+          !is.na(StateCode) &
+            !is.na(CoordinateStateCode) &
+            StateCode != CoordinateStateCode ~ dplyr::if_else(
+            TADA.SuspectCoordinates.Flag == "Pass",
+            "Coordinate_StateMismatch",
+            paste(
+              TADA.SuspectCoordinates.Flag,
+              "Coordinate_StateMismatch",
+              sep = "; "
+            )
+          ),
+
+          !is.na(CountyCode) &
+            !is.na(CoordinateCountyCode) &
+            CountyCode != CoordinateCountyCode ~ dplyr::if_else(
+            TADA.SuspectCoordinates.Flag == "Pass",
+            "Coordinate_CountyMismatch",
+            paste(
+              TADA.SuspectCoordinates.Flag,
+              "Coordinate_CountyMismatch",
+              sep = "; "
+            )
+          ),
+
+          TRUE ~ TADA.SuspectCoordinates.Flag
+        )
+      ) |>
+      dplyr::select(-.row_id, -CoordinateStateCode, -CoordinateCountyCode)
+  }
 
   # if clean_imprecise is TRUE, remove imprecise station metadata
   if (clean_imprecise == TRUE) {
