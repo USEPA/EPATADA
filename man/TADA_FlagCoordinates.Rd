@@ -137,4 +137,11 @@ SuspectCoord_removed <- TADA_FlagCoordinates(
   clean_imprecise = TRUE
 )
 
+# Flag data with coordinates not matching metadata
+# from the dataframe:
+SuspectCoord_removed <- TADA_FlagCoordinates(
+  mock_coords,
+  check_location_metadata = TRUE
+)
+
 }
