@@ -3957,7 +3957,7 @@ TADA_MLSummary <- function(
     usesRef <- dplyr::filter(usesRef, IncludeOrExclude == "Include")
 
     # Identify all unique monitoring location id in the .data data frame to filter by.
-    unique_ML <- unique(MonitoringLocationIdentifier)
+    unique_ML <- unique(.data$MonitoringLocationIdentifier)
 
     # set a limit of 1k if we want to display all sites-param-use combinations.
     if (
