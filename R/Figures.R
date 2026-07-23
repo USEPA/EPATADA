@@ -1523,3 +1523,351 @@ TADA_GroupedScatterplot <- function(
   # return scatterplot (one) or list of scatterplots (multiple)
   return(all_scatterplots)
 }
+
+#' Create an Interactive Day-of-Year Plot
+#'
+#' @description
+#' Creates an interactive scatterplot of result values by day of year for one
+#' characteristic. Results can be filtered to one monitoring location or all
+#' monitoring locations and to selected year and month ranges. Points are
+#' colored by year.
+#'
+#' @param .data TADA dataframe containing data downloaded from the WQP, where
+#'   each row represents a unique data record. The dataframe must include
+#'   'ActivityStartDate', 'TADA.CharacteristicName',
+#'   'TADA.ResultMeasureValue', 'TADA.ResultMeasure.MeasureUnitCode', and either
+#'   'TADA.MonitoringLocationIdentifier' or 'MonitoringLocationIdentifier'.
+#'
+#' @param monitoringLocationIdentifier Monitoring location identifier to plot.
+#'   Defaults to 'all', which includes all monitoring locations in the input
+#'   dataframe. Only one monitoring location identifier can be selected.
+#'
+#' @param characteristicName A single value from 'TADA.CharacteristicName'
+#'   identifying the characteristic to plot.
+#'
+#' @param yearRange A numeric vector of length two specifying the minimum and
+#'   maximum years to include. Defaults to NULL, which includes all years in the
+#'   filtered dataframe.
+#'
+#' @param monthRange A numeric vector of length two specifying the minimum and
+#'   maximum months to include, using integers 1 through 12. Defaults to
+#'   c(1, 12), which includes all months.
+#'
+#' @return A plotly scatterplot showing result values by day of year, with
+#'   points colored by year.
+#'
+#' @export
+#'
+#' @examples
+#' # Load example dataset:
+#' utils::data(Data_Nutrients_UT)
+#'
+#' # Plot all available years and months for one characteristic and all sites:
+#' TADA_DayOfYearPlot(
+#'   Data_Nutrients_UT,
+#'   characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS"
+#' )
+#'
+#' # Plot one monitoring location over a selected year and month range:
+#' site_id <- unique(Data_Nutrients_UT$MonitoringLocationIdentifier)[1]
+#' TADA_DayOfYearPlot(
+#'   Data_Nutrients_UT,
+#'   monitoringLocationIdentifier = site_id,
+#'   characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS",
+#'   yearRange = c(2018, 2022),
+#'   monthRange = c(4, 10)
+#' )
+#'
+TADA_DayOfYearPlot <- function(
+    .data,
+    monitoringLocationIdentifier = "all",
+    characteristicName,
+    yearRange = NULL,
+    monthRange = c(1, 12)
+) {
+  # identify the monitoring location identifier column available in the data
+  if ("TADA.MonitoringLocationIdentifier" %in% names(.data)) {
+    location_col <- "TADA.MonitoringLocationIdentifier"
+  } else if ("MonitoringLocationIdentifier" %in% names(.data)) {
+    location_col <- "MonitoringLocationIdentifier"
+  } else {
+    stop(
+      "TADA_DayOfYearPlot: The input dataframe must include either ",
+      "'TADA.MonitoringLocationIdentifier' or ",
+      "'MonitoringLocationIdentifier'."
+    )
+  }
+  
+  # check .data is a data.frame and has required columns
+  required_cols <- c(
+    location_col,
+    "ActivityStartDate",
+    "TADA.CharacteristicName",
+    "TADA.ResultMeasureValue",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  )
+  TADA_CheckColumns(.data, required_cols)
+  
+  # characteristicName must identify one characteristic
+  if (missing(characteristicName) ||
+      is.null(characteristicName) ||
+      length(characteristicName) != 1 ||
+      is.na(characteristicName)) {
+    stop(
+      "TADA_DayOfYearPlot: 'characteristicName' must contain one non-missing value."
+    )
+  }
+  
+  if (!characteristicName %in% .data$TADA.CharacteristicName) {
+    stop(
+      "TADA_DayOfYearPlot: 'characteristicName' was not found in ",
+      "TADA.CharacteristicName. Check spelling and try again."
+    )
+  }
+  
+  # monitoringLocationIdentifier must be one location or 'all'
+  if (length(monitoringLocationIdentifier) != 1 ||
+      is.na(monitoringLocationIdentifier)) {
+    stop(
+      "TADA_DayOfYearPlot: 'monitoringLocationIdentifier' must be one ",
+      "monitoring location identifier or 'all'."
+    )
+  }
+  
+  available_locations <- unique(.data[[location_col]])
+  if (tolower(as.character(monitoringLocationIdentifier)) != "all" &&
+      !monitoringLocationIdentifier %in% available_locations) {
+    stop(
+      "TADA_DayOfYearPlot: The selected monitoring location identifier was ",
+      "not found in the input dataframe."
+    )
+  }
+  
+  # validate month range
+  if (!is.numeric(monthRange) ||
+      length(monthRange) != 2 ||
+      any(is.na(monthRange)) ||
+      any(monthRange < 1 | monthRange > 12) ||
+      monthRange[1] > monthRange[2]) {
+    stop(
+      "TADA_DayOfYearPlot: 'monthRange' must be an increasing numeric ",
+      "vector of length two with values from 1 through 12."
+    )
+  }
+  
+  plot.data <- as.data.frame(.data)
+  plot.data$ActivityStartDate <- as.Date(plot.data$ActivityStartDate)
+  
+  invalid_dates <- sum(is.na(plot.data$ActivityStartDate))
+  if (invalid_dates > 0) {
+    message(
+      "TADA_DayOfYearPlot: Removed ",
+      invalid_dates,
+      " results with missing or invalid ActivityStartDate values."
+    )
+  }
+  
+  # create date fields used for filtering and plotting
+  plot.data <- plot.data |>
+    dplyr::filter(
+      !is.na(ActivityStartDate),
+      !is.na(TADA.ResultMeasureValue),
+      TADA.CharacteristicName == characteristicName
+    ) |>
+    dplyr::mutate(
+      Year = as.integer(format(ActivityStartDate, "%Y")),
+      Month = as.integer(format(ActivityStartDate, "%m")),
+      DayOfYear = as.integer(format(ActivityStartDate, "%j"))
+    )
+  
+  # filter to one monitoring location when selected
+  if (tolower(as.character(monitoringLocationIdentifier)) != "all") {
+    plot.data <- plot.data |>
+      dplyr::filter(
+        .data[[location_col]] == monitoringLocationIdentifier
+      )
+  }
+  
+  # default to the full available year range after characteristic/site filtering
+  if (is.null(yearRange)) {
+    if (nrow(plot.data) == 0) {
+      message("TADA_DayOfYearPlot: No data are available to plot; returning NULL.")
+      return(NULL)
+    }
+    yearRange <- range(plot.data$Year, na.rm = TRUE)
+  }
+  
+  # validate year range
+  if (!is.numeric(yearRange) ||
+      length(yearRange) != 2 ||
+      any(is.na(yearRange)) ||
+      yearRange[1] > yearRange[2]) {
+    stop(
+      "TADA_DayOfYearPlot: 'yearRange' must be an increasing numeric vector ",
+      "of length two."
+    )
+  }
+  
+  # apply year and month filters
+  plot.data <- plot.data |>
+    dplyr::filter(
+      Year >= yearRange[1],
+      Year <= yearRange[2],
+      Month >= monthRange[1],
+      Month <= monthRange[2]
+    ) |>
+    dplyr::arrange(Year, DayOfYear)
+  
+  if (nrow(plot.data) == 0) {
+    message(
+      "TADA_DayOfYearPlot: No data matched the selected characteristic, ",
+      "monitoring location, year range, and month range; returning NULL."
+    )
+    return(NULL)
+  }
+  
+  # one y-axis cannot accurately display results reported in multiple units
+  units <- unique(stats::na.omit(
+    plot.data$TADA.ResultMeasure.MeasureUnitCode
+  ))
+  if (length(units) > 1) {
+    stop(
+      "TADA_DayOfYearPlot: The filtered data contain multiple result units: ",
+      paste(units, collapse = ", "),
+      ". Filter or harmonize the data so only one result unit is plotted."
+    )
+  }
+  unit <- if (length(units) == 0) "Result Value" else units
+  
+  # add optional fields used in hover text when they are not present
+  optional_cols <- c(
+    "MonitoringLocationName",
+    "OrganizationFormalName",
+    "ActivityStartDateTime"
+  )
+  for (col in optional_cols) {
+    if (!col %in% names(plot.data)) {
+      plot.data[[col]] <- NA_character_
+    }
+  }
+  
+  # create a discrete color palette for the available years
+  tada.pal <- TADA_ColorPalette(col_pair = TRUE)
+  years <- sort(unique(plot.data$Year))
+  n.years <- length(years)
+  
+  year.colors <- if (n.years <= nrow(tada.pal)) {
+    tada.pal[seq_len(n.years), 1]
+  } else {
+    grDevices::colorRampPalette(tada.pal[, 1])(n.years)
+  }
+  
+  location_title <- if (
+    tolower(as.character(monitoringLocationIdentifier)) == "all"
+  ) {
+    "All Monitoring Locations"
+  } else {
+    as.character(monitoringLocationIdentifier)
+  }
+  
+  title <- stringr::str_wrap(
+    paste0(
+      TADA_CharStringRemoveNANone(characteristicName),
+      " by Day of Year: ",
+      location_title
+    ),
+    width = 55
+  )
+  
+  # construct one plotly trace per year so years are discrete and can be
+  # independently shown or hidden using the interactive legend
+  day_of_year_plot <- plotly::plot_ly(type = "scatter", mode = "markers")
+  
+  for (i in seq_along(years)) {
+    year.data <- subset(plot.data, plot.data$Year == years[i])
+    
+    day_of_year_plot <- day_of_year_plot |>
+      plotly::add_trace(
+        data = year.data,
+        x = ~DayOfYear,
+        y = ~TADA.ResultMeasureValue,
+        name = as.character(years[i]),
+        marker = list(
+          size = 7,
+          opacity = 0.75,
+          color = year.colors[i],
+          line = list(color = tada.pal[1, 2], width = 0.5)
+        ),
+        hoverinfo = "text",
+        hovertext = paste(
+          "Result:",
+          paste0(
+            year.data$TADA.ResultMeasureValue,
+            " ",
+            year.data$TADA.ResultMeasure.MeasureUnitCode
+          ),
+          "<br>",
+          "Activity Start Date:",
+          year.data$ActivityStartDate,
+          "<br>",
+          "Day of Year:",
+          year.data$DayOfYear,
+          "<br>",
+          "Year:",
+          year.data$Year,
+          "<br>",
+          "Monitoring Location Identifier:",
+          year.data[[location_col]],
+          "<br>",
+          "Monitoring Location Name:",
+          year.data$MonitoringLocationName,
+          "<br>",
+          "Organization Name:",
+          year.data$OrganizationFormalName,
+          "<br>",
+          "Activity Start Date Time:",
+          year.data$ActivityStartDateTime,
+          "<br>"
+        )
+      )
+  }
+  
+  # figure margin
+  mrg <- list(l = 50, r = 20, b = 50, t = 75, pad = 0)
+  
+  # day-of-year plot layout and labels
+  day_of_year_plot <- day_of_year_plot |>
+    plotly::layout(
+      xaxis = list(
+        title = "Day of Year",
+        titlefont = list(size = 16, family = "Arial"),
+        tickfont = list(size = 16, family = "Arial"),
+        range = c(1, 366),
+        dtick = 50,
+        linecolor = "black",
+        showgrid = FALSE,
+        tickcolor = "black"
+      ),
+      yaxis = list(
+        title = paste(characteristicName, unit),
+        titlefont = list(size = 16, family = "Arial"),
+        tickfont = list(size = 16, family = "Arial"),
+        hoverformat = ",.4r",
+        linecolor = "black",
+        showgrid = FALSE,
+        tickcolor = "black"
+      ),
+      legend = list(
+        title = list(text = "<b>Year</b>"),
+        itemclick = "toggle",
+        itemdoubleclick = "toggleothers"
+      ),
+      hoverlabel = list(bgcolor = "white"),
+      title = title,
+      plot_bgcolor = "#e5ecf6",
+      margin = mrg
+    ) |>
+    plotly::config(displaylogo = FALSE)
+  
+  return(day_of_year_plot)
+}
