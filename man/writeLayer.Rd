@@ -2,25 +2,27 @@
 % Please edit documentation in R/Utilities.R
 \name{writeLayer}
 \alias{writeLayer}
-\title{Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists
+\title{Download a spatial file from an API and save it to a local folder, overwriting existing file if it exists
 writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.}
 \usage{
-writeLayer(url, layerfilepath)
+writeLayer(url, layerfilepath, layername)
 }
 \arguments{
 \item{url}{URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)}
 
-\item{layerfilepath}{Local path to save the .shp file to}
+\item{layerfilepath}{Local path to save the .gpkg file}
+
+\item{layername}{Name of the layer within the .gpkg file}
 }
 \description{
-Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists
+Download a spatial file from an API and save it to a local folder, overwriting existing file if it exists
 writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
 }
 \examples{
 \dontrun{
 # Get the Oklahoma Tribal Statistical Areas feature layer and write
-# local file to inst/extdata/OKTribe.shp
+# local file to inst/extdata/Tribal.gpkg/OKTribe
 OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
-writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")
+writeLayer(OKTribeUrl, "inst/extdata/Tribal.gpkg","OKTribe")
 }
 }

@@ -206,6 +206,8 @@ MonitoringLocationType
 MonitoringLocationTypeName
 MonitoringLocations
 Msr
+MultipleOrgDup
+MultipleOrgDupGroupID
 NCTC
 NDs
 NHD
@@ -320,7 +322,6 @@ SeasonStartDate
 Signup
 SimpleCensoredMethods
 SingleOrgDup
-SingleOrgDupGroupID
 SiteGroup
 Speciation
 SpeciationAssumptions
@@ -488,6 +489,7 @@ flowlines
 fullPhysChem
 geeksforgeeks
 geo
+geopackage
 geopub
 geospatial
 geospatially
@@ -502,6 +504,7 @@ getenv
 ggplot
 github
 gitignore
+gpkg
 helpdesk
 https
 huc
@@ -556,6 +559,7 @@ rExpertQuery
 randombelowlimit
 rda
 readWQPdata
+recomputation
 renameATTAINSCols
 reportingCycle
 resultCount
@@ -565,7 +569,6 @@ secchi
 setEQKey
 setnames
 showMissingATTAINSAUs
-shp
 siteType
 siteid
 sitetype

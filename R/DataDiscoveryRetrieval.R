@@ -155,9 +155,9 @@
 #'   ask = FALSE
 #' )
 #'
-#' # query by shapefile for Navajo Nation
+#' # query American Indian layer for Navajo Nation
 #'
-#' navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") |>
+#' navajo_sf <- sf::read_sf("inst/extdata/tribal.gpkg","AmericanIndian") |>
 #'   dplyr::filter(NAME == "Navajo Nation")
 #'
 #' tada7 <- TADA_DataRetrieval(
@@ -1479,7 +1479,7 @@ TADA_JoinWQPProfiles <- function(
   Projects.df <- Projects
 
   # Join station data to full phys/chem (FullPhysChem.df)
-  if (length(Sites.df > 1)) {
+  if (length(Sites.df) > 1) {
     if (nrow(Sites.df) > 0) {
       join1 <- FullPhysChem.df |>
         # join stations to results

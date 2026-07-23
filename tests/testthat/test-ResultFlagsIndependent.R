@@ -1,50 +1,49 @@
 test_that("SuspectCoordinates works", {
-  # flagonly
+  # Flag suspect coordinates
   SuspectCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
-  unique(SuspectCoord_flags$TADA.SuspectCoordinates)
-  reviewselectcolumns <- SuspectCoord_flags |>
-    dplyr::select(
-      TADA.SuspectCoordinates.Flag,
-      TADA.LatitudeMeasure,
-      TADA.LongitudeMeasure
-    )
-  reviewflagsonly <- dplyr::filter(
-    reviewselectcolumns,
-    is.na(TADA.SuspectCoordinates.Flag) != TRUE
-  )
-  unique(reviewflagsonly$TADA.SuspectCoordinates.Flag)
 
-  # removeimprecise
+  expect_true("TADA.SuspectCoordinates.Flag" %in% names(SuspectCoord_flags))
+
+  expect_false(any(is.na(SuspectCoord_flags$TADA.SuspectCoordinates.Flag)))
+
+  # Remove imprecise coordinates
   ImpreciseCoord_removed <- TADA_FlagCoordinates(
     Data_Nutrients_UT,
     clean_imprecise = TRUE
   )
-  unique(ImpreciseCoord_removed$TADA.SuspectCoordinates.Flag)
 
-  expect_true(any(
-    ImpreciseCoord_removed$TADA.SuspectCoordinates.Flag !=
-      "Imprecise_lessthan3decimaldigits"
-  ))
+  expect_false(any(stringr::str_detect(
+    ImpreciseCoord_removed$TADA.SuspectCoordinates.Flag,
+    stringr::fixed("Imprecise_lessthan3decimaldigits")
+  )))
 
   # Remove data with coordinates outside the USA, but keep flagged data with imprecise coordinates:
   OutsideUSACoord_removed <- TADA_FlagCoordinates(
     Data_Nutrients_UT,
     clean_outsideUSA = "remove"
   )
-  unique(OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag)
 
-  expect_true(any(
-    OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag != "LONG_OutsideUSA" |
-      OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag != "LAT_OutsideUSA"
-  ))
+  expect_false(any(stringr::str_detect(
+    OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag,
+    "LAT_OutsideUSA|LONG_OutsideUSA"
+  )))
 
-  ## Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
+  # Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
   Suspect_removed <- TADA_FlagCoordinates(
     Data_Nutrients_UT,
     clean_outsideUSA = "remove",
     clean_imprecise = TRUE
   )
-  unique(Suspect_removed$TADA.SuspectCoordinates.Flag)
+
+  expect_false(any(stringr::str_detect(
+    Suspect_removed$TADA.SuspectCoordinates.Flag,
+    paste(
+      "Imprecise_lessthan3decimaldigits",
+      "LAT_OutsideUSA",
+      "LONG_OutsideUSA",
+      sep = "|"
+    )
+  )))
 })
 
 
@@ -148,14 +147,36 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 })
 
 test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
-  testdat <- Data_R5_TADAPackageDemo
-  testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat) |>
-    dplyr::filter(StateCode == "17")
+  testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
+
+  testthat::skip_if(
+    is.null(testdat) || NROW(testdat) == 0,
+    "Empty test data; skipping test."
+  )
+
+  testdat <- tryCatch(
+    TADA_FindPotentialDuplicatesMultipleOrgs(testdat),
+    error = function(e) {
+      if (
+        grepl(
+          "HTTP 502|Bad Gateway|NHD",
+          conditionMessage(e),
+          ignore.case = TRUE
+        )
+      ) {
+        testthat::skip("NHD service unavailable; skipping test.")
+      }
+      stop(e)
+    }
+  )
 
   testdat1 <- testdat |>
-    dplyr::select(TADA.NearbySiteGroup) |>
-    dplyr::distinct() |>
-    dplyr::pull() |>
+    dplyr::distinct(TADA.NearbySiteGroup) |>
+    dplyr::filter(
+      !is.na(TADA.NearbySiteGroup),
+      grepl("^[0-9]+$", TADA.NearbySiteGroup)
+    ) |>
+    dplyr::pull(TADA.NearbySiteGroup) |>
     as.numeric() |>
     sort()
 
@@ -167,9 +188,8 @@ test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multi
     as.numeric() |>
     sort()
 
-  expect_true(length(unique(diff(testdat1))) < 2 | length(testdat1 == 0))
-
-  expect_true(length(unique(diff(testdat2))) < 2 | length(testdat2 == 0))
+  expect_true(length(testdat1) == 0 || length(unique(diff(testdat1))) < 2)
+  expect_true(length(testdat2) == 0 || length(unique(diff(testdat2))) < 2)
 })
 
 test_that("TADA_FindPotentialDuplicatesMultipleOrgs has non-NA values for each row in columns added in function", {
@@ -249,4 +269,46 @@ test_that("QC results are not flagged as Continuous", {
   if (nrow(cont_QC_filt) == 0) {
     expect_true(nrow(cont_QC_disc) > 0)
   }
+})
+
+test_that("check_location_metadata flags StateCode and CountyCode mismatches", {
+  testdat <- dplyr::tibble(
+    TADA.LatitudeMeasure = c(44.9509, 44.9509, 44.9509),
+    TADA.LongitudeMeasure = c(-89.7590, -89.7590, -89.7590),
+    StateCode = c("55", "17", "55"),
+    CountyCode = c("073", "073", "067")
+  )
+
+  out <- TADA_FlagCoordinates(testdat, check_location_metadata = TRUE)
+
+  expect_equal(out$TADA.SuspectCoordinates.Flag[1], "Pass")
+  expect_equal(out$TADA.SuspectCoordinates.Flag[2], "Coordinate_StateMismatch")
+  expect_equal(out$TADA.SuspectCoordinates.Flag[3], "Coordinate_CountyMismatch")
+})
+
+test_that("check_location_metadata flags StateCode and CountyCode mismatches", {
+  testdat <- dplyr::tibble(
+    TADA.LatitudeMeasure = c(44.9509, 44.9509, 44.9509, 44.95),
+    TADA.LongitudeMeasure = c(-89.7590, -89.7590, -89.7590, -89.75),
+    StateCode = c("55", "17", "55", "17"),
+    CountyCode = c("073", "073", "067", "073")
+  )
+
+  out <- TADA_FlagCoordinates(testdat, check_location_metadata = TRUE)
+
+  expect_equal(out$TADA.SuspectCoordinates.Flag[1], "Pass")
+
+  expect_equal(out$TADA.SuspectCoordinates.Flag[2], "Coordinate_StateMismatch")
+
+  expect_equal(out$TADA.SuspectCoordinates.Flag[3], "Coordinate_CountyMismatch")
+
+  expect_true(stringr::str_detect(
+    out$TADA.SuspectCoordinates.Flag[4],
+    stringr::fixed("Imprecise_lessthan3decimaldigits")
+  ))
+
+  expect_true(stringr::str_detect(
+    out$TADA.SuspectCoordinates.Flag[4],
+    stringr::fixed("Coordinate_StateMismatch")
+  ))
 })
