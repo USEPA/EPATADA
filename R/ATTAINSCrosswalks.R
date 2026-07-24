@@ -4881,50 +4881,49 @@ TADA_ReviewATTAINSWaterTypes <- function(
   }
 
   # review_action == "update"
-  if(review_action == "update") {
+  if (review_action == "update") {
+    cw <- build_attains_water_type_crosswalk()
 
-  cw <- build_attains_water_type_crosswalk()
-
-  update_lookup <- invalid_lookup |>
-    dplyr::left_join(
-      cw,
-      by = dplyr::join_by(TADA.MonitoringLocationTypeName)
-    ) |>
-    dplyr::transmute(
-      TADA.MonitoringLocationIdentifier,
-      TADA.MonitoringLocationTypeName,
-      New.ATTAINS.WaterType = TADA.ATTAINS.WaterType,
-      TADA.ATTAINSWaterType.Flag = dplyr::if_else(
-        !is.na(New.ATTAINS.WaterType),
-        "ATTAINS.WaterType was updated to match an allowable ATTAINS.WaterType value by crosswalking TADA.MonitoringLocationTypeName.",
-        "ATTAINS.WaterType set to NA as no ATTAINS.WaterType value was found for this TADA.MonitoringLocationTypeName."
-      )
-    )
-
-  .data <- .data |>
-    dplyr::left_join(
-      update_lookup,
-      by = dplyr::join_by(
+    update_lookup <- invalid_lookup |>
+      dplyr::left_join(
+        cw,
+        by = dplyr::join_by(TADA.MonitoringLocationTypeName)
+      ) |>
+      dplyr::transmute(
         TADA.MonitoringLocationIdentifier,
-        TADA.MonitoringLocationTypeName
-      ),
-      relationship = "many-to-many"
-    ) |>
-    dplyr::mutate(
-      ATTAINS.WaterType = dplyr::coalesce(
-        New.ATTAINS.WaterType,
-        ATTAINS.WaterType
-      ),
-      TADA.ATTAINSWaterType.Flag = dplyr::if_else(
-        is.na(TADA.ATTAINSWaterType.Flag),
-        "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value.",
-        TADA.ATTAINSWaterType.Flag
+        TADA.MonitoringLocationTypeName,
+        New.ATTAINS.WaterType = TADA.ATTAINS.WaterType,
+        TADA.ATTAINSWaterType.Flag = dplyr::if_else(
+          !is.na(New.ATTAINS.WaterType),
+          "ATTAINS.WaterType was updated to match an allowable ATTAINS.WaterType value by crosswalking TADA.MonitoringLocationTypeName.",
+          "ATTAINS.WaterType set to NA as no ATTAINS.WaterType value was found for this TADA.MonitoringLocationTypeName."
+        )
       )
-    ) |>
-    dplyr::select(-New.ATTAINS.WaterType)
 
-  .data |> TADA_OrderCols()
+    .data <- .data |>
+      dplyr::left_join(
+        update_lookup,
+        by = dplyr::join_by(
+          TADA.MonitoringLocationIdentifier,
+          TADA.MonitoringLocationTypeName
+        ),
+        relationship = "many-to-many"
+      ) |>
+      dplyr::mutate(
+        ATTAINS.WaterType = dplyr::coalesce(
+          New.ATTAINS.WaterType,
+          ATTAINS.WaterType
+        ),
+        TADA.ATTAINSWaterType.Flag = dplyr::if_else(
+          is.na(TADA.ATTAINSWaterType.Flag),
+          "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value.",
+          TADA.ATTAINSWaterType.Flag
+        )
+      ) |>
+      dplyr::select(-New.ATTAINS.WaterType)
 
-  return(.data)
-}
+    .data |> TADA_OrderCols()
+
+    return(.data)
+  }
 }
