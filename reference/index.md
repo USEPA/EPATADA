@@ -393,10 +393,10 @@
   : View TADA Color Palette
 
 - [`TADA_addPoints()`](https://usepa.github.io/EPATADA/reference/TADA_addPoints.md)
-  : Add points from an ArcGIS feature layer to a leaflet map
+  : Add points from a layer to a leaflet map
 
 - [`TADA_addPolys()`](https://usepa.github.io/EPATADA/reference/TADA_addPolys.md)
-  : Add polygons from an ArcGIS feature layer to a leaflet map
+  : Add polygons from a layer to a leaflet map
 
 - [`addATTAINS()`](https://usepa.github.io/EPATADA/reference/addATTAINS.md)
   : addATTAINS Internal function to add ATTAINS assessment units (lines,
@@ -487,11 +487,6 @@
   : Retrieve feature layer from ArcGIS REST service getFeatureLayer is
   used by writeLayer to write feature layers to local files
 
-- [`getLayer()`](https://usepa.github.io/EPATADA/reference/getLayer.md)
-  : Get a spatial file from a local folder, optionally crop it by a
-  bounding box, and return it as a sf object getLayer is used within
-  TADA_addPolys and TADA_addPoints
-
 - [`getMapIconLabels()`](https://usepa.github.io/EPATADA/reference/getMapIconLabels.md)
   : getMapIconLabels
 
@@ -514,6 +509,11 @@
 
 - [`quiet()`](https://usepa.github.io/EPATADA/reference/quiet.md) :
   Silence Print Messages from Code Execution
+
+- [`readLayer()`](https://usepa.github.io/EPATADA/reference/readLayer.md)
+  : Read a spatial file from a local folder, optionally crop it by a
+  bounding box, and return it as a sf object readLayer is used within
+  TADA_addPolys and TADA_addPoints
 
 - [`renameATTAINSCols()`](https://usepa.github.io/EPATADA/reference/renameATTAINSCols.md)
   : renameATTAINSCols

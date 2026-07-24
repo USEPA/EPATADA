@@ -28,8 +28,8 @@ a tribal marker
 
 ``` r
 if (FALSE) { # \dontrun{
-# Get the Oklahoma Tribal Statistical Areas feature layer
-layer <- getLayer("extdata/OKTribe.shp")
+# Read in the Oklahoma Tribal Statistical Areas layer
+layer <- readLayer("extdata", "Tribal.gpkg", "OKTribe")
 # Get popup text for individual markers
 getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
 } # }

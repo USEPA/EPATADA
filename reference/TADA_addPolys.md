@@ -1,6 +1,6 @@
-# Add polygons from an ArcGIS feature layer to a leaflet map
+# Add polygons from a layer to a leaflet map
 
-Add polygons from an ArcGIS feature layer to a leaflet map
+Add polygons from a layer to a leaflet map
 
 ## Usage
 

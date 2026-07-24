@@ -187,7 +187,6 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/getATTAINSColorsRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/getBboxJson.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/getFeatureLayer.html</loc></url>
-<url><loc>https://usepa.github.io/EPATADA/reference/getLayer.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/getMapIconLabels.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/getTribalPopup.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/getWQPSiteStats.html</loc></url>
@@ -196,6 +195,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/prepATTAINSMapper.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/prepAllATTAINSMapper.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/quiet.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/readLayer.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/renameATTAINSCols.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/showMissingATTAINSAUs.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/wqx3_fullPhysChem.html</loc></url>
