@@ -4641,6 +4641,16 @@ build_attains_water_type_crosswalk <- function(
 #'
 #' @return A TADA data frame with ATTAINS.WaterType populated.
 #' @export
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#' # example for MT data
+#' testdat <- Data_MT_MissoulaCounty
+#'
+#' crosswalk <- TADA_CrosswalkATTAINSWaterTypes(testat, org_Id = "MTDEQ")
+#' }
 TADA_CrosswalkATTAINSWaterTypes <- function(
   .data,
   org_id = NULL,
@@ -4779,11 +4789,22 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' @param review_action Character string. One of "flag" or "update".
 #'
 #' @return A TADA data frame with `TADA.ATTAINSWaterType.Flag` added.
-#' If `review_action = "update"`, invalid values may also be replaced.
+#' If `review_action = "update"`, invalid values may also be replaced if an
+#' ATTAINS water type match is available.
 #' @export
 #'
 #' @examples
+#'
 #' \dontrun{
+#'
+#' # example of updating invalid ATTAINS water types
+#' example.df <- tibble::tibble(
+#' TADA.MonitoringLocationIdentifier = c("id1", "id2"),
+#' TADA.MonitoringLocationTypeName = c("RIVER/STREAM", "LAKE"),
+#' ATTAINS.WaterType = c("INVALID WATER TYPE 1", "INVALID WATER TYPE 2")
+#' )
+#'
+#' review.df <- TADA_ReviewATTAINSWaterTypes(df, review_action = "update")
 #' }
 TADA_ReviewATTAINSWaterTypes <- function(
   .data,
@@ -4860,6 +4881,8 @@ TADA_ReviewATTAINSWaterTypes <- function(
   }
 
   # review_action == "update"
+  if(review_action == "update") {
+
   cw <- build_attains_water_type_crosswalk()
 
   update_lookup <- invalid_lookup |>
@@ -4901,4 +4924,7 @@ TADA_ReviewATTAINSWaterTypes <- function(
     dplyr::select(-New.ATTAINS.WaterType)
 
   .data |> TADA_OrderCols()
+
+  return(.data)
+}
 }
