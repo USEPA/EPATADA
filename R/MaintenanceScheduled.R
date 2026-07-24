@@ -43,7 +43,6 @@
     {
       .TADA_UpdateATTAINSOrgIDsRef()
       .TADA_UpdateATTAINSParamUseOrgRef() # takes a long time, this is the Assessments Profile (Expert Query National Extract)
-      .TADA_UpdateATTAINSWaterTypeByOrg() # this can take a while to run as it requires downloaing the national extract for Assessment Units
     },
     error = function(e) {
       message("Error updating ATTAINS reference tables: ", e$message)
@@ -107,6 +106,22 @@
   )
 }
 
+#' Update Example Data for EPATADA Package (Internal)
+#'
+#' This internal function retrieves, processes, and saves various datasets for the EPATADA package.
+#'
+#' @details
+#' The function fetches data from specified sources based on given parameters, processes it using
+#' several functions from the EPATADA package, and saves the processed datasets as `.rda` files
+#' for use within the package. The datasets include nutrient data for Utah, tribal data over five years,
+#' harmonized datasets, and more.
+#'
+#' @return None. The function saves processed data files in the package's `data/` directory.
+#'
+#' @examples
+#' \dontrun{
+#' .TADA_UpdateExampleData()
+#' }
 #' Update Example Data for EPATADA Package (Internal)
 #'
 #' This internal function retrieves, processes, and saves various datasets for the EPATADA package.
