@@ -1467,8 +1467,8 @@ writeLayer <- function(url, layerfilepath, layername) {
   sf::st_write(feature, layerfilepath, layer = layername, delete_layer = TRUE)
 }
 
-#' Get a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
-#' getLayer is used within TADA_addPolys and TADA_addPoints
+#' Read a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
+#' readLayer is used within TADA_addPolys and TADA_addPoints
 #'
 #' @param layerfilepath Local path to the data folder containing the .gpkg file
 #' @param gpkg name of the .gpkg file
@@ -1481,7 +1481,7 @@ writeLayer <- function(url, layerfilepath, layername) {
 #' # Load example dataset
 #' utils::data(Data_TribalNations_Harmonized)
 #'
-#' # Get the bounding box of the data
+#' # Use the example dataset bounding box
 #' bbox <- sf::st_bbox(
 #'   c(
 #'     xmin = min(Data_TribalNations_Harmonized$TADA.LongitudeMeasure),
@@ -1492,15 +1492,15 @@ writeLayer <- function(url, layerfilepath, layername) {
 #'   crs = sf::st_crs(Data_TribalNations_Harmonized)
 #' )
 #'
-#' # Get the American Indian Reservations feature layer,
+#' # Read the American Indian Reservations feature layer,
 #' # filtered by the bounding box for the Data_TribalNations_Harmonized
 #' # example dataset
 #' layerfilepath <- "extdata"
 #' gpkg <- "Tribal.gpkg"
 #' layer <- "AmericanIndian"
-#' getLayer(layerfilepath, gpkg, layer)
+#' readLayer(layerfilepath, gpkg, layer)
 #' }
-getLayer <- function(layerfilepath, gpkg, layer, bbox = NULL) {
+readLayer <- function(layerfilepath, gpkg, layer, bbox = NULL) {
   gpkg_path <- system.file(layerfilepath, gpkg, package = "EPATADA")
   layer <- sf::read_sf(dsn = gpkg_path, layer, quiet = TRUE)
   if (!(is.null(bbox))) {
@@ -1520,8 +1520,8 @@ getLayer <- function(layerfilepath, gpkg, layer, bbox = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' # Get the Oklahoma Tribal Statistical Areas feature layer
-#' layer <- getLayer("extdata/OKTribe.shp")
+#' # Read in the Oklahoma Tribal Statistical Areas layer
+#' layer <- readLayer("extdata", "Tribal.gpkg", "OKTribe")
 #' # Get popup text for individual markers
 #' getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
 #' }
@@ -1580,7 +1580,7 @@ getTribalPopup <- function(layer, layername) {
   return(popups)
 }
 
-#' Add polygons from an ArcGIS feature layer to a leaflet map
+#' Add polygons from a spatial layer to a leaflet map
 #'
 #' @param map A leaflet map
 #' @param layerfilepath Local path to the data folder containing the .gpkg file
@@ -1612,7 +1612,7 @@ TADA_addPolys <- function(
   layername,
   bbox = NULL
 ) {
-  layer <- getLayer(layerfilepath, gpkg, layer, bbox)
+  layer <- readLayer(layerfilepath, gpkg, layer, bbox)
   if (is.null(layer)) {
     return(map)
   }
@@ -1648,7 +1648,7 @@ TADA_addPolys <- function(
   return(map)
 }
 
-#' Add points from an ArcGIS feature layer to a leaflet map
+#' Add points from a spatial layer to a leaflet map
 #'
 #' @param map A leaflet map
 #' @param layerfilepath Local path to the data folder containing the .gpkg file
@@ -1681,7 +1681,7 @@ TADA_addPoints <- function(
   layername,
   bbox = NULL
 ) {
-  layer <- getLayer(layerfilepath, gpkg, layer, bbox)
+  layer <- readLayer(layerfilepath, gpkg, layer, bbox)
   if (is.null(layer)) {
     return(map)
   }
@@ -1689,7 +1689,9 @@ TADA_addPoints <- function(
   if (is.na(lbbox[1])) {
     return(map)
   }
-  shapes <- c(2) # open triangle; for other options see https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/
+  # 2 is open triangle
+  # For other options see https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/
+  shapes <- c(2)
   iconFiles <- pchIcons(
     shapes,
     width = 20,
