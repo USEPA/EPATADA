@@ -4732,7 +4732,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   .data
 }
 
-#' Create an ATTAINS AU–ML Crosswalk from WQP Monitoring Location IDs
+#' Create an ATTAINS AU–ML Crosswalk from WQP Monitoring Location IDs for New Point AUs
 #'
 #' Build a distinct crosswalk between WQP Monitoring Locations and ATTAINS
 #' Assessment Units. For rows where `ATTAINS.AssessmentUnitIdentifier` is
@@ -4747,6 +4747,15 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #'
 #' @param .data A data frame containing, at minimum:
 #'   - `TADA.MonitoringLocationIdentifier`
+#' @param create_geo Boolean argument. When create_geo equals true, the output
+#' will be a shp file ready for upload to ATTAINS. When create_geo equals false,
+#' the input will be a df of the crosswalk. Default is create_geo equals false.
+#'
+#'   If creating a GIS batch upload file for ATTAINS is desired, the input must
+#'   also contain:
+#'   - `TADA.LatitudeMeasure`
+#'   - `TADA.LongitudeMeasure`
+#'   - `HorizontalCoordinateReferenceSystemDatumName`
 #'
 #'   If missing water-type values need to be crosswalked, the input must also
 #'   contain:
@@ -4811,8 +4820,21 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' }
 #'
 #' @export
-TADA_CreatePointAUs <- function(.data, auid_prefix = NULL) {
+TADA_CreatePointAUs <- function(.data, auid_prefix = NULL, create_geo = FALSE) {
+
   req <- c("TADA.MonitoringLocationIdentifier")
+
+  retain <- c("ATTAINS.MonitoringLocationIdentifier",
+              "ATTAINS.AssessmentUnitIdentifier",
+              "ATTAINS.WaterType")
+
+  if(isTRUE(create_geo)) {
+    req <- c(req, "TADA.LatitudeMeasure", "TADA.LongitudeMeasure",
+             "HorizontalCoordinateReferenceSystemDatumName")
+
+    retain <- c("ATTAINS.AssessmentUnitIdentifier",
+                "geometry")
+  }
   missing <- setdiff(req, names(.data))
   if (length(missing) > 0) {
     stop(
@@ -4832,6 +4854,7 @@ TADA_CreatePointAUs <- function(.data, auid_prefix = NULL) {
     .data$ATTAINS.AssessmentUnitIdentifier
   )
 
+  if(isFALSE(create_geo)) {
   need_crosswalk <- !("ATTAINS.WaterType" %in% names(.data)) ||
     any(
       is.na(.data$ATTAINS.WaterType) |
@@ -4852,6 +4875,7 @@ TADA_CreatePointAUs <- function(.data, auid_prefix = NULL) {
       validation = "none"
     )
   }
+  }
 
   created_AUID <- is.na(.data$ATTAINS.AssessmentUnitIdentifier) |
     trimws(.data$ATTAINS.AssessmentUnitIdentifier) == ""
@@ -4869,11 +4893,15 @@ TADA_CreatePointAUs <- function(.data, auid_prefix = NULL) {
 
   .data$ATTAINS.MonitoringLocationIdentifier <- .data$TADA.MonitoringLocationIdentifier
 
+  if(isTRUE(create_geo)) {
+    .data <- TADA_CreatePointAUGeometry(.data)
+  }
+
   .data |>
     dplyr::select(
-      ATTAINS.MonitoringLocationIdentifier,
-      ATTAINS.AssessmentUnitIdentifier,
-      ATTAINS.WaterType
+       dplyr::all_of(retain)
     ) |>
     dplyr::distinct()
 }
+
+
