@@ -1580,7 +1580,7 @@ getTribalPopup <- function(layer, layername) {
   return(popups)
 }
 
-#' Add polygons from a layer to a leaflet map
+#' Add polygons from a spatial layer to a leaflet map
 #'
 #' @param map A leaflet map
 #' @param layerfilepath Local path to the data folder containing the .gpkg file
@@ -1648,7 +1648,7 @@ TADA_addPolys <- function(
   return(map)
 }
 
-#' Add points from a layer to a leaflet map
+#' Add points from a spatial layer to a leaflet map
 #'
 #' @param map A leaflet map
 #' @param layerfilepath Local path to the data folder containing the .gpkg file
