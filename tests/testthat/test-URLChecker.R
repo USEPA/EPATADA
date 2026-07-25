@@ -89,17 +89,18 @@ testthat::test_that("URLs are not broken", {
     pattern = "\\.Rmd$",
     full.names = TRUE
   )
-  articles <- list.files(
-    file.path(workspace_dir, "vignettes", "articles"),
-    pattern = "\\.Rmd$",
-    full.names = TRUE
-  )
+  # no articles 
+  # articles <- list.files(
+  #   file.path(workspace_dir, "vignettes", "articles"),
+  #   pattern = "\\.Rmd$",
+  #   full.names = TRUE
+  # )
   r_files <- list.files(
     file.path(workspace_dir, "R"),
     pattern = "\\.R$",
     full.names = TRUE
   )
-  files <- c(other_files, vignettes, articles, r_files)
+  files <- c(other_files, vignettes, r_files) # removed articles
   files <- normalizePath(files, winslash = "/", mustWork = FALSE)
 
   # collect and clean URLs, then remove exclusions
