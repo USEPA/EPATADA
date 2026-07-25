@@ -89,7 +89,7 @@ testthat::test_that("URLs are not broken", {
     pattern = "\\.Rmd$",
     full.names = TRUE
   )
-  # no articles 
+  # no articles
   # articles <- list.files(
   #   file.path(workspace_dir, "vignettes", "articles"),
   #   pattern = "\\.Rmd$",
