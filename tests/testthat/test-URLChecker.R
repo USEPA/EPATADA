@@ -65,11 +65,7 @@ testthat::test_that("URLs are not broken", {
 
   # workspace resolution
   workspace_dir <- testthat::test_path("..", "..")
-  workspace_dir <- normalizePath(
-    workspace_dir,
-    winslash = "/",
-    mustWork = TRUE
-  )
+  workspace_dir <- normalizePath(workspace_dir, winslash = "/", mustWork = TRUE)
 
   # files to scan
   other_files <- c(
