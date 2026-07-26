@@ -497,7 +497,13 @@ utils::globalVariables(c(
   "Crosswalk.ATTAINS.WaterType",
   ".rank",
   ".selected",
-  "TADA.MultipleOrgDup.Flag"
+  "TADA.MultipleOrgDup.Flag",
+  ".row_id",
+  "COUNTYFP",
+  "CoordinateCountyCode",
+  "CoordinateStateCode",
+  "STATEFP",
+  "StateCode"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -1600,7 +1606,8 @@ getTribalPopup <- function(layer, layername) {
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the American Indian Reservations feature layer to the map
-#' lmap <- TADA_addPolys(lmap, "extdata", "Tribal.gpkg","AmericanIndian", "Tribes", "American Indian Reservations")
+#' lmap <- TADA_addPolys(lmap, "extdata", "Tribal.gpkg","AmericanIndian", 
+#' "Tribes", "American Indian Reservations")
 #' lmap
 #' }
 TADA_addPolys <- function(
