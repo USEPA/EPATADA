@@ -176,17 +176,12 @@ test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multi
       !is.na(TADA.NearbySiteGroup),
       grepl("^[0-9]+$", TADA.NearbySiteGroup)
     ) |>
-    dplyr::pull(TADA.NearbySiteGroup) |>
-    as.numeric() |>
-    sort()
+    dplyr::pull(TADA.NearbySiteGroup)
 
   testdat2 <- testdat |>
     dplyr::select(TADA.MultipleOrgDupGroupID) |>
     dplyr::filter(TADA.MultipleOrgDupGroupID != "Not a duplicate") |>
-    unique() |>
-    dplyr::pull() |>
-    as.numeric() |>
-    sort()
+    unique()
 
   expect_true(length(testdat1) == 0 || length(unique(diff(testdat1))) < 2)
   expect_true(length(testdat2) == 0 || length(unique(diff(testdat2))) < 2)
