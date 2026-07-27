@@ -8,7 +8,8 @@ TADA_FlagCoordinates(
   .data,
   clean_outsideUSA = c("no", "remove", "change sign"),
   clean_imprecise = FALSE,
-  flaggedonly = FALSE
+  flaggedonly = FALSE,
+  check_location_metadata = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,9 @@ clean_imprecise = TRUE. Default is clean_imprecise = FALSE.}
 
 \item{flaggedonly}{Boolean argument; Return only flagged data when flaggedonly = TRUE;
 default is flaggedonly = FALSE.}
+
+\item{check_location_metadata}{Boolean argument; Flags coordinates if location metadata
+does not match with coordinate location; default is check_location_metadata = FALSE.}
 }
 \value{
 Returns input TADA dataset with the added "TADA.SuspectCoordinates.Flag" column.
