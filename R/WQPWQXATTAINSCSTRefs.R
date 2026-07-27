@@ -2363,7 +2363,68 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
 # Update Characteristic Validation Reference Table internal file (DEV-TIME ONLY)
 #' @keywords internal
 .TADA_UpdateWQXCharAliasRef <- function() {
+  # Load existing package copy
+  old_df <- .tada_load_extdata_rda(
+    pkg = "EPATADA",
+    filename = "WQXCharAliasRef.rda",
+    object_name = "WQXCharAliasRef",
+    trim = TRUE
+  )
+  
+  # Canonicalize helper
+  .canonicalize_alias_ref <- function(df, ignore_last_change_date = TRUE) {
+    if (is.null(df) || !is.data.frame(df)) return(df)
+    
+    names(df) <- trimws(names(df))
+    rownames(df) <- NULL
+    df <- .tada_trim_char_cols(df)
+    
+    desired_cols <- c(
+      "Domain",
+      "Unique.Identifier",
+      "Alias.Name",
+      "Description",
+      "Characteristic.Name",
+      "Alias.Type.Name",
+      "Last.Change.Date"
+    )
+    keep_cols <- intersect(desired_cols, names(df))
+    df <- df[, keep_cols, drop = FALSE]
+    
+    cmp <- df
+    if (isTRUE(ignore_last_change_date) && "Last.Change.Date" %in% names(cmp)) {
+      cmp <- cmp[, setdiff(names(cmp), "Last.Change.Date"), drop = FALSE]
+    }
+    
+    sort_keys <- intersect(
+      c("Domain", "Unique.Identifier", "Alias.Name", "Characteristic.Name", "Alias.Type.Name"),
+      names(cmp)
+    )
+    if (length(sort_keys) > 0) {
+      ord <- do.call(order, c(cmp[sort_keys], list(na.last = TRUE, method = "radix")))
+      df <- df[ord, , drop = FALSE]
+      rownames(df) <- NULL
+    }
+    
+    df
+  }
+  
+  # Canonicalize both old and new before comparing
+  old_df <- .canonicalize_alias_ref(old_df, ignore_last_change_date = TRUE)
+  
   df <- TADA_GetWQXCharAliasRef(download_only = TRUE)
+  df <- .canonicalize_alias_ref(df, ignore_last_change_date = TRUE)
+  
+  # Only rewrite if canonicalized content actually differs
+  if (isTRUE(identical(old_df, df))) {
+    msg <- paste0(
+      "No changes detected for WQXCharAliasRef; skipping save: ",
+      system.file("extdata", "WQXCharAliasRef.rda", package = "EPATADA")
+    )
+    message(msg)
+    return(invisible(df))
+  }
+  
   .tada_save_ext_rda(
     df,
     obj_name = "WQXCharAliasRef",
