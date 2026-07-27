@@ -189,7 +189,7 @@ testthat::test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
 
 testthat::test_that("Is TADA_GetWQXCharAliasRef up to date?", {
   skip_on_cran()
-  
+
   file_path <- system.file(
     "extdata",
     "WQXCharAliasRef.rda",
@@ -198,16 +198,18 @@ testthat::test_that("Is TADA_GetWQXCharAliasRef up to date?", {
   e <- new.env(parent = emptyenv())
   load(file_path, envir = e)
   old <- e$WQXCharAliasRef
-  
+
   ref <- EPATADA::TADA_GetWQXCharAliasRef(download_only = TRUE, refresh = TRUE)
-  
+
   .canonicalize_alias_ref <- function(df) {
-    if (is.null(df) || !is.data.frame(df)) return(df)
-    
+    if (is.null(df) || !is.data.frame(df)) {
+      return(df)
+    }
+
     names(df) <- trimws(names(df))
     rownames(df) <- NULL
     df <- .tada_trim_char_cols(df)
-    
+
     keep_cols <- intersect(
       c(
         "Domain",
@@ -220,23 +222,32 @@ testthat::test_that("Is TADA_GetWQXCharAliasRef up to date?", {
       names(df)
     )
     df <- df[, keep_cols, drop = FALSE]
-    
+
     sort_keys <- intersect(
-      c("Domain", "Unique.Identifier", "Alias.Name", "Characteristic.Name", "Alias.Type.Name"),
+      c(
+        "Domain",
+        "Unique.Identifier",
+        "Alias.Name",
+        "Characteristic.Name",
+        "Alias.Type.Name"
+      ),
       names(df)
     )
     if (length(sort_keys) > 0) {
-      ord <- do.call(order, c(df[sort_keys], list(na.last = TRUE, method = "radix")))
+      ord <- do.call(
+        order,
+        c(df[sort_keys], list(na.last = TRUE, method = "radix"))
+      )
       df <- df[ord, , drop = FALSE]
       rownames(df) <- NULL
     }
-    
+
     df
   }
-  
+
   old2 <- .canonicalize_alias_ref(old)
   ref2 <- .canonicalize_alias_ref(ref)
-  
+
   testthat::expect_equal(old2, ref2)
 })
 
