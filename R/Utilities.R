@@ -2951,6 +2951,7 @@ TADA_SummarizeResultFrequency <- function(
   # if daily aggregation of results was selected, run TADA_AggregateMeasurements if needed
   if (daily_agg != "none") {
 
+    # if aggregation has not been performed, run TADA_AggregateMeasurements
     if (!"TADA.ResultAggregationFlag" %in% names(.data)) {
 
       .data <- .data |>
@@ -2960,6 +2961,8 @@ TADA_SummarizeResultFrequency <- function(
                             "TADA.MonitoringLocationIdentifier",
                             "TADA.ComparableDataIdentifier")
         )
+      # if results have already been aggregated, do not perform any additional aggregation
+      # print message to user that no additional aggregation has been performed
     } else {
       print(paste0(
         "TADA_SummarizeResultFrequency: results have already been ",
@@ -2969,18 +2972,24 @@ TADA_SummarizeResultFrequency <- function(
     }
   }
 
+  # prep and summarize data
   .data <- .data |>
+    # remove any QC activities
     TADA_FindQCActivities(clean = TRUE) |>
+    # group by selected columns
     dplyr::group_by(!!!rlang::syms(group.cols)) |>
+    # create summary
     dplyr::mutate(
       FirstResultMeasurement = min(ActivityStartDate),
       LastResultMeasurement = max(ActivityStartDate),
       ResultCount = dplyr::n()
     ) |>
+    # select summary cols
     dplyr::select(
       dplyr::all_of(group.cols),
       dplyr::all_of(calc.cols)
     ) |>
+    # retain distinct
     dplyr::distinct()
 
   return(.data)
