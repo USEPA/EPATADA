@@ -2908,29 +2908,27 @@ TADA_CorrectColType <- function(.data) {
 #'
 #'
 TADA_SummarizeResultFrequency <- function(
-    .data,
-    depth = FALSE,
-    daily_agg = "none",
-    cont_data = FALSE
+  .data,
+  depth = FALSE,
+  daily_agg = "none",
+  cont_data = FALSE
 ) {
-
   # if cont_data equals FALSE, remove all continuous data results from TADA df if required
   if (isFALSE(cont_data)) {
-
     # if continuous data flag does not exist, run TADA_FlagContinuousData and remove any continuous data
     if (!"TADA.ContinuousDataFlag" %in% names(.data)) {
-      .data <- .data |>
-        TADA_FlagContinuousData(clean = TRUE)
+      .data <- .data |> TADA_FlagContinuousData(clean = TRUE)
     } else {
       # if continuous data flag does exist, filter out any results identified as continuous
-      .data <- .data |>
-        dplyr::filter(TADA.ContinuousDataFlag != "Continuous")
+      .data <- .data |> dplyr::filter(TADA.ContinuousDataFlag != "Continuous")
     }
   }
 
   # set up default grouping cols for results summary
-  group.cols <- c("TADA.MonitoringLocationIdentifier",
-                  "TADA.ComparableDataIdentifier")
+  group.cols <- c(
+    "TADA.MonitoringLocationIdentifier",
+    "TADA.ComparableDataIdentifier"
+  )
 
   # if depth equals TRUE, add TADA.ConsolidatedDepth to grouping cols
   if (isTRUE(depth)) {
@@ -2938,28 +2936,29 @@ TADA_SummarizeResultFrequency <- function(
 
     # if TADA.ConsolidatedDepth col is not in TADA df, create it
     if (!"TADA.ConsolidatedDepth" %in% names(.data)) {
-      .data <- .data |>
-        TADA_FlagDepthCategory()
+      .data <- .data |> TADA_FlagDepthCategory()
     }
   }
 
   # create list of calculated cols to retain in summary
-  calc.cols <- c("FirstResultMeasurement",
-                 "LastResultMeasurement",
-                 "ResultCount")
+  calc.cols <- c(
+    "FirstResultMeasurement",
+    "LastResultMeasurement",
+    "ResultCount"
+  )
 
   # if daily aggregation of results was selected, run TADA_AggregateMeasurements if needed
   if (daily_agg != "none") {
-
     # if aggregation has not been performed, run TADA_AggregateMeasurements
     if (!"TADA.ResultAggregationFlag" %in% names(.data)) {
-
       .data <- .data |>
         TADA_AggregateMeasurements(
           agg_fun = daily_agg,
-          grouping_cols = c("ActivityStartDate",
-                            "TADA.MonitoringLocationIdentifier",
-                            "TADA.ComparableDataIdentifier")
+          grouping_cols = c(
+            "ActivityStartDate",
+            "TADA.MonitoringLocationIdentifier",
+            "TADA.ComparableDataIdentifier"
+          )
         )
       # if results have already been aggregated, do not perform any additional aggregation
       # print message to user that no additional aggregation has been performed
@@ -2985,10 +2984,7 @@ TADA_SummarizeResultFrequency <- function(
       ResultCount = dplyr::n()
     ) |>
     # select summary cols
-    dplyr::select(
-      dplyr::all_of(group.cols),
-      dplyr::all_of(calc.cols)
-    ) |>
+    dplyr::select(dplyr::all_of(group.cols), dplyr::all_of(calc.cols)) |>
     # retain distinct
     dplyr::distinct()
 
