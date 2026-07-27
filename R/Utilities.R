@@ -2877,3 +2877,111 @@ TADA_CorrectColType <- function(.data) {
 
   return <- file.path(base_dir, filename)
 }
+
+#' TADA_SummarizeResultFrequency
+#'
+#' Description here
+#'
+#' @param .data TADA dataframe which must include the columns:
+#'  TADA.MonitoringLocationIdentifier, TADA.ComparableDataIdentifier,
+#'  ActivityStartDate,
+#' @param depth Boolean argument. When depth = TRUE, TADA.ConsolidatedDepth is
+#' factored into result summary groupings. If depth = TRUE and the ConsolidatedDepth
+#' column does not exist in the TADA df, it will be calculated with
+#' TADA_FlagDepthCategory. Default = FALSE, depth will not be taken into account
+#' when creating groupings to summarize result frequency.
+#' @param dailyagg Character argument; with options "none", "avg", "min", or
+#' "max". The default is dailyagg = "none". When dailyagg = "none", all results
+#' will be retained. When dailyagg == "avg", the mean value in each group of
+#' results will be identified or calculated for each group. When dailyagg ==
+#' "min" or when dailyagg == "max", the min or max value in each group of
+#' results (as determined by the depth category) will be identified or calculated
+#' for each group.
+#' @param cont_data Boolean argument. When cont_data = TRUE, continuous data results
+#' will be included in the result summary. When cont_data = FALSE, continuous data
+#' will be excluded.
+#'
+#'
+#' @export
+#'
+#' @examples
+#'
+#'
+TADA_SummarizeResultFrequency <- function(
+    .data,
+    depth = FALSE,
+    daily_agg = "none",
+    cont_data = FALSE
+) {
+
+  # if cont_data equals FALSE, remove all continuous data results from TADA df if required
+  if (isFALSE(cont_data)) {
+
+    # if continuous data flag does not exist, run TADA_FlagContinuousData and remove any continuous data
+    if (!"TADA.ContinuousDataFlag" %in% names(.data)) {
+      .data <- .data |>
+        TADA_FlagContinuousData(clean = TRUE)
+    } else {
+      # if continuous data flag does exist, filter out any results identified as continuous
+      .data <- .data |>
+        dplyr::filter(TADA.ContinuousDataFlag != "Continuous")
+    }
+  }
+
+  # set up default grouping cols for results summary
+  group.cols <- c("TADA.MonitoringLocationIdentifier",
+                  "TADA.ComparableDataIdentifier")
+
+  # if depth equals TRUE, add TADA.ConsolidatedDepth to grouping cols
+  if (isTRUE(depth)) {
+    group.cols <- c(group.cols, "TADA.ConsolidatedDepth")
+
+    # if TADA.ConsolidatedDepth col is not in TADA df, create it
+    if (!"TADA.ConsolidatedDepth" %in% names(.data)) {
+      .data <- .data |>
+        TADA_FlagDepthCategory()
+    }
+  }
+
+  # create list of calculated cols to retain in summary
+  calc.cols <- c("FirstResultMeasurement",
+                 "LastResultMeasurement",
+                 "ResultCount")
+
+  # if daily aggregation of results was selected, run TADA_AggregateMeasurements if needed
+  if (daily_agg != "none") {
+
+    if (!"TADA.ResultAggregationFlag" %in% names(.data)) {
+
+      .data <- .data |>
+        TADA_AggregateMeasurements(
+          agg_fun = daily_agg,
+          grouping_cols = c("ActivityStartDate",
+                            "TADA.MonitoringLocationIdentifier",
+                            "TADA.ComparableDataIdentifier")
+        )
+    } else {
+      print(paste0(
+        "TADA_SummarizeResultFrequency: results have already been ",
+        "aggregated with TADA_AggregateMeasurements. ",
+        "No additional aggregation will be performed."
+      ))
+    }
+  }
+
+  .data <- .data |>
+    TADA_FindQCActivities(clean = TRUE) |>
+    dplyr::group_by(!!!rlang::syms(group.cols)) |>
+    dplyr::mutate(
+      FirstResultMeasurement = min(ActivityStartDate),
+      LastResultMeasurement = max(ActivityStartDate),
+      ResultCount = dplyr::n()
+    ) |>
+    dplyr::select(
+      dplyr::all_of(group.cols),
+      dplyr::all_of(calc.cols)
+    ) |>
+    dplyr::distinct()
+
+  return(.data)
+}
