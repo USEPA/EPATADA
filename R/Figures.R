@@ -1579,11 +1579,11 @@ TADA_GroupedScatterplot <- function(
 #' )
 #'
 TADA_DayOfYearPlot <- function(
-    .data,
-    monitoringLocationIdentifier = "all",
-    characteristicName,
-    yearRange = NULL,
-    monthRange = c(1, 12)
+  .data,
+  monitoringLocationIdentifier = "all",
+  characteristicName,
+  yearRange = NULL,
+  monthRange = c(1, 12)
 ) {
   # identify the monitoring location identifier column available in the data
   if ("TADA.MonitoringLocationIdentifier" %in% names(.data)) {
@@ -1597,7 +1597,7 @@ TADA_DayOfYearPlot <- function(
       "'MonitoringLocationIdentifier'."
     )
   }
-  
+
   # check .data is a data.frame and has required columns
   required_cols <- c(
     location_col,
@@ -1607,57 +1607,65 @@ TADA_DayOfYearPlot <- function(
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, required_cols)
-  
+
   # characteristicName must identify one characteristic
-  if (missing(characteristicName) ||
+  if (
+    missing(characteristicName) ||
       is.null(characteristicName) ||
       length(characteristicName) != 1 ||
-      is.na(characteristicName)) {
+      is.na(characteristicName)
+  ) {
     stop(
       "TADA_DayOfYearPlot: 'characteristicName' must contain one non-missing value."
     )
   }
-  
+
   if (!characteristicName %in% .data$TADA.CharacteristicName) {
     stop(
       "TADA_DayOfYearPlot: 'characteristicName' was not found in ",
       "TADA.CharacteristicName. Check spelling and try again."
     )
   }
-  
+
   # monitoringLocationIdentifier must be one location or 'all'
-  if (length(monitoringLocationIdentifier) != 1 ||
-      is.na(monitoringLocationIdentifier)) {
+  if (
+    length(monitoringLocationIdentifier) != 1 ||
+      is.na(monitoringLocationIdentifier)
+  ) {
     stop(
       "TADA_DayOfYearPlot: 'monitoringLocationIdentifier' must be one ",
       "monitoring location identifier or 'all'."
     )
   }
-  
+
   available_locations <- unique(.data[[location_col]])
-  if (tolower(as.character(monitoringLocationIdentifier)) != "all" &&
-      !monitoringLocationIdentifier %in% available_locations) {
+  if (
+    tolower(as.character(monitoringLocationIdentifier)) != "all" &&
+      !monitoringLocationIdentifier %in% available_locations
+  ) {
     stop(
       "TADA_DayOfYearPlot: The selected monitoring location identifier was ",
       "not found in the input dataframe."
     )
   }
-  
+
   # validate month range
-  if (!is.numeric(monthRange) ||
+  if (
+    !is.numeric(monthRange) ||
       length(monthRange) != 2 ||
       any(is.na(monthRange)) ||
       any(monthRange < 1 | monthRange > 12) ||
-      monthRange[1] > monthRange[2]) {
+      monthRange[1] > monthRange[2]
+  ) {
     stop(
       "TADA_DayOfYearPlot: 'monthRange' must be an increasing numeric ",
       "vector of length two with values from 1 through 12."
     )
   }
-  
+
   plot.data <- as.data.frame(.data)
   plot.data$ActivityStartDate <- as.Date(plot.data$ActivityStartDate)
-  
+
   invalid_dates <- sum(is.na(plot.data$ActivityStartDate))
   if (invalid_dates > 0) {
     message(
@@ -1666,7 +1674,7 @@ TADA_DayOfYearPlot <- function(
       " results with missing or invalid ActivityStartDate values."
     )
   }
-  
+
   # create date fields used for filtering and plotting
   plot.data <- plot.data |>
     dplyr::filter(
@@ -1679,35 +1687,37 @@ TADA_DayOfYearPlot <- function(
       Month = as.integer(format(ActivityStartDate, "%m")),
       DayOfYear = as.integer(format(ActivityStartDate, "%j"))
     )
-  
+
   # filter to one monitoring location when selected
   if (tolower(as.character(monitoringLocationIdentifier)) != "all") {
     plot.data <- plot.data |>
-      dplyr::filter(
-        .data[[location_col]] == monitoringLocationIdentifier
-      )
+      dplyr::filter(.data[[location_col]] == monitoringLocationIdentifier)
   }
-  
+
   # default to the full available year range after characteristic/site filtering
   if (is.null(yearRange)) {
     if (nrow(plot.data) == 0) {
-      message("TADA_DayOfYearPlot: No data are available to plot; returning NULL.")
+      message(
+        "TADA_DayOfYearPlot: No data are available to plot; returning NULL."
+      )
       return(NULL)
     }
     yearRange <- range(plot.data$Year, na.rm = TRUE)
   }
-  
+
   # validate year range
-  if (!is.numeric(yearRange) ||
+  if (
+    !is.numeric(yearRange) ||
       length(yearRange) != 2 ||
       any(is.na(yearRange)) ||
-      yearRange[1] > yearRange[2]) {
+      yearRange[1] > yearRange[2]
+  ) {
     stop(
       "TADA_DayOfYearPlot: 'yearRange' must be an increasing numeric vector ",
       "of length two."
     )
   }
-  
+
   # apply year and month filters
   plot.data <- plot.data |>
     dplyr::filter(
@@ -1717,7 +1727,7 @@ TADA_DayOfYearPlot <- function(
       Month <= monthRange[2]
     ) |>
     dplyr::arrange(Year, DayOfYear)
-  
+
   if (nrow(plot.data) == 0) {
     message(
       "TADA_DayOfYearPlot: No data matched the selected characteristic, ",
@@ -1725,11 +1735,9 @@ TADA_DayOfYearPlot <- function(
     )
     return(NULL)
   }
-  
+
   # one y-axis cannot accurately display results reported in multiple units
-  units <- unique(stats::na.omit(
-    plot.data$TADA.ResultMeasure.MeasureUnitCode
-  ))
+  units <- unique(stats::na.omit(plot.data$TADA.ResultMeasure.MeasureUnitCode))
   if (length(units) > 1) {
     stop(
       "TADA_DayOfYearPlot: The filtered data contain multiple result units: ",
@@ -1738,7 +1746,7 @@ TADA_DayOfYearPlot <- function(
     )
   }
   unit <- if (length(units) == 0) "Result Value" else units
-  
+
   # add optional fields used in hover text when they are not present
   optional_cols <- c(
     "MonitoringLocationName",
@@ -1750,18 +1758,18 @@ TADA_DayOfYearPlot <- function(
       plot.data[[col]] <- NA_character_
     }
   }
-  
+
   # create a discrete color palette for the available years
   tada.pal <- TADA_ColorPalette(col_pair = TRUE)
   years <- sort(unique(plot.data$Year))
   n.years <- length(years)
-  
+
   year.colors <- if (n.years <= nrow(tada.pal)) {
     tada.pal[seq_len(n.years), 1]
   } else {
     grDevices::colorRampPalette(tada.pal[, 1])(n.years)
   }
-  
+
   location_title <- if (
     tolower(as.character(monitoringLocationIdentifier)) == "all"
   ) {
@@ -1769,7 +1777,7 @@ TADA_DayOfYearPlot <- function(
   } else {
     as.character(monitoringLocationIdentifier)
   }
-  
+
   title <- stringr::str_wrap(
     paste0(
       TADA_CharStringRemoveNANone(characteristicName),
@@ -1778,14 +1786,14 @@ TADA_DayOfYearPlot <- function(
     ),
     width = 55
   )
-  
+
   # construct one plotly trace per year so years are discrete and can be
   # independently shown or hidden using the interactive legend
   day_of_year_plot <- plotly::plot_ly(type = "scatter", mode = "markers")
-  
+
   for (i in seq_along(years)) {
     year.data <- subset(plot.data, plot.data$Year == years[i])
-    
+
     day_of_year_plot <- day_of_year_plot |>
       plotly::add_trace(
         data = year.data,
@@ -1831,10 +1839,10 @@ TADA_DayOfYearPlot <- function(
         )
       )
   }
-  
+
   # figure margin
   mrg <- list(l = 50, r = 20, b = 50, t = 75, pad = 0)
-  
+
   # day-of-year plot layout and labels
   day_of_year_plot <- day_of_year_plot |>
     plotly::layout(
@@ -1868,6 +1876,6 @@ TADA_DayOfYearPlot <- function(
       margin = mrg
     ) |>
     plotly::config(displaylogo = FALSE)
-  
+
   return(day_of_year_plot)
 }
