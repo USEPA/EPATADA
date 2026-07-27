@@ -1538,12 +1538,12 @@ TADA_GroupedScatterplot <- function(
 #'   'TADA.ResultMeasureValue', 'TADA.ResultMeasure.MeasureUnitCode', and either
 #'   'TADA.MonitoringLocationIdentifier' or 'MonitoringLocationIdentifier'.
 #'
-#' @param monitoringLocationIdentifier Monitoring location identifier to plot.
+#' @param location TADA.MonitoringLocationIdentifier to plot.
 #'   Defaults to 'all', which includes all monitoring locations in the input
-#'   dataframe. Only one monitoring location identifier can be selected.
+#'   dataframe. Only one or "all" monitoring location(s) identifier can be selected.
 #'
-#' @param characteristicName A single value from 'TADA.CharacteristicName'
-#'   identifying the characteristic to plot.
+#' @param comparableDataId A single value from 'TADA.ComparableDataIdentifier'
+#'   identifying the comparable data identifier to plot.
 #'
 #' @param yearRange A numeric vector of length two specifying the minimum and
 #'   maximum years to include. Defaults to NULL, which includes all years in the
@@ -1580,69 +1580,89 @@ TADA_GroupedScatterplot <- function(
 #'
 TADA_DayOfYearPlot <- function(
     .data,
-    monitoringLocationIdentifier = "all",
-    characteristicName,
+    location = "all",
+    comparableDataId,
     yearRange = NULL,
     monthRange = c(1, 12)
 ) {
   # identify the monitoring location identifier column available in the data
-  if ("TADA.MonitoringLocationIdentifier" %in% names(.data)) {
-    location_col <- "TADA.MonitoringLocationIdentifier"
-  } else if ("MonitoringLocationIdentifier" %in% names(.data)) {
-    location_col <- "MonitoringLocationIdentifier"
-  } else {
+  if (!"TADA.MonitoringLocationIdentifier" %in% names(.data)) {
     stop(
-      "TADA_DayOfYearPlot: The input dataframe must include either ",
-      "'TADA.MonitoringLocationIdentifier' or ",
-      "'MonitoringLocationIdentifier'."
+      "TADA_DayOfYearPlot: The input dataframe must include 'TADA.MonitoringLocationIdentifier'."
     )
   }
-  
+
   # check .data is a data.frame and has required columns
   required_cols <- c(
-    location_col,
+    "TADA.MonitoringLocationIdentifier",
     "ActivityStartDate",
-    "TADA.CharacteristicName",
+    "TADA.ComparableDataIdentifier",
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, required_cols)
-  
-  # characteristicName must identify one characteristic
-  if (missing(characteristicName) ||
-      is.null(characteristicName) ||
-      length(characteristicName) != 1 ||
-      is.na(characteristicName)) {
-    stop(
-      "TADA_DayOfYearPlot: 'characteristicName' must contain one non-missing value."
+
+
+  plot.data <- as.data.frame(.data)
+  plot.data$ActivityStartDate <- as.Date(plot.data$ActivityStartDate)
+
+  invalid_dates <- sum(is.na(plot.data$ActivityStartDate))
+  if (invalid_dates > 0) {
+    message(
+      "TADA_DayOfYearPlot: Removed ",
+      invalid_dates,
+      " results with missing or invalid ActivityStartDate values."
     )
   }
-  
-  if (!characteristicName %in% .data$TADA.CharacteristicName) {
+
+  # create date fields used for filtering and plotting
+  plot.data <- plot.data |>
+    dplyr::filter(
+      !is.na(ActivityStartDate),
+      !is.na(TADA.ResultMeasureValue),
+      TADA.ComparableDataIdentifier== comparableDataId
+    ) |>
+    dplyr::mutate(
+      Year = as.integer(format(ActivityStartDate, "%Y")),
+      Month = as.integer(format(ActivityStartDate, "%m")),
+      DayOfYear = as.integer(format(ActivityStartDate, "%j"))
+    )
+
+  # comparableDataId must identify one TADA comparable data identifier
+  if (missing(comparableDataId) ||
+      is.null(comparableDataId) ||
+      length(comparableDataId) != 1 ||
+      is.na(comparableDataId)) {
     stop(
-      "TADA_DayOfYearPlot: 'characteristicName' was not found in ",
-      "TADA.CharacteristicName. Check spelling and try again."
+      "TADA_DayOfYearPlot: 'TADA.ComparableDataIdentifier' must contain one non-missing value."
     )
   }
-  
-  # monitoringLocationIdentifier must be one location or 'all'
-  if (length(monitoringLocationIdentifier) != 1 ||
-      is.na(monitoringLocationIdentifier)) {
+
+  if (!comparableDataId %in% .data$TADA.ComparableDataIdentifier) {
     stop(
-      "TADA_DayOfYearPlot: 'monitoringLocationIdentifier' must be one ",
+      "TADA_DayOfYearPlot: 'comparableDataId' was not found in ",
+      "TADA.ComparableDataIdentifier. Check spelling and try again."
+    )
+  }
+
+  # location param must be one location or 'all'
+  if(length(location) != 1 ||
+      is.na(location)) {
+    stop(
+      "TADA_DayOfYearPlot: 'TADA.MonitoringLocationIdentifier' must be one ",
       "monitoring location identifier or 'all'."
     )
   }
-  
-  available_locations <- unique(.data[[location_col]])
-  if (tolower(as.character(monitoringLocationIdentifier)) != "all" &&
-      !monitoringLocationIdentifier %in% available_locations) {
+
+  available_locations <- unique(.data[["TADA.MonitoringLocationIdentifier"]])
+  if (location != "all" &&
+      !location %in% available_locations) {
     stop(
-      "TADA_DayOfYearPlot: The selected monitoring location identifier was ",
+      "TADA_DayOfYearPlot: The selected TADA.MonitoringLocationIdentifier ",
       "not found in the input dataframe."
     )
   }
-  
+
   # validate month range
   if (!is.numeric(monthRange) ||
       length(monthRange) != 2 ||
@@ -1654,40 +1674,15 @@ TADA_DayOfYearPlot <- function(
       "vector of length two with values from 1 through 12."
     )
   }
-  
-  plot.data <- as.data.frame(.data)
-  plot.data$ActivityStartDate <- as.Date(plot.data$ActivityStartDate)
-  
-  invalid_dates <- sum(is.na(plot.data$ActivityStartDate))
-  if (invalid_dates > 0) {
-    message(
-      "TADA_DayOfYearPlot: Removed ",
-      invalid_dates,
-      " results with missing or invalid ActivityStartDate values."
-    )
-  }
-  
-  # create date fields used for filtering and plotting
-  plot.data <- plot.data |>
-    dplyr::filter(
-      !is.na(ActivityStartDate),
-      !is.na(TADA.ResultMeasureValue),
-      TADA.CharacteristicName == characteristicName
-    ) |>
-    dplyr::mutate(
-      Year = as.integer(format(ActivityStartDate, "%Y")),
-      Month = as.integer(format(ActivityStartDate, "%m")),
-      DayOfYear = as.integer(format(ActivityStartDate, "%j"))
-    )
-  
+
   # filter to one monitoring location when selected
-  if (tolower(as.character(monitoringLocationIdentifier)) != "all") {
+  if (location != "all") {
     plot.data <- plot.data |>
       dplyr::filter(
-        .data[[location_col]] == monitoringLocationIdentifier
+        TADA.MonitoringLocationIdentifier == location
       )
   }
-  
+
   # default to the full available year range after characteristic/site filtering
   if (is.null(yearRange)) {
     if (nrow(plot.data) == 0) {
@@ -1696,7 +1691,7 @@ TADA_DayOfYearPlot <- function(
     }
     yearRange <- range(plot.data$Year, na.rm = TRUE)
   }
-  
+
   # validate year range
   if (!is.numeric(yearRange) ||
       length(yearRange) != 2 ||
@@ -1707,7 +1702,7 @@ TADA_DayOfYearPlot <- function(
       "of length two."
     )
   }
-  
+
   # apply year and month filters
   plot.data <- plot.data |>
     dplyr::filter(
@@ -1717,7 +1712,7 @@ TADA_DayOfYearPlot <- function(
       Month <= monthRange[2]
     ) |>
     dplyr::arrange(Year, DayOfYear)
-  
+
   if (nrow(plot.data) == 0) {
     message(
       "TADA_DayOfYearPlot: No data matched the selected characteristic, ",
@@ -1725,7 +1720,7 @@ TADA_DayOfYearPlot <- function(
     )
     return(NULL)
   }
-  
+
   # one y-axis cannot accurately display results reported in multiple units
   units <- unique(stats::na.omit(
     plot.data$TADA.ResultMeasure.MeasureUnitCode
@@ -1738,10 +1733,10 @@ TADA_DayOfYearPlot <- function(
     )
   }
   unit <- if (length(units) == 0) "Result Value" else units
-  
+
   # add optional fields used in hover text when they are not present
   optional_cols <- c(
-    "MonitoringLocationName",
+    "TADA.MonitoringLocationName",
     "OrganizationFormalName",
     "ActivityStartDateTime"
   )
@@ -1750,42 +1745,42 @@ TADA_DayOfYearPlot <- function(
       plot.data[[col]] <- NA_character_
     }
   }
-  
+
   # create a discrete color palette for the available years
   tada.pal <- TADA_ColorPalette(col_pair = TRUE)
   years <- sort(unique(plot.data$Year))
   n.years <- length(years)
-  
+
   year.colors <- if (n.years <= nrow(tada.pal)) {
     tada.pal[seq_len(n.years), 1]
   } else {
     grDevices::colorRampPalette(tada.pal[, 1])(n.years)
   }
-  
+
   location_title <- if (
-    tolower(as.character(monitoringLocationIdentifier)) == "all"
+    location == "all"
   ) {
     "All Monitoring Locations"
   } else {
-    as.character(monitoringLocationIdentifier)
+    as.character(location)
   }
-  
+
   title <- stringr::str_wrap(
     paste0(
-      TADA_CharStringRemoveNANone(characteristicName),
+      TADA_CharStringRemoveNANone(comparableDataId),
       " by Day of Year: ",
       location_title
     ),
     width = 55
   )
-  
+
   # construct one plotly trace per year so years are discrete and can be
   # independently shown or hidden using the interactive legend
   day_of_year_plot <- plotly::plot_ly(type = "scatter", mode = "markers")
-  
+
   for (i in seq_along(years)) {
     year.data <- subset(plot.data, plot.data$Year == years[i])
-    
+
     day_of_year_plot <- day_of_year_plot |>
       plotly::add_trace(
         data = year.data,
@@ -1817,7 +1812,7 @@ TADA_DayOfYearPlot <- function(
           year.data$Year,
           "<br>",
           "Monitoring Location Identifier:",
-          year.data[[location_col]],
+          year.data$TADA.MonitoringLocationIdentifier,
           "<br>",
           "Monitoring Location Name:",
           year.data$MonitoringLocationName,
@@ -1831,10 +1826,10 @@ TADA_DayOfYearPlot <- function(
         )
       )
   }
-  
+
   # figure margin
   mrg <- list(l = 50, r = 20, b = 50, t = 75, pad = 0)
-  
+
   # day-of-year plot layout and labels
   day_of_year_plot <- day_of_year_plot |>
     plotly::layout(
@@ -1849,7 +1844,7 @@ TADA_DayOfYearPlot <- function(
         tickcolor = "black"
       ),
       yaxis = list(
-        title = paste(characteristicName, unit),
+        title = stringr::str_extract(x, "(?<=^(?:[^_]*_){3}).*"),
         titlefont = list(size = 16, family = "Arial"),
         tickfont = list(size = 16, family = "Arial"),
         hoverformat = ",.4r",
@@ -1868,6 +1863,6 @@ TADA_DayOfYearPlot <- function(
       margin = mrg
     ) |>
     plotly::config(displaylogo = FALSE)
-  
+
   return(day_of_year_plot)
 }
