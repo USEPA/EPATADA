@@ -1841,7 +1841,9 @@ TADA_DayOfYearPlot <- function(
         tickcolor = "black"
       ),
       yaxis = list(
-        title = stringr::str_match(comparableDataId, "^(?:[^_]*_){3}(.*)$")[, 2],
+        title = stringr::str_match(comparableDataId, "^(?:[^_]*_){3}(.*)$")[,
+          2
+        ],
         titlefont = list(size = 16, family = "Arial"),
         tickfont = list(size = 16, family = "Arial"),
         hoverformat = ",.4r",
