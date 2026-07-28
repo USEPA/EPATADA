@@ -393,10 +393,10 @@
   : View TADA Color Palette
 
 - [`TADA_addPoints()`](https://usepa.github.io/EPATADA/reference/TADA_addPoints.md)
-  : Add points from a layer to a leaflet map
+  : Add points from a spatial layer to a leaflet map
 
 - [`TADA_addPolys()`](https://usepa.github.io/EPATADA/reference/TADA_addPolys.md)
-  : Add polygons from a layer to a leaflet map
+  : Add polygons from a spatial layer to a leaflet map
 
 - [`addATTAINS()`](https://usepa.github.io/EPATADA/reference/addATTAINS.md)
   : addATTAINS Internal function to add ATTAINS assessment units (lines,

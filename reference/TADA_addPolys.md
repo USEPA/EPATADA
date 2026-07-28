@@ -1,6 +1,6 @@
-# Add polygons from a layer to a leaflet map
+# Add polygons from a spatial layer to a leaflet map
 
-Add polygons from a layer to a leaflet map
+Add polygons from a spatial layer to a leaflet map
 
 ## Usage
 
@@ -60,7 +60,8 @@ lmap <- leaflet::leaflet() |>
   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
   leaflet::addMapPane("featurelayers", zIndex = 300)
 # Add the American Indian Reservations feature layer to the map
-lmap <- TADA_addPolys(lmap, "extdata", "Tribal.gpkg","AmericanIndian", "Tribes", "American Indian Reservations")
+lmap <- TADA_addPolys(lmap, "extdata", "Tribal.gpkg","AmericanIndian",
+"Tribes", "American Indian Reservations")
 lmap
 } # }
 ```

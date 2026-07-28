@@ -1,6 +1,6 @@
-# Add points from a layer to a leaflet map
+# Add points from a spatial layer to a leaflet map
 
-Add points from a layer to a leaflet map
+Add points from a spatial layer to a leaflet map
 
 ## Usage
 
