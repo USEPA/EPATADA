@@ -27,9 +27,9 @@ when creating groupings to summarize result frequency.}
 will be included in the result summary. When cont_data = FALSE, continuous data
 will be excluded.}
 
-\item{dailyagg}{Character argument; with options "none", "avg", "min", or
+\item{dailyagg}{Character argument; with options "none", "mean", "min", or
 "max". The default is dailyagg = "none". When dailyagg = "none", all results
-will be retained. When dailyagg == "avg", the mean value in each group of
+will be retained. When dailyagg == "mean", the mean value in each group of
 results will be identified or calculated for each group. When dailyagg ==
 "min" or when dailyagg == "max", the min or max value in each group of
 results (as determined by the depth category) will be identified or calculated
@@ -45,7 +45,7 @@ and TADA.ResultCount.}
 \description{
 Summarize result frequencies for TADA.MonitoringLocationIdentifier and
 TADA.ComparableDataIdentifier combinations. Users can choose whether or not to
-include continuous data, aggregate multiple results from one day (min, max, avg),
+include continuous data, aggregate multiple results from one day (min, max, mean),
 include sample depth as an additional grouping factor and select the time period
 (year, month, week) at which results frequencies should be summarized.
 }
