@@ -506,20 +506,14 @@ test_that("does not change non-deprecated names except for uppercasing", {
 # tests for TADA_SummarizeResultFrequency
 testthat::test_that("TADA_SummarizeResultFrequency errors on invalid daily_agg", {
   expect_error(
-    TADA_SummarizeResultFrequency(
-      Data_Nutrients_UT,
-      daily_agg = "bad_value"
-    ),
+    TADA_SummarizeResultFrequency(Data_Nutrients_UT, daily_agg = "bad_value"),
     "daily_agg"
   )
 })
 
 testthat::test_that("TADA_SummarizeResultFrequency errors on invalid time_period", {
   expect_error(
-    TADA_SummarizeResultFrequency(
-      Data_Nutrients_UT,
-      time_period = "decade"
-    ),
+    TADA_SummarizeResultFrequency(Data_Nutrients_UT, time_period = "decade"),
     "time_period"
   )
 })
@@ -527,17 +521,15 @@ testthat::test_that("TADA_SummarizeResultFrequency errors on invalid time_period
 testthat::test_that("TADA_SummarizeResultFrequency errors when ActivityStartDate is missing", {
   bad_data <- Data_Nutrients_UT |> dplyr::select(-ActivityStartDate)
 
-  expect_error(
-    TADA_SummarizeResultFrequency(bad_data),
-    "ActivityStartDate"
-  )
+  expect_error(TADA_SummarizeResultFrequency(bad_data), "ActivityStartDate")
 })
 
 testthat::test_that("TADA_SummarizeResultFrequency returns a data frame", {
   testdat <- Data_HUC8_02070004_Mod1Output |>
-    dplyr::filter(TADA.MonitoringLocationIdentifier == "21VASWCB-1ABAB009.26",
-                  TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE")
-
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "21VASWCB-1ABAB009.26",
+      TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE"
+    )
 
   res <- TADA_SummarizeResultFrequency(testdat)
 
@@ -546,27 +538,27 @@ testthat::test_that("TADA_SummarizeResultFrequency returns a data frame", {
 
 testthat::test_that("TADA_SummarizeResultFrequency creates expected summary columns", {
   testdat <- Data_HUC8_02070004_Mod1Output |>
-    dplyr::filter(TADA.MonitoringLocationIdentifier == "21VASWCB-1ABAB009.26",
-                  TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE")
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "21VASWCB-1ABAB009.26",
+      TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE"
+    )
 
   res <- TADA_SummarizeResultFrequency(testdat)
 
-  expect_true(all(c(
-    "FirstResultMeasurement",
-    "LastResultMeasurement",
-    "ResultCount"
-  ) %in% names(res)))
+  expect_true(all(
+    c("FirstResultMeasurement", "LastResultMeasurement", "ResultCount") %in%
+      names(res)
+  ))
 })
 
 testthat::test_that("TADA_SummarizeResultFrequency adds time period columns when requested", {
   testdat <- Data_TribalNations_Harmonized |>
-    dplyr::filter(TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-CHAI-M",
-                  TADA.ComparableDataIdentifier == "TEMPERATURE_NONE_NONE_DEG C")
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-CHAI-M",
+      TADA.ComparableDataIdentifier == "TEMPERATURE_NONE_NONE_DEG C"
+    )
 
-  res <- TADA_SummarizeResultFrequency(
-    testdat,
-    time_period = "year"
-  )
+  res <- TADA_SummarizeResultFrequency(testdat, time_period = "year")
 
   expect_true("TADA.TimePeriodType" %in% names(res))
   expect_true("TADA.TimePeriodForSummary" %in% names(res))
@@ -575,13 +567,12 @@ testthat::test_that("TADA_SummarizeResultFrequency adds time period columns when
 
 testthat::test_that("TADA_SummarizeResultFrequency time period year is formatted correctly", {
   testdat <- Data_TribalNations_Harmonized |>
-    dplyr::filter(TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-CHAI-M",
-                  TADA.ComparableDataIdentifier == "TEMPERATURE_NONE_NONE_DEG C")
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-CHAI-M",
+      TADA.ComparableDataIdentifier == "TEMPERATURE_NONE_NONE_DEG C"
+    )
 
-  res <- TADA_SummarizeResultFrequency(
-    testdat,
-    time_period = "year"
-  )
+  res <- TADA_SummarizeResultFrequency(testdat, time_period = "year")
 
   expect_true(all(nchar(res$TADA.TimePeriodForSummary) == 4))
   expect_true(all(grepl("^[0-9]{4}$", res$TADA.TimePeriodForSummary)))
@@ -589,91 +580,83 @@ testthat::test_that("TADA_SummarizeResultFrequency time period year is formatted
 
 testthat::test_that("TADA_SummarizeResultFrequency time period month is formatted correctly", {
   testdat <- Data_TribalNations_Harmonized |>
-    dplyr::filter(TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-CHAI-M",
-                  TADA.ComparableDataIdentifier == "TEMPERATURE_NONE_NONE_DEG C")
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-CHAI-M",
+      TADA.ComparableDataIdentifier == "TEMPERATURE_NONE_NONE_DEG C"
+    )
 
-  res <- TADA_SummarizeResultFrequency(
-    testdat,
-    time_period = "month"
-  )
+  res <- TADA_SummarizeResultFrequency(testdat, time_period = "month")
 
   expect_true(all(grepl("^[0-9]{4}-[0-9]{2}$", res$TADA.TimePeriodForSummary)))
 })
 
 testthat::test_that("TADA_SummarizeResultFrequency time period week is ISO formatted correctly", {
   testdat <- Data_TribalNations_Harmonized |>
-    dplyr::filter(TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-CHAI-M",
-                  TADA.ComparableDataIdentifier == "TEMPERATURE_NONE_NONE_DEG C")
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-CHAI-M",
+      TADA.ComparableDataIdentifier == "TEMPERATURE_NONE_NONE_DEG C"
+    )
 
-
-  res <- TADA_SummarizeResultFrequency(
-    testdat,
-    time_period = "week"
-  )
+  res <- TADA_SummarizeResultFrequency(testdat, time_period = "week")
 
   expect_true(all(grepl("^[0-9]{4}-W[0-9]{2}$", res$TADA.TimePeriodForSummary)))
 })
 
 testthat::test_that("TADA_SummarizeResultFrequency filters out continuous data when cont_data = FALSE", {
+  testdat <- Data_HUC8_02070004_Mod1Output |>
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "21VASWCB-1ABAB009.26",
+      TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE"
+    ) |>
+    TADA_FlagContinuousData()
 
-    testdat <- Data_HUC8_02070004_Mod1Output |>
-      dplyr::filter(TADA.MonitoringLocationIdentifier == "21VASWCB-1ABAB009.26",
-                    TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE") |>
-      TADA_FlagContinuousData()
+  testdat.nocont <- testdat |>
+    dplyr::filter(TADA.ContinuousData.Flag != "Continuous")
 
-
-
-    testdat.nocont <- testdat |>
-      dplyr::filter(TADA.ContinuousData.Flag != "Continuous")
-
-  res <- TADA_SummarizeResultFrequency(
-    testdat,
-    cont_data = FALSE
-  )
+  res <- TADA_SummarizeResultFrequency(testdat, cont_data = FALSE)
 
   expect_equal(nrow(testdat.nocont), res$ResultCount[1])
 })
 
 testthat::test_that("TADA_SummarizeResultFrequency retains continuous data when cont_data = TRUE", {
-
   testdat <- Data_HUC8_02070004_Mod1Output |>
-    dplyr::filter(TADA.MonitoringLocationIdentifier == "21VASWCB-1ABAB009.26",
-                  TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE")
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "21VASWCB-1ABAB009.26",
+      TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE"
+    )
 
-
-  res <- TADA_SummarizeResultFrequency(
-    testdat,
-    cont_data = TRUE
-  )
+  res <- TADA_SummarizeResultFrequency(testdat, cont_data = TRUE)
 
   expect_equal(nrow(testdat), res$ResultCount[1])
 })
 
 testthat::test_that("TADA_SummarizeResultFrequency factors in depth for result frequency grouping when depth = TRUE", {
-
   testdat <- Data_TribalNations_Harmonized |>
-    dplyr::filter(TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-GREE-REDLAKE",
-                  TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L")
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-GREE-REDLAKE",
+      TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+    )
 
   testdat.filt <- testdat |>
     TADA_FlagDepthCategory() |>
-    dplyr::group_by(TADA.MonitoringLocationIdentifier,
-                    TADA.ConsolidatedDepth) |>
+    dplyr::group_by(
+      TADA.MonitoringLocationIdentifier,
+      TADA.ConsolidatedDepth
+    ) |>
     dplyr::mutate(CountN = dplyr::n()) |>
-    dplyr::select(TADA.MonitoringLocationIdentifier,
-                  TADA.ConsolidatedDepth,
-                  TADA.ComparableDataIdentifier,
-                  CountN) |>
+    dplyr::select(
+      TADA.MonitoringLocationIdentifier,
+      TADA.ConsolidatedDepth,
+      TADA.ComparableDataIdentifier,
+      CountN
+    ) |>
     dplyr::distinct() |>
     dplyr::ungroup() |>
     dplyr::filter(TADA.ConsolidatedDepth == 7.000) |>
     dplyr::select(CountN) |>
     dplyr::pull()
 
-  res <- TADA_SummarizeResultFrequency(
-    testdat,
-    depth = TRUE
-  ) |>
+  res <- TADA_SummarizeResultFrequency(testdat, depth = TRUE) |>
     dplyr::filter(TADA.ConsolidatedDepth == 7.000)
 
   testthat::expect_equal(testdat.filt, res$ResultCount[1])
@@ -681,17 +664,17 @@ testthat::test_that("TADA_SummarizeResultFrequency factors in depth for result f
 
 testthat::test_that("TADA_SummarizeResultFrequency returns grouped output without duplicates", {
   testdat <- Data_Nutrients_UT |>
-    dplyr::filter(TADA.MonitoringLocationIdentifier %in% c(
-      "UTAHDWQ_WQX-595274",
-      "11NPSWRD_WQX-GLCA_COY01",
-      "NARS_WQX-NWC_UT-10208",
-      "USGS-403149111290300"
-    ))
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier %in%
+        c(
+          "UTAHDWQ_WQX-595274",
+          "11NPSWRD_WQX-GLCA_COY01",
+          "NARS_WQX-NWC_UT-10208",
+          "USGS-403149111290300"
+        )
+    )
 
-  res <- TADA_SummarizeResultFrequency(
-    testdat,
-    time_period = "year"
-  )
+  res <- TADA_SummarizeResultFrequency(testdat, time_period = "year")
 
   key_cols <- c(
     "TADA.MonitoringLocationIdentifier",
@@ -700,15 +683,19 @@ testthat::test_that("TADA_SummarizeResultFrequency returns grouped output withou
     "TADA.TimePeriodType"
   )
 
-  testthat::expect_false(any(duplicated(res[, intersect(key_cols, names(res))])))
+  testthat::expect_false(any(duplicated(res[, intersect(
+    key_cols,
+    names(res)
+  )])))
 })
 
 
 testthat::test_that("TADA_SummarizeResultFrequency daily aggregation runs with time period", {
-
   testdat <- Data_HUC8_02070004_Mod1Output |>
-    dplyr::filter(TADA.MonitoringLocationIdentifier == "21VASWCB-1ABAB009.26",
-                  TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE")
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "21VASWCB-1ABAB009.26",
+      TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE"
+    )
 
   res <- TADA_SummarizeResultFrequency(
     testdat,
@@ -723,7 +710,8 @@ testthat::test_that("TADA_SummarizeResultFrequency daily aggregation runs with t
 })
 
 testthat::test_that("TADA_SummarizeResultFrequency errors when input lacks required grouping columns", {
-  bad_data <- Data_Nutrients_UT |> dplyr::select(-TADA.MonitoringLocationIdentifier)
+  bad_data <- Data_Nutrients_UT |>
+    dplyr::select(-TADA.MonitoringLocationIdentifier)
 
   expect_error(
     TADA_SummarizeResultFrequency(bad_data),

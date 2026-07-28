@@ -2933,11 +2933,11 @@ TADA_CorrectColType <- function(.data) {
 #' time_period = "week")
 #'
 TADA_SummarizeResultFrequency <- function(
-    .data,
-    depth = FALSE,
-    daily_agg = "none",
-    cont_data = FALSE,
-    time_period = "none"
+  .data,
+  depth = FALSE,
+  daily_agg = "none",
+  cont_data = FALSE,
+  time_period = "none"
 ) {
   # helper for param validation
   .validate_tada_srf_args <- function(daily_agg, time_period, data_names) {
@@ -3023,19 +3023,16 @@ TADA_SummarizeResultFrequency <- function(
   # helper to remove continuous data
   .remove_continuous_data <- function(df) {
     if (!"TADA.ContinuousDataFlag" %in% names(df)) {
-      df |>
-        TADA_FlagContinuousData(clean = TRUE)
+      df |> TADA_FlagContinuousData(clean = TRUE)
     } else {
-      df |>
-        dplyr::filter(TADA.ContinuousDataFlag != "Continuous")
+      df |> dplyr::filter(TADA.ContinuousDataFlag != "Continuous")
     }
   }
 
   # helper to flag depth category if requires
   .ensure_depth_category <- function(df) {
     if (!"TADA.ConsolidatedDepth" %in% names(df)) {
-      df <- df |>
-        TADA_FlagDepthCategory()
+      df <- df |> TADA_FlagDepthCategory()
     }
     df
   }
@@ -3083,13 +3080,21 @@ TADA_SummarizeResultFrequency <- function(
 
   # daily aggreagation if required
   if (daily_agg != "none") {
-    agg_grouping_cols <- .build_grouping_cols(depth, time_period, include_date = TRUE)
+    agg_grouping_cols <- .build_grouping_cols(
+      depth,
+      time_period,
+      include_date = TRUE
+    )
 
     .data <- .apply_daily_aggregation(.data, daily_agg, agg_grouping_cols)
   }
 
   # set grouping cols
-  summary_grouping_cols <- .build_grouping_cols(depth, time_period, include_date = FALSE)
+  summary_grouping_cols <- .build_grouping_cols(
+    depth,
+    time_period,
+    include_date = FALSE
+  )
 
   # summarize result frequency
   .data <- .summarize_frequency(.data, summary_grouping_cols)
