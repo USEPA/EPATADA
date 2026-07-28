@@ -162,12 +162,12 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 #   testthat::skip_on_cran()
 #   testthat::skip_if_offline("www.waterqualitydata.us")
 #   testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
-# 
+#
 #   testthat::skip_if(
 #     is.null(testdat) || NROW(testdat) == 0,
 #     "Empty test data; skipping test."
 #   )
-# 
+#
 #   testdat <- tryCatch(
 #     TADA_FindPotentialDuplicatesMultipleOrgs(testdat),
 #     error = function(e) {
@@ -183,7 +183,7 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 #       stop(e)
 #     }
 #   )
-# 
+#
 #   testdat1 <- testdat |>
 #     dplyr::distinct(TADA.NearbySiteGroup) |>
 #     dplyr::filter(
@@ -191,12 +191,12 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 #       grepl("^[0-9]+$", TADA.NearbySiteGroup)
 #     ) |>
 #     dplyr::pull(TADA.NearbySiteGroup)
-# 
+#
 #   testdat2 <- testdat |>
 #     dplyr::select(TADA.MultipleOrgDupGroupID) |>
 #     dplyr::filter(TADA.MultipleOrgDupGroupID != "Not a duplicate") |>
 #     unique()
-# 
+#
 #   expect_true(length(testdat1) == 0 || length(unique(diff(testdat1))) < 2)
 #   expect_true(length(testdat2) == 0 || length(unique(diff(testdat2))) < 2)
 # })
