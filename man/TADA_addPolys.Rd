@@ -42,7 +42,8 @@ lmap <- leaflet::leaflet() |>
   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
   leaflet::addMapPane("featurelayers", zIndex = 300)
 # Add the American Indian Reservations feature layer to the map
-lmap <- TADA_addPolys(lmap, "extdata", "Tribal.gpkg","AmericanIndian", "Tribes", "American Indian Reservations")
+lmap <- TADA_addPolys(lmap, "extdata", "Tribal.gpkg","AmericanIndian",
+"Tribes", "American Indian Reservations")
 lmap
 }
 }
