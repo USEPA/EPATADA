@@ -1,3 +1,4 @@
+# tests for TADA_DayOfYearPlot
 testthat::test_that("TADA_DayOfYearPlot returns a plotly object for valid input", {
   res <- TADA_DayOfYearPlot(
     Data_Nutrients_UT,
