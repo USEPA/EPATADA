@@ -51,17 +51,15 @@ utils::data(Data_Nutrients_UT)
 # Plot all available years and months for one characteristic and all sites:
 TADA_DayOfYearPlot(
   Data_Nutrients_UT,
-  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS"
+  comparableDataId = "NITRATE_DISSOLVED_AS N_MG/L"
 )
 
 # Plot one monitoring location over a selected year and month range:
-site_id <- unique(Data_Nutrients_UT$MonitoringLocationIdentifier)[1]
 TADA_DayOfYearPlot(
-  Data_Nutrients_UT,
-  monitoringLocationIdentifier = site_id,
-  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS",
-  yearRange = c(2018, 2022),
-  monthRange = c(4, 10)
-)
+Data_Nutrients_UT,
+location =  "USGS-10168000",
+comparableDataId = "NITRATE_DISSOLVED_AS N_MG/L",
+yearRange = c(2020, 2022),
+monthRange = c(4, 10))
 
 }

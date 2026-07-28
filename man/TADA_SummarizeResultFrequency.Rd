@@ -8,7 +8,8 @@ TADA_SummarizeResultFrequency(
   .data,
   depth = FALSE,
   daily_agg = "none",
-  cont_data = FALSE
+  cont_data = FALSE,
+  time_period = "none"
 )
 }
 \arguments{
@@ -33,7 +34,30 @@ results will be identified or calculated for each group. When dailyagg ==
 "min" or when dailyagg == "max", the min or max value in each group of
 results (as determined by the depth category) will be identified or calculated
 for each group.}
+
+\item{time_period.}{Character string. Species which period of time the result
+frequencies should be summarized. Default equals "none" which means the selected
+time period is between the first and last ActivityStartDates for each group.
+Other options are "year", "month", and "week". Selecting a value other than
+"none" for time_period will add two additional columns: TADA.TimePeriodForSummary
+and TADA.ResultCount.}
 }
 \description{
-Description here
+Summarize result frequencies for TADA.MonitoringLocationIdentifier and
+TADA.ComparableDataIdentifier combinations. Users can choose whether or not to
+include continuous data, aggregate multiple results from one day (min, max, avg),
+include sample depth as an additional grouping factor and select the time period
+(year, month, week) at which results frequencies should be summarized.
+}
+\examples{
+
+test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
+time_period = "year")
+
+test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
+time_period = "month")
+
+test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
+time_period = "week")
+
 }

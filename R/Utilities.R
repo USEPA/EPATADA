@@ -2880,7 +2880,11 @@ TADA_CorrectColType <- function(.data) {
 
 #' TADA_SummarizeResultFrequency
 #'
-#' Description here
+#' Summarize result frequencies for TADA.MonitoringLocationIdentifier and
+#' TADA.ComparableDataIdentifier combinations. Users can choose whether or not to
+#' include continuous data, aggregate multiple results from one day (min, max, avg),
+#' include sample depth as an additional grouping factor and select the time period
+#' (year, month, week) at which results frequencies should be summarized.
 #'
 #' @param .data TADA dataframe which must include the columns:
 #'  TADA.MonitoringLocationIdentifier, TADA.ComparableDataIdentifier,
@@ -2900,93 +2904,188 @@ TADA_CorrectColType <- function(.data) {
 #' @param cont_data Boolean argument. When cont_data = TRUE, continuous data results
 #' will be included in the result summary. When cont_data = FALSE, continuous data
 #' will be excluded.
+#' @param time_period. Character string. Species which period of time the result
+#' frequencies should be summarized. Default equals "none" which means the selected
+#' time period is between the first and last ActivityStartDates for each group.
+#' Other options are "year", "month", and "week". Selecting a value other than
+#' "none" for time_period will add two additional columns: TADA.TimePeriodForSummary
+#' and TADA.ResultCount.
 #'
 #'
 #' @export
 #'
 #' @examples
 #'
+#' test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
+#' time_period = "year")
+#'
+#' test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
+#' time_period = "month")
+#'
+#' test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
+#' time_period = "week")
 #'
 TADA_SummarizeResultFrequency <- function(
-  .data,
-  depth = FALSE,
-  daily_agg = "none",
-  cont_data = FALSE
+    .data,
+    depth = FALSE,
+    daily_agg = "none",
+    cont_data = FALSE,
+    time_period = "none"
 ) {
-  # if cont_data equals FALSE, remove all continuous data results from TADA df if required
-  if (isFALSE(cont_data)) {
-    # if continuous data flag does not exist, run TADA_FlagContinuousData and remove any continuous data
-    if (!"TADA.ContinuousDataFlag" %in% names(.data)) {
-      .data <- .data |> TADA_FlagContinuousData(clean = TRUE)
-    } else {
-      # if continuous data flag does exist, filter out any results identified as continuous
-      .data <- .data |> dplyr::filter(TADA.ContinuousDataFlag != "Continuous")
+  # helper for param validation
+  .validate_tada_srf_args <- function(daily_agg, time_period, data_names) {
+    if (!daily_agg %in% c("none", "avg", "min", "max")) {
+      stop(
+        "TADA_SummarizeResultFrequency: 'daily_agg' must be one of: none, avg, min, max."
+      )
     }
+
+    if (!time_period %in% c("none", "year", "month", "week")) {
+      stop(
+        "TADA_SummarizeResultFrequency: 'time_period' must be one of: none, year, month, week."
+      )
+    }
+
+    if (!"ActivityStartDate" %in% data_names) {
+      stop(
+        "TADA_SummarizeResultFrequency: Input data must contain 'ActivityStartDate'."
+      )
+    }
+
+    invisible(TRUE)
   }
 
-  # set up default grouping cols for results summary
-  group.cols <- c(
-    "TADA.MonitoringLocationIdentifier",
-    "TADA.ComparableDataIdentifier"
-  )
-
-  # if depth equals TRUE, add TADA.ConsolidatedDepth to grouping cols
-  if (isTRUE(depth)) {
-    group.cols <- c(group.cols, "TADA.ConsolidatedDepth")
-
-    # if TADA.ConsolidatedDepth col is not in TADA df, create it
-    if (!"TADA.ConsolidatedDepth" %in% names(.data)) {
-      .data <- .data |> TADA_FlagDepthCategory()
-    }
+  # helper to create time period labels
+  .add_time_period <- function(df, time_period) {
+    df |>
+      dplyr::mutate(
+        ActivityStartDate = as.Date(ActivityStartDate),
+        TADA.TimePeriodType = time_period,
+        TADA.TimePeriodForSummary = dplyr::case_when(
+          time_period == "year" ~ format(ActivityStartDate, "%Y"),
+          time_period == "month" ~ format(ActivityStartDate, "%Y-%m"),
+          time_period == "week" ~ {
+            iso_year <- as.integer(format(ActivityStartDate, "%G"))
+            iso_week <- as.integer(format(ActivityStartDate, "%V"))
+            sprintf("%04d-W%02d", iso_year, iso_week)
+          },
+          TRUE ~ NA_character_
+        )
+      )
   }
 
-  # create list of calculated cols to retain in summary
-  calc.cols <- c(
-    "FirstResultMeasurement",
-    "LastResultMeasurement",
-    "ResultCount"
-  )
+  # helper to build grouping cols
+  .build_grouping_cols <- function(depth, time_period, include_date = FALSE) {
+    cols <- c(
+      "TADA.MonitoringLocationIdentifier",
+      "TADA.ComparableDataIdentifier"
+    )
 
-  # if daily aggregation of results was selected, run TADA_AggregateMeasurements if needed
-  if (daily_agg != "none") {
-    # if aggregation has not been performed, run TADA_AggregateMeasurements
-    if (!"TADA.ResultAggregationFlag" %in% names(.data)) {
-      .data <- .data |>
+    if (isTRUE(depth)) {
+      cols <- c(cols, "TADA.ConsolidatedDepth")
+    }
+
+    if (time_period != "none") {
+      cols <- c(cols, "TADA.TimePeriodForSummary", "TADA.TimePeriodType")
+    }
+
+    if (isTRUE(include_date)) {
+      cols <- c("ActivityStartDate", cols)
+    }
+
+    cols
+  }
+
+  # helper for daily aggregation
+  .apply_daily_aggregation <- function(df, daily_agg, agg_grouping_cols) {
+    if (!"TADA.ResultAggregationFlag" %in% names(df)) {
+      df |>
         TADA_AggregateMeasurements(
           agg_fun = daily_agg,
-          grouping_cols = c(
-            "ActivityStartDate",
-            "TADA.MonitoringLocationIdentifier",
-            "TADA.ComparableDataIdentifier"
-          )
+          grouping_cols = agg_grouping_cols
         )
-      # if results have already been aggregated, do not perform any additional aggregation
-      # print message to user that no additional aggregation has been performed
     } else {
-      print(paste0(
-        "TADA_SummarizeResultFrequency: results have already been ",
-        "aggregated with TADA_AggregateMeasurements. ",
-        "No additional aggregation will be performed."
-      ))
+      message(
+        "TADA_SummarizeResultFrequency: results have already been aggregated ",
+        "with TADA_AggregateMeasurements. No additional aggregation will be performed."
+      )
+      df
     }
   }
 
-  # prep and summarize data
+  # helper to remove continuous data
+  .remove_continuous_data <- function(df) {
+    if (!"TADA.ContinuousDataFlag" %in% names(df)) {
+      df |>
+        TADA_FlagContinuousData(clean = TRUE)
+    } else {
+      df |>
+        dplyr::filter(TADA.ContinuousDataFlag != "Continuous")
+    }
+  }
+
+  # helper to flag depth category if requires
+  .ensure_depth_category <- function(df) {
+    if (!"TADA.ConsolidatedDepth" %in% names(df)) {
+      df <- df |>
+        TADA_FlagDepthCategory()
+    }
+    df
+  }
+
+  # helper to summarize frequency
+  .summarize_frequency <- function(df, group.cols) {
+    df |>
+      TADA_FindQCActivities(clean = TRUE) |>
+      dplyr::group_by(!!!rlang::syms(group.cols)) |>
+      dplyr::mutate(
+        FirstResultMeasurement = min(ActivityStartDate, na.rm = TRUE),
+        LastResultMeasurement = max(ActivityStartDate, na.rm = TRUE),
+        ResultCount = dplyr::n()
+      ) |>
+      dplyr::select(
+        dplyr::all_of(group.cols),
+        FirstResultMeasurement,
+        LastResultMeasurement,
+        ResultCount
+      ) |>
+      dplyr::distinct() |>
+      dplyr::ungroup()
+  }
+
+  # validate params
+  .validate_tada_srf_args(daily_agg, time_period, names(.data))
+
+  # handle continuous data
+  if (isFALSE(cont_data)) {
+    .data <- .remove_continuous_data(.data)
+  }
+
   .data <- .data |>
-    # remove any QC activities
-    TADA_FindQCActivities(clean = TRUE) |>
-    # group by selected columns
-    dplyr::group_by(!!!rlang::syms(group.cols)) |>
-    # create summary
-    dplyr::mutate(
-      FirstResultMeasurement = min(ActivityStartDate),
-      LastResultMeasurement = max(ActivityStartDate),
-      ResultCount = dplyr::n()
-    ) |>
-    # select summary cols
-    dplyr::select(dplyr::all_of(group.cols), dplyr::all_of(calc.cols)) |>
-    # retain distinct
-    dplyr::distinct()
+    dplyr::mutate(ActivityStartDate = as.Date(ActivityStartDate))
+
+  # handle depth
+  if (isTRUE(depth)) {
+    .data <- .ensure_depth_category(.data)
+  }
+
+  # set time period
+  if (time_period != "none") {
+    .data <- .add_time_period(.data, time_period)
+  }
+
+  # daily aggreagation if required
+  if (daily_agg != "none") {
+    agg_grouping_cols <- .build_grouping_cols(depth, time_period, include_date = TRUE)
+
+    .data <- .apply_daily_aggregation(.data, daily_agg, agg_grouping_cols)
+  }
+
+  # set grouping cols
+  summary_grouping_cols <- .build_grouping_cols(depth, time_period, include_date = FALSE)
+
+  # summarize result frequency
+  .data <- .summarize_frequency(.data, summary_grouping_cols)
 
   return(.data)
 }
