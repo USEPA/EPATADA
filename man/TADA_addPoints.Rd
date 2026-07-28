@@ -2,7 +2,7 @@
 % Please edit documentation in R/Utilities.R
 \name{TADA_addPoints}
 \alias{TADA_addPoints}
-\title{Add points from an ArcGIS feature layer to a leaflet map}
+\title{Add points from a spatial layer to a leaflet map}
 \usage{
 TADA_addPoints(
   map,
@@ -33,7 +33,7 @@ TADA_addPoints(
 The original map with polygon from the feature layer added to it.
 }
 \description{
-Add points from an ArcGIS feature layer to a leaflet map
+Add points from a spatial layer to a leaflet map
 }
 \examples{
 \dontrun{

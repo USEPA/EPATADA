@@ -2,7 +2,7 @@
 % Please edit documentation in R/Utilities.R
 \name{TADA_addPolys}
 \alias{TADA_addPolys}
-\title{Add polygons from an ArcGIS feature layer to a leaflet map}
+\title{Add polygons from a spatial layer to a leaflet map}
 \usage{
 TADA_addPolys(
   map,
@@ -33,7 +33,7 @@ TADA_addPolys(
 The original map with polygons from the feature layer added to it.
 }
 \description{
-Add polygons from an ArcGIS feature layer to a leaflet map
+Add polygons from a spatial layer to a leaflet map
 }
 \examples{
 \dontrun{
@@ -42,7 +42,8 @@ lmap <- leaflet::leaflet() |>
   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
   leaflet::addMapPane("featurelayers", zIndex = 300)
 # Add the American Indian Reservations feature layer to the map
-lmap <- TADA_addPolys(lmap, "extdata", "Tribal.gpkg","AmericanIndian", "Tribes", "American Indian Reservations")
+lmap <- TADA_addPolys(lmap, "extdata", "Tribal.gpkg","AmericanIndian",
+"Tribes", "American Indian Reservations")
 lmap
 }
 }
