@@ -2882,7 +2882,7 @@ TADA_CorrectColType <- function(.data) {
 #'
 #' Summarize result frequencies for TADA.MonitoringLocationIdentifier and
 #' TADA.ComparableDataIdentifier combinations. Users can choose whether or not to
-#' include continuous data, aggregate multiple results from one day (min, max, avg),
+#' include continuous data, aggregate multiple results from one day (min, max, mean),
 #' include sample depth as an additional grouping factor and select the time period
 #' (year, month, week) at which results frequencies should be summarized.
 #'
@@ -2894,9 +2894,9 @@ TADA_CorrectColType <- function(.data) {
 #' column does not exist in the TADA df, it will be calculated with
 #' TADA_FlagDepthCategory. Default = FALSE, depth will not be taken into account
 #' when creating groupings to summarize result frequency.
-#' @param dailyagg Character argument; with options "none", "avg", "min", or
+#' @param dailyagg Character argument; with options "none", "mean", "min", or
 #' "max". The default is dailyagg = "none". When dailyagg = "none", all results
-#' will be retained. When dailyagg == "avg", the mean value in each group of
+#' will be retained. When dailyagg == "mean", the mean value in each group of
 #' results will be identified or calculated for each group. When dailyagg ==
 #' "min" or when dailyagg == "max", the min or max value in each group of
 #' results (as determined by the depth category) will be identified or calculated
@@ -2934,9 +2934,9 @@ TADA_SummarizeResultFrequency <- function(
 ) {
   # helper for param validation
   .validate_tada_srf_args <- function(daily_agg, time_period, data_names) {
-    if (!daily_agg %in% c("none", "avg", "min", "max")) {
+    if (!daily_agg %in% c("none", "mean", "min", "max")) {
       stop(
-        "TADA_SummarizeResultFrequency: 'daily_agg' must be one of: none, avg, min, max."
+        "TADA_SummarizeResultFrequency: 'daily_agg' must be one of: none, mean, min, max."
       )
     }
 
