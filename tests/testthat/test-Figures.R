@@ -10,7 +10,8 @@ testthat::test_that("TADA_DayOfYearPlot returns a plotly object for valid input"
 
 
 testthat::test_that("TADA_DayOfYearPlot errors when TADA.MonitoringLocationIdentifier is missing", {
-  bad_data <- Data_Nutrients_UT |> dplyr::select(-TADA.MonitoringLocationIdentifier)
+  bad_data <- Data_Nutrients_UT |>
+    dplyr::select(-TADA.MonitoringLocationIdentifier)
 
   testthat::expect_error(
     TADA_DayOfYearPlot(
@@ -30,10 +31,7 @@ testthat::test_that("TADA_DayOfYearPlot errors when comparableDataId is missing"
 
 testthat::test_that("TADA_DayOfYearPlot errors when comparableDataId is not found", {
   testthat::expect_error(
-    TADA_DayOfYearPlot(
-      Data_Nutrients_UT,
-      comparableDataId = "NOT_A_REAL_ID"
-    ),
+    TADA_DayOfYearPlot(Data_Nutrients_UT, comparableDataId = "NOT_A_REAL_ID"),
     "was not found"
   )
 })
