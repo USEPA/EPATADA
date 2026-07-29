@@ -503,7 +503,12 @@ utils::globalVariables(c(
   "CoordinateCountyCode",
   "CoordinateStateCode",
   "STATEFP",
-  "StateCode"
+  "StateCode",
+  "DayOfYear",
+  "FirstResultMeasurement",
+  "LastResultMeasurement",
+  "Month",
+  "Year"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -3022,10 +3027,10 @@ TADA_SummarizeResultFrequency <- function(
 
   # helper to remove continuous data
   .remove_continuous_data <- function(df) {
-    if (!"TADA.ContinuousDataFlag" %in% names(df)) {
+    if (!"TADA.ContinuousData.Flag" %in% names(df)) {
       df |> TADA_FlagContinuousData(clean = TRUE)
     } else {
-      df |> dplyr::filter(TADA.ContinuousDataFlag != "Continuous")
+      df |> dplyr::filter(TADA.ContinuousData.Flag != "Continuous")
     }
   }
 
