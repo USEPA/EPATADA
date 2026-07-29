@@ -2901,17 +2901,17 @@ TADA_CorrectColType <- function(.data) {
 #' column does not exist in the TADA df, it will be calculated with
 #' TADA_FlagDepthCategory. Default = FALSE, depth will not be taken into account
 #' when creating groupings to summarize result frequency.
-#' @param dailyagg Character argument; with options "none", "mean", "min", or
-#' "max". The default is dailyagg = "none". When dailyagg = "none", all results
-#' will be retained. When dailyagg == "mean", the mean value in each group of
-#' results will be identified or calculated for each group. When dailyagg ==
-#' "min" or when dailyagg == "max", the min or max value in each group of
+#' @param daily_agg Character argument; with options "none", "mean", "min", or
+#' "max". The default is daily_agg = "none". When daily_agg = "none", all results
+#' will be retained. When daily_agg == "mean", the mean value in each group of
+#' results will be identified or calculated for each group. When daily_agg ==
+#' "min" or when daily_agg == "max", the min or max value in each group of
 #' results (as determined by the depth category) will be identified or calculated
 #' for each group.
 #' @param cont_data Boolean argument. When cont_data = TRUE, continuous data results
 #' will be included in the result summary. When cont_data = FALSE, continuous data
 #' will be excluded.
-#' @param time_period. Character string. Species which period of time the result
+#' @param time_period Character string. Species which period of time the result
 #' frequencies should be summarized. Default equals "none" which means the selected
 #' time period is between the first and last ActivityStartDates for each group.
 #' Other options are "year", "month", and "week". Selecting a value other than
