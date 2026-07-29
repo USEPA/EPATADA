@@ -107,7 +107,9 @@ testthat::test_that("fetchATTAINS fails with appropriate errors", {
 testthat::test_that("fetchATTAINS handles small areas", {
   # small_subset_Hill_MT_pH is subset of Hill_MT_pH fixture (testdata/Hill_MT_pH.Rd)
   testthat::expect_no_error(
-    result_all_features <- EPATADA:::fetchATTAINS(.data = small_subset_Hill_MT_pH)
+    result_all_features <- EPATADA:::fetchATTAINS(
+      .data = small_subset_Hill_MT_pH
+    )
   )
   testthat::expect_null(result_all_features$ATTAINS_points)
   testthat::expect_equal(nrow(result_all_features$ATTAINS_lines), 2)
@@ -202,7 +204,10 @@ testthat::test_that("fetchNHD with valid non-default features params", {
 
 testthat::test_that("fetchNHD with valid non-default resolution param Med", {
   testthat::expect_no_error(
-    med_cat <- EPATADA:::fetchNHD(.data = small_subset_Hill_MT_pH, resolution = "Med")
+    med_cat <- EPATADA:::fetchNHD(
+      .data = small_subset_Hill_MT_pH,
+      resolution = "Med"
+    )
   )
   expect_equal(nrow(med_cat), 2) # Expected results
 })
@@ -211,7 +216,7 @@ testthat::test_that("fetchNHD error when invalid features param", {
   testthat::skip_on_cran()
   testthat::skip_if_offline("www.waterqualitydata.us")
   # testthat::skip_if_offline("api.data.gov")
-  
+
   testthat::expect_error(
     EPATADA:::fetchNHD(.data = small_subset_Hill_MT_pH, features = "Hi"),
     "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
@@ -378,7 +383,7 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
   testthat::skip_on_cran()
   testthat::skip_if_offline("www.waterqualitydata.us")
   # testthat::skip_if_offline("api.data.gov")
-  
+
   # with defaults
   test_defaults <- TADA_FindNearbySites(nearby_data)
 
