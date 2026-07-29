@@ -73,68 +73,84 @@ mock_coords <- data.frame(
     "Imprecise"
   ),
   TADA.LatitudeMeasure = c(
-    38.8977, # Pass (USA mainland-like)
-    -5.0000, # LAT_OutsideUSA
-    40.0000, # LONG_OutsideUSA (long between 0 and 145)
-    -13.5000, # American Samoa (excluded from outside flags)
-    15.0000, # Northern Mariana Islands (excluded)
-    13.4000, # Guam (excluded)
-    35.12 # Imprecise (< 3 decimal places)
+    38.8977,  # Pass
+    -5.0000,  # LAT_OutsideUSA
+    40.0000,  # LONG_OutsideUSA candidate
+    -13.5000, # American Samoa
+    15.0000,  # Northern Mariana Islands
+    13.4000,  # Guam
+    35.12     # Imprecise (< 3 decimal places)
   ),
   TADA.LongitudeMeasure = c(
     -77.0365, # Pass
     -120.0000, # LAT_OutsideUSA
-    10.0000, # LONG_OutsideUSA
+    10.0000,   # LONG_OutsideUSA
     -170.0000, # American Samoa
-    145.5000, # Northern Mariana Islands
-    144.8500, # Guam
-    -120.0 # Imprecise (<= 1 decimal place)
+    145.5000,  # Northern Mariana Islands
+    144.8500,  # Guam
+    -120.0     # Imprecise (<= 1 decimal place)
   ),
   stringsAsFactors = FALSE
 )
 
-# Flag, but do not remove, data with Suspect coordinates in new column
-# titled "TADA.SuspectCoordinates.Flag":
-# Return ALL data:
+# Flag, but do not remove, suspect coordinates:
 SuspectCoord_flags <- TADA_FlagCoordinates(mock_coords)
 
-# Flag, but do not remove, data with Suspect coordinates in new column
-# titled "TADA.SuspectCoordinates.Flag"
-# Return ONLY the flagged data:
+# Return only flagged rows:
 SuspectCoord_flags_flaggedonly <- TADA_FlagCoordinates(
   mock_coords,
   flaggedonly = TRUE
 )
 
-# Remove data with coordinates outside the USA, but keep flagged data with
-# imprecise coordinates:
+# Remove data with coordinates outside the USA, but keep imprecise data:
 OutsideUSACoord_removed <- TADA_FlagCoordinates(
   mock_coords,
   clean_outsideUSA = "remove"
 )
 
-# Change the sign of coordinates flagged as outside the USA and keep all
-# flagged data:
+# Change the sign of coordinates flagged as outside the USA:
 OutsideUSACoord_changed <- TADA_FlagCoordinates(
   mock_coords,
   clean_outsideUSA = "change sign"
 )
 
-# Remove data with imprecise coordinates, but keep flagged data with
-# coordinates outside the USA;
-# imprecise data may have less than 3 significant figures to the right
-# of the decimal point:
+# Remove data with imprecise coordinates, but keep coordinates outside the USA:
 ImpreciseCoord_removed <- TADA_FlagCoordinates(
   mock_coords,
   clean_imprecise = TRUE
 )
 
-# Remove data with imprecise coordinates or coordinates outside the USA
-# from the dataframe:
+# Remove both imprecise coordinates and coordinates outside the USA:
 SuspectCoord_removed <- TADA_FlagCoordinates(
   mock_coords,
   clean_outsideUSA = "remove",
   clean_imprecise = TRUE
+)
+
+# Example using location metadata comparison.
+# StateCode and CountyCode are required when check_location_metadata = TRUE.
+mock_coords_meta <- data.frame(
+  ID = c(
+    "Pass_US_mainland",
+    "Lat_outside"
+  ),
+  StateCode = c("11", "06"),
+  CountyCode = c("001", "001"),
+  TADA.LatitudeMeasure = c(
+    38.8977,
+    -5.0000
+  ),
+  TADA.LongitudeMeasure = c(
+    -77.0365,
+    -120.0000
+  ),
+  stringsAsFactors = FALSE
+)
+
+# Flag coordinates not matching metadata:
+SuspectCoord_meta <- TADA_FlagCoordinates(
+  mock_coords_meta,
+  check_location_metadata = TRUE
 )
 
 }
