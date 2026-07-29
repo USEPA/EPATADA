@@ -2233,9 +2233,10 @@ TADA_FindNearbySites <- function(
   nhd_res <- match.arg(nhd_res, choices = c("Hi", "Med"))
 
   # Helper: return input data with standard no-nearby output columns and message
+  # output geometry is not needed
   make_no_nearby <- function(reason) {
     message(reason)
-    .data |>
+    sf::st_drop_geometry(.data) |>
       dplyr::mutate(
         TADA.NearbySiteGroup = NA_integer_,
         TADA.NearbySites.Flag = reason
@@ -2388,14 +2389,14 @@ TADA_FindNearbySites <- function(
     }
 
     # Subset only the monitoring locations currently in candidate groups
-    near_sites <- site_meta |>
+    near_sites <- sf::st_drop_geometry(site_meta) |>
       dplyr::filter(
         TADA.MonitoringLocationIdentifier %in%
           group_xwalk$TADA.MonitoringLocationIdentifier
       ) |>
       dplyr::left_join(
-        group_xwalk,
-        by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
+        sf::st_drop_geometry(group_xwalk),
+        by = "TADA.MonitoringLocationIdentifier"
       )
 
     # Split candidate groups so catchments can be fetched group-by-group
@@ -2463,7 +2464,7 @@ TADA_FindNearbySites <- function(
             nhd_warned <- TRUE
           }
           return(
-            site_grp |>
+            sf::st_drop_geometry(site_grp) |>
               dplyr::select(TADA.MonitoringLocationIdentifier, Group) |>
               dplyr::distinct()
           )
@@ -2516,10 +2517,7 @@ TADA_FindNearbySites <- function(
 
     # Keep only nearby groups that contain more than one site from the same organization
     group_xwalk <- group_xwalk |>
-      dplyr::left_join(
-        org.ml.cw,
-        by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
-      ) |>
+      dplyr::left_join(org.ml.cw, by = "TADA.MonitoringLocationIdentifier") |>
       dplyr::group_by(Group, OrganizationIdentifier) |>
       dplyr::mutate(GroupSize = dplyr::n()) |>
       dplyr::filter(GroupSize > 1) |>
@@ -2554,10 +2552,7 @@ TADA_FindNearbySites <- function(
 
     # Keep only groups where multiple monitoring locations share the same AU
     group_xwalk <- group_xwalk |>
-      dplyr::left_join(
-        au.ml.cw,
-        by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
-      ) |>
+      dplyr::left_join(au.ml.cw, by = "TADA.MonitoringLocationIdentifier") |>
       dplyr::filter(
         !is.na(ATTAINS.AssessmentUnitIdentifier),
         ATTAINS.AssessmentUnitIdentifier != ""
@@ -2599,10 +2594,7 @@ TADA_FindNearbySites <- function(
 
   # Assemble candidate metadata records for each grouped monitoring location
   group_meta <- new.ids |>
-    dplyr::left_join(
-      .data,
-      by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
-    ) |>
+    dplyr::left_join(.data, by = "TADA.MonitoringLocationIdentifier") |>
     dplyr::select(
       TADA.MonitoringLocationIdentifier.New,
       TADA.NearbySiteGroup,
@@ -2719,10 +2711,7 @@ TADA_FindNearbySites <- function(
 
       # Join result counts to grouped metadata candidates and select the largest count per group
       group_meta_ranked |>
-        dplyr::left_join(
-          count_tbl,
-          by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
-        ) |>
+        dplyr::left_join(count_tbl, by = "TADA.MonitoringLocationIdentifier") |>
         dplyr::mutate(NCount = dplyr::coalesce(NCount, 0L)) |>
         dplyr::arrange(
           dplyr::desc(NCount),
@@ -2754,13 +2743,10 @@ TADA_FindNearbySites <- function(
 
   # Join grouped IDs and selected representative metadata back to the full data set
   out <- .data |>
-    dplyr::left_join(
-      ml.crosswalk,
-      by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
-    ) |>
+    dplyr::left_join(ml.crosswalk, by = "TADA.MonitoringLocationIdentifier") |>
     dplyr::left_join(
       select.meta,
-      by = dplyr::join_by(TADA.MonitoringLocationIdentifier.New)
+      by = "TADA.MonitoringLocationIdentifier.New"
     ) |>
     dplyr::mutate(
       # Replace metadata with selected representative values for grouped sites
