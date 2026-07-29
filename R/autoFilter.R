@@ -192,51 +192,51 @@ TADA_FieldCounts <- function(
 #' TADA_FieldValuesTable(Data_Nutrients_UT, field = "TADA.CharacteristicName")
 #'
 TADA_FieldValuesTable <- function(
-    .data,
-    field = "null",
-    characteristicName = "null"
+  .data,
+  field = "null",
+  characteristicName = "null"
 ) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL)
   }
-  
+
   # Check field exists
   if (!field %in% names(.data)) {
     stop(
       "Field input does not exist in dataset. Please populate the 'field' argument with a valid field name. Enter ?TADA_FieldValuesTable in console for more information."
     )
   }
-  
+
   # Optionally filter by characteristic name(s)
   if (!characteristicName %in% c("null")) {
     .data <- .data |>
       dplyr::filter(TADA.CharacteristicName %in% characteristicName)
-    
+
     if (nrow(.data) < 1) {
       stop(
         "Characteristic name(s) provided are not contained within the input dataset. Note that TADA converts characteristic names to ALL CAPS for easier harmonization."
       )
     }
   }
-  
+
   # Remove geometry if input is an sf object
   if (inherits(.data, "sf")) {
     .data <- sf::st_drop_geometry(.data)
   }
-  
+
   # Convert NA values to the string "NA"
   .data[[field]][is.na(.data[[field]])] <- "NA"
-  
+
   # Create summary table
   dat <- .data |>
     dplyr::count(Value = .data[[field]], name = "Count") |>
     dplyr::arrange(dplyr::desc(Count))
-  
+
   return(dat)
 }
 
