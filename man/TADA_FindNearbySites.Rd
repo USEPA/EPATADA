@@ -172,6 +172,7 @@ test.count <- TADA_FindNearbySites(
 )
 
 # Use organization hierarchy to prioritize representative metadata
+TADA_FieldValuesTable(testdat, field = "OrganizationIdentifier")
 test.hierarchy <- TADA_FindNearbySites(
   testdat,
   dist_buffer = 250,

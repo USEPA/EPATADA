@@ -2164,13 +2164,15 @@ TADA_GetATTAINSByAUID <- function(
 #' )
 #'
 #' # Use organization hierarchy to prioritize representative metadata
+#' # Get counts for each organization first to inform prioritization
+#' TADA_FieldValuesTable(testdat, field = "OrganizationIdentifier")
 #' test.hierarchy <- TADA_FindNearbySites(
 #'   testdat,
 #'   dist_buffer = 250,
 #'   catchment = FALSE,
 #'   by_AU = FALSE,
 #'   meta_select = "newest",
-#'   org_hierarchy = c("OrgA", "OrgB", "OrgC")
+#'   org_hierarchy = c("MTVOLWQM_WQX", "USGS-MT", "TSWQC_WQX", "MDEQ_WQ_WQX")
 #' )
 #'
 #' # Group only within the same organization and use count-based selection
