@@ -2389,7 +2389,7 @@ TADA_FindNearbySites <- function(
     }
 
     # Subset only the monitoring locations currently in candidate groups
-    near_sites <- sf::st_drop_geometry(site_meta) |>
+    near_sites <- site_meta |>
       dplyr::filter(
         TADA.MonitoringLocationIdentifier %in%
           group_xwalk$TADA.MonitoringLocationIdentifier
