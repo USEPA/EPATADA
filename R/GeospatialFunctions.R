@@ -2231,7 +2231,7 @@ TADA_FindNearbySites <- function(
 
   # Validate nhd_res argument
   nhd_res <- match.arg(nhd_res, choices = c("Hi", "Med"))
-
+  
   # Helper: return input data with standard no-nearby output columns and message
   make_no_nearby <- function(reason) {
     message(reason)
@@ -2362,7 +2362,7 @@ TADA_FindNearbySites <- function(
     fetchNHD_retry <- function(x, resolution = "Hi", retries = 3, delay = 2) {
       for (i in seq_len(retries)) {
         out <- tryCatch(
-          fetchNHD(x, resolution = resolution),
+          suppressMessages(fetchNHD(x, resolution = resolution)),
           error = function(e) e
         )
         if (inherits(out, "sf") && nrow(out) > 0) {
@@ -2370,6 +2370,7 @@ TADA_FindNearbySites <- function(
         }
         Sys.sleep(delay * i)
       }
+      message("TADA_FindNearbySites: No NHD catchment features found for one or more nearby-site groups.")
       NULL
     }
 
@@ -2450,10 +2451,15 @@ TADA_FindNearbySites <- function(
         # Keep only sites that share a catchment with at least one other site in the group
         joined_df <- sf::st_drop_geometry(joined)
 
+        nhd_warned <- FALSE
+        
         if (!"NHD.comid" %in% names(joined_df)) {
-          message(
-            "TADA_FindNearbySites: No NHD.comid column returned for this group; keeping distance-based grouping for this group."
-          )
+          if (!nhd_warned) {
+            message(
+              "TADA_FindNearbySites: No NHD.comid column returned for this group; keeping distance-based grouping for this group."
+            )
+            nhd_warned <- TRUE
+          }
           return(site_grp |>
                    dplyr::select(TADA.MonitoringLocationIdentifier, Group) |>
                    dplyr::distinct())
