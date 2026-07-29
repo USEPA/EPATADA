@@ -149,30 +149,31 @@ test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multi
   testthat::skip_on_cran()
   testthat::skip_if_offline("www.waterqualitydata.us")
   testthat::skip_if_offline("api.data.gov")
-  
+
   testdat <- Data_R5_TADAPackageDemo |>
     dplyr::filter(StateCode == "17") |>
     TADA_FindPotentialDuplicatesMultipleOrgs()
-  
+
   nearby_groups <- testdat |>
     dplyr::pull(TADA.NearbySiteGroup) |>
     unique() |>
     na.omit()
-  
+
   nearby_groups <- nearby_groups[grepl("^[0-9]+$", nearby_groups)]
-  
+
   dup_groups <- testdat |>
     dplyr::pull(TADA.MultipleOrgDupGroupID) |>
     unique() |>
     na.omit()
-  
+
   dup_groups <- dup_groups[dup_groups != "Not a duplicate"]
   dup_groups <- dup_groups[grepl("^[0-9]+$", dup_groups)]
-  
+
   expect_true(
-    length(nearby_groups) == 0 || all(diff(sort(as.integer(nearby_groups))) == 1)
+    length(nearby_groups) == 0 ||
+      all(diff(sort(as.integer(nearby_groups))) == 1)
   )
-  
+
   expect_true(
     length(dup_groups) == 0 || all(diff(sort(as.integer(dup_groups))) == 1)
   )
