@@ -148,7 +148,7 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
   testthat::skip_on_cran()
   testthat::skip_if_offline("www.waterqualitydata.us")
-  testthat::skip_if_offline("api.data.gov")
+  # testthat::skip_if_offline("api.data.gov")
 
   testdat <- Data_R5_TADAPackageDemo |>
     dplyr::filter(StateCode == "17") |>
