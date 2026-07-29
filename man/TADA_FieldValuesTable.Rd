@@ -7,24 +7,27 @@
 TADA_FieldValuesTable(.data, field = "null", characteristicName = "null")
 }
 \arguments{
-\item{.data}{TADA dataframe}
+\item{.data}{TADA data frame or sf object.}
 
-\item{field}{The field (column) the user would like to see represented in a pie chart.}
+\item{field}{Character string. The field (column) the user would like to summarize.}
 
-\item{characteristicName}{Optional. Defaults to "null". A vector of TADA-converted (all caps) WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.}
+\item{characteristicName}{Optional. Defaults to "null". A vector of TADA-converted
+(all caps) WQP characteristics a user may provide to filter the results to one or
+more characteristics of interest. "null" will show a summary table for the whole dataset.}
 }
 \value{
-A summary dataframe.
+A non-spatial summary table with columns \code{Value} and \code{Count}.
 }
 \description{
-Function creates a dataframe containing the relative proportions of values in a given field in a TADA dataset.
+Creates a summary table showing the count of unique values in a specified field
+from a TADA dataset. If the input is an sf object, geometry is dropped before
+summarizing so the output is a non-spatial data frame/tibble.
 }
 \examples{
 # Load example dataset:
 utils::data(Data_Nutrients_UT)
 
-# Create a list of parameters in the dataset and the number of records of
-# each parameter:
+# Create a summary table for values in a field:
 TADA_FieldValuesTable(Data_Nutrients_UT, field = "TADA.CharacteristicName")
 
 }

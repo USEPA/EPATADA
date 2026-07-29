@@ -170,13 +170,17 @@ TADA_FieldCounts <- function(
 
 #' Field Values Summary Table
 #'
-#' Function creates a dataframe containing the relative proportions of values in a given field in a TADA dataset.
+#' Creates a summary table showing the count of unique values in a specified field
+#' from a TADA dataset. If the input is an sf object, geometry is dropped before
+#' summarizing so the output is a non-spatial data frame/tibble.
 #'
-#' @param .data TADA dataframe
-#' @param field The field (column) the user would like to see represented in a pie chart.
-#' @param characteristicName Optional. Defaults to "null". A vector of TADA-converted (all caps) WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.
+#' @param .data TADA data frame or sf object.
+#' @param field Character string. The field (column) the user would like to summarize.
+#' @param characteristicName Optional. Defaults to "null". A vector of TADA-converted
+#' (all caps) WQP characteristics a user may provide to filter the results to one or
+#' more characteristics of interest. "null" will show a summary table for the whole dataset.
 #'
-#' @return A summary dataframe.
+#' @return A non-spatial summary table with columns `Value` and `Count`.
 #'
 #' @export
 #'
@@ -184,47 +188,55 @@ TADA_FieldCounts <- function(
 #' # Load example dataset:
 #' utils::data(Data_Nutrients_UT)
 #'
-#' # Create a list of parameters in the dataset and the number of records of
-#' # each parameter:
+#' # Create a summary table for values in a field:
 #' TADA_FieldValuesTable(Data_Nutrients_UT, field = "TADA.CharacteristicName")
 #'
 TADA_FieldValuesTable <- function(
-  .data,
-  field = "null",
-  characteristicName = "null"
+    .data,
+    field = "null",
+    characteristicName = "null"
 ) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-
+  
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
+    return(NULL)
   }
-
+  
+  # Check field exists
   if (!field %in% names(.data)) {
     stop(
       "Field input does not exist in dataset. Please populate the 'field' argument with a valid field name. Enter ?TADA_FieldValuesTable in console for more information."
     )
   }
-
-  # change NAs to "NA" (character string)
-  .data[[field]][is.na(.data[[field]])] <- "NA"
-
-  # filter to characteristic if provided
+  
+  # Optionally filter by characteristic name(s)
   if (!characteristicName %in% c("null")) {
     .data <- .data |>
       dplyr::filter(TADA.CharacteristicName %in% characteristicName)
-    if (dim(.data)[1] < 1) {
+    
+    if (nrow(.data) < 1) {
       stop(
         "Characteristic name(s) provided are not contained within the input dataset. Note that TADA converts characteristic names to ALL CAPS for easier harmonization."
       )
     }
   }
-
-  dat <- as.data.frame(table(.data[, field]))
-  names(dat) <- c("Value", "Count")
-  dat <- dat |> dplyr::arrange(desc(Count))
+  
+  # Remove geometry if input is an sf object
+  if (inherits(.data, "sf")) {
+    .data <- sf::st_drop_geometry(.data)
+  }
+  
+  # Convert NA values to the string "NA"
+  .data[[field]][is.na(.data[[field]])] <- "NA"
+  
+  # Create summary table
+  dat <- .data |>
+    dplyr::count(Value = .data[[field]], name = "Count") |>
+    dplyr::arrange(dplyr::desc(Count))
+  
   return(dat)
 }
 
