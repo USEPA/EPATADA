@@ -1,29 +1,29 @@
-# Testing the Geospatial Functions ----
-# Tests for the functions in GeoSpatialFunctions.R using sample data
+# Tests for the functions in GeoSpatialFunctions.R
 
+# test fixtures
 TADA_dataframe <- Data_HUC8_02070004_Mod1Output |>
   dplyr::filter(TADA.CharacteristicName == "PH")
-
 TADA_spatial <- TADA_MakeSpatial(TADA_dataframe)
 
-# Test fixtures
+# pH data in MT county
 # Hill_MT_pH <- EPATADA::TADA_DataRetrieval(
 #   characteristicName = "pH",
 #   statecode = "MT",
 #   countycode = "041",
 #   applyautoclean = TRUE
 # )
-# large_bbox_data
+# save(Hill_MT_pH, file = testthat::test_path("testdata", "Hill_MT_pH.rda"))
 load(testthat::test_path("testdata", "Hill_MT_pH.rda"))
+
 # small area test as subset of large area
-small_bbox_data <- large_bbox_data[125:140, ]
+small_subset_Hill_MT_pH <- Hill_MT_pH[125:140, ]
 expect_cat_n_small <- 2
 
 # data for nearby sites test
-nearby_data <- large_bbox_data |>
+nearby_data <- Hill_MT_pH |>
   dplyr::filter(OrganizationIdentifier %in% c("CHIPCREE_WQX", "USGS-MT"))
 
-# Query specific to sites along state border
+# query specific to sites along state border
 # sites = c("NALMS-F1217605",
 #           "EMAP_CS_WQX-RI03-0338-B",
 #           "EMAP_CS_WQX-RI05-0016-A",
@@ -36,12 +36,14 @@ nearby_data <- large_bbox_data |>
 #  applyautoclean = TRUE
 #  )
 # RI_CT_secchi
+# save(RI_CT_secchi, file = testthat::test_path("testdata", "RI_CT_secchi.rda"))
 load(testthat::test_path("testdata", "RI_CT_secchi.rda"))
 
 # test_au_ref_MTDEQ.rda is static, but was generated using:
 # MT_AU_MLRef <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 # test_au_ref_MTDEQ <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ",
 #                                                     crosswalk = MT_AU_MLRef)
+# save(test_au_ref_MTDEQ, file = testthat::test_path("testdata", "test_au_ref_MTDEQ.rda"))
 load(testthat::test_path("testdata", "test_au_ref_MTDEQ.rda"))
 
 # TADA_MakeSpatial Tests ----
@@ -94,7 +96,6 @@ testthat::test_that("TADA_MakeSpatial fails with appropriate errors", {
   testthat::expect_error(TADA_MakeSpatial(.data = NULL))
 })
 
-
 testthat::test_that("fetchATTAINS fails with appropriate errors", {
   # Test with NULL data
   testthat::expect_error(
@@ -104,9 +105,9 @@ testthat::test_that("fetchATTAINS fails with appropriate errors", {
 })
 
 testthat::test_that("fetchATTAINS handles small areas", {
-  # small_bbox_data is subset of large_bbox_data fixture (testdata/Hill_MT_pH.Rd)
+  # small_subset_Hill_MT_pH is subset of Hill_MT_pH fixture (testdata/Hill_MT_pH.Rd)
   testthat::expect_no_error(
-    result_all_features <- EPATADA:::fetchATTAINS(.data = small_bbox_data)
+    result_all_features <- EPATADA:::fetchATTAINS(.data = small_subset_Hill_MT_pH)
   )
   testthat::expect_null(result_all_features$ATTAINS_points)
   testthat::expect_equal(nrow(result_all_features$ATTAINS_lines), 2)
@@ -118,9 +119,9 @@ testthat::test_that("fetchATTAINS handles small areas", {
 })
 
 testthat::test_that("fetchATTAINS handles large areas", {
-  # large_bbox_data from fixtures (testdata/Hill_MT_pH.Rd)
+  # Hill_MT_pH from fixtures (testdata/Hill_MT_pH.Rd)
   testthat::expect_no_error(
-    result_all_features <- EPATADA:::fetchATTAINS(.data = large_bbox_data)
+    result_all_features <- EPATADA:::fetchATTAINS(.data = Hill_MT_pH)
   )
   testthat::expect_null(result_all_features$ATTAINS_points)
   testthat::expect_equal(nrow(result_all_features$ATTAINS_lines), 10)
@@ -131,7 +132,7 @@ testthat::test_that("fetchATTAINS handles large areas", {
 testthat::test_that("fetchATTAINS catchments_only parameter", {
   testthat::expect_no_error(
     result_catchments_only <- EPATADA:::fetchATTAINS(
-      .data = small_bbox_data,
+      .data = small_subset_Hill_MT_pH,
       catchments_only = TRUE
     )
   )
@@ -170,55 +171,59 @@ testthat::test_that("fetchATTAINS org_id parameter", {
   )
 })
 
-
 testthat::test_that("fetchNHD handles small areas with defaults", {
-  # small_bbox_data subset of large_bbox_data fixture (testdata/Hill_MT_pH.Rd)
+  # small_subset_Hill_MT_pH subset of Hill_MT_pH fixture (testdata/Hill_MT_pH.Rd)
   testthat::expect_no_error(
-    result_NHD_small <- EPATADA:::fetchNHD(.data = small_bbox_data)
+    result_NHD_small <- EPATADA:::fetchNHD(.data = small_subset_Hill_MT_pH)
   )
   # Expect 16 catchments returned
-  testthat::expect_equal(nrow(small_bbox_data), 16)
+  testthat::expect_equal(nrow(small_subset_Hill_MT_pH), 16)
 })
 
-# not working on 7/21/26
-# testthat::test_that("fetchNHD with valid non-default features params", {
-#   testthat::expect_no_error(
-#     flines <- EPATADA:::fetchNHD(
-#       .data = small_bbox_data,
-#       features = "flowlines"
-#     )
-#   )
-#   expect_equal(NROW(flines), 6) # Expected results
-#   testthat::expect_no_error(
-#     waterbodies <- EPATADA:::fetchNHD(
-#       .data = small_bbox_data,
-#       features = "waterbodies"
-#     )
-#   )
-#   expect_equal(NROW(waterbodies), 0) # Expected results
-# })
+testthat::test_that("fetchNHD with valid non-default features params", {
+  testthat::skip_on_cran()
+  testthat::skip_if_offline("www.waterqualitydata.us")
+  # testthat::skip_if_offline("api.data.gov")
+  testthat::expect_no_error(
+    flines <- EPATADA:::fetchNHD(
+      .data = small_subset_Hill_MT_pH,
+      features = "flowlines"
+    )
+  )
+  expect_equal(NROW(flines), 6) # Expected results
+  testthat::expect_no_error(
+    waterbodies <- EPATADA:::fetchNHD(
+      .data = small_subset_Hill_MT_pH,
+      features = "waterbodies"
+    )
+  )
+  expect_equal(NROW(waterbodies), 0) # Expected results
+})
 
 testthat::test_that("fetchNHD with valid non-default resolution param Med", {
   testthat::expect_no_error(
-    med_cat <- EPATADA:::fetchNHD(.data = small_bbox_data, resolution = "Med")
+    med_cat <- EPATADA:::fetchNHD(.data = small_subset_Hill_MT_pH, resolution = "Med")
   )
   expect_equal(nrow(med_cat), 2) # Expected results
 })
 
-# testthat::test_that("fetchNHD error when invalid features param", {
-#   testthat::expect_error(
-#     EPATADA:::fetchNHD(.data = small_bbox_data, features = "Hi"),
-#     "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
-#   )
-# })
-
-testthat::test_that("fetchNHD error when invalid resolution param", {
+testthat::test_that("fetchNHD error when invalid features param", {
+  testthat::skip_on_cran()
+  testthat::skip_if_offline("www.waterqualitydata.us")
+  # testthat::skip_if_offline("api.data.gov")
+  
   testthat::expect_error(
-    EPATADA:::fetchNHD(.data = small_bbox_data, resolution = "Lo"),
-    'User-supplied resolution unavailable. Please select between "Med" or "Hi".'
+    EPATADA:::fetchNHD(.data = small_subset_Hill_MT_pH, features = "Hi"),
+    "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
   )
 })
 
+testthat::test_that("fetchNHD error when invalid resolution param", {
+  testthat::expect_error(
+    EPATADA:::fetchNHD(.data = small_subset_Hill_MT_pH, resolution = "Lo"),
+    'User-supplied resolution unavailable. Please select between "Med" or "Hi".'
+  )
+})
 
 testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk correctly identifies already joined ATTAINS data", {
   # Create mock data with ATTAINS columns
@@ -245,7 +250,6 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk handles empty datasets appr
   testthat::expect_true("ResultIdentifier" %in% names(result))
   testthat::expect_true(any(grepl("^ATTAINS\\.", names(result))))
 })
-
 
 testthat::test_that("Get ATTAINS by Assessment Unit ID", {
   # au_id_list <- test_au_ref_MTDEQ$ATTAINS.AssessmentUnitIdentifier
@@ -276,14 +280,14 @@ testthat::test_that("Get ATTAINS by Assessment Unit ID", {
     )
   )
   # Check results based on number of rows (only catchments change from default)
-  expected_rows <- c(11, expected_rows)
+  expected_rows <- c(13, expected_rows)
   expect_equal(NROW(actual_catchments$ATTAINS_catchments), expected_rows[1])
   expect_equal(NROW(actual_catchments$ATTAINS_points), expected_rows[2])
   expect_equal(NROW(actual_catchments$ATTAINS_lines), expected_rows[3])
   expect_equal(NROW(actual_catchments$ATTAINS_polygons), expected_rows[4])
 })
 
-# new TADA_CreateAUMLCrosswalk tests
+# TADA_CreateAUMLCrosswalk tests
 testthat::test_that("TADA_CreateAUMLCrosswalk correctly identifies already joined ATTAINS data", {
   # Create mock data with ATTAINS columns
   mock_attains_data <- TADA_dataframe
@@ -312,7 +316,6 @@ testthat::test_that("TADA_CreateAUMLCrosswalk handles empty datasets appropriate
     names(result$TADA_with_ATTAINS)
   )))
 })
-
 
 testthat::test_that("TADA_CreateAUMLCrosswalk contains expected AU Ref Source values", {
   # Uses example data set that has already had TADA_CreateAUMLCrosswalk applied
@@ -371,110 +374,113 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
   )
 })
 
-# takes too long to run as of 7/21/26
-# testthat::test_that("TADA_FindNearbySites returns expected number of site groups", {
-#   # find nearby sites tests
-#
-#   # with defaults
-#   test_defaults <- TADA_FindNearbySites(nearby_data)
-#
-#   n_defaults <- test_defaults |>
-#     dplyr::select(TADA.NearbySiteGroup) |>
-#     dplyr::n_distinct()
-#
-#   testthat::expect_equal(n_defaults, 12)
-#
-#   # at 50 m with catchment
-#   test_fifty <- TADA_FindNearbySites(nearby_data, dist_buffer = 50)
-#
-#   n_fifty <- test_fifty |>
-#     dplyr::select(TADA.NearbySiteGroup) |>
-#     dplyr::n_distinct()
-#
-#   testthat::expect_equal(n_fifty, 8)
-#
-#   # without catchment
-#   test_bufferonly <- TADA_FindNearbySites(
-#     nearby_data,
-#     catchment = FALSE,
-#     dist_buffer = 100
-#   )
-#
-#   n_bufferonly <- test_bufferonly |>
-#     dplyr::select(TADA.NearbySiteGroup) |>
-#     dplyr::n_distinct()
-#
-#   testthat::expect_equal(n_bufferonly, 15)
-#
-#   # with AU
-#   # the expected value here may need to be updated if geospatial data for Data_MT_AUMLRef change
-#   test_au <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
-#     dplyr::filter(OrganizationIdentifier == "MTVOLWQM_WQX") |>
-#     TADA_FindNearbySites(by_AU = TRUE)
-#
-#   n_au <- test_au |>
-#     sf::st_drop_geometry() |>
-#     dplyr::select(TADA.NearbySiteGroup) |>
-#     dplyr::n_distinct()
-#
-#   testthat::expect_equal(n_au, 2)
-# })
+testthat::test_that("TADA_FindNearbySites returns expected number of site groups", {
+  testthat::skip_on_cran()
+  testthat::skip_if_offline("www.waterqualitydata.us")
+  # testthat::skip_if_offline("api.data.gov")
+  
+  # with defaults
+  test_defaults <- TADA_FindNearbySites(nearby_data)
 
-# fails as of 7/21/26
-# testthat::test_that("TADA_FindNearbySites returns expected metadata", {
-#   # select by count
-#   test_count <- TADA_FindNearbySites(
-#     nearby_data,
-#     org_hierarchy = "none",
-#     meta_select = "count"
-#   )
-#
-#   test_count_filt <- test_count |>
-#     dplyr::filter(ResultIdentifier == "NWIS-33738169")
-#
-#   testthat::expect_equal(
-#     test_count_filt$TADA.MonitoringLocationIdentifier,
-#     "[USGS-06138570, CHIPCREE_WQX-LBS4]"
-#   )
-#
-#   testthat::expect_equal(test_count_filt$TADA.LatitudeMeasure, 48.4091576)
-#
-#   testthat::expect_equal(
-#     test_count_filt$TADA.MonitoringLocationTypeName,
-#     "STREAM"
-#   )
-#
-#   testthat::expect_equal(
-#     test_count_filt$TADA.NearbySites.Flag,
-#     "This monitoring location was grouped with other nearby site(s). Metadata were selected from MonitoringLocation with the most results available across all characteristics."
-#   )
-#
-#   # select by org hierarchy
-#   test_org <- TADA_FindNearbySites(
-#     nearby_data,
-#     org_hierarchy = c("CHIPCREE_WQX", "USGS-MT")
-#   )
-#
-#   test_org_filt <- test_org |>
-#     dplyr::filter(ResultIdentifier == "NWIS-33738169")
-#
-#   testthat::expect_equal(
-#     test_org_filt$TADA.MonitoringLocationIdentifier,
-#     "[USGS-06138570, CHIPCREE_WQX-LBS4]"
-#   )
-#
-#   testthat::expect_equal(test_org_filt$TADA.LatitudeMeasure, 48.40935910)
-#
-#   testthat::expect_equal(
-#     test_org_filt$TADA.MonitoringLocationTypeName,
-#     "RIVER/STREAM"
-#   )
-#
-#   testthat::expect_equal(
-#     test_org_filt$TADA.NearbySites.Flag,
-#     "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly."
-#   )
-# })
+  n_defaults <- test_defaults |>
+    dplyr::select(TADA.NearbySiteGroup) |>
+    dplyr::n_distinct()
+
+  testthat::expect_equal(n_defaults, 12)
+
+  # at 50 m with catchment
+  test_fifty <- TADA_FindNearbySites(nearby_data, dist_buffer = 50)
+
+  n_fifty <- test_fifty |>
+    dplyr::select(TADA.NearbySiteGroup) |>
+    dplyr::n_distinct()
+
+  testthat::expect_equal(n_fifty, 8)
+
+  # without catchment
+  test_bufferonly <- TADA_FindNearbySites(
+    nearby_data,
+    catchment = FALSE,
+    dist_buffer = 100
+  )
+
+  n_bufferonly <- test_bufferonly |>
+    dplyr::select(TADA.NearbySiteGroup) |>
+    dplyr::n_distinct()
+
+  testthat::expect_equal(n_bufferonly, 15)
+
+  # with AU
+  # the expected value here may need to be updated if geospatial data for Data_MT_AUMLRef change
+  test_au <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
+    dplyr::filter(OrganizationIdentifier == "MTVOLWQM_WQX") |>
+    TADA_FindNearbySites(by_AU = TRUE)
+
+  n_au <- test_au |>
+    sf::st_drop_geometry() |>
+    dplyr::select(TADA.NearbySiteGroup) |>
+    dplyr::n_distinct()
+
+  testthat::expect_equal(n_au, 2)
+})
+
+testthat::test_that("TADA_FindNearbySites returns expected metadata", {
+  testthat::skip_on_cran()
+  testthat::skip_if_offline("www.waterqualitydata.us")
+  # testthat::skip_if_offline("api.data.gov")
+  # select by count
+  test_count <- TADA_FindNearbySites(
+    nearby_data,
+    org_hierarchy = "none",
+    meta_select = "count"
+  )
+
+  test_count_filt <- test_count |>
+    dplyr::filter(ResultIdentifier == "NWIS-33738169")
+
+  testthat::expect_equal(
+    test_count_filt$TADA.MonitoringLocationIdentifier,
+    "[USGS-06138570, CHIPCREE_WQX-LBS4]"
+  )
+
+  testthat::expect_equal(test_count_filt$TADA.LatitudeMeasure, 48.4091576)
+
+  testthat::expect_equal(
+    test_count_filt$TADA.MonitoringLocationTypeName,
+    "STREAM"
+  )
+
+  testthat::expect_equal(
+    test_count_filt$TADA.NearbySites.Flag,
+    "Grouped with nearby site(s). Metadata selected from the monitoring location with the most results available across all characteristics."
+  )
+
+  # select by org hierarchy
+  test_org <- TADA_FindNearbySites(
+    nearby_data,
+    org_hierarchy = c("CHIPCREE_WQX", "USGS-MT")
+  )
+
+  test_org_filt <- test_org |>
+    dplyr::filter(ResultIdentifier == "NWIS-33738169")
+
+  testthat::expect_equal(
+    test_org_filt$TADA.MonitoringLocationIdentifier,
+    "[USGS-06138570, CHIPCREE_WQX-LBS4]"
+  )
+
+  testthat::expect_equal(test_org_filt$TADA.LatitudeMeasure, 48.4091576)
+
+  testthat::expect_equal(
+    test_org_filt$TADA.MonitoringLocationTypeName,
+    "STREAM"
+  )
+
+  testthat::expect_equal(
+    test_org_filt$TADA.NearbySites.Flag,
+    "Grouped with nearby site(s). Metadata selected randomly."
+  )
+})
 
 testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
   # Without organization filtering, at least one nearby-site group
