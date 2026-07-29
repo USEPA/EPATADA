@@ -2450,16 +2450,18 @@ TADA_FindNearbySites <- function(
         # Keep only sites that share a catchment with at least one other site in the group
         joined_df <- sf::st_drop_geometry(joined)
 
-        if (!"NHD.nhdplusid" %in% names(joined_df)) {
+        if (!"NHD.comid" %in% names(joined_df)) {
           message(
-            "TADA_FindNearbySites: No NHD.nhdplusid column returned for this group; skipping catchment filter for this group."
+            "TADA_FindNearbySites: No NHD.comid column returned for this group; keeping distance-based grouping for this group."
           )
-          return(tibble::tibble())
+          return(site_grp |>
+                   dplyr::select(TADA.MonitoringLocationIdentifier, Group) |>
+                   dplyr::distinct())
         }
-
+        
         joined_df |>
-          dplyr::filter(!is.na(NHD.nhdplusid)) |>
-          dplyr::group_by(Group, NHD.nhdplusid) |>
+          dplyr::filter(!is.na(NHD.comid)) |>
+          dplyr::group_by(Group, NHD.comid) |>
           dplyr::mutate(NHDCount = dplyr::n()) |>
           dplyr::filter(NHDCount > 1) |>
           dplyr::ungroup() |>
