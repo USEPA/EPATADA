@@ -57,7 +57,7 @@ TADA_ViewATTAINS(all_sources)
 
 # Only use ATTAINS catchments to match AUs
 attains_catchments <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-  return_nearest = TRUE, resolution = "hi", return_sf = TRUE
+  org_id = "all", return_nearest = TRUE, return_sf = TRUE
 )
 
 TADA_ViewATTAINS(attains_catchments)
