@@ -115,7 +115,7 @@ testthat::test_that("fetchATTAINS handles small areas", {
   testthat::expect_equal(nrow(result_all_features$ATTAINS_lines), 2)
   testthat::expect_null(result_all_features$ATTAINS_polygons)
   testthat::expect_equal(
-    NROW(result_all_features$ATTAINS_catchments),
+    nrow(result_all_features$ATTAINS_catchments),
     expect_cat_n_small
   )
 })
@@ -138,9 +138,9 @@ testthat::test_that("fetchATTAINS catchments_only parameter", {
       catchments_only = TRUE
     )
   )
-  testthat::expect_null(nrow(result_catchments_only$ATTAINS_points))
-  testthat::expect_null(nrow(result_catchments_only$ATTAINS_lines))
-  testthat::expect_null(nrow(result_catchments_only$ATTAINS_polygons))
+  testthat::expect_null(result_catchments_only$ATTAINS_points)
+  testthat::expect_null(result_catchments_only$ATTAINS_lines)
+  testthat::expect_null(result_catchments_only$ATTAINS_polygons)
   # Compare against catchments_only = FALSE (default)
   testthat::expect_equal(
     nrow(result_catchments_only$ATTAINS_catchments),
@@ -149,8 +149,8 @@ testthat::test_that("fetchATTAINS catchments_only parameter", {
 })
 
 testthat::test_that("fetchATTAINS org_id parameter", {
-  # Test when non-default (default is 'all')
   org <- "RIDEM"
+  
   testthat::expect_no_error(
     org_results <- EPATADA:::fetchATTAINS(
       .data = RI_CT_secchi,
@@ -158,19 +158,8 @@ testthat::test_that("fetchATTAINS org_id parameter", {
       org_id = org
     )
   )
-  # Test against normal result when filtered on org_id
-  all_org_results <- EPATADA:::fetchATTAINS(
-    .data = RI_CT_secchi,
-    catchments_only = TRUE
-  )
-  all_orgs_filtered <- all_org_results$ATTAINS_catchments[
-    "organizationid" == org
-  ]
-  # Compare the two sets of results (should be same)
-  testthat::expect_equal(
-    NROW(org_results$ATTAINS_catchments),
-    NROW(all_orgs_filtered)
-  )
+  
+  testthat::expect_true(all(org_results$ATTAINS_catchments$organizationid == org))
 })
 
 testthat::test_that("fetchNHD handles small areas with defaults", {
@@ -178,8 +167,12 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
   testthat::expect_no_error(
     result_NHD_small <- EPATADA:::fetchNHD(.data = small_subset_Hill_MT_pH)
   )
-  # Expect 16 catchments returned
-  testthat::expect_equal(nrow(small_subset_Hill_MT_pH), 16)
+  testthat::expect_s3_class(result_NHD_small, "sf")
+  testthat::expect_gt(nrow(result_NHD_small), 0)
+  testthat::expect_true("NHD.nhdplusid" %in% names(result_NHD_small))
+  testthat::expect_true("NHD.resolution" %in% names(result_NHD_small))
+  # Expect 2 catchments returned
+  testthat::expect_equal(nrow(result_NHD_small), 2)
 })
 
 testthat::test_that("fetchNHD with valid non-default features params", {
@@ -230,7 +223,7 @@ testthat::test_that("fetchNHD error when invalid resolution param", {
   )
 })
 
-testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk correctly identifies already joined ATTAINS data", {
+testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk rejects pre-joined ATTAINS data", {
   # Create mock data with ATTAINS columns
   mock_attains_data <- TADA_dataframe
   mock_attains_data$ATTAINS.AssessmentUnitIdentifier <- "TEST"
@@ -245,9 +238,14 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk handles empty datasets appr
   # Create an empty dataframe with required structure
   empty_df <- tibble::tibble(
     ResultIdentifier = character(0),
-    LongitudeMeasure = character(0),
-    LatitudeMeasure = character(0),
-    HorizontalCoordinateReferenceSystemDatumName = character(0)
+    TADA.MonitoringLocationIdentifier = character(0),
+    TADA.MonitoringLocationName = character(0),
+    TADA.LongitudeMeasure = numeric(0),
+    TADA.LatitudeMeasure = numeric(0),
+    HorizontalCoordinateReferenceSystemDatumName = character(0),
+    OrganizationIdentifier = character(0),
+    ActivityStartDate = as.Date(character(0)),
+    TADA.ResultMeasureValue = numeric(0)
   )
 
   result <- TADA_CreateATTAINSAUMLCrosswalk(.data = empty_df, return_sf = FALSE)
@@ -293,7 +291,7 @@ testthat::test_that("Get ATTAINS by Assessment Unit ID", {
 })
 
 # TADA_CreateAUMLCrosswalk tests
-testthat::test_that("TADA_CreateAUMLCrosswalk correctly identifies already joined ATTAINS data", {
+testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk correctly identifies already joined ATTAINS data", {
   # Create mock data with ATTAINS columns
   mock_attains_data <- TADA_dataframe
   mock_attains_data$ATTAINS.AssessmentUnitIdentifier <- "TEST"
@@ -304,17 +302,22 @@ testthat::test_that("TADA_CreateAUMLCrosswalk correctly identifies already joine
   )
 })
 
-testthat::test_that("TADA_CreateAUMLCrosswalk handles empty datasets appropriately", {
+testthat::test_that("TADA_CreateAUMLCrosswalk handles empty datasets appropriately for AUML", {
   # Create an empty dataframe with required structure
   empty_df <- tibble::tibble(
     ResultIdentifier = character(0),
-    LongitudeMeasure = character(0),
-    LatitudeMeasure = character(0),
-    HorizontalCoordinateReferenceSystemDatumName = character(0)
+    TADA.MonitoringLocationIdentifier = character(0),
+    TADA.MonitoringLocationName = character(0),
+    TADA.LongitudeMeasure = numeric(0),
+    TADA.LatitudeMeasure = numeric(0),
+    HorizontalCoordinateReferenceSystemDatumName = character(0),
+    OrganizationIdentifier = character(0),
+    ActivityStartDate = as.Date(character(0)),
+    TADA.ResultMeasureValue = numeric(0)
   )
-
+  
   result <- TADA_CreateAUMLCrosswalk(.data = empty_df)
-  testthat::expect_true(length(result) == 5)
+  testthat::expect_equal(length(result), 5)
   testthat::expect_true("ResultIdentifier" %in% names(result$TADA_with_ATTAINS))
   testthat::expect_true(any(grepl(
     "^ATTAINS\\.",
@@ -501,7 +504,7 @@ testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
   mixed_org_groups <- test_no_org_filter |>
     sf::st_drop_geometry() |>
     dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
-    dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+    dplyr::group_by(TADA.NearbySiteGroup) |>
     dplyr::summarise(
       n_orgs = dplyr::n_distinct(OrganizationIdentifier),
       .groups = "drop"
@@ -519,16 +522,16 @@ testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
     by_org = TRUE,
     dist_buffer = 100
   )
-
+  
   orgs_per_group <- test_by_org |>
     sf::st_drop_geometry() |>
     dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
-    dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+    dplyr::group_by(TADA.NearbySiteGroup) |>
     dplyr::summarise(
       n_orgs = dplyr::n_distinct(OrganizationIdentifier),
       .groups = "drop"
     )
-
+  
   testthat::expect_true(nrow(orgs_per_group) > 0)
   testthat::expect_true(all(orgs_per_group$n_orgs == 1))
 })
@@ -597,7 +600,7 @@ testthat::test_that("TADA_FindNearbySites errors when org_hierarchy is not chara
 testthat::test_that("TADA_FindNearbySites errors on invalid meta_select", {
   testthat::expect_error(
     TADA_FindNearbySites(nearby_fixture, meta_select = "badvalue"),
-    "arg' should be one of"
+    "should be one of"
   )
 })
 
@@ -623,26 +626,24 @@ testthat::test_that("TADA_FindNearbySites returns no-nearby output when no sites
     dist_buffer = 1
   )
 
+  testthat::expect_true("TADA.NearbySiteGroup" %in% names(result))
   testthat::expect_true(all(is.na(result$TADA.NearbySiteGroup)))
-  testthat::expect_true(all(grepl(
-    "No nearby sites detected",
-    result$TADA.NearbySites.Flag
-  )))
+  testthat::expect_true(all(grepl("No nearby sites detected", result$TADA.NearbySites.Flag)))
 })
 
-testthat::test_that("TADA_FindNearbySites returns no-nearby output when by_org = TRUE and OrganizationIdentifier is missing", {
+testthat::test_that("TADA_FindNearbySites errors when OrganizationIdentifier is missing and by_org = TRUE", {
   no_org <- nearby_fixture |> dplyr::select(-OrganizationIdentifier)
-
-  result <- TADA_FindNearbySites(
-    no_org,
-    catchment = FALSE,
-    by_AU = FALSE,
-    by_org = TRUE,
-    dist_buffer = 100
+  
+  testthat::expect_error(
+    TADA_FindNearbySites(
+      no_org,
+      catchment = FALSE,
+      by_AU = FALSE,
+      by_org = TRUE,
+      dist_buffer = 100
+    ),
+    "OrganizationIdentifier"
   )
-
-  testthat::expect_true(all(is.na(result$TADA.NearbySiteGroup)))
-  testthat::expect_true(all(!is.na(result$TADA.NearbySites.Flag)))
 })
 
 testthat::test_that("TADA_FindNearbySites handles partial org_hierarchy", {
@@ -652,7 +653,7 @@ testthat::test_that("TADA_FindNearbySites handles partial org_hierarchy", {
       catchment = FALSE,
       by_AU = FALSE,
       org_hierarchy = c("ORG1"),
-      meta_select = "oldest",
+      meta_select = "newest",
       dist_buffer = 100
     ),
     "missing from org_hierarchy"
@@ -663,15 +664,7 @@ testthat::test_that("TADA_FindNearbySites handles partial org_hierarchy", {
   testthat::expect_true("TADA.NearbySiteGroup" %in% names(result))
 })
 
-testthat::test_that("TADA_FindNearbySites supports meta_select = oldest and newest", {
-  old <- TADA_FindNearbySites(
-    nearby_fixture,
-    catchment = FALSE,
-    by_AU = FALSE,
-    meta_select = "oldest",
-    dist_buffer = 100
-  )
-
+testthat::test_that("TADA_FindNearbySites supports meta_select = newest", {
   new <- TADA_FindNearbySites(
     nearby_fixture,
     catchment = FALSE,
@@ -679,10 +672,8 @@ testthat::test_that("TADA_FindNearbySites supports meta_select = oldest and newe
     meta_select = "newest",
     dist_buffer = 100
   )
-
-  testthat::expect_true(is.data.frame(old))
+  
   testthat::expect_true(is.data.frame(new))
-  testthat::expect_true("TADA.NearbySites.Flag" %in% names(old))
   testthat::expect_true("TADA.NearbySites.Flag" %in% names(new))
 })
 
