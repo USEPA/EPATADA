@@ -5,10 +5,10 @@
 #' Existing layers with the same name will be deleted first if they exist.
 
 TADA_UpdateTribalLayers <- function() {
-  writeLayer(AKAllotmentsUrl, "inst/extdata/Tribal.gpkg", "AKAllotments")
-  writeLayer(AKVillagesUrl, "inst/extdata/Tribal.gpkg", "AKVillages")
-  writeLayer(AmericanIndianUrl, "inst/extdata/Tribal.gpkg", "AmericanIndian")
-  writeLayer(OffReservationUrl, "inst/extdata/Tribal.gpkg", "OffReservation")
-  writeLayer(OKTribeUrl, "inst/extdata/Tribal.gpkg", "OKTribe")
-  writeLayer(VATribeUrl, "inst/extdata/Tribal.gpkg", "VATribe")
+  writeLayerIfChanged(AKAllotmentsUrl, "inst/extdata/Tribal.gpkg", "AKAllotments")
+  writeLayerIfChanged(AKVillagesUrl, "inst/extdata/Tribal.gpkg", "AKVillages")
+  writeLayerIfChanged(AmericanIndianUrl, "inst/extdata/Tribal.gpkg", "AmericanIndian")
+  writeLayerIfChanged(OKTribeUrl, "inst/extdata/Tribal.gpkg", "OKTribe")
+  writeLayerIfChanged(OffReservationUrl, "inst/extdata/Tribal.gpkg", "OffReservation")
+  writeLayerIfChanged(VATribeUrl, "inst/extdata/Tribal.gpkg", "VATribe")
 }

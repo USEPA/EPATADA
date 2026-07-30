@@ -1413,7 +1413,7 @@ pchIcons <- function(
 }
 
 #' Retrieve feature layer from ArcGIS REST service
-#' getFeatureLayer is used by writeLayer to write feature layers to local files
+#' getFeatureLayer is used by writeLayerIfChanged to write feature layers to local files
 #'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -1453,9 +1453,8 @@ getFeatureLayer <- function(url, bbox = NULL) {
   return(layer)
 }
 
-
 #' Download a spatial file from an API and save it to a local folder, overwriting existing file if it exists
-#' writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
+#' and has changed. writeLayerIfChanged is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
 #'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
 #' @param layerfilepath Local path to save the .gpkg file
@@ -1466,11 +1465,51 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' # Get the Oklahoma Tribal Statistical Areas feature layer and write
 #' # local file to inst/extdata/Tribal.gpkg/OKTribe
 #' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
-#' writeLayer(OKTribeUrl, "inst/extdata/Tribal.gpkg","OKTribe")
+#' writeLayerIfChanged(OKTribeUrl, "inst/extdata/Tribal.gpkg","OKTribe")
 #' }
-writeLayer <- function(url, layerfilepath, layername) {
-  feature <- getFeatureLayer(url)
-  sf::st_write(feature, layerfilepath, layer = layername, delete_layer = TRUE)
+writeLayerIfChanged <-  function(url, layerfilepath, layername) {
+  # Build the new feature layer in memory
+  new_feature <- getFeatureLayer(url)
+  
+  # If the gpkg or layer doesn't exist yet, write it
+  layer_exists <- FALSE
+  if (file.exists(layerfilepath)) {
+    layer_exists <- layername %in% sf::st_layers(layerfilepath)$name
+  }
+  
+  if (!layer_exists) {
+    sf::st_write(
+      new_feature,
+      layerfilepath,
+      layer = layername,
+      delete_layer = TRUE,
+      quiet = TRUE
+    )
+    return(invisible(TRUE))
+  }
+  
+  # Read the existing layer
+  old_feature <- sf::st_read(
+    layerfilepath,
+    layer = layername,
+    quiet = TRUE
+  )
+  
+  # Compare conservatively
+  if (.sf_layer_equal(old_feature, new_feature)) {
+    return(invisible(FALSE))
+  }
+  
+  # Rewrite only if changed
+  sf::st_write(
+    new_feature,
+    layerfilepath,
+    layer = layername,
+    delete_layer = TRUE,
+    quiet = TRUE
+  )
+  
+  invisible(TRUE)
 }
 
 #' Read a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
@@ -2883,4 +2922,58 @@ TADA_CorrectColType <- function(.data) {
   ))
 
   return <- file.path(base_dir, filename)
+}
+
+#' Compare two sf layers for equality
+#'
+#' Compares two `sf` objects by checking attribute names, attribute values,
+#' and geometry text representation after normalizing column order and row order.
+#' This is intended for maintenance workflows where unchanged layers should not
+#' be rewritten.
+#'
+#' @param old_feature an existing `sf` object read from a layer
+#' @param new_feature a new `sf` object to compare against the existing layer
+#'
+#' @return `TRUE` if the layers are considered equal, otherwise `FALSE`
+#'
+#' @keywords internal
+#'
+#' @examples
+#' \dontrun{
+#' same <- .sf_layer_equal(old_feature, new_feature)
+#' }
+.sf_layer_equal <- function(old_feature, new_feature) {
+  
+  # Drop geometry and compare only attributes
+  old_attrs <- sf::st_drop_geometry(old_feature)
+  new_attrs <- sf::st_drop_geometry(new_feature)
+  
+  # Compare attribute names
+  if (!identical(sort(names(old_attrs)), sort(names(new_attrs)))) {
+    return(FALSE)
+  }
+  
+  # Reorder attributes consistently
+  common_names <- sort(names(old_attrs))
+  old_attrs <- old_attrs[, common_names, drop = FALSE]
+  new_attrs <- new_attrs[, common_names, drop = FALSE]
+  
+  # Convert factors to character
+  old_attrs[] <- lapply(old_attrs, function(x) if (is.factor(x)) as.character(x) else x)
+  new_attrs[] <- lapply(new_attrs, function(x) if (is.factor(x)) as.character(x) else x)
+  
+  # Compare geometry separately, ignoring the geometry column name
+  old_geom <- sf::st_as_text(sf::st_geometry(old_feature))
+  new_geom <- sf::st_as_text(sf::st_geometry(new_feature))
+  
+  # Add geometry as a regular comparison field
+  old_attrs$..geometry.. <- old_geom
+  new_attrs$..geometry.. <- new_geom
+  
+  # Sort rows deterministically
+  old_attrs <- old_attrs[do.call(order, old_attrs), , drop = FALSE]
+  new_attrs <- new_attrs[do.call(order, new_attrs), , drop = FALSE]
+  
+  # Final comparison
+  isTRUE(all.equal(old_attrs, new_attrs, check.attributes = FALSE))
 }
