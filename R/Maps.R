@@ -659,7 +659,6 @@ TADA_NearbySitesMap <- function(
   return(map)
 }
 
-
 #' TADA_ViewATTAINS
 #'
 #' This function is designed to visualize the data included in the list returned

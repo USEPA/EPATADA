@@ -2101,6 +2101,30 @@ TADA_GetATTAINSByAUID <- function(
 #'   dist_buffer = 250
 #' )
 #' 
+#' # Review the key input columns plus the columns added/updated by the function
+#' relevant_cols <- c(
+#'   "MonitoringLocationIdentifier",
+#'   "TADA.MonitoringLocationIdentifier",
+#'   "TADA.MonitoringLocationName",
+#'   "TADA.LongitudeMeasure",
+#'   "TADA.LatitudeMeasure",
+#'   "ActivityStartDate",
+#'   "TADA.ResultMeasureValue",
+#'   "HorizontalCoordinateReferenceSystemDatumName",
+#'   "OrganizationIdentifier",
+#'   "TADA.NearbySiteGroup",
+#'   "TADA.NearbySites.Flag"
+#' )
+#' 
+#' # Inspect grouped sites
+#' grouped_sites_view <- test.default |>
+#'   dplyr::select(dplyr::any_of(relevant_cols)) |>
+#'   dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
+#'   dplyr::distinct(MonitoringLocationIdentifier, .keep_all = TRUE)
+#' 
+#' # Inspect grouped sites on a map
+#' TADA_NearbySitesMap(test.default, attains = FALSE)
+#' 
 #' # Group nearby sites using distance only, without catchment or AU filtering
 #' test.dist.only <- TADA_FindNearbySites(
 #'   testdat,
@@ -2192,7 +2216,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   by_org = TRUE,
 #'   meta_select = "count"
 #' )
-#' #'
+#' 
 TADA_FindNearbySites <- function(
     .data,
     dist_buffer = 100,
