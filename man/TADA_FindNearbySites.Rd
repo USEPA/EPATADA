@@ -97,13 +97,13 @@ grouping columns added and a flag indicating that no groups were detected.
 # Use MT example data set
 testdat <- Data_MT_AUMLRef$TADA_with_ATTAINS
 
-# Default behavior: distance-based grouping with catchment and AU filtering
+# Default behavior: distance-based grouping with catchment and AU filters enabled
 test.default <- TADA_FindNearbySites(
   testdat,
   dist_buffer = 250
 )
 
-# Group nearby sites using distance only
+# Group nearby sites using distance only, without catchment or AU filtering
 test.dist.only <- TADA_FindNearbySites(
   testdat,
   dist_buffer = 250,
@@ -120,6 +120,7 @@ test.catch.only <- TADA_FindNearbySites(
 )
 
 # Group nearby sites using distance and assessment unit only
+# (applies only when ATTAINS.AssessmentUnitIdentifier is present)
 test.au.only <- TADA_FindNearbySites(
   testdat,
   dist_buffer = 250,
@@ -128,6 +129,7 @@ test.au.only <- TADA_FindNearbySites(
 )
 
 # Group nearby sites using distance, catchment, and assessment unit
+# Same as the default call, shown explicitly
 test.catch.au <- TADA_FindNearbySites(
   testdat,
   dist_buffer = 250,
@@ -135,7 +137,7 @@ test.catch.au <- TADA_FindNearbySites(
   by_AU = TRUE
 )
 
-# Group nearby sites using distance and organization
+# Group nearby sites using distance and organization only
 test.org <- TADA_FindNearbySites(
   testdat,
   dist_buffer = 250,
@@ -144,7 +146,7 @@ test.org <- TADA_FindNearbySites(
   by_org = TRUE
 )
 
-# Use a different NHD resolution when catchment filtering is enabled
+# Use the Medium-resolution NHD catchment layer
 test.nhd.med <- TADA_FindNearbySites(
   testdat,
   dist_buffer = 250,
@@ -171,7 +173,7 @@ test.count <- TADA_FindNearbySites(
   meta_select = "count"
 )
 
-# Use organization hierarchy to prioritize representative metadata
+# Prioritize representative metadata using an organization hierarchy
 # Get counts for each organization first to inform prioritization
 TADA_FieldValuesTable(testdat, field = "OrganizationIdentifier")
 test.hierarchy <- TADA_FindNearbySites(
@@ -192,5 +194,5 @@ test.org.count <- TADA_FindNearbySites(
   by_org = TRUE,
   meta_select = "count"
 )
-
+#'
 }

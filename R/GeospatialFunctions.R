@@ -2094,21 +2094,21 @@ TADA_GetATTAINSByAUID <- function(
 #' @examples
 #' # Use MT example data set
 #' testdat <- Data_MT_AUMLRef$TADA_with_ATTAINS
-#'
-#' # Default behavior: distance-based grouping with catchment and AU filtering
+#' 
+#' # Default behavior: distance-based grouping with catchment and AU filters enabled
 #' test.default <- TADA_FindNearbySites(
 #'   testdat,
 #'   dist_buffer = 250
 #' )
-#'
-#' # Group nearby sites using distance only
+#' 
+#' # Group nearby sites using distance only, without catchment or AU filtering
 #' test.dist.only <- TADA_FindNearbySites(
 #'   testdat,
 #'   dist_buffer = 250,
 #'   catchment = FALSE,
 #'   by_AU = FALSE
 #' )
-#'
+#' 
 #' # Group nearby sites using distance and catchment only
 #' test.catch.only <- TADA_FindNearbySites(
 #'   testdat,
@@ -2116,24 +2116,26 @@ TADA_GetATTAINSByAUID <- function(
 #'   catchment = TRUE,
 #'   by_AU = FALSE
 #' )
-#'
+#' 
 #' # Group nearby sites using distance and assessment unit only
+#' # (applies only when ATTAINS.AssessmentUnitIdentifier is present)
 #' test.au.only <- TADA_FindNearbySites(
 #'   testdat,
 #'   dist_buffer = 250,
 #'   catchment = FALSE,
 #'   by_AU = TRUE
 #' )
-#'
+#' 
 #' # Group nearby sites using distance, catchment, and assessment unit
+#' # Same as the default call, shown explicitly
 #' test.catch.au <- TADA_FindNearbySites(
 #'   testdat,
 #'   dist_buffer = 250,
 #'   catchment = TRUE,
 #'   by_AU = TRUE
 #' )
-#'
-#' # Group nearby sites using distance and organization
+#' 
+#' # Group nearby sites using distance and organization only
 #' test.org <- TADA_FindNearbySites(
 #'   testdat,
 #'   dist_buffer = 250,
@@ -2141,8 +2143,8 @@ TADA_GetATTAINSByAUID <- function(
 #'   by_AU = FALSE,
 #'   by_org = TRUE
 #' )
-#'
-#' # Use a different NHD resolution when catchment filtering is enabled
+#' 
+#' # Use the Medium-resolution NHD catchment layer
 #' test.nhd.med <- TADA_FindNearbySites(
 #'   testdat,
 #'   dist_buffer = 250,
@@ -2150,7 +2152,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   catchment = TRUE,
 #'   by_AU = FALSE
 #' )
-#'
+#' 
 #' # Choose representative metadata randomly
 #' test.random <- TADA_FindNearbySites(
 #'   testdat,
@@ -2159,7 +2161,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   by_AU = FALSE,
 #'   meta_select = "random"
 #' )
-#'
+#' 
 #' # Choose representative metadata from the site with the most results
 #' test.count <- TADA_FindNearbySites(
 #'   testdat,
@@ -2168,8 +2170,8 @@ TADA_GetATTAINSByAUID <- function(
 #'   by_AU = FALSE,
 #'   meta_select = "count"
 #' )
-#'
-#' # Use organization hierarchy to prioritize representative metadata
+#' 
+#' # Prioritize representative metadata using an organization hierarchy
 #' # Get counts for each organization first to inform prioritization
 #' TADA_FieldValuesTable(testdat, field = "OrganizationIdentifier")
 #' test.hierarchy <- TADA_FindNearbySites(
@@ -2180,7 +2182,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   meta_select = "newest",
 #'   org_hierarchy = c("MTVOLWQM_WQX", "USGS-MT", "TSWQC_WQX", "MDEQ_WQ_WQX")
 #' )
-#'
+#' 
 #' # Group only within the same organization and use count-based selection
 #' test.org.count <- TADA_FindNearbySites(
 #'   testdat,
@@ -2190,7 +2192,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   by_org = TRUE,
 #'   meta_select = "count"
 #' )
-#'
+#' #'
 TADA_FindNearbySites <- function(
     .data,
     dist_buffer = 100,
