@@ -3834,15 +3834,15 @@ TADA_AssignUsesToWaterType <- function(
 #' }
 #'
 TADA_MLSummary <- function(
-    .data,
-    org_id = NULL,
-    usesRef = NULL,
-    AUMLRef = NULL,
-    AU_UsesRef = NULL,
-    MLSummaryRef = NULL,
-    displayNA = FALSE,
-    excel = FALSE,
-    overwrite = FALSE
+  .data,
+  org_id = NULL,
+  usesRef = NULL,
+  AUMLRef = NULL,
+  AU_UsesRef = NULL,
+  MLSummaryRef = NULL,
+  displayNA = FALSE,
+  excel = FALSE,
+  overwrite = FALSE
 ) {
   empty_ref <- function() {
     data.frame(
@@ -3862,75 +3862,106 @@ TADA_MLSummary <- function(
       UniqueSpatialCriteria = character(0)
     )
   }
-  
+
   check_ref <- function(x, req, nm) {
     if (!is.null(x) && !is.character(x) && !is.data.frame(x)) {
       stop(paste0("TADA_MLSummary: '", nm, "' must be a data frame."))
     }
     if (is.data.frame(x) && length(setdiff(req, names(x))) > 0) {
       stop(paste0(
-        "TADA_MLSummary: '", nm, "' must contain: ",
+        "TADA_MLSummary: '",
+        nm,
+        "' must contain: ",
         paste(req, collapse = ", ")
       ))
     }
   }
-  
+
   if (
-    missing(.data) && missing(org_id) && missing(usesRef) &&
-    missing(AUMLRef) && missing(AU_UsesRef) && missing(MLSummaryRef)
+    missing(.data) &&
+      missing(org_id) &&
+      missing(usesRef) &&
+      missing(AUMLRef) &&
+      missing(AU_UsesRef) &&
+      missing(MLSummaryRef)
   ) {
-    message("All arguments are blank, returning an empty dataframe with column names only.")
+    message(
+      "All arguments are blank, returning an empty dataframe with column names only."
+    )
     return(empty_ref())
   }
-  
+
   if (!excel && overwrite) {
     stop(
       "argument input excel = FALSE and overwrite = TRUE is an invalid combination. ",
       "Cannot overwrite the excel generated spreadsheet if a user specifies excel = FALSE"
     )
   }
-  
+
   if (!is.data.frame(.data)) {
     if (is.list(.data) && "TADA_with_ATTAINS" %in% names(.data)) {
       .data <- .data[["TADA_with_ATTAINS"]]
     } else {
-      stop("Your input dataframe was not produced from TADA_CreateATTAINSAUMLCrosswalk() or it was modified...")
+      stop(
+        "Your input dataframe was not produced from TADA_CreateATTAINSAUMLCrosswalk() or it was modified..."
+      )
     }
   }
-  
+
   check_ref(
     AU_UsesRef,
-    c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier"),
+    c(
+      "ATTAINS.UseName",
+      "ATTAINS.OrganizationIdentifier",
+      "ATTAINS.AssessmentUnitIdentifier"
+    ),
     "AU_UsesRef"
   )
   check_ref(
     usesRef,
-    c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName"),
+    c(
+      "ATTAINS.OrganizationIdentifier",
+      "ATTAINS.ParameterName",
+      "ATTAINS.UseName"
+    ),
     "usesRef"
   )
-  
+
   usesRef <- dplyr::filter(usesRef, IncludeOrExclude == "Include")
   unique_ML <- unique(.data$MonitoringLocationIdentifier)
-  
-  if (displayNA && (nrow(usesRef) * length(unique_ML) > 1000 || length(org_id) > 20)) {
+
+  if (
+    displayNA &&
+      (nrow(usesRef) * length(unique_ML) > 1000 || length(org_id) > 20)
+  ) {
     warning(
       "TADA_MLSummary: displayNA = TRUE was selected: Too many sites or uses and parameters. ",
       "Cannot assign all uses and parameters to each monitoring sites in the output. Defaulting to displayNA = FALSE"
     )
     displayNA <- FALSE
   }
-  
+
   build_ml <- function(display_all = FALSE) {
     out <- if (display_all) {
       usesRef |>
         tidyr::uncount(weights = length(unique_ML)) |>
-        dplyr::mutate(MonitoringLocationIdentifier = rep(unique_ML, each = nrow(usesRef))) |>
-        dplyr::full_join(.data, by = "MonitoringLocationIdentifier", relationship = "many-to-many")
+        dplyr::mutate(
+          MonitoringLocationIdentifier = rep(unique_ML, each = nrow(usesRef))
+        ) |>
+        dplyr::full_join(
+          .data,
+          by = "MonitoringLocationIdentifier",
+          relationship = "many-to-many"
+        )
     } else {
       usesRef |>
-        dplyr::full_join(.data, by = "TADA.ComparableDataIdentifier", relationship = "many-to-many")
+        dplyr::full_join(
+          .data,
+          by = "TADA.ComparableDataIdentifier",
+          relationship = "many-to-many"
+        )
     }
-    
+
     out |>
       dplyr::mutate(
         TADA.ParameterInSite.Flag = dplyr::if_else(
@@ -3946,31 +3977,29 @@ TADA_MLSummary <- function(
         DepthCategory = NA,
         ATTAINS.OrganizationIdentifier = org_id
       ) |>
-      dplyr::select(
-        dplyr::any_of(c(
-          "ATTAINS.OrganizationIdentifier",
-          "ATTAINS.AssessmentUnitIdentifier",
-          "MonitoringLocationIdentifier",
-          "MonitoringLocationTypeName",
-          "TADA.ComparableDataIdentifier",
-          "ATTAINS.ParameterName",
-          "ATTAINS.UseName",
-          "ATTAINS.WaterType",
-          "SaltFresh",
-          "DepthCategory",
-          "LongitudeMeasure",
-          "LatitudeMeasure",
-          "TADA.ParameterInSite.Flag",
-          "IncludeOrExclude",
-          "UniqueSpatialCriteria"
-        ))
-      ) |>
+      dplyr::select(dplyr::any_of(c(
+        "ATTAINS.OrganizationIdentifier",
+        "ATTAINS.AssessmentUnitIdentifier",
+        "MonitoringLocationIdentifier",
+        "MonitoringLocationTypeName",
+        "TADA.ComparableDataIdentifier",
+        "ATTAINS.ParameterName",
+        "ATTAINS.UseName",
+        "ATTAINS.WaterType",
+        "SaltFresh",
+        "DepthCategory",
+        "LongitudeMeasure",
+        "LatitudeMeasure",
+        "TADA.ParameterInSite.Flag",
+        "IncludeOrExclude",
+        "UniqueSpatialCriteria"
+      ))) |>
       dplyr::distinct() |>
       dplyr::arrange(MonitoringLocationIdentifier)
   }
-  
+
   MLSummaryRef <- build_ml(displayNA)
-  
+
   if (!is.null(AUMLRef)) {
     AUMLRef <- if ("TADA.MonitoringLocationIdentifier" %in% names(AUMLRef)) {
       dplyr::select(
@@ -3989,9 +4018,11 @@ TADA_MLSummary <- function(
         ATTAINS.WaterType
       )
     }
-    
+
     if (is.null(AU_UsesRef)) {
-      message("An AUMLRef was provided, but no AU_UsesRef was provided. Please provide this as an argument input.")
+      message(
+        "An AUMLRef was provided, but no AU_UsesRef was provided. Please provide this as an argument input."
+      )
       AU_UsesRef <- TADA_AssignUsesToAU(
         .data = .data,
         org_id = org_id,
@@ -4003,15 +4034,19 @@ TADA_MLSummary <- function(
         )
       )
     }
-    
+
     AU_UsesRef <- AU_UsesRef |>
       dplyr::filter(IncludeOrExclude == "Include") |>
       dplyr::select(-IncludeOrExclude)
-    
+
     useParamAUMLRef <- AU_UsesRef |>
       dplyr::left_join(
         AUMLRef,
-        by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier", "ATTAINS.WaterType")
+        by = c(
+          "ATTAINS.OrganizationIdentifier",
+          "ATTAINS.AssessmentUnitIdentifier",
+          "ATTAINS.WaterType"
+        )
       ) |>
       dplyr::left_join(
         usesRef,
@@ -4026,7 +4061,7 @@ TADA_MLSummary <- function(
         ATTAINS.UseName,
         ATTAINS.WaterType
       )
-    
+
     MLSummaryRef <- if (displayNA) {
       message("TADA_MLSummary: displayNA = TRUE was selected.")
       MLSummaryRef |>
@@ -4057,7 +4092,10 @@ TADA_MLSummary <- function(
           IncludeOrExclude,
           UniqueSpatialCriteria
         ) |>
-        dplyr::arrange(MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier) |>
+        dplyr::arrange(
+          MonitoringLocationIdentifier,
+          ATTAINS.AssessmentUnitIdentifier
+        ) |>
         dplyr::distinct() |>
         dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id)
     } else {
@@ -4103,14 +4141,14 @@ TADA_MLSummary <- function(
         dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id)
     }
   }
-  
+
   if (!"ATTAINS.AssessmentUnitIdentifier" %in% names(MLSummaryRef)) {
     message(
       "TADA_MLSummary: No Monitoring Location to Assessment Unit crosswalk provided. ",
       "Consider providing this crosswalk if you would like to summarize WQP data on an Assessment Unit level."
     )
   }
-  
+
   MLSummaryRef
 
   # Only run if user wants to create an excel guided spreadsheet.
