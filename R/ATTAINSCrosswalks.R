@@ -4087,9 +4087,12 @@ TADA_MLSummary <- function(
           IncludeOrExclude,
           UniqueSpatialCriteria
         ) |>
-        dplyr::arrange(MonitoringLocationIdentifier)
+        dplyr::arrange(MonitoringLocationIdentifier) |>
+        dplyr::mutate(
+          ATTAINS.OrganizationIdentifier = org_id
+        )
     }
-
+      
     # If we want to exclude rows of sites with no specified parameters
     if (displayNA == FALSE) {
       message(paste0(
@@ -4129,7 +4132,10 @@ TADA_MLSummary <- function(
           IncludeOrExclude,
           UniqueSpatialCriteria
         ) |>
-        dplyr::distinct()
+        dplyr::distinct()|>
+        dplyr::mutate(
+          ATTAINS.OrganizationIdentifier = org_id
+        )
 
       MLSummaryRef <- MLSummaryRef2 |>
         dplyr::arrange(MonitoringLocationIdentifier)
@@ -4249,7 +4255,10 @@ TADA_MLSummary <- function(
             MonitoringLocationIdentifier,
             ATTAINS.AssessmentUnitIdentifier
           ) |>
-          dplyr::distinct()
+          dplyr::distinct()|>
+          dplyr::mutate(
+            ATTAINS.OrganizationIdentifier = org_id
+          )
       }
 
       # Filters your MLSummaryRef based on your defined uses, param, sites and AU crosswalks.
@@ -4294,7 +4303,10 @@ TADA_MLSummary <- function(
             MonitoringLocationIdentifier,
             ATTAINS.AssessmentUnitIdentifier
           ) |>
-          dplyr::distinct()
+          dplyr::distinct()|>
+          dplyr::mutate(
+            ATTAINS.OrganizationIdentifier = org_id
+          )
       }
     }
 
