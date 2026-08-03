@@ -94,6 +94,7 @@ optional filters, the function returns the input data with nearby-site
 grouping columns added and a flag indicating that no groups were detected.
 }
 \examples{
+\dontrun{
 # Use MT example data set
 testdat <- Data_MT_AUMLRef$TADA_with_ATTAINS
 
@@ -218,5 +219,6 @@ test.org.count <- TADA_FindNearbySites(
   by_org = TRUE,
   meta_select = "count"
 )
+}
 
 }

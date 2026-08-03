@@ -2092,6 +2092,7 @@ TADA_GetATTAINSByAUID <- function(
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Use MT example data set
 #' testdat <- Data_MT_AUMLRef$TADA_with_ATTAINS
 #' 
@@ -2216,6 +2217,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   by_org = TRUE,
 #'   meta_select = "count"
 #' )
+#' }
 #' 
 TADA_FindNearbySites <- function(
     .data,
