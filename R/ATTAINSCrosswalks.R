@@ -4624,8 +4624,7 @@ TADA_CreatePointAUs <- function(.data, auid_prefix = NULL) {
 
     .data <- TADA_CrosswalkATTAINSWaterTypes(
       .data,
-      overwrite_existing = FALSE,
-      validation = "none"
+      replace_all = FALSE
     )
   }
 
