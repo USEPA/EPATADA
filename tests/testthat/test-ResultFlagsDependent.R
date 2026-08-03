@@ -1,4 +1,6 @@
 test_that("No NAs in dependent flag columns", {
+  testthat::skip_on_cran()
+  testthat::skip_if_offline("www.waterqualitydata.us")
   today <- Sys.Date()
   twoago <- as.character(today - 2 * 365)
   testdat <- TADA_DataRetrieval(
