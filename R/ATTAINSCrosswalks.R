@@ -4622,10 +4622,7 @@ TADA_CreatePointAUs <- function(.data, auid_prefix = NULL) {
       )
     }
 
-    .data <- TADA_CrosswalkATTAINSWaterTypes(
-      .data,
-      replace_all = FALSE
-    )
+    .data <- TADA_CrosswalkATTAINSWaterTypes(.data, replace_all = FALSE)
   }
 
   created_AUID <- is.na(.data$ATTAINS.AssessmentUnitIdentifier) |
