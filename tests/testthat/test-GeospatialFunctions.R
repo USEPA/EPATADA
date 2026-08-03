@@ -150,7 +150,7 @@ testthat::test_that("fetchATTAINS catchments_only parameter", {
 
 testthat::test_that("fetchATTAINS org_id parameter", {
   org <- "RIDEM"
-  
+
   testthat::expect_no_error(
     org_results <- EPATADA:::fetchATTAINS(
       .data = RI_CT_secchi,
@@ -158,8 +158,10 @@ testthat::test_that("fetchATTAINS org_id parameter", {
       org_id = org
     )
   )
-  
-  testthat::expect_true(all(org_results$ATTAINS_catchments$organizationid == org))
+
+  testthat::expect_true(all(
+    org_results$ATTAINS_catchments$organizationid == org
+  ))
 })
 
 testthat::test_that("fetchNHD handles small areas with defaults", {
@@ -315,7 +317,7 @@ testthat::test_that("TADA_CreateAUMLCrosswalk handles empty datasets appropriate
     ActivityStartDate = as.Date(character(0)),
     TADA.ResultMeasureValue = numeric(0)
   )
-  
+
   result <- TADA_CreateAUMLCrosswalk(.data = empty_df)
   testthat::expect_equal(length(result), 5)
   testthat::expect_true("ResultIdentifier" %in% names(result$TADA_with_ATTAINS))
@@ -522,7 +524,7 @@ testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
     by_org = TRUE,
     dist_buffer = 100
   )
-  
+
   orgs_per_group <- test_by_org |>
     sf::st_drop_geometry() |>
     dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
@@ -531,7 +533,7 @@ testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
       n_orgs = dplyr::n_distinct(OrganizationIdentifier),
       .groups = "drop"
     )
-  
+
   testthat::expect_true(nrow(orgs_per_group) > 0)
   testthat::expect_true(all(orgs_per_group$n_orgs == 1))
 })
@@ -628,12 +630,15 @@ testthat::test_that("TADA_FindNearbySites returns no-nearby output when no sites
 
   testthat::expect_true("TADA.NearbySiteGroup" %in% names(result))
   testthat::expect_true(all(is.na(result$TADA.NearbySiteGroup)))
-  testthat::expect_true(all(grepl("No nearby sites detected", result$TADA.NearbySites.Flag)))
+  testthat::expect_true(all(grepl(
+    "No nearby sites detected",
+    result$TADA.NearbySites.Flag
+  )))
 })
 
 testthat::test_that("TADA_FindNearbySites errors when OrganizationIdentifier is missing and by_org = TRUE", {
   no_org <- nearby_fixture |> dplyr::select(-OrganizationIdentifier)
-  
+
   testthat::expect_error(
     TADA_FindNearbySites(
       no_org,
@@ -672,7 +677,7 @@ testthat::test_that("TADA_FindNearbySites supports meta_select = newest", {
     meta_select = "newest",
     dist_buffer = 100
   )
-  
+
   testthat::expect_true(is.data.frame(new))
   testthat::expect_true("TADA.NearbySites.Flag" %in% names(new))
 })

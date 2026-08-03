@@ -341,14 +341,14 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   catchment_features <- fetch_bbox(baseurls[1], points_sf) |>
     sf::st_transform(out_epsg) |>
     sf::st_make_valid()
-  
+
   if (!is.null(org_id) && !identical(org_id, "all")) {
     catchment_features <- dplyr::filter(
       catchment_features,
       organizationid %in% org_id
     )
   }
-  
+
   # Subset catchments to just intersecting catchments
   catchment_features <- sf::st_filter(
     catchment_features,
@@ -2095,13 +2095,13 @@ TADA_GetATTAINSByAUID <- function(
 #' \dontrun{
 #' # Use MT example data set
 #' testdat <- Data_MT_AUMLRef$TADA_with_ATTAINS
-#' 
+#'
 #' # Default behavior: distance-based grouping with catchment and AU filters enabled
 #' test.default <- TADA_FindNearbySites(
 #'   testdat,
 #'   dist_buffer = 250
 #' )
-#' 
+#'
 #' # Review the key input columns plus the columns added/updated by the function
 #' relevant_cols <- c(
 #'   "MonitoringLocationIdentifier",
@@ -2116,16 +2116,16 @@ TADA_GetATTAINSByAUID <- function(
 #'   "TADA.NearbySiteGroup",
 #'   "TADA.NearbySites.Flag"
 #' )
-#' 
+#'
 #' # Inspect grouped sites
 #' grouped_sites_view <- test.default |>
 #'   dplyr::select(dplyr::any_of(relevant_cols)) |>
 #'   dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
 #'   dplyr::distinct(MonitoringLocationIdentifier, .keep_all = TRUE)
-#' 
+#'
 #' # Inspect grouped sites on a map
 #' TADA_NearbySitesMap(test.default, attains = FALSE)
-#' 
+#'
 #' # Group nearby sites using distance only, without catchment or AU filtering
 #' test.dist.only <- TADA_FindNearbySites(
 #'   testdat,
@@ -2133,7 +2133,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   catchment = FALSE,
 #'   by_AU = FALSE
 #' )
-#' 
+#'
 #' # Group nearby sites using distance and catchment only
 #' test.catch.only <- TADA_FindNearbySites(
 #'   testdat,
@@ -2141,7 +2141,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   catchment = TRUE,
 #'   by_AU = FALSE
 #' )
-#' 
+#'
 #' # Group nearby sites using distance and assessment unit only
 #' # (applies only when ATTAINS.AssessmentUnitIdentifier is present)
 #' test.au.only <- TADA_FindNearbySites(
@@ -2150,7 +2150,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   catchment = FALSE,
 #'   by_AU = TRUE
 #' )
-#' 
+#'
 #' # Group nearby sites using distance, catchment, and assessment unit
 #' # Same as the default call, shown explicitly
 #' test.catch.au <- TADA_FindNearbySites(
@@ -2159,7 +2159,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   catchment = TRUE,
 #'   by_AU = TRUE
 #' )
-#' 
+#'
 #' # Group nearby sites using distance and organization only
 #' test.org <- TADA_FindNearbySites(
 #'   testdat,
@@ -2168,7 +2168,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   by_AU = FALSE,
 #'   by_org = TRUE
 #' )
-#' 
+#'
 #' # Use the Medium-resolution NHD catchment layer
 #' test.nhd.med <- TADA_FindNearbySites(
 #'   testdat,
@@ -2177,7 +2177,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   catchment = TRUE,
 #'   by_AU = FALSE
 #' )
-#' 
+#'
 #' # Choose representative metadata randomly
 #' test.random <- TADA_FindNearbySites(
 #'   testdat,
@@ -2186,7 +2186,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   by_AU = FALSE,
 #'   meta_select = "random"
 #' )
-#' 
+#'
 #' # Choose representative metadata from the site with the most results
 #' test.count <- TADA_FindNearbySites(
 #'   testdat,
@@ -2195,7 +2195,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   by_AU = FALSE,
 #'   meta_select = "count"
 #' )
-#' 
+#'
 #' # Prioritize representative metadata using an organization hierarchy
 #' # Get counts for each organization first to inform prioritization
 #' TADA_FieldValuesTable(testdat, field = "OrganizationIdentifier")
@@ -2207,7 +2207,7 @@ TADA_GetATTAINSByAUID <- function(
 #'   meta_select = "newest",
 #'   org_hierarchy = c("MTVOLWQM_WQX", "USGS-MT", "TSWQC_WQX", "MDEQ_WQ_WQX")
 #' )
-#' 
+#'
 #' # Group only within the same organization and use count-based selection
 #' test.org.count <- TADA_FindNearbySites(
 #'   testdat,
@@ -2218,20 +2218,20 @@ TADA_GetATTAINSByAUID <- function(
 #'   meta_select = "count"
 #' )
 #' }
-#' 
+#'
 TADA_FindNearbySites <- function(
-    .data,
-    dist_buffer = 100,
-    nhd_res = "Hi",
-    org_hierarchy = NULL,
-    meta_select = c("random", "newest", "count"),
-    catchment = TRUE,
-    by_AU = TRUE,
-    by_org = FALSE
+  .data,
+  dist_buffer = 100,
+  nhd_res = "Hi",
+  org_hierarchy = NULL,
+  meta_select = c("random", "newest", "count"),
+  catchment = TRUE,
+  by_AU = TRUE,
+  by_org = FALSE
 ) {
   meta_select <- match.arg(meta_select)
   nhd_res <- match.arg(nhd_res, choices = c("Hi", "Med"))
-  
+
   # Validate that required columns exist before doing any spatial processing.
   expected_cols <- c(
     "TADA.MonitoringLocationIdentifier",
@@ -2244,17 +2244,26 @@ TADA_FindNearbySites <- function(
     "OrganizationIdentifier"
   )
   TADA_CheckColumns(.data, expected_cols)
-  
+
   # Validate dist_buffer is a single non-negative numeric value.
-  if (!is.numeric(dist_buffer) || length(dist_buffer) != 1 || is.na(dist_buffer) || dist_buffer < 0) {
-    stop("TADA_FindNearbySites: dist_buffer must be a single non-negative numeric value.")
+  if (
+    !is.numeric(dist_buffer) ||
+      length(dist_buffer) != 1 ||
+      is.na(dist_buffer) ||
+      dist_buffer < 0
+  ) {
+    stop(
+      "TADA_FindNearbySites: dist_buffer must be a single non-negative numeric value."
+    )
   }
-  
+
   # Validate org_hierarchy input.
   if (!is.null(org_hierarchy) && !is.character(org_hierarchy)) {
-    stop("TADA_FindNearbySites: Organization hierarchy must be a character vector or NULL.")
+    stop(
+      "TADA_FindNearbySites: Organization hierarchy must be a character vector or NULL."
+    )
   }
-  
+
   # Helper: return input data with standard no-nearby output columns and message.
   make_no_nearby <- function(reason, flag_text = "No nearby sites detected.") {
     message(reason)
@@ -2266,7 +2275,7 @@ TADA_FindNearbySites <- function(
       TADA_OrderCols() |>
       TADA_CorrectColType()
   }
-  
+
   # Helper: build consistent flag text for grouped records.
   build_flag <- function(meta_mode, org_filtered = FALSE) {
     prefix <- "Grouped with nearby site(s)."
@@ -2276,11 +2285,17 @@ TADA_FindNearbySites <- function(
     switch(
       meta_mode,
       random = paste(prefix, "Metadata selected randomly."),
-      newest = paste(prefix, "Metadata selected from the most recent ActivityStartDate."),
-      count = paste(prefix, "Metadata selected from the monitoring location with the most results available across all characteristics.")
+      newest = paste(
+        prefix,
+        "Metadata selected from the most recent ActivityStartDate."
+      ),
+      count = paste(
+        prefix,
+        "Metadata selected from the monitoring location with the most results available across all characteristics."
+      )
     )
   }
-  
+
   # Build a unique monitoring-location table for spatial distance calculations.
   site_meta <- .data |>
     dplyr::select(
@@ -2291,47 +2306,56 @@ TADA_FindNearbySites <- function(
       HorizontalCoordinateReferenceSystemDatumName
     ) |>
     dplyr::distinct()
-  
+
   # Convert to sf if needed so sf distance calculations can be used.
   if (!inherits(site_meta, "sf")) {
     site_meta <- tryCatch(TADA_MakeSpatial(site_meta), error = function(e) {
-      stop("TADA_FindNearbySites: Failed to create spatial data from monitoring locations: ", e$message)
+      stop(
+        "TADA_FindNearbySites: Failed to create spatial data from monitoring locations: ",
+        e$message
+      )
     })
   }
-  
+
   if (!inherits(site_meta, "sf")) {
-    stop("TADA_FindNearbySites: Spatial conversion failed; site metadata is not an sf object.")
+    stop(
+      "TADA_FindNearbySites: Spatial conversion failed; site metadata is not an sf object."
+    )
   }
-  
+
   # Validate the sf object has a geometry column.
   geom_col <- attr(site_meta, "sf_column")
   if (is.null(geom_col) || !geom_col %in% names(site_meta)) {
-    stop("TADA_FindNearbySites: invalid sf object; geometry column is missing or mis-specified.")
+    stop(
+      "TADA_FindNearbySites: invalid sf object; geometry column is missing or mis-specified."
+    )
   }
-  
+
   # Compute pairwise distances between unique monitoring locations.
   dist.matrix <- tryCatch(
     as.matrix(sf::st_distance(site_meta)),
-    error = function(e) stop("TADA_FindNearbySites: st_distance() failed: ", e$message)
+    error = function(e) {
+      stop("TADA_FindNearbySites: st_distance() failed: ", e$message)
+    }
   )
   dist.matrix <- units::drop_units(dist.matrix)
-  
+
   rownames(dist.matrix) <- site_meta$TADA.MonitoringLocationIdentifier
   colnames(dist.matrix) <- site_meta$TADA.MonitoringLocationIdentifier
-  
+
   # Convert distances to an adjacency matrix.
   adj.mat <- ifelse(dist.matrix <= dist_buffer, 1L, 0L)
-  
+
   # Build an undirected graph from adjacency relationships.
   adj.graph <- igraph::graph_from_adjacency_matrix(
     adj.mat,
     mode = "undirected",
     diag = FALSE
   )
-  
+
   # Identify connected components; each component is a preliminary nearby-site group.
   comp.results <- igraph::components(adj.graph)
-  
+
   # Create a lookup table from monitoring location ID to preliminary group ID.
   group_xwalk <- tibble::tibble(
     TADA.MonitoringLocationIdentifier = names(comp.results$membership),
@@ -2343,7 +2367,7 @@ TADA_FindNearbySites <- function(
     dplyr::ungroup() |>
     dplyr::select(-GroupSize) |>
     dplyr::distinct()
-  
+
   # If no nearby groups are found, return immediately.
   if (nrow(group_xwalk) == 0) {
     return(make_no_nearby(
@@ -2351,7 +2375,7 @@ TADA_FindNearbySites <- function(
       "No nearby sites detected."
     ))
   }
-  
+
   # Optional catchment filtering: keep nearby groups only if sites share at least one catchment.
   if (isTRUE(catchment)) {
     # Retry wrapper for fetchNHD calls.
@@ -2361,62 +2385,76 @@ TADA_FindNearbySites <- function(
           suppressMessages(fetchNHD(x, resolution = resolution)),
           error = function(e) e
         )
-        if (inherits(out, "sf") && nrow(out) > 0) return(out)
+        if (inherits(out, "sf") && nrow(out) > 0) {
+          return(out)
+        }
         Sys.sleep(delay * i)
       }
-      message("TADA_FindNearbySites: No NHD catchment features found for one or more nearby-site groups.")
+      message(
+        "TADA_FindNearbySites: No NHD catchment features found for one or more nearby-site groups."
+      )
       NULL
     }
-    
+
     # Project geographic data to a planar CRS for more stable spatial joins.
     safe_project <- function(x, crs = 3857) {
-      if (!inherits(x, "sf")) stop("safe_project: input must be an sf object.")
-      if (sf::st_is_longlat(x)) x <- sf::st_transform(x, crs)
+      if (!inherits(x, "sf")) {
+        stop("safe_project: input must be an sf object.")
+      }
+      if (sf::st_is_longlat(x)) {
+        x <- sf::st_transform(x, crs)
+      }
       x
     }
-    
+
     # Resolution-specific identifier column used by fetchNHD().
-    id_col <- switch(
-      nhd_res,
-      Hi = "NHD.nhdplusid",
-      Med = "NHD.comid"
-    )
-    
+    id_col <- switch(nhd_res, Hi = "NHD.nhdplusid", Med = "NHD.comid")
+
     # Build grouped site sets to pass to fetchNHD().
     near_sites <- site_meta |>
       dplyr::filter(
-        TADA.MonitoringLocationIdentifier %in% group_xwalk$TADA.MonitoringLocationIdentifier
+        TADA.MonitoringLocationIdentifier %in%
+          group_xwalk$TADA.MonitoringLocationIdentifier
       ) |>
       dplyr::left_join(
         sf::st_drop_geometry(group_xwalk),
         by = "TADA.MonitoringLocationIdentifier"
       )
-    
+
     near_groups <- near_sites |> dplyr::group_split(Group, .keep = TRUE)
-    
+
     # Fetch catchments for each nearby-site group.
     nhd.catch <- purrr::map(
       near_groups,
       ~ fetchNHD_retry(.x, resolution = nhd_res)
     )
-    
+
     # Keep only sites that intersect a common catchment feature.
     group_xwalk <- purrr::map2_dfr(
       near_groups,
       nhd.catch,
       function(site_grp, catch_grp) {
         # Skip empty fetch results.
-        if (is.null(catch_grp) || !inherits(catch_grp, "sf") || nrow(catch_grp) == 0) {
+        if (
+          is.null(catch_grp) ||
+            !inherits(catch_grp, "sf") ||
+            nrow(catch_grp) == 0
+        ) {
           return(tibble::tibble())
         }
-        
+
         # Standardize projection / validity before joining.
         site_grp <- safe_project(site_grp)
         catch_grp <- safe_project(catch_grp)
-        
-        site_grp <- tryCatch(sf::st_make_valid(site_grp), error = function(e) site_grp)
-        catch_grp <- tryCatch(sf::st_make_valid(catch_grp), error = function(e) catch_grp)
-        
+
+        site_grp <- tryCatch(sf::st_make_valid(site_grp), error = function(e) {
+          site_grp
+        })
+        catch_grp <- tryCatch(
+          sf::st_make_valid(catch_grp),
+          error = function(e) catch_grp
+        )
+
         # Ensure expected ID field exists in the fetchNHD output.
         if (!id_col %in% names(catch_grp)) {
           stop(
@@ -2427,19 +2465,24 @@ TADA_FindNearbySites <- function(
             "'."
           )
         }
-        
+
         # Spatially join sites to catchment features.
         joined <- tryCatch(
-          sf::st_join(site_grp, catch_grp, left = TRUE, join = sf::st_intersects),
+          sf::st_join(
+            site_grp,
+            catch_grp,
+            left = TRUE,
+            join = sf::st_intersects
+          ),
           error = function(e) NULL
         )
-        
+
         if (is.null(joined) || nrow(joined) == 0) {
           return(tibble::tibble())
         }
-        
+
         joined_df <- sf::st_drop_geometry(joined)
-        
+
         # Retain only groups where at least two sites share the same catchment ID.
         joined_df |>
           dplyr::filter(!is.na(.data[[id_col]])) |>
@@ -2451,7 +2494,7 @@ TADA_FindNearbySites <- function(
           dplyr::distinct()
       }
     )
-    
+
     # If nothing remains after catchment filtering, return no-nearby output.
     if (nrow(group_xwalk) == 0) {
       return(make_no_nearby(
@@ -2460,25 +2503,30 @@ TADA_FindNearbySites <- function(
       ))
     }
   }
-  
+
   # Track whether organization filtering is being applied.
   org_grouping_applied <- FALSE
   if (isTRUE(by_org)) {
     org_grouping_applied <- TRUE
-    message("TADA_FindNearbySites: Monitoring locations will only be grouped if they are from the same organization.")
-    
+    message(
+      "TADA_FindNearbySites: Monitoring locations will only be grouped if they are from the same organization."
+    )
+
     if (!"OrganizationIdentifier" %in% names(.data)) {
       return(make_no_nearby(
         "TADA_FindNearbySites: OrganizationIdentifier is required when by_org = TRUE.",
         "No nearby sites detected."
       ))
     }
-    
+
     # Crosswalk site IDs to organization IDs.
     org.ml.cw <- .data |>
-      dplyr::select(TADA.MonitoringLocationIdentifier, OrganizationIdentifier) |>
+      dplyr::select(
+        TADA.MonitoringLocationIdentifier,
+        OrganizationIdentifier
+      ) |>
       dplyr::distinct()
-    
+
     # Retain only groups where at least two sites share the same organization.
     group_xwalk <- group_xwalk |>
       dplyr::left_join(org.ml.cw, by = "TADA.MonitoringLocationIdentifier") |>
@@ -2488,7 +2536,7 @@ TADA_FindNearbySites <- function(
       dplyr::ungroup() |>
       dplyr::select(TADA.MonitoringLocationIdentifier, Group) |>
       dplyr::distinct()
-    
+
     if (nrow(group_xwalk) == 0) {
       return(make_no_nearby(
         "TADA_FindNearbySites: No nearby sites detected within the same organization.",
@@ -2496,17 +2544,22 @@ TADA_FindNearbySites <- function(
       ))
     }
   }
-  
+
   # Optional assessment unit filtering when AU column exists and user wants it applied.
   au_present <- "ATTAINS.AssessmentUnitIdentifier" %in% names(.data)
   if (au_present && isTRUE(by_AU)) {
-    message("TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. Monitoring locations will only be grouped if they fall within the same assessment unit.")
-    
+    message(
+      "TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. Monitoring locations will only be grouped if they fall within the same assessment unit."
+    )
+
     # Crosswalk site IDs to assessment units.
     au.ml.cw <- .data |>
-      dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier) |>
+      dplyr::select(
+        TADA.MonitoringLocationIdentifier,
+        ATTAINS.AssessmentUnitIdentifier
+      ) |>
       dplyr::distinct()
-    
+
     # Retain only groups where at least two sites share the same assessment unit.
     group_xwalk <- group_xwalk |>
       dplyr::left_join(au.ml.cw, by = "TADA.MonitoringLocationIdentifier") |>
@@ -2520,7 +2573,7 @@ TADA_FindNearbySites <- function(
       dplyr::ungroup() |>
       dplyr::select(TADA.MonitoringLocationIdentifier, Group) |>
       dplyr::distinct()
-    
+
     if (nrow(group_xwalk) == 0) {
       return(make_no_nearby(
         "TADA_FindNearbySites: No nearby sites detected within the same assessment unit.",
@@ -2528,16 +2581,25 @@ TADA_FindNearbySites <- function(
       ))
     }
   } else if (au_present && !isTRUE(by_AU)) {
-    message("TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. Assessment unit was not used for grouping.")
+    message(
+      "TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. Assessment unit was not used for grouping."
+    )
   }
-  
+
   # Build bracketed grouped monitoring location IDs and assign numeric group IDs.
   new.ids <- group_xwalk |>
     dplyr::ungroup() |>
     dplyr::group_by(Group) |>
     dplyr::mutate(
-      TADA.MonitoringLocationIdentifier.New = paste(TADA.MonitoringLocationIdentifier, collapse = ", "),
-      TADA.MonitoringLocationIdentifier.New = paste0("[", TADA.MonitoringLocationIdentifier.New, "]"),
+      TADA.MonitoringLocationIdentifier.New = paste(
+        TADA.MonitoringLocationIdentifier,
+        collapse = ", "
+      ),
+      TADA.MonitoringLocationIdentifier.New = paste0(
+        "[",
+        TADA.MonitoringLocationIdentifier.New,
+        "]"
+      ),
       TADA.NearbySiteGroup = dplyr::cur_group_id()
     ) |>
     dplyr::ungroup() |>
@@ -2547,7 +2609,7 @@ TADA_FindNearbySites <- function(
       TADA.NearbySiteGroup
     ) |>
     dplyr::distinct()
-  
+
   # Assemble candidate metadata records for each grouped monitoring location.
   group_meta <- new.ids |>
     dplyr::left_join(.data, by = "TADA.MonitoringLocationIdentifier") |>
@@ -2564,35 +2626,48 @@ TADA_FindNearbySites <- function(
       TADA.ResultMeasureValue
     ) |>
     dplyr::distinct()
-  
+
   # Build organization ranks for representative-metadata selection.
   all.orgs <- unique(.data$OrganizationIdentifier)
-  
+
   if (is.null(org_hierarchy)) {
-    org.ranks <- tibble::tibble(OrganizationIdentifier = all.orgs, OrgRank = 99L)
+    org.ranks <- tibble::tibble(
+      OrganizationIdentifier = all.orgs,
+      OrgRank = 99L
+    )
   } else {
     missing.orgs <- setdiff(all.orgs, org_hierarchy)
-    org.ranks <- tibble::tibble(OrganizationIdentifier = org_hierarchy, OrgRank = seq_along(org_hierarchy))
-    
+    org.ranks <- tibble::tibble(
+      OrganizationIdentifier = org_hierarchy,
+      OrgRank = seq_along(org_hierarchy)
+    )
+
     if (length(missing.orgs) > 0) {
       message(paste0(
         "TADA_FindNearbySites: ",
         length(missing.orgs),
         " organization identifier(s) are missing from org_hierarchy (",
-        stringi::stri_replace_last(paste(missing.orgs, collapse = ", "), fixed = ", ", " and "),
+        stringi::stri_replace_last(
+          paste(missing.orgs, collapse = ", "),
+          fixed = ", ",
+          " and "
+        ),
         "). Using partial hierarchy."
       ))
       org.ranks <- dplyr::bind_rows(
         org.ranks,
-        tibble::tibble(OrganizationIdentifier = missing.orgs, OrgRank = length(org_hierarchy) + 1L)
+        tibble::tibble(
+          OrganizationIdentifier = missing.orgs,
+          OrgRank = length(org_hierarchy) + 1L
+        )
       )
     }
   }
-  
+
   # Attach organization ranks to candidate metadata rows.
   group_meta_ranked <- group_meta |>
     dplyr::left_join(org.ranks, by = "OrganizationIdentifier")
-  
+
   # Select one representative metadata record per nearby-site group.
   select.meta <- switch(
     meta_select,
@@ -2613,7 +2688,11 @@ TADA_FindNearbySites <- function(
     },
     newest = {
       group_meta_ranked |>
-        dplyr::arrange(OrgRank, dplyr::desc(ActivityStartDate), TADA.MonitoringLocationIdentifier) |>
+        dplyr::arrange(
+          OrgRank,
+          dplyr::desc(ActivityStartDate),
+          TADA.MonitoringLocationIdentifier
+        ) |>
         dplyr::group_by(TADA.NearbySiteGroup) |>
         dplyr::slice(1) |>
         dplyr::ungroup() |>
@@ -2630,11 +2709,15 @@ TADA_FindNearbySites <- function(
     count = {
       count_tbl <- .data |>
         dplyr::count(TADA.MonitoringLocationIdentifier, name = "NCount")
-      
+
       group_meta_ranked |>
         dplyr::left_join(count_tbl, by = "TADA.MonitoringLocationIdentifier") |>
         dplyr::mutate(NCount = dplyr::coalesce(NCount, 0L)) |>
-        dplyr::arrange(dplyr::desc(NCount), OrgRank, TADA.MonitoringLocationIdentifier) |>
+        dplyr::arrange(
+          dplyr::desc(NCount),
+          OrgRank,
+          TADA.MonitoringLocationIdentifier
+        ) |>
         dplyr::group_by(TADA.NearbySiteGroup) |>
         dplyr::slice(1) |>
         dplyr::ungroup() |>
@@ -2649,7 +2732,7 @@ TADA_FindNearbySites <- function(
         )
     }
   )
-  
+
   # Crosswalk original monitoring location IDs to grouped monitoring location IDs.
   ml.crosswalk <- new.ids |>
     dplyr::select(
@@ -2657,17 +2740,35 @@ TADA_FindNearbySites <- function(
       TADA.MonitoringLocationIdentifier.New
     ) |>
     dplyr::distinct()
-  
+
   # Join grouped IDs and selected representative metadata back to the full data set.
   out <- .data |>
     dplyr::left_join(ml.crosswalk, by = "TADA.MonitoringLocationIdentifier") |>
-    dplyr::left_join(select.meta, by = "TADA.MonitoringLocationIdentifier.New") |>
+    dplyr::left_join(
+      select.meta,
+      by = "TADA.MonitoringLocationIdentifier.New"
+    ) |>
     dplyr::mutate(
-      TADA.MonitoringLocationName = dplyr::coalesce(TADA.MonitoringLocationName.New, TADA.MonitoringLocationName),
-      TADA.LatitudeMeasure = dplyr::coalesce(TADA.LatitudeMeasure.New, TADA.LatitudeMeasure),
-      TADA.LongitudeMeasure = dplyr::coalesce(TADA.LongitudeMeasure.New, TADA.LongitudeMeasure),
-      TADA.MonitoringLocationTypeName = dplyr::coalesce(TADA.MonitoringLocationTypeName.New, TADA.MonitoringLocationTypeName),
-      TADA.MonitoringLocationIdentifier = dplyr::coalesce(TADA.MonitoringLocationIdentifier.New, TADA.MonitoringLocationIdentifier),
+      TADA.MonitoringLocationName = dplyr::coalesce(
+        TADA.MonitoringLocationName.New,
+        TADA.MonitoringLocationName
+      ),
+      TADA.LatitudeMeasure = dplyr::coalesce(
+        TADA.LatitudeMeasure.New,
+        TADA.LatitudeMeasure
+      ),
+      TADA.LongitudeMeasure = dplyr::coalesce(
+        TADA.LongitudeMeasure.New,
+        TADA.LongitudeMeasure
+      ),
+      TADA.MonitoringLocationTypeName = dplyr::coalesce(
+        TADA.MonitoringLocationTypeName.New,
+        TADA.MonitoringLocationTypeName
+      ),
+      TADA.MonitoringLocationIdentifier = dplyr::coalesce(
+        TADA.MonitoringLocationIdentifier.New,
+        TADA.MonitoringLocationIdentifier
+      ),
       TADA.NearbySiteGroup = TADA.NearbySiteGroup.New,
       TADA.NearbySites.Flag = dplyr::if_else(
         is.na(TADA.NearbySiteGroup),
@@ -2685,7 +2786,7 @@ TADA_FindNearbySites <- function(
     ) |>
     TADA_OrderCols() |>
     TADA_CorrectColType()
-  
+
   return(out)
 }
 
