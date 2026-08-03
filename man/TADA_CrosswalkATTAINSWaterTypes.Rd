@@ -30,3 +30,13 @@ A TADA data frame with ATTAINS.WaterType populated.
 Adds or updates ATTAINS.WaterType using TADA.MonitoringLocationTypeName.
 By default, only missing ATTAINS.WaterType values are populated.
 }
+\examples{
+
+\dontrun{
+
+# example for MT data
+testdat <- Data_MT_MissoulaCounty
+
+crosswalk <- TADA_CrosswalkATTAINSWaterTypes(testat, org_Id = "MTDEQ")
+}
+}
