@@ -2265,7 +2265,7 @@ TADA_FindNearbySites <- function(
   }
 
   # Helper: return input data with standard no-nearby output columns and message.
-  make_no_nearby <- function(reason, flag_text = "No nearby sites detected.") {
+  make_no_nearby <- function(reason, flag_text = "No nearby sites detected using input buffer distance.") {
     message(reason)
     sf::st_drop_geometry(.data) |>
       dplyr::mutate(

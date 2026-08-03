@@ -2206,6 +2206,7 @@ TADA_CreateCSV <- function(.data) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' DeWitt_wqx3 <- dataRetrieval::readWQPdata(
 #'   statecode = "Illinois",
 #'   countycode = "DeWitt", characteristicName = "Nitrogen",
@@ -2214,7 +2215,8 @@ TADA_CreateCSV <- function(.data) {
 #' )
 #'
 #' DeWitt_wqx3_withlegacynames <- EPATADA::TADA_RenametoLegacy(DeWitt_wqx3)
-#'
+#' }
+#' 
 TADA_RenametoLegacy <- function(.data) {
   ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide
   # https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide
