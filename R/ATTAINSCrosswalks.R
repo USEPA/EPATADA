@@ -4508,6 +4508,152 @@ TADA_MLSummary <- function(
   return(MLSummaryRef)
 }
 
+#' Create an ATTAINS AU–ML Crosswalk from WQP Monitoring Location IDs
+#'
+#' Build a distinct crosswalk between WQP Monitoring Locations and ATTAINS
+#' Assessment Units. For rows where `ATTAINS.AssessmentUnitIdentifier` is
+#' missing or blank, the value is filled with
+#' `TADA.MonitoringLocationIdentifier`, optionally with an `auid_prefix`
+#' appended. Existing non-missing, non-blank AUIDs are left unchanged.
+#'
+#' If `ATTAINS.WaterType` is missing or contains any blank values, the function
+#' will attempt to populate it by calling
+#' `TADA_CrosswalkATTAINSWaterTypes()` internally with
+#' `overwrite_existing = FALSE` and `validation = "none"`.
+#'
+#' @param .data A data frame containing, at minimum:
+#'   - `TADA.MonitoringLocationIdentifier`
+#'
+#'   If missing water-type values need to be crosswalked, the input must also
+#'   contain:
+#'   - `TADA.MonitoringLocationTypeName`
+#'
+#'   Optionally, the input may already include:
+#'   - `ATTAINS.AssessmentUnitIdentifier`
+#'   - `ATTAINS.WaterType`
+#'
+#'   If `ATTAINS.AssessmentUnitIdentifier` is absent, it will be added.
+#'
+#' @param auid_prefix Character or `NULL`. If provided and non-empty, this
+#'   prefix is included only for newly created
+#'   `ATTAINS.AssessmentUnitIdentifier` values that were filled from
+#'   `TADA.MonitoringLocationIdentifier`. Existing non-missing AUIDs are not
+#'   modified. Use `NULL` to skip prefixing.
+#'
+#' @return A distinct AU–ML crosswalk data frame containing:
+#'   - `ATTAINS.MonitoringLocationIdentifier`
+#'   - `ATTAINS.AssessmentUnitIdentifier`
+#'   - `ATTAINS.WaterType`
+#'
+#' @details
+#' - Missing `ATTAINS.AssessmentUnitIdentifier`
+#'   values are replaced with `TADA.MonitoringLocationIdentifier`.
+#' - If `auid_prefix` is supplied and non-empty, it is included for only
+#'   newly created AUIDs.
+#' - `ATTAINS.MonitoringLocationIdentifier` is created from
+#'   `TADA.MonitoringLocationIdentifier`.
+#' - `ATTAINS.WaterType` is not overwritten unless it is missing or blank.
+#'
+#' @seealso [TADA_CrosswalkATTAINSWaterTypes()]
+#'
+#' @examples
+#' \dontrun{
+#' # Example 1: Create missing AUIDs
+#' ex_df <- data.frame(
+#'   TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2", "LOC3"),
+#'   TADA.MonitoringLocationTypeName   = c("Stream", "Lake", "Estuary"),
+#'   ATTAINS.AssessmentUnitIdentifier  = c(NA_character_, "EXISTING_AU_001", ""),
+#'   ATTAINS.WaterType                 = c(NA_character_, "", "ESTUARY"),
+#'   stringsAsFactors = FALSE
+#' )
+#'
+#' result <- TADA_CreatePointAUs(ex_df)
+#'
+#' # Example 2: Prefix only newly created AUIDs
+#' result_prefixed <- TADA_CreatePointAUs(
+#'   ex_df,
+#'   auid_prefix = "WQX_"
+#' )
+#'
+#' # Example 3: AUID column is absent entirely
+#' ex_df2 <- data.frame(
+#'   TADA.MonitoringLocationIdentifier = c("SITE_A", "SITE_B"),
+#'   TADA.MonitoringLocationTypeName   = c("River/Stream", "Lake, Reservoir, Impoundment"),
+#'   ATTAINS.WaterType                 = c(NA_character_, NA_character_),
+#'   stringsAsFactors = FALSE
+#' )
+#'
+#' result_missing_auid <- TADA_CreatePointAUs(ex_df2)
+#' }
+#'
+#' @export
+TADA_CreatePointAUs <- function(.data, auid_prefix = NULL) {
+  req <- c("TADA.MonitoringLocationIdentifier")
+  missing <- setdiff(req, names(.data))
+  if (length(missing) > 0) {
+    stop(
+      "TADA_CreatePointAUs: Missing required column(s): ",
+      paste(missing, collapse = ", ")
+    )
+  }
+
+  if (!"ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
+    .data$ATTAINS.AssessmentUnitIdentifier <- NA_character_
+  }
+
+  .data$TADA.MonitoringLocationIdentifier <- as.character(
+    .data$TADA.MonitoringLocationIdentifier
+  )
+  .data$ATTAINS.AssessmentUnitIdentifier <- as.character(
+    .data$ATTAINS.AssessmentUnitIdentifier
+  )
+
+  need_crosswalk <- !("ATTAINS.WaterType" %in% names(.data)) ||
+    any(
+      is.na(.data$ATTAINS.WaterType) |
+        trimws(as.character(.data$ATTAINS.WaterType)) == "",
+      na.rm = TRUE
+    )
+
+  if (need_crosswalk) {
+    if (!"TADA.MonitoringLocationTypeName" %in% names(.data)) {
+      stop(
+        "TADA_CreatePointAUs: Missing required column: TADA.MonitoringLocationTypeName"
+      )
+    }
+
+    .data <- TADA_CrosswalkATTAINSWaterTypes(
+      .data,
+      overwrite_existing = FALSE,
+      validation = "none"
+    )
+  }
+
+  created_AUID <- is.na(.data$ATTAINS.AssessmentUnitIdentifier) |
+    trimws(.data$ATTAINS.AssessmentUnitIdentifier) == ""
+
+  .data$ATTAINS.AssessmentUnitIdentifier[
+    created_AUID
+  ] <- .data$TADA.MonitoringLocationIdentifier[created_AUID]
+
+  if (!is.null(auid_prefix) && nzchar(auid_prefix)) {
+    .data$ATTAINS.AssessmentUnitIdentifier[created_AUID] <- paste0(
+      auid_prefix,
+      .data$ATTAINS.AssessmentUnitIdentifier[created_AUID]
+    )
+  }
+
+  .data$ATTAINS.MonitoringLocationIdentifier <- .data$TADA.MonitoringLocationIdentifier
+
+  .data |>
+    dplyr::select(
+      ATTAINS.MonitoringLocationIdentifier,
+      ATTAINS.AssessmentUnitIdentifier,
+      ATTAINS.WaterType
+    ) |>
+    dplyr::distinct()
+}
+
 #' Build ATTAINS water type crosswalk
 #'
 #' Internal helper to construct the crosswalk used to assign ATTAINS.WaterType
