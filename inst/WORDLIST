@@ -1,6 +1,6 @@
 ANDs
 AOI
-ATTAINSWaterTypeFlag
+AUIDs
 AUML
 AUMLRef
 AURefSource
@@ -203,7 +203,6 @@ MonitoringLocationIdentifiers
 MonitoringLocationName
 MonitoringLocationType
 MonitoringLocationTypeName
-MonitoringLocationTypeNames
 MonitoringLocations
 Msr
 MultipleOrgDup
@@ -448,7 +447,7 @@ createBBox
 createTADABasemap
 cristinamullin
 criteriaMethods
-crosswalking
+crosswalked
 crs
 cst
 csv
