@@ -29,9 +29,6 @@ harmonized datasets, and more.
 \dontrun{
 .TADA_UpdateExampleData()
 }
-Update Example Data for EPATADA Package (Internal)
-
-This internal function retrieves, processes, and saves various datasets for the EPATADA package.
 
 \dontrun{
 .TADA_UpdateExampleData()

@@ -122,9 +122,6 @@
 #' \dontrun{
 #' .TADA_UpdateExampleData()
 #' }
-#' Update Example Data for EPATADA Package (Internal)
-#'
-#' This internal function retrieves, processes, and saves various datasets for the EPATADA package.
 #'
 #' @details
 #' The function fetches data from specified sources based on given parameters, processes it using
