@@ -8,6 +8,35 @@ testdat <- testdat |>
 
 testpoints <- TADA_CreatePointAUs(testdat)
 
+#' Save an sf object as a shapefile
+#'
+#' @keywords internal
+#' @noRd
+save_sf_as_shp <- function(sf_out, shp_path) {
+  if (!inherits(sf_out, "sf")) {
+    stop("'sf_out' must be an sf object.")
+  }
+
+  if (is.null(shp_path) || !nzchar(shp_path)) {
+    stop("'shp_path' must be a valid file path.")
+  }
+
+  out_dir <- dirname(shp_path)
+  if (!dir.exists(out_dir)) {
+    dir.create(out_dir, recursive = TRUE)
+  }
+
+  sf::st_write(
+    sf_out,
+    dsn = shp_path,
+    driver = "ESRI Shapefile",
+    delete_dsn = TRUE,
+    quiet = TRUE
+  )
+
+  invisible(shp_path)
+}
+
 #' Fill missing ATTAINS Assessment Unit Identifiers
 #'
 #' @keywords internal
@@ -123,7 +152,8 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
 #' @export
 TADA_CreatePointAUGeometry <- function(.data,
                                        target_crs = 4269,
-                                       download_geo = FALSE) {
+                                       download_geo = FALSE,
+                                       auid_prefix = NULL) {
 
   # always required columns
   req <- c("TADA.LongitudeMeasure",
@@ -140,8 +170,10 @@ TADA_CreatePointAUGeometry <- function(.data,
   # check to see if all required columns and any id cols are in .data
   if (!all(req %in% names(.data)) & !any(auid %in% names(.data))) {
     stop(
-      "TADA_CreatePointAUGeometry: Input data must contain ATTAINS.AssessmentUnitIdentifier, ",
-      "TADA.LongitudeMeasure, TADA.LatitudeMeasure, and HorizontalCoordinateReferenceSystemDatumName"
+      "TADA_CreatePointAUGeometry: Input data must contain",
+      "TADA.LongitudeMeasure, TADA.LatitudeMeasure, and HorizontalCoordinateReferenceSystemDatumName",
+      "and at least one of the following columns: TADA.MonitoringLocationIdentifier or",
+      "ATTAINS.AssessmentUnitIdentifier."
     )
   }
 
@@ -179,7 +211,7 @@ TADA_CreatePointAUGeometry <- function(.data,
 
   # check for multipoints
   sf_out <- sf_pts |>
-    dplyr::group_by(ATTAINS.AssessmentUnitIdentifier) |>
+    dplyr::group_by(id.col) |>
     dplyr::summarise(
       n_pts = dplyr::n(),
       geometry = {
@@ -196,17 +228,36 @@ TADA_CreatePointAUGeometry <- function(.data,
     ) |>
     dplyr::select(-n_pts)
 
-  sf::st_as_sf(sf_out)
+  sf_out <- sf::st_as_sf(sf_out)
 
   if(isFALSE(download_geo)) {
 
     return(sf_out)
   } else {
 
-    shp.path <- .get_downloads_path()
+    # get today's date
+    today <- format(Sys.Date(), "%m_%d_%Y")
+
+    # create file name
+    file.name <- paste0("TADAPointAUGeometry_", today)
+
+    # add auid prefix to file name if provided
+    if (!is.null(auid_prefix)) {
+      auid_prefix <- trimws(auid_prefix)
+      auid_prefix <- sub("[-_;:]+$", "", auid_prefix)
+
+      if (nzchar(auid_prefix)) {
+        file.name <- paste0(auid_prefix, "_", file.name)
+      }
+    }
+
+    # get path for shp file download
+    point.path <- .get_downloads_path(file.name)
+
+    # save the shp file
+    save_sf_as_shp(sf_out = sf_out,
+                   shp_path = point.path)
   }
-
-
 }
 
 # need to create AU batch upload file
