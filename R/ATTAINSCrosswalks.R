@@ -4820,21 +4820,31 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' }
 #'
 #' @export
-TADA_CreatePointAUs <- function(.data, auid_prefix = NULL, create_geo = FALSE) {
+TADA_CreatePointAUs <- function(.data,
+                                auid_prefix = NULL,
+                                create_geo = FALSE) {
 
+  # set required col
   req <- c("TADA.MonitoringLocationIdentifier")
 
+  # set cols to retain
   retain <- c("ATTAINS.MonitoringLocationIdentifier",
               "ATTAINS.AssessmentUnitIdentifier",
               "ATTAINS.WaterType")
 
+  # modify column lists if creating geometry
   if(isTRUE(create_geo)) {
+
+    # add additonal required cols
     req <- c(req, "TADA.LatitudeMeasure", "TADA.LongitudeMeasure",
              "HorizontalCoordinateReferenceSystemDatumName")
 
+    # set a different list of cols to retain
     retain <- c("ATTAINS.AssessmentUnitIdentifier",
                 "geometry")
   }
+
+  # check to see if required col(s) are present
   missing <- setdiff(req, names(.data))
   if (length(missing) > 0) {
     stop(
@@ -4843,33 +4853,34 @@ TADA_CreatePointAUs <- function(.data, auid_prefix = NULL, create_geo = FALSE) {
     )
   }
 
-  if (!"ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
-    .data$ATTAINS.AssessmentUnitIdentifier <- NA_character_
-  }
+ # fill any missing assessment unit ids (or create them if input df only
+ # contains TADA monitoring location identifiers)
+  .data <- fill_missing_assessment_unit_id(.data,
+                                           auid_prefix = auid_prefix)
 
-  .data$TADA.MonitoringLocationIdentifier <- as.character(
-    .data$TADA.MonitoringLocationIdentifier
-  )
-  .data$ATTAINS.AssessmentUnitIdentifier <- as.character(
-    .data$ATTAINS.AssessmentUnitIdentifier
-  )
-
+  # if create_geo equals FALSE, add ATTAINS water type
   if(isFALSE(create_geo)) {
-  need_crosswalk <- !("ATTAINS.WaterType" %in% names(.data)) ||
+
+    # determine if ATTAINS.WaterType is missing from df or if it is present
+    # but has blank values
+    need_crosswalk <- !("ATTAINS.WaterType" %in% names(.data)) ||
     any(
       is.na(.data$ATTAINS.WaterType) |
         trimws(as.character(.data$ATTAINS.WaterType)) == "",
       na.rm = TRUE
     )
 
-  if (need_crosswalk) {
+    # check to see if TADA.MonitoringLocationTypeName is in df as it is required
+    # for crosswalking ATTAINS.WaterTypes
+    if (need_crosswalk) {
     if (!"TADA.MonitoringLocationTypeName" %in% names(.data)) {
       stop(
         "TADA_CreatePointAUs: Missing required column: TADA.MonitoringLocationTypeName"
       )
     }
 
-    .data <- TADA_CrosswalkATTAINSWaterTypes(
+    # crosswalk ATTAINS water types to df
+      .data <- TADA_CrosswalkATTAINSWaterTypes(
       .data,
       overwrite_existing = FALSE,
       validation = "none"
@@ -4881,7 +4892,8 @@ TADA_CreatePointAUs <- function(.data, auid_prefix = NULL, create_geo = FALSE) {
     .data <- fill_missing_assessment_unit_id(.data)
 
 
-  .data$ATTAINS.MonitoringLocationIdentifier <- .data$TADA.MonitoringLocationIdentifier
+    # change name of monitoring location identifier column for batch upload to ATTAINS
+    .data$ATTAINS.MonitoringLocationIdentifier <- .data$TADA.MonitoringLocationIdentifier
 
   if(isTRUE(create_geo)) {
     .data <- TADA_CreatePointAUGeometry(.data)
