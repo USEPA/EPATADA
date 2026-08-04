@@ -52,10 +52,10 @@
 #' # create the MLSummaryRef (ML only - no AU or other spatial columns)
 #' params <- TADA_ParametersForAnalysis(
 #'   Data_MT_MissoulaCounty, org_id = "MTDEQ", auto_assign = "Org")
-#'   
+#'
 #' uses <- TADA_UsesForAnalysis(Data_MT_MissoulaCounty,
 #'  org_id = "MTDEQ", paramRef = params, auto_assign = TRUE)
-#' 
+#'
 #' mlsummary <- TADA_MLSummary(
 #'   Data_MT_MissoulaCounty,
 #'   org_id = "MTDEQ",
@@ -68,14 +68,14 @@
 #'   MLSummaryRef = mlsummary)
 #'
 TADA_Analysis_Join_WQP_Criteria <- function(
-    .data,
-    criteria,
-    byChar = FALSE,
-    MLSummaryRef = NULL,
-    clean = FALSE
+  .data,
+  criteria,
+  byChar = FALSE,
+  MLSummaryRef = NULL,
+  clean = FALSE
 ) {
   stopifnot(is.data.frame(.data), is.data.frame(criteria))
-  
+
   upper_keys <- c(
     "TADA.ComparableDataIdentifier",
     "TADA.CharacteristicName",
@@ -97,7 +97,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     "IncludeOrExclude",
     "UniqueSpatialCriteria"
   )
-  
+
   upperize <- function(df) {
     for (nm in intersect(names(df), upper_keys)) {
       if (is.character(df[[nm]]) || is.factor(df[[nm]])) {
@@ -106,20 +106,20 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     }
     df
   }
-  
+
   .data <- upperize(.data)
   criteria <- upperize(criteria)
-  
+
   if (!is.null(MLSummaryRef) && is.data.frame(MLSummaryRef)) {
     MLSummaryRef <- upperize(MLSummaryRef)
   }
-  
+
   # ------------------------------------------------------------
   # Join MLSummaryRef first
   # ------------------------------------------------------------
   if (!is.null(MLSummaryRef) && nrow(MLSummaryRef) > 0) {
     needed <- c("MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier")
-    
+
     if (all(needed %in% names(.data)) && all(needed %in% names(MLSummaryRef))) {
       .data <- dplyr::left_join(
         .data,
@@ -134,28 +134,33 @@ TADA_Analysis_Join_WQP_Criteria <- function(
       )
     }
   }
-  
+
   # ------------------------------------------------------------
   # Criteria join logic
   # ------------------------------------------------------------
   if (isTRUE(byChar)) {
     crit_char <- criteria |>
       dplyr::filter(!is.na(.data$`TADA.CharacteristicName`))
-    
+
     wqp_criteria <- dplyr::left_join(
       .data,
       crit_char,
       by = "TADA.CharacteristicName",
       relationship = "many-to-many"
     )
-    
+
     return(wqp_criteria)
   }
-  
+
   # Join keys if MLSummaryRef is supplied
   ML_id_col <- c(
-    "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
-    "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria" 
+    "ATTAINS.OrganizationIdentifier",
+    "ATTAINS.ParameterName",
+    "ATTAINS.UseName",
+    "ATTAINS.WaterType",
+    "SaltFresh",
+    "DepthCategory",
+    "UniqueSpatialCriteria"
   )
 
   # Join keys
@@ -190,7 +195,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         "TADA.MethodSpeciationName"
       ))
     )
-  
+
   criteria2 <- dplyr::filter(
     criteria,
     is.na(.data$`TADA.ComparableDataIdentifier`),
@@ -198,7 +203,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     !is.na(.data$`TADA.MethodSpeciationName`)
   ) |>
     dplyr::select(-dplyr::any_of("TADA.ComparableDataIdentifier"))
-  
+
   criteria3 <- dplyr::filter(
     criteria,
     is.na(.data$`TADA.ComparableDataIdentifier`),
@@ -211,7 +216,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         "TADA.MethodSpeciationName"
       ))
     )
-  
+
   criteria4 <- dplyr::filter(
     criteria,
     is.na(.data$`TADA.ComparableDataIdentifier`),
@@ -224,7 +229,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         "TADA.ResultSampleFractionText"
       ))
     )
-  
+
   criteria5 <- dplyr::filter(
     criteria,
     is.na(.data$`TADA.ComparableDataIdentifier`),
@@ -238,53 +243,66 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         "TADA.MethodSpeciationName"
       ))
     )
-  
+
   results <- list()
-  
+
   do_join <- function(df, crit, keys) {
-    if (nrow(crit) == 0) return(NULL)
-    if (!all(keys %in% names(df))) return(NULL)
-    if (!all(keys %in% names(crit))) return(NULL)
-    
-    dplyr::left_join(
-      df,
-      crit,
-      by = keys,
-      relationship = "many-to-many"
-    )
+    if (nrow(crit) == 0) {
+      return(NULL)
+    }
+    if (!all(keys %in% names(df))) {
+      return(NULL)
+    }
+    if (!all(keys %in% names(crit))) {
+      return(NULL)
+    }
+
+    dplyr::left_join(df, crit, by = keys, relationship = "many-to-many")
   }
-  
+
   j1 <- do_join(.data, criteria1, id_col1)
-  if (!is.null(j1)) results[[length(results) + 1]] <- j1
-  
+  if (!is.null(j1)) {
+    results[[length(results) + 1]] <- j1
+  }
+
   j2 <- do_join(.data, criteria2, id_col2)
-  if (!is.null(j2)) results[[length(results) + 1]] <- j2
-  
+  if (!is.null(j2)) {
+    results[[length(results) + 1]] <- j2
+  }
+
   j3 <- do_join(.data, criteria3, id_col3)
-  if (!is.null(j3)) results[[length(results) + 1]] <- j3
-  
+  if (!is.null(j3)) {
+    results[[length(results) + 1]] <- j3
+  }
+
   j4 <- do_join(.data, criteria4, id_col4)
-  if (!is.null(j4)) results[[length(results) + 1]] <- j4
-  
+  if (!is.null(j4)) {
+    results[[length(results) + 1]] <- j4
+  }
+
   j5 <- do_join(.data, criteria5, id_col5)
-  if (!is.null(j5)) results[[length(results) + 1]] <- j5
-  
+  if (!is.null(j5)) {
+    results[[length(results) + 1]] <- j5
+  }
+
   wqp_criteria <- if (length(results) > 0) {
     dplyr::bind_rows(results)
   } else {
     .data
   }
-  
+
   wqp_criteria <- TADA_CorrectColType(wqp_criteria)
-  
-  cols <- spsUtil::quiet(names(TADA_DefineCriteriaMethodology()[[1]])[-seq_len(8)])
+
+  cols <- spsUtil::quiet(names(TADA_DefineCriteriaMethodology()[[1]])[
+    -seq_len(8)
+  ])
   existing_cols <- intersect(cols, names(wqp_criteria))
-  
+
   if (clean) {
     wqp_criteria <- wqp_criteria |>
       dplyr::filter(!dplyr::if_all(existing_cols, is.na))
   }
-  
+
   return(wqp_criteria)
 }
 
