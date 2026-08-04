@@ -702,10 +702,7 @@ test_that("TADA_CreatePointAUs calls TADA_CrosswalkATTAINSWaterTypes when ATTAIN
     stringsAsFactors = FALSE
   )
 
-  mock_crosswalk <- function(
-    .data,
-    replace_all = FALSE
-  ) {
+  mock_crosswalk <- function(.data, replace_all = FALSE) {
     expect_false(replace_all)
     .data$ATTAINS.WaterType <- c("STREAM", "LAKE")
     .data
@@ -731,10 +728,7 @@ test_that("TADA_CreatePointAUs calls TADA_CrosswalkATTAINSWaterTypes when ATTAIN
     stringsAsFactors = FALSE
   )
 
-  mock_crosswalk <- function(
-    .data,
-    replace_all = FALSE
-  ) {
+  mock_crosswalk <- function(.data, replace_all = FALSE) {
     .data$ATTAINS.WaterType <- c("STREAM", "LAKE")
     .data
   }
