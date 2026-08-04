@@ -13,9 +13,8 @@
 #'
 #' When MLSummaryRef is provided (optional), this function first joins the WQP
 #' .data to the MLSummaryRef by MonitoringLocationIdentifier.
-#' NOTE: MLSummaryRef is in active development and joins the ref tables of AUMLRef,
-#' AU_UsesRef, and usesParamRef of the spatial summary, parameters and uses for
-#' analysis.
+#' NOTE: MLSummaryRef is in active development and joins the ref tables
+#' of the spatial summary, parameters and uses for analysis.
 #'
 #' @param .data A TADA data frame.
 #' @param criteria data.frame of TADA compatible criteria table for any
