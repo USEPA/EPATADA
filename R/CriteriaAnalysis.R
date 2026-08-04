@@ -11,39 +11,26 @@
 #' For each fallback pass, rows with NA in any of the pass keys are dropped
 #' from both inputs for that pass. Left-join semantics are preserved overall.
 #'
-#' When AUMLRef is provided (optional), this function first joins the WQP .data
-#' to the AUMLRef by TADA.MonitoringLocationIdentifier and OrganizationIdentifier
-#' (from the WQP). NOTE: AUMLRef is in active development and will contain the
-#' proper identification of SaltFresh, UniqueSpatialCriteria and DepthCategory as
-#' needed for assessments. If a user would like to populate the criteria table by
-#' these fields, users must define these proper definitions in the AUMLRef.
-#'
-#' If an AU_UsesRef is provided (optional), this will filter the criteria table
-#' to only uses contained in this AU_UsesRef. If both AUMLRef and AU_UsesRef is
-#' supplied, this function first joins the AUMLRef as defined above followed by
-#' joining in the ATTAINS.UseName. Users are responsible for ensuring the defined
-#' ATTAINS.UseName in their criteria table matches those found in the AU_UsesRef
-#' input.
+#' When MLSummaryRef is provided (optional), this function first joins the WQP
+#' .data to the MLSummaryRef by MonitoringLocationIdentifier.
+#' NOTE: MLSummaryRef is in active development and joins the ref tables of AUMLRef,
+#' AU_UsesRef, and usesParamRef of the spatial summary, parameters and uses for
+#' analysis.
 #'
 #' @param .data A TADA data frame.
 #' @param criteria data.frame of TADA compatible criteria table for any
 #' of either TADA.ComparableDataIdentifier and a combination of TADA.CharacteristicName,
 #' TADA.ResultSampleFractionText, and TADA.MethodSpeciationName
-#' @param AU_UsesRef An optional data frame input. If provided, the ATTAINS.UseName
-#' will be filtered by the ATTAINS.UseName found in this data frame. It will also
-#' assign the uses to each assessment unit defined in this table if an AUMLRef
-#' is also provided. This data frame must contain the following column names
-#' which can be generated from the output of TADA_AssignUsesToAU:
-#' ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
-#' and ATTAINS.WaterType.
-#' @param AUMLRef An optional data frame input containing a completed crosswalk
-#' of monitoring location sites associated with an assessment unit. If provided,
-#' each Monitoring location site will get assigned to an ATTAINS.AssessmentUnitIdentifier
-#' to allow users to analyze by either assessment units or by monitoring location.
-#' This data frame must contain the following column names which can be generated
-#' from the output of TADA_CreateAUMLCrosswalk:
-#' ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
-#' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.
+#' @param MLSummaryRef An optional data frame which contains the completed spatial
+#' crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
+#' or monitoring site/assessment unit. This table is populated based on the inputs
+#' from the users and their desired level of analysis.
+#' If provided the data frame must contain these columns:
+#' "ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier",
+#' "MonitoringLocationIdentifier", "MonitoringLocationTypeName",
+#' "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
+#' "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
+#' "LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".
 #' @param byChar A boolean value. If byChar = TRUE, this function will join the
 #' WQP data frame with the criteria table by only CharacteristicName, regardless
 #' of what has been filled out in the criteria table.
@@ -87,8 +74,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   .data,
   criteria,
   byChar = FALSE,
-  AUMLRef = NULL,
-  AU_UsesRef = NULL,
+  MLSummaryRef = NULL,
   clean = FALSE
 ) {
   stopifnot(is.data.frame(.data), is.data.frame(criteria))
@@ -125,7 +111,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   has_AUMLRef <- !is.null(AUMLRef) && nrow(AUMLRef) > 0
   has_AUUsesRef <- !is.null(AU_UsesRef) && nrow(AU_UsesRef) > 0
 
-  # ---- join AUMLRef into .data if needed ----
+  # ---- join MLSummaryRef into .data if needed ----
   if (has_AUMLRef) {
     if ("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
       message(
@@ -133,50 +119,12 @@ TADA_Analysis_Join_WQP_Criteria <- function(
       )
     } else {
       required_cols <- c(
-        "TADA.MonitoringLocationIdentifier",
-        "OrganizationIdentifier"
+        "ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier",
+        "MonitoringLocationIdentifier", "MonitoringLocationTypeName",
+        "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
+        "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
+        "LatitudeMeasure", "IncludeOrExclude" , "UniqueSpatialCriteria"
       )
-
-      if (
-        all(required_cols %in% names(.data)) &&
-          all(required_cols %in% names(AUMLRef))
-      ) {
-        # Add missing columns as NA and warn
-        cols_to_add <- c("SaltFresh", "UniqueSpatialCriteria", "DepthCategory")
-        missing_cols <- setdiff(cols_to_add, names(.data))
-        missing_cols_AUML <- setdiff(cols_to_add, names(AUMLRef))
-
-        if (length(missing_cols) > 0) {
-          warning(
-            paste(
-              "The following columns were missing in .data and were added as NA:",
-              paste(missing_cols, collapse = ", ")
-            ),
-            call. = FALSE
-          )
-
-          for (col in missing_cols) {
-            .data[[col]] <- NA_character_
-          }
-        }
-
-        if (length(missing_cols_AUML) > 0) {
-          warning(
-            paste(
-              "The following columns were missing in your AUMLRef:",
-              paste(missing_cols, collapse = ", "),
-              ". If your criteria table is populated with these spatial values",
-              "and your .data does not contain these columns, each combination",
-              "of parameter-use and missing spatial rows in your criteria table will get",
-              "assigned to each monitoring site as TADA will be unable to perform the join."
-            ),
-            call. = FALSE
-          )
-
-          for (col in missing_cols) {
-            .data[[col]] <- NA_character_
-          }
-        }
 
         .data <- .data |>
           dplyr::left_join(
@@ -191,61 +139,6 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         )
       }
     }
-  }
-
-  # ---- join AU_UsesRef into .data if needed ----
-  if (has_AUUsesRef && has_AUMLRef) {
-    if ("ATTAINS.UseName" %in% names(.data)) {
-      message(
-        "ATTAINS.UseName already exists in .data; no join of AU_UsesRef will be done."
-      )
-    } else {
-      if (
-        all(
-          c(
-            "ATTAINS.OrganizationIdentifier",
-            "ATTAINS.AssessmentUnitIdentifier",
-            "ATTAINS.WaterType"
-          ) %in%
-            names(.data)
-        ) &&
-          all(
-            c(
-              "ATTAINS.OrganizationIdentifier",
-              "ATTAINS.AssessmentUnitIdentifier",
-              "ATTAINS.WaterType"
-            ) %in%
-              names(AU_UsesRef)
-          )
-      ) {
-        .data <- dplyr::left_join(
-          .data,
-          AU_UsesRef,
-          by = c(
-            "ATTAINS.OrganizationIdentifier",
-            "ATTAINS.AssessmentUnitIdentifier",
-            "ATTAINS.WaterType"
-          ),
-          relationship = "many-to-many"
-        )
-      } else {
-        warning(
-          "AU_UsesRef could not be joined because required columns are missing.",
-          call. = FALSE
-        )
-      }
-    }
-  }
-
-  if (has_AUUsesRef) {
-    allowed_uses <- unique(stats::na.omit(AU_UsesRef$`ATTAINS.UseName`))
-
-    if (length(allowed_uses) == 0) {
-      warning(
-        "No ATTAINS.UseName matches were found. No criteria table can be joined, please ensure your uses match those found in your criteria table."
-      )
-    }
-    criteria <- dplyr::filter(criteria, ATTAINS.UseName %in% allowed_uses)
   }
 
   # Join keys
@@ -603,65 +496,6 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   } else {
     .data
   }
-
-  # handles mismatches between any joins between criteria table, AUMLRef and AU_UsesRef
-  resolve_xy_columns <- function(df, flag_suffix = "_join_flag") {
-    x_cols <- names(df)[grepl("\\.x$", names(df))] # .x is from AUMLRef or AU_UsesRef
-    y_cols <- names(df)[grepl("\\.y$", names(df))] # .y is from the criteria table
-    base_names <- intersect(sub("\\.x$", "", x_cols), sub("\\.y$", "", y_cols))
-
-    if (length(base_names) == 0) {
-      return(df)
-    }
-
-    for (base in base_names) {
-      x_nm <- paste0(base, ".x")
-      y_nm <- paste0(base, ".y")
-
-      if (x_nm %in% names(df) && y_nm %in% names(df)) {
-        flag_nm <- paste0(base, flag_suffix)
-
-        df[[flag_nm]] <- dplyr::case_when(
-          is.na(df[[x_nm]]) &
-            is.na(df[[
-              y_nm
-            ]]) ~ "Pass: Both criteria table and your AUML and/or AU_Uses Ref are NA for this parameter.",
-          !is.na(df[[x_nm]]) &
-            is.na(df[[
-              y_nm
-            ]]) ~ "Pass: criteria table is NA for this value for this parameter, assume criteria applies to all. Using value populated by your AUML and/or AU_Uses ref.",
-          is.na(df[[x_nm]]) &
-            !is.na(df[[
-              y_nm
-            ]]) ~ "Suspect: criteria table is populated for this parameter, but your AUML and/or AU_Uses Ref is NA, keeping these values as NA.",
-          !is.na(df[[x_nm]]) &
-            !is.na(df[[y_nm]]) &
-            df[[x_nm]] !=
-              df[[
-                y_nm
-              ]] ~ "Suspect: mismatch between criteria and your AUML and/or AU_Uses Ref for this parameter, using value populated by AUML and/or AU_Uses ref",
-          !is.na(df[[x_nm]]) &
-            !is.na(df[[y_nm]]) &
-            df[[x_nm]] ==
-              df[[
-                y_nm
-              ]] ~ "Pass: Both criteria table and your AUML and/or AU_Uses Ref values match",
-          TRUE ~ NA_character_
-        )
-
-        # Keep .x value as final value
-        df[[base]] <- df[[x_nm]]
-
-        # Drop suffix columns
-        df[[x_nm]] <- NULL
-        df[[y_nm]] <- NULL
-      }
-    }
-
-    df
-  }
-
-  wqp_criteria <- resolve_xy_columns(wqp_criteria)
 
   wqp_criteria <- TADA_CorrectColType(wqp_criteria)
 
