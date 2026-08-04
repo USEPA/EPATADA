@@ -9,8 +9,7 @@ TADA_Analysis_Join_WQP_Criteria(
   .data,
   criteria,
   byChar = FALSE,
-  AUMLRef = NULL,
-  AU_UsesRef = NULL,
+  MLSummaryRef = NULL,
   clean = FALSE
 )
 }
@@ -25,22 +24,16 @@ TADA.ResultSampleFractionText, and TADA.MethodSpeciationName}
 WQP data frame with the criteria table by only CharacteristicName, regardless
 of what has been filled out in the criteria table.}
 
-\item{AUMLRef}{An optional data frame input containing a completed crosswalk
-of monitoring location sites associated with an assessment unit. If provided,
-each Monitoring location site will get assigned to an ATTAINS.AssessmentUnitIdentifier
-to allow users to analyze by either assessment units or by monitoring location.
-This data frame must contain the following column names which can be generated
-from the output of TADA_CreateAUMLCrosswalk:
-ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
-ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.}
-
-\item{AU_UsesRef}{An optional data frame input. If provided, the ATTAINS.UseName
-will be filtered by the ATTAINS.UseName found in this data frame. It will also
-assign the uses to each assessment unit defined in this table if an AUMLRef
-is also provided. This data frame must contain the following column names
-which can be generated from the output of TADA_AssignUsesToAU:
-ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
-and ATTAINS.WaterType.}
+\item{MLSummaryRef}{An optional data frame which contains the completed spatial
+crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
+or monitoring site/assessment unit. This table is populated based on the inputs
+from the users and their desired level of analysis.
+If provided the data frame must contain these columns:
+"ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier",
+"MonitoringLocationIdentifier", "MonitoringLocationTypeName",
+"TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
+"ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
+"LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".}
 }
 \value{
 data.frame with WQP rows and matching criteria columns.
@@ -59,19 +52,11 @@ Join WQP results to a criteria table by the best available key:
 For each fallback pass, rows with NA in any of the pass keys are dropped
 from both inputs for that pass. Left-join semantics are preserved overall.
 
-When AUMLRef is provided (optional), this function first joins the WQP .data
-to the AUMLRef by TADA.MonitoringLocationIdentifier and OrganizationIdentifier
-(from the WQP). NOTE: AUMLRef is in active development and will contain the
-proper identification of SaltFresh, UniqueSpatialCriteria and DepthCategory as
-needed for assessments. If a user would like to populate the criteria table by
-these fields, users must define these proper definitions in the AUMLRef.
-
-If an AU_UsesRef is provided (optional), this will filter the criteria table
-to only uses contained in this AU_UsesRef. If both AUMLRef and AU_UsesRef is
-supplied, this function first joins the AUMLRef as defined above followed by
-joining in the ATTAINS.UseName. Users are responsible for ensuring the defined
-ATTAINS.UseName in their criteria table matches those found in the AU_UsesRef
-input.
+When MLSummaryRef is provided (optional), this function first joins the WQP
+.data to the MLSummaryRef by MonitoringLocationIdentifier.
+NOTE: MLSummaryRef is in active development and joins the ref tables of AUMLRef,
+AU_UsesRef, and usesParamRef of the spatial summary, parameters and uses for
+analysis.
 }
 \examples{
 # load example data.frame
@@ -84,25 +69,22 @@ criteria_MT <- EPATADA::TADA_GetCriteriaFile(org_id = "MTDEQ")
 # join the table by best match from what is filled out from the criteria table
 MT_data_criteria <- TADA_Analysis_Join_WQP_Criteria(MT_data, criteria_MT)
 
-# join the table by best match, along with the AUMLRef
+# create the MLSummaryRef (ML only - no AU or other spatial columns)
+params <- TADA_ParametersForAnalysis(
+  Data_MT_MissoulaCounty, org_id = "MTDEQ", auto_assign = "Org")
+  
+uses <- TADA_UsesForAnalysis(Data_MT_MissoulaCounty,
+ org_id = "MTDEQ", paramRef = params, auto_assign = TRUE)
+
+mlsummary <- TADA_MLSummary(
+  Data_MT_MissoulaCounty,
+  org_id = "MTDEQ",
+  usesRef = uses)
+
+# join the table by best match, along with the MLSummaryRef
 MT_data_criteria2 <- TADA_Analysis_Join_WQP_Criteria(
   MT_data,
   criteria_MT,
-  AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk)
-
-# join the table by best match, with both the AUMLRef and AU_UsesRef
-MT_data_criteria3 <- TADA_Analysis_Join_WQP_Criteria(
-  MT_data,
-  criteria_MT,
-  AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
-  AU_UsesRef = Data_MT_AU_UsesRef_Water)
-
-# only return rows that will be used for analysis
-MT_data_criteria3_cleaned <- TADA_Analysis_Join_WQP_Criteria(
-  MT_data,
-  criteria_MT,
-  AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
-  AU_UsesRef = Data_MT_AU_UsesRef_Water,
-  clean = TRUE)
+  MLSummaryRef = mlsummary)
 
 }
