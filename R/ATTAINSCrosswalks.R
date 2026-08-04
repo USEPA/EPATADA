@@ -4877,19 +4877,9 @@ TADA_CreatePointAUs <- function(.data, auid_prefix = NULL, create_geo = FALSE) {
   }
   }
 
-  created_AUID <- is.na(.data$ATTAINS.AssessmentUnitIdentifier) |
-    trimws(.data$ATTAINS.AssessmentUnitIdentifier) == ""
+    # fill missing assessment unit ids
+    .data <- fill_missing_assessment_unit_id(.data)
 
-  .data$ATTAINS.AssessmentUnitIdentifier[
-    created_AUID
-  ] <- .data$TADA.MonitoringLocationIdentifier[created_AUID]
-
-  if (!is.null(auid_prefix) && nzchar(auid_prefix)) {
-    .data$ATTAINS.AssessmentUnitIdentifier[created_AUID] <- paste0(
-      auid_prefix,
-      .data$ATTAINS.AssessmentUnitIdentifier[created_AUID]
-    )
-  }
 
   .data$ATTAINS.MonitoringLocationIdentifier <- .data$TADA.MonitoringLocationIdentifier
 
