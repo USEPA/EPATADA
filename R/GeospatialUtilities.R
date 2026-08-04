@@ -1921,3 +1921,76 @@ fetchWaterType <- function(au_list, api_key = NULL) {
 
   return(results)
 }
+
+#' Save an sf object as a shapefile
+#'
+#' @keywords internal
+#' @noRd
+save_sf_as_shp <- function(sf_out, shp_path) {
+  if (!inherits(sf_out, "sf")) {
+    stop("'sf_out' must be an sf object.")
+  }
+
+  if (is.null(shp_path) || !nzchar(shp_path)) {
+    stop("'shp_path' must be a valid file path.")
+  }
+
+  out_dir <- dirname(shp_path)
+  if (!dir.exists(out_dir)) {
+    dir.create(out_dir, recursive = TRUE)
+  }
+
+  sf::st_write(
+    sf_out,
+    dsn = shp_path,
+    driver = "ESRI Shapefile",
+    delete_dsn = TRUE,
+    quiet = TRUE
+  )
+
+  invisible(shp_path)
+}
+
+#' Fill missing ATTAINS Assessment Unit Identifiers
+#'
+#' @keywords internal
+#' @noRd
+fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
+  has_mloc <- "TADA.MonitoringLocationIdentifier" %in% names(.data)
+  has_auid <- "ATTAINS.AssessmentUnitIdentifier" %in% names(.data)
+
+  if (!has_mloc && !has_auid) {
+    stop(
+      "At least one of 'TADA.MonitoringLocationIdentifier' or ",
+      "'ATTAINS.AssessmentUnitIdentifier' must be present."
+    )
+  }
+
+  # If target column doesn't exist, create it
+  if (!has_auid) {
+    .data$ATTAINS.AssessmentUnitIdentifier <- NA_character_
+  }
+
+  # If source column doesn't exist, we can still return .data unchanged
+  # unless you want to error when filling is impossible.
+  if (!has_mloc) {
+    return(.data)
+  }
+
+  created_AUID <- is.na(.data$ATTAINS.AssessmentUnitIdentifier) |
+    trimws(as.character(.data$ATTAINS.AssessmentUnitIdentifier)) == ""
+
+  if (any(created_AUID)) {
+    .data$ATTAINS.AssessmentUnitIdentifier[created_AUID] <-
+      .data$TADA.MonitoringLocationIdentifier[created_AUID]
+  }
+
+  if (!is.null(auid_prefix) && nzchar(auid_prefix)) {
+    .data$ATTAINS.AssessmentUnitIdentifier[created_AUID] <- paste0(
+      auid_prefix,
+      .data$ATTAINS.AssessmentUnitIdentifier[created_AUID]
+    )
+  }
+
+  .data
+}

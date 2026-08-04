@@ -2,14 +2,32 @@
 % Please edit documentation in R/ATTAINSCrosswalks.R
 \name{TADA_CreatePointAUs}
 \alias{TADA_CreatePointAUs}
-\title{Create an ATTAINS AU–ML Crosswalk from WQP Monitoring Location IDs}
+\title{Create an ATTAINS AU–ML Crosswalk from WQP Monitoring Location IDs for New Point AUs}
 \usage{
-TADA_CreatePointAUs(.data, auid_prefix = NULL)
+TADA_CreatePointAUs(.data, auid_prefix = NULL, create_geo = FALSE)
 }
 \arguments{
 \item{.data}{A data frame containing, at minimum:
 \itemize{
 \item \code{TADA.MonitoringLocationIdentifier}
+}}
+
+\item{auid_prefix}{Character or \code{NULL}. If provided and non-empty, this
+prefix is included only for newly created
+\code{ATTAINS.AssessmentUnitIdentifier} values that were filled from
+\code{TADA.MonitoringLocationIdentifier}. Existing non-missing AUIDs are not
+modified. Use \code{NULL} to skip prefixing.}
+
+\item{create_geo}{Boolean argument. When create_geo equals true, the output
+will be a shp file ready for upload to ATTAINS. When create_geo equals false,
+the input will be a df of the crosswalk. Default is create_geo equals false.
+
+If creating a GIS batch upload file for ATTAINS is desired, the input must
+also contain:
+\itemize{
+\item \code{TADA.LatitudeMeasure}
+\item \code{TADA.LongitudeMeasure}
+\item \code{HorizontalCoordinateReferenceSystemDatumName}
 }
 
 If missing water-type values need to be crosswalked, the input must also
@@ -25,12 +43,6 @@ Optionally, the input may already include:
 }
 
 If \code{ATTAINS.AssessmentUnitIdentifier} is absent, it will be added.}
-
-\item{auid_prefix}{Character or \code{NULL}. If provided and non-empty, this
-prefix is included only for newly created
-\code{ATTAINS.AssessmentUnitIdentifier} values that were filled from
-\code{TADA.MonitoringLocationIdentifier}. Existing non-missing AUIDs are not
-modified. Use \code{NULL} to skip prefixing.}
 }
 \value{
 A distinct AU–ML crosswalk data frame containing:
