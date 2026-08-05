@@ -3890,14 +3890,13 @@ TADA_MLSummary <- function(
     )
     MLSummaryRef <- empty_ref()
   } else {
-
     if (!excel && overwrite) {
       stop(
         "argument input excel = FALSE and overwrite = TRUE is an invalid combination. ",
         "Cannot overwrite the excel generated spreadsheet if a user specifies excel = FALSE"
       )
     }
-  
+
     check_ref(
       AU_UsesRef,
       c(
@@ -3916,10 +3915,10 @@ TADA_MLSummary <- function(
       ),
       "usesRef"
     )
-  
+
     usesRef <- dplyr::filter(usesRef, IncludeOrExclude == "Include")
     unique_ML <- unique(.data$MonitoringLocationIdentifier)
-  
+
     if (
       displayNA &&
         (nrow(usesRef) * length(unique_ML) > 1000 || length(org_id) > 20)
@@ -3930,7 +3929,7 @@ TADA_MLSummary <- function(
       )
       displayNA <- FALSE
     }
-  
+
     build_ml <- function(display_all = FALSE) {
       out <- if (display_all) {
         usesRef |>
@@ -3951,7 +3950,7 @@ TADA_MLSummary <- function(
             relationship = "many-to-many"
           )
       }
-  
+
       out |>
         dplyr::mutate(
           TADA.ParameterInSite.Flag = dplyr::if_else(
@@ -3987,9 +3986,9 @@ TADA_MLSummary <- function(
         dplyr::distinct() |>
         dplyr::arrange(MonitoringLocationIdentifier)
     }
-  
+
     MLSummaryRef <- build_ml(displayNA)
-  
+
     if (!is.null(AUMLRef)) {
       AUMLRef <- if ("TADA.MonitoringLocationIdentifier" %in% names(AUMLRef)) {
         dplyr::select(
@@ -4008,7 +4007,7 @@ TADA_MLSummary <- function(
           ATTAINS.WaterType
         )
       }
-  
+
       if (is.null(AU_UsesRef)) {
         message(
           "An AUMLRef was provided, but no AU_UsesRef was provided. Please provide this as an argument input."
@@ -4024,11 +4023,11 @@ TADA_MLSummary <- function(
           )
         )
       }
-  
+
       AU_UsesRef <- AU_UsesRef |>
         dplyr::filter(IncludeOrExclude == "Include") |>
         dplyr::select(-IncludeOrExclude)
-  
+
       useParamAUMLRef <- AU_UsesRef |>
         dplyr::left_join(
           AUMLRef,
@@ -4051,7 +4050,7 @@ TADA_MLSummary <- function(
           ATTAINS.UseName,
           ATTAINS.WaterType
         )
-  
+
       MLSummaryRef <- if (displayNA) {
         message("TADA_MLSummary: displayNA = TRUE was selected.")
         MLSummaryRef |>
@@ -4131,14 +4130,14 @@ TADA_MLSummary <- function(
           dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id)
       }
     }
-  
+
     if (!"ATTAINS.AssessmentUnitIdentifier" %in% names(MLSummaryRef)) {
       message(
         "TADA_MLSummary: No Monitoring Location to Assessment Unit crosswalk provided. ",
         "Consider providing this crosswalk if you would like to summarize WQP data on an Assessment Unit level."
       )
     }
-  
+
     MLSummaryRef
   }
   # Only run if user wants to create an excel guided spreadsheet.
