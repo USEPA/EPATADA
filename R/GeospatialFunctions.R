@@ -3589,146 +3589,94 @@ TADA_CreateAUMLCrosswalk <- function(
   return(final_list)
 }
 
-#' Creates a GIS file of Assessment Unit point geometry to upload to ATTAINS
+#' Create point geometry for ATTAINS Assessment Units
+#'
+#' Creates point or multipoint geometry for ATTAINS Assessment Units using
+#' `ATTAINS.AssessmentUnitIdentifier` when available, otherwise
+#' `TADA.MonitoringLocationIdentifier`.
 #'
 #' @param .data A data frame containing:
-#'
-#'   - `ATTAINS.AssessmentUnitIdentifier` or `TADA.MonitoringLocationIdentifier`
 #'   - `TADA.LongitudeMeasure`
 #'   - `TADA.LatitudeMeasure`
 #'   - `HorizontalCoordinateReferenceSystemDatumName`
-#' @param target_crs Numeric. The target crs projection for upload to ATTAINS.
-#' Default equals 4269 (NAD83).
-#' @param download_geo Boolean argument. When download equals TRUE, the GIS file
-#' containing the assessment unit identifier and point geometry will be
-#' downloaded into the user's downloads folder. When download equals FALSE,
-#' nothing is downloaded and the df containing the columns "AU_ID" (assessment
-#' unit identifier) and geometry is returned. The default is download_geo
-#' equals FALSE.
-#' @param auid_prefix Character or `NULL`. If provided and non-empty, this
-#' prefix is included only for newly created `ATTAINS.AssessmentUnitIdentifier`
-#' values that were filled from `TADA.MonitoringLocationIdentifier`. Existing
-#' non-missing AUIDs are not modified. Use `NULL` to skip prefixing.
 #'
-#' @return When download_geo equals FALSE, a df containing the columns:
-#'   - `ATTAINS.MonitoringLocationIdentifier`
+#'   And at least one of:
+#'   - `ATTAINS.AssessmentUnitIdentifier`
+#'   - `TADA.MonitoringLocationIdentifier`
+#'
+#' @param target_crs Numeric. Target CRS EPSG code. Default is 4269.
+#' @param download_geo Logical. If `TRUE`, write a shapefile to the user's
+#'   downloads folder.
+#' @param return_geo Logical. If `TRUE`, return the `sf` object.
+#' @param auid_prefix Character or `NULL`. If provided and non-empty, this
+#'   prefix is applied only to newly created
+#'   `ATTAINS.AssessmentUnitIdentifier` values.
+#'
+#' @return If `return_geo = TRUE`, an `sf` object with:
+#'   - `AU_ID`
 #'   - `geometry`
 #'
-#' When download_geo equals TRUE, a shp file in the user's downloads folder
-#' with the columns:
-#'  - `AU_ID`
-#'  - `geometry`
+#'   If `download_geo = TRUE`, a shapefile is written to the downloads folder.
 #'
 #' @details
-#' - Missing `ATTAINS.AssessmentUnitIdentifier`
-#'   values are replaced with `TADA.MonitoringLocationIdentifier`.
-#' - If `auid_prefix` is supplied and non-empty, it is included for only
-#'   newly created AUIDs.
-#' - This function can be run as part of TADA_CreatePointAUs.
+#' - Missing or blank `ATTAINS.AssessmentUnitIdentifier` values are replaced
+#'   with `TADA.MonitoringLocationIdentifier`.
+#' - Single-location groups retain `POINT` geometry.
+#' - Multi-location groups are written as `MULTIPOINT`.
 #'
 #' @seealso [TADA_CreatePointAUs()]
-#'
-#' @examples
-#' \dontrun{
-#' # Example 1: Create point geometry for missing AUIDs and add AUID prefix to newly create AUIDs
-#' # create example df
-#' ex_df <- Data_TribalNations_Harmonized |>
-#' dplyr::filter(OrganizationFormalName == "Blackfeet Nation (Montana)") |>
-#' dplyr::select(TADA.MonitoringLocationIdentifier,
-#'               TADA.LongitudeMeasure,
-#'               TADA.LatitudeMeasure,
-#'               HorizontalCoordinateReferenceSystemDatumName) |>
-#'               dplyr::distinct() |>
-#'               dplyr::slice_sample(n = 10)
-#'
-#' # create example point geometry
-#' result <- TADA_CreatePointAUGeometry(ex_df,
-#'                                     auid_prefix = "EXAMPLE-")
-#'
-#' #' # Example 2: Create point geometry for existing AUIDs, with a multipoint example
-#' # create example df
-#' ex_df <- Data_TribalNations_Harmonized |>
-#' dplyr::filter(OrganizationFormalName == "Blackfeet Nation (Montana)") |>
-#' dplyr::select(TADA.MonitoringLocationIdentifier,
-#'               TADA.LongitudeMeasure,
-#'               TADA.LatitudeMeasure,
-#'               HorizontalCoordinateReferenceSystemDatumName,
-#'               TADA.MonitoringLocationTypeName) |>
-#'               dplyr::distinct() |>
-#'               dplyr::arrange(TADA.MonitoringLocationIdentifier) |>
-#'               dplyr::slice_head(n = 10)
-#'
-#' # create crosswlk of AUIDs to monitoring location identifiers
-#' ex_AUs <- TADA_CreatePointAUs(ex_df,
-#'                               auid_prefix = "BLCKFEET-") |>
-#'                               dplyr::rename(TADA.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier)
-#'
-#' # join AUIDs to example data
-#' ex_df <- ex_df |>
-#' dplyr::left_join(ex_AUs, dplyr::join_by(TADA.MonitoringLocationIdentifier)) |>
-#'  # for example purposes, assign an additional monitoring location identifier to an existing AUID
-#'  # to create a multipoint example
-#'  dplyr::mutate(ATTAINS.AssessmentUnitIdentifier = ifelse(TADA.MonitoringLocationIdentifier ==
-#'                                                          "BLCKFEET-00000002",
-#'                                                          "BLCKFEET-BLCKFEET-00000001",
-#'                                                          ATTAINS.AssessmentUnitIdentifier))
-#'
-#' # first rows will contain multipoint geometry
-#' result <- TADA_CreatePointAUGeometry(ex_df)
-#' }
 #'
 #' @export
 TADA_CreatePointAUGeometry <- function(.data,
                                        target_crs = 4269,
                                        download_geo = FALSE,
+                                       return_geo = TRUE,
                                        auid_prefix = NULL) {
 
-  # always required columns
-  req <- c("TADA.LongitudeMeasure",
-           "TADA.LatitudeMeasure",
-           "HorizontalCoordinateReferenceSystemDatumName")
+  coord_req <- c(
+    "TADA.LongitudeMeasure",
+    "TADA.LatitudeMeasure",
+    "HorizontalCoordinateReferenceSystemDatumName"
+  )
 
-  # columns that can be used for AUID (at least one is required)
-  # if both are present, function will use ATTAINS.AssessmentUnitIdentifier
-  auid <- c("TADA.MonitoringLocationIdentifier",
-            "ATTAINS.AssessmentUnitIdentifier")
+  id_cols <- c(
+    "ATTAINS.AssessmentUnitIdentifier",
+    "TADA.MonitoringLocationIdentifier"
+  )
 
-
-
-  # check to see if all required columns and any id cols are in .data
-  if (!all(req %in% names(.data)) & !any(auid %in% names(.data))) {
+  missing_coords <- setdiff(coord_req, names(.data))
+  if (length(missing_coords) > 0) {
     stop(
-      "TADA_CreatePointAUGeometry: Input data must contain",
-      "TADA.LongitudeMeasure, TADA.LatitudeMeasure, and HorizontalCoordinateReferenceSystemDatumName",
-      "and at least one of the following columns: TADA.MonitoringLocationIdentifier or",
-      "ATTAINS.AssessmentUnitIdentifier."
+      "TADA_CreatePointAUGeometry: Missing required coordinate column(s): ",
+      paste(missing_coords, collapse = ", ")
     )
   }
 
-  # determine id col
-  if("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
-
-    id.col <- "ATTAINS.AssessmentUnitIdentifier"
-  } else {
-    id.col <- "TADA.MonitoringLocationIdentifier"
+  if (!any(id_cols %in% names(.data))) {
+    stop(
+      "TADA_CreatePointAUGeometry: Input data must contain at least one of: ",
+      "ATTAINS.AssessmentUnitIdentifier or TADA.MonitoringLocationIdentifier"
+    )
   }
 
-  # add AUID prefix if needed
-  if(id.col == "TADA.MonitoringLocationIdentifier" & !is.null(auid_prefix)) {
+  # Ensure AUID exists if needed / possible
+  .data <- fill_missing_assessment_unit_id(.data, auid_prefix = auid_prefix)
 
-    .data <- fill_missing_assessment_unit_id(.data,
-                                             auid_prefix = auid_prefix)
-
-    id.col <- "ATTAINS.AssessmentUnitIdentifier"
-
+  # Use AUID for grouping if available; otherwise fall back to ML ID
+  id.col <- if ("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
+    "ATTAINS.AssessmentUnitIdentifier"
+  } else {
+    "TADA.MonitoringLocationIdentifier"
   }
 
   .data <- .data |>
-    dplyr::select(rlang::sym(id.col), dplyr::all_of(req)) |>
+    dplyr::select(rlang::sym(id.col), dplyr::all_of(coord_req)) |>
     dplyr::distinct() |>
-    dplyr::filter(!is.na(TADA.LongitudeMeasure), !is.na(TADA.LatitudeMeasure))
+    dplyr::filter(
+      !is.na(TADA.LongitudeMeasure),
+      !is.na(TADA.LatitudeMeasure)
+    )
 
-  # create point geometries
   sf_pts <- sf::st_as_sf(
     .data,
     coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
@@ -3737,7 +3685,6 @@ TADA_CreatePointAUGeometry <- function(.data,
   ) |>
     sf::st_transform(crs = target_crs)
 
-  # check for multipoints
   sf_out <- sf_pts |>
     dplyr::group_by(!!rlang::sym(id.col)) |>
     dplyr::summarise(
@@ -3757,20 +3704,10 @@ TADA_CreatePointAUGeometry <- function(.data,
     dplyr::select(-n_pts) |>
     dplyr::rename(AU_ID = !!rlang::sym(id.col))
 
-  sf_out <- sf::st_as_sf(sf_out)
-
-  if(isFALSE(download_geo)) {
-
-    return(sf_out)
-  } else {
-
-    # get today's date
+  if (isTRUE(download_geo)) {
     today <- format(Sys.Date(), "%m_%d_%Y")
-
-    # create file name
     file.name <- paste0("TADAPointAUGeometry_", today)
 
-    # add auid prefix to file name if provided
     if (!is.null(auid_prefix)) {
       auid_prefix <- trimws(auid_prefix)
       auid_prefix <- sub("[-_;:]+$", "", auid_prefix)
@@ -3780,11 +3717,17 @@ TADA_CreatePointAUGeometry <- function(.data,
       }
     }
 
-    # get path for shp file download
     point.path <- .get_downloads_path(file.name)
 
-    # save the shp file
-    save_sf_as_shp(sf_out = sf_out,
-                   shp_path = point.path)
+    save_sf_as_shp(
+      sf_out = sf_out,
+      shp_path = point.path
+    )
   }
+
+  if (isTRUE(return_geo)) {
+    return(sf_out)
+  }
+
+  invisible(NULL)
 }

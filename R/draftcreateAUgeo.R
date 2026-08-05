@@ -7,13 +7,19 @@
 #   dplyr::rename(ATTAINS.AssessmentUnitIdentifier = TADA.MonitoringLocationIdentifier)
 #
 # testpoints <- TADA_CreatePointAUs(testdat)
-
-
-
-
-
-
-# need to create AU batch upload file
-
-
-# need to create AU with MLs batch upload file
+#
+#
+#
+#
+#
+#
+# # need to create AU batch upload file
+#
+#
+# # need to create AU with MLs batch upload file
+#
+# test.nogeo <- TADA_CreatePointAUs(testdat)
+#
+# test.geo <- TADA_CreatePointAUs(testdat,
+#                                 create_geo = TRUE,
+#                                 download_geo = TRUE)
