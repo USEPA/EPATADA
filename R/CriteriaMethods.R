@@ -700,16 +700,16 @@ TADA_DefineCriteriaMethodology <- function(
       # 2) char + ATTAINS parameter
       # 3) char + CST pollutant + ATTAINS parameter
       # Keep the row with ATTAINS.ParameterName when the remaining fields match.
-      
+
       if (auto_assign == TRUE && !all(org_id == "USEPA")) {
         if ("" %in% org_id) {
           DefineCriteriaMethodology <- DefineCriteriaMethodology
         }
-        
+
         if (!"" %in% org_id) {
           DefineCriteriaMethodology <- DefineCriteriaMethodology |>
             dplyr::mutate(dplyr::across(where(is.character), toupper))
-          
+
           CST_ATTAINS_Param <- utils::read.csv(system.file(
             "extdata",
             "TADACharAliasRef.csv",
@@ -717,9 +717,10 @@ TADA_DefineCriteriaMethodology <- function(
           )) |>
             dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
             dplyr::filter(
-              CharacteristicName %in% DefineCriteriaMethodology$TADA.CharacteristicName
+              CharacteristicName %in%
+                DefineCriteriaMethodology$TADA.CharacteristicName
             )
-          
+
           message(paste(
             "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.",
             "  Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.",
@@ -728,7 +729,7 @@ TADA_DefineCriteriaMethodology <- function(
             "  A many-to-many match is likely. User review is needed to ensure accuracy in crosswalk method.",
             sep = "\r\n"
           ))
-          
+
           uses <- utils::read.csv(system.file(
             "extdata",
             "TADAUsesAliasRef.csv",
@@ -740,7 +741,7 @@ TADA_DefineCriteriaMethodology <- function(
               ATTAINS.OrganizationIdentifier %in%
                 unique(DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier)
             )
-          
+
           internal_path <- system.file(
             "extdata",
             "cst-workbook.xlsx",
@@ -752,26 +753,44 @@ TADA_DefineCriteriaMethodology <- function(
               "Please add this file to the EPATADA package (dev-time: run .TADA_CST_UpdateWorkbook())."
             )
           }
-          
-          CriteriaSearchToolRef <- .tada_cst_read_sheet(internal_path, target = "criteria")
-          CriteriaSearchToolRef_Legend <- .tada_cst_read_sheet(internal_path, target = "legend")
-          CriteriaSearchToolRef_Sources <- .tada_cst_read_sheet(internal_path, target = "sources")
-          
+
+          CriteriaSearchToolRef <- .tada_cst_read_sheet(
+            internal_path,
+            target = "criteria"
+          )
+          CriteriaSearchToolRef_Legend <- .tada_cst_read_sheet(
+            internal_path,
+            target = "legend"
+          )
+          CriteriaSearchToolRef_Sources <- .tada_cst_read_sheet(
+            internal_path,
+            target = "sources"
+          )
+
           if (is.null(CriteriaSearchToolRef)) {
-            stop("Failed to read 'Criteria' sheet from internal CST workbook at: ", internal_path)
+            stop(
+              "Failed to read 'Criteria' sheet from internal CST workbook at: ",
+              internal_path
+            )
           }
-          
-          CriteriaSearchToolRef <- .tada_cst_prepare_table(CriteriaSearchToolRef)
-          CriteriaSearchToolRef_Legend <- .tada_cst_prepare_table(CriteriaSearchToolRef_Legend)
-          CriteriaSearchToolRef_Sources <- .tada_cst_prepare_table(CriteriaSearchToolRef_Sources)
+
+          CriteriaSearchToolRef <- .tada_cst_prepare_table(
+            CriteriaSearchToolRef
+          )
+          CriteriaSearchToolRef_Legend <- .tada_cst_prepare_table(
+            CriteriaSearchToolRef_Legend
+          )
+          CriteriaSearchToolRef_Sources <- .tada_cst_prepare_table(
+            CriteriaSearchToolRef_Sources
+          )
           rm(internal_path)
-          
+
           CriteriaSearchToolRef <- CriteriaSearchToolRef |>
             dplyr::mutate(
               UNIT_NAME = stringr::str_replace_all(UNIT_NAME, "\u00B5", "u"),
               dplyr::across(where(is.character), toupper)
             )
-          
+
           CriteriaSearchToolRef_filtered <- CriteriaSearchToolRef |>
             dplyr::right_join(
               CST_ATTAINS_Param,
@@ -799,12 +818,17 @@ TADA_DefineCriteriaMethodology <- function(
               by = c("CRIT_SOURCE_ID"),
               relationship = "many-to-many"
             ) |>
-            dplyr::mutate(CST.SourceLink = paste0(SOURCE, "#page=", as.character(PDFPGNO)))
-          
+            dplyr::mutate(
+              CST.SourceLink = paste0(SOURCE, "#page=", as.character(PDFPGNO))
+            )
+
           ATTAINS_NA_filter <- DefineCriteriaMethodology |>
             dplyr::filter(is.na(ATTAINS.ParameterName)) |>
             dplyr::left_join(
-              dplyr::select(CriteriaSearchToolRef_filtered, -ATTAINS.ParameterName),
+              dplyr::select(
+                CriteriaSearchToolRef_filtered,
+                -ATTAINS.ParameterName
+              ),
               by = c(
                 "ATTAINS.OrganizationIdentifier",
                 "TADA.CharacteristicName" = "CharacteristicName"
@@ -818,7 +842,7 @@ TADA_DefineCriteriaMethodology <- function(
                 NA_character_
               )
             )
-          
+
           DefineCriteriaMethodology2 <- DefineCriteriaMethodology |>
             dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
             dplyr::left_join(
@@ -860,7 +884,7 @@ TADA_DefineCriteriaMethodology <- function(
               CST.SourceLink
             ) |>
             dplyr::distinct()
-          
+
           # ------------------------------------------------------------
           # Drop duplicate "CST-only" rows when a matching "parameter+char"
           # or "parameter+char+CST" row exists and all other columns match.
@@ -868,14 +892,20 @@ TADA_DefineCriteriaMethodology <- function(
           if (nrow(DefineCriteriaMethodology2) > 0) {
             key_cols <- setdiff(
               names(DefineCriteriaMethodology2),
-              c("TADA.CharacteristicName", "ATTAINS.ParameterName", "CST.StdPollutantName")
+              c(
+                "TADA.CharacteristicName",
+                "ATTAINS.ParameterName",
+                "CST.StdPollutantName"
+              )
             )
-            
+
             DefineCriteriaMethodology2 <- DefineCriteriaMethodology2 |>
               dplyr::group_by(dplyr::across(dplyr::all_of(key_cols))) |>
               dplyr::mutate(
-                .has_param = !is.na(ATTAINS.ParameterName) & ATTAINS.ParameterName != "",
-                .has_cst   = !is.na(CST.StdPollutantName) & CST.StdPollutantName != ""
+                .has_param = !is.na(ATTAINS.ParameterName) &
+                  ATTAINS.ParameterName != "",
+                .has_cst = !is.na(CST.StdPollutantName) &
+                  CST.StdPollutantName != ""
               ) |>
               dplyr::filter(
                 !(.has_cst & !.has_param & any(.has_param, na.rm = TRUE))
@@ -883,30 +913,32 @@ TADA_DefineCriteriaMethodology <- function(
               dplyr::ungroup() |>
               dplyr::select(-.has_param, -.has_cst)
           }
-          
+
           if (nrow(DefineCriteriaMethodology2) == 0) {
             message(paste(
               "TADA_DefineCriteriaMethodology: auto_assign = TRUE.",
               "No parameter(s) and/or use(s) were matched between ATTAINS and CST for your defined org_id(s). No magnitude values could be populated for your org(s)."
             ))
           }
-          
+
           if (
-            any(DefineCriteriaMethodology2$CST.StdPollutantName %in%
-                c("PH VARIATION", "TEMPERATURE RISE ABOVE AMBIENT"))
+            any(
+              DefineCriteriaMethodology2$CST.StdPollutantName %in%
+                c("PH VARIATION", "TEMPERATURE RISE ABOVE AMBIENT")
+            )
           ) {
             message(paste(
               "TADA_DefineCriteriaMethodology: removing any instances where CST Pollutant names are 'PH VARIATION', 'TEMPERATURE RISE ABOVE AMBIENT'.",
               "TADA functions cannot currently handle analysis for these instances."
             ))
           }
-          
+
           DefineCriteriaMethodology2 <- DefineCriteriaMethodology2 |>
             dplyr::filter(
               !CST.StdPollutantName %in%
                 c("PH VARIATION", "TEMPERATURE RISE ABOVE AMBIENT")
             )
-          
+
           TADAPriorityCharConvertRef <- utils::read.csv(
             system.file(
               "extdata",
@@ -915,17 +947,26 @@ TADA_DefineCriteriaMethodology <- function(
             ),
             fileEncoding = "UTF-8-BOM"
           ) |>
-            dplyr::mutate(dplyr::across(where(is.character), stringr::str_to_upper)) |>
+            dplyr::mutate(dplyr::across(
+              where(is.character),
+              stringr::str_to_upper
+            )) |>
             dplyr::filter(!is.na(Code))
-          
-          unitRef <- suppressMessages(suppressWarnings(TADA_CreateUnitRef(.data)))
-          
+
+          unitRef <- suppressMessages(suppressWarnings(TADA_CreateUnitRef(
+            .data
+          )))
+
           .old_opts <- options(scipen = 999)
           on.exit(options(.old_opts), add = TRUE)
-          
+
           unitRef_CST <- unitRef |>
             dplyr::inner_join(
-              dplyr::select(DefineCriteriaMethodology2, TADA.CharacteristicName, MagnitudeUnit),
+              dplyr::select(
+                DefineCriteriaMethodology2,
+                TADA.CharacteristicName,
+                MagnitudeUnit
+              ),
               by = "TADA.CharacteristicName",
               relationship = "many-to-many"
             ) |>
@@ -940,11 +981,14 @@ TADA_DefineCriteriaMethodology <- function(
               -TADA.WQXUnitConversionCoefficient,
               -TADA.WQXUnitConversionFactor
             ) |>
-            dplyr::left_join(TADAPriorityCharConvertRef, by = c("MagnitudeUnit" = "Code")) |>
+            dplyr::left_join(
+              TADAPriorityCharConvertRef,
+              by = c("MagnitudeUnit" = "Code")
+            ) |>
             dplyr::distinct()
-          
+
           unitRef_CST_NA <- dplyr::filter(unitRef_CST, is.na(Target.Unit))
-          
+
           if (length(unique(unitRef_CST$TADA.CharacteristicName)) > 0) {
             message(paste(
               "Warning in TADA_DefineCriteriaMethodology: ",
@@ -955,7 +999,7 @@ TADA_DefineCriteriaMethodology <- function(
               "Please review these conversions."
             ))
           }
-          
+
           if (nrow(unitRef_CST_NA) > 0) {
             message(paste(
               "Warning in TADA_DefineCriteriaMethodology:",
@@ -967,9 +1011,11 @@ TADA_DefineCriteriaMethodology <- function(
               "and convert to an appropriate unit found in your TADA data frame."
             ))
           }
-          
-          DefineCriteriaMethodology2 <- suppressWarnings(TADA_CorrectColType(DefineCriteriaMethodology2))
-          
+
+          DefineCriteriaMethodology2 <- suppressWarnings(TADA_CorrectColType(
+            DefineCriteriaMethodology2
+          ))
+
           DefineCriteriaMethodology <- DefineCriteriaMethodology2 |>
             dplyr::left_join(
               unitRef_CST,
@@ -977,13 +1023,36 @@ TADA_DefineCriteriaMethodology <- function(
               relationship = "many-to-many"
             ) |>
             dplyr::mutate(
-              Conversion.Factor = dplyr::if_else(is.na(Conversion.Factor), 1, Conversion.Factor),
-              MagnitudeUnit = dplyr::if_else(is.na(Target.Unit), MagnitudeUnit, Target.Unit),
-              MagnitudeValueLower = round(Conversion.Factor * MagnitudeValueLower, digits = 4),
-              MagnitudeValueUpper = round(Conversion.Factor * MagnitudeValueUpper, digits = 4),
+              Conversion.Factor = dplyr::if_else(
+                is.na(Conversion.Factor),
+                1,
+                Conversion.Factor
+              ),
+              MagnitudeUnit = dplyr::if_else(
+                is.na(Target.Unit),
+                MagnitudeUnit,
+                Target.Unit
+              ),
+              MagnitudeValueLower = round(
+                Conversion.Factor * MagnitudeValueLower,
+                digits = 4
+              ),
+              MagnitudeValueUpper = round(
+                Conversion.Factor * MagnitudeValueUpper,
+                digits = 4
+              ),
               EquationBased = dplyr::if_else(
-                dplyr::if_any(dplyr::any_of(c("CST.StdPollutantName", "CST.Use")), ~ !is.na(.x)) &
-                  dplyr::if_all(dplyr::all_of(c("MagnitudeValueLower", "MagnitudeValueUpper")), ~ is.na(.x)),
+                dplyr::if_any(
+                  dplyr::any_of(c("CST.StdPollutantName", "CST.Use")),
+                  ~ !is.na(.x)
+                ) &
+                  dplyr::if_all(
+                    dplyr::all_of(c(
+                      "MagnitudeValueLower",
+                      "MagnitudeValueUpper"
+                    )),
+                    ~ is.na(.x)
+                  ),
                 "Yes",
                 "No",
                 missing = "No"
