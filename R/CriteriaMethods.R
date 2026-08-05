@@ -1212,7 +1212,6 @@ TADA_DefineCriteriaMethodology <- function(
       )
 
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-        TADA_CorrectColType() |>
         dplyr::select(
           ATTAINS.OrganizationIdentifier,
           ATTAINS.ParameterName,
@@ -1231,6 +1230,7 @@ TADA_DefineCriteriaMethodology <- function(
           )
         ) |>
         dplyr::arrange(ATTAINS.UseName) |>
+        TADA_CorrectColType() |>
         dplyr::distinct()
 
       # ensure the first n columns are shown in TADA criteria table format. Additional columns are allowed for notes etc.
