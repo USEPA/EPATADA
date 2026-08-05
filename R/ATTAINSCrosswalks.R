@@ -3951,20 +3951,20 @@ TADA_MLSummary <- function(
           )
       }
 
-      out |>
+      out <- out |>
+        #tidyr::crossing(ATTAINS.OrganizationIdentifier = org_id) |>
         dplyr::mutate(
           TADA.ParameterInSite.Flag = dplyr::if_else(
             is.na(TADA.ComparableDataIdentifier),
             "Suspect: This ML site does not contain information for this parameter in your TADA data frame.",
             "Pass: This ML contains the parameter in your TADA data frame."
           ),
-          ATTAINS.AssessmentUnitIdentifier = NA,
-          ATTAINS.WaterType = NA,
-          SaltFresh = NA,
-          UniqueSpatialCriteria = NA,
+          ATTAINS.AssessmentUnitIdentifier = NA_character_,
+          ATTAINS.WaterType = NA_character_,
+          SaltFresh = NA_character_,
+          UniqueSpatialCriteria = NA_character_,
           IncludeOrExclude = "Include",
-          DepthCategory = NA,
-          ATTAINS.OrganizationIdentifier = org_id
+          DepthCategory = NA_character_
         ) |>
         dplyr::select(dplyr::any_of(c(
           "ATTAINS.OrganizationIdentifier",
