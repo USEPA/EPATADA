@@ -114,7 +114,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   }
 
   # ------------------------------------------------------------
-  # Join MLSummaryRef first
+  # Join MLSummaryRef first (if provided)
   # ------------------------------------------------------------
   if (!is.null(MLSummaryRef) && nrow(MLSummaryRef) > 0) {
     needed <- c("MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier")

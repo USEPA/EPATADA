@@ -1147,7 +1147,7 @@ TADA_TableExport(MT.CriteriaMethods.Final2[[1]])
 ## Join Criteria Table to Your WQP Data
 
 Now that your criteria table is ready, the next step is to join it to your WQP data frame.
-In the next section, we’ll also use the AUMLRef and AU_UsesRef crosswalk outputs from [TADAModule2.Rmd] to show how to work with assessment unit–level analysis.
+In the next section, we’ll also use the MLSummaryRef crosswalk outputs from [TADAModule2.Rmd] to show how to work with assessment unit–level analysis.
 
 First, join the criteria table to your WQP data frame. The criteria table will automatically be joined by the best match of either TADA.ComparableDataIdentifier or by combinations of TADA.CharacteristicName, TADA.ResultSampleFractionText, and TADA.MethodSpeciationName.
 

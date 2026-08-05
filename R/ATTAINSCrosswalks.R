@@ -3939,7 +3939,7 @@ TADA_MLSummary <- function(
           ) |>
           dplyr::full_join(
             .data,
-            by = "MonitoringLocationIdentifier",
+            by = c("TADA.ComparableDataIdentifier", "MonitoringLocationIdentifier"),
             relationship = "many-to-many"
           )
       } else {
