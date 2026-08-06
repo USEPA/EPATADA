@@ -1057,10 +1057,7 @@ TADA_AggregateMeasurements <- function(
       out <- multiples |>
         dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
         dplyr::mutate(
-          TADA.ResultMeasureValue1 = mean(
-            TADA.ResultMeasureValue,
-            na.rm = TRUE
-          )
+          TADA.ResultMeasureValue1 = mean(TADA.ResultMeasureValue, na.rm = TRUE)
         ) |>
         dplyr::slice_min(.data$ResultIdentifier, n = 1, with_ties = FALSE) |>
         dplyr::mutate(
@@ -1071,9 +1068,7 @@ TADA_AggregateMeasurements <- function(
           )
         ) |>
         dplyr::select(TADA.ResultMeasureValue) |>
-        dplyr::rename(
-          TADA.ResultMeasureValue = TADA.ResultMeasureValue1
-        ) |>
+        dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) |>
         dplyr::mutate(
           ResultIdentifier = paste0("TADA-", .data$ResultIdentifier)
         )
