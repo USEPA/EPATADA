@@ -1771,6 +1771,22 @@ TADA_DayOfYearPlot <- function(
     width = 55
   )
 
+  # compute x-axis day-of-year bounds from monthRange
+  start_date <- as.Date(sprintf("2001-%02d-01", monthRange[1]))
+  end_date <- as.Date(
+    paste0(
+      "2001-",
+      sprintf("%02d", monthRange[2]),
+      "-01"
+    )
+  )
+  end_date <- seq.Date(end_date, by = "month", length.out = 2)[2] - 1
+
+  x_axis_range <- c(
+    as.integer(format(start_date, "%j")),
+    as.integer(format(end_date, "%j"))
+  )
+
   # construct one plotly trace per year so years are discrete and can be
   # independently shown or hidden using the interactive legend
   day_of_year_plot <- plotly::plot_ly(type = "scatter", mode = "markers")
@@ -1834,7 +1850,7 @@ TADA_DayOfYearPlot <- function(
         title = "Day of Year",
         titlefont = list(size = 16, family = "Arial"),
         tickfont = list(size = 16, family = "Arial"),
-        range = c(1, 366),
+        range = x_axis_range,
         dtick = 50,
         linecolor = "black",
         showgrid = FALSE,
