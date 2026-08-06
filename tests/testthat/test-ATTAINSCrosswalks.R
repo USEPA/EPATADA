@@ -891,7 +891,7 @@ test_that("overwrite_existing = FALSE preserves nonblank existing ATTAINS.WaterT
 
 # Test TADA_CreatePointAUs
 
-test_that("errors when TADA.MonitoringLocationIdentifier is missing", {
+testthat::test_that("errors when TADA.MonitoringLocationIdentifier is missing", {
   df <- data.frame(
     TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
     stringsAsFactors = FALSE
@@ -903,7 +903,7 @@ test_that("errors when TADA.MonitoringLocationIdentifier is missing", {
   )
 })
 
-test_that("adds missing ATTAINS.AssessmentUnitIdentifier and fills blanks/NA without prefix", {
+testthat::test_that("adds missing ATTAINS.AssessmentUnitIdentifier and fills blanks/NA without prefix", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2", "LOC3"),
     TADA.MonitoringLocationTypeName = c("Stream", "Lake", "Estuary"),
@@ -935,7 +935,7 @@ test_that("adds missing ATTAINS.AssessmentUnitIdentifier and fills blanks/NA wit
   expect_equal(result$ATTAINS.WaterType, c("STREAM", "LAKE", "ESTUARY"))
 })
 
-test_that("applies auid_prefix only to newly created AUIDs", {
+testthat::test_that("applies auid_prefix only to newly created AUIDs", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2", "LOC3"),
     TADA.MonitoringLocationTypeName = c("Stream", "Lake", "Estuary"),
@@ -952,7 +952,7 @@ test_that("applies auid_prefix only to newly created AUIDs", {
   )
 })
 
-test_that("treats blank AUIDs as missing", {
+testthat::test_that("treats blank AUIDs as missing", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2"),
     TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
@@ -966,7 +966,7 @@ test_that("treats blank AUIDs as missing", {
   expect_equal(result$ATTAINS.AssessmentUnitIdentifier, c("LOC1", "LOC2"))
 })
 
-test_that("calls TADA_CrosswalkATTAINSWaterTypes when ATTAINS.WaterType is missing", {
+testthat::test_that("calls TADA_CrosswalkATTAINSWaterTypes when ATTAINS.WaterType is missing", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2"),
     TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
@@ -996,7 +996,7 @@ test_that("calls TADA_CrosswalkATTAINSWaterTypes when ATTAINS.WaterType is missi
   expect_equal(result$ATTAINS.AssessmentUnitIdentifier, c("LOC1", "LOC2"))
 })
 
-test_that("calls TADA_CrosswalkATTAINSWaterTypes when ATTAINS.WaterType has blanks", {
+testthat::test_that("calls TADA_CrosswalkATTAINSWaterTypes when ATTAINS.WaterType has blanks", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2"),
     TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
@@ -1024,7 +1024,7 @@ test_that("calls TADA_CrosswalkATTAINSWaterTypes when ATTAINS.WaterType has blan
   expect_equal(result$ATTAINS.WaterType, c("STREAM", "LAKE"))
 })
 
-test_that("errors when water crosswalk is needed but TADA.MonitoringLocationTypeName is missing", {
+testthat::test_that("errors when water crosswalk is needed but TADA.MonitoringLocationTypeName is missing", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2"),
     ATTAINS.AssessmentUnitIdentifier = c(NA_character_, NA_character_),
@@ -1034,11 +1034,11 @@ test_that("errors when water crosswalk is needed but TADA.MonitoringLocationType
 
   expect_error(
     TADA_CreatePointAUs(df),
-    "Missing required column: TADA\\.MonitoringLocationTypeName"
+    "TADA_CreatePointAUs: Missing required column for water-type crosswalk: TADA.MonitoringLocationTypeName"
   )
 })
 
-test_that("returns distinct rows", {
+testthat::test_that("returns distinct rows", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = c("LOC1", "LOC1"),
     TADA.MonitoringLocationTypeName = c("Stream", "Stream"),
@@ -1055,7 +1055,7 @@ test_that("returns distinct rows", {
   expect_equal(result$ATTAINS.WaterType, "STREAM")
 })
 
-test_that("does not modify existing non-missing, non-blank AUIDs when prefix is supplied", {
+testthat::test_that("does not modify existing non-missing, non-blank AUIDs when prefix is supplied", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2"),
     TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
@@ -1065,6 +1065,19 @@ test_that("does not modify existing non-missing, non-blank AUIDs when prefix is 
   )
 
   result <- TADA_CreatePointAUs(df, auid_prefix = "WQX_")
+
+  expect_equal(
+    result$ATTAINS.AssessmentUnitIdentifier,
+    c("EXISTING_AU_001", "WQX_LOC2")
+  )
+})
+
+testthat::test_that("TADA_CreatePointAUs returns list containng crosswalk and geometry when create_geo equals TRUE", {
+  df <- Data_TribalNations_Harmonized |>
+        dplyr::filter(OrganizationFormalName == "Blackfeet Nation (Montana)")
+
+  result <- TADA_CreatePointAUs(df,
+                                create_geo = TRUE)
 
   expect_equal(
     result$ATTAINS.AssessmentUnitIdentifier,
