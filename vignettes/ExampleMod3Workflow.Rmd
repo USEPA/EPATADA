@@ -677,7 +677,8 @@ Coli that was unable to be retrieved from ATTAINS. We also see PH was
 not found in the user supplied UsesRef table. We will assume MTDEQ has
 forgotten to include PH in their table and showcase the importance of
 considering all readily available data from your WQP data retrieval that
-you may need to consider for analysis.
+you may need to consider for analysis and how TADA handles these scenarios
+with warning messages.
 
 ```{r usesRef-User-Supplied}
 # Load the example MTDEQ criteria table
@@ -1147,20 +1148,45 @@ TADA_TableExport(MT.CriteriaMethods.Final2[[1]])
 ## Join Criteria Table to Your WQP Data
 
 Now that your criteria table is ready, the next step is to join it to your WQP data frame.
-In the next section, we’ll also use the MLSummaryRef crosswalk outputs from [TADAModule2.Rmd] to show how to work with assessment unit–level analysis.
+If you are only interested in performing a monitoring location level analysis, you can provide just
+the WQP data and criteria table. 
 
-First, join the criteria table to your WQP data frame. The criteria table will automatically be joined by the best match of either TADA.ComparableDataIdentifier or by combinations of TADA.CharacteristicName, TADA.ResultSampleFractionText, and TADA.MethodSpeciationName.
+First, join the criteria table to your WQP data frame. The criteria table will automatically be joined by the best match of either TADA.ComparableDataIdentifier or by combinations of TADA.CharacteristicName, TADA.ResultSampleFractionText, and TADA.MethodSpeciationName.In this example, all characteristic and/or parameter.
+
+```{r data with criteria}
+MT_data_criteria_no_spatial <- TADA_Analysis_Join_WQP_Criteria(
+  .data = tada.MT.clean,
+  criteria = MT.CriteriaMethods.Final
+  )
+```
+
+Each uses in this criteria table will be assigned to each monitoring location for analysis, if that monitoring location contains that WQP characteristic name. Let's check to ensure all characteristic names have been matched to those found in the criteria table. 
 
 ```{r}
-MT_data_w_criteria <- TADA_Analysis_Join_WQP_Criteria(Data_MT_MissoulaCounty, MT.CriteriaMethods.Final)
+rows1 <- nrow(MT.CriteriaMethods.Final[MT.CriteriaMethods.Final$TADA.CharacteristicName == "ESCHERICHIA COLI", ])
+rows2 <- nrow(tada.MT.clean[tada.MT.clean$TADA.CharacteristicName == "ESCHERICHIA COLI",])
+rows3 <- nrow(MT.CriteriaMethods.Final[MT.CriteriaMethods.Final$TADA.CharacteristicName == "PH", ])
+rows4 <- nrow(tada.MT.clean[tada.MT.clean$TADA.CharacteristicName == "PH",])
+
+(rows1 * rows2 + rows3 * rows4) == nrow(MT_data_criteria_no_spatial)
+```
+
+Let's now also join the MLSummaryRef crosswalk outputs from [TADAModule2.Rmd] to show how to work with assessment unit–level analysis.
+
+```{r}
+MT_data_w_criteria <- TADA_Analysis_Join_WQP_Criteria(
+  .data = tada.MT.clean,
+  criteria = MT.CriteriaMethods.Final,
+  MLSummaryRef = MT.MLSummaryRef.AU2
+  )
 ```
 
 How many columns do you see?
 
 ```{r}
-ncol(Data_MT_MissoulaCounty)
+ncol(tada.MT.clean)
 ncol(MT.CriteriaMethods.Final)
 ncol(MT_data_w_criteria)
-length(union(names(Data_MT_MissoulaCounty),names(MT.CriteriaMethods.Final)))
+length(union(names(tada.MT.clean), names(MT.CriteriaMethods.Final)))
 ```
 
