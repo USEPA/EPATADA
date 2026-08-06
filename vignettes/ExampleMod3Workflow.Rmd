@@ -1145,19 +1145,20 @@ MT.CriteriaMethods.Final2 <- TADA_DefineCriteriaMethodology(
 TADA_TableExport(MT.CriteriaMethods.Final2[[1]])
 ```
 
-## Join Criteria Table to Your WQP Data
+## Join the Criteria Table to Your WQP Data
 
-Now that your criteria table is ready, the next step is to join it to your WQP data frame.
-If you are only interested in performing a monitoring location level analysis, you can provide just
-the WQP data and criteria table. 
+Now that your criteria table is ready, the next step is to join it to your WQP data frame.  
+If you are only interested in performing a monitoring location–level analysis, you can provide just the WQP data and the criteria table.
 
-First, join the criteria table to your WQP data frame. The criteria table will automatically be joined by the best match of either TADA.ComparableDataIdentifier or by combinations of TADA.CharacteristicName, TADA.ResultSampleFractionText, and TADA.MethodSpeciationName.In this example, all characteristic and/or parameter.
+First, join the criteria table to your WQP data frame. The criteria table will automatically be joined using the best match based on either `TADA.ComparableDataIdentifier` or the combination of `TADA.CharacteristicName`, `TADA.ResultSampleFractionText`, and `TADA.MethodSpeciationName`. In this example, the table includes all characteristics and/or parameters.
 
-```{r data with criteria}
+Keep in mind that any spatial columns that are populated (`ATTAINS.WaterType`, `SaltFresh`, `UniqueSpatialCriteria`, or `DepthCategory`) cannot be differentiated if a spatial reference table (the MLSummaryRef) is not provided. In these cases, any monitoring location that contains a characteristic name found in the WQP data will be assigned the spatial criteria specified in the criteria table. For example, if you specify that *E. coli* should only be assessed for `ATTAINS.WaterType = "LAKE"`, then any site containing *E. coli* will be assessed using that criterion, because the water type of the site cannot be distinguished without a user-supplied crosswalk indicating which sites are truly representative of `"LAKE"`.
+
+```{r data-with-criteria}
 MT_data_criteria_no_spatial <- TADA_Analysis_Join_WQP_Criteria(
   .data = tada.MT.clean,
   criteria = MT.CriteriaMethods.Final
-  )
+)
 ```
 
 Each uses in this criteria table will be assigned to each monitoring location for analysis, if that monitoring location contains that WQP characteristic name. Let's check to ensure all characteristic names have been matched to those found in the criteria table. 
@@ -1187,6 +1188,6 @@ How many columns do you see?
 ncol(tada.MT.clean)
 ncol(MT.CriteriaMethods.Final)
 ncol(MT_data_w_criteria)
-length(union(names(tada.MT.clean), names(MT.CriteriaMethods.Final)))
+# length(union(names(tada.MT.clean), names(MT.CriteriaMethods.Final)))
 ```
 
