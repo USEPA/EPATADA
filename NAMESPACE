@@ -2,6 +2,7 @@
 
 export(TADA_AggregateMeasurements)
 export(TADA_Analysis_Join_WQP_Criteria)
+export(TADA_Analysis_Validate_Ref)
 export(TADA_AssignUsesToAU)
 export(TADA_AssignUsesToWaterType)
 export(TADA_AutoClean)
