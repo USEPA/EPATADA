@@ -2,14 +2,26 @@
 % Please edit documentation in R/Utilities.R
 \name{TADA_addPoints}
 \alias{TADA_addPoints}
-\title{Add points from an ArcGIS feature layer to a leaflet map}
+\title{Add points from a spatial layer to a leaflet map}
 \usage{
-TADA_addPoints(map, layerfilepath, layergroup, layername, bbox = NULL)
+TADA_addPoints(
+  map,
+  layerfilepath,
+  gpkg,
+  layer,
+  layergroup,
+  layername,
+  bbox = NULL
+)
 }
 \arguments{
 \item{map}{A leaflet map}
 
-\item{layerfilepath}{Local path to the .shp file for the layer}
+\item{layerfilepath}{Local path to the data folder containing the .gpkg file}
+
+\item{gpkg}{name of the .gpkg file}
+
+\item{layer}{name of the layer within the .gpkg file}
 
 \item{layergroup}{Name of the layer group}
 
@@ -21,7 +33,7 @@ TADA_addPoints(map, layerfilepath, layergroup, layername, bbox = NULL)
 The original map with polygon from the feature layer added to it.
 }
 \description{
-Add points from an ArcGIS feature layer to a leaflet map
+Add points from a spatial layer to a leaflet map
 }
 \examples{
 \dontrun{
@@ -30,10 +42,8 @@ lmap <- leaflet::leaflet() |>
   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
   leaflet::addMapPane("featurelayers", zIndex = 300)
 # Add the Virginia Federally Recognized Tribes feature layer to the map
-lmap <- TADA_addPoints(
-  lmap, "extdata/VATribe.shp",
-  "Tribes", "Virginia Federally Recognized Tribes"
-)
+lmap <- TADA_addPoints(lmap, "extdata", "Tribal.gpkg","VATribe",
+    "Tribes", "Virginia Federally Recognized Tribes")
 lmap
 }
 }

@@ -483,7 +483,27 @@ utils::globalVariables(c(
   "has_depth_param",
   "out_epsg",
   "ATTAINSParamUseOrgRef",
-  "CountyCode"
+  "CountyCode",
+  "candidates",
+  "matched",
+  "New.ATTAINS.WaterType",
+  "TADA.ATTAINSWaterType.Flag",
+  "WQPOrganizationRef",
+  "created_AUID",
+  ".can_correct",
+  ".should_correct",
+  ".was_valid",
+  "ATTAINS.WaterType.Original",
+  "Crosswalk.ATTAINS.WaterType",
+  ".rank",
+  ".selected",
+  "TADA.MultipleOrgDup.Flag",
+  ".row_id",
+  "COUNTYFP",
+  "CoordinateCountyCode",
+  "CoordinateStateCode",
+  "STATEFP",
+  "StateCode"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -1434,45 +1454,40 @@ getFeatureLayer <- function(url, bbox = NULL) {
 }
 
 
-#' Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists
+#' Download a spatial file from an API and save it to a local folder, overwriting existing file if it exists
 #' writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
 #'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
-#' @param layerfilepath Local path to save the .shp file to
+#' @param layerfilepath Local path to save the .gpkg file
+#' @param layername Name of the layer within the .gpkg file
 #'
 #' @examples
 #' \dontrun{
 #' # Get the Oklahoma Tribal Statistical Areas feature layer and write
-#' # local file to inst/extdata/OKTribe.shp
+#' # local file to inst/extdata/Tribal.gpkg/OKTribe
 #' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
-#' writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")
+#' writeLayer(OKTribeUrl, "inst/extdata/Tribal.gpkg","OKTribe")
 #' }
-writeLayer <- function(url, layerfilepath) {
-  layer <- getFeatureLayer(url)
-  # Attribute names can only be up to 10 characters long when saved to .dbf as part of sf::st_write.
-  # They are truncated automatically but TOTALAREA_MI and TOTALAREA_KM will not be unique after being
-  # truncated, so explicitly rename them first if they exist to avoid error.
-  if ("TOTALAREA_MI" %in% colnames(layer)) {
-    layer <- layer |>
-      dplyr::rename(TAREA_MI = TOTALAREA_MI, TAREA_KM = TOTALAREA_KM)
-  }
-  sf::st_write(layer, layerfilepath, delete_layer = TRUE)
+writeLayer <- function(url, layerfilepath, layername) {
+  feature <- getFeatureLayer(url)
+  sf::st_write(feature, layerfilepath, layer = layername, delete_layer = TRUE)
 }
 
-
-#' Get a shapefile from a local folder, optionally crop it by a bounding box, and return it as a sf object
-#' getLayer is used within TADA_addPolys and TADA_addPoints
+#' Read a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
+#' readLayer is used within TADA_addPolys and TADA_addPoints
 #'
-#' @param layerfilepath Local path to the .shp file for the layer
+#' @param layerfilepath Local path to the data folder containing the .gpkg file
+#' @param gpkg name of the .gpkg file
+#' @param layer name of the layer within the .gpkg file
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return sf object containing the layer
-#'
 #'
 #' @examples
 #' \dontrun{
 #' # Load example dataset
 #' utils::data(Data_TribalNations_Harmonized)
-#' # Get the bounding box of the data
+#'
+#' # Use the example dataset bounding box
 #' bbox <- sf::st_bbox(
 #'   c(
 #'     xmin = min(Data_TribalNations_Harmonized$TADA.LongitudeMeasure),
@@ -1482,14 +1497,18 @@ writeLayer <- function(url, layerfilepath) {
 #'   ),
 #'   crs = sf::st_crs(Data_TribalNations_Harmonized)
 #' )
-#' # Get the American Indian Reservations feature layer,
+#'
+#' # Read the American Indian Reservations feature layer,
 #' # filtered by the bounding box for the Data_TribalNations_Harmonized
 #' # example dataset
-#' layerfilepath <- "extdata/AmericanIndian.shp"
-#' getLayer(layerfilepath, bbox)
+#' layerfilepath <- "extdata"
+#' gpkg <- "Tribal.gpkg"
+#' layer <- "AmericanIndian"
+#' readLayer(layerfilepath, gpkg, layer)
 #' }
-getLayer <- function(layerfilepath, bbox = NULL) {
-  layer <- sf::st_read(system.file(layerfilepath, package = "EPATADA"))
+readLayer <- function(layerfilepath, gpkg, layer, bbox = NULL) {
+  gpkg_path <- system.file(layerfilepath, gpkg, package = "EPATADA")
+  layer <- sf::read_sf(dsn = gpkg_path, layer, quiet = TRUE)
   if (!(is.null(bbox))) {
     sf::sf_use_s2(FALSE)
     layer <- sf::st_make_valid(layer)
@@ -1507,8 +1526,8 @@ getLayer <- function(layerfilepath, bbox = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' # Get the Oklahoma Tribal Statistical Areas feature layer
-#' layer <- getLayer("extdata/OKTribe.shp")
+#' # Read in the Oklahoma Tribal Statistical Areas layer
+#' layer <- readLayer("extdata", "Tribal.gpkg", "OKTribe")
 #' # Get popup text for individual markers
 #' getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
 #' }
@@ -1567,10 +1586,12 @@ getTribalPopup <- function(layer, layername) {
   return(popups)
 }
 
-#' Add polygons from an ArcGIS feature layer to a leaflet map
+#' Add polygons from a spatial layer to a leaflet map
 #'
 #' @param map A leaflet map
-#' @param layerfilepath Local path to the .shp file for the layer
+#' @param layerfilepath Local path to the data folder containing the .gpkg file
+#' @param gpkg name of the .gpkg file
+#' @param layer name of the layer within the .gpkg file
 #' @param layergroup Name of the layer group
 #' @param layername Name of the layer
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -1585,17 +1606,20 @@ getTribalPopup <- function(layer, layername) {
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the American Indian Reservations feature layer to the map
-#' lmap <- TADA_addPolys(lmap, "extdata/AmericanIndian.shp", "Tribes", "American Indian Reservations")
+#' lmap <- TADA_addPolys(lmap, "extdata", "Tribal.gpkg","AmericanIndian",
+#' "Tribes", "American Indian Reservations")
 #' lmap
 #' }
 TADA_addPolys <- function(
   map,
   layerfilepath,
+  gpkg,
+  layer,
   layergroup,
   layername,
   bbox = NULL
 ) {
-  layer <- getLayer(layerfilepath, bbox)
+  layer <- readLayer(layerfilepath, gpkg, layer, bbox)
   if (is.null(layer)) {
     return(map)
   }
@@ -1631,10 +1655,12 @@ TADA_addPolys <- function(
   return(map)
 }
 
-#' Add points from an ArcGIS feature layer to a leaflet map
+#' Add points from a spatial layer to a leaflet map
 #'
 #' @param map A leaflet map
-#' @param layerfilepath Local path to the .shp file for the layer
+#' @param layerfilepath Local path to the data folder containing the .gpkg file
+#' @param gpkg name of the .gpkg file
+#' @param layer name of the layer within the .gpkg file
 #' @param layergroup Name of the layer group
 #' @param layername Name of the layer
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -1649,20 +1675,20 @@ TADA_addPolys <- function(
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
-#' lmap <- TADA_addPoints(
-#'   lmap, "extdata/VATribe.shp",
-#'   "Tribes", "Virginia Federally Recognized Tribes"
-#' )
+#' lmap <- TADA_addPoints(lmap, "extdata", "Tribal.gpkg","VATribe",
+#'     "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap
 #' }
 TADA_addPoints <- function(
   map,
   layerfilepath,
+  gpkg,
+  layer,
   layergroup,
   layername,
   bbox = NULL
 ) {
-  layer <- getLayer(layerfilepath, bbox)
+  layer <- readLayer(layerfilepath, gpkg, layer, bbox)
   if (is.null(layer)) {
     return(map)
   }
@@ -1670,7 +1696,9 @@ TADA_addPoints <- function(
   if (is.na(lbbox[1])) {
     return(map)
   }
-  shapes <- c(2) # open triangle; for other options see https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/
+  # 2 is open triangle
+  # For other options see https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/
+  shapes <- c(2)
   iconFiles <- pchIcons(
     shapes,
     width = 20,
@@ -2770,7 +2798,7 @@ TADA_CorrectColType <- function(.data) {
       ".get_downloads_path:
   No filename was provided, returning the Downloads folder path only."
     )
-    filename = ""
+    filename <- ""
   }
 
   # find OneDrive directory if present

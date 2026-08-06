@@ -1,6 +1,7 @@
 ANDs
 AOI
-ATTAINSWaterTypeFlag
+ATTAINSWaterType
+AUIDs
 AUML
 AUMLRef
 AURefSource
@@ -73,7 +74,6 @@ CreateAUMLCrosswalk
 CreateComparableID
 CreatePairRef
 CreateUnitRef
-CreateWaterusesRef
 CriteriaMethodology
 CriteriaMethods
 Cybertown
@@ -206,6 +206,8 @@ MonitoringLocationType
 MonitoringLocationTypeName
 MonitoringLocations
 Msr
+MultipleOrgDup
+MultipleOrgDupGroupID
 NCTC
 NDs
 NHD
@@ -320,7 +322,6 @@ SeasonStartDate
 Signup
 SimpleCensoredMethods
 SingleOrgDup
-SingleOrgDupGroupID
 SiteGroup
 Speciation
 SpeciationAssumptions
@@ -447,7 +448,7 @@ createBBox
 createTADABasemap
 cristinamullin
 criteriaMethods
-crosswalking
+crosswalked
 crs
 cst
 csv
@@ -486,13 +487,13 @@ flowlines
 fullPhysChem
 geeksforgeeks
 geo
+geopackage
 geopub
 geospatial
 geospatially
 getATTAINSColorRef
 getATTAINSColorsRef
 getFeatureLayer
-getLayer
 getMapIconLabels
 getTribalPopup
 getWQPSiteStats
@@ -500,6 +501,7 @@ getenv
 ggplot
 github
 gitignore
+gpkg
 helpdesk
 https
 huc
@@ -553,7 +555,9 @@ qaqc
 rExpertQuery
 randombelowlimit
 rda
+readLayer
 readWQPdata
+recomputation
 renameATTAINSCols
 reportingCycle
 resultCount
@@ -563,7 +567,6 @@ secchi
 setEQKey
 setnames
 showMissingATTAINSAUs
-shp
 siteType
 siteid
 sitetype
@@ -590,6 +593,7 @@ uncomment
 uncommenting
 uniqueDataId
 unprefixed
+uppercased
 useR
 usepa
 usesRef

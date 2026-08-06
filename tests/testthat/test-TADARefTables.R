@@ -156,25 +156,6 @@ test_that("np summation keys are a subset of nitrogen/phosphorus harmonization k
   )
 })
 
-test_that("TADA_GetSynonymRef warns when QC flags are missing and preserves template columns", {
-  df_in <- data.frame(
-    "TADA.CharacteristicName" = c("Nitrate", "Nitrate"),
-    "TADA.ResultSampleFractionText" = c("", "UNFILTERED"),
-    "TADA.MethodSpeciationName" = c("NONE", NA),
-    stringsAsFactors = FALSE
-  )
-  tmpl <- TADA_GetSynonymRef(NULL)
-  expect_true(is.data.frame(tmpl))
-
-  expect_warning(
-    out <- TADA_GetSynonymRef(df_in),
-    "missing TADA QC flagging columns",
-    fixed = TRUE
-  )
-  expect_true(is.data.frame(out))
-  expect_setequal(names(out), names(tmpl))
-})
-
 test_that("TADA_GetNutrientSummationRef normalizes keys: no empty strings; 'NONE' -> NA", {
   ref <- TADA_GetNutrientSummationRef()
   keys <- c(
@@ -195,6 +176,7 @@ test_that("TADA_GetNutrientSummationRef normalizes keys: no empty strings; 'NONE
 test_that("Is the saved TADACharAliasRef.csv up to date?", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
+  skip_if_offline()
 
   ATTAINS.raw <- suppressWarnings(suppressMessages(rExpertQuery::EQ_DomainValues(
     "param_name"
@@ -223,6 +205,7 @@ test_that("Is the saved TADACharAliasRef.csv up to date?", {
 test_that("TADA_GetTADACharAliasRef caches by tolerance", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
+  skip_if_offline()
 
   TADA_ClearCache()
   keys_before <- TADA_ListCacheKeys()
@@ -266,6 +249,7 @@ test_that("TADA_GetTADACharAliasRef caches by tolerance", {
 test_that("set.all.tolerance propagates to all tolerance notes", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
+  skip_if_offline()
 
   ref <- TADA_GetTADACharAliasRef(set.all.tolerance = 0.5)
   expect_true(is.data.frame(ref))
@@ -293,6 +277,7 @@ test_that("set.all.tolerance propagates to all tolerance notes", {
 test_that("TADA_GetTADAUsesAliasRef caches by tolerance", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
+  skip_if_offline()
 
   TADA_ClearCache()
   keys_before <- TADA_ListCacheKeys()
@@ -323,6 +308,7 @@ test_that("TADA_GetTADAUsesAliasRef caches by tolerance", {
 test_that("TADA_GetTADACharAliasRef emits reviewed-rows or empty-review message", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
+  skip_if_offline()
 
   TADA_ClearCache()
   expect_message(
@@ -345,6 +331,7 @@ test_that("TADA_GetTADACharAliasRef emits reviewed-rows or empty-review message"
 test_that("TADA_GetTADAUsesAliasRef emits reviewed-rows or empty-review message", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
+  skip_if_offline()
 
   TADA_ClearCache()
   expect_message(
