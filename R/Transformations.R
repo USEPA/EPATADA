@@ -960,17 +960,17 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
 #' )
 #'
 TADA_AggregateMeasurements <- function(
-  .data,
-  grouping_cols = c(
-    "ActivityStartDate",
-    "TADA.MonitoringLocationIdentifier",
-    "TADA.ComparableDataIdentifier",
-    "ResultDetectionConditionText",
-    "ActivityTypeCode",
-    "TADA.ResultMeasure.MeasureUnitCode"
-  ),
-  agg_fun = c("max", "min", "mean"),
-  clean = FALSE
+    .data,
+    grouping_cols = c(
+      "ActivityStartDate",
+      "TADA.MonitoringLocationIdentifier",
+      "TADA.ComparableDataIdentifier",
+      "ResultDetectionConditionText",
+      "ActivityTypeCode",
+      "TADA.ResultMeasure.MeasureUnitCode"
+    ),
+    agg_fun = c("max", "min", "mean"),
+    clean = FALSE
 ) {
   # Require grouping columns + identifiers/values we depend on
   req_cols <- unique(c(
@@ -988,110 +988,162 @@ TADA_AggregateMeasurements <- function(
 
   agg_fun <- match.arg(agg_fun)
 
-  # Count per group
+  # Count records in each group
   ncount <- .data |>
     dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
-    dplyr::summarise(ncount = length(.data$ResultIdentifier), .groups = "drop")
+    dplyr::summarise(ncount = dplyr::n(), .groups = "drop")
 
   if (max(ncount$ncount) < 2) {
     message("TADA_AggregateMeasurements: No rows to aggregate.")
     return(.data)
-  } else {
-    dat <- dplyr::left_join(
-      .data,
-      ncount,
-      by = grouping_cols,
-      na_matches = "na"
-    )
-
-    if (any(is.na(dat$TADA.ResultMeasureValue))) {
-      warning(
-        "TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation."
-      )
-    }
-
-    dat$TADA.ResultValueAggregation.Flag <- ifelse(
-      dat$ncount == 1,
-      "No aggregation needed",
-      paste0(
-        "Considered in ",
-        agg_fun,
-        " aggregation function but not selected"
-      )
-    )
-    multiples <- dat |> dplyr::filter(ncount > 1)
-    dat <- dat |> dplyr::select(-ncount)
-
-    if (agg_fun == "max") {
-      out <- multiples |>
-        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
-        dplyr::slice_max(
-          order_by = TADA.ResultMeasureValue,
-          n = 1,
-          with_ties = FALSE
-        )
-      dat$TADA.ResultValueAggregation.Flag <- ifelse(
-        dat$ResultIdentifier %in% out$ResultIdentifier,
-        paste0("Selected as ", agg_fun, " aggregate value"),
-        dat$TADA.ResultValueAggregation.Flag
-      )
-    }
-
-    if (agg_fun == "min") {
-      out <- multiples |>
-        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
-        dplyr::slice_min(
-          order_by = .data$TADA.ResultMeasureValue,
-          n = 1,
-          with_ties = FALSE
-        )
-      dat$TADA.ResultValueAggregation.Flag <- ifelse(
-        dat$ResultIdentifier %in% out$ResultIdentifier,
-        paste0("Selected as ", agg_fun, " aggregate value"),
-        dat$TADA.ResultValueAggregation.Flag
-      )
-    }
-
-    if (agg_fun == "mean") {
-      # Compute mean value; pick a deterministic metadata row to keep (ResultIdentifier lowest)
-      out <- multiples |>
-        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
-        dplyr::mutate(
-          TADA.ResultMeasureValue1 = mean(TADA.ResultMeasureValue, na.rm = TRUE)
-        ) |>
-        dplyr::slice_min(.data$ResultIdentifier, n = 1, with_ties = FALSE) |>
-        dplyr::mutate(
-          TADA.ResultValueAggregation.Flag = paste0(
-            "Selected as ",
-            agg_fun,
-            " aggregate value, with deterministically selected metadata from the group"
-          )
-        ) |>
-        dplyr::select(TADA.ResultMeasureValue) |>
-        dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) |>
-        dplyr::mutate(
-          ResultIdentifier = paste0("TADA-", .data$ResultIdentifier)
-        )
-
-      dat <- dplyr::bind_rows(dat, out)
-    }
-
-    if (clean == TRUE) {
-      dat <- subset(
-        dat,
-        !dat$TADA.ResultValueAggregation.Flag %in%
-          paste0(
-            "Considered in ",
-            agg_fun,
-            " aggregation function but not selected"
-          )
-      )
-    }
-
-    dat <- TADA_CreateComparableID(dat)
-    dat <- TADA_OrderCols(dat)
-    message("Aggregation results:")
-    message(table(dat$TADA.ResultValueAggregation.Flag))
-    return(dat)
   }
+
+  # Join counts back
+  dat <- dplyr::left_join(
+    .data,
+    ncount,
+    by = grouping_cols,
+    na_matches = "na"
+  )
+
+  if (any(is.na(dat$TADA.ResultMeasureValue))) {
+    warning(
+      "TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation."
+    )
+  }
+
+  # Initialize aggregation flag
+  dat$TADA.ResultValueAggregation.Flag <- ifelse(
+    dat$ncount == 1,
+    "No aggregation needed",
+    paste0(
+      "Considered in ",
+      agg_fun,
+      " aggregation function but not selected"
+    )
+  )
+
+  # Split rows into singles and multiples
+  singles <- dat |>
+    dplyr::filter(ncount == 1) |>
+    dplyr::select(-ncount)
+
+  multiples <- dat |>
+    dplyr::filter(ncount > 1) |>
+    dplyr::select(-ncount)
+
+  # If no duplicate groups, return original data
+  if (nrow(multiples) == 0) {
+    message("TADA_AggregateMeasurements: No rows to aggregate.")
+    return(.data)
+  }
+
+  # Helper: choose one deterministic row per group
+  select_group_row <- function(df) {
+    df |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
+      dplyr::slice_min(order_by = ResultIdentifier, n = 1, with_ties = FALSE) |>
+      dplyr::ungroup()
+  }
+
+  # Aggregate value by group, preserving one metadata row
+  if (agg_fun == "max") {
+    out <- multiples |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
+      dplyr::slice_max(
+        order_by = TADA.ResultMeasureValue,
+        n = 1,
+        with_ties = FALSE
+      ) |>
+      dplyr::ungroup() |>
+      dplyr::mutate(
+        TADA.ResultValueAggregation.Flag = paste0(
+          "Selected as ",
+          agg_fun,
+          " aggregate value"
+        )
+      )
+  } else if (agg_fun == "min") {
+    out <- multiples |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
+      dplyr::slice_min(
+        order_by = TADA.ResultMeasureValue,
+        n = 1,
+        with_ties = FALSE
+      ) |>
+      dplyr::ungroup() |>
+      dplyr::mutate(
+        TADA.ResultValueAggregation.Flag = paste0(
+          "Selected as ",
+          agg_fun,
+          " aggregate value"
+        )
+      )
+  } else if (agg_fun == "mean") {
+    out <- multiples |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
+      dplyr::slice_min(
+        order_by = ResultIdentifier,
+        n = 1,
+        with_ties = FALSE
+      ) |>
+      dplyr::ungroup() |>
+      dplyr::mutate(
+        TADA.ResultMeasureValue = dplyr::if_else(
+          is.na(TADA.ResultMeasureValue),
+          NA_real_,
+          TADA.ResultMeasureValue
+        ),
+        TADA.ResultMeasureValue = ave(
+          TADA.ResultMeasureValue,
+          interaction(across(dplyr::all_of(grouping_cols)), drop = TRUE),
+          FUN = function(x) mean(x, na.rm = TRUE)
+        ),
+        TADA.ResultValueAggregation.Flag = paste0(
+          "Selected as ",
+          agg_fun,
+          " aggregate value, with deterministically selected metadata from the group"
+        )
+      )
+  }
+
+  # Prefix aggregated ResultIdentifier so it is distinguishable
+  out <- out |>
+    dplyr::mutate(
+      ResultIdentifier = paste0("TADA-", ResultIdentifier)
+    )
+
+  # Mark selected rows in the original data
+  dat$TADA.ResultValueAggregation.Flag <- ifelse(
+    dat$ResultIdentifier %in% out$ResultIdentifier,
+    out$TADA.ResultValueAggregation.Flag[match(dat$ResultIdentifier, out$ResultIdentifier)],
+    dat$TADA.ResultValueAggregation.Flag
+  )
+
+  # Remove non-selected rows if requested
+  if (isTRUE(clean)) {
+    dat <- dat |>
+      dplyr::filter(
+        !TADA.ResultValueAggregation.Flag %in% paste0(
+          "Considered in ",
+          agg_fun,
+          " aggregation function but not selected"
+        )
+      )
+  }
+
+  # Rebuild output: keep original singles and selected aggregated rows
+  dat <- dplyr::bind_rows(
+    singles,
+    out
+  ) |>
+    dplyr::select(-ncount)
+
+  dat <- TADA_CreateComparableID(dat)
+  dat <- TADA_OrderCols(dat)
+
+  message("Aggregation results:")
+  message(table(dat$TADA.ResultValueAggregation.Flag))
+
+  return(dat)
 }
