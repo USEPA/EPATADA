@@ -356,7 +356,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
 #'
 #' # load example criteria table from community hub
 #' criteria_MT <- EPATADA::TADA_GetCriteriaFile(org_id = "MTDEQ")
-#' 
+#'
 #' TADA_Analysis_Validate_Ref(
 #'  Data_MT_MissoulaCounty,
 #'  criteria = criteria_MT,
