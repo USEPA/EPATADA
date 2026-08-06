@@ -2685,30 +2685,31 @@ TADA_CorrectColType <- function(.data) {
         suppressWarnings(as.Date(x))
       },
       date_special = {
-        if (inherits(x, "Date")) {
-          return(format(x, "%b-%d"))
-        }
-
-        x <- as.character(x)
-
-        # Preserve zero-length explicitly
         if (length(x) == 0L) {
           return(character())
         }
-
-        x <- ifelse(is.na(x) | trimws(x) == "", NA_character_, x)
-
-        # Use a fixed internal year just for parsing
-        dummy_year <- 2000L
-
-        out <- as.Date(paste(x, dummy_year), format = "%b %d %Y")
-        bad <- is.na(out)
-
-        if (any(bad)) {
-          out[bad] <- as.Date(paste(x[bad], dummy_year), format = "%m-%d %Y")
+        
+        if (inherits(x, "Date")) {
+          return(format(x, "%b-%d"))
         }
-
-        format(out, "%b-%d")
+        
+        x <- as.character(x)
+        x <- ifelse(is.na(x) | trimws(x) == "", NA_character_, trimws(x))
+        
+        out <- x
+        
+        # "Jun 15" -> "Jun-15"
+        idx1 <- grepl("^[A-Za-z]{3}\\s+\\d{1,2}$", out)
+        out[idx1] <- gsub("^([A-Za-z]{3})\\s+(\\d{1,2})$", "\\1-\\2", out[idx1])
+        
+        # "06-30" -> "Jun-30"
+        idx2 <- grepl("^\\d{2}-\\d{2}$", out)
+        if (any(idx2)) {
+          dt <- suppressWarnings(as.Date(paste0("2000-", out[idx2]), format = "%Y-%m-%d"))
+          out[idx2] <- format(dt, "%b-%d")
+        }
+        
+        out
       },
       # Default: unknown type -> leave unchanged
       x

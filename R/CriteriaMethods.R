@@ -1114,6 +1114,7 @@ TADA_DefineCriteriaMethodology <- function(
       }
 
       criteriaMethods <- criteriaMethods |>
+        TADA_CorrectColType() |>
         dplyr::select(-dplyr::any_of("TADA.ComparableDataIdentifier")) |>
         dplyr::full_join(TADA_param, by = join_by_cols)
 
@@ -1327,6 +1328,7 @@ TADA_DefineCriteriaMethodology <- function(
   # Final formatting of criteria table for consistent output
   if (!all(is.na(DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier))) {
     DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+      TADA_CorrectColType() |>
       tidyr::complete(
         ATTAINS.OrganizationIdentifier,
         TADA.CharacteristicName
