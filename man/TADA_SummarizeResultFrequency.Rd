@@ -9,7 +9,8 @@ TADA_SummarizeResultFrequency(
   depth = FALSE,
   daily_agg = "none",
   cont_data = FALSE,
-  time_period = "none"
+  time_period = "none",
+  group_by_year = TRUE
 )
 }
 \arguments{
@@ -41,6 +42,12 @@ time period is between the first and last ActivityStartDates for each group.
 Other options are "year", "month", and "week". Selecting a value other than
 "none" for time_period will add two additional columns: TADA.TimePeriodForSummary
 and TADA.ResultCount.}
+
+\item{group_by_year}{Boolean argument. When TRUE, weekly or monthly time-period
+frequencies are grouped by both the selected week or month and the year.
+When FALSE, result frequencies are summarized by week or month across all
+years. Default is group_by_year equals TRUE. The group_by_year param does not
+apply when "year" or "none" is the selected time_period.}
 }
 \description{
 Summarize result frequencies for TADA.MonitoringLocationIdentifier and
