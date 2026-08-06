@@ -1773,13 +1773,7 @@ TADA_DayOfYearPlot <- function(
 
   # compute x-axis day-of-year bounds from monthRange
   start_date <- as.Date(sprintf("2001-%02d-01", monthRange[1]))
-  end_date <- as.Date(
-    paste0(
-      "2001-",
-      sprintf("%02d", monthRange[2]),
-      "-01"
-    )
-  )
+  end_date <- as.Date(paste0("2001-", sprintf("%02d", monthRange[2]), "-01"))
   end_date <- seq.Date(end_date, by = "month", length.out = 2)[2] - 1
 
   x_axis_range <- c(
