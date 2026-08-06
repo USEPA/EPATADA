@@ -246,6 +246,9 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   results <- list()
 
   do_join <- function(df, crit, keys) {
+    df <- TADA_CorrectColType(df)
+    crit <- TADA_CorrectColType(crit)
+    
     if (nrow(crit) == 0) {
       return(NULL)
     }
