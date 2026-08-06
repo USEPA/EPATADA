@@ -3096,9 +3096,11 @@ TADA_SummarizeResultFrequency <- function(
 
   # set time period
   if (time_period != "none") {
-    .data <- .add_time_period(.data,
-                              time_period = time_period,
-                              group_by_year = group_by_year)
+    .data <- .add_time_period(
+      .data,
+      time_period = time_period,
+      group_by_year = group_by_year
+    )
   }
 
   # daily aggreagation if required
