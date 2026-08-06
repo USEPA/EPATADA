@@ -1058,7 +1058,7 @@ TADA_AggregateMeasurements <- function(
         dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
         dplyr::mutate(
           TADA.ResultMeasureValue1 = mean(
-            .data$TADA.ResultMeasureValue,
+            TADA.ResultMeasureValue,
             na.rm = TRUE
           )
         ) |>
@@ -1070,9 +1070,9 @@ TADA_AggregateMeasurements <- function(
             " aggregate value, with deterministically selected metadata from the group"
           )
         ) |>
-        dplyr::select(-.data$TADA.ResultMeasureValue) |>
+        dplyr::select(TADA.ResultMeasureValue) |>
         dplyr::rename(
-          TADA.ResultMeasureValue = .data$TADA.ResultMeasureValue1
+          TADA.ResultMeasureValue = TADA.ResultMeasureValue1
         ) |>
         dplyr::mutate(
           ResultIdentifier = paste0("TADA-", .data$ResultIdentifier)

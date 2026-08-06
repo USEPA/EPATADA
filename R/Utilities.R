@@ -2973,16 +2973,17 @@ TADA_SummarizeResultFrequency <- function(
       dplyr::mutate(
         ActivityStartDate = as.Date(ActivityStartDate),
         TADA.TimePeriodType = time_period,
-        TADA.TimePeriodForSummary = dplyr::case_when(
-          time_period == "year" ~ format(ActivityStartDate, "%Y"),
-          time_period == "month" ~ format(ActivityStartDate, "%Y-%m"),
-          time_period == "week" ~ {
-            iso_year <- as.integer(format(ActivityStartDate, "%G"))
-            iso_week <- as.integer(format(ActivityStartDate, "%V"))
-            sprintf("%04d-W%02d", iso_year, iso_week)
-          },
-          TRUE ~ NA_character_
-        )
+        TADA.TimePeriodForSummary = if (time_period == "year") {
+          format(ActivityStartDate, "%Y")
+        } else if (time_period == "month") {
+          format(ActivityStartDate, "%Y-%m")
+        } else if (time_period == "week") {
+          iso_year <- as.integer(format(ActivityStartDate, "%G"))
+          iso_week <- as.integer(format(ActivityStartDate, "%V"))
+          sprintf("%04d-W%02d", iso_year, iso_week)
+        } else {
+          NA_character_
+        }
       )
   }
 
