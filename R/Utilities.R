@@ -2922,6 +2922,11 @@ TADA_CorrectColType <- function(.data) {
 #' Other options are "year", "month", and "week". Selecting a value other than
 #' "none" for time_period will add two additional columns: TADA.TimePeriodForSummary
 #' and TADA.ResultCount.
+#' @param group_by_year Boolean argument. When TRUE, weekly or monthly time-period
+#' frequencies are grouped by both the selected week or month and the year.
+#' When FALSE, result frequencies are summarized by week or month across all
+#' years. Default is group_by_year equals TRUE. The group_by_year param does not
+#' apply when "year" or "none" is the selected time_period.
 #'
 #'
 #' @export
@@ -2942,7 +2947,8 @@ TADA_SummarizeResultFrequency <- function(
   depth = FALSE,
   daily_agg = "none",
   cont_data = FALSE,
-  time_period = "none"
+  time_period = "none",
+  group_by_year = TRUE
 ) {
   # helper for param validation
   .validate_tada_srf_args <- function(daily_agg, time_period, data_names) {
@@ -2968,7 +2974,7 @@ TADA_SummarizeResultFrequency <- function(
   }
 
   # helper to create time period labels
-  .add_time_period <- function(df, time_period) {
+  .add_time_period <- function(df, time_period, group_by_year = TRUE) {
     df |>
       dplyr::mutate(
         ActivityStartDate = as.Date(ActivityStartDate),
@@ -2976,11 +2982,20 @@ TADA_SummarizeResultFrequency <- function(
         TADA.TimePeriodForSummary = if (time_period == "year") {
           format(ActivityStartDate, "%Y")
         } else if (time_period == "month") {
-          format(ActivityStartDate, "%Y-%m")
+          if (isTRUE(group_by_year)) {
+            format(ActivityStartDate, "%Y-%m")
+          } else {
+            format(ActivityStartDate, "%m")
+          }
         } else if (time_period == "week") {
           iso_year <- as.integer(format(ActivityStartDate, "%G"))
           iso_week <- as.integer(format(ActivityStartDate, "%V"))
-          sprintf("%04d-W%02d", iso_year, iso_week)
+
+          if (isTRUE(group_by_year)) {
+            sprintf("%04d-W%02d", iso_year, iso_week)
+          } else {
+            sprintf("W%02d", iso_week)
+          }
         } else {
           NA_character_
         }
@@ -3081,7 +3096,9 @@ TADA_SummarizeResultFrequency <- function(
 
   # set time period
   if (time_period != "none") {
-    .data <- .add_time_period(.data, time_period)
+    .data <- .add_time_period(.data,
+                              time_period = time_period,
+                              group_by_year = group_by_year)
   }
 
   # daily aggreagation if required
