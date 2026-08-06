@@ -298,7 +298,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     -seq_len(8)
   ])
   existing_cols <- intersect(cols, names(wqp_criteria))
-  
+
   return(wqp_criteria)
 }
 
