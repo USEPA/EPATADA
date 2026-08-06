@@ -1360,7 +1360,7 @@ TADA_DefineCriteriaMethodology <- function(
   )
 
   # validations - does criteria table inputs match the AUMLRef and AU_UsesRef if provided?
-  TADA_Analysis_Validate_Ref2(
+  TADA_Analysis_Validate_Ref(
     .data,
     criteria = DefineCriteriaMethodology,
     AUMLRef = AUMLRef,
