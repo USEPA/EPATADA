@@ -298,12 +298,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     -seq_len(8)
   ])
   existing_cols <- intersect(cols, names(wqp_criteria))
-
-  if (clean) {
-    wqp_criteria <- wqp_criteria |>
-      dplyr::filter(!dplyr::if_all(existing_cols, is.na))
-  }
-
+  
   return(wqp_criteria)
 }
 
