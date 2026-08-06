@@ -2933,15 +2933,27 @@ TADA_CorrectColType <- function(.data) {
 #'
 #' @examples
 #'
+#' # summarize result frequency by year
 #' test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
 #' time_period = "year")
 #'
+#' # summarize result frequency by month/year
 #' test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
 #' time_period = "month")
 #'
+#' # summarize result frequency by week/year
 #' test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
 #' time_period = "week")
 #'
+#' # summarize result frequency by month
+#' test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
+#'                                      time_period = "month",
+#'                                      group_by_year = FALSE)
+#'
+#' # summarize result frequency by week
+#'test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
+#'                                      time_period = "week",
+#'                                      group_by_year = FALSE)
 TADA_SummarizeResultFrequency <- function(
   .data,
   depth = FALSE,
