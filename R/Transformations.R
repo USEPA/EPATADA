@@ -988,7 +988,7 @@ TADA_AggregateMeasurements <- function(
 
   agg_fun <- match.arg(agg_fun)
 
-  # Count records in each group
+  # Count rows per group
   ncount <- .data |>
     dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
     dplyr::summarise(ncount = dplyr::n(), .groups = "drop")
@@ -998,7 +998,7 @@ TADA_AggregateMeasurements <- function(
     return(.data)
   }
 
-  # Join counts back
+  # Attach counts to rows
   dat <- dplyr::left_join(
     .data,
     ncount,
@@ -1012,7 +1012,7 @@ TADA_AggregateMeasurements <- function(
     )
   }
 
-  # Initialize aggregation flag
+  # Initialize default flag
   dat$TADA.ResultValueAggregation.Flag <- ifelse(
     dat$ncount == 1,
     "No aggregation needed",
@@ -1023,7 +1023,7 @@ TADA_AggregateMeasurements <- function(
     )
   )
 
-  # Split rows into singles and multiples
+  # Separate singleton and duplicate groups
   singles <- dat |>
     dplyr::filter(ncount == 1) |>
     dplyr::select(-ncount)
@@ -1038,89 +1038,48 @@ TADA_AggregateMeasurements <- function(
     return(.data)
   }
 
-  # Helper: choose one deterministic row per group
-  select_group_row <- function(df) {
-    df |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
-      dplyr::slice_min(order_by = ResultIdentifier, n = 1, with_ties = FALSE) |>
-      dplyr::ungroup()
-  }
+  # Select one deterministic representative row per group
+  rep_rows <- multiples |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
+    dplyr::slice_min(order_by = ResultIdentifier, n = 1, with_ties = FALSE) |>
+    dplyr::ungroup()
 
-  # Aggregate value by group, preserving one metadata row
-  if (agg_fun == "max") {
-    out <- multiples |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
-      dplyr::slice_max(
-        order_by = TADA.ResultMeasureValue,
-        n = 1,
-        with_ties = FALSE
-      ) |>
-      dplyr::ungroup() |>
-      dplyr::mutate(
-        TADA.ResultValueAggregation.Flag = paste0(
-          "Selected as ",
-          agg_fun,
-          " aggregate value"
-        )
-      )
-  } else if (agg_fun == "min") {
-    out <- multiples |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
-      dplyr::slice_min(
-        order_by = TADA.ResultMeasureValue,
-        n = 1,
-        with_ties = FALSE
-      ) |>
-      dplyr::ungroup() |>
-      dplyr::mutate(
-        TADA.ResultValueAggregation.Flag = paste0(
-          "Selected as ",
-          agg_fun,
-          " aggregate value"
-        )
-      )
-  } else if (agg_fun == "mean") {
-    out <- multiples |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
-      dplyr::slice_min(
-        order_by = ResultIdentifier,
-        n = 1,
-        with_ties = FALSE
-      ) |>
-      dplyr::ungroup() |>
-      dplyr::mutate(
-        TADA.ResultMeasureValue = dplyr::if_else(
-          is.na(TADA.ResultMeasureValue),
-          NA_real_,
-          TADA.ResultMeasureValue
-        ),
-        TADA.ResultMeasureValue = ave(
-          TADA.ResultMeasureValue,
-          interaction(across(dplyr::all_of(grouping_cols)), drop = TRUE),
-          FUN = function(x) mean(x, na.rm = TRUE)
-        ),
-        TADA.ResultValueAggregation.Flag = paste0(
-          "Selected as ",
-          agg_fun,
-          " aggregate value, with deterministically selected metadata from the group"
-        )
-      )
-  }
+  # Compute the aggregated measure value per group
+  agg_values <- multiples |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
+    dplyr::summarise(
+      TADA.ResultMeasureValue = if (agg_fun == "max") {
+        max(TADA.ResultMeasureValue, na.rm = TRUE)
+      } else if (agg_fun == "min") {
+        min(TADA.ResultMeasureValue, na.rm = TRUE)
+      } else {
+        mean(TADA.ResultMeasureValue, na.rm = TRUE)
+      },
+      .groups = "drop"
+    )
 
-  # Prefix aggregated ResultIdentifier so it is distinguishable
-  out <- out |>
+  # Merge the aggregate value back onto the representative row
+  out <- rep_rows |>
+    dplyr::select(-TADA.ResultMeasureValue) |>
+    dplyr::left_join(agg_values, by = grouping_cols) |>
     dplyr::mutate(
+      TADA.ResultValueAggregation.Flag = if (agg_fun == "mean") {
+        "Selected as mean aggregate value, with deterministically selected metadata from the group"
+      } else {
+        paste0("Selected as ", agg_fun, " aggregate value")
+      },
       ResultIdentifier = paste0("TADA-", ResultIdentifier)
     )
 
-  # Mark selected rows in the original data
-  dat$TADA.ResultValueAggregation.Flag <- ifelse(
-    dat$ResultIdentifier %in% out$ResultIdentifier,
-    out$TADA.ResultValueAggregation.Flag[match(dat$ResultIdentifier, out$ResultIdentifier)],
-    dat$TADA.ResultValueAggregation.Flag
-  )
+  # Remove original rows that were replaced by the aggregate rows
+  dat <- dat |>
+    dplyr::filter(!ResultIdentifier %in% rep_rows$ResultIdentifier) |>
+    dplyr::select(-ncount)
 
-  # Remove non-selected rows if requested
+  # Add the aggregated rows
+  dat <- dplyr::bind_rows(dat, out)
+
+  # Optionally remove non-selected rows
   if (isTRUE(clean)) {
     dat <- dat |>
       dplyr::filter(
@@ -1132,13 +1091,7 @@ TADA_AggregateMeasurements <- function(
       )
   }
 
-  # Rebuild output: keep original singles and selected aggregated rows
-  dat <- dplyr::bind_rows(
-    singles,
-    out
-  ) |>
-    dplyr::select(-ncount)
-
+  # Rebuild comparable IDs and order columns
   dat <- TADA_CreateComparableID(dat)
   dat <- TADA_OrderCols(dat)
 
