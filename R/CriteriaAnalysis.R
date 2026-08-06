@@ -70,8 +70,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   .data,
   criteria,
   byChar = FALSE,
-  MLSummaryRef = NULL,
-  clean = FALSE
+  MLSummaryRef = NULL
 ) {
   stopifnot(is.data.frame(.data), is.data.frame(criteria))
 

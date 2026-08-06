@@ -9,8 +9,7 @@ TADA_Analysis_Join_WQP_Criteria(
   .data,
   criteria,
   byChar = FALSE,
-  MLSummaryRef = NULL,
-  clean = FALSE
+  MLSummaryRef = NULL
 )
 }
 \arguments{

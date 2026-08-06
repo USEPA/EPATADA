@@ -503,7 +503,11 @@ utils::globalVariables(c(
   "CoordinateCountyCode",
   "CoordinateStateCode",
   "STATEFP",
-  "StateCode"
+  "StateCode",
+  ".has_cst",
+  ".has_param",
+  "capture.output",
+  "setNames"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
