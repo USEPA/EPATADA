@@ -4534,10 +4534,10 @@ TADA_MLSummary <- function(
 #' crosswalk <- TADA_CrosswalkATTAINSWaterTypes(testat, org_Id = "MTDEQ")
 #' }
 TADA_CrosswalkATTAINSWaterTypes <- function(
-    .data,
-    org_id = NULL,
-    org_only = FALSE,
-    replace_all = FALSE
+  .data,
+  org_id = NULL,
+  org_only = FALSE,
+  replace_all = FALSE
 ) {
   required_cols <- c(
     "TADA.MonitoringLocationIdentifier",
@@ -4553,7 +4553,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 
   if (
     !is.null(org_id) &&
-    (!is.character(org_id) || length(org_id) != 1 || is.na(org_id))
+      (!is.character(org_id) || length(org_id) != 1 || is.na(org_id))
   ) {
     stop(
       "TADA_CrosswalkATTAINSWaterTypes: org_id must be NULL or a single non-NA character string."
@@ -4689,8 +4689,8 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' review.df <- TADA_ReviewATTAINSWaterTypes(df, review_action = "update")
 #' }
 TADA_ReviewATTAINSWaterTypes <- function(
-    .data,
-    review_action = c("flag", "update")
+  .data,
+  review_action = c("flag", "update")
 ) {
   required_cols <- c(
     "TADA.MonitoringLocationIdentifier",
