@@ -4029,10 +4029,6 @@ TADA_MLSummary <- function(
         dplyr::filter(IncludeOrExclude == "Include") |>
         dplyr::select(-IncludeOrExclude)
 
-      # Identify all unique monitoring location id in the .data data frame to filter by.
-      unique_ML <- unique(MonitoringLocationIdentifier)
-
-      # Define the user's defined uses, param, sites and AU crosswalks.
       useParamAUMLRef <- AU_UsesRef |>
         dplyr::left_join(
           AUMLRef,
