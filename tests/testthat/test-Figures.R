@@ -447,14 +447,17 @@ testthat::test_that("TADA_FieldValuesPie uses the field name as legend title", {
 
 testthat::test_that("TADA_FieldValuesPie does not add ALL OTHERS when there are 12 or fewer categories", {
   df <- Data_TribalNations_Harmonized |>
-    dplyr::filter(TADA.ComparableDataIdentifier %in%
-                    c("COPPER_DISSOLVED_NONE_UG/L",
-                      "IRON_DISSOLVED_NONE_UG/L",
-                      "LEAD_DISSOLVED_NONE_UG/L",
-                      "MAGNESIUM_DISSOLVED_NONE_UG/L",
-                      "MERCURY_DISSOLVED_NONE_UG/L",
-                      "ZINC_DISSOLVED_NONE_UG/L"
-                      ))
+    dplyr::filter(
+      TADA.ComparableDataIdentifier %in%
+        c(
+          "COPPER_DISSOLVED_NONE_UG/L",
+          "IRON_DISSOLVED_NONE_UG/L",
+          "LEAD_DISSOLVED_NONE_UG/L",
+          "MAGNESIUM_DISSOLVED_NONE_UG/L",
+          "MERCURY_DISSOLVED_NONE_UG/L",
+          "ZINC_DISSOLVED_NONE_UG/L"
+        )
+    )
 
   p <- TADA_FieldValuesPie(df, field = "TADA.CharacteristicName")
 
@@ -474,7 +477,6 @@ testthat::test_that("TADA_FieldValuesPie adds ALL OTHERS when there are more tha
 testthat::test_that("TADA_FieldValuesPie respects characteristicName filter", {
   df <- Data_Nutrients_UT
 
-
   # If TADA_FieldValuesTable supports this filter, adjust expected result accordingly
   p <- TADA_FieldValuesPie(
     df,
@@ -493,6 +495,10 @@ testthat::test_that("TADA_FieldValuesPie produces a valid polar bar pie chart", 
 
   p <- TADA_FieldValuesPie(df, field = "TADA.CharacteristicName")
 
-  testthat::expect_true(any(vapply(p$layers, function(x) inherits(x$geom, "GeomBar"), logical(1))))
+  testthat::expect_true(any(vapply(
+    p$layers,
+    function(x) inherits(x$geom, "GeomBar"),
+    logical(1)
+  )))
   testthat::expect_equal(p$coordinates$theta, "y")
 })
