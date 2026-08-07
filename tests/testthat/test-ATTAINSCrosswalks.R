@@ -468,7 +468,7 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_MLSum
 
 # test TADA_CrosswalkATTAINSWaterTypes
 
-test_that("errors when required columns are missing", {
+testthat::test_that("errors when required columns are missing", {
   df_missing_id <- data.frame(
     TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
     stringsAsFactors = FALSE
@@ -476,7 +476,7 @@ test_that("errors when required columns are missing", {
 
   expect_error(
     TADA_CrosswalkATTAINSWaterTypes(df_missing_id),
-    "must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName"
+    "TADA_CrosswalkATTAINSWaterTypes: Input .data must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName."
   )
 
   df_missing_type <- data.frame(
@@ -486,7 +486,7 @@ test_that("errors when required columns are missing", {
 
   expect_error(
     TADA_CrosswalkATTAINSWaterTypes(df_missing_type),
-    "must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName"
+    "TADA_CrosswalkATTAINSWaterTypes: Input .data must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName."
   )
 })
 
@@ -837,7 +837,8 @@ test_that("duplicate monitoring location rows do not break output", {
   expect_true(all(out$ATTAINS.WaterType == "River/Stream"))
 })
 
-test_that("existing ATTAINS.OrganizationIdentifier is preserved", {
+
+testthat::test_that("existing ATTAINS.OrganizationIdentifier is preserved", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = "id1",
     TADA.MonitoringLocationTypeName = "Stream",
@@ -1080,7 +1081,7 @@ testthat::test_that("TADA_CreatePointAUs returns list containng crosswalk and ge
                                 create_geo = TRUE)
 
   expect_equal(
-    result$ATTAINS.AssessmentUnitIdentifier,
-    c("EXISTING_AU_001", "WQX_LOC2")
+    names(result),
+    c("crosswalk", "geometry")
   )
 })

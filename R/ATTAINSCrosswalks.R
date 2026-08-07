@@ -4602,13 +4602,19 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   }
 
   # Preserve original ATTAINS.WaterType if it exists
-  if ("ATTAINS.WaterType" %in% names(.data)) {
-    .data <- .data |>
-      dplyr::mutate(ATTAINS.WaterType.Original = ATTAINS.WaterType)
+  if (!"ATTAINS.WaterType" %in% names(.data)) {
+    .data$ATTAINS.WaterType <- rep(NA_character_, nrow(.data))
   } else {
-    .data$ATTAINS.WaterType <- NA_character_
-    .data$ATTAINS.WaterType.Original <- NA_character_
+    .data$ATTAINS.WaterType <- as.character(.data$ATTAINS.WaterType)
+    if (length(.data$ATTAINS.WaterType) != nrow(.data)) {
+      stop(
+        "TADA_CrosswalkATTAINSWaterTypes: ATTAINS.WaterType length does not match number of rows.",
+        call. = FALSE
+      )
+    }
   }
+
+  .data$ATTAINS.WaterType.Original <- .data$ATTAINS.WaterType
 
   # Normalize blanks to NA for easier logic
   .data <- .data |>
@@ -4838,6 +4844,8 @@ TADA_CreatePointAUs <- function(.data,
       validation = "none"
     )
   }
+
+  if (nrow(.data) == 0) stop("No rows in data after crosswalk")
 
   retain <- c(
     "ATTAINS.MonitoringLocationIdentifier",
