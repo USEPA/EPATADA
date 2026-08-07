@@ -1981,8 +1981,9 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
     trimws(as.character(.data$ATTAINS.AssessmentUnitIdentifier)) == ""
 
   if (any(created_AUID)) {
-    .data$ATTAINS.AssessmentUnitIdentifier[created_AUID] <-
-      .data$TADA.MonitoringLocationIdentifier[created_AUID]
+    .data$ATTAINS.AssessmentUnitIdentifier[
+      created_AUID
+    ] <- .data$TADA.MonitoringLocationIdentifier[created_AUID]
   }
 
   if (!is.null(auid_prefix) && nzchar(auid_prefix)) {

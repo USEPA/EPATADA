@@ -1075,13 +1075,9 @@ testthat::test_that("does not modify existing non-missing, non-blank AUIDs when 
 
 testthat::test_that("TADA_CreatePointAUs returns list containng crosswalk and geometry when create_geo equals TRUE", {
   df <- Data_TribalNations_Harmonized |>
-        dplyr::filter(OrganizationFormalName == "Blackfeet Nation (Montana)")
+    dplyr::filter(OrganizationFormalName == "Blackfeet Nation (Montana)")
 
-  result <- TADA_CreatePointAUs(df,
-                                create_geo = TRUE)
+  result <- TADA_CreatePointAUs(df, create_geo = TRUE)
 
-  expect_equal(
-    names(result),
-    c("crosswalk", "geometry")
-  )
+  expect_equal(names(result), c("crosswalk", "geometry"))
 })
