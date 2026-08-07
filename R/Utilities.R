@@ -2892,20 +2892,23 @@ TADA_CorrectColType <- function(.data) {
 
 #' TADA_SummarizeResultFrequency
 #'
-#' Summarize result frequencies for TADA.MonitoringLocationIdentifier and
-#' TADA.ComparableDataIdentifier combinations. Users can choose whether or not to
-#' include continuous data, aggregate multiple results from one day (min, max, mean),
-#' include sample depth as an additional grouping factor and select the time period
-#' (year, month, week) at which results frequencies should be summarized.
+#' Summarize result frequencies for each TADA.MonitoringLocationIdentifier and
+#' TADA.ComparableDataIdentifier combination in the input data. Users can choose 
+#' whether or not to include continuous data, aggregate multiple results from 
+#' one day (min, max, mean), include sample depth as an additional grouping 
+#' factor, and select the time period (year, month, week) at which result 
+#' frequencies should be summarized.
 #'
 #' @param .data TADA dataframe which must include the columns:
-#'  TADA.MonitoringLocationIdentifier, TADA.ComparableDataIdentifier,
-#'  ActivityStartDate,
+#' TADA.MonitoringLocationIdentifier, TADA.ComparableDataIdentifier,
+#' ActivityStartDate.
+#' 
 #' @param depth Boolean argument. When depth = TRUE, TADA.ConsolidatedDepth is
 #' factored into result summary groupings. If depth = TRUE and the ConsolidatedDepth
 #' column does not exist in the TADA df, it will be calculated with
 #' TADA_FlagDepthCategory. Default = FALSE, depth will not be taken into account
 #' when creating groupings to summarize result frequency.
+#' 
 #' @param daily_agg Character argument; with options "none", "mean", "min", or
 #' "max". The default is daily_agg = "none". When daily_agg = "none", all results
 #' will be retained. When daily_agg == "mean", the mean value in each group of
@@ -2913,10 +2916,12 @@ TADA_CorrectColType <- function(.data) {
 #' "min" or when daily_agg == "max", the min or max value in each group of
 #' results (as determined by the depth category) will be identified or calculated
 #' for each group.
+#' 
 #' @param cont_data Boolean argument. When cont_data = TRUE, continuous data results
 #' will be included in the result summary. When cont_data = FALSE, continuous data
 #' will be excluded.
-#' @param time_period Character string. Species which period of time the result
+#' 
+#' @param time_period Character string. Specifies which period of time the result
 #' frequencies should be summarized. Default equals "none" which means the selected
 #' time period is between the first and last ActivityStartDates for each group.
 #' Other options are "year", "month", and "week". Selecting a value other than
@@ -2928,32 +2933,32 @@ TADA_CorrectColType <- function(.data) {
 #' years. Default is group_by_year equals TRUE. The group_by_year param does not
 #' apply when "year" or "none" is the selected time_period.
 #'
-#'
 #' @export
 #'
 #' @examples
 #'
 #' # summarize result frequency by year
-#' test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
+#' year <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
 #' time_period = "year")
 #'
 #' # summarize result frequency by month/year
-#' test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
+#' month_year <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
 #' time_period = "month")
 #'
 #' # summarize result frequency by week/year
-#' test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
+#' week_year <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
 #' time_period = "week")
-#'
+#'                                      
 #' # summarize result frequency by month
-#' test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
-#'                                      time_period = "month",
-#'                                      group_by_year = FALSE)
+#' month <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
+#' time_period = "month",
+#' group_by_year = FALSE)
 #'
 #' # summarize result frequency by week
-#'test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
-#'                                      time_period = "week",
-#'                                      group_by_year = FALSE)
+#' week <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
+#' time_period = "week",
+#' group_by_year = FALSE)
+#' 
 TADA_SummarizeResultFrequency <- function(
   .data,
   depth = FALSE,
@@ -3073,7 +3078,6 @@ TADA_SummarizeResultFrequency <- function(
   # helper to summarize frequency
   .summarize_frequency <- function(df, group.cols) {
     df |>
-      TADA_FindQCActivities(clean = TRUE) |>
       dplyr::group_by(!!!rlang::syms(group.cols)) |>
       dplyr::mutate(
         FirstResultMeasurement = min(ActivityStartDate, na.rm = TRUE),
@@ -3098,6 +3102,11 @@ TADA_SummarizeResultFrequency <- function(
     .data <- .remove_continuous_data(.data)
   }
 
+  # remove QC activities before summarizing frequencies
+  .data <- suppressMessages(TADA_FindQCActivities(.data, clean = TRUE))
+  message(
+    "TADA_SummarizeResultFrequency: QC samples were removed before summarizing result frequencies.")
+  
   .data <- .data |>
     dplyr::mutate(ActivityStartDate = as.Date(ActivityStartDate))
 

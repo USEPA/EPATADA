@@ -16,7 +16,7 @@ TADA_SummarizeResultFrequency(
 \arguments{
 \item{.data}{TADA dataframe which must include the columns:
 TADA.MonitoringLocationIdentifier, TADA.ComparableDataIdentifier,
-ActivityStartDate,}
+ActivityStartDate.}
 
 \item{depth}{Boolean argument. When depth = TRUE, TADA.ConsolidatedDepth is
 factored into result summary groupings. If depth = TRUE and the ConsolidatedDepth
@@ -36,7 +36,7 @@ for each group.}
 will be included in the result summary. When cont_data = FALSE, continuous data
 will be excluded.}
 
-\item{time_period}{Character string. Species which period of time the result
+\item{time_period}{Character string. Specifies which period of time the result
 frequencies should be summarized. Default equals "none" which means the selected
 time period is between the first and last ActivityStartDates for each group.
 Other options are "year", "month", and "week". Selecting a value other than
@@ -50,33 +50,35 @@ years. Default is group_by_year equals TRUE. The group_by_year param does not
 apply when "year" or "none" is the selected time_period.}
 }
 \description{
-Summarize result frequencies for TADA.MonitoringLocationIdentifier and
-TADA.ComparableDataIdentifier combinations. Users can choose whether or not to
-include continuous data, aggregate multiple results from one day (min, max, mean),
-include sample depth as an additional grouping factor and select the time period
-(year, month, week) at which results frequencies should be summarized.
+Summarize result frequencies for each TADA.MonitoringLocationIdentifier and
+TADA.ComparableDataIdentifier combination in the input data. Users can choose
+whether or not to include continuous data, aggregate multiple results from
+one day (min, max, mean), include sample depth as an additional grouping
+factor, and select the time period (year, month, week) at which result
+frequencies should be summarized.
 }
 \examples{
 
 # summarize result frequency by year
-test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
+year <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
 time_period = "year")
 
 # summarize result frequency by month/year
-test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
+month_year <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
 time_period = "month")
 
 # summarize result frequency by week/year
-test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
+week_year <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
 time_period = "week")
-
+                                     
 # summarize result frequency by month
-test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
-                                     time_period = "month",
-                                     group_by_year = FALSE)
+month <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
+time_period = "month",
+group_by_year = FALSE)
 
 # summarize result frequency by week
-test <- TADA_SummarizeResultFrequency(Data_Nutrients_UT,
-                                     time_period = "week",
-                                     group_by_year = FALSE)
+week <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
+time_period = "week",
+group_by_year = FALSE)
+
 }

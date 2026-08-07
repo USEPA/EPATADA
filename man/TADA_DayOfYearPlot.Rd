@@ -46,20 +46,16 @@ colored by year.
 }
 \examples{
 # Load example dataset:
-utils::data(Data_Nutrients_UT)
+utils::data(Data_TribalNations_Harmonized)
 
 # Plot all available years and months for one characteristic and all sites:
-TADA_DayOfYearPlot(
-  Data_Nutrients_UT,
-  comparableDataId = "NITRATE_DISSOLVED_AS N_MG/L"
-)
 
 # Plot one monitoring location over a selected year and month range:
 TADA_DayOfYearPlot(
-Data_Nutrients_UT,
-location =  "USGS-10168000",
-comparableDataId = "NITRATE_DISSOLVED_AS N_MG/L",
-yearRange = c(2020, 2022),
-monthRange = c(4, 10))
+Data_TribalNations_Harmonized,
+location =  "REDLAKE_WQX-LRE-C",
+comparableDataId = "TEMPERATURE_NONE_NONE_DEG C",
+yearRange = c(2021, 2025),
+monthRange = c(1, 10))
 
 }
