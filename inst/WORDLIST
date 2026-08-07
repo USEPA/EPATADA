@@ -1,6 +1,5 @@
 ANDs
 AOI
-ATTAINSWaterType
 AUIDs
 AUML
 AUMLRef
@@ -595,7 +594,6 @@ uncomment
 uncommenting
 uniqueDataId
 unprefixed
-uppercased
 useR
 usepa
 usesRef
