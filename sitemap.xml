@@ -130,6 +130,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_ReadWQPWebServices.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_RenametoLegacy.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_RetainRequired.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_ReviewATTAINSWaterTypes.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_RunKeyFlagFunctions.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_Scatterplot.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_SimpleCensoredMethods.html</loc></url>
@@ -156,6 +157,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/addTADAMapLegend.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/addWQPSites.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/ask_user.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/build_attains_water_type_crosswalk.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/checkColName.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/checkForATTAINSGeo.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/checkForWQPData.html</loc></url>
@@ -165,6 +167,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_CriteriaDataDictionary.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateATTAINSOrgIDsRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateATTAINSParamUseOrgRef.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateATTAINSWaterTypeByOrg.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateActivityTypeRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateCharacteristicRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateDetCondRef.html</loc></url>

@@ -54,11 +54,11 @@ TADA_UpdateATTAINSAUMLCrosswalk(
 
 - attains_replace:
 
-  Logical (T/F). When attains_replace = FALSE, all Monitoring Location
-  Identifiers in the user supplied crosswalk will be appended to the
-  existing ATTAINS crosswalk. When attains_replace = TRUE, Monitoring
-  Location Identifiers will only be retained if they are in the user
-  supplied crosswalk. Default equals FALSE.
+  Character argument. When attains_replace = FALSE, all Monitoring
+  Location Identifiers in the user supplied crosswalk will be appended
+  to the existing ATTAINS crosswalk. When attains_replace = TRUE,
+  Monitoring Location Identifiers will only be retained if they are in
+  the user supplied crosswalk. Default equals FALSE.
 
 - wqp_data_links:
 

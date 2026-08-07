@@ -72,10 +72,15 @@
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>None. The function saves processed data files in the package's <code>data/</code> directory.</p>
+<p>None. The function saves processed data files in the package's <code>data/</code> directory.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The function fetches data from specified sources based on given parameters, processes it using
+several functions from the EPATADA package, and saves the processed datasets as <code>.rda</code> files
+for use within the package. The datasets include nutrient data for Utah, tribal data over five years,
+harmonized datasets, and more.</p>
+<p>The function fetches data from specified sources based on given parameters, processes it using
 several functions from the EPATADA package, and saves the processed datasets as <code>.rda</code> files
 for use within the package. The datasets include nutrient data for Utah, tribal data over five years,
 harmonized datasets, and more.</p>
@@ -84,6 +89,10 @@ harmonized datasets, and more.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="fu">.TADA_UpdateExampleData</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="fu">.TADA_UpdateExampleData</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
