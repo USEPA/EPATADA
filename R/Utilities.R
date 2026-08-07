@@ -511,7 +511,8 @@ utils::globalVariables(c(
   "Year",
   "ATTAINSWaterTypeByOrgName",
   "TADA.ATTAINS.WaterType",
-  "TADA.Rank"
+  "TADA.Rank",
+  "TADA.ResultValueAggregation.Flag"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
