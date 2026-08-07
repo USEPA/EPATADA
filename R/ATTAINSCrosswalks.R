@@ -4646,20 +4646,12 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   if (isTRUE(overwrite_existing)) {
     .data <- .data |>
       dplyr::mutate(
-        ATTAINS.WaterType = dplyr::if_else(
-          !is.na(Crosswalk.ATTAINS.WaterType),
-          Crosswalk.ATTAINS.WaterType,
-          ATTAINS.WaterType
-        )
+        ATTAINS.WaterType = dplyr::coalesce(Crosswalk.ATTAINS.WaterType, ATTAINS.WaterType)
       )
   } else {
     .data <- .data |>
       dplyr::mutate(
-        ATTAINS.WaterType = dplyr::if_else(
-          is.na(ATTAINS.WaterType) & !is.na(Crosswalk.ATTAINS.WaterType),
-          Crosswalk.ATTAINS.WaterType,
-          ATTAINS.WaterType
-        )
+        ATTAINS.WaterType = dplyr::coalesce(ATTAINS.WaterType, Crosswalk.ATTAINS.WaterType)
       )
   }
 
