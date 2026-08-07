@@ -71,6 +71,18 @@ Data_TribalNations_max <- TADA_AggregateMeasurements(Data_TribalNations,
   clean = TRUE
 )
 #> Warning: TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation.
+#> Warning: There were 245 warnings in `dplyr::summarise()`.
+#> The first warning was:
+#> ℹ In argument: `TADA.ResultMeasureValue = if (...) NULL`.
+#> ℹ In group 280: `ActivityStartDate = "2021-04-05"`,
+#>   `TADA.MonitoringLocationIdentifier = "REDLAKE_WQX-BLAC-H"`,
+#>   `TADA.ComparableDataIdentifier = "AMMONIA-NITROGEN_DISSOLVED_AS N_MG/L"`,
+#>   `ResultDetectionConditionText = "Not Detected at Reporting Limit"`,
+#>   `ActivityTypeCode = "Sample-Routine"`, `TADA.ResultMeasure.MeasureUnitCode =
+#>   "MG/L"`.
+#> Caused by warning in `max()`:
+#> ! no non-missing arguments to max; returning -Inf
+#> ℹ Run `dplyr::last_dplyr_warnings()` to see the 244 remaining warnings.
 #> Aggregation results:
 #> 5489111648
 
@@ -88,5 +100,5 @@ Data_TribalNations_mean <- TADA_AggregateMeasurements(Data_TribalNations,
 )
 #> Warning: TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation.
 #> Aggregation results:
-#> 882285489111648
+#> 765805489111648
 ```

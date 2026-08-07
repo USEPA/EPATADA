@@ -128,6 +128,9 @@
 - [`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
   : Generate TADA-compatible dataframe from WQP Data
 
+- [`TADA_DayOfYearPlot()`](https://usepa.github.io/EPATADA/reference/TADA_DayOfYearPlot.md)
+  : Create an Interactive Day-of-Year Plot
+
 - [`TADA_DecimalPlaces()`](https://usepa.github.io/EPATADA/reference/TADA_DecimalPlaces.md)
   : Calculate Decimal Places
 
@@ -361,6 +364,9 @@
 
 - [`TADA_SummarizeColumn()`](https://usepa.github.io/EPATADA/reference/TADA_SummarizeColumn.md)
   : Summarize data downloaded by specified column
+
+- [`TADA_SummarizeResultFrequency()`](https://usepa.github.io/EPATADA/reference/TADA_SummarizeResultFrequency.md)
+  : TADA_SummarizeResultFrequency
 
 - [`TADA_TableExport()`](https://usepa.github.io/EPATADA/reference/TADA_TableExport.md)
   : Create downloadable table

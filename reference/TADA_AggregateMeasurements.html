@@ -135,6 +135,18 @@ to indicate which rows have been aggregated.</p>
 <span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>There were 245 warnings in `dplyr::summarise()`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> The first warning was:</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In argument: `TADA.ResultMeasureValue = if (...) NULL`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 280: `ActivityStartDate = "2021-04-05"`,</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   `TADA.MonitoringLocationIdentifier = "REDLAKE_WQX-BLAC-H"`,</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   `TADA.ComparableDataIdentifier = "AMMONIA-NITROGEN_DISSOLVED_AS N_MG/L"`,</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   `ResultDetectionConditionText = "Not Detected at Reporting Limit"`,</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   `ActivityTypeCode = "Sample-Routine"`, `TADA.ResultMeasure.MeasureUnitCode =</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   "MG/L"`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Caused by warning in `max()`:</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> no non-missing arguments to max; returning -Inf</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Run `dplyr::last_dplyr_warnings()` to see the 244 remaining warnings.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregation results:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 5489111648</span>
 <span class="r-in"><span></span></span>
@@ -152,7 +164,7 @@ to indicate which rows have been aggregated.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregation results:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 882285489111648</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 765805489111648</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

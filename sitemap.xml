@@ -63,6 +63,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CreateUnitRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CrosswalkATTAINSWaterTypes.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_DayOfYearPlot.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_DecimalPlaces.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_DefineCriteriaMethodology.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_DepthProfilePlot.html</loc></url>
@@ -137,6 +138,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_Stats.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_SubstituteDeprecatedChars.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_SummarizeColumn.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_SummarizeResultFrequency.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_TableExport.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_TribalOptions.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_TwoCharacteristicScatterplot.html</loc></url>
