@@ -1,4 +1,4 @@
-#' Join WQP data to criteria, AUMLRef and AU_UsesRef
+#' Join WQP data to criteria and spatial MLSummaryRef
 #' (UNDER ACTIVE DEVELOPMENT)
 #'
 #' Join WQP results to a criteria table by the best available key:

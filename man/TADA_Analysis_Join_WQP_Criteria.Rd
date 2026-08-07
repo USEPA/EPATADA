@@ -2,7 +2,7 @@
 % Please edit documentation in R/CriteriaAnalysis.R
 \name{TADA_Analysis_Join_WQP_Criteria}
 \alias{TADA_Analysis_Join_WQP_Criteria}
-\title{Join WQP data to criteria, AUMLRef and AU_UsesRef
+\title{Join WQP data to criteria and spatial MLSummaryRef
 (UNDER ACTIVE DEVELOPMENT)}
 \usage{
 TADA_Analysis_Join_WQP_Criteria(
