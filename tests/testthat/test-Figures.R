@@ -7,10 +7,7 @@ testthat::test_that("TADA_Boxplot errors when required columns are missing", {
     # missing TADA.ResultMeasure.MeasureUnitCode
   )
 
-  testthat::expect_error(
-    TADA_Boxplot(df),
-    "TADA.ResultMeasure.MeasureUnitCode"
-  )
+  testthat::expect_error(TADA_Boxplot(df), "TADA.ResultMeasure.MeasureUnitCode")
 })
 
 testthat::test_that("TADA_Boxplot defaults id_cols to TADA.ComparableDataIdentifier when id_cols is NULL", {
@@ -32,10 +29,14 @@ testthat::test_that("TADA_Boxplot defaults id_cols to TADA.ComparableDataIdentif
   testthat::expect_s3_class(p_explicit, "plotly")
 
   title_null <- p_null$x$layoutAttrs$`1f34f8b4693`$title
-  if (is.list(title_null) && !is.null(title_null$text)) title_null <- title_null$text
+  if (is.list(title_null) && !is.null(title_null$text)) {
+    title_null <- title_null$text
+  }
 
   title_explicit <- p_explicit$x$layoutAttrs$`1f3452ee66ba`$title
-  if (is.list(title_explicit) && !is.null(title_explicit$text)) title_explicit <- title_explicit$text
+  if (is.list(title_explicit) && !is.null(title_explicit$text)) {
+    title_explicit <- title_explicit$text
+  }
 
   testthat::expect_equal(title_null, title_explicit)
 })
@@ -75,40 +76,52 @@ testthat::test_that("TADA_Boxplot removes NA values and emits a message", {
 })
 
 testthat::test_that("TADA_Boxplot returns a single plotly object when there is only one group and a list for multiple groups", {
-
   single_df <- data.frame(
     TADA.ComparableDataIdentifier = c(
       "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
       "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"),
+      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+    ),
     TADA.ResultMeasureValue = c(4.5, 6, 5),
     TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "MG/L", "MG/L"),
     stringsAsFactors = FALSE
   )
 
-    multi_df <- data.frame(
-      TADA.ComparableDataIdentifier = c("DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-                                        "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-                                        "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-                                        "PH_NONE_NONE_NONE",
-                                        "PH_NONE_NONE_NONE",
-                                        "PH_NONE_NONE_NONE"),
-      TADA.ResultMeasureValue = c(4.5, 6, 5,
-                                  7, 4.5, 6.7),
-      TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "MG/L", "MG/L",
-                                             "NONE", "NONE", "NONE"),
-      stringsAsFactors = FALSE
-    )
+  multi_df <- data.frame(
+    TADA.ComparableDataIdentifier = c(
+      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE"
+    ),
+    TADA.ResultMeasureValue = c(4.5, 6, 5, 7, 4.5, 6.7),
+    TADA.ResultMeasure.MeasureUnitCode = c(
+      "MG/L",
+      "MG/L",
+      "MG/L",
+      "NONE",
+      "NONE",
+      "NONE"
+    ),
+    stringsAsFactors = FALSE
+  )
 
-    p_single <- TADA_Boxplot(single_df)
-    p_multi <- TADA_Boxplot(multi_df)
+  p_single <- TADA_Boxplot(single_df)
+  p_multi <- TADA_Boxplot(multi_df)
 
-    testthat::expect_s3_class(p_single, "plotly")
-    testthat::expect_s3_class(p_single, "htmlwidget")
+  testthat::expect_s3_class(p_single, "plotly")
+  testthat::expect_s3_class(p_single, "htmlwidget")
 
-    testthat::expect_type(p_multi, "list")
-    testthat::expect_length(p_multi, 2)
-    testthat::expect_true(all(vapply(p_multi, inherits, logical(1), what = "plotly")))
+  testthat::expect_type(p_multi, "list")
+  testthat::expect_length(p_multi, 2)
+  testthat::expect_true(all(vapply(
+    p_multi,
+    inherits,
+    logical(1),
+    what = "plotly"
+  )))
 })
 
 testthat::test_that("TADA_Boxplot sets expected layout fields", {
@@ -116,7 +129,8 @@ testthat::test_that("TADA_Boxplot sets expected layout fields", {
     TADA.ComparableDataIdentifier = c(
       "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
       "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"),
+      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+    ),
     TADA.ResultMeasureValue = c(4.5, 6, 5),
     TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "MG/L", "MG/L"),
     stringsAsFactors = FALSE
@@ -136,7 +150,9 @@ testthat::test_that("TADA_Boxplot sets expected layout fields", {
 
   testthat::expect_equal(title, "Boxplot of \nDISSOLVED OXYGEN (DO) MG/L")
   testthat::expect_equal(y_title, "MG/L")
-  testthat::expect_false(isTRUE(p$x$layoutAttrs$`1f345e0241b3`$xaxis$showticklabels))
+  testthat::expect_false(isTRUE(
+    p$x$layoutAttrs$`1f345e0241b3`$xaxis$showticklabels
+  ))
   testthat::expect_false(isTRUE(p$x$config$displayModeBar))
 })
 
@@ -145,7 +161,8 @@ testthat::test_that("TADA_Boxplot computes quartiles and median correctly", {
     TADA.ComparableDataIdentifier = c(
       "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
       "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"),
+      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+    ),
     TADA.ResultMeasureValue = c(4.5, 6, 5),
     TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "MG/L", "MG/L"),
     stringsAsFactors = FALSE
@@ -155,9 +172,18 @@ testthat::test_that("TADA_Boxplot computes quartiles and median correctly", {
 
   values <- df$TADA.ResultMeasureValue
 
-  expect_equal(as.numeric(p$x$attrs[[1]]$q1), as.numeric(stats::quantile(values, 0.25, type = 7)))
-  expect_equal(as.numeric(p$x$attrs[[1]]$median), as.numeric(stats::median(values)))
-  expect_equal(as.numeric(p$x$attrs[[1]]$q3), as.numeric(stats::quantile(values, 0.75, type = 7)))
+  expect_equal(
+    as.numeric(p$x$attrs[[1]]$q1),
+    as.numeric(stats::quantile(values, 0.25, type = 7))
+  )
+  expect_equal(
+    as.numeric(p$x$attrs[[1]]$median),
+    as.numeric(stats::median(values))
+  )
+  expect_equal(
+    as.numeric(p$x$attrs[[1]]$q3),
+    as.numeric(stats::quantile(values, 0.75, type = 7))
+  )
 })
 
 testthat::test_that("TADA_Boxplot computes whiskers/fences consistently with outliers", {
@@ -191,19 +217,33 @@ testthat::test_that("TADA_Boxplot handles multiple grouping columns and names pl
       "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
       "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
       "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"),
+      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+    ),
     TADA.ResultMeasureValue = c(4.5, 6, 5, 4),
     TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "MG/L", "MG/L", "MG/L"),
-    OrganizationIdentifier = c("Test Org A", "Test Org A", "Test Org B", "Test Org B"),
+    OrganizationIdentifier = c(
+      "Test Org A",
+      "Test Org A",
+      "Test Org B",
+      "Test Org B"
+    ),
     stringsAsFactors = FALSE
   )
 
-  p <- TADA_Boxplot(df, id_cols = c("TADA.ComparableDataIdentifier", "OrganizationIdentifier"))
+  p <- TADA_Boxplot(
+    df,
+    id_cols = c("TADA.ComparableDataIdentifier", "OrganizationIdentifier")
+  )
 
   testthat::expect_type(p, "list")
   testthat::expect_length(p, 2)
-  testthat::expect_true(all(c("DISSOLVED OXYGEN (DO) MG/L Test Org A",
-                    "DISSOLVED OXYGEN (DO) MG/L Test Org B") %in% names(p)))
+  testthat::expect_true(all(
+    c(
+      "DISSOLVED OXYGEN (DO) MG/L Test Org A",
+      "DISSOLVED OXYGEN (DO) MG/L Test Org B"
+    ) %in%
+      names(p)
+  ))
   testthat::expect_true(all(vapply(p, inherits, logical(1), what = "plotly")))
 })
 
@@ -224,7 +264,11 @@ testthat::test_that("TADA_Histogram errors when required columns are missing", {
 
 testthat::test_that("TADA_Histogram defaults id_cols to TADA.ComparableDataIdentifier when id_cols is NULL", {
   df <- data.frame(
-    TADA.ComparableDataIdentifier = c("PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE"),
+    TADA.ComparableDataIdentifier = c(
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE"
+    ),
     TADA.ResultMeasureValue = c(6, 7.2, 5),
     TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE", "NONE"),
     stringsAsFactors = FALSE
@@ -257,7 +301,11 @@ testthat::test_that("TADA_Histogram warns when TADA.ComparableDataIdentifier is 
 
 testthat::test_that("TADA_Histogram removes NA values and emits a message", {
   df <- data.frame(
-    TADA.ComparableDataIdentifier = c("PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE"),
+    TADA.ComparableDataIdentifier = c(
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE"
+    ),
     TADA.ResultMeasureValue = c(6, 7.2, NA),
     TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE", "NONE"),
     stringsAsFactors = FALSE
@@ -273,12 +321,15 @@ testthat::test_that("TADA_Histogram removes NA values and emits a message", {
 
 testthat::test_that("TADA_Histogram returns a single plotly object when there is only one group", {
   df <- data.frame(
-    TADA.ComparableDataIdentifier = c("PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE"),
+    TADA.ComparableDataIdentifier = c(
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE"
+    ),
     TADA.ResultMeasureValue = c(6, 7.2, 5),
     TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE", "NONE"),
     stringsAsFactors = FALSE
   )
-
 
   p <- TADA_Histogram(df)
 
@@ -288,25 +339,41 @@ testthat::test_that("TADA_Histogram returns a single plotly object when there is
 
 testthat::test_that("TADA_Histogram returns a named list when there are multiple groups", {
   df <- data.frame(
-    TADA.ComparableDataIdentifier = c("PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE",
-                                      "TEMPERATURE_NONE_NONE_DEG C" , "TEMPERATURE_NONE_NONE_DEG C" , "TEMPERATURE_NONE_NONE_DEG C" ),
+    TADA.ComparableDataIdentifier = c(
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE",
+      "TEMPERATURE_NONE_NONE_DEG C",
+      "TEMPERATURE_NONE_NONE_DEG C",
+      "TEMPERATURE_NONE_NONE_DEG C"
+    ),
     TADA.ResultMeasureValue = c(6, 7.2, 5, 10, 12, 19),
-    TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE", "NONE", "DEG C", "DEG C", "DEG C"),
+    TADA.ResultMeasure.MeasureUnitCode = c(
+      "NONE",
+      "NONE",
+      "NONE",
+      "DEG C",
+      "DEG C",
+      "DEG C"
+    ),
     stringsAsFactors = FALSE
   )
-
 
   p <- TADA_Histogram(df)
 
   testthat::expect_type(p, "list")
   testthat::expect_length(p, 2)
-  testthat::expect_named(p, c("PH" ,  "TEMPERATURE DEG C"))
+  testthat::expect_named(p, c("PH", "TEMPERATURE DEG C"))
   testthat::expect_true(all(vapply(p, inherits, logical(1), what = "plotly")))
 })
 
 testthat::test_that("TADA_Histogram sets expected layout fields", {
   df <- data.frame(
-    TADA.ComparableDataIdentifier = c("PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE"),
+    TADA.ComparableDataIdentifier = c(
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE"
+    ),
     TADA.ResultMeasureValue = c(6, 7.2, 5),
     TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE", "NONE"),
     stringsAsFactors = FALSE
