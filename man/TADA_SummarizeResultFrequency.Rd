@@ -70,7 +70,7 @@ time_period = "month")
 # summarize result frequency by week/year
 week_year <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
 time_period = "week")
-                                     
+
 # summarize result frequency by month
 month <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
 time_period = "month",
