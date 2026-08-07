@@ -1565,7 +1565,7 @@ TADA_GroupedScatterplot <- function(
 #'   Data_TribalNations_Harmonized,
 #'   comparableDataId = "TEMPERATURE_NONE_NONE_DEG C"
 #' )
-#' 
+#'
 #' # Plot one monitoring location over a selected year and month range:
 #' TADA_DayOfYearPlot(
 #' Data_TribalNations_Harmonized,
@@ -1573,7 +1573,7 @@ TADA_GroupedScatterplot <- function(
 #' comparableDataId = "TEMPERATURE_NONE_NONE_DEG C",
 #' yearRange = c(2021, 2025),
 #' monthRange = c(1, 10))
-#' 
+#'
 TADA_DayOfYearPlot <- function(
   .data,
   location = "all",
@@ -1600,7 +1600,7 @@ TADA_DayOfYearPlot <- function(
 
   plot.data <- as.data.frame(.data)
   plot.data$ActivityStartDate <- as.Date(plot.data$ActivityStartDate)
-  
+
   plot.data <- suppressMessages(TADA_FindQCActivities(plot.data, clean = TRUE))
   message("TADA_DayOfYearPlot: QC samples were removed before plotting.")
 

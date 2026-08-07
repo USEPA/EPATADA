@@ -7,26 +7,25 @@ testthat::test_that("TADA_DayOfYearPlot validates inputs and returns expected ou
     ),
     "plotly"
   )
-  
+
   testthat::expect_error(
     TADA_DayOfYearPlot(
-      Data_Nutrients_UT |>
-        dplyr::select(-TADA.MonitoringLocationIdentifier),
+      Data_Nutrients_UT |> dplyr::select(-TADA.MonitoringLocationIdentifier),
       comparableDataId = "NITRATE_DISSOLVED_AS N_MG/L"
     ),
     "TADA.MonitoringLocationIdentifier"
   )
-  
+
   testthat::expect_error(
     TADA_DayOfYearPlot(Data_Nutrients_UT),
     "TADA.ComparableDataIdentifier"
   )
-  
+
   testthat::expect_error(
     TADA_DayOfYearPlot(Data_Nutrients_UT, comparableDataId = "NOT_A_REAL_ID"),
     "was not found"
   )
-  
+
   testthat::expect_error(
     TADA_DayOfYearPlot(
       Data_Nutrients_UT,
@@ -35,7 +34,7 @@ testthat::test_that("TADA_DayOfYearPlot validates inputs and returns expected ou
     ),
     "not found"
   )
-  
+
   testthat::expect_error(
     TADA_DayOfYearPlot(
       Data_Nutrients_UT,
@@ -44,7 +43,7 @@ testthat::test_that("TADA_DayOfYearPlot validates inputs and returns expected ou
     ),
     "must be one monitoring location identifier or 'all'"
   )
-  
+
   testthat::expect_error(
     TADA_DayOfYearPlot(
       Data_Nutrients_UT,
@@ -53,7 +52,7 @@ testthat::test_that("TADA_DayOfYearPlot validates inputs and returns expected ou
     ),
     "monthRange"
   )
-  
+
   testthat::expect_error(
     TADA_DayOfYearPlot(
       Data_Nutrients_UT,
@@ -62,7 +61,7 @@ testthat::test_that("TADA_DayOfYearPlot validates inputs and returns expected ou
     ),
     "monthRange"
   )
-  
+
   testthat::expect_error(
     TADA_DayOfYearPlot(
       Data_Nutrients_UT,
@@ -71,15 +70,13 @@ testthat::test_that("TADA_DayOfYearPlot validates inputs and returns expected ou
     ),
     "yearRange"
   )
-  
-  testthat::expect_null(
-    TADA_DayOfYearPlot(
-      Data_Nutrients_UT,
-      comparableDataId = "NITRATE_DISSOLVED_AS N_MG/L",
-      yearRange = c(1800, 1801)
-    )
-  )
-  
+
+  testthat::expect_null(TADA_DayOfYearPlot(
+    Data_Nutrients_UT,
+    comparableDataId = "NITRATE_DISSOLVED_AS N_MG/L",
+    yearRange = c(1800, 1801)
+  ))
+
   testthat::expect_s3_class(
     TADA_DayOfYearPlot(
       Data_Nutrients_UT |>
@@ -94,7 +91,7 @@ testthat::test_that("TADA_DayOfYearPlot validates inputs and returns expected ou
     ),
     "plotly"
   )
-  
+
   res <- TADA_DayOfYearPlot(
     Data_Nutrients_UT,
     comparableDataId = "NITRATE_DISSOLVED_AS N_MG/L"
@@ -112,7 +109,7 @@ testthat::test_that("TADA_Boxplot validates required inputs and core behavior", 
     )),
     "TADA.ResultMeasure.MeasureUnitCode"
   )
-  
+
   df_default <- data.frame(
     TADA.ComparableDataIdentifier = c(
       "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
@@ -123,26 +120,29 @@ testthat::test_that("TADA_Boxplot validates required inputs and core behavior", 
     TADA.ResultMeasure.MeasureUnitCode = c("mg/L", "mg/L", "mg/L"),
     stringsAsFactors = FALSE
   )
-  
+
   p_null <- TADA_Boxplot(df_default, id_cols = NULL)
-  p_explicit <- TADA_Boxplot(df_default, id_cols = "TADA.ComparableDataIdentifier")
-  
+  p_explicit <- TADA_Boxplot(
+    df_default,
+    id_cols = "TADA.ComparableDataIdentifier"
+  )
+
   testthat::expect_s3_class(p_null, "plotly")
   testthat::expect_s3_class(p_explicit, "plotly")
-  
+
   title_null <- p_null$x$layoutAttrs$`1f34f8b4693`$title
   if (is.list(title_null) && !is.null(title_null$text)) {
     title_null <- title_null$text
   }
-  
+
   title_explicit <- p_explicit$x$layoutAttrs$`1f3452ee66ba`$title
   if (is.list(title_explicit) && !is.null(title_explicit$text)) {
     title_explicit <- title_explicit$text
   }
-  
+
   testthat::expect_equal(title_null, title_explicit)
   testthat::expect_equal(title_null, "Boxplot of \nDISSOLVED OXYGEN (DO) MG/L")
-  
+
   testthat::expect_warning(
     TADA_Boxplot(
       data.frame(
@@ -155,24 +155,22 @@ testthat::test_that("TADA_Boxplot validates required inputs and core behavior", 
     ),
     "TADA.ComparableDataIdentifier not found in id_cols"
   )
-  
+
   testthat::expect_message(
-    p_na <- TADA_Boxplot(
-      data.frame(
-        TADA.ComparableDataIdentifier = c(
-          "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-          "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-          "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
-        ),
-        TADA.ResultMeasureValue = c(4.5, NA, 5),
-        TADA.ResultMeasure.MeasureUnitCode = c("mg/L", "mg/L", "mg/L"),
-        stringsAsFactors = FALSE
-      )
-    ),
+    p_na <- TADA_Boxplot(data.frame(
+      TADA.ComparableDataIdentifier = c(
+        "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+        "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+        "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+      ),
+      TADA.ResultMeasureValue = c(4.5, NA, 5),
+      TADA.ResultMeasure.MeasureUnitCode = c("mg/L", "mg/L", "mg/L"),
+      stringsAsFactors = FALSE
+    )),
     "removed 1 results where TADA.ResultMeasureValue = NA"
   )
   testthat::expect_s3_class(p_na, "plotly")
-  
+
   testthat::expect_type(
     TADA_Boxplot(data.frame(
       TADA.ComparableDataIdentifier = c(
@@ -185,13 +183,18 @@ testthat::test_that("TADA_Boxplot validates required inputs and core behavior", 
       ),
       TADA.ResultMeasureValue = c(4.5, 6, 5, 7, 4.5, 6.7),
       TADA.ResultMeasure.MeasureUnitCode = c(
-        "MG/L", "MG/L", "MG/L", "NONE", "NONE", "NONE"
+        "MG/L",
+        "MG/L",
+        "MG/L",
+        "NONE",
+        "NONE",
+        "NONE"
       ),
       stringsAsFactors = FALSE
     )),
     "list"
   )
-  
+
   multi_df <- data.frame(
     TADA.ComparableDataIdentifier = c(
       "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
@@ -201,41 +204,54 @@ testthat::test_that("TADA_Boxplot validates required inputs and core behavior", 
     ),
     TADA.ResultMeasureValue = c(4.5, 6, 5, 4),
     TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "MG/L", "MG/L", "MG/L"),
-    OrganizationIdentifier = c("Test Org A", "Test Org A", "Test Org B", "Test Org B"),
+    OrganizationIdentifier = c(
+      "Test Org A",
+      "Test Org A",
+      "Test Org B",
+      "Test Org B"
+    ),
     stringsAsFactors = FALSE
   )
   p_multi <- TADA_Boxplot(
     multi_df,
     id_cols = c("TADA.ComparableDataIdentifier", "OrganizationIdentifier")
   )
-  
+
   testthat::expect_type(p_multi, "list")
   testthat::expect_length(p_multi, 2)
   testthat::expect_true(all(
     c(
       "DISSOLVED OXYGEN (DO) MG/L Test Org A",
       "DISSOLVED OXYGEN (DO) MG/L Test Org B"
-    ) %in% names(p_multi)
+    ) %in%
+      names(p_multi)
   ))
-  testthat::expect_true(all(vapply(p_multi, inherits, logical(1), what = "plotly")))
-  
+  testthat::expect_true(all(vapply(
+    p_multi,
+    inherits,
+    logical(1),
+    what = "plotly"
+  )))
+
   p <- TADA_Boxplot(df_default)
-  
+
   title <- p$x$layoutAttrs[[1]]$title
   if (is.list(title) && !is.null(title$text)) {
     title <- title$text
   }
-  
+
   y_title <- p$x$layoutAttrs[[1]]$yaxis$title
   if (is.list(y_title) && !is.null(y_title$text)) {
     y_title <- y_title$text
   }
-  
+
   testthat::expect_equal(title, "Boxplot of \nDISSOLVED OXYGEN (DO) MG/L")
   testthat::expect_equal(y_title, "MG/L")
-  testthat::expect_false(isTRUE(p$x$layoutAttrs$`1f345e0241b3`$xaxis$showticklabels))
+  testthat::expect_false(isTRUE(
+    p$x$layoutAttrs$`1f345e0241b3`$xaxis$showticklabels
+  ))
   testthat::expect_false(isTRUE(p$x$config$displayModeBar))
-  
+
   values <- df_default$TADA.ResultMeasureValue
   testthat::expect_equal(
     as.numeric(p$x$attrs[[1]]$q1),
@@ -249,7 +265,7 @@ testthat::test_that("TADA_Boxplot validates required inputs and core behavior", 
     as.numeric(p$x$attrs[[1]]$q3),
     as.numeric(stats::quantile(values, 0.75, type = 7))
   )
-  
+
   df_outlier <- data.frame(
     TADA.ComparableDataIdentifier = rep("g1", 6),
     TADA.ResultMeasureValue = c(1, 2, 3, 4, 5, 100),
@@ -257,14 +273,14 @@ testthat::test_that("TADA_Boxplot validates required inputs and core behavior", 
     stringsAsFactors = FALSE
   )
   p_outlier <- TADA_Boxplot(df_outlier)
-  
+
   values <- df_outlier$TADA.ResultMeasureValue
   q1 <- as.numeric(stats::quantile(values, 0.25, type = 7))
   q3 <- as.numeric(stats::quantile(values, 0.75, type = 7))
   iqr <- q3 - q1
   upper_thresh <- q3 + 1.5 * iqr
   lower_thresh <- q1 - 1.5 * iqr
-  
+
   testthat::expect_equal(
     as.numeric(p_outlier$x$attrs[[1]]$upperfence),
     max(values[values <= upper_thresh])
@@ -279,12 +295,15 @@ testthat::test_that("TADA_Boxplot validates required inputs and core behavior", 
 testthat::test_that("TADA_Histogram validates required inputs and core behavior", {
   testthat::expect_error(
     TADA_Histogram(data.frame(
-      TADA.ComparableDataIdentifier = c("PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE"),
+      TADA.ComparableDataIdentifier = c(
+        "PH_NONE_NONE_NONE",
+        "PH_NONE_NONE_NONE"
+      ),
       TADA.ResultMeasureValue = c(6, 7.2)
     )),
     "TADA.ResultMeasure.MeasureUnitCode"
   )
-  
+
   df <- data.frame(
     TADA.ComparableDataIdentifier = c(
       "PH_NONE_NONE_NONE",
@@ -295,16 +314,16 @@ testthat::test_that("TADA_Histogram validates required inputs and core behavior"
     TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE", "NONE"),
     stringsAsFactors = FALSE
   )
-  
+
   p_null <- TADA_Histogram(df, id_cols = NULL)
   p_explicit <- TADA_Histogram(df, id_cols = "TADA.ComparableDataIdentifier")
-  
+
   testthat::expect_equal(
     p_null$x$layoutAttrs[[1]]$title,
     p_explicit$x$layoutAttrs[[1]]$title
   )
   testthat::expect_equal(p_null$x$layoutAttrs[[1]]$title, "Histogram of \nPH")
-  
+
   testthat::expect_warning(
     TADA_Histogram(
       data.frame(
@@ -317,27 +336,25 @@ testthat::test_that("TADA_Histogram validates required inputs and core behavior"
     ),
     "TADA.ComparableDataIdentifier not found in id_cols"
   )
-  
+
   testthat::expect_message(
-    p_na <- TADA_Histogram(
-      data.frame(
-        TADA.ComparableDataIdentifier = c(
-          "PH_NONE_NONE_NONE",
-          "PH_NONE_NONE_NONE",
-          "PH_NONE_NONE_NONE"
-        ),
-        TADA.ResultMeasureValue = c(6, 7.2, NA),
-        TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE", "NONE"),
-        stringsAsFactors = FALSE
-      )
-    ),
+    p_na <- TADA_Histogram(data.frame(
+      TADA.ComparableDataIdentifier = c(
+        "PH_NONE_NONE_NONE",
+        "PH_NONE_NONE_NONE",
+        "PH_NONE_NONE_NONE"
+      ),
+      TADA.ResultMeasureValue = c(6, 7.2, NA),
+      TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE", "NONE"),
+      stringsAsFactors = FALSE
+    )),
     "removed 1 results where TADA.ResultMeasureValue = NA"
   )
   testthat::expect_s3_class(p_na, "plotly")
-  
+
   testthat::expect_s3_class(TADA_Histogram(df), "plotly")
   testthat::expect_s3_class(TADA_Histogram(df), "htmlwidget")
-  
+
   df_multi <- data.frame(
     TADA.ComparableDataIdentifier = c(
       "PH_NONE_NONE_NONE",
@@ -349,39 +366,47 @@ testthat::test_that("TADA_Histogram validates required inputs and core behavior"
     ),
     TADA.ResultMeasureValue = c(6, 7.2, 5, 10, 12, 19),
     TADA.ResultMeasure.MeasureUnitCode = c(
-      "NONE", "NONE", "NONE", "DEG C", "DEG C", "DEG C"
+      "NONE",
+      "NONE",
+      "NONE",
+      "DEG C",
+      "DEG C",
+      "DEG C"
     ),
     stringsAsFactors = FALSE
   )
-  
+
   p_multi <- TADA_Histogram(df_multi)
   testthat::expect_type(p_multi, "list")
   testthat::expect_length(p_multi, 2)
   testthat::expect_named(p_multi, c("PH", "TEMPERATURE DEG C"))
-  testthat::expect_true(all(vapply(p_multi, inherits, logical(1), what = "plotly")))
-  
+  testthat::expect_true(all(vapply(
+    p_multi,
+    inherits,
+    logical(1),
+    what = "plotly"
+  )))
+
   p <- TADA_Histogram(df)
-  
+
   testthat::expect_equal(p$x$layoutAttrs[[1]]$xaxis$title, "NONE")
   testthat::expect_equal(p$x$layoutAttrs[[1]]$yaxis$title, "Frequency")
   testthat::expect_equal(p$x$layoutAttrs[[1]]$barmode, "overlay")
   testthat::expect_true(isTRUE(p$x$config$displayModeBar))
-  
+
   json <- plotly::plotly_json(
-    TADA_Histogram(
-      data.frame(
-        TADA.ComparableDataIdentifier = rep("PH_NONE_NONE_NONE", 4),
-        TADA.ResultMeasureValue = c(6, 7.2, 5, 22),
-        TADA.ResultMeasure.MeasureUnitCode = rep("NONE", 4),
-        stringsAsFactors = FALSE
-      )
-    ),
+    TADA_Histogram(data.frame(
+      TADA.ComparableDataIdentifier = rep("PH_NONE_NONE_NONE", 4),
+      TADA.ResultMeasureValue = c(6, 7.2, 5, 22),
+      TADA.ResultMeasure.MeasureUnitCode = rep("NONE", 4),
+      stringsAsFactors = FALSE
+    )),
     jsonedit = FALSE
   )
   testthat::expect_match(json, "Outliers Removed")
   testthat::expect_match(json, "All Data")
   testthat::expect_match(json, "legendonly")
-  
+
   testthat::expect_message(
     out <- TADA_Histogram(data.frame(
       TADA.ComparableDataIdentifier = character(0),
@@ -398,7 +423,7 @@ testthat::test_that("TADA_Histogram validates required inputs and core behavior"
 testthat::test_that("TADA_FieldValuesPie validates input and plot structure", {
   p <- TADA_FieldValuesPie(Data_Nutrients_UT, field = "TADA.CharacteristicName")
   testthat::expect_s3_class(p, "ggplot")
-  
+
   built <- ggplot2::ggplot_build(p)
   scale <- built$plot$scales$scales[[1]]
   testthat::expect_equal(scale$name, "TADA.CharacteristicName")
@@ -423,13 +448,16 @@ testthat::test_that("TADA_FieldValuesPie handles category limits and filters", {
           "ZINC_DISSOLVED_NONE_UG/L"
         )
     )
-  
+
   p_6 <- TADA_FieldValuesPie(df_6, field = "TADA.CharacteristicName")
   testthat::expect_equal(nrow(ggplot2::ggplot_build(p_6)$data[[1]]), 6)
-  
-  p_13 <- TADA_FieldValuesPie(Data_TribalNations_Harmonized, field = "TADA.CharacteristicName")
+
+  p_13 <- TADA_FieldValuesPie(
+    Data_TribalNations_Harmonized,
+    field = "TADA.CharacteristicName"
+  )
   testthat::expect_equal(nrow(ggplot2::ggplot_build(p_13)$data[[1]]), 13)
-  
+
   p_filter <- TADA_FieldValuesPie(
     Data_Nutrients_UT,
     field = "TADA.CharacteristicName",
