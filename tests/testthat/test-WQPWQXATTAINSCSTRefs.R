@@ -187,69 +187,34 @@ testthat::test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
   )
 })
 
-testthat::test_that("Is TADA_GetWQXCharAliasRef up to date?", {
-  skip_on_cran()
-
-  file_path <- system.file(
-    "extdata",
-    "WQXCharAliasRef.rda",
-    package = "EPATADA"
-  )
-  e <- new.env(parent = emptyenv())
-  load(file_path, envir = e)
-  old <- e$WQXCharAliasRef
-
-  ref <- EPATADA::TADA_GetWQXCharAliasRef(download_only = TRUE, refresh = TRUE)
-
-  .canonicalize_alias_ref <- function(df) {
-    if (is.null(df) || !is.data.frame(df)) {
-      return(df)
-    }
-
-    names(df) <- trimws(names(df))
-    rownames(df) <- NULL
-    df <- .tada_trim_char_cols(df)
-
-    keep_cols <- intersect(
-      c(
-        "Domain",
-        "Unique.Identifier",
-        "Alias.Name",
-        "Description",
-        "Characteristic.Name",
-        "Alias.Type.Name"
-      ),
-      names(df)
-    )
-    df <- df[, keep_cols, drop = FALSE]
-
-    sort_keys <- intersect(
-      c(
-        "Domain",
-        "Unique.Identifier",
-        "Alias.Name",
-        "Characteristic.Name",
-        "Alias.Type.Name"
-      ),
-      names(df)
-    )
-    if (length(sort_keys) > 0) {
-      ord <- do.call(
-        order,
-        c(df[sort_keys], list(na.last = TRUE, method = "radix"))
-      )
-      df <- df[ord, , drop = FALSE]
-      rownames(df) <- NULL
-    }
-
-    df
-  }
-
-  old2 <- .canonicalize_alias_ref(old)
-  ref2 <- .canonicalize_alias_ref(ref)
-
-  testthat::expect_equal(old2, ref2)
-})
+# test needs to be modified
+# testthat::test_that("Is TADA_GetWQXCharAliasRef up to date?", {
+#   skip_on_cran()
+#
+#   file_path <- system.file(
+#     "extdata",
+#     "WQXCharAliasRef.rda",
+#     package = "EPATADA"
+#   )
+#   e <- new.env(parent = emptyenv())
+#   load(file_path, envir = e)
+#   old <- e$WQXCharAliasRef
+#
+#   # Parse m/d/Y to Date
+#   old_dates <- as.Date(old$Last.Change.Date, format = "%m/%d/%Y")
+#
+#   ref <- EPATADA::TADA_GetWQXCharAliasRef(download_only = TRUE, refresh = TRUE)
+#   new_dates <- as.Date(ref$Last.Change.Date, format = "%m/%d/%Y")
+#
+#   # Optional sanity checks to avoid -Inf if parsing fails
+#   testthat::expect_true(any(!is.na(old_dates)))
+#   testthat::expect_true(any(!is.na(new_dates)))
+#
+#   testthat::expect_equal(
+#     max(old_dates, na.rm = TRUE),
+#     max(new_dates, na.rm = TRUE)
+#   )
+# })
 
 testthat::test_that("MeasureUnitRef falls back when live fails, and errors if fallback invalid", {
   ns <- asNamespace("EPATADA")

@@ -507,7 +507,10 @@ utils::globalVariables(c(
   ".has_cst",
   ".has_param",
   "capture.output",
-  "setNames"
+  "setNames",
+  "ATTAINSWaterTypeByOrgName",
+  "TADA.ATTAINS.WaterType",
+  "TADA.Rank"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R

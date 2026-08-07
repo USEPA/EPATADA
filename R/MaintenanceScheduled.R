@@ -122,6 +122,19 @@
 #' \dontrun{
 #' .TADA_UpdateExampleData()
 #' }
+#'
+#' @details
+#' The function fetches data from specified sources based on given parameters, processes it using
+#' several functions from the EPATADA package, and saves the processed datasets as `.rda` files
+#' for use within the package. The datasets include nutrient data for Utah, tribal data over five years,
+#' harmonized datasets, and more.
+#'
+#' @return None. The function saves processed data files in the package's `data/` directory.
+#'
+#' @examples
+#' \dontrun{
+#' .TADA_UpdateExampleData()
+#' }
 .TADA_UpdateExampleData <- function() {
   tryCatch(
     {
