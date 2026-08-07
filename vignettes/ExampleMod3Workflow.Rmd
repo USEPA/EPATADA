@@ -74,13 +74,6 @@ remotes::install_github("USEPA/EPATADA",
 remotes::install_github("USEPA/rExpertQuery")
 ```
 
-```{r install_TADA_dev, eval = T, include = F}
-remotes::install_github("USEPA/EPATADA",
-  ref = "869-incorporate-function-to-read-in-criteria-table-from-tada_communityhub",
-  dependencies = TRUE
-)
-```
-
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
@@ -960,7 +953,7 @@ a ML if it contains data collected for that TADA.CharacteristicName in
 your WQP data query. If you would like to display all information even
 for sites with no WQP data, please choose displayNA = TRUE
 
-```{r AU_Summary, eval = FALSE}
+```{r AU_Summary, eval = TRUE}
 # Load the dataset
 utils::data("Data_MT_AU_UsesRef_Water", package = "EPATADA")
 
@@ -986,7 +979,7 @@ that needs a unique site-specific criteria, certain water types, or
 certain combination of characteristics that have site-specific criteria.
 Let's go through an example of how a user may modify this table.
 
-```{r apply-site-specific-criteria, eval = FALSE}
+```{r apply-site-specific-criteria, eval = TRUE}
 MT.MLSummaryRef.AU2 <- MT.MLSummaryRef.AU |>
   dplyr::mutate(
     UniqueSpatialCriteria = dplyr::case_when(
@@ -1008,7 +1001,7 @@ contain that TADA.ComparableDataIdentifier - the ATTAINS.ParameterName?
 This could be included in the final summary table and labeled as NA or
 insufficient data.)
 
-```{r compare-AU-versus-ML-Summary, eval = FALSE}
+```{r compare-AU-versus-ML-Summary, eval = TRUE}
 nrow(MT.MLSummaryRef.AU)
 nrow(MT.MLSummaryRef.ML)
 ```
@@ -1163,7 +1156,7 @@ MT_data_criteria_no_spatial <- TADA_Analysis_Join_WQP_Criteria(
 
 Each uses in this criteria table will be assigned to each monitoring location for analysis, if that monitoring location contains that WQP characteristic name. Let's check to ensure all characteristic names have been matched to those found in the criteria table. 
 
-```{r}
+```{r validate row joins}
 rows1 <- nrow(MT.CriteriaMethods.Final[MT.CriteriaMethods.Final$TADA.CharacteristicName == "ESCHERICHIA COLI", ])
 rows2 <- nrow(tada.MT.clean[tada.MT.clean$TADA.CharacteristicName == "ESCHERICHIA COLI",])
 rows3 <- nrow(MT.CriteriaMethods.Final[MT.CriteriaMethods.Final$TADA.CharacteristicName == "PH", ])
@@ -1174,17 +1167,17 @@ rows4 <- nrow(tada.MT.clean[tada.MT.clean$TADA.CharacteristicName == "PH",])
 
 Let's now also join the MLSummaryRef crosswalk outputs from [TADAModule2.Rmd] to show how to work with assessment unit–level analysis.
 
-```{r}
+```{r join criteria and spatial MLSummaryRef}
 MT_data_w_criteria <- TADA_Analysis_Join_WQP_Criteria(
   .data = tada.MT.clean,
   criteria = MT.CriteriaMethods.Final,
-  MLSummaryRef = MT.MLSummaryRef.AU2
+  MLSummaryRef = MT.MLSummaryRef.AU
   )
 ```
 
 How many columns do you see?
 
-```{r}
+```{r compare column counts}
 ncol(tada.MT.clean)
 ncol(MT.CriteriaMethods.Final)
 ncol(MT_data_w_criteria)
