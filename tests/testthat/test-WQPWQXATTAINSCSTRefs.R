@@ -187,7 +187,7 @@ testthat::test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
   )
 })
 
-testthat::test_that("Is TADA_GetWQXCharAliasRef older than 1 month?", {
+testthat::test_that("Is TADA_GetWQXCharAliasRef older than 1 month apart?", {
   testthat::skip_on_cran()
   
   file_path <- system.file(
@@ -199,25 +199,30 @@ testthat::test_that("Is TADA_GetWQXCharAliasRef older than 1 month?", {
   load(file_path, envir = e)
   old <- e$WQXCharAliasRef
   
-  # Parse m/d/Y to Date
+  # Parse m/d/Y to Date (safe if already Date)
   old_dates <- as.Date(old$Last.Change.Date, format = "%m/%d/%Y")
+  
+  ref <- EPATADA::TADA_GetWQXCharAliasRef(
+    download_only = TRUE,
+    refresh = TRUE
+  )
+  new_dates <- as.Date(ref$Last.Change.Date, format = "%m/%d/%Y")
+  
+  # Optional sanity checks to avoid -Inf if parsing fails
   testthat::expect_true(any(!is.na(old_dates)))
+  testthat::expect_true(any(!is.na(new_dates)))
   
-  is_older_than_1_month <- function(date_string) {
-    parsed_date <- as.Date(date_string, format = "%m/%d/%Y")
-    !is.na(parsed_date) && parsed_date < (Sys.Date() - 30)
-  }
+  old_max <- max(old_dates, na.rm = TRUE)
+  new_max <- max(new_dates, na.rm = TRUE)
   
-  # Dummy row older than 1 month
-  dummy_old <- old[1, , drop = FALSE]
-  dummy_old$Last.Change.Date <- format(Sys.Date() - 40, "%m/%d/%Y")
-  
-  # Dummy row within 1 month
-  dummy_new <- old[1, , drop = FALSE]
-  dummy_new$Last.Change.Date <- format(Sys.Date() - 10, "%m/%d/%Y")
-  
-  testthat::expect_true(is_older_than_1_month(dummy_old$Last.Change.Date))
-  testthat::expect_false(is_older_than_1_month(dummy_new$Last.Change.Date))
+  # Check whether the difference between the newest old date and newest new date is > 1 month
+  testthat::expect_true(
+    abs(as.numeric(new_max - old_max)) < 30,
+    info = paste0(
+      "Difference between old and new Last.Change.Date values is older than 1 month. ",
+      "Old max: ", old_max, ", New max: ", new_max
+    )
+  )
 })
 
 testthat::test_that("MeasureUnitRef falls back when live fails, and errors if fallback invalid", {
