@@ -49,6 +49,10 @@ colored by year.
 utils::data(Data_TribalNations_Harmonized)
 
 # Plot all available years and months for one characteristic and all sites:
+TADA_DayOfYearPlot(
+  Data_TribalNations_Harmonized,
+  comparableDataId = "TEMPERATURE_NONE_NONE_DEG C"
+)
 
 # Plot one monitoring location over a selected year and month range:
 TADA_DayOfYearPlot(

@@ -1561,11 +1561,11 @@ TADA_GroupedScatterplot <- function(
 #' utils::data(Data_TribalNations_Harmonized)
 #'
 #' # Plot all available years and months for one characteristic and all sites:
-# TADA_DayOfYearPlot(
-#   Data_TribalNations_Harmonized,
-#   comparableDataId = "TEMPERATURE_NONE_NONE_DEG C"
-# )
-#'
+#' TADA_DayOfYearPlot(
+#'   Data_TribalNations_Harmonized,
+#'   comparableDataId = "TEMPERATURE_NONE_NONE_DEG C"
+#' )
+#' 
 #' # Plot one monitoring location over a selected year and month range:
 #' TADA_DayOfYearPlot(
 #' Data_TribalNations_Harmonized,
@@ -1813,6 +1813,9 @@ TADA_DayOfYearPlot <- function(
           "Activity Start Date:",
           year.data$ActivityStartDate,
           "<br>",
+          "Activity Start Date Time:",
+          year.data$ActivityStartDateTime,
+          "<br>",
           "Day of Year:",
           year.data$DayOfYear,
           "<br>",
@@ -1828,8 +1831,42 @@ TADA_DayOfYearPlot <- function(
           "Organization Name:",
           year.data$OrganizationFormalName,
           "<br>",
-          "Activity Start Date Time:",
-          year.data$ActivityStartDateTime,
+          "Media:",
+          year.data$TADA.ActivityMediaName,
+          "<br>",
+          "Media Subdivision:",
+          year.data$ActivityMediaSubdivisionName,
+          "<br>",
+          "Result Depth:",
+          paste0(
+            year.data$TADA.ResultDepthHeightMeasure.MeasureValue,
+            " ",
+            year.data$TADA.ResultDepthHeightMeasure.MeasureUnitCode
+          ),
+          "<br>",
+          "Activity Relative Depth:",
+          year.data$ActivityRelativeDepthName,
+          "<br>",
+          "Activity Depth:",
+          paste0(
+            year.data$TADA.ActivityDepthHeightMeasure.MeasureValue,
+            " ",
+            year.data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
+          ),
+          "<br>",
+          "Activity Top Depth:",
+          paste0(
+            year.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue,
+            " ",
+            year.data$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
+          ),
+          "<br>",
+          "Activity Bottom Depth:",
+          paste0(
+            year.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue,
+            " ",
+            year.data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
+          ),
           "<br>"
         )
       )
