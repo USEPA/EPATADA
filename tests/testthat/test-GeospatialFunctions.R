@@ -564,7 +564,10 @@ testthat::test_that("TADA_CreatePointAUGeometry errors when required coordinate 
   )
 
   testthat::expect_error(
-    TADA_CreatePointAUGeometry(dplyr::select(base_df, -HorizontalCoordinateReferenceSystemDatumName)),
+    TADA_CreatePointAUGeometry(dplyr::select(
+      base_df,
+      -HorizontalCoordinateReferenceSystemDatumName
+    )),
     "TADA_CreatePointAUGeometry: Missing required coordinate column\\(s\\): HorizontalCoordinateReferenceSystemDatumName"
   )
 })
@@ -655,7 +658,11 @@ testthat::test_that("TADA_CreatePointAUGeometry accepts auid_prefix", {
     stringsAsFactors = FALSE
   )
 
-  result <- TADA_CreatePointAUGeometry(df, auid_prefix = "TEST", return_geo = TRUE)
+  result <- TADA_CreatePointAUGeometry(
+    df,
+    auid_prefix = "TEST",
+    return_geo = TRUE
+  )
 
   testthat::expect_s3_class(result, "sf")
 })

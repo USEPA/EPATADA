@@ -4794,15 +4794,18 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' @seealso [TADA_CrosswalkATTAINSWaterTypes()], [TADA_CreatePointAUGeometry()]
 #'
 #' @export
-TADA_CreatePointAUs <- function(.data,
-                                auid_prefix = NULL,
-                                create_geo = FALSE,
-                                download_geo = FALSE) {
-
+TADA_CreatePointAUs <- function(
+  .data,
+  auid_prefix = NULL,
+  create_geo = FALSE,
+  download_geo = FALSE
+) {
   req <- c("TADA.MonitoringLocationIdentifier")
-  geo_req <- c("TADA.LatitudeMeasure",
-               "TADA.LongitudeMeasure",
-               "HorizontalCoordinateReferenceSystemDatumName")
+  geo_req <- c(
+    "TADA.LatitudeMeasure",
+    "TADA.LongitudeMeasure",
+    "HorizontalCoordinateReferenceSystemDatumName"
+  )
 
   if (isTRUE(create_geo)) {
     req <- c(req, geo_req)
@@ -4845,7 +4848,9 @@ TADA_CreatePointAUs <- function(.data,
     )
   }
 
-  if (nrow(.data) == 0) stop("No rows in data after crosswalk")
+  if (nrow(.data) == 0) {
+    stop("No rows in data after crosswalk")
+  }
 
   retain <- c(
     "ATTAINS.MonitoringLocationIdentifier",
@@ -4869,8 +4874,5 @@ TADA_CreatePointAUs <- function(.data,
     auid_prefix = auid_prefix
   )
 
-  list(
-    crosswalk = PointAU.Crosswalk,
-    geometry = PointAU.Geometry
-  )
+  list(crosswalk = PointAU.Crosswalk, geometry = PointAU.Geometry)
 }

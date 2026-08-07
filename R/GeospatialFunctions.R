@@ -3627,12 +3627,13 @@ TADA_CreateAUMLCrosswalk <- function(
 #' @seealso [TADA_CreatePointAUs()]
 #'
 #' @export
-TADA_CreatePointAUGeometry <- function(.data,
-                                       target_crs = 4269,
-                                       download_geo = FALSE,
-                                       return_geo = TRUE,
-                                       auid_prefix = NULL) {
-
+TADA_CreatePointAUGeometry <- function(
+  .data,
+  target_crs = 4269,
+  download_geo = FALSE,
+  return_geo = TRUE,
+  auid_prefix = NULL
+) {
   coord_req <- c(
     "TADA.LongitudeMeasure",
     "TADA.LatitudeMeasure",
@@ -3672,10 +3673,7 @@ TADA_CreatePointAUGeometry <- function(.data,
   .data <- .data |>
     dplyr::select(rlang::sym(id.col), dplyr::all_of(coord_req)) |>
     dplyr::distinct() |>
-    dplyr::filter(
-      !is.na(TADA.LongitudeMeasure),
-      !is.na(TADA.LatitudeMeasure)
-    )
+    dplyr::filter(!is.na(TADA.LongitudeMeasure), !is.na(TADA.LatitudeMeasure))
 
   sf_pts <- sf::st_as_sf(
     .data,
@@ -3719,10 +3717,7 @@ TADA_CreatePointAUGeometry <- function(.data,
 
     point.path <- .get_downloads_path(file.name)
 
-    save_sf_as_shp(
-      sf_out = sf_out,
-      shp_path = point.path
-    )
+    save_sf_as_shp(sf_out = sf_out, shp_path = point.path)
   }
 
   if (isTRUE(return_geo)) {
