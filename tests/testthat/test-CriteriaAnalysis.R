@@ -163,8 +163,7 @@ testthat::test_that("TADA_Analysis_Join_WQP_Criteria returns expected row counts
   # join the criteria table to the data frame and only return rows relevant to analysis (those that have been filled out in criteria table)
   UTAH_with_criteria <- TADA_Analysis_Join_WQP_Criteria(
     Data_Nutrients_UT_Harmonized,
-    UTAH_Criteria,
-    clean = TRUE
+    UTAH_Criteria
   )
   # all criteria has been filled out with TADA.ComparableDataIdentifier, look at all unique values and see if joins worked correctly
   criteria_counts <- TADA_FieldValuesTable(
