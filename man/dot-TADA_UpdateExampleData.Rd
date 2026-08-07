@@ -8,6 +8,8 @@
 }
 \value{
 None. The function saves processed data files in the package's \verb{data/} directory.
+
+None. The function saves processed data files in the package's \verb{data/} directory.
 }
 \description{
 This internal function retrieves, processes, and saves various datasets for the EPATADA package.
@@ -17,8 +19,17 @@ The function fetches data from specified sources based on given parameters, proc
 several functions from the EPATADA package, and saves the processed datasets as \code{.rda} files
 for use within the package. The datasets include nutrient data for Utah, tribal data over five years,
 harmonized datasets, and more.
+
+The function fetches data from specified sources based on given parameters, processes it using
+several functions from the EPATADA package, and saves the processed datasets as \code{.rda} files
+for use within the package. The datasets include nutrient data for Utah, tribal data over five years,
+harmonized datasets, and more.
 }
 \examples{
+\dontrun{
+.TADA_UpdateExampleData()
+}
+
 \dontrun{
 .TADA_UpdateExampleData()
 }
