@@ -4508,230 +4508,306 @@ TADA_MLSummary <- function(
   return(MLSummaryRef)
 }
 
-#' Crosswalk WQP Monitoring Location Types to ATTAINS Water Types
+#' Crosswalk WQP Monitoring Location Type to ATTAINS Water Type
 #'
-#' The WQP Monitoring Location Types and ATTAINS Water Types are not direct
-#' one-to-one matches. This function crosswalks WQP Monitoring Location Type
-#' names to the corresponding ATTAINS Water Type using a crosswalk maintained
-#' by the TADA team.
+#' Adds or updates ATTAINS.WaterType using TADA.MonitoringLocationTypeName.
+#' By default, only missing ATTAINS.WaterType values are populated.
 #'
-#' @param .data A TADA data frame. Must include
-#'   TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName.
-#' @param overwrite_existing Logical. If TRUE, overwrite ATTAINS.WaterType with
-#'   the crosswalked value where a match exists. If FALSE (default), only fill
-#'   ATTAINS.WaterType where it is missing or blank.
-#' @param validation Character. Validation mode for ATTAINS.WaterType values:
-#'   - "none": do not validate (default).
-#'   - "flag": validate against the ATTAINS water_type domain and add
-#'     TADA.ATTAINSWaterType.Flag; values are flagged as "Pass" or "Suspect";
-#'     no values are changed.
-#'   - "correct": validate and attempt to replace invalid or missing values
-#'     using the crosswalk; the TADA.ATTAINSWaterType.Flag indicates
-#'     whether the final value is "Pass", "Corrected", or "Suspect".
+#' @param .data A TADA data frame.
+#' @param org_id Character string. Optional organization ID used to prioritize
+#' organization-specific ATTAINS values.
+#' @param org_only Logical. If TRUE, only org-specific ATTAINS values are used.
+#' If FALSE, unmatched types fall back to the TADA default crosswalk.
+#' @param replace_all Logical. If TRUE, replace all ATTAINS.WaterType values.
+#' If FALSE, only fill missing values. Default is FALSE.
 #'
-#' @return A TADA data frame with ATTAINS.WaterType created (if needed) and
-#'   populated or overwritten as requested. If validation is requested and
-#'   allowable ATTAINS water types can be retrieved, the output also includes
-#'   TADA.ATTAINSWaterType.Flag.
-#'
-#' @details
-#' - The crosswalk is read via `system.file("extdata",
-#'   "ATTAINSWaterTypeToWQPMonLocType.csv", package = "EPATADA")`.
-#' - Matching is case-insensitive (`TADA.MonitoringLocationTypeName` is
-#'   uppercased prior to joining).
-#' - Blank ATTAINS.WaterType values are normalized to `NA` for processing.
-#' - When validation = "flag" or "correct", allowable values are retrieved via
-#'   `rExpertQuery::EQ_DomainValues("water_type")`. If retrieval fails, the
-#'   function warns and skips validation.
-#' - In validation = "correct", rows with missing or invalid final
-#'   ATTAINS.WaterType values are marked "Corrected" if a crosswalk value is
-#'   available and used to replace the value; otherwise they remain "Suspect".
-#' - If the crosswalk contains multiple rows for the same monitoring location
-#'   type, the join may duplicate rows; the crosswalk should be curated to
-#'   maintain one-to-one mappings where possible.
-#'
-#' @seealso `rExpertQuery::EQ_DomainValues`
+#' @return A TADA data frame with ATTAINS.WaterType populated.
+#' @export
 #'
 #' @examples
+#'
 #' \dontrun{
-#' x <- tibble::tibble(
-#'   TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2", "LOC3"),
-#'   TADA.MonitoringLocationTypeName = c("Stream", "Lake", "Estuary"),
-#'   ATTAINS.WaterType = c(NA_character_, "", "InvalidValue")
-#' )
 #'
-#' y  <- TADA_CrosswalkATTAINSWaterTypes(x)
-#' y2 <- TADA_CrosswalkATTAINSWaterTypes(x, overwrite_existing = TRUE)
-#' y3 <- TADA_CrosswalkATTAINSWaterTypes(x, validation = "flag")
-#' y4 <- TADA_CrosswalkATTAINSWaterTypes(x, validation = "correct")
+#' # example for MT data
+#' testdat <- Data_MT_MissoulaCounty
+#'
+#' crosswalk <- TADA_CrosswalkATTAINSWaterTypes(testat, org_Id = "MTDEQ")
 #' }
-#'
-#' @export
 TADA_CrosswalkATTAINSWaterTypes <- function(
-  .data,
-  overwrite_existing = FALSE,
-  validation = c("none", "flag", "correct")
+    .data,
+    org_id = NULL,
+    org_only = FALSE,
+    replace_all = FALSE
 ) {
-  validation <- match.arg(validation)
-
   required_cols <- c(
     "TADA.MonitoringLocationIdentifier",
     "TADA.MonitoringLocationTypeName"
   )
-  if (!all(required_cols %in% names(.data))) {
+
+  missing_cols <- setdiff(required_cols, names(.data))
+  if (length(missing_cols) > 0) {
     stop(
-      "TADA_CrosswalkATTAINSWaterTypes: Input .data must contain ",
-      "TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName."
+      "TADA_CrosswalkATTAINSWaterTypes: .data must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName."
     )
   }
 
-  if (!is.logical(overwrite_existing) || length(overwrite_existing) != 1) {
+  if (
+    !is.null(org_id) &&
+    (!is.character(org_id) || length(org_id) != 1 || is.na(org_id))
+  ) {
     stop(
-      "TADA_CrosswalkATTAINSWaterTypes: overwrite_existing must be a single logical (TRUE/FALSE)."
+      "TADA_CrosswalkATTAINSWaterTypes: org_id must be NULL or a single non-NA character string."
     )
   }
 
-  drop_if_present <- function(data, cols) {
-    cols <- intersect(cols, names(data))
-    if (length(cols) > 0) {
-      data <- dplyr::select(data, -dplyr::all_of(cols))
-    }
-    data
-  }
-
-  # Preserve original ATTAINS.WaterType if it exists
-  if (!"ATTAINS.WaterType" %in% names(.data)) {
-    .data$ATTAINS.WaterType <- rep(NA_character_, nrow(.data))
-  } else {
-    .data$ATTAINS.WaterType <- as.character(.data$ATTAINS.WaterType)
-    if (length(.data$ATTAINS.WaterType) != nrow(.data)) {
-      stop(
-        "TADA_CrosswalkATTAINSWaterTypes: ATTAINS.WaterType length does not match number of rows.",
-        call. = FALSE
-      )
-    }
-  }
-
-  .data$ATTAINS.WaterType.Original <- .data$ATTAINS.WaterType
-
-  # Normalize blanks to NA for easier logic
-  .data <- .data |>
-    dplyr::mutate(
-      ATTAINS.WaterType = dplyr::na_if(ATTAINS.WaterType, ""),
-      ATTAINS.WaterType.Original = dplyr::na_if(ATTAINS.WaterType.Original, "")
+  if (!is.logical(org_only) || length(org_only) != 1 || is.na(org_only)) {
+    stop(
+      "TADA_CrosswalkATTAINSWaterTypes: org_only must be a single non-NA logical."
     )
+  }
 
-  # Read and normalize crosswalk
-  crosswalk <- utils::read.csv(system.file(
-    "extdata",
-    "ATTAINSWaterTypeToWQPMonLocType.csv",
-    package = "EPATADA"
-  )) |>
-    dplyr::transmute(
-      TADA.MonitoringLocationTypeName = toupper(Name),
-      Crosswalk.ATTAINS.WaterType = as.character(ATTAINS.WaterType)
-    ) |>
+  if (
+    !is.logical(replace_all) || length(replace_all) != 1 || is.na(replace_all)
+  ) {
+    stop(
+      "TADA_CrosswalkATTAINSWaterTypes: replace_all must be a single non-NA logical."
+    )
+  }
+
+  # normalize NA to blanks
+  if ("ATTAINS.WaterType" %in% names(.data)) {
+    .data <- .data |>
+      dplyr::mutate(ATTAINS.WaterType = dplyr::na_if(ATTAINS.WaterType, ""))
+  }
+
+  # Create one-row-per-location lookup
+  lookup <- .data |>
+    dplyr::select(dplyr::any_of(c(
+      "TADA.MonitoringLocationIdentifier",
+      "TADA.MonitoringLocationTypeName",
+      "ATTAINS.WaterType"
+    ))) |>
     dplyr::distinct()
 
-  # Attach crosswalk candidate to each row
-  .data <- .data |>
-    dplyr::mutate(
-      TADA.MonitoringLocationTypeName = toupper(TADA.MonitoringLocationTypeName)
-    ) |>
-    dplyr::left_join(crosswalk, by = "TADA.MonitoringLocationTypeName")
+  # Build crosswalk
+  cw <- build_attains_water_type_crosswalk(org_id = org_id, org_only = org_only)
 
-  # Apply crosswalk fill/overwrite BEFORE validation so behavior is consistent
-  if (isTRUE(overwrite_existing)) {
-    .data <- .data |>
-      dplyr::mutate(
-        ATTAINS.WaterType = dplyr::coalesce(
-          Crosswalk.ATTAINS.WaterType,
-          ATTAINS.WaterType
-        )
+  # Add crosswalk recommendation by monitoring location type
+  lookup <- lookup |>
+    dplyr::left_join(
+      cw,
+      by = dplyr::join_by(TADA.MonitoringLocationTypeName),
+      relationship = "many-to-many"
+    )
+
+  # Fill or replace lookup water type
+  if (!"ATTAINS.WaterType" %in% names(lookup)) {
+    lookup <- lookup |>
+      dplyr::transmute(
+        TADA.MonitoringLocationIdentifier,
+        TADA.ATTAINS.WaterType = TADA.ATTAINS.WaterType
+      )
+  } else if (isTRUE(replace_all)) {
+    lookup <- lookup |>
+      dplyr::transmute(
+        TADA.MonitoringLocationIdentifier,
+        TADA.ATTAINS.WaterType = TADA.ATTAINS.WaterType
       )
   } else {
+    lookup <- lookup |>
+      dplyr::mutate(
+        TADA.ATTAINS.WaterType = dplyr::coalesce(
+          ATTAINS.WaterType,
+          TADA.ATTAINS.WaterType
+        )
+      ) |>
+      dplyr::select(TADA.MonitoringLocationIdentifier, TADA.ATTAINS.WaterType)
+  }
+
+  # Join back to original data
+  if (!"ATTAINS.WaterType" %in% names(.data)) {
     .data <- .data |>
+      dplyr::left_join(
+        lookup,
+        by = dplyr::join_by(TADA.MonitoringLocationIdentifier),
+        relationship = "many-to-many"
+      ) |>
+      dplyr::rename(ATTAINS.WaterType = TADA.ATTAINS.WaterType)
+  } else if (isTRUE(replace_all)) {
+    .data <- .data |>
+      dplyr::left_join(
+        lookup |> dplyr::rename(New.ATTAINS.WaterType = TADA.ATTAINS.WaterType),
+        by = dplyr::join_by(TADA.MonitoringLocationIdentifier),
+        relationship = "many-to-many"
+      ) |>
+      dplyr::mutate(ATTAINS.WaterType = New.ATTAINS.WaterType) |>
+      dplyr::select(-New.ATTAINS.WaterType)
+  } else {
+    .data <- .data |>
+      dplyr::left_join(
+        lookup |> dplyr::rename(New.ATTAINS.WaterType = TADA.ATTAINS.WaterType),
+        by = dplyr::join_by(TADA.MonitoringLocationIdentifier),
+        relationship = "many-to-many"
+      ) |>
       dplyr::mutate(
         ATTAINS.WaterType = dplyr::coalesce(
           ATTAINS.WaterType,
-          Crosswalk.ATTAINS.WaterType
+          New.ATTAINS.WaterType
         )
-      )
-  }
-
-  # Validation lookup
-  allowed <- character(0)
-  if (validation != "none") {
-    allowed <- tryCatch(
-      {
-        suppressWarnings(suppressMessages(
-          rExpertQuery::EQ_DomainValues("water_type") |>
-            dplyr::select(name) |>
-            dplyr::distinct() |>
-            dplyr::pull(name) |>
-            as.character()
-        ))
-      },
-      error = function(e) character(0)
-    )
-
-    if (length(allowed) == 0) {
-      warning(
-        "TADA_CrosswalkATTAINSWaterTypes: Could not retrieve allowable ATTAINS water types from rExpertQuery; skipping validation."
-      )
-      validation <- "none"
-    }
-  }
-
-  # Validation / correction
-  if (validation == "flag") {
-    .data <- .data |>
-      dplyr::mutate(
-        ATTAINS.WaterType.Validation = ATTAINS.WaterType,
-        TADA.ATTAINSWaterType.Flag = dplyr::case_when(
-          is.na(ATTAINS.WaterType.Validation) ~ "Suspect",
-          !(ATTAINS.WaterType.Validation %in% allowed) ~ "Suspect",
-          TRUE ~ "Pass"
-        )
-      )
-  }
-
-  if (validation == "correct") {
-    .data <- .data |>
-      dplyr::mutate(
-        .was_valid = !is.na(ATTAINS.WaterType) &
-          (ATTAINS.WaterType %in% allowed),
-        .can_correct = !is.na(Crosswalk.ATTAINS.WaterType),
-        .should_correct = !.was_valid & .can_correct,
-        ATTAINS.WaterType = dplyr::case_when(
-          .should_correct ~ Crosswalk.ATTAINS.WaterType,
-          TRUE ~ ATTAINS.WaterType
-        ),
-        TADA.ATTAINSWaterType.Flag = dplyr::case_when(
-          .was_valid ~ "Pass",
-          !.was_valid & .can_correct ~ "Corrected",
-          TRUE ~ "Suspect"
-        ),
-        ATTAINS.WaterType.Validation = ATTAINS.WaterType
       ) |>
-      dplyr::select(-.was_valid, -.can_correct, -.should_correct)
+      dplyr::select(-New.ATTAINS.WaterType)
   }
 
-  # Cleanup helper columns
-  .data <- drop_if_present(
+  .data |> TADA_OrderCols()
+}
+
+
+#' Review ATTAINS Water Types
+#'
+#' Validates ATTAINS.WaterType against allowable ATTAINS domain values.
+#' Can either flag invalid values or update them using the crosswalk.
+#'
+#' @param .data A TADA data frame.
+#' @param review_action Character string. One of "flag" or "update".
+#'
+#' @return A TADA data frame with `TADA.ATTAINSWaterType.Flag` added.
+#' If `review_action = "update"`, invalid values may also be replaced if an
+#' ATTAINS water type match is available.
+#' @export
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#' # example of updating invalid ATTAINS water types
+#' example.df <- tibble::tibble(
+#' TADA.MonitoringLocationIdentifier = c("id1", "id2"),
+#' TADA.MonitoringLocationTypeName = c("RIVER/STREAM", "LAKE"),
+#' ATTAINS.WaterType = c("INVALID WATER TYPE 1", "INVALID WATER TYPE 2")
+#' )
+#'
+#' review.df <- TADA_ReviewATTAINSWaterTypes(df, review_action = "update")
+#' }
+TADA_ReviewATTAINSWaterTypes <- function(
     .data,
-    c(
-      "ATTAINS.WaterType.Original",
-      "ATTAINS.WaterType.Validation",
-      "Crosswalk.ATTAINS.WaterType"
-    )
+    review_action = c("flag", "update")
+) {
+  required_cols <- c(
+    "TADA.MonitoringLocationIdentifier",
+    "TADA.MonitoringLocationTypeName",
+    "ATTAINS.WaterType"
   )
 
-  if (exists("TADA_OrderCols", mode = "function")) {
-    .data <- TADA_OrderCols(.data)
+  missing_cols <- setdiff(required_cols, names(.data))
+  if (length(missing_cols) > 0) {
+    stop(
+      "TADA_ReviewATTAINSWaterTypes: .data must contain TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationTypeName, and ATTAINS.WaterType."
+    )
   }
 
-  .data
+  review_action <- match.arg(review_action)
+
+  # Normalize blanks to NA
+  .data <- .data |>
+    dplyr::mutate(ATTAINS.WaterType = dplyr::na_if(ATTAINS.WaterType, ""))
+
+  # Allowed ATTAINS water types
+  attains.types <- quiet(
+    rExpertQuery::EQ_DomainValues("water_type") |>
+      dplyr::select(name) |>
+      dplyr::distinct() |>
+      dplyr::pull()
+  ) |>
+    append(c("", NA))
+
+  # Identify invalid values
+  invalid_lookup <- .data |>
+    dplyr::filter(!ATTAINS.WaterType %in% attains.types) |>
+    dplyr::distinct(
+      TADA.MonitoringLocationIdentifier,
+      TADA.MonitoringLocationTypeName
+    )
+
+  if (nrow(invalid_lookup) == 0) {
+    .data <- .data |>
+      dplyr::mutate(
+        TADA.ATTAINSWaterType.Flag = "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value."
+      )
+    return(.data |> TADA_OrderCols())
+  }
+
+  if (review_action == "flag") {
+    flag_lookup <- invalid_lookup |>
+      dplyr::mutate(
+        TADA.ATTAINSWaterType.Flag = "ATTAINS.WaterType value does not match any allowable ATTAINS.WaterType."
+      )
+
+    .data <- .data |>
+      dplyr::left_join(
+        flag_lookup,
+        by = dplyr::join_by(
+          TADA.MonitoringLocationIdentifier,
+          TADA.MonitoringLocationTypeName
+        ),
+        relationship = "many-to-many"
+      ) |>
+      dplyr::mutate(
+        TADA.ATTAINSWaterType.Flag = dplyr::if_else(
+          is.na(TADA.ATTAINSWaterType.Flag),
+          "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value.",
+          TADA.ATTAINSWaterType.Flag
+        )
+      )
+
+    return(.data |> TADA_OrderCols())
+  }
+
+  # review_action == "update"
+  if (review_action == "update") {
+    cw <- build_attains_water_type_crosswalk()
+
+    update_lookup <- invalid_lookup |>
+      dplyr::left_join(
+        cw,
+        by = dplyr::join_by(TADA.MonitoringLocationTypeName)
+      ) |>
+      dplyr::transmute(
+        TADA.MonitoringLocationIdentifier,
+        TADA.MonitoringLocationTypeName,
+        New.ATTAINS.WaterType = TADA.ATTAINS.WaterType,
+        TADA.ATTAINSWaterType.Flag = dplyr::if_else(
+          !is.na(New.ATTAINS.WaterType),
+          "ATTAINS.WaterType was updated to match an allowable ATTAINS.WaterType value by crosswalking TADA.MonitoringLocationTypeName.",
+          "ATTAINS.WaterType set to NA as no ATTAINS.WaterType value was found for this TADA.MonitoringLocationTypeName."
+        )
+      )
+
+    .data <- .data |>
+      dplyr::left_join(
+        update_lookup,
+        by = dplyr::join_by(
+          TADA.MonitoringLocationIdentifier,
+          TADA.MonitoringLocationTypeName
+        ),
+        relationship = "many-to-many"
+      ) |>
+      dplyr::mutate(
+        ATTAINS.WaterType = dplyr::coalesce(
+          New.ATTAINS.WaterType,
+          ATTAINS.WaterType
+        ),
+        TADA.ATTAINSWaterType.Flag = dplyr::if_else(
+          is.na(TADA.ATTAINSWaterType.Flag),
+          "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value.",
+          TADA.ATTAINSWaterType.Flag
+        )
+      ) |>
+      dplyr::select(-New.ATTAINS.WaterType)
+
+    .data |> TADA_OrderCols()
+
+    return(.data)
+  }
 }
 
 #' Create an ATTAINS AU–ML Crosswalk from WQP Monitoring Location IDs for New Point AUs

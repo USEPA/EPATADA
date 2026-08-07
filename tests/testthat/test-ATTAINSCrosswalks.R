@@ -892,5 +892,7 @@ testthat::test_that("TADA_CreatePointAUs returns list containng crosswalk and ge
 
   result <- TADA_CreatePointAUs(df, create_geo = TRUE)
 
-  testthat::expect_equal(names(result), c("crosswalk", "geometry"))
+  testthat::expect_type(result, "list")
+  testthat::expect_true(all(c("crosswalk", "geometry") %in% names(result)))
+  testthat::expect_s3_class(result$geometry, "sf")
 })
