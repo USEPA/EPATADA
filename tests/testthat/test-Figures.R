@@ -423,3 +423,76 @@ testthat::test_that("TADA_Histogram returns NULL when all data are removed or no
 
   testthat::expect_null(out)
 })
+
+# tests for TADA_FieldValuesPie
+
+testthat::test_that("TADA_FieldValuesPie returns a ggplot object", {
+  df <- Data_Nutrients_UT
+
+  p <- TADA_FieldValuesPie(df, field = "TADA.CharacteristicName")
+
+  testthat::expect_s3_class(p, "ggplot")
+})
+
+testthat::test_that("TADA_FieldValuesPie uses the field name as legend title", {
+  df <- Data_Nutrients_UT
+
+  p <- TADA_FieldValuesPie(df, field = "TADA.CharacteristicName")
+
+  built <- ggplot2::ggplot_build(p)
+  scale <- built$plot$scales$scales[[1]]
+
+  testthat::expect_equal(scale$name, "TADA.CharacteristicName")
+})
+
+testthat::test_that("TADA_FieldValuesPie does not add ALL OTHERS when there are 12 or fewer categories", {
+  df <- Data_TribalNations_Harmonized |>
+    dplyr::filter(TADA.ComparableDataIdentifier %in%
+                    c("COPPER_DISSOLVED_NONE_UG/L",
+                      "IRON_DISSOLVED_NONE_UG/L",
+                      "LEAD_DISSOLVED_NONE_UG/L",
+                      "MAGNESIUM_DISSOLVED_NONE_UG/L",
+                      "MERCURY_DISSOLVED_NONE_UG/L",
+                      "ZINC_DISSOLVED_NONE_UG/L"
+                      ))
+
+  p <- TADA_FieldValuesPie(df, field = "TADA.CharacteristicName")
+
+  built <- ggplot2::ggplot_build(p)
+  testthat::expect_equal(nrow(built$data[[1]]), 6)
+})
+
+testthat::test_that("TADA_FieldValuesPie adds ALL OTHERS when there are more than 12 categories", {
+  df <- Data_TribalNations_Harmonized
+
+  p <- TADA_FieldValuesPie(df, field = "TADA.CharacteristicName")
+
+  built <- ggplot2::ggplot_build(p)
+  testthat::expect_equal(nrow(built$data[[1]]), 13)
+})
+
+testthat::test_that("TADA_FieldValuesPie respects characteristicName filter", {
+  df <- Data_Nutrients_UT
+
+
+  # If TADA_FieldValuesTable supports this filter, adjust expected result accordingly
+  p <- TADA_FieldValuesPie(
+    df,
+    field = "TADA.CharacteristicName",
+    characteristicName = "AMMONIA"
+  )
+
+  built <- ggplot2::ggplot_build(p)
+  testthat::expect_equal(nrow(built$data[[1]]), 1)
+
+  testthat::expect_s3_class(p, "ggplot")
+})
+
+testthat::test_that("TADA_FieldValuesPie produces a valid polar bar pie chart", {
+  df <- Data_Nutrients_UT
+
+  p <- TADA_FieldValuesPie(df, field = "TADA.CharacteristicName")
+
+  testthat::expect_true(any(vapply(p$layers, function(x) inherits(x$geom, "GeomBar"), logical(1))))
+  testthat::expect_equal(p$coordinates$theta, "y")
+})
