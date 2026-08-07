@@ -187,35 +187,6 @@ testthat::test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
   )
 })
 
-# test needs to be modified
-# testthat::test_that("Is TADA_GetWQXCharAliasRef up to date?", {
-#   skip_on_cran()
-#
-#   file_path <- system.file(
-#     "extdata",
-#     "WQXCharAliasRef.rda",
-#     package = "EPATADA"
-#   )
-#   e <- new.env(parent = emptyenv())
-#   load(file_path, envir = e)
-#   old <- e$WQXCharAliasRef
-#
-#   # Parse m/d/Y to Date
-#   old_dates <- as.Date(old$Last.Change.Date, format = "%m/%d/%Y")
-#
-#   ref <- EPATADA::TADA_GetWQXCharAliasRef(download_only = TRUE, refresh = TRUE)
-#   new_dates <- as.Date(ref$Last.Change.Date, format = "%m/%d/%Y")
-#
-#   # Optional sanity checks to avoid -Inf if parsing fails
-#   testthat::expect_true(any(!is.na(old_dates)))
-#   testthat::expect_true(any(!is.na(new_dates)))
-#
-#   testthat::expect_equal(
-#     max(old_dates, na.rm = TRUE),
-#     max(new_dates, na.rm = TRUE)
-#   )
-# })
-
 testthat::test_that("MeasureUnitRef falls back when live fails, and errors if fallback invalid", {
   ns <- asNamespace("EPATADA")
 
