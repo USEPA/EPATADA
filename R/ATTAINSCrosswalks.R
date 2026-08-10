@@ -4867,10 +4867,10 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #'
 #' @export
 TADA_CreatePointAUs <- function(
-  .data,
-  auid_prefix = NULL,
-  create_geo = FALSE,
-  download_geo = FALSE
+    .data,
+    auid_prefix = NULL,
+    create_geo = FALSE,
+    download_geo = FALSE
 ) {
   req <- c("TADA.MonitoringLocationIdentifier")
   geo_req <- c(
@@ -4941,7 +4941,10 @@ TADA_CreatePointAUs <- function(
     auid_prefix = auid_prefix
   )
 
-  PointAUs <- list(crosswalk = PointAU.Crosswalk, geometry = PointAU.Geometry)
+  PointAUs <- list(
+    crosswalk = PointAU.Crosswalk,
+    geometry = PointAU.Geometry
+  )
 
   return(PointAUs)
 }
@@ -5090,10 +5093,10 @@ build_attains_water_type_crosswalk <- function(
 #' crosswalk <- TADA_CrosswalkATTAINSWaterTypes(testat, org_Id = "MTDEQ")
 #' }
 TADA_CrosswalkATTAINSWaterTypes <- function(
-  .data,
-  org_id = NULL,
-  org_only = FALSE,
-  replace_all = FALSE
+    .data,
+    org_id = NULL,
+    org_only = FALSE,
+    replace_all = FALSE
 ) {
   required_cols <- c(
     "TADA.MonitoringLocationIdentifier",
@@ -5109,7 +5112,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 
   if (
     !is.null(org_id) &&
-      (!is.character(org_id) || length(org_id) != 1 || is.na(org_id))
+    (!is.character(org_id) || length(org_id) != 1 || is.na(org_id))
   ) {
     stop(
       "TADA_CrosswalkATTAINSWaterTypes: org_id must be NULL or a single non-NA character string."
@@ -5130,25 +5133,26 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     )
   }
 
-  # normalize NA to blanks
+  # normalize blanks to NA
   if ("ATTAINS.WaterType" %in% names(.data)) {
     .data <- .data |>
-      dplyr::mutate(ATTAINS.WaterType = dplyr::na_if(ATTAINS.WaterType, ""))
+      dplyr::mutate(
+        ATTAINS.WaterType = dplyr::na_if(ATTAINS.WaterType, "")
+      )
   }
 
-  # Create one-row-per-location lookup
+  # Keep one row per monitoring location for the lookup
   lookup <- .data |>
-    dplyr::select(dplyr::any_of(c(
-      "TADA.MonitoringLocationIdentifier",
-      "TADA.MonitoringLocationTypeName",
-      "ATTAINS.WaterType"
-    ))) |>
-    dplyr::distinct()
+    dplyr::distinct(
+      TADA.MonitoringLocationIdentifier,
+      TADA.MonitoringLocationTypeName,
+      .keep_all = TRUE
+    )
 
   # Build crosswalk
   cw <- build_attains_water_type_crosswalk(org_id = org_id, org_only = org_only)
 
-  # Add crosswalk recommendation by monitoring location type
+  # Join crosswalk to lookup
   lookup <- lookup |>
     dplyr::left_join(
       cw,
@@ -5156,63 +5160,44 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
       relationship = "many-to-many"
     )
 
-  # Fill or replace lookup water type
-  if (!"ATTAINS.WaterType" %in% names(lookup)) {
-    lookup <- lookup |>
-      dplyr::transmute(
-        TADA.MonitoringLocationIdentifier,
-        TADA.ATTAINS.WaterType = TADA.ATTAINS.WaterType
-      )
-  } else if (isTRUE(replace_all)) {
-    lookup <- lookup |>
-      dplyr::transmute(
-        TADA.MonitoringLocationIdentifier,
-        TADA.ATTAINS.WaterType = TADA.ATTAINS.WaterType
-      )
+  # Resolve water type
+  if ("ATTAINS.WaterType" %in% names(lookup)) {
+    if (isTRUE(replace_all)) {
+      lookup <- lookup |>
+        dplyr::mutate(
+          ATTAINS.WaterType = TADA.ATTAINS.WaterType
+        )
+    } else {
+      lookup <- lookup |>
+        dplyr::mutate(
+          ATTAINS.WaterType = dplyr::coalesce(
+            ATTAINS.WaterType,
+            TADA.ATTAINS.WaterType
+          )
+        )
+    }
   } else {
     lookup <- lookup |>
       dplyr::mutate(
-        TADA.ATTAINS.WaterType = dplyr::coalesce(
-          ATTAINS.WaterType,
-          TADA.ATTAINS.WaterType
-        )
-      ) |>
-      dplyr::select(TADA.MonitoringLocationIdentifier, TADA.ATTAINS.WaterType)
+        ATTAINS.WaterType = TADA.ATTAINS.WaterType
+      )
   }
 
+  # Return only what we need
+  lookup <- lookup |>
+    dplyr::select(
+      TADA.MonitoringLocationIdentifier,
+      ATTAINS.WaterType
+    )
+
   # Join back to original data
-  if (!"ATTAINS.WaterType" %in% names(.data)) {
-    .data <- .data |>
-      dplyr::left_join(
-        lookup,
-        by = dplyr::join_by(TADA.MonitoringLocationIdentifier),
-        relationship = "many-to-many"
-      ) |>
-      dplyr::rename(ATTAINS.WaterType = TADA.ATTAINS.WaterType)
-  } else if (isTRUE(replace_all)) {
-    .data <- .data |>
-      dplyr::left_join(
-        lookup |> dplyr::rename(New.ATTAINS.WaterType = TADA.ATTAINS.WaterType),
-        by = dplyr::join_by(TADA.MonitoringLocationIdentifier),
-        relationship = "many-to-many"
-      ) |>
-      dplyr::mutate(ATTAINS.WaterType = New.ATTAINS.WaterType) |>
-      dplyr::select(-New.ATTAINS.WaterType)
-  } else {
-    .data <- .data |>
-      dplyr::left_join(
-        lookup |> dplyr::rename(New.ATTAINS.WaterType = TADA.ATTAINS.WaterType),
-        by = dplyr::join_by(TADA.MonitoringLocationIdentifier),
-        relationship = "many-to-many"
-      ) |>
-      dplyr::mutate(
-        ATTAINS.WaterType = dplyr::coalesce(
-          ATTAINS.WaterType,
-          New.ATTAINS.WaterType
-        )
-      ) |>
-      dplyr::select(-New.ATTAINS.WaterType)
-  }
+  .data <- .data |>
+    dplyr::select(-dplyr::any_of("ATTAINS.WaterType")) |>
+    dplyr::left_join(
+      lookup,
+      by = dplyr::join_by(TADA.MonitoringLocationIdentifier),
+      relationship = "many-to-many"
+    )
 
   .data |> TADA_OrderCols()
 }

@@ -10,6 +10,13 @@ TADA_CrosswalkATTAINSWaterTypes(
   org_only = FALSE,
   replace_all = FALSE
 )
+
+TADA_CrosswalkATTAINSWaterTypes(
+  .data,
+  org_id = NULL,
+  org_only = FALSE,
+  replace_all = FALSE
+)
 }
 \arguments{
 \item{.data}{A TADA data frame.}
@@ -25,12 +32,25 @@ If FALSE, only fill missing values. Default is FALSE.}
 }
 \value{
 A TADA data frame with ATTAINS.WaterType populated.
+
+A TADA data frame with ATTAINS.WaterType populated.
 }
 \description{
 Adds or updates ATTAINS.WaterType using TADA.MonitoringLocationTypeName.
 By default, only missing ATTAINS.WaterType values are populated.
+
+Adds or updates ATTAINS.WaterType using TADA.MonitoringLocationTypeName.
+By default, only missing ATTAINS.WaterType values are populated.
 }
 \examples{
+
+\dontrun{
+
+# example for MT data
+testdat <- Data_MT_MissoulaCounty
+
+crosswalk <- TADA_CrosswalkATTAINSWaterTypes(testat, org_Id = "MTDEQ")
+}
 
 \dontrun{
 
