@@ -4942,7 +4942,9 @@ TADA_CreatePointAUs <- function(
     auid_prefix = auid_prefix
   )
 
-  list(crosswalk = PointAU.Crosswalk, geometry = PointAU.Geometry)
+  PointAUs <- list(crosswalk = PointAU.Crosswalk, geometry = PointAU.Geometry)
+
+  return(PointAUs)
 }
 
 #' Build ATTAINS water type crosswalk
