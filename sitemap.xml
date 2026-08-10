@@ -183,6 +183,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateWQXCharValRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-get_downloads_path.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-setEQKey.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/dot-sf_layer_equal.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/fetchATTAINS.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/fetchNHD.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/fetchWaterType.html</loc></url>
@@ -204,6 +205,6 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/renameATTAINSCols.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/showMissingATTAINSAUs.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/wqx3_fullPhysChem.html</loc></url>
-<url><loc>https://usepa.github.io/EPATADA/reference/writeLayer.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/writeLayerIfChanged.html</loc></url>
 </urlset>
 

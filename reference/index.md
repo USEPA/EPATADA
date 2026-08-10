@@ -494,7 +494,7 @@
 
 - [`getFeatureLayer()`](https://usepa.github.io/EPATADA/reference/getFeatureLayer.md)
   : Retrieve feature layer from ArcGIS REST service getFeatureLayer is
-  used by writeLayer to write feature layers to local files
+  used by writeLayerIfChanged to write feature layers to local files
 
 - [`getMapIconLabels()`](https://usepa.github.io/EPATADA/reference/getMapIconLabels.md)
   : getMapIconLabels
@@ -536,7 +536,8 @@
 - [`wqx3_fullPhysChem`](https://usepa.github.io/EPATADA/reference/wqx3_fullPhysChem.md)
   : wqx3_fullPhysChem
 
-- [`writeLayer()`](https://usepa.github.io/EPATADA/reference/writeLayer.md)
+- [`writeLayerIfChanged()`](https://usepa.github.io/EPATADA/reference/writeLayerIfChanged.md)
   : Download a spatial file from an API and save it to a local folder,
-  overwriting existing file if it exists writeLayer is used by
-  TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
+  overwriting existing file if it exists and has changed.
+  writeLayerIfChanged is used by TADA_UpdateTribalLayers in
+  TADAGeospatialRefLayers.R.

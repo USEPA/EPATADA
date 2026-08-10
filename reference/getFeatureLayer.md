@@ -1,7 +1,7 @@
-# Retrieve feature layer from ArcGIS REST service getFeatureLayer is used by writeLayer to write feature layers to local files
+# Retrieve feature layer from ArcGIS REST service getFeatureLayer is used by writeLayerIfChanged to write feature layers to local files
 
 Retrieve feature layer from ArcGIS REST service getFeatureLayer is used
-by writeLayer to write feature layers to local files
+by writeLayerIfChanged to write feature layers to local files
 
 ## Usage
 
