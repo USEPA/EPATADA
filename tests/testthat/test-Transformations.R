@@ -314,7 +314,7 @@ test_that("daily aggregation preserves considered-but-not-selected rows (dummy)"
 
   # The higher value should be selected
   expect_true(any(
-    out$ResultIdentifier == "RID-1" &
+    out$ResultIdentifier == "TADA-RID-1" &
       out$TADA.ResultValueAggregation.Flag == "Selected as max aggregate value"
   ))
 })
