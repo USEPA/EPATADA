@@ -542,9 +542,11 @@ testthat::test_that("TADA_Scatterplot errors when required columns are missing",
 
 testthat::test_that("TADA_Scatterplot uses default id_cols when NULL is supplied", {
   df <- data.frame(
-    TADA.ComparableDataIdentifier = c("PH_NONE_NONE_NONE",
-                                      "PH_NONE_NONE_NONE",
-                                      "TEMPERATURE_NONE_NONE_DEG C"),
+    TADA.ComparableDataIdentifier = c(
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE",
+      "TEMPERATURE_NONE_NONE_DEG C"
+    ),
     ActivityStartDate = as.Date(c("2020-01-01", "2020-01-02", "2020-01-03")),
     TADA.ResultMeasureValue = c(5, 7, 11),
     TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE", "DEG C"),
@@ -576,7 +578,10 @@ testthat::test_that("TADA_Scatterplot uses default id_cols when NULL is supplied
 
 testthat::test_that("TADA_Scatterplot warns when TADA.ComparableDataIdentifier is not in id_cols", {
   df <- data.frame(
-    TADA.ComparableDataIdentifier = c("TEMPERATURE_NONE_NONE_DEG C", "TEMPERATURE_NONE_NONE_DEG C"),
+    TADA.ComparableDataIdentifier = c(
+      "TEMPERATURE_NONE_NONE_DEG C",
+      "TEMPERATURE_NONE_NONE_DEG C"
+    ),
     ActivityStartDate = as.Date(c("2020-01-01", "2020-01-02")),
     TADA.ResultMeasureValue = c(4, 6.5),
     TADA.ResultMeasure.MeasureUnitCode = c("DEG C", "DEG C"),
@@ -636,21 +641,36 @@ testthat::test_that("TADA_Scatterplot returns a single plotly object for one gro
   testthat::expect_s3_class(p, "plotly")
   testthat::expect_s3_class(p, "htmlwidget")
   testthat::expect_match(p$x$layoutAttrs[[1]]$title, "Scatterplot of \nPH")
-  testthat::expect_equal(p$x$layoutAttrs[[1]]$xaxis$title, "Activity Start Date")
+  testthat::expect_equal(
+    p$x$layoutAttrs[[1]]$xaxis$title,
+    "Activity Start Date"
+  )
   testthat::expect_equal(p$x$layoutAttrs[[1]]$yaxis$title, "NONE")
 })
 
 testthat::test_that("TADA_Scatterplot returns a named list for multiple groups", {
   df <- data.frame(
-    TADA.ComparableDataIdentifier = c("PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE",
-                                      "TEMPERATURE_NONE_NONE_DEG C", "TEMPERATURE_NONE_NONE_DEG C"),
-    ActivityStartDate = as.Date(c("2020-01-01", "2020-01-02",
-                                  "2020-01-03","2020-01-02")),
+    TADA.ComparableDataIdentifier = c(
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE",
+      "TEMPERATURE_NONE_NONE_DEG C",
+      "TEMPERATURE_NONE_NONE_DEG C"
+    ),
+    ActivityStartDate = as.Date(c(
+      "2020-01-01",
+      "2020-01-02",
+      "2020-01-03",
+      "2020-01-02"
+    )),
     TADA.ResultMeasureValue = c(4.5, 5, 5, 8),
     TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE", "DEG C", "DEG C"),
     ActivityStartDateTime = as.POSIXct(
-      c("2020-01-01 10:00:00", "2020-01-02 11:00:00",
-        "2020-01-03 12:00:00", "2020-01-02 11:00:00"),
+      c(
+        "2020-01-01 10:00:00",
+        "2020-01-02 11:00:00",
+        "2020-01-03 12:00:00",
+        "2020-01-02 11:00:00"
+      ),
       tz = "UTC"
     ),
     MonitoringLocationName = c("Site 1", "Site 1", "Site 2", "Site 2"),
@@ -703,13 +723,15 @@ testthat::test_that("TADA_Scatterplot populates trace x and y correctly", {
 
   testthat::expect_equal(p$x$attrs[[1]]$x[1], df$ActivityStartDate[1])
   testthat::expect_equal(p$x$attrs[[1]]$y[1], df$TADA.ResultMeasureValue[1])
-
-
 })
 
 testthat::test_that("TADA_Scatterplot groups by multiple id_cols", {
   df <- data.frame(
-    TADA.ComparableDataIdentifier = c("PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE"),
+    TADA.ComparableDataIdentifier = c(
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE"
+    ),
     MonitoringLocationTypeName = c("Stream", "Stream", "Lake"),
     ActivityStartDate = as.Date(c("2020-01-01", "2020-01-02", "2020-01-03")),
     TADA.ResultMeasureValue = c(5, 5.5, 7),
