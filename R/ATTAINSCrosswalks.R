@@ -4867,10 +4867,10 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #'
 #' @export
 TADA_CreatePointAUs <- function(
-    .data,
-    auid_prefix = NULL,
-    create_geo = FALSE,
-    download_geo = FALSE
+  .data,
+  auid_prefix = NULL,
+  create_geo = FALSE,
+  download_geo = FALSE
 ) {
   req <- c("TADA.MonitoringLocationIdentifier")
   geo_req <- c(
@@ -4941,10 +4941,7 @@ TADA_CreatePointAUs <- function(
     auid_prefix = auid_prefix
   )
 
-  PointAUs <- list(
-    crosswalk = PointAU.Crosswalk,
-    geometry = PointAU.Geometry
-  )
+  PointAUs <- list(crosswalk = PointAU.Crosswalk, geometry = PointAU.Geometry)
 
   return(PointAUs)
 }
@@ -5093,10 +5090,10 @@ build_attains_water_type_crosswalk <- function(
 #' crosswalk <- TADA_CrosswalkATTAINSWaterTypes(testat, org_Id = "MTDEQ")
 #' }
 TADA_CrosswalkATTAINSWaterTypes <- function(
-    .data,
-    org_id = NULL,
-    org_only = FALSE,
-    replace_all = FALSE
+  .data,
+  org_id = NULL,
+  org_only = FALSE,
+  replace_all = FALSE
 ) {
   required_cols <- c(
     "TADA.MonitoringLocationIdentifier",
@@ -5112,7 +5109,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 
   if (
     !is.null(org_id) &&
-    (!is.character(org_id) || length(org_id) != 1 || is.na(org_id))
+      (!is.character(org_id) || length(org_id) != 1 || is.na(org_id))
   ) {
     stop(
       "TADA_CrosswalkATTAINSWaterTypes: org_id must be NULL or a single non-NA character string."
@@ -5136,9 +5133,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   # normalize blanks to NA
   if ("ATTAINS.WaterType" %in% names(.data)) {
     .data <- .data |>
-      dplyr::mutate(
-        ATTAINS.WaterType = dplyr::na_if(ATTAINS.WaterType, "")
-      )
+      dplyr::mutate(ATTAINS.WaterType = dplyr::na_if(ATTAINS.WaterType, ""))
   }
 
   # Keep one row per monitoring location for the lookup
@@ -5164,9 +5159,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   if ("ATTAINS.WaterType" %in% names(lookup)) {
     if (isTRUE(replace_all)) {
       lookup <- lookup |>
-        dplyr::mutate(
-          ATTAINS.WaterType = TADA.ATTAINS.WaterType
-        )
+        dplyr::mutate(ATTAINS.WaterType = TADA.ATTAINS.WaterType)
     } else {
       lookup <- lookup |>
         dplyr::mutate(
@@ -5178,17 +5171,12 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     }
   } else {
     lookup <- lookup |>
-      dplyr::mutate(
-        ATTAINS.WaterType = TADA.ATTAINS.WaterType
-      )
+      dplyr::mutate(ATTAINS.WaterType = TADA.ATTAINS.WaterType)
   }
 
   # Return only what we need
   lookup <- lookup |>
-    dplyr::select(
-      TADA.MonitoringLocationIdentifier,
-      ATTAINS.WaterType
-    )
+    dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.WaterType)
 
   # Join back to original data
   .data <- .data |>
