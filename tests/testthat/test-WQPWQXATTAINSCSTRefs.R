@@ -187,7 +187,7 @@ testthat::test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
   )
 })
 
-testthat::test_that("Is TADA_GetWQXCharAliasRef older than 1 month apart?", {
+testthat::test_that("Is TADA_GetWQXCharAliasRef more than 1 month old?", {
   testthat::skip_on_cran()
 
   file_path <- system.file(
@@ -216,7 +216,7 @@ testthat::test_that("Is TADA_GetWQXCharAliasRef older than 1 month apart?", {
   testthat::expect_true(
     abs(as.numeric(new_max - old_max)) < 30,
     info = paste0(
-      "Difference between old and new Last.Change.Date values is older than 1 month. ",
+      "Difference between old and new Last.Change.Date is more than 1 month. ",
       "Old max: ",
       old_max,
       ", New max: ",
