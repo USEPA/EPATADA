@@ -4908,8 +4908,7 @@ TADA_CreatePointAUs <- function(
   if (isTRUE(need_crosswalk)) {
     if (!"TADA.MonitoringLocationTypeName" %in% names(.data)) {
       stop(
-        "TADA_CreatePointAUs: Missing required column for water-type crosswalk: ",
-        "TADA.MonitoringLocationTypeName"
+        "TADA_CreatePointAUs: Missing required column for water-type crosswalk: TADA.MonitoringLocationTypeName"
       )
     }
 

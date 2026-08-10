@@ -858,7 +858,7 @@ testthat::test_that("TADA_CreatePointAUs errors when water crosswalk is needed b
 
   testthat::expect_error(
     TADA_CreatePointAUs(df),
-    "TADA_CreatePointAUs: Missing required column: TADA.MonitoringLocationTypeName"
+    "TADA_CreatePointAUs: Missing required column for water-type crosswalk: TADA.MonitoringLocationTypeName"
   )
 })
 
