@@ -16,6 +16,7 @@ ActivityMetric
 ActivityRelativeDepthName
 ActivityStartDate
 ActivityStartDateTime
+ActivityStartDates
 ActivityTopDepthHeightMeasure
 ActivityType
 ActivityTypeCode
@@ -284,6 +285,7 @@ ReplicateSampleID
 ResultAggregation
 ResultAnalyticalMethod
 ResultCommentText
+ResultCount
 ResultDepthHeightMeasure
 ResultDetectionConditionText
 ResultIdentifier
@@ -332,6 +334,7 @@ StringA
 StringB
 SubstituteDeprecatedChars
 SummarizeColumn
+SummarizeResultFrequency
 SummationFractionNotes
 SummationName
 SummationNote
@@ -359,6 +362,7 @@ TP
 TargetUnit
 Tesuque
 Thawley
+TimePeriodForSummary
 TribalNations
 TribalOptions
 UG
