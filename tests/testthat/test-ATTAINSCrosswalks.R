@@ -896,7 +896,7 @@ testthat::test_that("TADA_CreatePointAUs does not modify existing non-missing, n
   )
 })
 
-testthat::test_that("TADA_CreatePointAUs returns list containng crosswalk and geometry when create_geo equals TRUE", {
+testthat::test_that("TADA_CreatePointAUs returns list containing crosswalk and geometry when create_geo equals TRUE", {
   df <- Data_TribalNations_Harmonized |>
     dplyr::filter(OrganizationFormalName == "Blackfeet Nation (Montana)")
 
