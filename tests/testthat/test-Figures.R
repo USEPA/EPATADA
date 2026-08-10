@@ -792,3 +792,192 @@ testthat::test_that("TADA_Scatterplot errors when id_cols do not exist", {
     ignore.case = TRUE
   ))
 })
+
+
+# Helper: minimal mock dataset for two characteristic and grouped scatterplots
+make_test_scatter_data <- function() {
+  tibble::tibble(
+    TADA.ComparableDataIdentifier = c("PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE",
+                                      "TEMPERATURE_NONE_NONE_DEG C", "TEMPERATURE_NONE_NONE_DEG C"),
+    ActivityStartDate = as.Date(c("2020-01-01", "2020-01-02", "2020-01-01", "2020-01-02")),
+    ActivityStartDateTime = c(
+      "2020-01-01 08:00:00",
+      "2020-01-02 08:00:00",
+      "2020-01-01 09:00:00",
+      "2020-01-02 09:00:00"
+    ),
+    TADA.ResultMeasureValue = c(5, 7, 10, 12),
+    TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE", "DEG C", "DEG C"),
+    MonitoringLocationName = c("Loc1", "Loc1", "Loc2", "Loc2"),
+    OrganizationFormalName = c("Org1", "Org1", "Org2", "Org2"),
+    TADA.ActivityMediaName = c("Water", "Water", "Water", "Water"),
+    ActivityMediaSubdivisionName = c("Surface", "Surface", "Surface", "Surface"),
+    ActivityRelativeDepthName = c("Top", "Top", "Bottom", "Bottom"),
+    TADA.CharacteristicName = c("PH", "PH", "TEMPERATURE", "TEMPERATURE"),
+    TADA.MethodSpeciationName = c("NONE", "NONE", "NONE", "NONE"),
+    TADA.ResultSampleFractionText = c("NONE", "NONE", "NONE", "NONE"),
+    TADA.ResultDepthHeightMeasure.MeasureValue = c(1, 1, 2, 2),
+    TADA.ResultDepthHeightMeasure.MeasureUnitCode = c("m", "m", "m", "m"),
+    TADA.ActivityDepthHeightMeasure.MeasureValue = c(10, 10, 20, 20),
+    TADA.ActivityDepthHeightMeasure.MeasureUnitCode = c("m", "m", "m", "m"),
+    TADA.ActivityTopDepthHeightMeasure.MeasureValue = c(0, 0, 0, 0),
+    TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode = c("m", "m", "m", "m"),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureValue = c(5, 5, 5, 5),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode = c("m", "m", "m", "m")
+  )
+}
+
+# tests for TADA_TwoCharacteristicScatterplot
+testthat::test_that("TADA_TwoCharacteristicScatterplot returns a plotly object for valid inputs", {
+
+  df <- make_test_scatter_data()
+
+  # Mock package helpers
+  local_mocked_bindings(
+    TADA_CheckColumns = function(.data, expected_cols) {
+      expect_true(is.data.frame(.data))
+      expect_true(all(expected_cols %in% names(.data)))
+      invisible(TRUE)
+    }
+  )
+
+  p <- TADA_TwoCharacteristicScatterplot(
+    .data = df,
+    groups = c("PH_NONE_NONE_NONE",
+               "TEMPERATURE_NONE_NONE_DEG C")
+  )
+
+  testthat::expect_s3_class(p, "plotly")
+})
+
+testthat::test_that("TADA_TwoCharacteristicScatterplot errors when groups not found", {
+  df <- make_test_scatter_data()
+
+  local_mocked_bindings(
+    TADA_CheckColumns = function(.data, expected_cols) invisible(TRUE)
+  )
+
+  testthat::expect_error(
+    TADA_TwoCharacteristicScatterplot(
+      .data = df,
+      groups = c("PH_NONE_NONE_NONE", "Not_A_Group")
+    ),
+    "The 'groups' vector contains one or more inputs that are not found"
+  )
+})
+
+testthat::test_that("TADA_TwoCharacteristicScatterplot allows id_cols = NULL and still uses comparable identifier", {
+  df <- make_test_scatter_data()
+
+  local_mocked_bindings(
+    TADA_CheckColumns = function(.data, expected_cols) invisible(TRUE)
+  )
+
+  testthat::expect_silent(
+    p <- TADA_TwoCharacteristicScatterplot(
+      .data = df,
+      id_cols = NULL,
+      groups = c("PH_NONE_NONE_NONE",
+                 "TEMPERATURE_NONE_NONE_DEG C")
+    )
+  )
+
+  testthat::expect_s3_class(p, "plotly")
+})
+
+testthat::test_that("TADA_TwoCharacteristicScatterplot warns by message when TADA.ComparableDataIdentifier not in id_cols", {
+  df <- make_test_scatter_data()
+  df$SomeOtherID <- df$TADA.ComparableDataIdentifier
+
+  local_mocked_bindings(
+    TADA_CheckColumns = function(.data, expected_cols) {
+      expect_true("SomeOtherID" %in% expected_cols)
+      invisible(TRUE)
+    }
+  )
+
+  testthat::expect_message(
+    TADA_TwoCharacteristicScatterplot(
+      .data = df,
+      id_cols = c("SomeOtherID"),
+      groups = c("PH_NONE_NONE_NONE",
+                 "TEMPERATURE_NONE_NONE_DEG C")
+    ),
+    "highly recommended"
+  )
+})
+
+# tests for TADA_GroupedScatterplot
+testthat::test_that("TADA_GroupedScatterplot returns a plotly object when one comparable identifier is present", {
+  df <- make_test_scatter_data() |>
+    dplyr::filter(TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE") |>
+    dplyr::mutate(MonitoringLocationName = ifelse(ActivityStartDate == "2020-01-02",
+                                                        "Loc2", MonitoringLocationName))
+
+
+  p <- TADA_GroupedScatterplot(
+    .data = df,
+    group_col = "MonitoringLocationName",
+    groups = c("Loc1", "Loc2")
+  )
+
+  testthat::expect_s3_class(p, "plotly")
+})
+
+testthat::test_that("TADA_GroupedScatterplot errors when group_col has length > 1", {
+  df <- make_test_scatter_data()
+
+  local_mocked_bindings(
+    TADA_CheckColumns = function(.data, expected_cols) invisible(TRUE)
+  )
+
+  testthat::expect_error(
+    TADA_GroupedScatterplot(
+      .data = data,
+      group_col = c("MonitoringLocationName", "OrganizationFormalName"),
+      groups = c("Loc1", "Loc2")
+    ),
+    "group_col argument can only be a single value"
+  )
+})
+
+testthat::test_that("TADA_GroupedScatterplot errors when only one group is supplied", {
+  df <- make_test_scatter_data()
+
+  testthat::expect_error(
+    TADA_GroupedScatterplot(
+      .data = df,
+      group_col = "MonitoringLocationName",
+      groups = c("Loc1")
+    ),
+    "requires at least two 'groups'"
+  )
+})
+
+testthat::test_that("TADA_GroupedScatterplot errors when requested groups are missing", {
+  data <- make_test_scatter_data()
+
+  testthat::expect_error(
+    TADA_GroupedScatterplot(
+      .data = data,
+      group_col = "MonitoringLocationName",
+      groups = c("Loc1", "MissingLoc")
+    ),
+    "are not found in the TADA dataframe"
+  )
+})
+
+testthat::test_that("TADA_GroupedScatterplot returns a list of plotly objects when multiple identifiers exist", {
+  df <- make_test_scatter_data()
+
+  out <- TADA_GroupedScatterplot(
+    .data = df,
+    group_col = "MonitoringLocationName",
+    groups = c("Loc1", "Loc2")
+  )
+
+  testthat::expect_type(out, "list")
+  testthat::expect_length(out, 2)
+  testthat::expect_s3_class(out[[1]], "plotly")
+  testthat::expect_s3_class(out[[2]], "plotly")
+})
