@@ -611,7 +611,7 @@ wo
 wqp
 wqs
 wqx
-writeLayer
+writeLayerIfChanged
 www
 xlsx
 xmax
