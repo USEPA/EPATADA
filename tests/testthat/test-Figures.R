@@ -523,3 +523,272 @@ testthat::test_that("TADA_FieldValuesPie handles category limits and filters", {
   testthat::expect_equal(nrow(ggplot2::ggplot_build(p_filter)$data[[1]]), 1)
   testthat::expect_s3_class(p_filter, "ggplot")
 })
+
+# tests for TADA_Scatterplot
+
+testthat::test_that("TADA_Scatterplot errors when required columns are missing", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = "A",
+    ActivityStartDate = as.Date("2020-01-01")
+    # missing TADA.ResultMeasureValue and unit code
+  )
+
+  testthat::expect_error(
+    TADA_Scatterplot(df),
+    regexp = "missing|required|column",
+    ignore.case = TRUE
+  )
+})
+
+testthat::test_that("TADA_Scatterplot uses default id_cols when NULL is supplied", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = c(
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE",
+      "TEMPERATURE_NONE_NONE_DEG C"
+    ),
+    ActivityStartDate = as.Date(c("2020-01-01", "2020-01-02", "2020-01-03")),
+    TADA.ResultMeasureValue = c(5, 7, 11),
+    TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE", "DEG C"),
+    ActivityStartDateTime = as.POSIXct(
+      c("2020-01-01 10:00:00", "2020-01-02 11:00:00", "2020-01-03 12:00:00"),
+      tz = "UTC"
+    ),
+    MonitoringLocationName = c("Site 1", "Site 1", "Site 2"),
+    OrganizationFormalName = c("Org", "Org", "Org"),
+    TADA.ActivityMediaName = c("Water", "Water", "Water"),
+    ActivityMediaSubdivisionName = c("River", "River", "Lake"),
+    TADA.ResultDepthHeightMeasure.MeasureValue = c(NA, NA, NA),
+    TADA.ResultDepthHeightMeasure.MeasureUnitCode = c(NA, NA, NA),
+    ActivityRelativeDepthName = c(NA, NA, NA),
+    TADA.ActivityDepthHeightMeasure.MeasureValue = c(NA, NA, NA),
+    TADA.ActivityDepthHeightMeasure.MeasureUnitCode = c(NA, NA, NA),
+    TADA.ActivityTopDepthHeightMeasure.MeasureValue = c(NA, NA, NA),
+    TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode = c(NA, NA, NA),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureValue = c(NA, NA, NA),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode = c(NA, NA, NA)
+  )
+
+  p <- TADA_Scatterplot(df, id_cols = NULL)
+
+  testthat::expect_type(p, "list")
+  testthat::expect_named(p, c("PH", "TEMPERATURE DEG C"))
+  testthat::expect_true(all(vapply(p, inherits, logical(1), "plotly")))
+})
+
+testthat::test_that("TADA_Scatterplot warns when TADA.ComparableDataIdentifier is not in id_cols", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = c(
+      "TEMPERATURE_NONE_NONE_DEG C",
+      "TEMPERATURE_NONE_NONE_DEG C"
+    ),
+    ActivityStartDate = as.Date(c("2020-01-01", "2020-01-02")),
+    TADA.ResultMeasureValue = c(4, 6.5),
+    TADA.ResultMeasure.MeasureUnitCode = c("DEG C", "DEG C"),
+    ActivityStartDateTime = as.POSIXct(
+      c("2020-01-01 10:00:00", "2020-01-02 11:00:00"),
+      tz = "UTC"
+    ),
+    MonitoringLocationName = c("Site 1", "Site 1"),
+    OrganizationFormalName = c("Org", "Org"),
+    TADA.ActivityMediaName = c("Water", "Water"),
+    ActivityMediaSubdivisionName = c("River", "River"),
+    TADA.ResultDepthHeightMeasure.MeasureValue = c(NA, NA),
+    TADA.ResultDepthHeightMeasure.MeasureUnitCode = c(NA, NA),
+    ActivityRelativeDepthName = c(NA, NA),
+    TADA.ActivityDepthHeightMeasure.MeasureValue = c(NA, NA),
+    TADA.ActivityDepthHeightMeasure.MeasureUnitCode = c(NA, NA),
+    TADA.ActivityTopDepthHeightMeasure.MeasureValue = c(NA, NA),
+    TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode = c(NA, NA),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureValue = c(NA, NA),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode = c(NA, NA)
+  )
+
+  testthat::expect_warning(
+    TADA_Scatterplot(df, id_cols = "MonitoringLocationName"),
+    regexp = "highly recommended",
+    fixed = FALSE
+  )
+})
+
+testthat::test_that("TADA_Scatterplot returns a single plotly object for one group", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = c("PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE"),
+    ActivityStartDate = as.Date(c("2020-01-01", "2020-01-02")),
+    TADA.ResultMeasureValue = c(5.5, 6),
+    TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE"),
+    ActivityStartDateTime = as.POSIXct(
+      c("2020-01-01 10:00:00", "2020-01-02 11:00:00"),
+      tz = "UTC"
+    ),
+    MonitoringLocationName = c("Site 1", "Site 1"),
+    OrganizationFormalName = c("Org", "Org"),
+    TADA.ActivityMediaName = c("Water", "Water"),
+    ActivityMediaSubdivisionName = c("River", "River"),
+    TADA.ResultDepthHeightMeasure.MeasureValue = c(NA, NA),
+    TADA.ResultDepthHeightMeasure.MeasureUnitCode = c(NA, NA),
+    ActivityRelativeDepthName = c(NA, NA),
+    TADA.ActivityDepthHeightMeasure.MeasureValue = c(NA, NA),
+    TADA.ActivityDepthHeightMeasure.MeasureUnitCode = c(NA, NA),
+    TADA.ActivityTopDepthHeightMeasure.MeasureValue = c(NA, NA),
+    TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode = c(NA, NA),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureValue = c(NA, NA),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode = c(NA, NA)
+  )
+
+  p <- TADA_Scatterplot(df)
+
+  testthat::expect_s3_class(p, "plotly")
+  testthat::expect_s3_class(p, "htmlwidget")
+  testthat::expect_match(p$x$layoutAttrs[[1]]$title, "Scatterplot of \nPH")
+  testthat::expect_equal(
+    p$x$layoutAttrs[[1]]$xaxis$title,
+    "Activity Start Date"
+  )
+  testthat::expect_equal(p$x$layoutAttrs[[1]]$yaxis$title, "NONE")
+})
+
+testthat::test_that("TADA_Scatterplot returns a named list for multiple groups", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = c(
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE",
+      "TEMPERATURE_NONE_NONE_DEG C",
+      "TEMPERATURE_NONE_NONE_DEG C"
+    ),
+    ActivityStartDate = as.Date(c(
+      "2020-01-01",
+      "2020-01-02",
+      "2020-01-03",
+      "2020-01-02"
+    )),
+    TADA.ResultMeasureValue = c(4.5, 5, 5, 8),
+    TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE", "DEG C", "DEG C"),
+    ActivityStartDateTime = as.POSIXct(
+      c(
+        "2020-01-01 10:00:00",
+        "2020-01-02 11:00:00",
+        "2020-01-03 12:00:00",
+        "2020-01-02 11:00:00"
+      ),
+      tz = "UTC"
+    ),
+    MonitoringLocationName = c("Site 1", "Site 1", "Site 2", "Site 2"),
+    OrganizationFormalName = c("Org", "Org", "Org", "Org"),
+    TADA.ActivityMediaName = c("Water", "Water", "Water", "Water"),
+    ActivityMediaSubdivisionName = c("River", "River", "Lake", "Lake"),
+    TADA.ResultDepthHeightMeasure.MeasureValue = c(NA, NA, NA, NA),
+    TADA.ResultDepthHeightMeasure.MeasureUnitCode = c(NA, NA, NA, NA),
+    ActivityRelativeDepthName = c(NA, NA, NA, NA),
+    TADA.ActivityDepthHeightMeasure.MeasureValue = c(NA, NA, NA, NA),
+    TADA.ActivityDepthHeightMeasure.MeasureUnitCode = c(NA, NA, NA, NA),
+    TADA.ActivityTopDepthHeightMeasure.MeasureValue = c(NA, NA, NA, NA),
+    TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode = c(NA, NA, NA, NA),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureValue = c(NA, NA, NA, NA),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode = c(NA, NA, NA, NA)
+  )
+
+  p <- TADA_Scatterplot(df)
+
+  testthat::expect_type(p, "list")
+  testthat::expect_named(p, c("PH", "TEMPERATURE DEG C"))
+  testthat::expect_true(all(vapply(p, inherits, logical(1), "plotly")))
+})
+
+testthat::test_that("TADA_Scatterplot populates trace x and y correctly", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = c("PH_NONE_NONE_NONE", "PH_NONE_NONE_NONE"),
+    ActivityStartDate = as.Date(c("2020-01-01", "2020-01-02")),
+    TADA.ResultMeasureValue = c(5.5, 6),
+    TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE"),
+    ActivityStartDateTime = as.POSIXct(
+      c("2020-01-01 10:00:00", "2020-01-02 11:00:00"),
+      tz = "UTC"
+    ),
+    MonitoringLocationName = c("Site 1", "Site 1"),
+    OrganizationFormalName = c("Org", "Org"),
+    TADA.ActivityMediaName = c("Water", "Water"),
+    ActivityMediaSubdivisionName = c("River", "River"),
+    TADA.ResultDepthHeightMeasure.MeasureValue = c(NA, NA),
+    TADA.ResultDepthHeightMeasure.MeasureUnitCode = c(NA, NA),
+    ActivityRelativeDepthName = c(NA, NA),
+    TADA.ActivityDepthHeightMeasure.MeasureValue = c(NA, NA),
+    TADA.ActivityDepthHeightMeasure.MeasureUnitCode = c(NA, NA),
+    TADA.ActivityTopDepthHeightMeasure.MeasureValue = c(NA, NA),
+    TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode = c(NA, NA),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureValue = c(NA, NA),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode = c(NA, NA)
+  )
+  p <- TADA_Scatterplot(df)
+
+  testthat::expect_equal(p$x$attrs[[1]]$x[1], df$ActivityStartDate[1])
+  testthat::expect_equal(p$x$attrs[[1]]$y[1], df$TADA.ResultMeasureValue[1])
+})
+
+testthat::test_that("TADA_Scatterplot groups by multiple id_cols", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = c(
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE",
+      "PH_NONE_NONE_NONE"
+    ),
+    MonitoringLocationTypeName = c("Stream", "Stream", "Lake"),
+    ActivityStartDate = as.Date(c("2020-01-01", "2020-01-02", "2020-01-03")),
+    TADA.ResultMeasureValue = c(5, 5.5, 7),
+    TADA.ResultMeasure.MeasureUnitCode = c("NONE", "NONE", "NONE"),
+    ActivityStartDateTime = as.POSIXct(
+      c("2020-01-01 10:00:00", "2020-01-02 11:00:00", "2020-01-03 12:00:00"),
+      tz = "UTC"
+    ),
+    MonitoringLocationName = c("Site 1", "Site 1", "Site 2"),
+    OrganizationFormalName = c("Org", "Org", "Org"),
+    TADA.ActivityMediaName = c("Water", "Water", "Water"),
+    ActivityMediaSubdivisionName = c("River", "River", "Lake"),
+    TADA.ResultDepthHeightMeasure.MeasureValue = c(NA, NA, NA),
+    TADA.ResultDepthHeightMeasure.MeasureUnitCode = c(NA, NA, NA),
+    ActivityRelativeDepthName = c(NA, NA, NA),
+    TADA.ActivityDepthHeightMeasure.MeasureValue = c(NA, NA, NA),
+    TADA.ActivityDepthHeightMeasure.MeasureUnitCode = c(NA, NA, NA),
+    TADA.ActivityTopDepthHeightMeasure.MeasureValue = c(NA, NA, NA),
+    TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode = c(NA, NA, NA),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureValue = c(NA, NA, NA),
+    TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode = c(NA, NA, NA)
+  )
+
+  p <- TADA_Scatterplot(
+    df,
+    id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName")
+  )
+
+  testthat::expect_type(p, "list")
+  testthat::expect_length(p, 2)
+})
+
+testthat::test_that("TADA_Scatterplot errors when id_cols do not exist", {
+  df <- data.frame(
+    TADA.ComparableDataIdentifier = "PH_NONE_NONE_NONE",
+    ActivityStartDate = as.Date("2020-01-01"),
+    TADA.ResultMeasureValue = 6.5,
+    TADA.ResultMeasure.MeasureUnitCode = "NONE",
+    ActivityStartDateTime = as.POSIXct("2020-01-01 10:00:00", tz = "UTC"),
+    MonitoringLocationName = "Site 1",
+    OrganizationFormalName = "Org",
+    TADA.ActivityMediaName = "Water",
+    ActivityMediaSubdivisionName = "River",
+    TADA.ResultDepthHeightMeasure.MeasureValue = NA,
+    TADA.ResultDepthHeightMeasure.MeasureUnitCode = NA,
+    ActivityRelativeDepthName = NA,
+    TADA.ActivityDepthHeightMeasure.MeasureValue = NA,
+    TADA.ActivityDepthHeightMeasure.MeasureUnitCode = NA,
+    TADA.ActivityTopDepthHeightMeasure.MeasureValue = NA,
+    TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode = NA,
+    TADA.ActivityBottomDepthHeightMeasure.MeasureValue = NA,
+    TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode = NA
+  )
+
+  suppressWarnings(testthat::expect_error(
+    TADA_Scatterplot(df, id_cols = "NotAColumn"),
+    regexp = "NotAColumn|column",
+    ignore.case = TRUE
+  ))
+})
