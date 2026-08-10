@@ -913,7 +913,7 @@ TADA_GetTADACharAliasRef <- function(
 #'   review. Returned columns include CST entity and use information, ATTAINS
 #'   organization and use name information, review status, and supporting match
 #'   metadata.
-#' 
+#'
 #' @details
 #' Rows marked `APPROVED` or `REJECTED` in `inst/extdata/TADAUsesAliasRef.csv`
 #' are retained in the output when that file is available. New candidate matches
@@ -946,7 +946,7 @@ TADA_GetTADACharAliasRef <- function(
 #' }
 #'
 #' @export
-#'  
+#'
 TADA_GetTADAUsesAliasRef <- function(
   ATTAINS.CST.tolerance = 0.15,
   CST.ATTAINS.tolerance = 0.15,
@@ -1359,10 +1359,12 @@ TADA_GetTADAUsesAliasRef <- function(
       )
     ) |>
     dplyr::bind_rows(TADA_reviewed_list)
-  
+
   allowed_review <- c("APPROVED", "REJECTED", "New row: Needs Review")
-  bad_review <- unique(TADAUsesAliasRef$review[!is.na(TADAUsesAliasRef$review) &
-                                                 !TADAUsesAliasRef$review %in% allowed_review])
+  bad_review <- unique(TADAUsesAliasRef$review[
+    !is.na(TADAUsesAliasRef$review) &
+      !TADAUsesAliasRef$review %in% allowed_review
+  ])
   if (length(bad_review) > 0) {
     stop(
       "Invalid review value(s) found: ",
