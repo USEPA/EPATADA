@@ -35,5 +35,28 @@ unit level by either ATTAINS.WaterType or TADA.MonitoringLocationTypeName.
 
 \dontrun{
 
+# Get test data with both freshwater and saltwater results
+testdat <- TADA_DataRetrieval(statecode = "OR",
+                              startDate = "2023-06-01",
+                              endDate = "2023-06-15",
+                              characteristicType = "Physical",
+                              ask = FALSE)
+
+# Assign saltfresh indicator based on TADA.MonitoringLocationTypeName,
+# using TADA.MonitoringLocationIdentifier as location grouping
+ TADA.example <- TADA_SaltFreshIndicator(testdat,
+                                         location_col = "ML",
+                                         type_col = "TADA")
+
+# Assign ATTAINS water types to test data
+testdat.ATTAINSwattypes <- testdat |>
+  TADA_CrosswalkATTAINSWaterTypes()
+
+# Assign saltfresh indicator based on ATTAINS.WaterType,
+# using ATTAINS.AssessmentUnitIdentifier as location grouping
+ATTAINS.example <- TADA_SaltFreshIndicator(testdat.ATTAINSwattypes,
+                                           location_col = "AU",
+                                           type_col = "ATTAINS")
 }
+
 }
