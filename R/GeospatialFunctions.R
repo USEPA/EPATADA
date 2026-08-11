@@ -3628,23 +3628,27 @@ TADA_CreateAUMLCrosswalk <- function(
 #'
 #' @export
 TADA_CreatePointAUGeometry <- function(
-  .data,
-  target_crs = 4269,
-  download_geo = FALSE,
-  return_geo = TRUE,
-  auid_prefix = NULL
+    .data,
+    target_crs = 4269,
+    download_geo = FALSE,
+    return_geo = TRUE,
+    auid_prefix = NULL
 ) {
+
+  # Required geospatial cols
   coord_req <- c(
     "TADA.LongitudeMeasure",
     "TADA.LatitudeMeasure",
     "HorizontalCoordinateReferenceSystemDatumName"
   )
 
+  # Required id cols
   id_cols <- c(
     "ATTAINS.AssessmentUnitIdentifier",
     "TADA.MonitoringLocationIdentifier"
   )
 
+  # Find missing coordinate cols
   missing_coords <- setdiff(coord_req, names(.data))
   if (length(missing_coords) > 0) {
     stop(
@@ -3653,6 +3657,7 @@ TADA_CreatePointAUGeometry <- function(
     )
   }
 
+  # Find missing id cols
   if (!any(id_cols %in% names(.data))) {
     stop(
       "TADA_CreatePointAUGeometry: Input data must contain at least one of: ",
@@ -3660,48 +3665,45 @@ TADA_CreatePointAUGeometry <- function(
     )
   }
 
-  # Ensure AUID exists if needed / possible
+  # Fill in missing assessment unit ids if needed
   .data <- fill_missing_assessment_unit_id(.data, auid_prefix = auid_prefix)
 
-  # Use AUID for grouping if available; otherwise fall back to ML ID
+  # Set id col
   id.col <- if ("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
     "ATTAINS.AssessmentUnitIdentifier"
   } else {
     "TADA.MonitoringLocationIdentifier"
   }
 
-  .data <- .data |>
+  # Set CRS target
+  crs_target <- sf::st_crs(target_crs)
+
+  # Create geospatial df
+  sf_out <- .data |>
     dplyr::select(rlang::sym(id.col), dplyr::all_of(coord_req)) |>
     dplyr::distinct() |>
-    dplyr::filter(!is.na(TADA.LongitudeMeasure), !is.na(TADA.LatitudeMeasure))
-
-  sf_pts <- sf::st_as_sf(
-    .data,
-    coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
-    crs = 4269,
-    remove = TRUE
-  ) |>
-    sf::st_transform(crs = target_crs)
-
-  sf_out <- sf_pts |>
+    dplyr::filter(!is.na(TADA.LongitudeMeasure), !is.na(TADA.LatitudeMeasure)) |>
+    sf::st_as_sf(
+      coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+      crs = 4269,
+      remove = TRUE
+    ) |>
+    sf::st_transform(crs = target_crs) |>
     dplyr::group_by(!!rlang::sym(id.col)) |>
     dplyr::summarise(
-      n_pts = dplyr::n(),
       geometry = {
-        grp_geom <- geometry
-        coords <- sf::st_coordinates(grp_geom)[, 1:2, drop = FALSE]
-
-        if (n_pts[1] == 1) {
-          sf::st_sfc(grp_geom[[1]], crs = sf::st_crs(sf_pts))
+        coords <- sf::st_coordinates(geometry)[, 1:2, drop = FALSE]
+        if (dplyr::n() == 1) {
+          sf::st_sfc(geometry[[1]], crs = crs_target)
         } else {
-          sf::st_sfc(sf::st_multipoint(coords), crs = sf::st_crs(sf_pts))
+          sf::st_sfc(sf::st_multipoint(coords), crs = crs_target)
         }
       },
       .groups = "drop"
     ) |>
-    dplyr::select(-n_pts) |>
     dplyr::rename(AU_ID = !!rlang::sym(id.col))
 
+  # Save as shp file if required
   if (isTRUE(download_geo)) {
     today <- format(Sys.Date(), "%m_%d_%Y")
     file.name <- paste0("TADAPointAUGeometry_", today)
@@ -3716,13 +3718,10 @@ TADA_CreatePointAUGeometry <- function(
     }
 
     point.path <- .get_downloads_path(file.name)
-
     save_sf_as_shp(sf_out = sf_out, shp_path = point.path)
   }
 
-  if (isTRUE(return_geo)) {
-    return(sf_out)
-  }
+  if (isTRUE(return_geo)) return(sf_out)
 
   invisible(NULL)
 }
