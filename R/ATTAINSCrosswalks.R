@@ -5097,7 +5097,30 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #'
 #' \dontrun{
 #'
+#' # Get test data with both freshwater and saltwater results
+#' testdat <- TADA_DataRetrieval(statecode = "OR",
+#'                               startDate = "2023-06-01",
+#'                               endDate = "2023-06-15",
+#'                               characteristicType = "Physical",
+#'                               ask = FALSE)
+#'
+#' # Assign saltfresh indicator based on TADA.MonitoringLocationTypeName,
+#' # using TADA.MonitoringLocationIdentifier as location grouping
+#'  TADA.example <- TADA_SaltFreshIndicator(testdat,
+#'                                          location_col = "ML",
+#'                                          type_col = "TADA")
+#'
+#' # Assign ATTAINS water types to test data
+#' testdat.ATTAINSwattypes <- testdat |>
+#'   TADA_CrosswalkATTAINSWaterTypes()
+#'
+#' # Assign saltfresh indicator based on ATTAINS.WaterType,
+#' # using ATTAINS.AssessmentUnitIdentifier as location grouping
+#' ATTAINS.example <- TADA_SaltFreshIndicator(testdat.ATTAINSwattypes,
+#'                                            location_col = "AU",
+#'                                            type_col = "ATTAINS")
 #' }
+#'
 TADA_SaltFreshIndicator <- function(.data,
                                     location_col = "AU",
                                     type_col = "ATTAINS") {
@@ -5154,8 +5177,64 @@ TADA_SaltFreshIndicator <- function(.data,
     stop(msg, call. = FALSE)
   }
 
+  # Get unique combinations of location_col and type_col in .data
+  select.cols <- c(reqs$col[1], reqs$col[2])
 
+  unique.pairs <- .data |>
+    dplyr::select(dplyr::all_of(select.cols)) |>
+    dplyr::distinct()
 
+  # Select which crosswalk is needed
+  if(reqs$col[1] == "ATTAINS.AssessmentUnitIdentifier") {
 
+    cw.name <- "ATTAINSWaterTypeToSaltFresh.csv"
 
-}
+    cw.cols <- c("ATTAINS.WaterType",
+                 "TADA.SaltFreshIndicator")
+
+    } else {
+
+      cw.name <- "WQPMonLocTypeToSaltFresh.csv"
+
+      # will need to rename "Name" col
+      cw.cols <- c("TADA.MonitoringLocationTypeName",
+                   "TADA.SaltFreshIndicator")
+    }
+
+  # Load crosswalk
+  crosswalk <- utils::read.csv(system.file(
+    "extdata",
+    cw.name,
+    package = "EPATADA"
+  ))
+
+  # Rename col if required
+  if ("Name" %in% names(crosswalk)) {
+    crosswalk <- dplyr::rename(
+      crosswalk,
+      TADA.MonitoringLocationTypeName = Name
+    )
+  }
+
+  # Retain required columns, keep only distinct rows, and join to unique pairs
+  crosswalk <- crosswalk |>
+    dplyr::select(dplyr::all_of(cw.cols)) |>
+    dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
+    dplyr::distinct() |>
+    dplyr::right_join(unique.pairs,
+                      by = dplyr::join_by(!!rlang::sym(reqs$col[2]))) |>
+    dplyr::distinct()
+
+  # Join crosswalk to .data
+  .data <- .data |>
+    dplyr::left_join(crosswalk,
+                     by = dplyr::join_by(!!rlang::sym(reqs$col[2])))
+
+  # Remove intermediate objects
+  rm(unique.pairs, cw.cols, cw.name,
+     location_col, missing, select.cols,
+     type_col, crosswalk, reqs)
+
+  # Return data with salt fresh indicator
+  return(.data)
+  }
