@@ -804,17 +804,6 @@ testthat::test_that("TADA_CreatePointAUs calls TADA_CrosswalkATTAINSWaterTypes w
     stringsAsFactors = FALSE
   )
 
-  mock_crosswalk <- function(.data, replace_all = FALSE) {
-    expect_false(replace_all)
-    .data$ATTAINS.WaterType <- c("STREAM", "LAKE")
-    .data
-  }
-
-  testthat::local_mocked_bindings(
-    TADA_CrosswalkATTAINSWaterTypes = mock_crosswalk,
-    .env = environment(TADA_CreatePointAUs)
-  )
-
   result <- TADA_CreatePointAUs(df)
 
   testthat::expect_equal(result$ATTAINS.WaterType, c("STREAM", "LAKE"))
@@ -831,16 +820,6 @@ testthat::test_that("TADA_CreatePointAUs calls TADA_CrosswalkATTAINSWaterTypes w
     ATTAINS.AssessmentUnitIdentifier = c(NA_character_, NA_character_),
     ATTAINS.WaterType = c("STREAM", ""),
     stringsAsFactors = FALSE
-  )
-
-  mock_crosswalk <- function(.data, replace_all = FALSE) {
-    .data$ATTAINS.WaterType <- c("STREAM", "LAKE")
-    .data
-  }
-
-  testthat::local_mocked_bindings(
-    TADA_CrosswalkATTAINSWaterTypes = mock_crosswalk,
-    .env = environment(TADA_CreatePointAUs)
   )
 
   result <- TADA_CreatePointAUs(df)
