@@ -793,10 +793,7 @@ test_that("TADA_CreatePointAUs does not modify existing non-missing, non-blank A
 
 # tests for TADA_SaltFreshIndicator
 testthat::test_that("TADA_SaltFresh Indicator errors when required columns are missing for AU/ATTAINS", {
-  df <- data.frame(
-    ATTAINS.WaterType = "Fresh",
-    stringsAsFactors = FALSE
-  )
+  df <- data.frame(ATTAINS.WaterType = "Fresh", stringsAsFactors = FALSE)
 
   testthat::expect_error(
     TADA_SaltFreshIndicator(df, location_col = "AU", type_col = "ATTAINS"),
@@ -840,7 +837,10 @@ testthat::test_that("TADA_SaltFreshIndicator returns data with TADA.SaltFreshInd
 testthat::test_that("TADA_SaltFreshIndicator returns data with TADA.SaltFreshIndicator for ML/TADA", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = c("ML1", "ML2"),
-    TADA.MonitoringLocationTypeName = c("RIVER/STREAM EPHEMERAL", "BEACH PROGRAM SITE-OCEAN"),
+    TADA.MonitoringLocationTypeName = c(
+      "RIVER/STREAM EPHEMERAL",
+      "BEACH PROGRAM SITE-OCEAN"
+    ),
     stringsAsFactors = FALSE
   )
 
@@ -864,16 +864,17 @@ testthat::test_that("does not duplicate output rows when input has duplicate pai
 })
 
 testthat::test_that("produces a useful error message listing each missing column once", {
-  df <- data.frame(
-    x = 1:3
-  )
+  df <- data.frame(x = 1:3)
 
   err <- expect_error(
     TADA_SaltFreshIndicator(df, location_col = "ML", type_col = "TADA"),
     class = "error"
   )
 
-  testthat::expect_match(err$message, "TADA_SaltFreshIndicator: missing required column\\(s\\):")
+  testthat::expect_match(
+    err$message,
+    "TADA_SaltFreshIndicator: missing required column\\(s\\):"
+  )
   testthat::expect_match(err$message, "TADA\\.MonitoringLocationIdentifier")
   testthat::expect_match(err$message, "TADA\\.MonitoringLocationTypeName")
 })
