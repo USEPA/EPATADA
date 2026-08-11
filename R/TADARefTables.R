@@ -1005,6 +1005,7 @@ TADA_GetTADAUsesAliasRef <- function(
       CRITERIATYPEAQUAHUMHLTH = character(),
       CRITERIATYPEFRESHSALTWATER = character(),
       CRITERIATYPE_ACUTECHRONIC = character(),
+      CRITERIATYPE_WATERORG = character(),
       USE_CLASS_NAME_LOCATION_ETC = character(),
       ATTAINS.OrganizationIdentifier = character(),
       context2 = character(),
@@ -1048,22 +1049,22 @@ TADA_GetTADAUsesAliasRef <- function(
       rep("RECREATION_USE", 2)
     ),
     CRITERIATYPEAQUAHUMHLTH = c(
-      "A",
-      "H",
-      NA_character_,
-      "H",
-      NA_character_,
-      "H",
-      NA_character_,
-      "A",
-      NA_character_,
-      "H",
-      NA_character_,
-      "A",
-      "H",
-      NA_character_,
-      "H",
-      NA_character_
+      "A", "H", NA_character_,
+      "H", NA_character_,
+      "H", NA_character_,
+      "A", NA_character_,
+      "H", NA_character_,
+      "A", "H", NA_character_,
+      "H", NA_character_
+    ),
+    CRITERIATYPE_WATERORG = c(
+      NA_character_, NA_character_, NA_character_,
+      "O", "O",
+      "W", "W",
+      NA_character_, NA_character_,
+      "W", "W",
+      "O", "O", "O",
+      "O", "O"
     ),
     stringsAsFactors = FALSE
   )
@@ -1171,6 +1172,7 @@ TADA_GetTADAUsesAliasRef <- function(
       CRITERIATYPEAQUAHUMHLTH,
       CRITERIATYPEFRESHSALTWATER,
       CRITERIATYPE_ACUTECHRONIC,
+      CRITERIATYPE_WATERORG,
       USE_CLASS_NAME_LOCATION_ETC
     ) |>
     dplyr::mutate(
@@ -1215,11 +1217,11 @@ TADA_GetTADAUsesAliasRef <- function(
     dplyr::mutate(ENTITY_NAME = toupper(ENTITY_NAME)) |>
     dplyr::left_join(ATTAINS_CST.org, by = "ENTITY_ABBR")
 
-  # Join by org and the Aquatic/Human-Health indicator
+  # Join by org and the Aquatic/Human-Health indicator & human health criterion type. 'O' - organism only. 'W' - water and organism.
   ATTAINS_CST <- dplyr::full_join(
     CST,
     ATTAINSUseRef,
-    by = c("ATTAINS.OrganizationIdentifier", "CRITERIATYPEAQUAHUMHLTH"),
+    by = c("ATTAINS.OrganizationIdentifier", "CRITERIATYPEAQUAHUMHLTH", "CRITERIATYPE_WATERORG"),
     relationship = "many-to-many"
   )
 
@@ -1266,6 +1268,7 @@ TADA_GetTADAUsesAliasRef <- function(
         CRITERIATYPEAQUAHUMHLTH,
         CRITERIATYPEFRESHSALTWATER,
         CRITERIATYPE_ACUTECHRONIC,
+        CRITERIATYPE_WATERORG,
         USE_CLASS_NAME_LOCATION_ETC,
         ATTAINS.OrganizationIdentifier,
         name,
@@ -1303,6 +1306,7 @@ TADA_GetTADAUsesAliasRef <- function(
       CRITERIATYPEAQUAHUMHLTH,
       CRITERIATYPEFRESHSALTWATER,
       CRITERIATYPE_ACUTECHRONIC,
+      CRITERIATYPE_WATERORG,
       USE_CLASS_NAME_LOCATION_ETC,
       ATTAINS.OrganizationIdentifier,
       context2,
@@ -1332,6 +1336,7 @@ TADA_GetTADAUsesAliasRef <- function(
         CRITERIATYPEAQUAHUMHLTH,
         CRITERIATYPEFRESHSALTWATER,
         CRITERIATYPE_ACUTECHRONIC,
+        CRITERIATYPE_WATERORG,
         USE_CLASS_NAME_LOCATION_ETC,
         ATTAINS.OrganizationIdentifier,
         context2,
@@ -1352,6 +1357,7 @@ TADA_GetTADAUsesAliasRef <- function(
         CRITERIATYPEAQUAHUMHLTH,
         CRITERIATYPEFRESHSALTWATER,
         CRITERIATYPE_ACUTECHRONIC,
+        CRITERIATYPE_WATERORG,
         USE_CLASS_NAME_LOCATION_ETC,
         ATTAINS.OrganizationIdentifier,
         context2,

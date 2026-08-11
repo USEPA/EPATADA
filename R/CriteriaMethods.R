@@ -809,6 +809,7 @@ TADA_DefineCriteriaMethodology <- function(
                 CRITERIATYPEAQUAHUMHLTH,
                 CRITERIATYPEFRESHSALTWATER,
                 CRITERIATYPE_ACUTECHRONIC,
+                CRITERIATYPE_WATERORG,
                 USE_CLASS_NAME_LOCATION_ETC
               ),
               relationship = "many-to-many"
