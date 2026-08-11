@@ -5121,10 +5121,11 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #'                                            type_col = "ATTAINS")
 #' }
 #'
-TADA_SaltFreshIndicator <- function(.data,
-                                    location_col = "AU",
-                                    type_col = "ATTAINS") {
-
+TADA_SaltFreshIndicator <- function(
+  .data,
+  location_col = "AU",
+  type_col = "ATTAINS"
+) {
   reqs <- data.frame(
     col = character(),
     reason = character(),
@@ -5132,31 +5133,43 @@ TADA_SaltFreshIndicator <- function(.data,
   )
 
   if (location_col == "AU") {
-    reqs <- rbind(reqs, data.frame(
-      col = "ATTAINS.AssessmentUnitIdentifier",
-      reason = "location_col equals 'AU'",
-      stringsAsFactors = FALSE
-    ))
+    reqs <- rbind(
+      reqs,
+      data.frame(
+        col = "ATTAINS.AssessmentUnitIdentifier",
+        reason = "location_col equals 'AU'",
+        stringsAsFactors = FALSE
+      )
+    )
   } else {
-    reqs <- rbind(reqs, data.frame(
-      col = "TADA.MonitoringLocationIdentifier",
-      reason = "location_col equals 'ML'",
-      stringsAsFactors = FALSE
-    ))
+    reqs <- rbind(
+      reqs,
+      data.frame(
+        col = "TADA.MonitoringLocationIdentifier",
+        reason = "location_col equals 'ML'",
+        stringsAsFactors = FALSE
+      )
+    )
   }
 
   if (type_col == "ATTAINS") {
-    reqs <- rbind(reqs, data.frame(
-      col = "ATTAINS.WaterType",
-      reason = "type_col equals 'ATTAINS'",
-      stringsAsFactors = FALSE
-    ))
+    reqs <- rbind(
+      reqs,
+      data.frame(
+        col = "ATTAINS.WaterType",
+        reason = "type_col equals 'ATTAINS'",
+        stringsAsFactors = FALSE
+      )
+    )
   } else {
-    reqs <- rbind(reqs, data.frame(
-      col = "TADA.MonitoringLocationTypeName",
-      reason = "type_col equals 'TADA'",
-      stringsAsFactors = FALSE
-    ))
+    reqs <- rbind(
+      reqs,
+      data.frame(
+        col = "TADA.MonitoringLocationTypeName",
+        reason = "type_col equals 'TADA'",
+        stringsAsFactors = FALSE
+      )
+    )
   }
 
   missing <- unique(reqs$col[!reqs$col %in% names(.data)])
@@ -5168,8 +5181,11 @@ TADA_SaltFreshIndicator <- function(.data,
     msg <- paste0(
       "TADA_SaltFreshIndicator: missing required column(s):\n",
       paste0(
-        "  - ", missing_info$col,
-        " (needed because ", missing_info$reason, ")",
+        "  - ",
+        missing_info$col,
+        " (needed because ",
+        missing_info$reason,
+        ")",
         collapse = "\n"
       )
     )
@@ -5185,21 +5201,16 @@ TADA_SaltFreshIndicator <- function(.data,
     dplyr::distinct()
 
   # Select which crosswalk is needed
-  if(reqs$col[1] == "ATTAINS.AssessmentUnitIdentifier") {
-
+  if (reqs$col[1] == "ATTAINS.AssessmentUnitIdentifier") {
     cw.name <- "ATTAINSWaterTypeToSaltFresh.csv"
 
-    cw.cols <- c("ATTAINS.WaterType",
-                 "TADA.SaltFreshIndicator")
+    cw.cols <- c("ATTAINS.WaterType", "TADA.SaltFreshIndicator")
+  } else {
+    cw.name <- "WQPMonLocTypeToSaltFresh.csv"
 
-    } else {
-
-      cw.name <- "WQPMonLocTypeToSaltFresh.csv"
-
-      # will need to rename "Name" col
-      cw.cols <- c("TADA.MonitoringLocationTypeName",
-                   "TADA.SaltFreshIndicator")
-    }
+    # will need to rename "Name" col
+    cw.cols <- c("TADA.MonitoringLocationTypeName", "TADA.SaltFreshIndicator")
+  }
 
   # Load crosswalk
   crosswalk <- utils::read.csv(system.file(
@@ -5221,20 +5232,29 @@ TADA_SaltFreshIndicator <- function(.data,
     dplyr::select(dplyr::all_of(cw.cols)) |>
     dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
     dplyr::distinct() |>
-    dplyr::right_join(unique.pairs,
-                      by = dplyr::join_by(!!rlang::sym(reqs$col[2]))) |>
+    dplyr::right_join(
+      unique.pairs,
+      by = dplyr::join_by(!!rlang::sym(reqs$col[2]))
+    ) |>
     dplyr::distinct()
 
   # Join crosswalk to .data
   .data <- .data |>
-    dplyr::left_join(crosswalk,
-                     by = dplyr::join_by(!!rlang::sym(reqs$col[2])))
+    dplyr::left_join(crosswalk, by = dplyr::join_by(!!rlang::sym(reqs$col[2])))
 
   # Remove intermediate objects
-  rm(unique.pairs, cw.cols, cw.name,
-     location_col, missing, select.cols,
-     type_col, crosswalk, reqs)
+  rm(
+    unique.pairs,
+    cw.cols,
+    cw.name,
+    location_col,
+    missing,
+    select.cols,
+    type_col,
+    crosswalk,
+    reqs
+  )
 
   # Return data with salt fresh indicator
   return(.data)
-  }
+}
