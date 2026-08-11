@@ -1362,9 +1362,7 @@ TADA_GetTADAUsesAliasRef <- function(
         USE_CLASS_NAME_LOCATION_ETC,
         ATTAINS.OrganizationIdentifier,
         context2,
-        ATTAINS.UseName,
-        review,
-        Last.Change.Date
+        ATTAINS.UseName
       ),
       na_matches = "na"
     )
@@ -1372,7 +1370,7 @@ TADA_GetTADAUsesAliasRef <- function(
   # Bind reviewed rows back so they are retained
   TADAUsesAliasRef <- TADAUsesAliasRef |>
     dplyr::anti_join(
-      TADA_reviewed_list,
+      current_TADAUsesAlias_keep,
       by = dplyr::join_by(
         ENTITY_ABBR,
         ENTITY_NAME,
@@ -1384,9 +1382,10 @@ TADA_GetTADAUsesAliasRef <- function(
         ATTAINS.OrganizationIdentifier,
         context2,
         ATTAINS.UseName
-      )
+      ),
+      na_matches = "na"
     ) |>
-    dplyr::bind_rows(TADA_reviewed_list)
+    dplyr::bind_rows(current_TADAUsesAlias_keep)
 
   allowed_review <- c("APPROVED", "REJECTED", "New row: Needs Review")
   bad_review <- unique(TADAUsesAliasRef$review[
