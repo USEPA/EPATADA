@@ -1049,22 +1049,40 @@ TADA_GetTADAUsesAliasRef <- function(
       rep("RECREATION_USE", 2)
     ),
     CRITERIATYPEAQUAHUMHLTH = c(
-      "A", "H", NA_character_,
-      "H", NA_character_,
-      "H", NA_character_,
-      "A", NA_character_,
-      "H", NA_character_,
-      "A", "H", NA_character_,
-      "H", NA_character_
+      "A",
+      "H",
+      NA_character_,
+      "H",
+      NA_character_,
+      "H",
+      NA_character_,
+      "A",
+      NA_character_,
+      "H",
+      NA_character_,
+      "A",
+      "H",
+      NA_character_,
+      "H",
+      NA_character_
     ),
     CRITERIATYPE_WATERORG = c(
-      NA_character_, NA_character_, NA_character_,
-      "O", "O",
-      "W", "W",
-      NA_character_, NA_character_,
-      "W", "W",
-      "O", "O", "O",
-      "O", "O"
+      NA_character_,
+      NA_character_,
+      NA_character_,
+      "O",
+      "O",
+      "W",
+      "W",
+      NA_character_,
+      NA_character_,
+      "W",
+      "W",
+      "O",
+      "O",
+      "O",
+      "O",
+      "O"
     ),
     stringsAsFactors = FALSE
   )
@@ -1221,7 +1239,11 @@ TADA_GetTADAUsesAliasRef <- function(
   ATTAINS_CST <- dplyr::full_join(
     CST,
     ATTAINSUseRef,
-    by = c("ATTAINS.OrganizationIdentifier", "CRITERIATYPEAQUAHUMHLTH", "CRITERIATYPE_WATERORG"),
+    by = c(
+      "ATTAINS.OrganizationIdentifier",
+      "CRITERIATYPEAQUAHUMHLTH",
+      "CRITERIATYPE_WATERORG"
+    ),
     relationship = "many-to-many"
   )
 
