@@ -799,7 +799,7 @@ testthat::test_that("TADA_CreatePointAUs treats blank AUIDs as missing", {
 testthat::test_that("TADA_CreatePointAUs calls TADA_CrosswalkATTAINSWaterTypes when ATTAINS.WaterType is missing", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2"),
-    TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
+    TADA.MonitoringLocationTypeName = c("STREAM", "LAKE"),
     ATTAINS.AssessmentUnitIdentifier = c(NA_character_, NA_character_),
     stringsAsFactors = FALSE
   )
@@ -816,7 +816,7 @@ testthat::test_that("TADA_CreatePointAUs calls TADA_CrosswalkATTAINSWaterTypes w
 testthat::test_that("TADA_CreatePointAUs calls TADA_CrosswalkATTAINSWaterTypes when ATTAINS.WaterType has blanks", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2"),
-    TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
+    TADA.MonitoringLocationTypeName = c("STREAM", "LAKE"),
     ATTAINS.AssessmentUnitIdentifier = c(NA_character_, NA_character_),
     ATTAINS.WaterType = c("STREAM", ""),
     stringsAsFactors = FALSE
