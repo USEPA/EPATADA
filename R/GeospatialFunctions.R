@@ -3627,6 +3627,27 @@ TADA_CreateAUMLCrosswalk <- function(
 #' @seealso [TADA_CreatePointAUs()]
 #'
 #' @export
+#'
+#' #' @examples
+#' \dontrun{
+#' # Example with all POINT geometry
+#' df <- Data_TribalNations_Harmonized |>
+#' dplyr::filter(OrganizationFormalName == "Blackfeet Nation (Montana)")
+#'
+#' result <- TADA_CreatePointAUGeometry(df, return_geo = TRUE)
+#'
+#' # Example with POINT and MULTIPOINT geometry
+#' df <- data.frame(
+#' ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU1", "AU2"),
+#' TADA.MonitoringLocationIdentifier = c("ML1", "ML1", "ML2"),
+#' TADA.LongitudeMeasure = c(-90, -90, -91),
+#' TADA.LatitudeMeasure = c(40, 41, 41),
+#'  HorizontalCoordinateReferenceSystemDatumName = c("NAD83", "NAD83", "NAD83"),
+#'  stringsAsFactors = FALSE)
+#'
+#'  result <- TADA_CreatePointAUGeometry(df, return_geo = TRUE)
+#' }
+#'
 TADA_CreatePointAUGeometry <- function(
     .data,
     target_crs = 4269,
