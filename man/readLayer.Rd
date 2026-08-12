@@ -5,11 +5,9 @@
 \title{Read a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
 readLayer is used within TADA_addPolys and TADA_addPoints}
 \usage{
-readLayer(layerfilepath, gpkg, layer, bbox = NULL)
+readLayer(gpkg, layer, bbox = NULL)
 }
 \arguments{
-\item{layerfilepath}{Local path to the data folder containing the .gpkg file}
-
 \item{gpkg}{name of the .gpkg file}
 
 \item{layer}{name of the layer within the .gpkg file}
@@ -42,9 +40,8 @@ bbox <- sf::st_bbox(
 # Read the American Indian Reservations feature layer,
 # filtered by the bounding box for the Data_TribalNations_Harmonized
 # example dataset
-layerfilepath <- "extdata"
-gpkg <- "Tribal.gpkg"
+gpkg <- "inst/extdata/Tribal.gpkg"
 layer <- "AmericanIndian"
-readLayer(layerfilepath, gpkg, layer)
+readLayer(tribal_gpkg, layer)
 }
 }
