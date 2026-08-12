@@ -503,7 +503,16 @@ utils::globalVariables(c(
   "CoordinateCountyCode",
   "CoordinateStateCode",
   "STATEFP",
-  "StateCode"
+  "StateCode",
+  "DayOfYear",
+  "FirstResultMeasurement",
+  "LastResultMeasurement",
+  "Month",
+  "Year",
+  "ATTAINSWaterTypeByOrgName",
+  "TADA.ATTAINS.WaterType",
+  "TADA.Rank",
+  "TADA.ResultValueAggregation.Flag"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -1413,7 +1422,7 @@ pchIcons <- function(
 }
 
 #' Retrieve feature layer from ArcGIS REST service
-#' getFeatureLayer is used by writeLayer to write feature layers to local files
+#' getFeatureLayer is used by writeLayerIfChanged to write feature layers to local files
 #'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -1453,9 +1462,8 @@ getFeatureLayer <- function(url, bbox = NULL) {
   return(layer)
 }
 
-
 #' Download a spatial file from an API and save it to a local folder, overwriting existing file if it exists
-#' writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
+#' and has changed. writeLayerIfChanged is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
 #'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
 #' @param layerfilepath Local path to save the .gpkg file
@@ -1466,11 +1474,47 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' # Get the Oklahoma Tribal Statistical Areas feature layer and write
 #' # local file to inst/extdata/Tribal.gpkg/OKTribe
 #' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
-#' writeLayer(OKTribeUrl, "inst/extdata/Tribal.gpkg","OKTribe")
+#' writeLayerIfChanged(OKTribeUrl, "inst/extdata/Tribal.gpkg","OKTribe")
 #' }
-writeLayer <- function(url, layerfilepath, layername) {
-  feature <- getFeatureLayer(url)
-  sf::st_write(feature, layerfilepath, layer = layername, delete_layer = TRUE)
+writeLayerIfChanged <- function(url, layerfilepath, layername) {
+  # Build the new feature layer in memory
+  new_feature <- getFeatureLayer(url)
+
+  # If the gpkg or layer doesn't exist yet, write it
+  layer_exists <- FALSE
+  if (file.exists(layerfilepath)) {
+    layer_exists <- layername %in% sf::st_layers(layerfilepath)$name
+  }
+
+  if (!layer_exists) {
+    sf::st_write(
+      new_feature,
+      layerfilepath,
+      layer = layername,
+      delete_layer = TRUE,
+      quiet = TRUE
+    )
+    return(invisible(TRUE))
+  }
+
+  # Read the existing layer
+  old_feature <- sf::st_read(layerfilepath, layer = layername, quiet = TRUE)
+
+  # Compare conservatively
+  if (.sf_layer_equal(old_feature, new_feature)) {
+    return(invisible(FALSE))
+  }
+
+  # Rewrite only if changed
+  sf::st_write(
+    new_feature,
+    layerfilepath,
+    layer = layername,
+    delete_layer = TRUE,
+    quiet = TRUE
+  )
+
+  invisible(TRUE)
 }
 
 #' Read a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
@@ -2883,4 +2927,320 @@ TADA_CorrectColType <- function(.data) {
   ))
 
   return <- file.path(base_dir, filename)
+}
+
+#' Compare two sf layers for equality
+#'
+#' Compares two `sf` objects by checking attribute names, attribute values,
+#' and geometry text representation after normalizing column order and row order.
+#' This is intended for maintenance workflows where unchanged layers should not
+#' be rewritten.
+#'
+#' @param old_feature an existing `sf` object read from a layer
+#' @param new_feature a new `sf` object to compare against the existing layer
+#'
+#' @return `TRUE` if the layers are considered equal, otherwise `FALSE`
+#'
+#' @keywords internal
+#'
+#' @examples
+#' \dontrun{
+#' same <- .sf_layer_equal(old_feature, new_feature)
+#' }
+.sf_layer_equal <- function(old_feature, new_feature) {
+  # Drop geometry and compare only attributes
+  old_attrs <- sf::st_drop_geometry(old_feature)
+  new_attrs <- sf::st_drop_geometry(new_feature)
+
+  # Compare attribute names
+  if (!identical(sort(names(old_attrs)), sort(names(new_attrs)))) {
+    return(FALSE)
+  }
+
+  # Reorder attributes consistently
+  common_names <- sort(names(old_attrs))
+  old_attrs <- old_attrs[, common_names, drop = FALSE]
+  new_attrs <- new_attrs[, common_names, drop = FALSE]
+
+  # Convert factors to character
+  old_attrs[] <- lapply(old_attrs, function(x) {
+    if (is.factor(x)) as.character(x) else x
+  })
+  new_attrs[] <- lapply(new_attrs, function(x) {
+    if (is.factor(x)) as.character(x) else x
+  })
+
+  # Compare geometry separately, ignoring the geometry column name
+  old_geom <- sf::st_as_text(sf::st_geometry(old_feature))
+  new_geom <- sf::st_as_text(sf::st_geometry(new_feature))
+
+  # Add geometry as a regular comparison field
+  old_attrs$..geometry.. <- old_geom
+  new_attrs$..geometry.. <- new_geom
+
+  # Sort rows deterministically
+  old_attrs <- old_attrs[do.call(order, old_attrs), , drop = FALSE]
+  new_attrs <- new_attrs[do.call(order, new_attrs), , drop = FALSE]
+
+  # Final comparison
+  isTRUE(all.equal(old_attrs, new_attrs, check.attributes = FALSE))
+}
+
+#' TADA_SummarizeResultFrequency
+#'
+#' Summarize result frequencies for each TADA.MonitoringLocationIdentifier and
+#' TADA.ComparableDataIdentifier combination in the input data. Users can choose
+#' whether or not to include continuous data, aggregate multiple results from
+#' one day (min, max, mean), include sample depth as an additional grouping
+#' factor, and select the time period (year, month, week) at which result
+#' frequencies should be summarized.
+#'
+#' @param .data TADA dataframe which must include the columns:
+#' TADA.MonitoringLocationIdentifier, TADA.ComparableDataIdentifier,
+#' ActivityStartDate.
+#'
+#' @param depth Boolean argument. When depth = TRUE, TADA.ConsolidatedDepth is
+#' factored into result summary groupings. If depth = TRUE and the ConsolidatedDepth
+#' column does not exist in the TADA df, it will be calculated with
+#' TADA_FlagDepthCategory. Default = FALSE, depth will not be taken into account
+#' when creating groupings to summarize result frequency.
+#'
+#' @param daily_agg Character argument; with options "none", "mean", "min", or
+#' "max". The default is daily_agg = "none". When daily_agg = "none", all results
+#' will be retained. When daily_agg == "mean", the mean value in each group of
+#' results will be identified or calculated for each group. When daily_agg ==
+#' "min" or when daily_agg == "max", the min or max value in each group of
+#' results (as determined by the depth category) will be identified or calculated
+#' for each group.
+#'
+#' @param cont_data Boolean argument. When cont_data = TRUE, continuous data results
+#' will be included in the result summary. When cont_data = FALSE, continuous data
+#' will be excluded.
+#'
+#' @param time_period Character string. Specifies which period of time the result
+#' frequencies should be summarized. Default equals "none" which means the selected
+#' time period is between the first and last ActivityStartDates for each group.
+#' Other options are "year", "month", and "week". Selecting a value other than
+#' "none" for time_period will add two additional columns: TADA.TimePeriodForSummary
+#' and TADA.ResultCount.
+#' @param group_by_year Boolean argument. When TRUE, weekly or monthly time-period
+#' frequencies are grouped by both the selected week or month and the year.
+#' When FALSE, result frequencies are summarized by week or month across all
+#' years. Default is group_by_year equals TRUE. The group_by_year param does not
+#' apply when "year" or "none" is the selected time_period.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' # summarize result frequency by year
+#' year <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
+#' time_period = "year")
+#'
+#' # summarize result frequency by month/year
+#' month_year <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
+#' time_period = "month")
+#'
+#' # summarize result frequency by week/year
+#' week_year <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
+#' time_period = "week")
+#'
+#' # summarize result frequency by month
+#' month <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
+#' time_period = "month",
+#' group_by_year = FALSE)
+#'
+#' # summarize result frequency by week
+#' week <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
+#' time_period = "week",
+#' group_by_year = FALSE)
+#'
+TADA_SummarizeResultFrequency <- function(
+  .data,
+  depth = FALSE,
+  daily_agg = "none",
+  cont_data = FALSE,
+  time_period = "none",
+  group_by_year = TRUE
+) {
+  # helper for param validation
+  .validate_tada_srf_args <- function(daily_agg, time_period, data_names) {
+    if (!daily_agg %in% c("none", "mean", "min", "max")) {
+      stop(
+        "TADA_SummarizeResultFrequency: 'daily_agg' must be one of: none, mean, min, max."
+      )
+    }
+
+    if (!time_period %in% c("none", "year", "month", "week")) {
+      stop(
+        "TADA_SummarizeResultFrequency: 'time_period' must be one of: none, year, month, week."
+      )
+    }
+
+    if (!"ActivityStartDate" %in% data_names) {
+      stop(
+        "TADA_SummarizeResultFrequency: Input data must contain 'ActivityStartDate'."
+      )
+    }
+
+    invisible(TRUE)
+  }
+
+  # helper to create time period labels
+  .add_time_period <- function(df, time_period, group_by_year = TRUE) {
+    df |>
+      dplyr::mutate(
+        ActivityStartDate = as.Date(ActivityStartDate),
+        TADA.TimePeriodType = time_period,
+        TADA.TimePeriodForSummary = if (time_period == "year") {
+          format(ActivityStartDate, "%Y")
+        } else if (time_period == "month") {
+          if (isTRUE(group_by_year)) {
+            format(ActivityStartDate, "%Y-%m")
+          } else {
+            format(ActivityStartDate, "%m")
+          }
+        } else if (time_period == "week") {
+          iso_year <- as.integer(format(ActivityStartDate, "%G"))
+          iso_week <- as.integer(format(ActivityStartDate, "%V"))
+
+          if (isTRUE(group_by_year)) {
+            sprintf("%04d-W%02d", iso_year, iso_week)
+          } else {
+            sprintf("W%02d", iso_week)
+          }
+        } else {
+          NA_character_
+        }
+      )
+  }
+
+  # helper to build grouping cols
+  .build_grouping_cols <- function(depth, time_period, include_date = FALSE) {
+    cols <- c(
+      "TADA.MonitoringLocationIdentifier",
+      "TADA.ComparableDataIdentifier"
+    )
+
+    if (isTRUE(depth)) {
+      cols <- c(cols, "TADA.ConsolidatedDepth")
+    }
+
+    if (time_period != "none") {
+      cols <- c(cols, "TADA.TimePeriodForSummary", "TADA.TimePeriodType")
+    }
+
+    if (isTRUE(include_date)) {
+      cols <- c("ActivityStartDate", cols)
+    }
+
+    cols
+  }
+
+  # helper for daily aggregation
+  .apply_daily_aggregation <- function(df, daily_agg, agg_grouping_cols) {
+    if (!"TADA.ResultAggregationFlag" %in% names(df)) {
+      df |>
+        TADA_AggregateMeasurements(
+          agg_fun = daily_agg,
+          grouping_cols = agg_grouping_cols
+        )
+    } else {
+      message(
+        "TADA_SummarizeResultFrequency: results have already been aggregated ",
+        "with TADA_AggregateMeasurements. No additional aggregation will be performed."
+      )
+      df
+    }
+  }
+
+  # helper to remove continuous data
+  .remove_continuous_data <- function(df) {
+    if (!"TADA.ContinuousData.Flag" %in% names(df)) {
+      df |> TADA_FlagContinuousData(clean = TRUE)
+    } else {
+      df |> dplyr::filter(TADA.ContinuousData.Flag != "Continuous")
+    }
+  }
+
+  # helper to flag depth category if requires
+  .ensure_depth_category <- function(df) {
+    if (!"TADA.ConsolidatedDepth" %in% names(df)) {
+      df <- df |> TADA_FlagDepthCategory()
+    }
+    df
+  }
+
+  # helper to summarize frequency
+  .summarize_frequency <- function(df, group.cols) {
+    df |>
+      dplyr::group_by(!!!rlang::syms(group.cols)) |>
+      dplyr::mutate(
+        FirstResultMeasurement = min(ActivityStartDate, na.rm = TRUE),
+        LastResultMeasurement = max(ActivityStartDate, na.rm = TRUE),
+        ResultCount = dplyr::n()
+      ) |>
+      dplyr::select(
+        dplyr::all_of(group.cols),
+        FirstResultMeasurement,
+        LastResultMeasurement,
+        ResultCount
+      ) |>
+      dplyr::distinct() |>
+      dplyr::ungroup()
+  }
+
+  # validate params
+  .validate_tada_srf_args(daily_agg, time_period, names(.data))
+
+  # handle continuous data
+  if (isFALSE(cont_data)) {
+    .data <- .remove_continuous_data(.data)
+  }
+
+  # remove QC activities before summarizing frequencies
+  .data <- suppressMessages(TADA_FindQCActivities(.data, clean = TRUE))
+  message(
+    "TADA_SummarizeResultFrequency: QC samples were removed before summarizing result frequencies."
+  )
+
+  .data <- .data |>
+    dplyr::mutate(ActivityStartDate = as.Date(ActivityStartDate))
+
+  # handle depth
+  if (isTRUE(depth)) {
+    .data <- .ensure_depth_category(.data)
+  }
+
+  # set time period
+  if (time_period != "none") {
+    .data <- .add_time_period(
+      .data,
+      time_period = time_period,
+      group_by_year = group_by_year
+    )
+  }
+
+  # daily aggreagation if required
+  if (daily_agg != "none") {
+    agg_grouping_cols <- .build_grouping_cols(
+      depth,
+      time_period,
+      include_date = TRUE
+    )
+
+    .data <- .apply_daily_aggregation(.data, daily_agg, agg_grouping_cols)
+  }
+
+  # set grouping cols
+  summary_grouping_cols <- .build_grouping_cols(
+    depth,
+    time_period,
+    include_date = FALSE
+  )
+
+  # summarize result frequency
+  .data <- .summarize_frequency(.data, summary_grouping_cols)
+
+  return(.data)
 }
