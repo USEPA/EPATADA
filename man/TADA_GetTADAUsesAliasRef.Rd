@@ -38,7 +38,7 @@ The function uses two matching strategies:
 \enumerate{
 \item \strong{Domain/context matching}: ATTAINS \code{use_name} values are aligned to CST
 use categories using the ATTAINS \code{context2} field and the CST
-human-health/aquatic-life indicator.
+human-health/aquatic-life indicator and water/water and organism indicator.
 \item \strong{Token-based matching}: ATTAINS and CST use names are split into words
 and compared by shared terms. The proportion of matching words is used to
 determine whether a pair is returned.

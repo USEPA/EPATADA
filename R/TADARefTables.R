@@ -887,7 +887,7 @@ TADA_GetTADACharAliasRef <- function(
 #'
 #' 1. **Domain/context matching**: ATTAINS `use_name` values are aligned to CST
 #'    use categories using the ATTAINS `context2` field and the CST
-#'    human-health/aquatic-life indicator.
+#'    human-health/aquatic-life indicator and water/water and organism indicator.
 #' 2. **Token-based matching**: ATTAINS and CST use names are split into words
 #'    and compared by shared terms. The proportion of matching words is used to
 #'    determine whether a pair is returned.
@@ -976,18 +976,28 @@ TADA_GetTADAUsesAliasRef <- function(
     )
   }
 
-  # Package-wide cache keyed by tolerances
+  # Package-wide cache keyed by tolerances & manual review updates to the csv
+  uses_csv <- system.file(
+    "extdata",
+    "TADAUsesAliasRef.csv",
+    package = "EPATADA"
+  )
+  
+  csv_sig <- if (nzchar(uses_csv) && file.exists(uses_csv)) {
+    info <- file.info(uses_csv)
+    paste0(as.character(info$mtime), "|", info$size)
+  } else {
+    "missing"
+  }
+  
   cache_key <- paste(
     "TADAUsesAliasRef",
     sprintf("%.6f", ATTAINS.CST.tolerance),
     sprintf("%.6f", CST.ATTAINS.tolerance),
     if (is.na(set.all.tolerance)) "NA" else sprintf("%.6f", set.all.tolerance),
+    csv_sig,
     sep = "|"
   )
-  cached <- .tada_cache_get(cache_key)
-  if (!is.null(cached)) {
-    return(cached)
-  }
 
   # CSV-only: load previously reviewed uses alias decisions
   uses_csv <- system.file(
