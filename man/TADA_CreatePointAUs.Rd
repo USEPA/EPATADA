@@ -65,6 +65,8 @@ Build a distinct crosswalk between WQP Monitoring Locations and ATTAINS
 Assessment Units. Missing or blank \code{ATTAINS.AssessmentUnitIdentifier} values
 are filled from \code{TADA.MonitoringLocationIdentifier}, optionally prefixed
 with \code{auid_prefix}. Existing non-missing, non-blank AUIDs are left unchanged.
+Optionally, this function can also return either a df or a shp file containing
+the point or multipoint geometry and its corresponding assessment unit identifier.
 }
 \details{
 If \code{ATTAINS.WaterType} is missing or contains any blank values, the function

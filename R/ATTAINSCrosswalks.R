@@ -4816,6 +4816,8 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #' Assessment Units. Missing or blank `ATTAINS.AssessmentUnitIdentifier` values
 #' are filled from `TADA.MonitoringLocationIdentifier`, optionally prefixed
 #' with `auid_prefix`. Existing non-missing, non-blank AUIDs are left unchanged.
+#' Optionally, this function can also return either a df or a shp file containing
+#' the point or multipoint geometry and its corresponding assessment unit identifier.
 #'
 #' If `ATTAINS.WaterType` is missing or contains any blank values, the function
 #' attempts to populate it by calling `TADA_CrosswalkATTAINSWaterTypes()`
