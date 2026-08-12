@@ -208,13 +208,13 @@ TADA_OverviewMap <- function(.data) {
       }
       # create bbox for adding tribal layers
       bbox <- createBBox(sumdat, as_vector = FALSE)
-      
+
       tribal_gpkg <- system.file("extdata", "Tribal.gpkg", package = "EPATADA")
-      
+
       if (identical(tribal_gpkg, "")) {
         stop("Tribal.gpkg not found in package extdata.")
       }
-      
+
       # TADA_addPolys and TADA_addPoints are in Utilities.R
       map <- TADA_addPolys(
         map,

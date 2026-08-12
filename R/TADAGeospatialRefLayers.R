@@ -6,11 +6,11 @@
 #' @noRd
 get_tribal_gpkg_path <- function() {
   gpkg <- system.file("extdata", "Tribal.gpkg", package = "EPATADA")
-  
+
   if (identical(gpkg, "")) {
     stop("Tribal.gpkg not found in package extdata.")
   }
-  
+
   gpkg
 }
 
@@ -25,7 +25,7 @@ TADA_UpdateTribalLayers <- function(tribal_gpkg = NULL) {
   if (is.null(tribal_gpkg)) {
     tribal_gpkg <- get_tribal_gpkg_path()
   }
-  
+
   writeLayerIfChanged(AKAllotmentsUrl, tribal_gpkg, "AKAllotments")
   writeLayerIfChanged(AKVillagesUrl, tribal_gpkg, "AKVillages")
   writeLayerIfChanged(AmericanIndianUrl, tribal_gpkg, "AmericanIndian")
