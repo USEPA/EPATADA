@@ -26,9 +26,9 @@ editor_options:
 library(knitr)
 
 knitr::opts_chunk$set(
-  fig.width = 7, 
-  fig.height = 4, 
-  dpi = 96, 
+  fig.width = 7,
+  fig.height = 4,
+  dpi = 96,
   echo = TRUE,
   out.width = "80%",
   warning = FALSE,
@@ -54,7 +54,7 @@ TADA is an open-source tool set built in the R programming language and
 available for anyone to download and edit to their specific needs. This
 **TADA Module 1: Training for Intermediate/Advanced R Users** RMarkdown
 document ([learn more about
-RMarkdown](https://bookdown.org/yihui/rmarkdown/)) walks through how to
+RMarkdown](https://yihui.org/rmarkdown/)) walks through how to
 download the TADA R package from GitHub, access and parameterize several
 important functions with a sample dataframe, and create basic
 visualizations.
@@ -146,21 +146,11 @@ their column names and data formats (e.g. numeric, character) align with
 WQP profiles.
 
 If you are interested in reviewing the column headers and formats
-required to run TADA, use the function below, which saves an example
-spreadsheet to the user's working directory.
+required to run TADA, use the function below.
 
-```{r template, eval = F}
-getwd() # find your working directory
-template <- TADA_GetTemplate() # download template to working directory
-```
-
-You can also take a look at an example dataframe, like
-`Data_Nutrients_UT` to get an idea of the data structure and format.
-
-```{r UT example data}
-utils::data(Data_Nutrients_UT)
-# review example dataframe
-exampledata_Nutrients_UT <- Data_Nutrients_UT
+```{r template, eval = T}
+template <- TADA_GetTemplate()
+template
 ```
 
 `TADA_DataRetrieval` is built upon USGS's `dataRetrieval::readWQPdata`
@@ -196,20 +186,28 @@ about input parameters and to see several examples.
 
 ```{r dataretrieval}
 # download example data
-# dataset_0  <- TADA_DataRetrieval(
-#   organization = c("REDLAKE_WQX",
-#                    "SFNOES_WQX",
-#                    "PUEBLO_POJOAQUE",
-#                    "FONDULAC_WQX",
-#                    "PUEBLOOFTESUQUE",
-#                    "CNENVSER"),
-#   startDate = "2018-01-01",
-#   endDate = "2023-01-01")
+# dataset_0 <- TADA_DataRetrieval(
+#         organization = c(
+#           "REDLAKE_WQX", # Red Lake Band of Chippewa Indians
+#           "FONDULAC_WQX", # Minnesota Chippewa Tribe (Fond du Lac Band)
+#           "PUEBLOOFTESUQUE", # Pueblo of Tesuque
+#           "PENOBSCOTINDIANNATIONDNR", # Penobscot Indian Nation
+#           "UTEMTN", # Ute Mountain Ute Tribe
+#           "BLCKFEET" # Blackfeet Nation
+#         ),
+#         # last 20 years
+#         startDate = "2005-01-01",
+#         endDate = "2025-12-31",
+#         ask = TRUE
+#       )
 
 # For brevity, we'll skip pinging the WQP and instead load the example dataframe:
-dataset_0 <- Data_6Tribes_5y
+dataset_0 <- Data_TribalNations
+```
 
-# Let's take a look at all of the TADA-created columns:
+Let's take a look at all of the TADA-created columns:
+
+```{r TADAcols}
 names(dataset_0)[grepl("TADA.", names(dataset_0))]
 ```
 
@@ -688,7 +686,7 @@ characteristic groups.
 
 ```{r select comp id}
 # Look at a histogram, boxplot, and stats for TADA.ComparableDataIdentifier(s) of your choice.
-comp_data_id <- "PH_NA_NA_NONE"
+comp_data_id <- "TEMPERATURE, WATER_NONE_NONE_DEG C"
 
 plot_data <- subset(dataset_cens, dataset_cens$TADA.ComparableDataIdentifier %in% comp_data_id)
 ```
@@ -739,12 +737,12 @@ secchi depth, and pH.
 ```{r depth plot}
 TADA_DepthProfilePlot(dataset_cens,
   groups = c(
-    "TEMPERATURE, WATER_NA_NA_DEG C",
-    "DEPTH, SECCHI DISK DEPTH_NA_NA_M",
-    "PH_NA_NA_NONE"
+    "TEMPERATURE, WATER_NONE_NONE_DEG C",
+    "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M",
+    "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
   ),
-  location = "REDLAKE_WQX-ANKE",
-  activity_date = "2018-10-04",
+  location = "REDLAKE_WQX-KINN",
+  activity_date = "2025-09-25",
   depthcat = TRUE,
   surfacevalue = 2,
   bottomvalue = 2,

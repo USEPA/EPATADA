@@ -55,8 +55,8 @@ default is aggregatedonly = FALSE which means that all results are returned.
 When aggregatedonly = TRUE, only aggregate values are returned.}
 
 \item{clean}{Boolean argument with options TRUE or FALSE. The
-default is clean = "FALSE" which means that all results are returned.
-When clean = "TRUE", only aggregate results which can be assigned to a depth
+default is clean = FALSE which means that all results are returned.
+When clean = TRUE, only aggregate results which can be assigned to a depth
 category are included in the returned dataframe.}
 }
 \value{
@@ -88,14 +88,14 @@ define whether the daily aggregation occurs over each depth category
 }
 \examples{
 # Load data frame
-utils::data(Data_6Tribes_5y)
+utils::data(Data_TribalNations)
 
 # assign TADA.DepthCategory.Flag with no aggregation
-Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_6Tribes_5y)
+Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_TribalNations)
 
 # assign TADA.DepthCategory.Flag and determine average values by depth
 # category and returning only aggregate values
-Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y,
+Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_TribalNations,
   bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE
 )
 

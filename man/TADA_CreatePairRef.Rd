@@ -49,7 +49,7 @@ hardness, salinity, and chloride).
 }
 \examples{
 # create ref for hardness for example tribal data
-HardnessRef <- TADA_CreatePairRef(Data_6Tribes_5y_Harmonized,
+HardnessRef <- TADA_CreatePairRef(Data_TribalNations_Harmonized,
   ph = FALSE, hardness = TRUE,
   temp = FALSE, chloride = FALSE, salinity = FALSE, other_char = "null"
 )

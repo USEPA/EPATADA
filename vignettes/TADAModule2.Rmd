@@ -40,7 +40,7 @@ knitr::opts_chunk$set(
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA).
 TADA is an open-source tool set built in the R programming language.
-This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks
 users through how to download the TADA R package from GitHub, access and
 parameterize several important functions, and create basic
 visualizations with a sample data set.
@@ -210,14 +210,12 @@ API key to the "api_key" variable. Otherwise, the default EPATADA
 package key will be used.
 
 ```{r api_key}
-
 # api_key <- "paste your key here"
 
 # is user does not provide key, set api_key as NULL
 if (!exists("api_key")) {
   api_key <- NULL
 }
-
 ```
 
 # Step A: Discover ML/AU Matches
@@ -280,12 +278,16 @@ If you have your own crosswalk, this step can be skipped.
 ATTAINS_orgs <- rExpertQuery::EQ_DomainValues("org_id")
 
 # get crosswalk from ATTAINS
-attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ",
-                                                    api_key = api_key)
+attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(
+  org_id = "MTDEQ",
+  api_key = api_key
+)
 
 # clean existing crosswalk from ATTAINS to make sure WQP monitoring location IDs pulled from ATTAINS are WQP compatible (adds org ID if missing)
-clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ",
-                                                             api_key = api_key)
+clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(
+  org_id = "MTDEQ",
+  api_key = api_key
+)
 
 # create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)
 user.supplied.cw <- clean.existing.attains.MT |>
@@ -607,6 +609,7 @@ rm(Data_MT_AU_UsesRef)
 
 ```{r TADA_AssignUsesToAU, eval = F}
 MT.UseAURef <- TADA_AssignUsesToAU(
+  MT.AUMLRef$TADA_with_ATTAINS,
   AUMLRef = Final.MT.AUMLRef,
   org_id = "MTDEQ",
   api_key = api_key
@@ -640,6 +643,7 @@ rm(Data_MT_AU_UsesRef_Water)
 ```{r assign.use.to.new.AU.with.waterUseRef_user, eval = FALSE}
 MT.UseAURef_with_WaterUseRef <-
   TADA_AssignUsesToAU(
+    MT.AUMLRef$TADA_with_ATTAINS,
     waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
     AUMLRef = Final.MT.AUMLRef,
     org_id = "MTDEQ",

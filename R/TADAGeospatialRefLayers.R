@@ -1,14 +1,26 @@
 # Used to store cached tribal feature layers
 
 #' Function to update tribal layer shapefiles.
-#' Shapefiles are stored in inst/extdata.
-#' Existing shapefiles with the same name will be deleted first if they exist.
+#' Tribal geopackage is stored in inst/extdata.
+#' Existing layers with the same name will be deleted first if they exist.
 
 TADA_UpdateTribalLayers <- function() {
-  writeLayer(AKAllotmentsUrl, "inst/extdata/AKAllotments.shp")
-  writeLayer(AKVillagesUrl, "inst/extdata/AKVillages.shp")
-  writeLayer(AmericanIndianUrl, "inst/extdata/AmericanIndian.shp")
-  writeLayer(OffReservationUrl, "inst/extdata/OffReservation.shp")
-  writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")
-  writeLayer(VATribeUrl, "inst/extdata/VATribe.shp")
+  writeLayerIfChanged(
+    AKAllotmentsUrl,
+    "inst/extdata/Tribal.gpkg",
+    "AKAllotments"
+  )
+  writeLayerIfChanged(AKVillagesUrl, "inst/extdata/Tribal.gpkg", "AKVillages")
+  writeLayerIfChanged(
+    AmericanIndianUrl,
+    "inst/extdata/Tribal.gpkg",
+    "AmericanIndian"
+  )
+  writeLayerIfChanged(OKTribeUrl, "inst/extdata/Tribal.gpkg", "OKTribe")
+  writeLayerIfChanged(
+    OffReservationUrl,
+    "inst/extdata/Tribal.gpkg",
+    "OffReservation"
+  )
+  writeLayerIfChanged(VATribeUrl, "inst/extdata/Tribal.gpkg", "VATribe")
 }

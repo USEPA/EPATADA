@@ -14,45 +14,33 @@
 #' @format A dataframe with 14592 rows and 152 variables
 NULL
 
-#' Data_6Tribes_5y
+#' Data_TribalNations
 #'
-#' Original pull:
-#' Data_6Tribes_5y <- TADA_DataRetrieval(organization = c("REDLAKE_WQX",
-#'                                                  "SFNOES_WQX",
-#'                                                  "PUEBLO_POJOAQUE",
-#'                                                  "FONDULAC_WQX",
-#'                                                  "PUEBLOOFTESUQUE",
-#'                                                  "CNENVSER"),
-#'                                       startDate = "2018-01-01"
-#'                                       endDate = "2023-01-01",
-#'                                       ask = FALSE)
-#'
-#' This example includes monitoring data collected from Jan 2018 to present
-#' by six organizations:
-#' 1) Red Lake Band of Chippewa Indians,
-#' 2) Sac & Fox Nation,
-#' 3) Pueblo of Pojoaque,
-#' 4) Minnesota Chippewa Tribe (Fond du Lac Band),
-#' 5) Pueblo of Tesuque, and
-#' 6) The Chickasaw Nation
+#' This example includes monitoring data collected from (no start or end dates):
+#' 1) "REDLAKE_WQX", # Red Lake Band of Chippewa Indians
+#' 2) "SFNOES_WQX", # Sac & Fox Nation
+#' 3) "FONDULAC_WQX", # Minnesota Chippewa Tribe (Fond du Lac Band)
+#' 4) "PUEBLOOFTESUQUE", # Pueblo of Tesuque
+#' 5) "UTEMTN", # R8, Ute Mountain Ute Tribe (Colorado)
+#' 6) "BLCKFEET" # R8, Blackfeet Nation (Montana)
 #'
 #' @docType data
 #' @keywords dataframe
-#' @name Data_6Tribes_5y
-#' @format A dataframe with 134050 rows and 149 variables
+#' @name Data_TribalNations
+#' @format A dataframe with 142991 rows and 152 variables
 NULL
 
-#' Data_6Tribes_5y_Harmonized
+#' Data_TribalNations_Harmonized
 #'
 #' A dataframe containing data from tribal organizations
-#' (see ?Data_6Tribes_5y for more information). Data was cleaned using the
+#' (see ?Data_TribalNations for more information). Data was cleaned using the
 #' TADA Module 1 vignette
 #' (see: https://usepa.github.io/EPATADA/articles/TADAModule1.html).
 #'
 #' @docType data
 #' @keywords dataframe
-#' @name Data_6Tribes_5y_Harmonized
-#' @format A dataframe with 117124 rows and 166 variables
+#' @name Data_TribalNations_Harmonized
+#' @format A dataframe with 75264 rows and 171 columns
 NULL
 
 #' Data_R5_TADAPackageDemo
@@ -132,4 +120,34 @@ NULL
 #' @docType data
 #' @name Data_MT_AU_UsesRef_Water
 #' @format A data frame with 48 rows and 6 variables.
+NULL
+
+#' wqx3_fullPhysChem
+#'
+#' Generate wqx3_fullPhysChem used in
+#' WQX3-Migration.Rmd
+#'
+#' @docType data
+#' @name wqx3_fullPhysChem
+#' @format A data frame with 44 rows and 193 variables.
+NULL
+
+#' Data_Participatory_Scientists
+#'
+#' Generate Data_Participatory_Scientists used in
+#' Participatory-Science-Water-Projects-in-WQX.Rmd
+#'
+#' @docType data
+#' @name Data_Participatory_Scientists
+#' @format A data frame with 41723 rows and 150 variables.
+NULL
+
+#' Data_Penobscot
+#'
+#' Generate Data_Penobscot used in
+#' PenobscotNationWorkflow.Rmd
+#'
+#' @docType data
+#' @name Data_Penobscot
+#' @format A data frame with 1970 rows and 152 variables.
 NULL

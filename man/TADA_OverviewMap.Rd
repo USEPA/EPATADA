@@ -25,10 +25,10 @@ Create Overview Map
 }
 \examples{
 utils::data(Data_Nutrients_UT)
-utils::data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_TribalNations_Harmonized)
 
 # Create maps:
 TADA_OverviewMap(Data_Nutrients_UT)
-TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
+TADA_OverviewMap(Data_TribalNations_Harmonized)
 
 }

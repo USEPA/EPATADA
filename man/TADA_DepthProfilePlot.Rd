@@ -61,27 +61,25 @@ Create A Three-Characteristic Depth Profile
 \examples{
 \dontrun{
 # Load example dataframe:
-utils::data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_TribalNations_Harmonized)
 # Create a depth profile figure with three parameters for a single
 # monitoring location and date
-TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
-  groups = c(
-    "TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_STD UNITS",
-    "DEPTH, SECCHI DISK DEPTH_NA_NA_M"
-  ),
-  location = "REDLAKE_WQX-ANKE",
-  activity_date = "2018-10-04"
+TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
+groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+"DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"),
+location = "REDLAKE_WQX-BASS-SE",
+activity_date = "2025-07-16"
 )
 
 # Load example data frame:
-utils::data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_TribalNations_Harmonized)
 # Create a depth profile figure with two parameters for a single monitoring
 # location and date without displaying depth categories
-TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
-  groups = c("CONDUCTIVITY_NA_NA_US/CM", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"),
-  location = "REDLAKE_WQX-JOHN",
-  activity_date = "2018-07-31",
-  depthcat = FALSE
+TADA_DepthProfilePlot(Data_TribalNations_Harmonized,
+groups = c("TEMPERATURE_NONE_NONE_DEG C", "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"),
+location = "REDLAKE_WQX-NONA",
+activity_date = "2024-02-05",
+depthcat = FALSE
 )
 }
 

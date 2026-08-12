@@ -11,13 +11,13 @@ TADA_UniqueCharUnitSpeciation(.data)
 }
 \value{
 A data frame with unique combinations of TADA.CharacteristicName,
-TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
-TADA.MethodSpeciationName
+TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode (if present),
+and TADA.MethodSpeciationName
 }
 \description{
 Creates data frame of unique combinations of TADA.CharacteristicName,
-TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
-TADA.MethodSpeciationName in a TADA data frame.
+TADA.ResultMeasure.MeasureUnitCode (normalized), optional ResultMeasure.MeasureUnitCode,
+and TADA.MethodSpeciationName in a TADA data frame.
 }
 \examples{
 UniqueCharUnitSpecExample <-

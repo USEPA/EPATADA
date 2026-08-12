@@ -1,17 +1,18 @@
 ---
 title: "Example Module 3 Workflow"
-format: html
-editor: visual
+always_allow_html: yes
 author: "TADA Team"
 date: "`r Sys.Date()`"
-output: 
+output:
   rmarkdown::html_vignette:
+    self_contained: false
     toc: true
     fig_caption: yes
     fig_height: 8
     fig_width: 8
 vignette: >
   %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{EPATADA}
   %\VignetteIndexEntry{Example Module 3 Workflow}
   %\VignetteEngine{knitr::rmarkdown}
 description: Recommended TADA module 3 Criteria and Methodology Table generation (under development) showcasing water quality data analysis functions and example workflows.
@@ -21,14 +22,15 @@ editor_options:
     wrap: 72
 ---
 
-```{r setup-knitr, include = F}
+```{r setup, include = F}
 library(knitr)
 
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
   message = FALSE,
-  eval = TRUE
+  eval = T,
+  dev.args = list(bg = "transparent")
 )
 ```
 
@@ -44,46 +46,37 @@ development, more information is available
 [here](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html). We
 welcome collaboration with external partners!
 
-# Install and load packages
+## Install and Load the EPATADA R Package
 
 First, install and load the remotes package specifying the repo. This is
-needed before installing the EPATADA R package because it is only
-available on GitHub.
+needed before installing EPATADA because it is only available on GitHub
+(not CRAN).
 
-```{r setup-remotes, results = 'hide'}
-install.packages("remotes",
-  repos = "http://cran.us.r-project.org"
-)
+```{r install_remotes, results = 'hide', eval = F}
+install.packages("remotes")
+# Load the remotes library
 library(remotes)
 ```
 
-```{css, include = F}
-pre {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-pre[class] {
-  max-height: 300px;
-}
-```
-
-Next, install and load the EPATADA R Package using the remotes package.
-Dependency packages will also be downloaded automatically from CRAN. You
-may be prompted in the console to update dependencies. It is recommended
-to update all dependencies (enter 1 into the console).
+Next, install and load TADA using the remotes package. TADA R Package
+dependencies will also be downloaded automatically from CRAN with the
+TADA install. You may be prompted in the console to update dependency
+packages that have more recent versions available. If you see this
+prompt, it is recommended to update all of them (enter 1 into the
+console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
-# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+
+remotes::install_github("USEPA/rExpertQuery")
 ```
 
-```{r dev_install, eval = F, results = 'hide', include = F}
+```{r install_TADA_dev, eval = T, include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "869-incorporate-function-to-read-in-criteria-table-from-tada_communityhub",
   dependencies = TRUE
 )
 ```
@@ -92,18 +85,22 @@ Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ```{r library, results = 'hide'}
+library(rExpertQuery)
 library(EPATADA)
 ```
 
-All EPATADA R package functions have their own individual help pages
-(see [Function
-Reference](https://usepa.github.io/EPATADA/reference/index.html)). Users
-can also access function help pages from RStudio by entering
-`?[name of TADA function]` into the console (example below).
+**Help pages**
 
-```{r help-pages, eval = F}
-# Access help page for TADA_DataRetrieval
-?TADA_DataRetrieval
+All EPATADA R package functions have their own individual help pages,
+listed in the Package index on the
+[Reference](https://usepa.github.io/EPATADA/reference/index.html) tab of
+the GitHub website. Users can also access the help page for a given
+function in R or RStudio using the following format (example below):
+`?[name of TADA function]`
+
+```{r help_pages, eval = F}
+# Access help page for TADA_CreateAUMLCrosswalk
+?TADA_CreateAUMLCrosswalk
 ```
 
 # Module 3 Functions in TADA
@@ -118,37 +115,37 @@ their decision making processes. Use of EPATADA is not required.
 
 # Introduction to TADA Module 3
 
-This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
-users through how to create WQP and ATTAINS crosswalks that are needed
-to define and capture organization specific water quality analysis
-criteria and methodologies. This is a continuation of an example TADA
-workflow which began with ExampleMod2Workflow.Rmd.
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks users
+through how to create WQP and ATTAINS crosswalks that are needed to
+define and capture organization specific water quality analysis criteria
+and methodologies. This is a continuation of an example TADA workflow
+which began with ExampleMod2Workflow.Rmd.
 
 Specifically, this vignette provides an overview of three functions that
 can assist users with:
 
 -   Creating a crosswalk (reference table) between ATTAINS parameter
-    names and WQP/TADA characteristic names/TADA comparable data
-    identifier.
+    names, WQP/TADA characteristic names, and TADA comparable data
+    identifiers.
 
 -   Creating a crosswalk (reference table) of all unique combinations of
     ATTAINS uses and parameters applicable to your analysis needs.
 
 -   Define and summarize your spatial level of analysis for uses and
-    parameters to locations(monitoring locations or assessment units)
+    parameters to locations (monitoring locations or assessment units)
     and capture any unique site-specific WQS criteria.
 
 These functions are designed to be flexible so users from states,
 tribes, or territories can input organization-specific information and
-link it information from ATTAINS. While TADA functions can help generate
-these crosswalks and fill in some values, users must review and modify
-the tables generated in each step to ensure accuracy. The TADA team has
-also incorporated national recommended Clean Water Act (CWA) EPA 304(a)
-numeric criteria for optional use in Module 3 functions that has been
-filled out and reviewed by the TADA team. This allows users to analyze
-their data against the EPA 304(a) criteria; and to easily compare
-results when when using EPA 304(a) criteria vs. their own state or
-tribe's criteria.
+link its information from ATTAINS. While TADA functions can help
+generate these crosswalks and fill in some values, users must review and
+modify the tables generated in each step to ensure accuracy. The TADA
+team has also incorporated national recommended Clean Water Act (CWA)
+EPA 304(a) numeric criteria for optional use in Module 3 functions that
+has been filled out and reviewed by the TADA team. This allows users to
+analyze their data against the EPA 304(a) criteria; and to easily
+compare results when when using EPA 304(a) criteria vs. their own state
+or tribe's criteria.
 
 # Getting Started
 
@@ -161,9 +158,9 @@ reference tables were created, see the ExampleMod2Workflow vignette.
 # import example data set, example AUML crosswalk and example uses to AU crosswalk.
 # extract ATTAINS_crosswalk data frame from the list
 utils::data(Data_MT_AUMLRef)
-Final.MT.AUMLRef <- Data_MT_AUMLRef$ATTAINS_crosswalk
+MT_AU_MLRef <- Data_MT_AUMLRef$ATTAINS_crosswalk
 utils::data(Data_MT_AU_UsesRef)
-MT.AU_UsesRef <- Data_MT_AU_UsesRef
+MT_AU_UsesRef <- Data_MT_AU_UsesRef
 ```
 
 ## Get WQP Monitoring Data in Montana Using TADA_DataRetrieval()
@@ -176,7 +173,7 @@ functions, so we will go through some minimal cleaning with an example
 data set from Montana. Get bacteria and pH data from Missoula County,
 Montana.
 
-```{r tada-data}
+```{r tada-data, eval = F}
 # get MT data
 tada.MT <- TADA_DataRetrieval(
   startDate = "2020-01-01",
@@ -199,10 +196,14 @@ tada.MT.clean <- tada.MT |>
 
 # remove intermediate objects
 rm(tada.MT)
+```
 
-# if you cannot run TADA_DataRetrieval query, the example data set can be loaded by uncommenting the code below
+This example data set can be loaded from the EPATADA package:
 
-# tada.MT.clean <- Data_MT_MissoulaCounty
+```{r load_example_data}
+utils::data("Data_MT_MissoulaCounty", package = "EPATADA")
+
+tada.MT.clean <- Data_MT_MissoulaCounty
 ```
 
 This example will focus only on Montana. The remainder of this vignette
@@ -256,7 +257,7 @@ ATTAINS Parameter Names are more general than the TADA Comparable Data
 Identifiers. Therefore, we recommend users provide a crosswalk between
 each TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
 TADA_ParametersForAnalysis() creates a template which includes all
-TADA.ComparableDataIdentifiers from the TADA data frame and provides a
+TADA.ComparableDataIdentifiers from the TADA data frame and contains a
 blank column, "ATTAINS.ParameterName" for users to input the
 corresponding ATTAINS parameter name.
 
@@ -323,10 +324,10 @@ TADA_TableExport(MT.ParamRef.None)
 ### Auto_assign Options
 
 Now, let's see what happens we we use auto_assign = 'All' to
-autopopulate exact matches. The auto assignment will create exact
-matches based on the entire list of allowable ATTAINS parameters. This
-means that parameter names your organization has not previously record
-in ATTAINS may be included in the assignments.
+autopopulate characteristic alias matches. The auto assignment will
+create exact matches based on the entire list of allowable ATTAINS
+parameters. This means that parameter names your organization has not
+previously record in ATTAINS may be included in the assignments.
 
 ```{r auto_assign-All}
 # create TADA parameter reference table for specified organization
@@ -341,9 +342,9 @@ MT.ParamRef.All <- TADA_ParametersForAnalysis(
 TADA_TableExport(MT.ParamRef.All)
 ```
 
-Another option is to set auto_assign = 'Org'. This limits the exact
-matches returned to only ATTAINS.ParameterNames the selected
-organization has used in the past.
+Another option is to set auto_assign = 'Org'. This limits the
+characteristic alias matches to return only ATTAINS.ParameterNames that
+an organization has used in the past.
 
 ```{r auto_assign-Org}
 # create TADA parameter reference table for specified organization
@@ -362,15 +363,7 @@ TADA_TableExport(MT.ParamRef.Org)
 ### Manual Parameter Crosswalk
 
 The code chunk below demonstrates how the parameter reference table can
-be modified in R. Once modifications are complete, we can re-run
-TADA_ParametersForAnalysis using the modified parameter reference table
-as the input for "paramRef". This will update the
-ATTAINS.FlagParameterName column in the parameter reference table (see
-example below). This column provides information about whether or not
-the organization specified in the "ATTAINS.OrganizationIdentifier"
-column has listed this parameter as a cause in prior assessment cycles.
-It also flags rows where the TADA.ComparableDataIdentifier as not been
-assigned an ATTAINS parameter name.
+be modified in R.
 
 ```{r Manually-Create-ParamRef}
 # only run the code chunks below if you make edits to the excel file. Please note you must open and save the excel file at least once to reflect all Excel formula based values.
@@ -380,44 +373,38 @@ assigned an ATTAINS parameter name.
 
 # MT.ParamRef_Excel <- TADA_ParametersForAnalysis(
 #   Data_NCTC,
-#   org_names = c("MTDEQ"),
+#   org_id = c("MTDEQ"),
 #   paramRef = ParamRef,
 #   excel = TRUE, overwrite = TRUE
 #   )
 
-ParamRef <- MT.ParamRef.None |>
+MT.ParamRef.manual <- MT.ParamRef.None |>
   dplyr::mutate(ATTAINS.ParameterName = dplyr::case_when(
     grepl("PH_NONE_NONE_NONE", TADA.ComparableDataIdentifier) ~ "PH",
     grepl("ESCHERICHIA COLI", TADA.ComparableDataIdentifier) ~ "ESCHERICHIA COLI (E. COLI)"
   )) |>
   dplyr::bind_rows(data.frame(TADA.ComparableDataIdentifier = "PH_NONE_NONE_NONE", ATTAINS.ParameterName = "PH, HIGH", ATTAINS.OrganizationIdentifier = "MTDEQ"))
 
-MT.ParamRef.Manual <- TADA_ParametersForAnalysis(
-  tada.MT.clean,
-  org_id = c("MTDEQ"),
-  paramRef = ParamRef,
-  excel = FALSE
-  # uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  # excel = TRUE, overwrite = TRUE
-)
-
-TADA_TableExport(MT.ParamRef.Manual)
+TADA_TableExport(MT.ParamRef.manual)
 ```
 
 ### Provide a User Supplied paramRef
 
-We can now save and reuse MT.ParamRef_Manual as the user-supplied
-paramRef argument input in TADA_ParametersForAnalysis(). When this
-reference file is used for the next assessment or analysis cycle, this
-function will determine if any new WQX characteristic names are included
-in the TADA data frame and add additional rows to the crosswalk if
-needed.
+Once modifications are complete, we can re-run
+TADA_ParametersForAnalysis using the modified parameter reference table
+as the input for "paramRef". This will update the
+ATTAINS.FlagParameterName column in the parameter reference table (see
+example below). This column provides information about whether or not
+the organization specified in the "ATTAINS.OrganizationIdentifier"
+column has listed this parameter as a cause in prior assessment cycles.
+It also flags rows where the TADA.ComparableDataIdentifier as not been
+assigned an ATTAINS parameter name.
 
 ```{r User-Supplied-ParamRef}
 MT.ParamRef.user.supplied <- TADA_ParametersForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
-  paramRef = MT.ParamRef.Manual,
+  paramRef = MT.ParamRef.manual,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
@@ -465,33 +452,36 @@ Remove intermediate variable, we will keep only the crosswalk tables
 that are relevant for the remaining workflow.
 
 ```{r remove-intermediate-variables}
-rm(ParamRef, MT.ParamRef.All, MT.ParamRef.Manual, MT.ParamRef.None, MT.ParamRef.Org, MT.ParamRef.user.supplied)
+rm(MT.ParamRef.All, MT.ParamRef.manual, MT.ParamRef.None, MT.ParamRef.Org, MT.ParamRef.user.supplied)
 ```
 
 # TADA_UsesForAnalysis() Basics
 
-Our first example will pull in all prior ATTAINS uses (ATTAINS.UseNames)
-and parameter names (ATTAINS.ParameterName) from the specified ATTAINS
-organization (defined by the org_id function argument for
-TADA_UsesForAnalysis), which in this case is "MTDEQ" (Montana) using
-ExpertQuery web services. Users will review the output and choose which
-ATTAINS.UseName(s) are applicable to their analysis. Later in the data
-analysis process, users will be asked to define criteria and
-methodologies that is applicable to each ATTAINS use name and parameter
-name labeled as "Include". If an ATTAINS.UseName is not applicable,
-users should choose "Exclude" for that ATTAINS parameter name and use
-name.
+Users will review the output of this function and select which
+ATTAINS.UseName(s) and associated ATTAINS.ParameterName(s), for your
+specified ATTAINS organization(s), are applicable for analysis. Later in
+the analysis process, users will define the criteria and methodologies
+that are applicable to each ATTAINS use name and parameter name marked
+as “Include.” If an ATTAINS.UseName is not applicable for that given
+ATTAINS.ParameterName, select “Exclude.” Deleting the row is allowed,
+but we recommend labeling it as “Exclude” to document that it has been
+reviewed. If an ATTAINS.UseName needs to be added for an
+ATTAINS.ParameterName, append an additional row to capture this.
 
-### Manual Uses to Parameter Assignment
+For any remaining ATTAINS parameter name(s) that are not included by an
+organization in prior assessment cycles, they will not have any
+associated prior use names. In this case, users must manually assign the
+appropriate ATTAINS.UseName under the column 'ATTAINS.UseName'. They may
+need to add additional rows if the parameter applies to multiples uses.
+Alternatively, users can choose to use the 'auto_assign' to assign all
+unique ATTAINS.UseName by ATTAINS.OrganizationName to any
+ATTAINS.ParameterName missing a use name associated with it.
 
-Any ATTAINS parameter name(s) that have not been used by an organization
-in prior assessment cycles, will not have any associated prior use
-names. In this case, users must manually assign the appropriate
-ATTAINS.UseName under the column 'ATTAINS.UseName'. They may need to add
-additional rows if the parameter applies to multiples uses. Users can
-also choose to 'auto_assign' all unique ATTAINS.UseName by
-ATTAINS.OrganizationName to any ATTAINS.ParameterName missing a use name
-associated with it.
+We will start off with the simple use case in which TADA users can run
+this function with just the TADA dataframe, paramRef input and org_id
+input.
+
+#### Manual assignment of new ATTAINS parameter names to ATTAINS use names
 
 In the example below, we can see "PH" and "ESCHERICHIA COLI (E. COLI)"
 as the ATTAINS.ParameterNames that were assessed in prior assessment
@@ -502,17 +492,20 @@ this current assessment cycle. Thus, the ATTAINS.UseName is left blank
 for "PH, HIGH".
 
 ```{r usesRef-Manual}
-MT.usesRef.Manual <- TADA_UsesForAnalysis(
+MT.UsesRef.manual <- TADA_UsesForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
+  usesRef = NULL,
+  AU_UsesRef = NULL,
+  AUMLRef = NULL,
   auto_assign = FALSE,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.usesRef.Manual)
+TADA_TableExport(MT.UsesRef.manual)
 ```
 
 If desired, a user can manually assign "PH, HIGH" to any applicable uses
@@ -528,89 +521,141 @@ add.data <- data.frame(
     "Agriculture"
   )
 )
-```
 
-The output of this will not reflect changes to the ATTAINS.FlagUseName
-column. To do so, we need to re run TADA_UsesForAnalysis() with usesRef
-= add_data as an argument input.
-
-```{r usesRef-Manual-Update2}
-usesRef <- MT.usesRef.Manual |>
+UsesRef <- MT.UsesRef.manual |>
   dplyr::left_join(add.data, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"), keep = FALSE) |>
   dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) |>
   dplyr::select(-c(ATTAINS.UseName.x, ATTAINS.UseName.y)) |>
   dplyr::mutate(IncludeOrExclude = "Include")
+```
 
+The output of UsesRef will not reflect changes to the
+ATTAINS.FlagUseName column. To do so, we need to re run
+TADA_UsesForAnalysis() with usesRef = add_data as an argument input.
+
+```{r usesRef-Manual-Update2}
 # PH will now reflect the changes
-MT.usesRef.Manual.Update <- TADA_UsesForAnalysis(
+MT.UsesRef.manual.Update <- TADA_UsesForAnalysis(
   tada.MT.clean,
-  paramRef = MT.ParamRef.Final,
-  usesRef = usesRef, # Edits were made to usesRef, updates flag column
   org_id = c("MTDEQ"),
+  paramRef = MT.ParamRef.Final,
+  usesRef = UsesRef, # Edits were made to usesRef, updates flag column
+  AU_UsesRef = NULL,
+  AUMLRef = NULL,
   auto_assign = FALSE,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.usesRef.Manual.Update)
+TADA_TableExport(MT.UsesRef.manual.Update)
 ```
 
-### Auto_assign Option
+#### Auto_assign assignment of new ATTAINS parameter names to ATTAINS use names
 
-Alternatively, we can choose to assign all unique use names found in
-your current usesRef table, by your organization to those
-ATTAINS.ParameterName without any associated ATTAINS.UseName. Users will
-need to review this assignment carefully, choose include or exclude
-appropriately, and include additional rows as needed if there are more
-ATTAINS.UseName applicable for that ATTAINS.ParameterName that was not
-captured by the auto_assign method.
+Alternatively, we can choose to assign all unique use names that was
+submitted in prior ATTAINS assessment cycles, by your organization to
+those ATTAINS.ParameterName without any associated ATTAINS.UseName.
+Users will need to review this assignment carefully, choose include or
+exclude appropriately, and include additional rows as needed if there
+are more ATTAINS.UseName applicable for that ATTAINS.ParameterName that
+was not captured by the auto_assign method.
 
-```{r usesRef-AutoAssign}
-# uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
-utils::data(Data_MT_AU_UsesRef_Water)
-
-MT.usesRef.AutoAssign <- TADA_UsesForAnalysis(
+```{r usesRef-auto}
+MT.UsesRef.auto <- TADA_UsesForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
-  auto_assign = TRUE,
+  usesRef = NULL,
+  AU_UsesRef = NULL,
+  AUMLRef = NULL,
+  auto_assign = TRUE, # specifies auto_assign to those ATTAINS.ParameterName without any associated ATTAINS.UseName
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
-TADA_TableExport(MT.usesRef.AutoAssign)
+TADA_TableExport(MT.UsesRef.auto)
 ```
 
-### User has completed a Use to AU crosswalk
+# **Advanced: Deep Dive into `TADA_UsesForAnalysis()`**
 
-Now, if a user has completed assignments of uses to AUs in the
-recommended ExampleMod2Workflow.Rmd, they need to provide this as a
-AU_UsesRef argument input. This will help to ensure that the uses are
-applicable to your most recent assessment/analysis needs. These uses are
-extracted based on the uses to water type assignments in your AU_UsesRef
-and joined to an internal parameter and water type extraction from
-rExpertQuery to assign any new uses to parameters.
+Users may have their own set of use names to associate with parameter
+names or may have completed an AU to uses crosswalk in prior TADA
+workflow. We will go through an in-depth use case and go through four
+options to help users with associating use names with parameter names
+which are prioritized as follows:
 
-```{r usesRef-with-AU_UsesRef}
-MT.usesRef.with.AU_UsesRef <- TADA_UsesForAnalysis(
-  tada.MT.clean,
-  org_id = c("MTDEQ"),
-  paramRef = MT.ParamRef.Final,
-  AU_UsesRef = Data_MT_AU_UsesRef_Water, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
-  auto_assign = TRUE,
-  excel = FALSE
-  # excel = TRUE, overwrite = TRUE
-)
-```
+1.  **User supplied usesRef** An optional crosswalk. This will contain
+    the completed crosswalk for ATTAINS.UseName(s) that are associated
+    with ATTAINS.ParameterName(s).
 
-### Provide a User Supplied usesRef
+    -   All uses and parameters in this crosswalk will be returned in
+        the output. No rows are removed.
 
-Users can also choose to supply their own usesRef as an argument input.
-This may be useful if your organization has made significant changes to
-use names in the current cycle (cannot be retrieved from the prior
+    -   For any parameters in your paramRef (required input) that could
+        not be cross walked to a use name, if auto_assign = FALSE then
+        the ATTAINS.UseName value will be left blank. If auto_assign =
+        TRUE, then all unique use names from either your AU_UsesRef or
+        from prior ATTAINS assessment cycles will be returned (see
+        option 2 and 4 below).
+
+2.  **User supplied AU_UsesRef** An optional crosswalk. This user
+    supplied table will contain the most up-to-date use names by
+    assessment unit determined by the TADA user. Users can filter down
+    the water types or assessment units of interest in this crosswalk.
+
+    -   For any use names already present in ATTAINS, only those prior
+        parameter and use combinations will be returned from prior
+        assessment cycles filtered by any water types found in this
+        reference table.
+
+    -   If AU_UsesRef includes modified or new use names (i.e., not
+        currently found in ATTAINS), TADA attempts to join those new use
+        name by water type to prior assessment cycles for your org.
+        Next, it will associate and return those parameters with the new
+        use names found in your reference table by those water types.
+
+    -   For any parameters in your paramRef (required input) that could
+        not be cross walked to a use name, if auto_assign = FALSE then
+        the ATTAINS.UseName value will be left blank. If auto_assign =
+        TRUE, then all unique use names found in your AU_UsesRef will be
+        assigned to that ATTAINS.ParameterName.
+
+3.  **User supplied AUMLRef** An optional crosswalk.
+
+    -   If users do not provide an AU_UsesRef input along with this
+        crosswalk, TADA will run **`TADA_AssignUsesToAU()`** and assign
+        uses to those AU with default values from ATTAINS. In this
+        scenario all uses will come from prior ATTAINS assessments,
+        filtered by the use names associated with these assessment
+        unit's water types.
+
+    -   If users provide both an AU_UsesRef and an AUMLRef, this
+        function will filter the AU_UsesRef by the AUs found in the
+        AUMLRef.
+
+    -   The output of this function will then run similarly to option 2
+        using the AU_UsesRef that has been modified accordingly from
+        above.
+
+4.  **From Prior ATTAINS assessment cycles**: Pulls in all prior ATTAINS
+    use names that have been associated with any parameter names
+    (ATTAINS.ParameterName) found in your paramRef crosswalk for the
+    specified ATTAINS organization. Data is retrieved from prior ATTAINS
+    assessment cycles via ATTAINS ExpertQuery web services. This is the
+    same as the basic use case under 'TADA_UsesForAnalysis() Basics'
+    section of this vignette.
+
+#### Option 1: User supplied usesRef
+
+Users can choose to supply their own UsesRef as an argument input. Users
+who have gone through the workflow of reviewing a parameters to uses
+crosswalk can save this file and reuse it by supplying it as a usesRef
+input. If your organization has made significant changes to the names of
+the uses in the current cycle (cannot be retrieved from the prior
 ATTAINS assessment cycle) or if there are just additional use names that
-were unable to be retrieved from the prior assessment cycle.
+were unable to be retrieved from the prior assessment cycle, users can
+provide these updates here.
 
 (Note: TADA functions leverages the ATTAINS assessment profiles which
 will not reflect any submitted use name changes to ATTAINS until the
@@ -620,38 +665,206 @@ is dependent on what information each organization has submitted to
 ATTAINS.)
 
 In this example, let's use a filled out criteria table for MTDEQ and
-extract the use and parameters from their crosswalk.
+extract the use and parameters from the crosswalk. TADA has created the
+TADACommunityHub in which TADA users can submit, share and maintain
+user-contributed criteria and methodologies templates to support
+reproducible and efficient analyses. We will use
+**`TADA_GetCriteriaFile`** to pull in this criteria table from the
+TADACommunityHub GitHub repository.
 
-We can see that MTDEQ has additional rows for E. Coli that was unable to
-be retrieved from ATTAINS. We also see PH was not found in the user
-supplied usesRef table. We will assume MTDEQ has forgotten to include PH
-in their table and showcase the importance of considering all readily
-available data from your WQP data retrieval that you may need to
-consider for analysis.
+We can see that MTDEQ has additional rows of uses associated with E.
+Coli that was unable to be retrieved from ATTAINS. We also see PH was
+not found in the user supplied UsesRef table. We will assume MTDEQ has
+forgotten to include PH in their table and showcase the importance of
+considering all readily available data from your WQP data retrieval that
+you may need to consider for analysis.
 
 ```{r usesRef-User-Supplied}
 # Load the example MTDEQ criteria table
-criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
+criteria_table <- TADA_GetCriteriaFile(org_id = "MTDEQ")
 
-load(criteria_table)
+# extract the parameter and uses from this table
+user.supplied.MT.data <- dplyr::select(criteria_table, ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier, TADA.CharacteristicName, ATTAINS.ParameterName, ATTAINS.UseName)
 
-MT.UseParam.user.supplied <- dplyr::select(criteria_table, ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier, TADA.CharacteristicName, ATTAINS.ParameterName, ATTAINS.UseName)
-
-MT.usesRef.user.supplied.edit <- TADA_UsesForAnalysis(
+# run TADA_UsesForAnalysis and filter the table to ATTAINS.ParameterName(s) found in your paramRef arg input.
+MT.UsesRef.manual.user.supplied <- TADA_UsesForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
-  usesRef = MT.UseParam.user.supplied,
-  auto_assign = TRUE,
+  usesRef = user.supplied.MT.data,
+  AU_UsesRef = NULL,
+  AUMLRef = NULL,
+  auto_assign = FALSE,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.usesRef.user.supplied.edit)
+TADA_TableExport(MT.UsesRef.manual.user.supplied)
 ```
 
-### Review, Save and Re-Use usesRef
+#### Option 2: User has completed a Uses to AU crosswalk
+
+Now, if you’ve assigned uses to AUs (see ExampleMod2Workflow.Rmd), pass
+that table as the AU_UsesRef. In this scenario, use names for your
+analysis will be populated from your defined uses in AU_UsesRef rather
+than prior ATTAINS cycles (Note: if all use names defined in your
+AU_UsesRef come from prior use names in ATTAINS then it will be still
+come from ATTAINS as the source.)
+
+If your AU_UsesRef contains any use name not currently found in ATTAINS
+for your defined org_id(s) then this use name will get assigned to each
+unique ATTAINS.ParameterName. For use names that are already found in
+ATTAINS, the associated ATTAINS.ParameterName will be filtered if they
+are only associated with certain ATTAINS.UseName in prior assessment
+cycles.
+
+Note: In the MT.UsesRef.auto example, all use names are found in prior
+ATTAINS assessment cycles for MTDEQ, so the tables should be identical
+to MT.UsesRef.with.AU_UsesRef.
+
+```{r usesRef-with-AU_UsesRef}
+# uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
+utils::data(Data_MT_AU_UsesRef)
+
+MT.UsesRef.manual.AU_UsesRef <- TADA_UsesForAnalysis(
+  tada.MT.clean,
+  org_id = c("MTDEQ"),
+  paramRef = MT.ParamRef.Final,
+  usesRef = NULL,
+  AU_UsesRef = Data_MT_AU_UsesRef, # uses will be sourced here
+  AUMLRef = NULL,
+  auto_assign = FALSE,
+  excel = FALSE
+  # excel = TRUE, overwrite = TRUE
+)
+
+TADA_TableExport(MT.UsesRef.manual.AU_UsesRef)
+```
+
+Now, lets show the output when we turn auto_assign = TRUE
+
+```{r usesRef-auto-AU_UsesRef}
+MT.UsesRef.auto.AU_UsesRef <- TADA_UsesForAnalysis(
+  tada.MT.clean,
+  org_id = c("MTDEQ"),
+  paramRef = MT.ParamRef.Final,
+  usesRef = NULL,
+  AU_UsesRef = Data_MT_AU_UsesRef, # uses will be sourced here.
+  AUMLRef = NULL,
+  auto_assign = TRUE, # turn auto_assign on
+  excel = FALSE
+  # excel = TRUE, overwrite = TRUE
+)
+
+TADA_TableExport(MT.UsesRef.auto.AU_UsesRef)
+```
+
+#### Option 3A: User has completed an AU to ML crosswalk but not AU to Uses
+
+While it is recommended for users who have created an AU to ML crosswalk
+to run **`TADA_AssignUsesToAU`** to create the AU_UsesRef crosswalk, it
+is not a requirement to do so. In this scenario users can provide the
+AUMLRef crosswalk to filter only use names that may be associated with
+those assessment units in your data frame of interest.
+
+Let's go ahead and pull in our AUMLRef crosswalk created in
+TADAModule2.Rmd vignette. We will compare the output of
+**`TADA_UsesForAnalysis`** for assessment units for MTDEQ for the case
+in which water type is 'LAKE, FRESHWATER' versus 'RIVER'.
+
+```{r retrieve-AUMLRef}
+# This AUMLRef will come from the user supplied reference table produced in TADAModule2.Rmd
+utils::data(Data_MT_AUMLRef)
+
+AUMLRef.MT <- Data_MT_AUMLRef$ATTAINS_crosswalk
+
+# pulls in a single assessment unit that is a lake
+AUMLRef.MT76F007_010 <- dplyr::filter(AUMLRef.MT, ATTAINS.AssessmentUnitIdentifier == "MT76F007_010")
+
+# pulls in a single assessment unit that is a river
+AUMLRef.MT76M004_070 <- dplyr::filter(AUMLRef.MT, ATTAINS.AssessmentUnitIdentifier == "MT76M004_070")
+```
+
+Now, let's compare the assignments of uses and parameters in these two
+scenarios.
+
+Question: What differences do we see between the two outputs for 'LAKE,
+FRESHWATER' versus 'RIVER'?
+
+```{r usesRef-with-AUMLRef-lake}
+MT.UsesRef.manual.MT76F007_010 <- TADA_UsesForAnalysis(
+  tada.MT.clean,
+  org_id = c("MTDEQ"),
+  paramRef = MT.ParamRef.Final,
+  usesRef = NULL,
+  AU_UsesRef = NULL,
+  AUMLRef = AUMLRef.MT76F007_010, # select appropriate crosswalk
+  auto_assign = FALSE,
+  excel = FALSE
+  # excel = TRUE, overwrite = TRUE
+)
+
+TADA_TableExport(MT.UsesRef.manual.MT76F007_010)
+```
+
+```{r usesRef-with-AUMLRef-river}
+MT.UsesRef.manual.MT76M004_070 <- TADA_UsesForAnalysis(
+  tada.MT.clean,
+  org_id = c("MTDEQ"),
+  paramRef = MT.ParamRef.Final,
+  usesRef = NULL,
+  AU_UsesRef = NULL,
+  AUMLRef = AUMLRef.MT76M004_070, # select appropriate crosswalk
+  auto_assign = FALSE,
+  excel = FALSE
+  # excel = TRUE, overwrite = TRUE
+)
+
+TADA_TableExport(MT.UsesRef.manual.MT76M004_070)
+```
+
+What do we see with auto_assign for this lake assessment unit?
+
+```{r usesRef-autoassign-AUMLRef-lake}
+MT.UsesRef.auto.MT76F007_010 <- TADA_UsesForAnalysis(
+  tada.MT.clean,
+  org_id = c("MTDEQ"),
+  paramRef = MT.ParamRef.Final,
+  usesRef = NULL,
+  AU_UsesRef = NULL,
+  AUMLRef = AUMLRef.MT76F007_010, # select appropriate crosswalk
+  auto_assign = TRUE,
+  excel = FALSE
+  # excel = TRUE, overwrite = TRUE
+)
+
+TADA_TableExport(MT.UsesRef.auto.MT76F007_010)
+```
+
+#### Option 3B: Both AUMLRef and AU_UsesRef are provided
+
+Now let's supply both an AUMLRef and an AU_UsesRef. We will use the
+filtered AUMLRef as our input along with the full AU_UsesRef defined
+earlier.
+
+```{r usesRef-with-AUMLRef-and-AU_UsesRef-river}
+MT.UsesRef.manual.3B <- TADA_UsesForAnalysis(
+  tada.MT.clean,
+  org_id = c("MTDEQ"),
+  paramRef = MT.ParamRef.Final,
+  usesRef = NULL,
+  AU_UsesRef = Data_MT_AU_UsesRef, # define AU_UsesRef
+  AUMLRef = AUMLRef.MT76F007_010, # select appropriate crosswalk
+  auto_assign = FALSE,
+  excel = FALSE
+  # excel = TRUE, overwrite = TRUE
+)
+
+TADA_TableExport(MT.UsesRef.manual.3B)
+```
+
+#### Review, Save and Re-Use usesRef
 
 Once the uses to parameter reference table has been reviewed and
 modified, it can be saved and reused for analysis of future TADA data
@@ -661,35 +874,37 @@ most up to date WQP query and to allow you to review how to handle
 assigning ATTAINS uses to these new additions.
 
 If new WQP characteristics (or new fraction/speciations) do show up,
-your user supplied 'usesRef' is prioritized over the 'auto_assign'
+your user supplied 'usesRef' is prioritized in the 'auto_assign'
 argument inputs. Thus, the auto_assign option will allow you to fill in
 any remaining blank ATTAINS.UseName to an ATTAINS.ParameterName that you
 have not filled in but will not replace any cross walk that you have
 defined in your user supplied crosswalk.
 
 ```{r finalize-usesRef}
-MT.usesRef.Final <- TADA_UsesForAnalysis(
+MT.UsesRef.Final <- TADA_UsesForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
-  usesRef = MT.usesRef.user.supplied.edit,
-  auto_assign = "All",
+  usesRef = MT.UsesRef.manual.user.supplied,
+  AU_UsesRef = NULL,
+  AUMLRef = NULL,
+  auto_assign = TRUE,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
 
 # Test if the two data frames are same or not.
-identical(MT.usesRef.Final[1:5], MT.usesRef.user.supplied.edit[1:5])
+identical(MT.UsesRef.Final[, 1:5], MT.UsesRef.manual.user.supplied[, 1:5])
 
-TADA_TableExport(MT.usesRef.Final)
+TADA_TableExport(MT.UsesRef.Final)
 ```
 
 remove intermediate variable, keep only the crosswalk table that we will
 continue to use in the workflow.
 
 ```{r remove-intermediate-variables-useParam}
-rm(MT.usesRef.AutoAssign, MT.UseParam.user.supplied, MT.usesRef.Manual, MT.usesRef.Manual.Update)
+rm(MT.UsesRef.auto, user.supplied.MT.data, MT.UsesRef.manual, MT.UsesRef.manual.Update)
 ```
 
 # TADA_MLSummary(): Create and Define Spatial Reference Tables
@@ -717,7 +932,7 @@ data, please choose displayNA = TRUE
 ```{r ML_Summary}
 MT.MLSummaryRef.ML <- TADA_MLSummary(
   .data = tada.MT.clean,
-  usesRef = MT.usesRef.Final,
+  usesRef = MT.UsesRef.Final,
   org_id = "MTDEQ",
   displayNA = TRUE,
   excel = FALSE
@@ -750,9 +965,9 @@ utils::data("Data_MT_AU_UsesRef_Water", package = "EPATADA")
 
 MT.MLSummaryRef.AU <- TADA_MLSummary(
   .data = tada.MT.clean,
-  usesRef = MT.usesRef.Final,
+  usesRef = MT.UsesRef.Final,
   AU_UsesRef = Data_MT_AU_UsesRef_Water, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
-  AUMLRef = Final.MT.AUMLRef,
+  AUMLRef = MT_AU_MLRef,
   org_id = "MTDEQ",
   displayNA = FALSE,
   excel = FALSE
@@ -792,7 +1007,7 @@ contain that TADA.ComparableDataIdentifier - the ATTAINS.ParameterName?
 This could be included in the final summary table and labeled as NA or
 insufficient data.)
 
-```{r compare-AU-versus-ML-Summary,, eval = FALSE}
+```{r compare-AU-versus-ML-Summary, eval = FALSE}
 nrow(MT.MLSummaryRef.AU)
 nrow(MT.MLSummaryRef.ML)
 ```
@@ -819,7 +1034,16 @@ MT.CriteriaMethods <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.CriteriaMethods)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.CriteriaMethods[[1]])
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.CriteriaMethods[[2]])
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.CriteriaMethods[[3]])
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 Now, if MTDEQ, already has a filled out/partially filled out criteria
@@ -844,7 +1068,16 @@ MT.CriteriaMethods.user.supplied <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.CriteriaMethods.user.supplied)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.CriteriaMethods.user.supplied[[1]])
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.CriteriaMethods.user.supplied[[2]])
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.CriteriaMethods.user.supplied[[3]])
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 You can append EPA304(a) recommended standards by specifying "USEPA" as
@@ -861,7 +1094,16 @@ MT.CriteriaMethods.user.supplied2 <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.CriteriaMethods.user.supplied2)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.CriteriaMethods.user.supplied2[[1]])
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.CriteriaMethods.user.supplied2[[2]])
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.CriteriaMethods.user.supplied2[[3]])
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 ### Review, Save and Re-Use Criteria and Methodology Table
@@ -879,7 +1121,7 @@ in the remaining blank PH magnitude values with a range between 6.5 and
 
 ```{r finalize-criteria-table}
 # We will fill in PH magnitude values for this example
-MT.CriteriaMethods.Final <- MT.CriteriaMethods.user.supplied2 |>
+MT.CriteriaMethods.Final <- MT.CriteriaMethods.user.supplied2[[1]] |>
   dplyr::mutate(MagnitudeValueLower = dplyr::case_when(
     grepl("PH_NONE_NONE_NONE", TADA.ComparableDataIdentifier) & ATTAINS.OrganizationIdentifier == "MTDEQ" ~ 6.5,
     TRUE ~ MagnitudeValueLower
@@ -894,7 +1136,7 @@ TADA_TableExport(MT.CriteriaMethods.Final)
 
 We will supply this final crosswalk table to be reused and validated.
 
-```{r re-use criteria table}
+```{r re-use-criteria-table}
 MT.CriteriaMethods.Final2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "MTDEQ",
@@ -905,5 +1147,5 @@ MT.CriteriaMethods.Final2 <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.CriteriaMethods.Final2)
+TADA_TableExport(MT.CriteriaMethods.Final2[[1]])
 ```

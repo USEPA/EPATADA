@@ -16,64 +16,114 @@ TADA_MediaFilter(
 \arguments{
 \item{.data}{A data frame representing a TADA profile object.}
 
-\item{clean}{Logical. If \code{TRUE}, remove rows according to the media toggles. If \code{FALSE}, only flag media. Default \code{FALSE}.}
+\item{clean}{Logical. If \code{TRUE}, remove rows according to the media toggles and return
+data without flag columns. If \code{FALSE}, only flag media and return all rows with
+\code{TADA.Media.Flag}. Default \code{FALSE}.}
 
-\item{surface_water}{Logical (used only when \code{clean = TRUE}). If \code{TRUE}, remove SURFACE WATER results. Default \code{FALSE}.}
+\item{surface_water}{Logical (used only when \code{clean = TRUE}). If \code{TRUE}, remove \verb{SURFACE WATER} results. Default \code{FALSE}.}
 
-\item{ground_water}{Logical (used only when \code{clean = TRUE}). If \code{TRUE}, remove GROUNDWATER results. Default \code{FALSE}.}
+\item{ground_water}{Logical (used only when \code{clean = TRUE}). If \code{TRUE}, remove \code{GROUNDWATER} results. Default \code{FALSE}.}
 
-\item{sediment}{Logical (used only when \code{clean = TRUE}). If \code{TRUE}, remove SEDIMENT results. Default \code{FALSE}.}
+\item{sediment}{Logical (used only when \code{clean = TRUE}). If \code{TRUE}, remove \code{SEDIMENT} results. Default \code{FALSE}.}
 
-\item{other}{Logical (used only when \code{clean = TRUE}). If \code{TRUE}, remove OTHER results. Default \code{FALSE}.}
+\item{other}{Logical (used only when \code{clean = TRUE}). If \code{TRUE}, remove \code{OTHER} results. Default \code{FALSE}.}
 }
 \value{
 A data frame.
 \itemize{
-\item If \code{clean = FALSE}, returns all rows with \code{TADA.Media.Flag} added.
-\item If \code{clean = TRUE}, returns rows with selected media removed and no flag columns added.
+\item If \code{clean = FALSE}, returns all rows with the column \code{TADA.Media.Flag} added.
+\item If \code{clean = TRUE}, returns rows with the selected media removed and no flag columns added.
+\item If the input has 0 rows, returns \code{NULL}.
 }
 }
 \description{
-Process a TADA profile object to flag or filter data based on media type.
-\itemize{
-\item If \code{clean = FALSE}, adds \code{TADA.Media.Flag} indicating the classified media for each row.
-\item If \code{clean = TRUE}, removes rows where the media type is set to \code{TRUE} via function arguments,
-and does not add \code{TADA.Media.Flag} to the output. A warning is issued if all media toggles are \code{TRUE}
-(which would remove all media types), and if the filter removes all rows.
-}
+Process a TADA dataframe to flag or filter data by media type.
 }
 \details{
-The function utilizes various columns including \code{MonitoringLocationTypeName},
-\code{ActivityMediaName}, \code{ActivityMediaSubdivisionName}, \code{AquiferName},
-\code{LocalAqfrName}, \code{ConstructionDateText}, \code{WellDepthMeasure.MeasureValue},
-\code{WellDepthMeasure.MeasureUnitCode}, \code{WellHoleDepthMeasure.MeasureValue}, and
-\code{WellHoleDepthMeasure.MeasureUnitCode}, and others to determine the media type.
-Users can specify which media types (surface water, groundwater, sediment, other)
-should be included or excluded.
-
-Media classification uses \code{MonitoringLocationTypeName} (joined to the reference table's \code{Name})
-along with \code{ActivityMediaSubdivisionName}, \code{ActivityMediaName}, and groundwater-related fields.
-Certain media values are normalized to \code{OTHER} (HABITAT, empty string, AIR, BIOLOGICAL,
-and any non-core value).
+Behavior overview:
+\itemize{
+\item If \code{clean = FALSE}, classify each row and add \code{TADA.Media.Flag}. The function
+prints a single message with counts by media and returns the original data with the flag.
+\item If \code{clean = TRUE}, classify and then remove rows whose media types are selected
+via function toggles. The function prints a single message with counts by media
+before filtering, and then a single summary message:
+\itemize{
+\item When no toggles are selected (all FALSE): informs the user and returns the original
+data without \code{TADA.Media.Flag}.
+\item When some toggles are selected but no rows match (e.g., data already contain only SURFACE WATER):
+informs the user that nothing was removed and returns the data unchanged (without flag columns).
+\item When rows are removed: reports how many rows were removed and returns cleaned data
+(without \code{TADA.Media.Flag}).
+Additionally, a warning is issued if all media toggles are \code{TRUE} (which would remove
+all media types), and if the filter removes all rows.
 }
+}
+
+Inputs used for classification:
+\itemize{
+\item \code{MonitoringLocationTypeName}, \code{ActivityMediaSubdivisionName} and \code{ActivityMediaName}
+\item Groundwater-related fields: \code{AquiferName}, \code{AquiferTypeName}, \code{LocalAqfrName},
+\code{ConstructionDateText}, \code{WellDepthMeasure.MeasureValue}, \code{WellDepthMeasure.MeasureUnitCode},
+\code{WellHoleDepthMeasure.MeasureValue}, \code{WellHoleDepthMeasure.MeasureUnitCode}
+}
+
+Classification details:
+\itemize{
+\item ActivityMediaName of "Soil", "Sediment" (and common variants like "Soil or Sediment")
+map to \code{SEDIMENT} even if groundwater fields are present.
+\item \code{ActivityMediaSubdivisionName} is reviewed for identifying "Surface Water",
+"Groundwater", and "Sediment".
+\item If the subdivision is blank and \code{ActivityMediaName} is "Water" with no groundwater
+fields present, the row is classified as \verb{SURFACE WATER}.
+\item Groundwater fields are considered present if they are non-NA and non-blank (for
+character/factor fields) or non-NA (for numeric fields).
+\item If a monitoring location type reference is available via \code{TADA_GetMonLocTypeRef()},
+its \code{TADA.Media.Flag} takes precedence when present.
+\item Media flags are normalized to the core set: \verb{SURFACE WATER}, \code{GROUNDWATER},
+\code{SEDIMENT}, \code{OTHER}. Values such as \code{HABITAT}, \code{AIR}, \code{BIOLOGICAL}, empty strings,
+or non-core values are coerced to \code{OTHER}.
+}
+
+Requirements and defaults:
+\itemize{
+\item Required columns: \code{MonitoringLocationTypeName}, \code{ActivityMediaSubdivisionName}, and \code{AquiferName}.
+If any required columns are missing (rare), the function stops with an error of the form
+"Missing required columns: \if{html}{\out{<col1>}}, \if{html}{\out{<col2>}}, ...".
+\item Optional columns are created if missing (with appropriate types) and filled with \code{NA}:
+\code{ActivityMediaName}, \code{AquiferTypeName}, \code{LocalAqfrName}, \code{ConstructionDateText},
+\code{WellDepthMeasure.MeasureValue} (numeric), \code{WellDepthMeasure.MeasureUnitCode},
+\code{WellHoleDepthMeasure.MeasureValue} (numeric), \code{WellHoleDepthMeasure.MeasureUnitCode}.
+\item If the input data frame has 0 rows, the function emits a message and returns \code{NULL}.
+}
+}
+\section{Messages and warnings}{
+
+\itemize{
+\item Always prints counts by media before filtering.
+\item When \code{clean = TRUE}, prints a single summary message indicating whether rows were removed,
+whether no rows matched the selected media, or whether no toggles were selected.
+\item Warns if all media toggles are \code{TRUE}, and if all rows were removed by the filter.
+}
+}
+
 \examples{
 utils::data(Data_R5_TADAPackageDemo)
 
-# Example 1: Do not clean; just classify media and add TADA.Media.Flag
+# Example 1: Do not clean; classify media and add TADA.Media.Flag
 Data_Flag <- TADA_MediaFilter(
   Data_R5_TADAPackageDemo,
   clean = FALSE
 )
 unique(Data_Flag$TADA.Media.Flag)
 
-# Example 2: Clean the data by removing groundwater and sediment; no flag column returned
+# Example 2: Remove groundwater and sediment; no flag column in output
 Data_Clean1 <- TADA_MediaFilter(
   Data_R5_TADAPackageDemo,
   clean = TRUE,
   ground_water = TRUE,
   sediment = TRUE
 )
-"TADA.Media.Flag" \%in\% names(Data_Clean1) # should be FALSE
+"TADA.Media.Flag" \%in\% names(Data_Clean1) # FALSE
 
 # Example 3: Keep only surface water by removing groundwater, sediment, and other
 Data_Clean2 <- TADA_MediaFilter(
@@ -90,4 +140,7 @@ Data_Clean3 <- TADA_MediaFilter(
   clean = TRUE,
   surface_water = TRUE
 )
+}
+\seealso{
+\code{\link[=TADA_GetMonLocTypeRef]{TADA_GetMonLocTypeRef()}}, \code{\link[=TADA_OrderCols]{TADA_OrderCols()}}
 }

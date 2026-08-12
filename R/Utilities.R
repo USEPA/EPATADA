@@ -416,6 +416,7 @@ utils::globalVariables(c(
   "ATTAINS.WaterType.y",
   "DepthCategory",
   "User.WaterType",
+  "UserRef.OrganizationIdentifier",
   "ATTAINS.OrganizationId",
   "MatchMessage",
   "Mismatch",
@@ -459,7 +460,59 @@ utils::globalVariables(c(
   "attains.labels",
   "icon.labels",
   "ATTAINS.ParameterName.x",
-  "Ref.AssessmentUnitIdentifier"
+  "Ref.AssessmentUnitIdentifier",
+  "Alias.Name",
+  "CST.SourceLink",
+  "CST.StdPollutantName",
+  "CST_CAS_NO",
+  "PDFPGNO",
+  "SOURCE",
+  "WQXCharAliasRef",
+  "WQX_CAS_NO",
+  "percent_match_CST_ATTAINS",
+  "percent_match_CST_WQX",
+  "percent_match_WQX_ATTAINS",
+  "percent_match_WQX_CST",
+  "review",
+  "source.y",
+  ".data",
+  "Target.TADA.CharacteristicName",
+  "Target.TADA.MethodSpeciationName",
+  "Target.TADA.ResultSampleFractionText",
+  "Target.TADA.SpeciationConversionFactor",
+  "has_depth_param",
+  "out_epsg",
+  "ATTAINSParamUseOrgRef",
+  "CountyCode",
+  "candidates",
+  "matched",
+  "New.ATTAINS.WaterType",
+  "TADA.ATTAINSWaterType.Flag",
+  "WQPOrganizationRef",
+  "created_AUID",
+  ".can_correct",
+  ".should_correct",
+  ".was_valid",
+  "ATTAINS.WaterType.Original",
+  "Crosswalk.ATTAINS.WaterType",
+  ".rank",
+  ".selected",
+  "TADA.MultipleOrgDup.Flag",
+  ".row_id",
+  "COUNTYFP",
+  "CoordinateCountyCode",
+  "CoordinateStateCode",
+  "STATEFP",
+  "StateCode",
+  "DayOfYear",
+  "FirstResultMeasurement",
+  "LastResultMeasurement",
+  "Month",
+  "Year",
+  "ATTAINSWaterTypeByOrgName",
+  "TADA.ATTAINS.WaterType",
+  "TADA.Rank",
+  "TADA.ResultValueAggregation.Flag"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -1012,17 +1065,50 @@ TADA_SubstituteDeprecatedChars <- function(.data, quiet = FALSE) {
 
 #' Create TADA.ComparableDataIdentifier Column
 #'
-#' This utility function creates the TADA.ComparableDataIdentifier column by pasting
-#' together TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
-#' and TADA.ResultMeasure.MeasureUnitCode.
+#' Create a comparable identifier by concatenating:
+#' - TADA.CharacteristicName
+#' - TADA.ResultSampleFractionText
+#' - TADA.MethodSpeciationName
+#' - TADA.ResultMeasure.MeasureUnitCode
 #'
-#' @param .data TADA dataframe
+#' Harmonization:
+#' - TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
+#'   TADA.ResultMeasure.MeasureUnitCode are first normalized so any blank, NULL/NA,
+#'   or any case variant of "none" are set to the literal "NONE".
 #'
-#' @return Input TADA dataframe with added TADA.ComparableDataIdentifier column.
+#' Identifier construction:
+#' - Each component is trimmed. For the characteristic name only, blanks/NA are
+#'   converted to the literal "NA". For fraction/speciation/unit, the normalized
+#'   values are used (i.e., "NONE" where missing).
+#' - Example: "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+#'
+#' @param .data A TADA dataframe (data.frame or tibble) with the required columns:
+#'   TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
+#'   and TADA.ResultMeasure.MeasureUnitCode.
+#'
+#' @return The input dataframe with:
+#'   - harmonized fields (fraction/speciation/unit) where missing/"none" -> "NONE"
+#'   - a character column TADA.ComparableDataIdentifier
+#'
+#' @examples
+#' df <- data.frame(
+#'   TADA.CharacteristicName = c("DISSOLVED OXYGEN (DO)", "pH", "Nitrate"),
+#'   TADA.ResultSampleFractionText = c("", NA, "Dissolved"),
+#'   TADA.MethodSpeciationName = c(" ", NA, ""),
+#'   TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "none", NA),
+#'   stringsAsFactors = FALSE
+#' )
+#'
+#' out <- TADA_CreateComparableID(df)
+#' out$TADA.ComparableDataIdentifier
+#' # Expected:
+#' # [1] "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+#' # [2] "pH_NONE_NONE_NONE"
+#' # [3] "Nitrate_Dissolved_NONE_NONE"
 #'
 #' @export
 TADA_CreateComparableID <- function(.data) {
-  # check .data is data.frame and has required columns
+  # required columns
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
@@ -1030,20 +1116,45 @@ TADA_CreateComparableID <- function(.data) {
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
-  # Check if the input data frame is empty
+
+  # handle empty input
   if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
+    .data$TADA.ComparableDataIdentifier <- character(0)
+    return(.data)
   }
 
+  # helper: normalize to "NONE" for fraction/speciation/unit
+  to_NONE <- function(x) {
+    y <- trimws(as.character(x))
+    y[is.na(y) | y == "" | toupper(y) == "NONE"] <- "NONE"
+    y
+  }
+  # helper: normalize characteristic name; keep "NA" token for missing
+  to_NA <- function(x) {
+    y <- trimws(as.character(x))
+    y[is.na(y) | y == ""] <- "NA"
+    y
+  }
+
+  # harmonize the three metadata fields in-place
+  .data$TADA.ResultSampleFractionText <- to_NONE(
+    .data$TADA.ResultSampleFractionText
+  )
+  .data$TADA.MethodSpeciationName <- to_NONE(.data$TADA.MethodSpeciationName)
+  .data$TADA.ResultMeasure.MeasureUnitCode <- to_NONE(
+    .data$TADA.ResultMeasure.MeasureUnitCode
+  )
+
+  # build the comparable ID
   .data$TADA.ComparableDataIdentifier <- paste(
-    .data$TADA.CharacteristicName,
+    to_NA(.data$TADA.CharacteristicName),
     .data$TADA.ResultSampleFractionText,
     .data$TADA.MethodSpeciationName,
     .data$TADA.ResultMeasure.MeasureUnitCode,
     sep = "_"
   )
-  return(.data)
+
+  .data
 }
 
 #' Convert a delimited string to the format used by WQX 3.0 profiles for
@@ -1234,16 +1345,16 @@ TADA_RandomTestingData <- function(
 #' @examples
 #' \dontrun{
 #' # Load example dataset
-#' utils::data(Data_6Tribes_5y)
+#' utils::data(Data_TribalNations)
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(
 #'   c(
-#'     xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure),
-#'     ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure),
-#'     xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure),
-#'     ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)
+#'     xmin = min(Data_TribalNations$TADA.LongitudeMeasure),
+#'     ymin = min(Data_TribalNations$TADA.LatitudeMeasure),
+#'     xmax = max(Data_TribalNations$TADA.LongitudeMeasure),
+#'     ymax = max(Data_TribalNations$TADA.LatitudeMeasure)
 #'   ),
-#'   crs = sf::st_crs(Data_6Tribes_5y)
+#'   crs = sf::st_crs(Data_TribalNations)
 #' )
 #' # Get a string containing the JSON of the bounding box
 #' getBboxJson(bbox)
@@ -1311,7 +1422,7 @@ pchIcons <- function(
 }
 
 #' Retrieve feature layer from ArcGIS REST service
-#' getFeatureLayer is used by writeLayer to write feature layers to local files
+#' getFeatureLayer is used by writeLayerIfChanged to write feature layers to local files
 #'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -1351,63 +1462,97 @@ getFeatureLayer <- function(url, bbox = NULL) {
   return(layer)
 }
 
-
-#' Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists
-#' writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
+#' Download a spatial file from an API and save it to a local folder, overwriting existing file if it exists
+#' and has changed. writeLayerIfChanged is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
 #'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
-#' @param layerfilepath Local path to save the .shp file to
+#' @param layerfilepath Local path to save the .gpkg file
+#' @param layername Name of the layer within the .gpkg file
 #'
 #' @examples
 #' \dontrun{
 #' # Get the Oklahoma Tribal Statistical Areas feature layer and write
-#' # local file to inst/extdata/OKTribe.shp
+#' # local file to inst/extdata/Tribal.gpkg/OKTribe
 #' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
-#' writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")
+#' writeLayerIfChanged(OKTribeUrl, "inst/extdata/Tribal.gpkg","OKTribe")
 #' }
-writeLayer <- function(url, layerfilepath) {
-  layer <- getFeatureLayer(url)
-  # Attribute names can only be up to 10 characters long when saved to .dbf as part of sf::st_write.
-  # They are truncated automatically but TOTALAREA_MI and TOTALAREA_KM will not be unique after being
-  # truncated, so explicitly rename them first if they exist to avoid error.
-  if ("TOTALAREA_MI" %in% colnames(layer)) {
-    layer <- layer |>
-      dplyr::rename(TAREA_MI = TOTALAREA_MI, TAREA_KM = TOTALAREA_KM)
+writeLayerIfChanged <- function(url, layerfilepath, layername) {
+  # Build the new feature layer in memory
+  new_feature <- getFeatureLayer(url)
+
+  # If the gpkg or layer doesn't exist yet, write it
+  layer_exists <- FALSE
+  if (file.exists(layerfilepath)) {
+    layer_exists <- layername %in% sf::st_layers(layerfilepath)$name
   }
-  sf::st_write(layer, layerfilepath, delete_layer = TRUE)
+
+  if (!layer_exists) {
+    sf::st_write(
+      new_feature,
+      layerfilepath,
+      layer = layername,
+      delete_layer = TRUE,
+      quiet = TRUE
+    )
+    return(invisible(TRUE))
+  }
+
+  # Read the existing layer
+  old_feature <- sf::st_read(layerfilepath, layer = layername, quiet = TRUE)
+
+  # Compare conservatively
+  if (.sf_layer_equal(old_feature, new_feature)) {
+    return(invisible(FALSE))
+  }
+
+  # Rewrite only if changed
+  sf::st_write(
+    new_feature,
+    layerfilepath,
+    layer = layername,
+    delete_layer = TRUE,
+    quiet = TRUE
+  )
+
+  invisible(TRUE)
 }
 
-
-#' Get a shapefile from a local folder, optionally crop it by a bounding box, and return it as a sf object
-#' getLayer is used within TADA_addPolys and TADA_addPoints
+#' Read a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
+#' readLayer is used within TADA_addPolys and TADA_addPoints
 #'
-#' @param layerfilepath Local path to the .shp file for the layer
+#' @param layerfilepath Local path to the data folder containing the .gpkg file
+#' @param gpkg name of the .gpkg file
+#' @param layer name of the layer within the .gpkg file
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return sf object containing the layer
-#'
 #'
 #' @examples
 #' \dontrun{
 #' # Load example dataset
-#' utils::data(Data_6Tribes_5y_Harmonized)
-#' # Get the bounding box of the data
+#' utils::data(Data_TribalNations_Harmonized)
+#'
+#' # Use the example dataset bounding box
 #' bbox <- sf::st_bbox(
 #'   c(
-#'     xmin = min(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure),
-#'     ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure),
-#'     xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure),
-#'     ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)
+#'     xmin = min(Data_TribalNations_Harmonized$TADA.LongitudeMeasure),
+#'     ymin = min(Data_TribalNations_Harmonized$TADA.LatitudeMeasure),
+#'     xmax = max(Data_TribalNations_Harmonized$TADA.LongitudeMeasure),
+#'     ymax = max(Data_TribalNations_Harmonized$TADA.LatitudeMeasure)
 #'   ),
-#'   crs = sf::st_crs(Data_6Tribes_5y_Harmonized)
+#'   crs = sf::st_crs(Data_TribalNations_Harmonized)
 #' )
-#' # Get the American Indian Reservations feature layer,
-#' # filtered by the bounding box for the Data_6Tribes_5y_Harmonized
+#'
+#' # Read the American Indian Reservations feature layer,
+#' # filtered by the bounding box for the Data_TribalNations_Harmonized
 #' # example dataset
-#' layerfilepath <- "extdata/AmericanIndian.shp"
-#' getLayer(layerfilepath, bbox)
+#' layerfilepath <- "extdata"
+#' gpkg <- "Tribal.gpkg"
+#' layer <- "AmericanIndian"
+#' readLayer(layerfilepath, gpkg, layer)
 #' }
-getLayer <- function(layerfilepath, bbox = NULL) {
-  layer <- sf::st_read(system.file(layerfilepath, package = "EPATADA"))
+readLayer <- function(layerfilepath, gpkg, layer, bbox = NULL) {
+  gpkg_path <- system.file(layerfilepath, gpkg, package = "EPATADA")
+  layer <- sf::read_sf(dsn = gpkg_path, layer, quiet = TRUE)
   if (!(is.null(bbox))) {
     sf::sf_use_s2(FALSE)
     layer <- sf::st_make_valid(layer)
@@ -1425,8 +1570,8 @@ getLayer <- function(layerfilepath, bbox = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' # Get the Oklahoma Tribal Statistical Areas feature layer
-#' layer <- getLayer("extdata/OKTribe.shp")
+#' # Read in the Oklahoma Tribal Statistical Areas layer
+#' layer <- readLayer("extdata", "Tribal.gpkg", "OKTribe")
 #' # Get popup text for individual markers
 #' getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
 #' }
@@ -1485,10 +1630,12 @@ getTribalPopup <- function(layer, layername) {
   return(popups)
 }
 
-#' Add polygons from an ArcGIS feature layer to a leaflet map
+#' Add polygons from a spatial layer to a leaflet map
 #'
 #' @param map A leaflet map
-#' @param layerfilepath Local path to the .shp file for the layer
+#' @param layerfilepath Local path to the data folder containing the .gpkg file
+#' @param gpkg name of the .gpkg file
+#' @param layer name of the layer within the .gpkg file
 #' @param layergroup Name of the layer group
 #' @param layername Name of the layer
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -1503,17 +1650,20 @@ getTribalPopup <- function(layer, layername) {
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the American Indian Reservations feature layer to the map
-#' lmap <- TADA_addPolys(lmap, "extdata/AmericanIndian.shp", "Tribes", "American Indian Reservations")
+#' lmap <- TADA_addPolys(lmap, "extdata", "Tribal.gpkg","AmericanIndian",
+#' "Tribes", "American Indian Reservations")
 #' lmap
 #' }
 TADA_addPolys <- function(
   map,
   layerfilepath,
+  gpkg,
+  layer,
   layergroup,
   layername,
   bbox = NULL
 ) {
-  layer <- getLayer(layerfilepath, bbox)
+  layer <- readLayer(layerfilepath, gpkg, layer, bbox)
   if (is.null(layer)) {
     return(map)
   }
@@ -1549,10 +1699,12 @@ TADA_addPolys <- function(
   return(map)
 }
 
-#' Add points from an ArcGIS feature layer to a leaflet map
+#' Add points from a spatial layer to a leaflet map
 #'
 #' @param map A leaflet map
-#' @param layerfilepath Local path to the .shp file for the layer
+#' @param layerfilepath Local path to the data folder containing the .gpkg file
+#' @param gpkg name of the .gpkg file
+#' @param layer name of the layer within the .gpkg file
 #' @param layergroup Name of the layer group
 #' @param layername Name of the layer
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -1567,20 +1719,20 @@ TADA_addPolys <- function(
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
-#' lmap <- TADA_addPoints(
-#'   lmap, "extdata/VATribe.shp",
-#'   "Tribes", "Virginia Federally Recognized Tribes"
-#' )
+#' lmap <- TADA_addPoints(lmap, "extdata", "Tribal.gpkg","VATribe",
+#'     "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap
 #' }
 TADA_addPoints <- function(
   map,
   layerfilepath,
+  gpkg,
+  layer,
   layergroup,
   layername,
   bbox = NULL
 ) {
-  layer <- getLayer(layerfilepath, bbox)
+  layer <- readLayer(layerfilepath, gpkg, layer, bbox)
   if (is.null(layer)) {
     return(map)
   }
@@ -1588,7 +1740,9 @@ TADA_addPoints <- function(
   if (is.na(lbbox[1])) {
     return(map)
   }
-  shapes <- c(2) # open triangle; for other options see https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/
+  # 2 is open triangle
+  # For other options see https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/
+  shapes <- c(2)
   iconFiles <- pchIcons(
     shapes,
     width = 20,
@@ -1614,14 +1768,14 @@ TADA_addPoints <- function(
 #' Create Characteristic/MeasureUnitCode/MethodSpeciation Ref
 #'
 #' Creates data frame of unique combinations of TADA.CharacteristicName,
-#' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
-#' TADA.MethodSpeciationName in a TADA data frame.
+#' TADA.ResultMeasure.MeasureUnitCode (normalized), optional ResultMeasure.MeasureUnitCode,
+#' and TADA.MethodSpeciationName in a TADA data frame.
 #'
 #' @param .data A TADA data frame.
 #'
 #' @return A data frame with unique combinations of TADA.CharacteristicName,
-#' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
-#' TADA.MethodSpeciationName
+#' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode (if present),
+#' and TADA.MethodSpeciationName
 #'
 #' @export
 #'
@@ -1638,66 +1792,152 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     return(NULL) # Exit the function early
   }
 
-  required_cols <- c(
-    "TADA.CharacteristicName",
-    "TADA.ResultSampleFractionText",
-    "TADA.MethodSpeciationName",
-    "TADA.ResultMeasure.MeasureUnitCode",
-    "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
-  )
+  # Minimal required columns: Characteristic + at least one unit column
+  has_char <- "TADA.CharacteristicName" %in% names(.data)
+  has_unit_pref <- "TADA.ResultMeasure.MeasureUnitCode" %in% names(.data)
+  has_unit_unpref <- "ResultMeasure.MeasureUnitCode" %in% names(.data)
 
-  # Check to see if TADA_Autoclean has been run
-  if (any(required_cols %in% colnames(.data)) == FALSE) {
-    print(
-      "The dataframe does not contain the required fields. Running TADA_AutoClean to create required columns."
+  if (!(has_char && (has_unit_pref || has_unit_unpref))) {
+    message(
+      "Minimal required fields are missing (Characteristic and unit). ",
+      "Running TADA_AutoClean to create required columns."
     )
     .data <- TADA_AutoClean(.data)
+
+    # Re-check minimal fields post-clean; fail fast with a helpful message if still missing
+    has_char <- "TADA.CharacteristicName" %in% names(.data)
+    has_unit_pref <- "TADA.ResultMeasure.MeasureUnitCode" %in% names(.data)
+    has_unit_unpref <- "ResultMeasure.MeasureUnitCode" %in% names(.data)
+    if (!(has_char && (has_unit_pref || has_unit_unpref))) {
+      stop(
+        "TADA_UniqueCharUnitSpeciation: After TADA_AutoClean, the minimal required fields are still missing. ",
+        "Ensure your input uses the TADA/WQP physical-chemical profile with CharacteristicName and unit columns."
+      )
+    }
   }
 
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
+  # Unique result units/speciation/char
   data.units.result <- .data |>
-    dplyr::select(
-      TADA.CharacteristicName,
-      TADA.ResultMeasure.MeasureUnitCode,
-      ResultMeasure.MeasureUnitCode,
-      TADA.MethodSpeciationName
-    ) |>
+    dplyr::select(dplyr::any_of(c(
+      "TADA.CharacteristicName",
+      "TADA.ResultMeasure.MeasureUnitCode",
+      "ResultMeasure.MeasureUnitCode",
+      "TADA.MethodSpeciationName"
+    ))) |>
     dplyr::distinct()
 
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
+  # Ensure speciation column exists
+  if (!"TADA.MethodSpeciationName" %in% names(data.units.result)) {
+    data.units.result$TADA.MethodSpeciationName <- NA_character_
+  }
+
+  # Normalize unprefixed unit column to TADA-prefixed name if needed
+  if (
+    !"TADA.ResultMeasure.MeasureUnitCode" %in% names(data.units.result) &&
+      "ResultMeasure.MeasureUnitCode" %in% names(data.units.result)
+  ) {
+    data.units.result <- dplyr::rename(
+      data.units.result,
+      TADA.ResultMeasure.MeasureUnitCode = ResultMeasure.MeasureUnitCode
+    )
+  }
+
+  # Unique detection-limit units/speciation/char (optional; guard filters)
   data.units.det <- .data |>
-    dplyr::select(
-      TADA.CharacteristicName,
-      TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
-      DetectionQuantitationLimitMeasure.MeasureUnitCode,
-      TADA.MethodSpeciationName
-    ) |>
-    dplyr::filter(
-      !is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
-    ) |>
-    dplyr::distinct() |>
-    dplyr::rename(
-      TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
-      ResultMeasure.MeasureUnitCode = DetectionQuantitationLimitMeasure.MeasureUnitCode
+    dplyr::select(dplyr::any_of(c(
+      "TADA.CharacteristicName",
+      "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+      "DetectionQuantitationLimitMeasure.MeasureUnitCode",
+      "TADA.MethodSpeciationName"
+    )))
+
+  if (ncol(data.units.det) > 0) {
+    # Filter only when the detection-limit unit column is present
+    if (
+      "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" %in%
+        names(data.units.det)
+    ) {
+      data.units.det <- data.units.det |>
+        dplyr::filter(
+          !is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
+        )
+    }
+    data.units.det <- data.units.det |> dplyr::distinct()
+
+    # Ensure speciation column exists
+    if (!"TADA.MethodSpeciationName" %in% names(data.units.det)) {
+      data.units.det$TADA.MethodSpeciationName <- NA_character_
+    }
+
+    # Normalize detection-limit names to result-unit names for the join
+    if (
+      "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" %in%
+        names(data.units.det)
+    ) {
+      data.units.det <- dplyr::rename(
+        data.units.det,
+        TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
+      )
+    }
+    if (
+      "DetectionQuantitationLimitMeasure.MeasureUnitCode" %in%
+        names(data.units.det)
+    ) {
+      data.units.det <- dplyr::rename(
+        data.units.det,
+        ResultMeasure.MeasureUnitCode = DetectionQuantitationLimitMeasure.MeasureUnitCode
+      )
+    }
+  }
+
+  # Combine (result + detection-limit) by normalized names
+  if (ncol(data.units.det) > 0) {
+    # Ensure required join columns exist in both frames
+    required_join_cols <- c(
+      "TADA.CharacteristicName",
+      "TADA.ResultMeasure.MeasureUnitCode",
+      "ResultMeasure.MeasureUnitCode",
+      "TADA.MethodSpeciationName"
     )
 
-  # Create combined df with all unique codes (both result and det units) and characteristic names
-  data.units <- data.units.result |>
-    dplyr::full_join(
-      data.units.det,
-      by = c(
-        "TADA.CharacteristicName",
-        "TADA.ResultMeasure.MeasureUnitCode",
-        "ResultMeasure.MeasureUnitCode",
-        "TADA.MethodSpeciationName"
-      )
-    ) |>
-    dplyr::distinct() |>
-    dplyr::group_by(TADA.CharacteristicName)
+    # Add missing columns to data.units.result as NA
+    missing_in_result <- setdiff(required_join_cols, names(data.units.result))
+    if (length(missing_in_result) > 0) {
+      for (col in missing_in_result) {
+        data.units.result[[col]] <- NA_character_
+      }
+    }
+
+    # Add missing columns to data.units.det as NA
+    missing_in_det <- setdiff(required_join_cols, names(data.units.det))
+    if (length(missing_in_det) > 0) {
+      for (col in missing_in_det) {
+        data.units.det[[col]] <- NA_character_
+      }
+    }
+
+    data.units <- data.units.result |>
+      dplyr::full_join(data.units.det, by = required_join_cols) |>
+      dplyr::distinct() |>
+      dplyr::group_by(TADA.CharacteristicName)
+  } else {
+    data.units <- data.units.result |>
+      dplyr::distinct() |>
+      dplyr::group_by(TADA.CharacteristicName)
+  }
+
+  # Final validation: required columns for downstream usage
+  if (!"TADA.CharacteristicName" %in% names(data.units)) {
+    stop("Input .data must contain TADA.CharacteristicName.")
+  }
+  if (!"TADA.ResultMeasure.MeasureUnitCode" %in% names(data.units)) {
+    stop(
+      "Input .data must contain TADA.ResultMeasure.MeasureUnitCode or an alias normalized to it."
+    )
+  }
 
   return(data.units)
 }
-
 
 #' Create Color Palette For Use in Graphs and Maps
 #'
@@ -1859,7 +2099,7 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 }
 
 
-#' Remove NAs in Strings for Figure Titles and Axis Labels
+#' Remove NAs and NONEs in Strings for Figure Titles and Axis Labels
 #'
 #' Returns a vector of string(s) that removes common NA strings
 #' found in columns such as TADA.ComparableDataIdentifier. Can also
@@ -1881,9 +2121,9 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 #' # Removes NAs based on each TADA.ComparableDataIdentifier found in a dataset.
 #' utils::data(Data_Nutrients_UT)
 #' unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier)
-#' UT_Titles <- TADA_CharStringRemoveNA(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
+#' UT_Titles <- TADA_CharStringRemoveNANone(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
 #' unique(UT_Titles)
-TADA_CharStringRemoveNA <- function(char_string) {
+TADA_CharStringRemoveNANone <- function(char_string) {
   # Checks if data type is a character string.
   if (!is.character(char_string)) {
     stop(paste0(
@@ -1894,14 +2134,14 @@ TADA_CharStringRemoveNA <- function(char_string) {
   # Converts character string to a vector.
   title_string <- as.vector(char_string)
 
-  # Looks through each item in the vector and removes NAs from each.
-  labs <- c()
-  for (i in 1:length(char_string)) {
-    labs[i] <- paste0(char_string[i], collapse = " ")
-    labs[i] <- gsub("_NA|\\(NA|\\(NA)", "", labs[i])
-    labs[i] <- gsub("_", " ", labs[i])
-    labs[i] <- gsub("\\s+", " ", labs[i])
-    labs <- as.vector(labs)
+  labs <- character(length(char_string))
+  for (i in seq_along(char_string)) {
+    x <- char_string[i]
+    x <- gsub("_", " ", x)
+    x <- gsub("\\b(?:NA|NONE)\\b", "", x, perl = TRUE, ignore.case = TRUE)
+    x <- gsub("\\(\\s*\\)", "", x)
+    x <- gsub("\\s+", " ", x)
+    labs[i] <- trimws(x)
   }
 
   return(labs)
@@ -2576,7 +2816,433 @@ TADA_CorrectColType <- function(.data) {
 
   # if neither exist
   def <- "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
-  if (nzchar(def)) return(def)
+  if (nzchar(def)) {
+    return(def)
+  }
+}
+
+#' Get the excel downloads path for criteria files
+#'
+#' @param filename the name of the .xlsx file to locate. Default is NULL and
+#' will return the location of the Download's folder path of your OS.
+#'
+#' @return the download's folder path for a user's operating system
+#' and file name, if provided, within the path.
+#'
+#' @keywords internal
+#'
+#' @examples
+#' \dontrun{
+#' myfilepath <- .get_downloads_path()
+#' }
+.get_downloads_path <- function(filename = NULL) {
+  # filename arg input must be provided.
+  if (is.null(filename)) {
+    message(
+      ".get_downloads_path:
+  No filename was provided, returning the Downloads folder path only."
+    )
+    filename <- ""
+  }
+
+  # find OneDrive directory if present
+  find_onedrive_root <- function() {
+    os <- Sys.info()[["sysname"]]
+    home <- path.expand("~")
+
+    if (os == "Windows") {
+      # look for official Windows env vars
+      for (v in c("OneDriveCommercial", "OneDriveConsumer", "OneDrive")) {
+        p <- Sys.getenv(v, unset = NA)
+        if (!is.na(p) && nzchar(p) && dir.exists(p)) return(p)
+      }
+      # fallback: look for OneDrive* folders directly under USERPROFILE
+      up <- Sys.getenv("USERPROFILE", unset = NA)
+      if (!is.na(up) && nzchar(up) && dir.exists(up)) {
+        cand <- list.dirs(up, recursive = FALSE, full.names = TRUE)
+        cand <- cand[grepl("^OneDrive", basename(cand))]
+        cand <- cand[dir.exists(cand)]
+        if (length(cand)) return(cand[1])
+      }
+    } else if (os == "Darwin") {
+      # macOS: File Provider locations and legacy paths
+      cand <- c(
+        Sys.glob(file.path(home, "Library", "CloudStorage", "OneDrive*")),
+        Sys.glob(file.path(home, "OneDrive*"))
+      )
+      cand <- cand[dir.exists(cand)]
+      if (length(cand)) return(cand[1])
+    } else {
+      # Linux/other
+      cand <- c(
+        Sys.glob(file.path(home, "OneDrive*")),
+        Sys.glob(file.path(home, "onedrive*"))
+      )
+      cand <- cand[dir.exists(cand)]
+      if (length(cand)) return(cand[1])
+    }
+    NA_character_
+  }
+
+  # default Downloads directory (return a string)
+  default_downloads_dir <- function() {
+    os <- Sys.info()[["sysname"]]
+    home <- path.expand("~")
+    if (os == "Windows") {
+      up <- Sys.getenv("USERPROFILE", unset = home)
+      return(file.path(up, "Downloads"))
+    }
+    # On Linux/macOS
+    # Try xdg-user-dir on Linux if available
+    if (os == "Linux") {
+      xdg <- tryCatch(
+        system("xdg-user-dir DOWNLOAD", intern = TRUE),
+        error = function(e) NA_character_
+      )
+      if (!is.na(xdg) && nzchar(xdg)) return(xdg)
+    }
+    file.path(home, "Downloads")
+  }
+
+  # Choose base_dir
+  od_root <- find_onedrive_root()
+
+  candidate_dirs <- c(
+    if (!is.na(od_root)) file.path(od_root, "Downloads"),
+    default_downloads_dir()
+  )
+
+  candidate_dirs <- candidate_dirs[dir.exists(candidate_dirs)]
+
+  if (length(candidate_dirs) > 0) {
+    base_dir <- candidate_dirs[1]
+  } else {
+    base_dir <- tempdir()
+  }
+
+  utils::capture.output(cat(
+    "File saved to:",
+    gsub("/", "\\\\", file.path(base_dir, filename)),
+    "\n"
+  ))
+
+  return <- file.path(base_dir, filename)
+}
+
+#' Compare two sf layers for equality
+#'
+#' Compares two `sf` objects by checking attribute names, attribute values,
+#' and geometry text representation after normalizing column order and row order.
+#' This is intended for maintenance workflows where unchanged layers should not
+#' be rewritten.
+#'
+#' @param old_feature an existing `sf` object read from a layer
+#' @param new_feature a new `sf` object to compare against the existing layer
+#'
+#' @return `TRUE` if the layers are considered equal, otherwise `FALSE`
+#'
+#' @keywords internal
+#'
+#' @examples
+#' \dontrun{
+#' same <- .sf_layer_equal(old_feature, new_feature)
+#' }
+.sf_layer_equal <- function(old_feature, new_feature) {
+  # Drop geometry and compare only attributes
+  old_attrs <- sf::st_drop_geometry(old_feature)
+  new_attrs <- sf::st_drop_geometry(new_feature)
+
+  # Compare attribute names
+  if (!identical(sort(names(old_attrs)), sort(names(new_attrs)))) {
+    return(FALSE)
+  }
+
+  # Reorder attributes consistently
+  common_names <- sort(names(old_attrs))
+  old_attrs <- old_attrs[, common_names, drop = FALSE]
+  new_attrs <- new_attrs[, common_names, drop = FALSE]
+
+  # Convert factors to character
+  old_attrs[] <- lapply(old_attrs, function(x) {
+    if (is.factor(x)) as.character(x) else x
+  })
+  new_attrs[] <- lapply(new_attrs, function(x) {
+    if (is.factor(x)) as.character(x) else x
+  })
+
+  # Compare geometry separately, ignoring the geometry column name
+  old_geom <- sf::st_as_text(sf::st_geometry(old_feature))
+  new_geom <- sf::st_as_text(sf::st_geometry(new_feature))
+
+  # Add geometry as a regular comparison field
+  old_attrs$..geometry.. <- old_geom
+  new_attrs$..geometry.. <- new_geom
+
+  # Sort rows deterministically
+  old_attrs <- old_attrs[do.call(order, old_attrs), , drop = FALSE]
+  new_attrs <- new_attrs[do.call(order, new_attrs), , drop = FALSE]
+
+  # Final comparison
+  isTRUE(all.equal(old_attrs, new_attrs, check.attributes = FALSE))
+}
+
+#' TADA_SummarizeResultFrequency
+#'
+#' Summarize result frequencies for each TADA.MonitoringLocationIdentifier and
+#' TADA.ComparableDataIdentifier combination in the input data. Users can choose
+#' whether or not to include continuous data, aggregate multiple results from
+#' one day (min, max, mean), include sample depth as an additional grouping
+#' factor, and select the time period (year, month, week) at which result
+#' frequencies should be summarized.
+#'
+#' @param .data TADA dataframe which must include the columns:
+#' TADA.MonitoringLocationIdentifier, TADA.ComparableDataIdentifier,
+#' ActivityStartDate.
+#'
+#' @param depth Boolean argument. When depth = TRUE, TADA.ConsolidatedDepth is
+#' factored into result summary groupings. If depth = TRUE and the ConsolidatedDepth
+#' column does not exist in the TADA df, it will be calculated with
+#' TADA_FlagDepthCategory. Default = FALSE, depth will not be taken into account
+#' when creating groupings to summarize result frequency.
+#'
+#' @param daily_agg Character argument; with options "none", "mean", "min", or
+#' "max". The default is daily_agg = "none". When daily_agg = "none", all results
+#' will be retained. When daily_agg == "mean", the mean value in each group of
+#' results will be identified or calculated for each group. When daily_agg ==
+#' "min" or when daily_agg == "max", the min or max value in each group of
+#' results (as determined by the depth category) will be identified or calculated
+#' for each group.
+#'
+#' @param cont_data Boolean argument. When cont_data = TRUE, continuous data results
+#' will be included in the result summary. When cont_data = FALSE, continuous data
+#' will be excluded.
+#'
+#' @param time_period Character string. Specifies which period of time the result
+#' frequencies should be summarized. Default equals "none" which means the selected
+#' time period is between the first and last ActivityStartDates for each group.
+#' Other options are "year", "month", and "week". Selecting a value other than
+#' "none" for time_period will add two additional columns: TADA.TimePeriodForSummary
+#' and TADA.ResultCount.
+#' @param group_by_year Boolean argument. When TRUE, weekly or monthly time-period
+#' frequencies are grouped by both the selected week or month and the year.
+#' When FALSE, result frequencies are summarized by week or month across all
+#' years. Default is group_by_year equals TRUE. The group_by_year param does not
+#' apply when "year" or "none" is the selected time_period.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' # summarize result frequency by year
+#' year <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
+#' time_period = "year")
+#'
+#' # summarize result frequency by month/year
+#' month_year <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
+#' time_period = "month")
+#'
+#' # summarize result frequency by week/year
+#' week_year <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
+#' time_period = "week")
+#'
+#' # summarize result frequency by month
+#' month <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
+#' time_period = "month",
+#' group_by_year = FALSE)
+#'
+#' # summarize result frequency by week
+#' week <- TADA_SummarizeResultFrequency(Data_TribalNations_Harmonized,
+#' time_period = "week",
+#' group_by_year = FALSE)
+#'
+TADA_SummarizeResultFrequency <- function(
+  .data,
+  depth = FALSE,
+  daily_agg = "none",
+  cont_data = FALSE,
+  time_period = "none",
+  group_by_year = TRUE
+) {
+  # helper for param validation
+  .validate_tada_srf_args <- function(daily_agg, time_period, data_names) {
+    if (!daily_agg %in% c("none", "mean", "min", "max")) {
+      stop(
+        "TADA_SummarizeResultFrequency: 'daily_agg' must be one of: none, mean, min, max."
+      )
+    }
+
+    if (!time_period %in% c("none", "year", "month", "week")) {
+      stop(
+        "TADA_SummarizeResultFrequency: 'time_period' must be one of: none, year, month, week."
+      )
+    }
+
+    if (!"ActivityStartDate" %in% data_names) {
+      stop(
+        "TADA_SummarizeResultFrequency: Input data must contain 'ActivityStartDate'."
+      )
+    }
+
+    invisible(TRUE)
+  }
+
+  # helper to create time period labels
+  .add_time_period <- function(df, time_period, group_by_year = TRUE) {
+    df |>
+      dplyr::mutate(
+        ActivityStartDate = as.Date(ActivityStartDate),
+        TADA.TimePeriodType = time_period,
+        TADA.TimePeriodForSummary = if (time_period == "year") {
+          format(ActivityStartDate, "%Y")
+        } else if (time_period == "month") {
+          if (isTRUE(group_by_year)) {
+            format(ActivityStartDate, "%Y-%m")
+          } else {
+            format(ActivityStartDate, "%m")
+          }
+        } else if (time_period == "week") {
+          iso_year <- as.integer(format(ActivityStartDate, "%G"))
+          iso_week <- as.integer(format(ActivityStartDate, "%V"))
+
+          if (isTRUE(group_by_year)) {
+            sprintf("%04d-W%02d", iso_year, iso_week)
+          } else {
+            sprintf("W%02d", iso_week)
+          }
+        } else {
+          NA_character_
+        }
+      )
+  }
+
+  # helper to build grouping cols
+  .build_grouping_cols <- function(depth, time_period, include_date = FALSE) {
+    cols <- c(
+      "TADA.MonitoringLocationIdentifier",
+      "TADA.ComparableDataIdentifier"
+    )
+
+    if (isTRUE(depth)) {
+      cols <- c(cols, "TADA.ConsolidatedDepth")
+    }
+
+    if (time_period != "none") {
+      cols <- c(cols, "TADA.TimePeriodForSummary", "TADA.TimePeriodType")
+    }
+
+    if (isTRUE(include_date)) {
+      cols <- c("ActivityStartDate", cols)
+    }
+
+    cols
+  }
+
+  # helper for daily aggregation
+  .apply_daily_aggregation <- function(df, daily_agg, agg_grouping_cols) {
+    if (!"TADA.ResultAggregationFlag" %in% names(df)) {
+      df |>
+        TADA_AggregateMeasurements(
+          agg_fun = daily_agg,
+          grouping_cols = agg_grouping_cols
+        )
+    } else {
+      message(
+        "TADA_SummarizeResultFrequency: results have already been aggregated ",
+        "with TADA_AggregateMeasurements. No additional aggregation will be performed."
+      )
+      df
+    }
+  }
+
+  # helper to remove continuous data
+  .remove_continuous_data <- function(df) {
+    if (!"TADA.ContinuousData.Flag" %in% names(df)) {
+      df |> TADA_FlagContinuousData(clean = TRUE)
+    } else {
+      df |> dplyr::filter(TADA.ContinuousData.Flag != "Continuous")
+    }
+  }
+
+  # helper to flag depth category if requires
+  .ensure_depth_category <- function(df) {
+    if (!"TADA.ConsolidatedDepth" %in% names(df)) {
+      df <- df |> TADA_FlagDepthCategory()
+    }
+    df
+  }
+
+  # helper to summarize frequency
+  .summarize_frequency <- function(df, group.cols) {
+    df |>
+      dplyr::group_by(!!!rlang::syms(group.cols)) |>
+      dplyr::mutate(
+        FirstResultMeasurement = min(ActivityStartDate, na.rm = TRUE),
+        LastResultMeasurement = max(ActivityStartDate, na.rm = TRUE),
+        ResultCount = dplyr::n()
+      ) |>
+      dplyr::select(
+        dplyr::all_of(group.cols),
+        FirstResultMeasurement,
+        LastResultMeasurement,
+        ResultCount
+      ) |>
+      dplyr::distinct() |>
+      dplyr::ungroup()
+  }
+
+  # validate params
+  .validate_tada_srf_args(daily_agg, time_period, names(.data))
+
+  # handle continuous data
+  if (isFALSE(cont_data)) {
+    .data <- .remove_continuous_data(.data)
+  }
+
+  # remove QC activities before summarizing frequencies
+  .data <- suppressMessages(TADA_FindQCActivities(.data, clean = TRUE))
+  message(
+    "TADA_SummarizeResultFrequency: QC samples were removed before summarizing result frequencies."
+  )
+
+  .data <- .data |>
+    dplyr::mutate(ActivityStartDate = as.Date(ActivityStartDate))
+
+  # handle depth
+  if (isTRUE(depth)) {
+    .data <- .ensure_depth_category(.data)
+  }
+
+  # set time period
+  if (time_period != "none") {
+    .data <- .add_time_period(
+      .data,
+      time_period = time_period,
+      group_by_year = group_by_year
+    )
+  }
+
+  # daily aggreagation if required
+  if (daily_agg != "none") {
+    agg_grouping_cols <- .build_grouping_cols(
+      depth,
+      time_period,
+      include_date = TRUE
+    )
+
+    .data <- .apply_daily_aggregation(.data, daily_agg, agg_grouping_cols)
+  }
+
+  # set grouping cols
+  summary_grouping_cols <- .build_grouping_cols(
+    depth,
+    time_period,
+    include_date = FALSE
+  )
+
+  # summarize result frequency
+  .data <- .summarize_frequency(.data, summary_grouping_cols)
+
+  return(.data)
 }
 
 #' createDfFromColNamesList

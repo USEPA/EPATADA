@@ -36,9 +36,9 @@ knitr::opts_chunk$set(
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA).
 TADA is an open-source tool set built in the R programming language.
-This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
-users through how to download the EPATADA R package from GitHub, access
-and parameterize several important functions, and create basic
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks users
+through how to download the EPATADA R package from GitHub, access and
+parameterize several important functions, and create basic
 visualizations with a sample data set.
 
 **Note: EPATADA is still under development. New functionality is added
@@ -72,13 +72,6 @@ recent versions available. If you see this prompt, it is recommended to
 update all of them (enter 1 into the console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-```
-
-```{r dev_install, eval = F, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -120,7 +113,7 @@ their decision making processes. Use of EPATADA is not required.
 
 Get bacteria and pH data from Missoula County, Montana.
 
-```{r tada-data}
+```{r tada-data, eval = F}
 # get MT data
 tada.MT <- TADA_DataRetrieval(
   startDate = "2020-01-01",
@@ -143,9 +136,11 @@ tada.MT.clean <- tada.MT |>
 
 # remove intermediate objects
 rm(tada.MT)
+```
 
-# or uncomment the code below and load internal copy of TADA df from EPATADA
-# tada.MT.clean <- Data_MT_MissoulaCounty
+```{r tada-data-load, eval = T, include = F}
+# Load internal copy of example data set for Missoula County, Montana
+tada.MT.clean <- Data_MT_MissoulaCounty
 ```
 
 ## Expert Query API Key
@@ -171,14 +166,12 @@ API key to the "api_key" variable. Otherwise, the default EPATADA
 package key will be used.
 
 ```{r api_key}
-
 # api_key <- "paste your key here"
 
 # is user does not provide key, set api_key as NULL
 if (!exists("api_key")) {
   api_key <- NULL
 }
-
 ```
 
 # Defining Criteria - Magnitude Methodology
@@ -233,7 +226,16 @@ the excel file.
 ```{r blank template output}
 MT.Criteria.blank <- TADA_DefineCriteriaMethodology()
 
-TADA_TableExport(MT.Criteria.blank)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.blank[[1]])
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.blank[[2]])
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.blank[[3]])
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 ## Option B: View EPA304(a) Recommended Criteria
@@ -247,7 +249,16 @@ MT.Criteria.epa <- TADA_DefineCriteriaMethodology(
   org_id = "USEPA"
 )
 
-TADA_TableExport(MT.Criteria.epa)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.epa[[1]])
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.epa[[2]])
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.epa[[3]])
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 If a user is only interested in showing TADA.CharacteristicName(s) that
@@ -263,7 +274,16 @@ MT.Criteria.epa2 <- TADA_DefineCriteriaMethodology(
   org_id = "USEPA"
 )
 
-TADA_TableExport(MT.Criteria.epa2)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.epa2[[1]])
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.epa2[[2]])
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.epa2[[3]])
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 ## Option C: Auto Fill option (Intermediate Tabs are Hidden)
@@ -288,7 +308,16 @@ MT.Criteria.auto <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.Criteria.auto)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.auto[[1]])
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.auto[[2]])
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.auto[[3]])
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 Users who would like to ensure all Characteristic, Speciation and
@@ -309,7 +338,16 @@ MT.Criteria.auto2 <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.Criteria.auto2)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.auto2[[1]])
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.auto2[[2]])
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.auto2[[3]])
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 We can also choose to append EPA304(a) recommended criteria into the
@@ -327,7 +365,16 @@ MT.Criteria.auto3 <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.Criteria.auto3)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.auto3[[1]])
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.auto3[[2]])
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.auto3[[3]])
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 ## Option D: User Supplied Table
@@ -339,7 +386,13 @@ missing WQP Char to consider that isn't defined in their criteria and
 methods table that they have supplied. Users will be warned how many WQP
 Char values are not defined from their user supplied table.
 
-In this first example, a user supplies their own criteria table.
+In this example, let's use a filled out criteria table for MTDEQ and
+extract the use and parameters from the crosswalk. TADA has created the
+TADACommunityHub in which TADA users can submit, share and maintain
+user-contributed criteria and methodologies templates to support
+reproducible and efficient analyses. We will use
+**`TADA_GetCriteriaFile`** to pull in this criteria table from the
+TADACommunityHub GitHub repository.
 
 Note: If a user has an updated list of use names that have been applied
 to an assessment unit, they should also provide a AU_UsesRef input.
@@ -348,8 +401,7 @@ cycle.
 
 ```{r user.supplied.w.epa304a}
 # Load the example R8 criteria table
-criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
-load(criteria_table)
+criteria_table <- TADA_GetCriteriaFile(org_id = "MTDEQ")
 # Load example uses to AU Ref table
 utils::data(Data_MT_AU_UsesRef)
 
@@ -364,7 +416,16 @@ MT.Criteria.user <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.Criteria.user)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.user[[1]])
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.user[[2]])
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.user[[3]])
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 Users can also choose to append EPA304(a) recommended criteria to their
@@ -391,7 +452,16 @@ MT.Criteria.user2 <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.Criteria.user2)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.user2[[1]])
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.user2[[2]])
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.user2[[3]])
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 ## Choose a Final Criteria Template, Save and Re-use
@@ -403,7 +473,7 @@ TADA_TableExport(MT.Criteria.user2)
 # We can now reuse this criteria table
 MT.Criteria.reuse <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
-  criteriaMethods = MT.Criteria.user2, # user supplied table - all rows are kept from this table
+  criteriaMethods = MT.Criteria.user2[[1]], # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
   displayUniqueId = FALSE,
   excel = FALSE
@@ -411,7 +481,16 @@ MT.Criteria.reuse <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.Criteria.reuse)
+# Export the criteria methodology table from the list of data frames
+TADA_TableExport(MT.Criteria.reuse[[1]])
+
+# Export the data dictionary table from the list of data frames
+TADA_TableExport(MT.Criteria.reuse[[2]])
+
+# Export the allowable values table from the list of data frames
+TADA_TableExport(MT.Criteria.reuse[[3]])
+
+# or set excel = T in the TADA_DefineCriteriaMethodology() function to export a single excel file with each data frame as a sheet to the downloads folder automatically
 ```
 
 Users are recommended to go through each of the 3 reference files one at

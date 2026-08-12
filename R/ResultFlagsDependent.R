@@ -101,14 +101,14 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
       FALSE
   ) {
     if (flaggedonly == FALSE) {
-      print(
+      message(
         "All characteristic/fraction combinations are valid in your dataframe. Returning input dataframe with TADA.SampleFraction.Flag column for tracking."
       )
       check.data <- TADA_OrderCols(check.data)
       return(check.data)
     }
     if (flaggedonly == TRUE) {
-      print(
+      message(
         "This dataframe is empty because we did not find any Suspect fraction/characteristic combinations in your dataframe"
       )
       empty.data <- dplyr::filter(
@@ -122,7 +122,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 
   # flagged output, all data
   if (clean == FALSE & flaggedonly == FALSE) {
-    print(
+    message(
       "TADA_FlagFraction: Rows with Suspect sample fractions have been flagged but retained. Review these rows using the TADA.SampleFraction.Flag column before proceeding and/or set clean = TRUE."
     )
     check.data <- TADA_OrderCols(check.data)
@@ -288,7 +288,7 @@ TADA_FlagSpeciation <- function(
     ) ==
       FALSE
   ) {
-    print(
+    message(
       "TADA_FlagSpeciation: All characteristic/method speciation combinations are valid in your dataframe. Returning input dataframe with TADA.MethodSpeciation.Flag column for tracking."
     )
     check.data <- TADA_OrderCols(check.data)
@@ -297,7 +297,7 @@ TADA_FlagSpeciation <- function(
 
   # flagged output, all data
   if (clean == "none" & flaggedonly == FALSE) {
-    print(
+    message(
       "TADA_FlagSpeciation: Rows with Suspect speciations have been flagged but retained. Review these rows using the new TADA.MethodSpeciation.Flag column before proceeding and/or set clean = 'suspect_only' or 'both'."
     )
   }
@@ -353,7 +353,7 @@ TADA_FlagSpeciation <- function(
 
     # if there are no errors
     if (nrow(error.data) == 0) {
-      print(
+      message(
         "This dataframe is empty because either we did not find any Suspect/NonStandardized characteristic-method speciation combinations or they were all filtered out"
       )
       # error.data <- dplyr::select(error.data, -TADA.MethodSpeciation.Flag)
@@ -627,7 +627,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     )
     qc.ref <- rbind(qc.ref, missing_codes_df)
     missing_codes <- paste(missing_codes, collapse = ", ")
-    print(paste0(
+    message(paste0(
       "TADA_FindQCActivities: ActivityTypeCode column in dataset contains value(s) ",
       missing_codes,
       " which is/are not in the ActivityType WQX domain table. These data records are USGS only values and placed under the TADA.ActivityType.Flag: 'Not Reviewed'. Please review these carefully to detemine data usability."
@@ -653,13 +653,13 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     final.data <- clean.data
     # if the dataframe is empty, print message
     if (nrow(final.data) == 0) {
-      print(
+      message(
         "TADA_FindQCActivities: This dataframe is empty because all rows contained QC samples and were removed"
       )
     }
     # if there are no flags, print message
     if (sum(final.data$TADA.ActivityType.Flag != "Non_QC") == 0) {
-      print(
+      message(
         "TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."
       )
     }
@@ -672,7 +672,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 
     # if the dataframe is empty, print message
     if (nrow(final.data) == 0) {
-      print(
+      message(
         "TADA_FindQCActivities: This dataframe is empty because either we did not find any QC samples or because they were all removed"
       )
     }
@@ -875,36 +875,68 @@ TADA_PairReplicates <- function(
   return(.data)
 }
 
-
-#' Check for results with suspect result Measure Qualifier Codes
+#' Check for results with suspect Measure Qualifier Codes
 #'
-#' This function checks for and flags or removes samples denoted as suspect
-#' based on the 'MeasureQualifierCode' column. The function will flag
-#' suspect samples as "Suspect" and passing samples as "Pass". This function also
-#' flags censored data as "Over-Detect" or "Non-Detect" for later use in the
-#' censored data function, TADA_SimpleCensoredMethods.
+#' This function inspects the 'MeasureQualifierCode' column and flags results based
+#' on a reference table of qualifier codes. Results are flagged as:
+#' - "Suspect" for suspect qualifiers
+#' - "Non-Detect" or "Over-Detect" for censored-data qualifiers (for later use in
+#'   TADA_SimpleCensoredMethods)
+#' - "Pass" when qualifiers indicate a passing result (or when no qualifier is provided)
+#' - "Not Reviewed" for qualifiers not present in the WQX domain table
 #'
-#' @param .data TADA dataframe which must include the column 'MeasureQualifierCode'
-#' @param clean Boolean argument with options "TRUE" or "FALSE". The default is
-#' clean = "FALSE" which does not remove any rows of data. When clean = "TRUE",
-#' any rows of data flagged as "Suspect" based on the MeasureQualifierCode
-#' will be removed.
+#' Multiple qualifiers in a single record are supported when delimited by semicolons (;).
+#' Unknown qualifiers are assigned "Not Reviewed" and a message is emitted.
 #'
-#' @param flaggedonly Boolean argument; the default is flaggedonly = FALSE. When
-#' flaggedonly = TRUE, the function will filter the dataframe to show only the
-#' rows of data flagged as Suspect.
+#' @details
+#' - Requirements:
+#'   - The input must contain a 'MeasureQualifierCode' column.
+#'   - If `define = TRUE`, the input must also contain 'ResultIdentifier' to support
+#'     building a definition column.
+#' - Multiple codes:
+#'   - When multiple qualifier codes are present in a single record (semicolon-separated),
+#'     the following precedence is used when assigning the flag:
+#'     Suspect > Non-Detect > Over-Detect > Pass > Not Reviewed.
+#' - Unknown/missing/blank codes:
+#'   - Any qualifier code not found in the WQX domain reference is labeled "Not Reviewed"
+#'     and a message is issued.
+#' - Definitions:
+#'   - When `define = TRUE`, an additional column 'TADA.MeasureQualifierCode.Def' is added,
+#'     containing concatenated "Code - Description" definitions (for all codes present in
+#'     a record).
+#' - Cleaning vs filtering:
+#'   - `clean = TRUE` removes only rows flagged as "Suspect". Other flags (e.g., "Non-Detect",
+#'     "Over-Detect", "Not Reviewed") are retained.
+#'   - `flaggedonly = TRUE` overrides `clean` and returns only rows flagged as "Suspect".
 #'
-#' @param define Boolean argument; the default is define = TRUE. When define = TRUE,
-#' the function will add an additional column (TADA.MeasureQualifierCode.Def) providing
-#' all available definitions for the MethodQualifierCodes for each result. When
-#' define = FALSE, no additional column is added.
+#' @param .data A TADA dataframe which must include the column 'MeasureQualifierCode'.
+#' @param clean Logical; default `FALSE`. When `TRUE`, rows flagged as "Suspect" are removed.
+#'   Ignored when `flaggedonly = TRUE`.
+#' @param flaggedonly Logical; default `FALSE`. When `TRUE`, returns only rows flagged as
+#'   "Suspect" and overrides the `clean` argument.
+#' @param define Logical; default `TRUE`. When `TRUE`, adds a column
+#'   'TADA.MeasureQualifierCode.Def' with concatenated definitions for any qualifier codes
+#'   present in each result. When `FALSE`, no definition column is added.
 #'
-#' @return This function adds the column "TADA.MeasureQualifierCode.Flag" to the dataframe
-#' which flags suspect samples based on the "MeasureQualifierCode" column. When
-#' clean = "FALSE", all suspect data are kept in the dataframe. When clean = "TRUE",
-#' all suspect data are removed from the dataframe. When flaggedonly = TRUE, the dataframe
-#' is filtered to show only the suspect data. When flaggedonly = FALSE, the full,
-#' cleaned dataframe is returned. The default is clean = FALSE and flaggedonly = FALSE.
+#' @return
+#' The input dataframe with:
+#' - A new column 'TADA.MeasureQualifierCode.Flag' indicating the flag for each result:
+#'   "Suspect", "Non-Detect", "Over-Detect", "Pass", or "Not Reviewed".
+#' - Optionally, a new column 'TADA.MeasureQualifierCode.Def' (when `define = TRUE`),
+#'   containing concatenated "Code - Description" strings for any qualifiers present.
+#'
+#' Output shape depends on arguments:
+#' - `clean = FALSE`, `flaggedonly = FALSE` (default): return all rows with flags (no removal).
+#' - `clean = TRUE`, `flaggedonly = FALSE`: return all rows except those flagged "Suspect".
+#' - `flaggedonly = TRUE` (regardless of `clean`): return only rows flagged "Suspect".
+#'
+#' Messages:
+#' - A message is printed when unknown qualifier codes are encountered; those rows are labeled
+#'   "Not Reviewed". Blank tokens are ignored and will not produce messages.
+#' - A message is printed if the entire 'MeasureQualifierCode' column is NA.
+#'
+#' @seealso [TADA_GetMeasureQualifierCodeRef()]
+#' @seealso [TADA_SimpleCensoredMethods()]
 #'
 #' @export
 #'
@@ -912,28 +944,23 @@ TADA_PairReplicates <- function(
 #' # Load example dataset:
 #' utils::data(Data_Nutrients_UT)
 #'
-#' # Flag and keep all suspect samples:
-#' MeasureQualifierCode_flagged <-
-#'   TADA_FlagMeasureQualifierCode(Data_Nutrients_UT)
+#' # 1) Flag all records and keep everything:
+#' mq_flagged <- TADA_FlagMeasureQualifierCode(Data_Nutrients_UT)
 #'
-#' # Flag suspect samples and filter to suspect data only:
-#' MeasureQualifierCode_flags_only <- TADA_FlagMeasureQualifierCode(
+#' # 2) Return only suspect records (flaggedonly overrides clean):
+#' mq_suspect_only <- TADA_FlagMeasureQualifierCode(
 #'   Data_Nutrients_UT,
 #'   flaggedonly = TRUE
 #' )
 #'
-#' # Remove all suspect samples:
-#' MeasureQualifierCode_clean <- TADA_FlagMeasureQualifierCode(Data_Nutrients_UT,
-#'   clean = TRUE
-#' )
+#' # 3) Remove suspect records but retain Non-Detect, Over-Detect, Not Reviewed, and Pass:
+#' mq_clean <- TADA_FlagMeasureQualifierCode(Data_Nutrients_UT, clean = TRUE)
 #'
-#' # Remove all suspect samples and DO NOT include a new column with
-#' # qualifier definitions (TADA.MeasureQualifierCode.Def):
-#' MeasureQualifierCode_clean_nodefs <- TADA_FlagMeasureQualifierCode(
+#' # 4) Remove suspect records and skip adding the definition column:
+#' mq_clean_nodefs <- TADA_FlagMeasureQualifierCode(
 #'   Data_Nutrients_UT,
 #'   clean = TRUE, define = FALSE
 #' )
-#'
 TADA_FlagMeasureQualifierCode <- function(
   .data,
   clean = FALSE,
@@ -943,38 +970,64 @@ TADA_FlagMeasureQualifierCode <- function(
   # Check if the input .data is NULL
   if (is.null(.data)) {
     warning(
-      "TADA_FindQCActivities: The input dataframe is NULL. Please provide a valid dataframe."
+      "TADA_FlagMeasureQualifierCode: The input dataframe is NULL. Please provide a valid dataframe."
     )
     return(NULL)
   }
+
   # check .data is data.frame and has required columns
   TADA_CheckColumns(.data, "MeasureQualifierCode")
-  # check that clean is boolean
+  if (isTRUE(define)) {
+    TADA_CheckColumns(.data, "ResultIdentifier")
+  }
+
+  # check argument types
   TADA_CheckType(clean, "logical")
-  # check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
-  # check .data MeasureQualifierCode is not all NA. If it is, don't run function and return .data
+  TADA_CheckType(define, "logical")
+
+  # coerce MeasureQualifierCode to character (protect against factor inputs)
+  if (
+    !is.character(.data$MeasureQualifierCode) &&
+      !all(is.na(.data$MeasureQualifierCode))
+  ) {
+    .data$MeasureQualifierCode <- as.character(.data$MeasureQualifierCode)
+  }
+
+  # If MeasureQualifierCode is entirely NA, create flags and optionally defs, then handle flaggedonly
   if (all(is.na(.data$MeasureQualifierCode))) {
-    print(
+    message(
       "TADA_FlagMeasureQualifierCode: Dataframe does not include any information (all NAs) in MeasureQualifierCode."
     )
 
-    .data <- .data |>
-      dplyr::mutate(TADA.MeasureQualifierCode.Flag = "Pass") |>
-      dplyr::mutate(TADA.MeasureQualifierCode.Def = "NA - Not Applicable")
+    .data <- .data |> dplyr::mutate(TADA.MeasureQualifierCode.Flag = "Pass")
+
+    if (isTRUE(define)) {
+      .data <- .data |>
+        dplyr::mutate(TADA.MeasureQualifierCode.Def = "NA - Not Applicable")
+    }
+
+    if (isTRUE(flaggedonly)) {
+      # flaggedonly overrides clean and returns only Suspect -> none here
+      final.data <- .data |>
+        dplyr::filter(TADA.MeasureQualifierCode.Flag == "Suspect")
+      if (nrow(final.data) == 0) {
+        message("TADA_FlagMeasureQualifierCode: No Suspect results found.")
+      }
+      final.data <- TADA_OrderCols(final.data)
+      return(final.data)
+    }
 
     .data <- TADA_OrderCols(.data)
-
     return(.data)
   }
 
-  # execute function after checks are passed
   # delete existing flag column
-  if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == TRUE) {
+  if ("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) {
     .data <- dplyr::select(.data, -TADA.MeasureQualifierCode.Flag)
   }
 
-  # load in ResultMeasureQualifier Flag Table
+  # load reference table
   qc.ref <- TADA_GetMeasureQualifierCodeRef() |>
     dplyr::rename(MeasureQualifierCode = Code) |>
     dplyr::select(
@@ -983,18 +1036,43 @@ TADA_FlagMeasureQualifierCode <- function(
       Description
     )
 
-  # add TADA.MeasureQualifierCode, qualifier code definitions
-  # Create TADA.MeasureQualifierCode by concatenating MeasureQualifierCode with description from MeasureQualifierCodeRef.
-  if (define == FALSE) {
-    .data <- .data
+  # Add any missing codes from data to reference BEFORE computing flags
+  # (ignore blank tokens)
+  codes <- stringr::str_split(unique(.data$MeasureQualifierCode), ";") |>
+    unlist() |>
+    stringr::str_trim()
+  codes <- unique(codes[!is.na(codes) & nzchar(codes)])
+
+  if (length(codes) > 0 && any(!codes %in% qc.ref$MeasureQualifierCode)) {
+    missing_codes <- codes[!codes %in% qc.ref$MeasureQualifierCode]
+    if (length(missing_codes) > 0) {
+      missing_codes_df <- data.frame(
+        MeasureQualifierCode = missing_codes,
+        TADA.MeasureQualifierCode.Flag = "Not Reviewed",
+        Description = ""
+      )
+      qc.ref <- dplyr::bind_rows(qc.ref, missing_codes_df)
+      message(paste0(
+        "TADA_FlagMeasureQualifierCode: MeasureQualifierCode column in dataset contains value(s) ",
+        paste(missing_codes, collapse = ", "),
+        " which are not represented in the MeasureQualifierCode WQX domain table. ",
+        "These data records are placed under the TADA.MeasureQualifierCode.Flag: 'Not Reviewed'. ",
+        "Please contact TADA administrators to resolve."
+      ))
+    }
   }
 
-  if (define == TRUE) {
+  # add qualifier code definitions
+  if (isTRUE(define)) {
     mqc.ref <- qc.ref |>
       dplyr::select(MeasureQualifierCode, Description) |>
-      dplyr::group_by(MeasureQualifierCode) |>
+      dplyr::distinct() |>
       dplyr::mutate(
-        Concat = paste(MeasureQualifierCode, "-", Description, collapse = "")
+        Concat = dplyr::if_else(
+          nzchar(Description),
+          paste0(MeasureQualifierCode, " - ", Description),
+          MeasureQualifierCode
+        )
       ) |>
       dplyr::select(MeasureQualifierCode, Concat)
 
@@ -1003,120 +1081,108 @@ TADA_FlagMeasureQualifierCode <- function(
         MeasureQualifierCode = stringr::str_split(MeasureQualifierCode, ";")
       ) |>
       tidyr::unnest(MeasureQualifierCode) |>
-      merge(mqc.ref) |>
+      dplyr::mutate(
+        MeasureQualifierCode = stringr::str_trim(MeasureQualifierCode)
+      ) |>
+      dplyr::filter(
+        !is.na(MeasureQualifierCode) & nzchar(MeasureQualifierCode)
+      ) |>
+      dplyr::left_join(mqc.ref, by = "MeasureQualifierCode") |>
       dplyr::group_by(ResultIdentifier) |>
       dplyr::summarize(
-        TADA.MeasureQualifierCode.Def = paste(Concat, collapse = "; ")
+        TADA.MeasureQualifierCode.Def = {
+          vals <- stats::na.omit(Concat)
+          if (length(vals) == 0) NA_character_ else paste(vals, collapse = "; ")
+        },
+        .groups = "drop"
       )
 
     .data$TADA.MeasureQualifierCode.Def <- mqc.TADA$TADA.MeasureQualifierCode.Def[match(
       .data$ResultIdentifier,
       mqc.TADA$ResultIdentifier
     )]
-
-    rm(mqc.ref, mqc.TADA)
   }
 
-  # Populate flag column in data
+  # Build flag lists from reference
   flag.lists <- split(
     qc.ref$MeasureQualifierCode,
     qc.ref$TADA.MeasureQualifierCode.Flag
   )
+  names(flag.lists) <- names(flag.lists) |>
+    tolower() |>
+    stringr::str_remove_all("-") |>
+    stringr::str_remove_all(" ")
 
-  # Set names with transformations
-  names(flag.lists) <- tolower(names(flag.lists))
-  names(flag.lists) <- stringr::str_remove_all(names(flag.lists), "-")
-  names(flag.lists) <- stringr::str_remove_all(names(flag.lists), " ")
-
+  # Compute flags (dropping empty tokens; blank-only rows => Pass)
   flag.data <- .data |>
     dplyr::mutate(
-      MeasureQualifierCode.Split = strsplit(MeasureQualifierCode, ";"),
+      MeasureQualifierCode.Split = stringr::str_split(
+        MeasureQualifierCode,
+        ";"
+      ),
+      MeasureQualifierCode.Split = purrr::map(
+        MeasureQualifierCode.Split,
+        ~ {
+          y <- stringr::str_trim(.x)
+          y <- y[!is.na(y) & nzchar(y)] # drop empty tokens
+          if (length(y) == 0) NA_character_ else y
+        }
+      ),
       TADA.MeasureQualifierCode.Flag = purrr::map_chr(
         MeasureQualifierCode.Split,
         ~ dplyr::case_when(
-          any(.x %in% flag.lists$suspect) ~ "Suspect",
-          any(.x %in% flag.lists$nondetect) ~ "Non-Detect",
-          any(.x %in% flag.lists$overdetect) ~ "Over-Detect",
-          any(.x %in% flag.lists$pass) ~ "Pass",
-          any(.x %in% flag.lists$notreviewed) ~ "Not Reviewed",
-          TRUE ~ NA_character_
+          # Treat per-row NA/blank-only as Pass
+          length(.x) == 1 && is.na(.x[1]) ~ "Pass",
+          any(.x %in% flag.lists$suspect, na.rm = TRUE) ~ "Suspect",
+          any(.x %in% flag.lists$nondetect, na.rm = TRUE) ~ "Non-Detect",
+          any(.x %in% flag.lists$overdetect, na.rm = TRUE) ~ "Over-Detect",
+          any(.x %in% flag.lists$pass, na.rm = TRUE) ~ "Pass",
+          any(.x %in% flag.lists$notreviewed, na.rm = TRUE) ~ "Not Reviewed",
+          TRUE ~ "Not Reviewed"
         )
       )
     ) |>
     dplyr::select(-MeasureQualifierCode.Split)
 
-  flag.data <- flag.data |> dplyr::distinct()
-
-  # identify any ResultMeasureQualifier Codes not in reference table
-  codes <- stringr::str_split(unique(.data$MeasureQualifierCode), ";") |>
-    unlist() |>
-    unique()
-
-  if (any(!codes %in% qc.ref$MeasureQualifierCode)) {
-    missing_codes <- codes[!codes %in% qc.ref$MeasureQualifierCode]
-    missing_codes_df <- data.frame(
-      MeasureQualifierCode = missing_codes,
-      TADA.MeasureQualifierCode.Flag = "Not Reviewed",
-      Description = ""
-    )
-    qc.ref <- rbind(qc.ref, missing_codes_df)
-    missing_codes <- paste(missing_codes, collapse = ", ")
-    print(paste0(
-      "TADA_FlagMeasureQualifierCode: MeasureQualifierCode column in dataset contains value(s) ",
-      missing_codes,
-      " which is/are not represented in the MeasureQualifierCode WQX domain table. These data records are placed under the TADA.MeasureQualifierCode.Flag: 'uncategorized'. Please contact TADA administrators to resolve."
-    ))
-  }
-
-  ## rename ResultMeasureQualifier NA values to Pass in TADA.MeasureQualifierCode.Flag column (no longer needed cm 1/4/24)
-  # flag.data["TADA.MeasureQualifierCode.Flag"][is.na(flag.data["MeasureQualifierCode"])] <- "Pass"
-
-  # clean dataframe
-  # if clean = FALSE, return full dataframe
-  if (clean == FALSE) {
-    clean.data <- flag.data
-  }
-  # if clean = TRUE, remove flagged data
-  if (clean == TRUE) {
-    clean.data <- dplyr::filter(
-      flag.data,
-      flag.data$TADA.MeasureQualifierCode.Flag != "Suspect"
-    )
-  }
-
-  # if flaggedonly = FALSE, return full clean dataframe
-  if (flaggedonly == FALSE) {
-    final.data <- clean.data
-    # if the dataframe is empty, print message
-    if (nrow(final.data) == 0) {
-      print(
-        "TADA_FlagMeasureQualifierCode: This dataframe is empty because all rows contained Suspect samples that were removed"
-      )
-    }
-    # if there are no flags, print message
-    if (sum(final.data$TADA.MeasureQualifierCode.Flag != "Suspect") == 0) {
-      print(
-        "TADA_FlagMeasureQualifierCode: Suspect samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.MeasureQualifierCode.Flag column for tracking."
-      )
-    }
-  }
-
-  # if flaggedonly = TRUE, return clean dataframe filtered to only the flagged rows
-  if (flaggedonly == TRUE) {
+  # flaggedonly overrides clean and returns only Suspect
+  if (isTRUE(flaggedonly)) {
     final.data <- dplyr::filter(
-      clean.data,
+      flag.data,
       TADA.MeasureQualifierCode.Flag == "Suspect"
     )
-
-    # if the dataframe is empty, print message
     if (nrow(final.data) == 0) {
-      print(
-        "TADA_FlagMeasureQualifierCode: This dataframe is empty because either we did not find any Suspect samples or because they were all removed"
+      message("TADA_FlagMeasureQualifierCode: No Suspect results found.")
+    }
+    final.data <- TADA_OrderCols(final.data)
+    return(final.data)
+  }
+
+  # Otherwise, apply cleaning if requested (removes Suspect only)
+  if (!isTRUE(clean)) {
+    clean.data <- flag.data
+  } else {
+    clean.data <- dplyr::filter(
+      flag.data,
+      TADA.MeasureQualifierCode.Flag != "Suspect"
+    )
+    if (nrow(clean.data) == 0) {
+      message(
+        "TADA_FlagMeasureQualifierCode: This dataframe is empty because all rows contained Suspect samples that were removed."
       )
     }
+  }
+
+  final.data <- clean.data
+
+  if (
+    sum(final.data$TADA.MeasureQualifierCode.Flag != "Suspect", na.rm = TRUE) ==
+      0
+  ) {
+    message(
+      "TADA_FlagMeasureQualifierCode: Suspect samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.MeasureQualifierCode.Flag column for tracking."
+    )
   }
 
   final.data <- TADA_OrderCols(final.data)
-  # return final dataframe
   return(final.data)
 }

@@ -194,6 +194,11 @@ addATTAINS <- function(
     stop("addATTAINS: overlay_groups must be supplied to run this function.")
   }
 
+  # check EPSG and correct if neccessary
+  if (!identical(sf::st_crs(.data)$epsg, 4326L)) {
+    .data <- sf::st_transform(.data, 4326)
+  }
+
   if (catchment == FALSE) {
     # get geometry type
     geo.type <- .data$type[1]
@@ -645,7 +650,7 @@ prepATTAINSMapper <- function(
   auid_list = NULL
 ) {
   # check to see if any data contained in .data
-  if (dim(.data)[1] == 0) {
+  if (NROW(.data) == 0) {
     mapper <- NULL
 
     # return NULL mapper if no data present in .data
@@ -709,7 +714,7 @@ prepATTAINSMapper <- function(
     # extract coordinates and convert to a tibble (to handle point or multipoint)
     coords <- sf::st_coordinates(.data)
 
-    if (dim(coords)[1] > 1) {
+    if (NROW(coords) > 1) {
       coords <- coords |>
         tibble::as_tibble() |>
         tibble::rowid_to_column(var = "index")
@@ -743,10 +748,10 @@ prepATTAINSMapper <- function(
       dplyr::arrange(dplyr::desc(Shape_Area))
   }
 
-  if (!is.null(auid_list) & dim(mapper)[1] > 0) {
+  if (!is.null(auid_list) & NROW(mapper) > 0) {
     mapper <- mapper |> dplyr::filter(assessmentunitidentifier %in% auid_list)
 
-    if (dim(mapper)[1] == 0) {
+    if (NROW(mapper) == 0) {
       mapper <- NULL
     }
   }
@@ -804,32 +809,38 @@ prepAllATTAINSMapper <- function(
   # point assessment units
   points_mapper <- NULL
 
-  points_mapper <- prepATTAINSMapper(
-    points_layer,
-    geo_type = "points",
-    color_ref = color_ref,
-    auid_list = auid_list
-  )
+  if (!is.null(points_layer)) {
+    points_mapper <- prepATTAINSMapper(
+      points_layer,
+      geo_type = "points",
+      color_ref = color_ref,
+      auid_list = auid_list
+    )
+  }
 
   # line assessment units
   lines_mapper <- NULL
 
-  lines_mapper <- prepATTAINSMapper(
-    lines_layer,
-    geo_type = "lines",
-    color_ref = color_ref,
-    auid_list = auid_list
-  )
+  if (!is.null(lines_layer)) {
+    lines_mapper <- prepATTAINSMapper(
+      lines_layer,
+      geo_type = "lines",
+      color_ref = color_ref,
+      auid_list = auid_list
+    )
+  }
 
   # polygon assessment units
   polygons_mapper <- NULL
 
-  polygons_mapper <- prepATTAINSMapper(
-    polygons_layer,
-    geo_type = "polygons",
-    color_ref = color_ref,
-    auid_list = auid_list
-  )
+  if (!is.null(polygons_layer)) {
+    polygons_mapper <- prepATTAINSMapper(
+      polygons_layer,
+      geo_type = "polygons",
+      color_ref = color_ref,
+      auid_list = auid_list
+    )
+  }
   # create list of mapper dfs
   au_mapper <- list(points_mapper, lines_mapper, polygons_mapper)
 
@@ -872,10 +883,10 @@ getWQPSiteStats <- function(.data, attains = TRUE) {
       attains <- FALSE
 
       # print missing to user explaning that assessment unit data are not present
-      print(paste0(
+      message(
         "getWQPSiteStats: ATTAINS.AssessmentUnitIdentifier is not present in .data. ",
         "Returning WQP site stats without assessment unit identifiers."
-      ))
+      )
     }
 
     # if assessment unit data are available
@@ -1120,10 +1131,10 @@ showMissingATTAINSAUs <- function(
       dplyr::distinct()
 
     # if any assessment unit ids were assigned by user check to see if they have matching geometry from ATTAINS
-    if (dim(user.refs)[1] > 0) {
+    if (NROW(user.refs) > 0) {
       # internal function to create list of assessment unit ids
       listAUIDs <- function(.data) {
-        if (dim(.data)[1] == 0) {
+        if (NROW(.data) == 0) {
           list <- list()
         } else {
           list <- .data |>
@@ -1157,7 +1168,7 @@ showMissingATTAINSAUs <- function(
       rm(point.aus, line.aus, polygon.aus, all.attains.aus, user.refs)
 
       # if there are any user-assigned assessment unit identifiers without geometry in ATTAINS add to map
-      if (dim(missing.geo)[1] > 0) {
+      if (NROW(missing.geo) > 0) {
         # set up icons for missing geometry
         missingIcon <- leaflet::icons(
           iconUrl = system.file(
@@ -1327,7 +1338,12 @@ addWQPSites <- function(
   }
 
   # set image ref, image label, and icon url lists for WQP monitoring locations
-  if (!"TADA.AURefSource" %in% names(.data) | ref_icons == FALSE) {
+  if (
+    !"TADA.AURefSource" %in% names(.data) |
+      ref_icons == FALSE |
+      (dplyr::n_distinct(.data$TADA.AURefSource) == 1 &
+        .data$TADA.AURefSource[1] == "not provided")
+  ) {
     wqp.imgs <- images[8]
     wqp.labels <- img.labels[8]
 
@@ -1386,7 +1402,8 @@ addWQPSites <- function(
 #' @param .data A TADA data frame created with TADA_CreateATTAINSAUMLCrosswalk
 #' or TADA_CreateAUMLCrosswalk (called "TADA_with_ATTAINS" in the list of output dfs)
 #' or a subsetted TADA data frame containing all columns required for building map
-#' and pop up (Note: Add list of required columns (HRM 1/5/26)).
+#' and pop up (Note: Add list of required columns (HRM 1/5/26)). This is used
+#' to verify the type(s) of circle markers that should be used for map.
 #'
 #' @param map A leaflet map of TADA data to add the legend to.
 #'
@@ -1487,14 +1504,22 @@ addTADAMapLegend <- function(
   # add WQP icons to legend
   if (wqp == TRUE) {
     # add ref icons for assessment unit crosswalk sources
-    if (ref_icons == TRUE) {
+    if (
+      ref_icons == TRUE &
+        any(
+          unique(.data$TADA.AURefSource) %in%
+            c(
+              "ATTAINS Crosswalk",
+              "User-supplied Ref",
+              "TADA_CreateATTAINSAUMLCrosswalk"
+            )
+        )
+    ) {
       images.ref <- append(images.ref, images[5:7])
 
       leg.labels <- append(leg.labels, img.labels[5:7])
-    }
-
-    # add solid black circle markers for all WQP sites
-    if (ref_icons == FALSE) {
+    } else {
+      # add solid black circle markers
       images.ref <- append(images.ref, images[8])
 
       leg.labels <- append(leg.labels, img.labels[8])
@@ -1761,7 +1786,7 @@ findATTAINSMissingRawFeatures <- function(
 #' observations are present.
 # check for WQP data
 checkForWQPData <- function(.data = NULL) {
-  if (is.null(.data) || dim(.data)[1] == 0) {
+  if (is.null(.data) || NROW(.data) == 0) {
     stop("Your WQP dataframe has no observations.")
   }
 }
@@ -1891,4 +1916,53 @@ NHDColNames <- function(
 
     return(ref.filt)
   }
+
+#' fetchWaterType
+#'
+#' Use Expert Query web services to create a crosswalk of assessment unit identifier
+#' to water type.
+#'
+#' @param au_list A list of assessment units to fetch water types for.
+#'
+#' @param api_key Optional character string. An api key for Expert Query web
+#' services. If not supplied, the default TADA api key will be used. For best
+#' performance, it is recommended that users obtain and use their own api key.
+#' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
+#'
+#' @return The function returns a data frame with an assessment unit/water type
+#' crosswalk. If no water type matches are found, a message explaining this is
+#' printed.
+#'
+# get water types
+# get water type info using ATTAINS Expert Query
+fetchWaterType <- function(au_list, api_key = NULL) {
+  au_list <- unique(au_list)
+
+  # split the au_list into chunks
+  chunks <- split(au_list, ceiling(seq_along(unique(au_list)) / 20))
+
+  # get default api_key if user does not supply one
+  if (is.null(api_key)) {
+    api_key <- .setEQKey()
+  }
+
+  # get water type
+  wat_type <- function(chunk) {
+    results <- spsUtil::quiet(rExpertQuery::EQ_AssessmentUnits(
+      api_key = api_key,
+      auid = chunk
+    ))
+  }
+
+  results <- purrr::map_dfr(.x = chunks, .f = wat_type)
+
+  results <- results |>
+    dplyr::select(assessmentUnitId, waterType) |>
+    dplyr::distinct() |>
+    dplyr::rename(
+      ATTAINS.AssessmentUnitIdentifier = assessmentUnitId,
+      ATTAINS.WaterType = waterType
+    )
+
+  return(results)
 }

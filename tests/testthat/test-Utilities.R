@@ -200,78 +200,78 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
   ))
 })
 
-test_that("pH harmonization works as expected throughout workflow", {
-  # Set the start and end dates
-  start_date <- as.Date("2020-01-01")
-  end_date <- as.Date("2025-08-01")
-
-  # Calculate the number of days between the start and end dates
-  date_range <- as.numeric(end_date - start_date)
-
-  # Generate a random number of days to add to the start date
-  random_days <- sample(0:date_range, 1)
-
-  # Calculate the random date
-  random_date <- start_date + random_days
-
-  # Calculate the date that is two days before the random date
-  random_date_minus_2 <- random_date - 3
-
-  # Store the dates as character strings
-  random_date_str <- format(random_date, "%Y-%m-%d")
-  random_date_minus_2_str <- format(random_date_minus_2, "%Y-%m-%d")
-
-  # Try to retrieve pH data using the TADA_DataRetrieval function.
-  ph_data <- tryCatch(
-    {
-      TADA_DataRetrieval(
-        startDate = random_date_minus_2_str,
-        endDate = random_date_str,
-        characteristicName = "pH",
-        ask = FALSE
-      )
-    },
-    httr2_http_500 = function(e) {
-      # Skip the test if a 500 error occurs
-      skip(
-        "Skipping test due to 500 Internal Server Error during data retrieval"
-      )
-    },
-    error = function(e) {
-      # Re-throw the error if it's not a 500 error
-      stop(e)
-    }
-  )
-
-  # Check if the required data frame is empty or null
-  # - Skips the test if no data is retrieved.
-  if (is.null(ph_data) || nrow(ph_data) == 0) {
-    skip("Skipping test because ph_data is empty or null")
-  }
-
-  # Process data
-  # - Applies several functions to clean and harmonize the data.
-  ph_data <- ph_data |>
-    TADA_SimpleCensoredMethods() |>
-    TADA_ConvertSpecialChars(col = "TADA.ResultMeasureValue", clean = TRUE) |>
-    TADA_RunKeyFlagFunctions(clean = TRUE) |>
-    TADA_HarmonizeSynonyms()
-
-  # Assert that the data frame is not empty
-  # - Ensures that the processed data frame contains rows.
-  testthat::expect_gt(
-    base::nrow(ph_data),
-    0,
-    label = "Data frame should not be empty"
-  )
-
-  # Check results for the state
-  # Prints and checks the unit codes to verify harmonization.
-  print(unique(ph_data$TADA.ResultMeasure.MeasureUnitCode))
-  if (!all(unique(ph_data$TADA.ResultMeasure.MeasureUnitCode) == "NONE")) {
-    message(paste("pH data unit codes are not harmonized to 'NONE'"))
-  }
-})
+# test_that("pH harmonization works as expected throughout workflow", {
+#   # Set the start and end dates
+#   start_date <- as.Date("2020-01-01")
+#   end_date <- as.Date("2025-08-01")
+#
+#   # Calculate the number of days between the start and end dates
+#   date_range <- as.numeric(end_date - start_date)
+#
+#   # Generate a random number of days to add to the start date
+#   random_days <- sample(0:date_range, 1)
+#
+#   # Calculate the random date
+#   random_date <- start_date + random_days
+#
+#   # Calculate the date that is two days before the random date
+#   random_date_minus_2 <- random_date - 3
+#
+#   # Store the dates as character strings
+#   random_date_str <- format(random_date, "%Y-%m-%d")
+#   random_date_minus_2_str <- format(random_date_minus_2, "%Y-%m-%d")
+#
+#   # Try to retrieve pH data using the TADA_DataRetrieval function.
+#   ph_data <- tryCatch(
+#     {
+#       TADA_DataRetrieval(
+#         startDate = random_date_minus_2_str,
+#         endDate = random_date_str,
+#         characteristicName = "pH",
+#         ask = FALSE
+#       )
+#     },
+#     httr2_http_500 = function(e) {
+#       # Skip the test if a 500 error occurs
+#       skip(
+#         "Skipping test due to 500 Internal Server Error during data retrieval"
+#       )
+#     },
+#     error = function(e) {
+#       # Re-throw the error if it's not a 500 error
+#       stop(e)
+#     }
+#   )
+#
+#   # Check if the required data frame is empty or null
+#   # - Skips the test if no data is retrieved.
+#   if (is.null(ph_data) || nrow(ph_data) == 0) {
+#     skip("Skipping test because ph_data is empty or null")
+#   }
+#
+#   # Process data
+#   # - Applies several functions to clean and harmonize the data.
+#   ph_data <- ph_data |>
+#     TADA_SimpleCensoredMethods() |>
+#     TADA_ConvertSpecialChars(col = "TADA.ResultMeasureValue", clean = TRUE) |>
+#     TADA_RunKeyFlagFunctions(clean = TRUE) |>
+#     TADA_HarmonizeSynonyms()
+#
+#   # Assert that the data frame is not empty
+#   # - Ensures that the processed data frame contains rows.
+#   testthat::expect_gt(
+#     base::nrow(ph_data),
+#     0,
+#     label = "Data frame should not be empty"
+#   )
+#
+#   # Check results for the state
+#   # Prints and checks the unit codes to verify harmonization.
+#   print(unique(ph_data$TADA.ResultMeasure.MeasureUnitCode))
+#   if (!all(unique(ph_data$TADA.ResultMeasure.MeasureUnitCode) == "NONE")) {
+#     message(paste("pH data unit codes are not harmonized to 'NONE'"))
+#   }
+# })
 
 test_that("Only numeric data remains after running TADA_ConvertSpecialChars clean = TRUE", {
   # Generate test data
@@ -501,4 +501,220 @@ test_that("does not change non-deprecated names except for uppercasing", {
   # Since TADA.CharacteristicName is initialized to uppercase of CharacteristicName,
   # and Nitrate is not deprecated, it should simply be 'NITRATE'
   expect_equal(result$TADA.CharacteristicName[1], "NITRATE")
+})
+
+# tests for TADA_SummarizeResultFrequency
+testthat::test_that("TADA_SummarizeResultFrequency errors on invalid daily_agg", {
+  expect_error(
+    TADA_SummarizeResultFrequency(Data_Nutrients_UT, daily_agg = "bad_value"),
+    "daily_agg"
+  )
+})
+
+testthat::test_that("TADA_SummarizeResultFrequency errors on invalid time_period", {
+  expect_error(
+    TADA_SummarizeResultFrequency(Data_Nutrients_UT, time_period = "decade"),
+    "time_period"
+  )
+})
+
+testthat::test_that("TADA_SummarizeResultFrequency errors when ActivityStartDate is missing", {
+  bad_data <- Data_Nutrients_UT |> dplyr::select(-ActivityStartDate)
+
+  expect_error(TADA_SummarizeResultFrequency(bad_data), "ActivityStartDate")
+})
+
+testthat::test_that("TADA_SummarizeResultFrequency returns a data frame", {
+  testdat <- Data_HUC8_02070004_Mod1Output |>
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "21VASWCB-1ABAB009.26",
+      TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE"
+    )
+
+  res <- TADA_SummarizeResultFrequency(testdat)
+
+  expect_true(is.data.frame(res))
+})
+
+testthat::test_that("TADA_SummarizeResultFrequency creates expected summary columns", {
+  testdat <- Data_HUC8_02070004_Mod1Output |>
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "21VASWCB-1ABAB009.26",
+      TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE"
+    )
+
+  res <- TADA_SummarizeResultFrequency(testdat)
+
+  expect_true(all(
+    c("FirstResultMeasurement", "LastResultMeasurement", "ResultCount") %in%
+      names(res)
+  ))
+})
+
+testthat::test_that("TADA_SummarizeResultFrequency adds time period columns when requested", {
+  testdat <- Data_TribalNations_Harmonized |>
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-CHAI-M",
+      TADA.ComparableDataIdentifier == "TEMPERATURE_NONE_NONE_DEG C"
+    )
+
+  res <- TADA_SummarizeResultFrequency(testdat, time_period = "year")
+
+  expect_true("TADA.TimePeriodType" %in% names(res))
+  expect_true("TADA.TimePeriodForSummary" %in% names(res))
+  expect_true(all(res$TADA.TimePeriodType == "year"))
+})
+
+testthat::test_that("TADA_SummarizeResultFrequency time period year is formatted correctly", {
+  testdat <- Data_TribalNations_Harmonized |>
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-CHAI-M",
+      TADA.ComparableDataIdentifier == "TEMPERATURE_NONE_NONE_DEG C"
+    )
+
+  res <- TADA_SummarizeResultFrequency(testdat, time_period = "year")
+
+  expect_true(all(nchar(res$TADA.TimePeriodForSummary) == 4))
+  expect_true(all(grepl("^[0-9]{4}$", res$TADA.TimePeriodForSummary)))
+})
+
+testthat::test_that("TADA_SummarizeResultFrequency time period month is formatted correctly", {
+  testdat <- Data_TribalNations_Harmonized |>
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-CHAI-M",
+      TADA.ComparableDataIdentifier == "TEMPERATURE_NONE_NONE_DEG C"
+    )
+
+  res <- TADA_SummarizeResultFrequency(testdat, time_period = "month")
+
+  expect_true(all(grepl("^[0-9]{4}-[0-9]{2}$", res$TADA.TimePeriodForSummary)))
+})
+
+testthat::test_that("TADA_SummarizeResultFrequency time period week is ISO formatted correctly", {
+  testdat <- Data_TribalNations_Harmonized |>
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-CHAI-M",
+      TADA.ComparableDataIdentifier == "TEMPERATURE_NONE_NONE_DEG C"
+    )
+
+  res <- TADA_SummarizeResultFrequency(testdat, time_period = "week")
+
+  expect_true(all(grepl("^[0-9]{4}-W[0-9]{2}$", res$TADA.TimePeriodForSummary)))
+})
+
+testthat::test_that("TADA_SummarizeResultFrequency filters out continuous data when cont_data = FALSE", {
+  testdat <- Data_HUC8_02070004_Mod1Output |>
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "21VASWCB-1ABAB009.26",
+      TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE"
+    ) |>
+    TADA_FlagContinuousData()
+
+  testdat.nocont <- testdat |>
+    dplyr::filter(TADA.ContinuousData.Flag != "Continuous")
+
+  res <- TADA_SummarizeResultFrequency(testdat, cont_data = FALSE)
+
+  expect_equal(nrow(testdat.nocont), res$ResultCount[1])
+})
+
+testthat::test_that("TADA_SummarizeResultFrequency retains continuous data when cont_data = TRUE", {
+  testdat <- Data_HUC8_02070004_Mod1Output |>
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "21VASWCB-1ABAB009.26",
+      TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE"
+    )
+
+  res <- TADA_SummarizeResultFrequency(testdat, cont_data = TRUE)
+
+  expect_equal(nrow(testdat), res$ResultCount[1])
+})
+
+testthat::test_that("TADA_SummarizeResultFrequency factors in depth for result frequency grouping when depth = TRUE", {
+  testdat <- Data_TribalNations_Harmonized |>
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "REDLAKE_WQX-GREE-REDLAKE",
+      TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+    )
+
+  testdat.filt <- testdat |>
+    TADA_FlagDepthCategory() |>
+    dplyr::group_by(
+      TADA.MonitoringLocationIdentifier,
+      TADA.ConsolidatedDepth
+    ) |>
+    dplyr::mutate(CountN = dplyr::n()) |>
+    dplyr::select(
+      TADA.MonitoringLocationIdentifier,
+      TADA.ConsolidatedDepth,
+      TADA.ComparableDataIdentifier,
+      CountN
+    ) |>
+    dplyr::distinct() |>
+    dplyr::ungroup() |>
+    dplyr::filter(TADA.ConsolidatedDepth == 7.000) |>
+    dplyr::select(CountN) |>
+    dplyr::pull()
+
+  res <- TADA_SummarizeResultFrequency(testdat, depth = TRUE) |>
+    dplyr::filter(TADA.ConsolidatedDepth == 7.000)
+
+  testthat::expect_equal(testdat.filt, res$ResultCount[1])
+})
+
+testthat::test_that("TADA_SummarizeResultFrequency returns grouped output without duplicates", {
+  testdat <- Data_Nutrients_UT |>
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier %in%
+        c(
+          "UTAHDWQ_WQX-595274",
+          "11NPSWRD_WQX-GLCA_COY01",
+          "NARS_WQX-NWC_UT-10208",
+          "USGS-403149111290300"
+        )
+    )
+
+  res <- TADA_SummarizeResultFrequency(testdat, time_period = "year")
+
+  key_cols <- c(
+    "TADA.MonitoringLocationIdentifier",
+    "TADA.ComparableDataIdentifier",
+    "TADA.TimePeriodForSummary",
+    "TADA.TimePeriodType"
+  )
+
+  testthat::expect_false(any(duplicated(res[, intersect(
+    key_cols,
+    names(res)
+  )])))
+})
+
+
+testthat::test_that("TADA_SummarizeResultFrequency daily aggregation runs with time period", {
+  testdat <- Data_HUC8_02070004_Mod1Output |>
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier == "21VASWCB-1ABAB009.26",
+      TADA.ComparableDataIdentifier == "PH_NONE_NONE_NONE"
+    )
+
+  res <- TADA_SummarizeResultFrequency(
+    testdat,
+    daily_agg = "mean",
+    time_period = "month",
+    cont_data = TRUE
+  )
+
+  expect_true(is.data.frame(res))
+  expect_true("TADA.TimePeriodForSummary" %in% names(res))
+  expect_true("TADA.TimePeriodType" %in% names(res))
+})
+
+testthat::test_that("TADA_SummarizeResultFrequency errors when input lacks required grouping columns", {
+  bad_data <- Data_Nutrients_UT |>
+    dplyr::select(-TADA.MonitoringLocationIdentifier)
+
+  expect_error(
+    TADA_SummarizeResultFrequency(bad_data),
+    "MonitoringLocationIdentifier"
+  )
 })

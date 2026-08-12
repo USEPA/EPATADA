@@ -32,16 +32,16 @@ Create Scatterplot(s)
 }
 \examples{
 # Load example dataset:
-utils::data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_TribalNations_Harmonized)
 
 # Create a scatterplot for each comparable data group (TADA.ComparableDataIdentifier)
 # in the input dataframe:
-TADA_Scatterplot(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
+TADA_Scatterplot(Data_TribalNations_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
 
 # Create a single scatterplot using defaults. The input dataframe in this
 # example is filtered so it includes only one TADA.ComparableDataIdentifier
 df <- dplyr::filter(
-  Data_6Tribes_5y_Harmonized,
+  Data_TribalNations_Harmonized,
   TADA.ComparableDataIdentifier ==
     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
 )

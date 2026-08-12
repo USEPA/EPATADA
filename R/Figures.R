@@ -24,10 +24,10 @@
 #' # Create a single boxplot using defaults. The input dataframe in this example
 #' # includes only one unique TADA.ComparableDataIdentifier:
 #' # Load example dataframe:
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #' # Filter data down to a single TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(
-#'   Data_6Tribes_5y_Harmonized,
+#'   Data_TribalNations_Harmonized,
 #'   TADA.ComparableDataIdentifier ==
 #'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
 #' )
@@ -89,11 +89,11 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 
   if (!start == end) {
     net <- start - end
-    print(paste0(
+    message(
       "Plotting function removed ",
       net,
       " results where TADA.ResultMeasureValue = NA. These results cannot be plotted."
-    ))
+    )
   }
 
   .data <- .data |>
@@ -104,7 +104,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 
   for (i in 1:max(.data$Group)) {
     plot.data <- subset(.data, .data$Group == i)
-    groupid <- TADA_CharStringRemoveNA(paste0(
+    groupid <- TADA_CharStringRemoveNANone(paste0(
       unique(plot.data[, id_cols]),
       collapse = " "
     ))
@@ -221,16 +221,16 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #'
 #' @examples
 #' # Load example dataframe:
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #'
 #' # Create a histogram for each comparable data group (TADA.ComparableDataIdentifier)
 #' # in the input dataframe:
-#' TADA_Histogram(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
+#' TADA_Histogram(Data_TribalNations_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
 #'
 #' # Create a single histogram using defaults. The input dataframe in this example
 #' # is filtered so it includes only one TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(
-#'   Data_6Tribes_5y_Harmonized,
+#'   Data_TribalNations_Harmonized,
 #'   TADA.ComparableDataIdentifier ==
 #'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
 #' )
@@ -247,7 +247,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #'     "MonitoringLocationTypeName"
 #'   )
 #' )
-#' # This example generates 32 histograms
+#' # This example generates 46 histograms
 #' Histogram_output[[10]]
 #' Histogram_output[[25]]
 #' Histogram_output[[30]]
@@ -275,31 +275,39 @@ TADA_Histogram <- function(
 
   tada.pal <- TADA_ColorPalette(col_pair = TRUE)
 
-  start <- dim(.data)[1]
+  start <- nrow(.data)
 
   .data <- subset(.data, !is.na(.data$TADA.ResultMeasureValue))
 
-  end <- dim(.data)[1]
+  end <- nrow(.data)
 
   if (!start == end) {
     net <- start - end
-    print(paste0(
+    message(
       "Plotting function removed ",
       net,
       " results where TADA.ResultMeasureValue = NA. These results cannot be plotted."
-    ))
+    )
   }
 
   .data <- .data |>
     dplyr::group_by(dplyr::across(dplyr::all_of(id_cols))) |>
     dplyr::mutate(Group = dplyr::cur_group_id())
 
-  histograms <- list()
+  # split by groups
+  groups <- dplyr::group_split(.data, .keep = TRUE)
+  if (length(groups) == 0L) {
+    message("No data to plot; returning NULL.")
+    return(NULL)
+  }
 
-  for (i in 1:max(.data$Group)) {
-    plot.data <- subset(.data, .data$Group == i)
-    groupid <- TADA_CharStringRemoveNA(paste0(
-      unique(plot.data[, id_cols]),
+  # create list of histograms
+  histograms <- vector("list", length(groups))
+
+  for (i in seq_along(groups)) {
+    plot.data <- groups[[i]]
+    groupid <- TADA_CharStringRemoveNANone(paste0(
+      unique(plot.data[, id_cols, drop = TRUE]),
       collapse = " "
     ))
 
@@ -413,7 +421,6 @@ TADA_Histogram <- function(
   return(histograms)
 }
 
-
 #' Field Values Pie Chart
 #'
 #' Function creates a ggplot2 pie chart showing the relative proportions of values in a given field in a TADA dataset.
@@ -518,7 +525,6 @@ TADA_FieldValuesPie <- function(
   return(pie)
 }
 
-
 #' Create Scatterplot(s)
 #'
 #' @param .data TADA dataframe containing the data downloaded from the
@@ -544,16 +550,16 @@ TADA_FieldValuesPie <- function(
 #'
 #' @examples
 #' # Load example dataset:
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #'
 #' # Create a scatterplot for each comparable data group (TADA.ComparableDataIdentifier)
 #' # in the input dataframe:
-#' TADA_Scatterplot(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
+#' TADA_Scatterplot(Data_TribalNations_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
 #'
 #' # Create a single scatterplot using defaults. The input dataframe in this
 #' # example is filtered so it includes only one TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(
-#'   Data_6Tribes_5y_Harmonized,
+#'   Data_TribalNations_Harmonized,
 #'   TADA.ComparableDataIdentifier ==
 #'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
 #' )
@@ -608,7 +614,7 @@ TADA_Scatterplot <- function(
 
   for (i in 1:max(.data$Group)) {
     plot.data <- subset(.data, .data$Group == i)
-    groupid <- TADA_CharStringRemoveNA(paste0(
+    groupid <- TADA_CharStringRemoveNANone(paste0(
       unique(plot.data[, id_cols]),
       collapse = " "
     ))
@@ -770,22 +776,18 @@ TADA_Scatterplot <- function(
 #'
 #' @examples
 #' # Load example dataset:
-#' utils::data(Data_Nutrients_UT)
+#' utils::data(Data_TribalNations_Harmonized)
+#' # Review monitoring location and result counts for each TADA.ComparableDataIdentifier
+#' TADA_SummarizeColumn(Data_TribalNations_Harmonized, col = "TADA.ComparableDataIdentifier")
+#'
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-#' TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT,
+#' # These two have the most results in the example data
+#' TADA_TwoCharacteristicScatterplot(Data_TribalNations_Harmonized,
 #'   id_cols = "TADA.ComparableDataIdentifier",
 #'   groups = c(
-#'     "AMMONIA_UNFILTERED_AS N_MG/L",
-#'     "NITRATE_UNFILTERED_AS N_MG/L"
+#'     "TEMPERATURE_NONE_NONE_DEG C",
+#'     "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
 #'   )
-#' )
-#'
-#' # Load example dataset:
-#' utils::data(Data_6Tribes_5y_Harmonized)
-#' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-#' TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized,
-#'   id_cols = "TADA.ComparableDataIdentifier",
-#'   groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NONE_NONE_NONE")
 #' )
 #'
 TADA_TwoCharacteristicScatterplot <- function(
@@ -810,7 +812,7 @@ TADA_TwoCharacteristicScatterplot <- function(
   TADA_CheckColumns(.data, expected_cols)
 
   if (!"TADA.ComparableDataIdentifier" %in% id_cols) {
-    print(
+    message(
       "Note: TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended."
     )
   }
@@ -1131,7 +1133,7 @@ TADA_TwoCharacteristicScatterplot <- function(
 #' @param groups A vector of up to four identifiers from the id_cols column
 #'   to specify the groups that will be plotted for a TADA.ComparableDataIdentifier.
 #'   These groups will be specific to your dataset. For example, in the example data set
-#'   Data_6Tribes_5y_Harmonized if group_col is 'MonitoringLocationName', the groups could be
+#'   Data_TribalNations_Harmonized if group_col is 'MonitoringLocationName', the groups could be
 #'   'Upper Red Lake: West', 'Upper Red Lake: West-Central', and 'Upper Red Lake: East Central'.
 #'
 #' @return A plotly scatterplot(s) figure with one x-axis (Date/Time) and a
@@ -1148,21 +1150,21 @@ TADA_TwoCharacteristicScatterplot <- function(
 #' # transform non-detect data
 #' df2 <- TADA_SimpleCensoredMethods(Data_Nutrients_UT)
 #' # create scatterplots for selected counties
-#' UT_Nutrients_by_CountyCode <- TADA_GroupedScatterplot(
-#'   df2,
-#'   group_col = "CountyCode", groups = c("057", "011", "003", "037")
+#' UT_Nutrients_by_HUCEightDigitCode <- TADA_GroupedScatterplot(
+#'   Data_Nutrients_UT,
+#'   group_col = "HUCEightDigitCode", groups = c("14050007", "16020204", "14060008", "14080202")
 #' )
-#' # view the 3rd and 4th plots
-#' UT_Nutrients_by_CountyCode[[3]]
-#' UT_Nutrients_by_CountyCode[[4]]
+#' # view the 2nd and 3rd plots
+#' UT_Nutrients_by_HUCEightDigitCode[[2]]
+#' UT_Nutrients_by_HUCEightDigitCode[[3]]
 #'
 #' # Load example dataset:
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #'
 #' # Filter the example data so it includes only one
 #' # TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(
-#'   Data_6Tribes_5y_Harmonized,
+#'   Data_TribalNations_Harmonized,
 #'   TADA.ComparableDataIdentifier %in% c(
 #'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
 #'   )
@@ -1259,7 +1261,7 @@ TADA_GroupedScatterplot <- function(
     }
 
     # print message describing groups that will be plotted
-    print(paste0(
+    message(
       "TADA_GroupedScatterplot: No 'groups' selected for ",
       group_col,
       ". There are ",
@@ -1274,7 +1276,7 @@ TADA_GroupedScatterplot <- function(
       groups.string,
       ".",
       sep = ""
-    ))
+    )
 
     # remove intermediate objects
     rm(groups.string, n.groups.plotted)
@@ -1345,9 +1347,9 @@ TADA_GroupedScatterplot <- function(
     title <- stringr::str_wrap(
       paste0(
         "Scatterplot of ",
-        TADA_CharStringRemoveNA(unique(plot.data$TADA.ComparableDataIdentifier)[
-          i
-        ]),
+        TADA_CharStringRemoveNANone(unique(
+          plot.data$TADA.ComparableDataIdentifier
+        )[i]),
         " Over Time"
       ),
       width = 45
@@ -1389,8 +1391,8 @@ TADA_GroupedScatterplot <- function(
         ),
         yaxis = list(
           title = paste(
-            TADA_CharStringRemoveNA(plot.data.y$TADA.CharacteristicName[1]),
-            TADA_CharStringRemoveNA(unique(
+            TADA_CharStringRemoveNANone(plot.data.y$TADA.CharacteristicName[1]),
+            TADA_CharStringRemoveNANone(unique(
               plot.data.y$TADA.ResultMeasure.MeasureUnitCode
             ))
           ),
@@ -1507,7 +1509,7 @@ TADA_GroupedScatterplot <- function(
     all_scatterplots[[i]] <- scatterplot
 
     # rename scatterplots to reflect TADA.ComparbaleDataIdentifier (with NAs removed)
-    names(all_scatterplots)[i] <- unique(TADA_CharStringRemoveNA(
+    names(all_scatterplots)[i] <- unique(TADA_CharStringRemoveNANone(
       plot.data$TADA.ComparableDataIdentifier
     ))[i]
   }
@@ -1519,4 +1521,395 @@ TADA_GroupedScatterplot <- function(
 
   # return scatterplot (one) or list of scatterplots (multiple)
   return(all_scatterplots)
+}
+
+#' Create an Interactive Day-of-Year Plot
+#'
+#' Creates an interactive scatterplot of result values by day of year for one
+#' characteristic. Results can be filtered to one monitoring location or all
+#' monitoring locations and to selected year and month ranges. Points are
+#' colored by year.
+#'
+#' @param .data TADA dataframe containing data downloaded from the WQP, where
+#'   each row represents a unique data record. The dataframe must include
+#'   'ActivityStartDate', 'TADA.CharacteristicName',
+#'   'TADA.ResultMeasureValue', 'TADA.ResultMeasure.MeasureUnitCode', and either
+#'   'TADA.MonitoringLocationIdentifier' or 'MonitoringLocationIdentifier'.
+#'
+#' @param location TADA.MonitoringLocationIdentifier to plot.
+#'   Defaults to 'all', which includes all monitoring locations in the input
+#'   dataframe. Only one or "all" monitoring location(s) identifier can be selected.
+#'
+#' @param comparableDataId A single value from 'TADA.ComparableDataIdentifier'
+#'   identifying the comparable data identifier to plot.
+#'
+#' @param yearRange A numeric vector of length two specifying the minimum and
+#'   maximum years to include. Defaults to NULL, which includes all years in the
+#'   filtered dataframe.
+#'
+#' @param monthRange A numeric vector of length two specifying the minimum and
+#'   maximum months to include, using integers 1 through 12. Defaults to
+#'   c(1, 12), which includes all months.
+#'
+#' @return A plotly scatterplot showing result values by day of year, with
+#'   points colored by year.
+#'
+#' @export
+#'
+#' @examples
+#' # Load example dataset:
+#' utils::data(Data_TribalNations_Harmonized)
+#'
+#' # Plot all available years and months for one characteristic and all sites:
+#' TADA_DayOfYearPlot(
+#'   Data_TribalNations_Harmonized,
+#'   comparableDataId = "TEMPERATURE_NONE_NONE_DEG C"
+#' )
+#'
+#' # Plot one monitoring location over a selected year and month range:
+#' TADA_DayOfYearPlot(
+#' Data_TribalNations_Harmonized,
+#' location =  "REDLAKE_WQX-LRE-C",
+#' comparableDataId = "TEMPERATURE_NONE_NONE_DEG C",
+#' yearRange = c(2021, 2025),
+#' monthRange = c(1, 10))
+#'
+TADA_DayOfYearPlot <- function(
+  .data,
+  location = "all",
+  comparableDataId,
+  yearRange = NULL,
+  monthRange = c(1, 12)
+) {
+  # identify the monitoring location identifier column available in the data
+  if (!"TADA.MonitoringLocationIdentifier" %in% names(.data)) {
+    stop(
+      "TADA_DayOfYearPlot: The input dataframe must include 'TADA.MonitoringLocationIdentifier'."
+    )
+  }
+
+  # check .data is a data.frame and has required columns
+  required_cols <- c(
+    "TADA.MonitoringLocationIdentifier",
+    "ActivityStartDate",
+    "TADA.ComparableDataIdentifier",
+    "TADA.ResultMeasureValue",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  )
+  TADA_CheckColumns(.data, required_cols)
+
+  plot.data <- as.data.frame(.data)
+  plot.data$ActivityStartDate <- as.Date(plot.data$ActivityStartDate)
+
+  plot.data <- suppressMessages(TADA_FindQCActivities(plot.data, clean = TRUE))
+  message("TADA_DayOfYearPlot: QC samples were removed before plotting.")
+
+  invalid_dates <- sum(is.na(plot.data$ActivityStartDate))
+  if (invalid_dates > 0) {
+    message(
+      "TADA_DayOfYearPlot: Removed ",
+      invalid_dates,
+      " results with missing or invalid ActivityStartDate values."
+    )
+  }
+
+  # create date fields used for filtering and plotting
+  plot.data <- plot.data |>
+    dplyr::filter(
+      !is.na(ActivityStartDate),
+      !is.na(TADA.ResultMeasureValue),
+      TADA.ComparableDataIdentifier == comparableDataId
+    ) |>
+    dplyr::mutate(
+      Year = as.integer(format(ActivityStartDate, "%Y")),
+      Month = as.integer(format(ActivityStartDate, "%m")),
+      DayOfYear = as.integer(format(ActivityStartDate, "%j"))
+    )
+
+  # comparableDataId must identify one TADA comparable data identifier
+  if (
+    missing(comparableDataId) ||
+      is.null(comparableDataId) ||
+      length(comparableDataId) != 1 ||
+      is.na(comparableDataId)
+  ) {
+    stop(
+      "TADA_DayOfYearPlot: 'TADA.ComparableDataIdentifier' must contain one non-missing value."
+    )
+  }
+
+  if (!comparableDataId %in% .data$TADA.ComparableDataIdentifier) {
+    stop(
+      "TADA_DayOfYearPlot: 'comparableDataId' was not found in ",
+      "TADA.ComparableDataIdentifier. Check spelling and try again."
+    )
+  }
+
+  # location param must be one location or 'all'
+  if (length(location) != 1 || is.na(location)) {
+    stop(
+      "TADA_DayOfYearPlot: 'TADA.MonitoringLocationIdentifier' must be one ",
+      "monitoring location identifier or 'all'."
+    )
+  }
+
+  available_locations <- unique(.data[["TADA.MonitoringLocationIdentifier"]])
+  if (location != "all" && !location %in% available_locations) {
+    stop(
+      "TADA_DayOfYearPlot: The selected TADA.MonitoringLocationIdentifier ",
+      "not found in the input dataframe."
+    )
+  }
+
+  # validate month range
+  if (
+    !is.numeric(monthRange) ||
+      length(monthRange) != 2 ||
+      any(is.na(monthRange)) ||
+      any(monthRange < 1 | monthRange > 12) ||
+      monthRange[1] > monthRange[2]
+  ) {
+    stop(
+      "TADA_DayOfYearPlot: 'monthRange' must be an increasing numeric ",
+      "vector of length two with values from 1 through 12."
+    )
+  }
+
+  # filter to one monitoring location when selected
+  if (location != "all") {
+    plot.data <- plot.data |>
+      dplyr::filter(TADA.MonitoringLocationIdentifier == location)
+  }
+
+  # default to the full available year range after characteristic/site filtering
+  if (is.null(yearRange)) {
+    if (nrow(plot.data) == 0) {
+      message(
+        "TADA_DayOfYearPlot: No data are available to plot; returning NULL."
+      )
+      return(NULL)
+    }
+    yearRange <- range(plot.data$Year, na.rm = TRUE)
+  }
+
+  # validate year range
+  if (
+    !is.numeric(yearRange) ||
+      length(yearRange) != 2 ||
+      any(is.na(yearRange)) ||
+      yearRange[1] > yearRange[2]
+  ) {
+    stop(
+      "TADA_DayOfYearPlot: 'yearRange' must be an increasing numeric vector ",
+      "of length two."
+    )
+  }
+
+  # apply year and month filters
+  plot.data <- plot.data |>
+    dplyr::filter(
+      Year >= yearRange[1],
+      Year <= yearRange[2],
+      Month >= monthRange[1],
+      Month <= monthRange[2]
+    ) |>
+    dplyr::arrange(Year, DayOfYear)
+
+  if (nrow(plot.data) == 0) {
+    message(
+      "TADA_DayOfYearPlot: No data matched the selected characteristic, ",
+      "monitoring location, year range, and month range; returning NULL."
+    )
+    return(NULL)
+  }
+
+  # one y-axis cannot accurately display results reported in multiple units
+  units <- unique(stats::na.omit(plot.data$TADA.ResultMeasure.MeasureUnitCode))
+  if (length(units) > 1) {
+    stop(
+      "TADA_DayOfYearPlot: The filtered data contain multiple result units: ",
+      paste(units, collapse = ", "),
+      ". Filter or harmonize the data so only one result unit is plotted."
+    )
+  }
+  unit <- if (length(units) == 0) "Result Value" else units
+
+  # add optional fields used in hover text when they are not present
+  optional_cols <- c(
+    "TADA.MonitoringLocationName",
+    "OrganizationFormalName",
+    "ActivityStartDateTime"
+  )
+  for (col in optional_cols) {
+    if (!col %in% names(plot.data)) {
+      plot.data[[col]] <- NA_character_
+    }
+  }
+
+  # create a discrete color palette for the available years
+  tada.pal <- TADA_ColorPalette(col_pair = TRUE)
+  years <- sort(unique(plot.data$Year))
+  n.years <- length(years)
+
+  year.colors <- if (n.years <= nrow(tada.pal)) {
+    tada.pal[seq_len(n.years), 1]
+  } else {
+    grDevices::colorRampPalette(tada.pal[, 1])(n.years)
+  }
+
+  location_title <- if (location == "all") {
+    "All Monitoring Locations"
+  } else {
+    as.character(location)
+  }
+
+  title <- stringr::str_wrap(
+    paste0(
+      TADA_CharStringRemoveNANone(comparableDataId),
+      " by Day of Year: ",
+      location_title
+    ),
+    width = 55
+  )
+
+  # compute x-axis day-of-year bounds from monthRange
+  start_date <- as.Date(sprintf("2001-%02d-01", monthRange[1]))
+  end_date <- as.Date(paste0("2001-", sprintf("%02d", monthRange[2]), "-01"))
+  end_date <- seq.Date(end_date, by = "month", length.out = 2)[2] - 1
+
+  x_axis_range <- c(
+    as.integer(format(start_date, "%j")),
+    as.integer(format(end_date, "%j"))
+  )
+
+  # construct one plotly trace per year so years are discrete and can be
+  # independently shown or hidden using the interactive legend
+  day_of_year_plot <- plotly::plot_ly(type = "scatter", mode = "markers")
+
+  for (i in seq_along(years)) {
+    year.data <- subset(plot.data, plot.data$Year == years[i])
+
+    day_of_year_plot <- day_of_year_plot |>
+      plotly::add_trace(
+        data = year.data,
+        x = ~DayOfYear,
+        y = ~TADA.ResultMeasureValue,
+        name = as.character(years[i]),
+        marker = list(
+          size = 7,
+          opacity = 0.75,
+          color = year.colors[i],
+          line = list(color = tada.pal[1, 2], width = 0.5)
+        ),
+        hoverinfo = "text",
+        hovertext = paste(
+          "Result:",
+          paste0(
+            year.data$TADA.ResultMeasureValue,
+            " ",
+            year.data$TADA.ResultMeasure.MeasureUnitCode
+          ),
+          "<br>",
+          "Activity Start Date:",
+          year.data$ActivityStartDate,
+          "<br>",
+          "Activity Start Date Time:",
+          year.data$ActivityStartDateTime,
+          "<br>",
+          "Day of Year:",
+          year.data$DayOfYear,
+          "<br>",
+          "Year:",
+          year.data$Year,
+          "<br>",
+          "Monitoring Location Identifier:",
+          year.data$TADA.MonitoringLocationIdentifier,
+          "<br>",
+          "Monitoring Location Name:",
+          year.data$MonitoringLocationName,
+          "<br>",
+          "Organization Name:",
+          year.data$OrganizationFormalName,
+          "<br>",
+          "Media:",
+          year.data$TADA.ActivityMediaName,
+          "<br>",
+          "Media Subdivision:",
+          year.data$ActivityMediaSubdivisionName,
+          "<br>",
+          "Result Depth:",
+          paste0(
+            year.data$TADA.ResultDepthHeightMeasure.MeasureValue,
+            " ",
+            year.data$TADA.ResultDepthHeightMeasure.MeasureUnitCode
+          ),
+          "<br>",
+          "Activity Relative Depth:",
+          year.data$ActivityRelativeDepthName,
+          "<br>",
+          "Activity Depth:",
+          paste0(
+            year.data$TADA.ActivityDepthHeightMeasure.MeasureValue,
+            " ",
+            year.data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
+          ),
+          "<br>",
+          "Activity Top Depth:",
+          paste0(
+            year.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue,
+            " ",
+            year.data$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
+          ),
+          "<br>",
+          "Activity Bottom Depth:",
+          paste0(
+            year.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue,
+            " ",
+            year.data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
+          ),
+          "<br>"
+        )
+      )
+  }
+
+  # figure margin
+  mrg <- list(l = 50, r = 20, b = 50, t = 75, pad = 0)
+
+  # day-of-year plot layout and labels
+  day_of_year_plot <- day_of_year_plot |>
+    plotly::layout(
+      xaxis = list(
+        title = "Day of Year",
+        titlefont = list(size = 16, family = "Arial"),
+        tickfont = list(size = 16, family = "Arial"),
+        range = x_axis_range,
+        dtick = 50,
+        linecolor = "black",
+        showgrid = FALSE,
+        tickcolor = "black"
+      ),
+      yaxis = list(
+        title = stringr::str_match(comparableDataId, "^(?:[^_]*_){3}(.*)$")[,
+          2
+        ],
+        titlefont = list(size = 16, family = "Arial"),
+        tickfont = list(size = 16, family = "Arial"),
+        hoverformat = ",.4r",
+        linecolor = "black",
+        showgrid = FALSE,
+        tickcolor = "black"
+      ),
+      legend = list(
+        title = list(text = "<b>Year</b>"),
+        itemclick = "toggle",
+        itemdoubleclick = "toggleothers"
+      ),
+      hoverlabel = list(bgcolor = "white"),
+      title = title,
+      plot_bgcolor = "#e5ecf6",
+      margin = mrg
+    ) |>
+    plotly::config(displaylogo = FALSE)
+
+  return(day_of_year_plot)
 }

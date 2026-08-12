@@ -30,7 +30,7 @@ of other variables (e.g. characteristic name, site type, site name, year, organi
 \item{groups}{A vector of up to four identifiers from the id_cols column
 to specify the groups that will be plotted for a TADA.ComparableDataIdentifier.
 These groups will be specific to your dataset. For example, in the example data set
-Data_6Tribes_5y_Harmonized if group_col is 'MonitoringLocationName', the groups could be
+Data_TribalNations_Harmonized if group_col is 'MonitoringLocationName', the groups could be
 'Upper Red Lake: West', 'Upper Red Lake: West-Central', and 'Upper Red Lake: East Central'.}
 }
 \value{
@@ -49,21 +49,21 @@ utils::data(Data_Nutrients_UT)
 # transform non-detect data
 df2 <- TADA_SimpleCensoredMethods(Data_Nutrients_UT)
 # create scatterplots for selected counties
-UT_Nutrients_by_CountyCode <- TADA_GroupedScatterplot(
-  df2,
-  group_col = "CountyCode", groups = c("057", "011", "003", "037")
+UT_Nutrients_by_HUCEightDigitCode <- TADA_GroupedScatterplot(
+  Data_Nutrients_UT,
+  group_col = "HUCEightDigitCode", groups = c("14050007", "16020204", "14060008", "14080202")
 )
-# view the 3rd and 4th plots
-UT_Nutrients_by_CountyCode[[3]]
-UT_Nutrients_by_CountyCode[[4]]
+# view the 2nd and 3rd plots
+UT_Nutrients_by_HUCEightDigitCode[[2]]
+UT_Nutrients_by_HUCEightDigitCode[[3]]
 
 # Load example dataset:
-utils::data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_TribalNations_Harmonized)
 
 # Filter the example data so it includes only one
 # TADA.ComparableDataIdentifier
 df <- dplyr::filter(
-  Data_6Tribes_5y_Harmonized,
+  Data_TribalNations_Harmonized,
   TADA.ComparableDataIdentifier \%in\% c(
     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
   )

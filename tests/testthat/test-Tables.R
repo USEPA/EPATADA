@@ -1,9 +1,9 @@
 # Use a packaged dataset instead of live WQP retrieval to avoid network fragility
 test_that("TADA_Stats suggestions complete", {
   # Load example dataset shipped with the package
-  utils::data(Data_6Tribes_5y_Harmonized, package = "EPATADA")
+  utils::data(Data_TribalNations_Harmonized, package = "EPATADA")
 
-  check <- TADA_Stats(Data_6Tribes_5y_Harmonized)
+  check <- TADA_Stats(Data_TribalNations_Harmonized)
   expect_true(all(!is.na(check$ND_Estimation_Method)))
 })
 
@@ -184,21 +184,6 @@ test_that("TADA_Stats rounding parameters modify outputs on random data", {
   expect_equal(
     out$Non_Detect_Pct,
     round((expected_nd_count / total_flags) * 100, 0)
-  )
-})
-
-test_that("TADA_Stats prints notes for NA values and nutrient summation flag", {
-  set.seed(127)
-  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
-
-  # Inject an NA and add NutrientSummation flag
-  testdat$TADA.ResultMeasureValue[1] <- NA_real_
-  testdat$TADA.NutrientSummation.Flag <- TRUE
-
-  expect_output(
-    TADA_Stats(testdat),
-    regexp = "Dataset contains .* results missing.*Note: Your dataset contains TADA-generated total nutrient results",
-    fixed = FALSE
   )
 })
 

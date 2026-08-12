@@ -1,4 +1,4 @@
-test_that("TADA_DataRetrieval", {
+testthat::test_that("TADA_DataRetrieval", {
   randomday <- TADA_RandomTestingData(
     number_of_days = 2,
     choose_random_state = TRUE
@@ -133,7 +133,7 @@ test_that("TADA_DataRetrieval", {
   ))
 })
 
-test_that("TADA_DataRetrieval", {
+testthat::test_that("TADA_DataRetrieval", {
   randomstate <- TADA_RandomTestingData(
     number_of_days = 2,
     choose_random_state = TRUE
@@ -268,7 +268,7 @@ test_that("TADA_DataRetrieval", {
   ))
 })
 
-test_that("TADA_DataRetrieval", {
+testthat::test_that("TADA_DataRetrieval", {
   randomstate2 <- TADA_RandomTestingData(
     number_of_days = 2,
     choose_random_state = TRUE
@@ -280,7 +280,7 @@ test_that("TADA_DataRetrieval", {
   ))
 })
 
-test_that("TADA_DataRetrieval", {
+testthat::test_that("TADA_DataRetrieval", {
   tada1 <- TADA_DataRetrieval(
     siteid = c("USGS-054064785", "USGS-430305089260600"),
     characteristicName = "Phosphorus",
@@ -418,7 +418,9 @@ test_that("TADA_DataRetrieval", {
 
 # testing that NWIS USGS only domain value "meters" is successfully replaced with "m". This feature is part of the TADA_AutoClean function
 # which runs automatically when TADA_DataRetrieval runs
-test_that("TADA_DataRetrieval", {
+testthat::test_that("TADA_DataRetrieval meters to m works", {
+  testthat::skip_on_cran()
+  testthat::skip_if_offline("www.waterqualitydata.us")
   check_autoclean_meters_works <- TADA_DataRetrieval(
     statecode = "UT",
     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
@@ -457,7 +459,7 @@ test_that("TADA_DataRetrieval", {
 # profile and the sites profiles together. This function uses cyanobacteria
 # full phys chem results and station metadata.
 
-test_that("TADA_JoinWQPProfiles_works", {
+testthat::test_that("TADA_JoinWQPProfiles_works", {
   # testthat::test_path() is automatically set to "tests/testthat". To get to the data files, you
   # only need to add the additional pathway e.g., not the full path i.e.,
   # "tests/testthat/testdata/Cyan_Stations.rds" but "testdata/Cyan_Results.rds"
@@ -476,7 +478,7 @@ test_that("TADA_JoinWQPProfiles_works", {
 })
 
 
-test_that("TADA_JoinWQPProfiles_columns", {
+testthat::test_that("TADA_JoinWQPProfiles_columns", {
   testthat::skip_on_cran()
   testthat::skip_if_offline("www.waterqualitydata.us")
   stationProfile <- TADA_ReadWQPWebServices(

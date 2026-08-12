@@ -16,11 +16,11 @@
 #'
 #' @examples
 #' utils::data(Data_Nutrients_UT)
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #'
 #' # Create maps:
 #' TADA_OverviewMap(Data_Nutrients_UT)
-#' TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
+#' TADA_OverviewMap(Data_TribalNations_Harmonized)
 #'
 TADA_OverviewMap <- function(.data) {
   suppressMessages(suppressWarnings({
@@ -63,7 +63,10 @@ TADA_OverviewMap <- function(.data) {
           "Sample_Count" = length(unique(ResultIdentifier)),
           "Visit_Count" = length(unique(ActivityStartDate)),
           "Parameter_Count" = length(unique(TADA.CharacteristicName))
-        )
+        ) |>
+        dplyr::ungroup() |>
+        as.data.frame()
+
       param_counts <- sort(unique(sumdat$Parameter_Count))
       param_length <- length(param_counts)
       param_diff <- diff(param_counts)
@@ -78,7 +81,7 @@ TADA_OverviewMap <- function(.data) {
         paste0(">", pt_sizes[3]),
         paste0(">", pt_sizes[4])
       )
-      sumdat$radius <- 5
+      sumdat$radius <- 20
       sumdat$radius <- ifelse(
         sumdat$Sample_Count > pt_sizes[1],
         10,
@@ -103,10 +106,14 @@ TADA_OverviewMap <- function(.data) {
         Sample_n = pt_labels,
         Point_size = c(5, 10, 15, 20, 30)
       )
-      site_legend <- subset(
-        site_size,
-        site_size$Point_size %in% unique(sumdat$radius)
-      )
+      if (length(unique(sumdat$radius)) > 1) {
+        site_legend <- subset(
+          site_size,
+          site_size$Point_size %in% unique(sumdat$radius)
+        )
+      } else {
+        site_legend <- data.frame(Sample_n = unique(pt_sizes), Point_size = 20)
+      }
       # set breaks to occur only at integers for data sets requiring bins
       pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
       bins_n <- length(pretty.breaks)
@@ -126,7 +133,7 @@ TADA_OverviewMap <- function(.data) {
       if (length(unique(param_diff)) == 1 & param_length < 10) {
         pal <- leaflet::colorFactor(palette = tada.blues, levels = param_counts)
       } else if (length(unique(param_counts)) == 1) {
-        pal <- "orange"
+        pal <- tada.blues[1]
       } else {
         pal <- leaflet::colorBin(palette = tada.blues, bins = pretty.breaks)
       }
@@ -155,7 +162,7 @@ TADA_OverviewMap <- function(.data) {
           fillOpacity = 0.7,
           stroke = TRUE,
           weight = 1.5,
-          radius = sumdat$radius,
+          radius = ~radius,
           popup = paste0(
             "Site ID: ",
             sumdat$MonitoringLocationIdentifier,
@@ -205,42 +212,54 @@ TADA_OverviewMap <- function(.data) {
       # TADA_addPolys and TADA_addPoints are in Utilities.R
       map <- TADA_addPolys(
         map,
-        "extdata/AKAllotments.shp",
+        "extdata",
+        "Tribal.gpkg",
+        "AKAllotments",
         "Tribes",
         "Alaska Allotments",
         bbox
       )
       map <- TADA_addPolys(
         map,
-        "extdata/AmericanIndian.shp",
+        "extdata",
+        "Tribal.gpkg",
+        "AmericanIndian",
         "Tribes",
         "American Indian",
         bbox
       )
       map <- TADA_addPolys(
         map,
-        "extdata/OffReservation.shp",
+        "extdata",
+        "Tribal.gpkg",
+        "OffReservation",
         "Tribes",
         "Off Reservation",
         bbox
       )
       map <- TADA_addPolys(
         map,
-        "extdata/OKTribe.shp",
+        "extdata",
+        "Tribal.gpkg",
+        "OKTribe",
         "Tribes",
         "Oklahoma Tribe",
         bbox
       )
       map <- TADA_addPoints(
         map,
-        "extdata/AKVillages.shp",
+        "extdata",
+        "Tribal.gpkg",
+        "AKVillages",
         "Tribes",
         "Alaska Native Villages",
         bbox
       )
       map <- TADA_addPoints(
         map,
-        "extdata/VATribe.shp",
+        "extdata",
+        "Tribal.gpkg",
+        "VATribe",
         "Tribes",
         "Virginia Tribe",
         bbox
@@ -274,11 +293,11 @@ TADA_OverviewMap <- function(.data) {
 #' \dontrun{
 #' # Load example dataframe:
 #' utils::data(Data_Nutrients_UT)
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_TribalNations_Harmonized)
 #'
 #' # Create maps:
 #' TADA_FlaggedSitesMap(Data_Nutrients_UT)
-#' TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
+#' TADA_FlaggedSitesMap(Data_TribalNations_Harmonized)
 #' }
 #'
 TADA_FlaggedSitesMap <- function(.data) {
@@ -345,8 +364,8 @@ TADA_FlaggedSitesMap <- function(.data) {
 #'
 #'
 #' # Create maps:
-#' TADA_FlaggedSitesMap(Data_Nutrients_UT)
-#' TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
+#' TADA_NearbySitesMap(Data_Nutrients_UT)
+#' TADA_NearbySitesMap(Data_TribalNations_Harmonized)
 #' }
 #'
 TADA_NearbySitesMap <- function(
@@ -775,13 +794,19 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # create df to assign color based on ATTAINS overall status
     colors <- getATTAINSColorsRef()
 
-    # prep ATTAINS assessment unit features
-    au_mapper <- prepAllATTAINSMapper(
-      color_ref = colors,
-      lines_layer = ATTAINS_lines,
-      points_layer = ATTAINS_points,
-      polygons_layer = ATTAINS_polygons
-    )
+    # prep ATTAINS assessment unit features for mapping if they exist
+    if (
+      !is.null(ATTAINS_lines) ||
+        !is.null(ATTAINS_points) ||
+        !is.null(ATTAINS_polygons)
+    ) {
+      au_mapper <- prepAllATTAINSMapper(
+        color_ref = colors,
+        lines_layer = ATTAINS_lines,
+        points_layer = ATTAINS_points,
+        polygons_layer = ATTAINS_polygons
+      )
+    }
 
     # CATCHMENT FEATURES - try to pull missing feature AU data if it exists. Otherwise, move on...
     try(
@@ -847,7 +872,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           map = map,
           icons = images,
           icon_labels = img.labels,
-          ref_icons = TRUE,
+          ref_icons = ref_icons,
           overlay_groups = overlay_groups
         )
 
@@ -882,6 +907,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     # add TADA custom legend to map
     map <- addTADAMapLegend(
+      sumdat,
       map = map,
       icons = images,
       icon_labels = img.labels,
