@@ -1,6 +1,5 @@
 ANDs
 AOI
-ATTAINSWaterType
 AUIDs
 AUML
 AUMLRef
@@ -17,6 +16,7 @@ ActivityMetric
 ActivityRelativeDepthName
 ActivityStartDate
 ActivityStartDateTime
+ActivityStartDates
 ActivityTopDepthHeightMeasure
 ActivityType
 ActivityTypeCode
@@ -285,6 +285,7 @@ ReplicateSampleID
 ResultAggregation
 ResultAnalyticalMethod
 ResultCommentText
+ResultCount
 ResultDepthHeightMeasure
 ResultDetectionConditionText
 ResultIdentifier
@@ -333,6 +334,7 @@ StringA
 StringB
 SubstituteDeprecatedChars
 SummarizeColumn
+SummarizeResultFrequency
 SummationFractionNotes
 SummationName
 SummationNote
@@ -360,6 +362,7 @@ TP
 TargetUnit
 Tesuque
 Thawley
+TimePeriodForSummary
 TribalNations
 TribalOptions
 UG
@@ -487,13 +490,13 @@ flowlines
 fullPhysChem
 geeksforgeeks
 geo
+geopackage
 geopub
 geospatial
 geospatially
 getATTAINSColorRef
 getATTAINSColorsRef
 getFeatureLayer
-getLayer
 getMapIconLabels
 getTribalPopup
 getWQPSiteStats
@@ -501,6 +504,7 @@ getenv
 ggplot
 github
 gitignore
+gpkg
 helpdesk
 https
 huc
@@ -554,6 +558,7 @@ qaqc
 rExpertQuery
 randombelowlimit
 rda
+readLayer
 readWQPdata
 recomputation
 renameATTAINSCols
@@ -565,7 +570,6 @@ secchi
 setEQKey
 setnames
 showMissingATTAINSAUs
-shp
 siteType
 siteid
 sitetype
@@ -592,7 +596,6 @@ uncomment
 uncommenting
 uniqueDataId
 unprefixed
-uppercased
 useR
 usepa
 usesRef
@@ -606,7 +609,7 @@ wo
 wqp
 wqs
 wqx
-writeLayer
+writeLayerIfChanged
 www
 xlsx
 xmax
