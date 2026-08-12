@@ -7,7 +7,9 @@
 TADA_GetTADAUsesAliasRef(
   ATTAINS.CST.tolerance = 0.15,
   CST.ATTAINS.tolerance = 0.15,
-  set.all.tolerance = NA
+  set.all.tolerance = NA,
+  download_only = FALSE,
+  refresh = FALSE
 )
 }
 \arguments{
@@ -22,6 +24,15 @@ to an ATTAINS use name for a candidate alias to be returned.}
 \item{set.all.tolerance}{Optional numeric value between 0 and 1. If supplied,
 this value is applied to both \code{ATTAINS.CST.tolerance} and
 \code{CST.ATTAINS.tolerance}.}
+
+\item{download_only}{Logical. If TRUE, bypasses the cache and rebuilds the
+table directly from live sources, returning it without updating the cache.
+If FALSE (default), uses a cached copy when available and updates the cache.}
+
+\item{refresh}{Logical. Only used when \code{download_only = FALSE}. If TRUE, ignore
+any cached copy and rebuild a fresh table, then update the cache. If FALSE
+(default), return the cached table when available. Ignored when
+\code{download_only = TRUE}.}
 }
 \value{
 A data frame containing candidate ATTAINS-CST use alias matches for
@@ -51,9 +62,10 @@ user can review and select the appropriate CST magnitude values.
 The output is intended for manual review. Many-to-many matches are expected,
 and a CST use may appear multiple times for a single ATTAINS use name.
 
-Rows marked \code{APPROVED} or \code{REJECTED} in \code{inst/extdata/TADAUsesAliasRef.csv}
-are retained in the output when that file is available. New candidate matches
-are appended with \code{review = "New row: Needs Review"}.
+Rows marked \code{APPROVED} or \code{REJECTED} in
+\code{inst/extdata/TADAUsesAliasRef.csv} are retained in the output when that file
+is available. New candidate matches are appended with
+\code{review = "New row: Needs Review"}.
 
 To document a review decision, update the \code{review} column in the CSV file:
 \code{APPROVED} means the alias match is accepted, and \code{REJECTED} means the alias
