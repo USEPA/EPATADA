@@ -955,17 +955,17 @@ TADA_GetTADACharAliasRef <- function(
 #'
 #' @export
 TADA_GetTADAUsesAliasRef <- function(
-    ATTAINS.CST.tolerance = 0.15,
-    CST.ATTAINS.tolerance = 0.15,
-    set.all.tolerance = NA,
-    download_only = FALSE,
-    refresh = FALSE
+  ATTAINS.CST.tolerance = 0.15,
+  CST.ATTAINS.tolerance = 0.15,
+  set.all.tolerance = NA,
+  download_only = FALSE,
+  refresh = FALSE
 ) {
   # Optional: set a single tolerance for both directions
   if (!is.na(set.all.tolerance)) {
     ATTAINS.CST.tolerance <- CST.ATTAINS.tolerance <- set.all.tolerance
   }
-  
+
   # Validate ranges
   if (ATTAINS.CST.tolerance > 1.00 || CST.ATTAINS.tolerance > 1.00) {
     stop(
@@ -977,21 +977,21 @@ TADA_GetTADAUsesAliasRef <- function(
       "One or more tolerance defined is less than 0.00. Tolerance cannot be less than 0%."
     )
   }
-  
+
   # Cache key must include parameters + extdata signature
   uses_csv <- system.file(
     "extdata",
     "TADAUsesAliasRef.csv",
     package = "EPATADA"
   )
-  
+
   csv_sig <- if (nzchar(uses_csv) && file.exists(uses_csv)) {
     info <- file.info(uses_csv)
     paste0(as.character(info$mtime), "|", info$size)
   } else {
     "missing"
   }
-  
+
   cache_key <- paste(
     "TADAUsesAliasRef",
     sprintf("%.6f", ATTAINS.CST.tolerance),
@@ -1000,21 +1000,21 @@ TADA_GetTADAUsesAliasRef <- function(
     csv_sig,
     sep = "|"
   )
-  
+
   if (!download_only) {
     cached <- .tada_cache_get(cache_key)
     if (!is.null(cached) && !isTRUE(refresh)) {
       return(cached)
     }
   }
-  
+
   # Ensure rExpertQuery is available
   if (!requireNamespace("rExpertQuery", quietly = TRUE)) {
     stop(
       "Package 'rExpertQuery' is required by TADA_GetTADAUsesAliasRef(). Please install it."
     )
   }
-  
+
   # CSV-only: load previously reviewed uses alias decisions
   if (!nzchar(uses_csv) || !file.exists(uses_csv)) {
     message(
@@ -1057,7 +1057,7 @@ TADA_GetTADAUsesAliasRef <- function(
       "Reviewed rows will be kept; newly discovered potential aliases will be appended."
     ))
   }
-  
+
   # Map ATTAINS use context2 to Human Health vs Aquatic Life (CST column)
   UsesType <- data.frame(
     context2 = c(
@@ -1107,19 +1107,60 @@ TADA_GetTADAUsesAliasRef <- function(
     ),
     stringsAsFactors = FALSE
   )
-  
+
   # Stop words and punctuation to exclude in token matching
   stop_words <- c(
-    "a","an","for","and","nor","but","or","yet","so","the",
-    "!","\"","#","$","%","&","'","(",")","*","+",
-    ",","-",".","/",";",":","<","=",">","?","@",
-    "[","\\","]","^","_","`","{","|","}","~","-","(%)","--"
+    "a",
+    "an",
+    "for",
+    "and",
+    "nor",
+    "but",
+    "or",
+    "yet",
+    "so",
+    "the",
+    "!",
+    "\"",
+    "#",
+    "$",
+    "%",
+    "&",
+    "'",
+    "(",
+    ")",
+    "*",
+    "+",
+    ",",
+    "-",
+    ".",
+    "/",
+    ";",
+    ":",
+    "<",
+    "=",
+    ">",
+    "?",
+    "@",
+    "[",
+    "\\",
+    "]",
+    "^",
+    "_",
+    "`",
+    "{",
+    "|",
+    "}",
+    "~",
+    "-",
+    "(%)",
+    "--"
   )
-  
+
   # ATTAINS use_name domain
   ATTAINS.raw <- rExpertQuery::EQ_DomainValues("use_name") |>
     dplyr::select(name, context, context2)
-  
+
   ATTAINSUseRef <- ATTAINS.raw |>
     dplyr::left_join(
       UsesType,
@@ -1132,13 +1173,15 @@ TADA_GetTADAUsesAliasRef <- function(
     ) |>
     dplyr::select(-context) |>
     dplyr::distinct()
-  
+
   # Tokenize ATTAINS use names
   ATTAINSUseRef2 <- ATTAINSUseRef |>
     dplyr::mutate(name_words = stringr::str_split(name, pattern = " ")) |>
     tidyr::unnest(cols = c(name_words)) |>
     dplyr::filter(!name_words %in% toupper(stop_words)) |>
-    dplyr::mutate(name_words = toupper(gsub("[^[:alnum:] ]", "", name_words))) |>
+    dplyr::mutate(
+      name_words = toupper(gsub("[^[:alnum:] ]", "", name_words))
+    ) |>
     dplyr::filter(name_words != "") |>
     dplyr::distinct(
       ATTAINS.OrganizationIdentifier,
@@ -1146,9 +1189,9 @@ TADA_GetTADAUsesAliasRef <- function(
       name_words,
       .keep_all = TRUE
     )
-  
+
   rm(ATTAINS.raw)
-  
+
   # CST Criteria
   CST.raw <- tryCatch(
     TADA_CST_GetCriteria(download_only = FALSE),
@@ -1160,7 +1203,7 @@ TADA_GetTADAUsesAliasRef <- function(
       )
     }
   )
-  
+
   CST <- CST.raw |>
     dplyr::select(
       ENTITY_ABBR,
@@ -1175,36 +1218,44 @@ TADA_GetTADAUsesAliasRef <- function(
       USE_CLASS_NAME_LOCATION_ETC = toupper(USE_CLASS_NAME_LOCATION_ETC)
     ) |>
     dplyr::distinct()
-  
+
   # Tokenize CST uses
   CST2 <- CST |>
     dplyr::mutate(
-      name_words = stringr::str_split(USE_CLASS_NAME_LOCATION_ETC, pattern = " ")
+      name_words = stringr::str_split(
+        USE_CLASS_NAME_LOCATION_ETC,
+        pattern = " "
+      )
     ) |>
     tidyr::unnest(cols = c(name_words)) |>
     dplyr::filter(!name_words %in% toupper(stop_words)) |>
-    dplyr::mutate(name_words = toupper(gsub("[^[:alnum:] ]", "", name_words))) |>
+    dplyr::mutate(
+      name_words = toupper(gsub("[^[:alnum:] ]", "", name_words))
+    ) |>
     dplyr::filter(name_words != "") |>
     dplyr::distinct(USE_CLASS_NAME_LOCATION_ETC, name_words, .keep_all = TRUE)
-  
+
   # Match CST entity to ATTAINS org
   ATTAINSOrgIDsRef <- TADA_GetATTAINSOrgIDsRef()
   ATTAINSOrgIDsRef$name <- toupper(ATTAINSOrgIDsRef$name)
-  
-  ATTAINS_CST.org <- data.frame(unique(CST[, c("ENTITY_NAME", "ENTITY_ABBR")])) |>
+
+  ATTAINS_CST.org <- data.frame(unique(CST[, c(
+    "ENTITY_NAME",
+    "ENTITY_ABBR"
+  )])) |>
     dplyr::mutate(ENTITY_NAME = toupper(ENTITY_NAME)) |>
     dplyr::left_join(ATTAINSOrgIDsRef, by = c("ENTITY_NAME" = "name")) |>
     dplyr::rename(ATTAINS.OrganizationIdentifier = code) |>
     dplyr::select(ENTITY_ABBR, ATTAINS.OrganizationIdentifier)
-  
+
   CST2 <- CST2 |>
     dplyr::mutate(ENTITY_NAME = toupper(ENTITY_NAME)) |>
     dplyr::left_join(ATTAINS_CST.org, by = "ENTITY_ABBR")
-  
+
   CST <- CST |>
     dplyr::mutate(ENTITY_NAME = toupper(ENTITY_NAME)) |>
     dplyr::left_join(ATTAINS_CST.org, by = "ENTITY_ABBR")
-  
+
   # Join by org and criterion type
   ATTAINS_CST <- dplyr::full_join(
     CST,
@@ -1216,7 +1267,7 @@ TADA_GetTADAUsesAliasRef <- function(
     ),
     relationship = "many-to-many"
   )
-  
+
   # Word-match between ATTAINS and CST
   ATTAINS_CST2 <- dplyr::full_join(
     CST2,
@@ -1224,7 +1275,12 @@ TADA_GetTADAUsesAliasRef <- function(
     by = c("name_words", "ATTAINS.OrganizationIdentifier"),
     relationship = "many-to-many"
   ) |>
-    dplyr::distinct(USE_CLASS_NAME_LOCATION_ETC, name, name_words, .keep_all = TRUE) |>
+    dplyr::distinct(
+      USE_CLASS_NAME_LOCATION_ETC,
+      name,
+      name_words,
+      .keep_all = TRUE
+    ) |>
     dplyr::group_by(
       ATTAINS.OrganizationIdentifier,
       USE_CLASS_NAME_LOCATION_ETC,
@@ -1235,7 +1291,8 @@ TADA_GetTADAUsesAliasRef <- function(
     dplyr::ungroup() |>
     dplyr::group_by(name) |>
     dplyr::mutate(
-      percent_match_CST = n / stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
+      percent_match_CST = n /
+        stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
       percent_match_ATTAINS_CST = n / stringr::str_count(name, "\\S+")
     ) |>
     dplyr::right_join(
@@ -1243,7 +1300,7 @@ TADA_GetTADAUsesAliasRef <- function(
       by = c("ATTAINS.OrganizationIdentifier", "USE_CLASS_NAME_LOCATION_ETC"),
       relationship = "many-to-many"
     )
-  
+
   # Combine strict type match and word-match tables
   ATTAINS_CST_final <- ATTAINS_CST |>
     dplyr::full_join(
@@ -1262,7 +1319,7 @@ TADA_GetTADAUsesAliasRef <- function(
       )
     ) |>
     dplyr::distinct()
-  
+
   rm(
     CST,
     CST.raw,
@@ -1272,7 +1329,7 @@ TADA_GetTADAUsesAliasRef <- function(
     ATTAINS_CST,
     ATTAINS_CST2
   )
-  
+
   # Apply tolerance filters
   TADAUsesAliasRef <- ATTAINS_CST_final |>
     dplyr::filter(
@@ -1301,14 +1358,16 @@ TADA_GetTADAUsesAliasRef <- function(
       Last.Change.Date,
       dplyr::everything()
     )
-  
+
   TADAUsesAliasRef <- TADAUsesAliasRef |>
-    dplyr::select(-dplyr::any_of(c("percent_match_ATTAINS_CST", "percent_match_CST")))
-  
+    dplyr::select(
+      -dplyr::any_of(c("percent_match_ATTAINS_CST", "percent_match_CST"))
+    )
+
   # Carry forward reviewed rows from current CSV
   current_TADAUsesAlias_keep <- current_TADAUsesAlias |>
     dplyr::filter(review %in% c("APPROVED", "REJECTED"))
-  
+
   TADAUsesAliasRef <- TADAUsesAliasRef |>
     dplyr::anti_join(
       current_TADAUsesAlias_keep,
@@ -1327,7 +1386,7 @@ TADA_GetTADAUsesAliasRef <- function(
       na_matches = "na"
     ) |>
     dplyr::bind_rows(current_TADAUsesAlias_keep)
-  
+
   allowed_review <- c("APPROVED", "REJECTED", "New row: Needs Review")
   bad_review <- unique(TADAUsesAliasRef$review[
     !is.na(TADAUsesAliasRef$review) &
@@ -1342,20 +1401,20 @@ TADA_GetTADAUsesAliasRef <- function(
       "."
     )
   }
-  
+
   if (!download_only) {
     .tada_cache_set(cache_key, TADAUsesAliasRef)
   }
-  
+
   TADAUsesAliasRef
 }
 
 #' Update TADA Uses Alias Reference Table (DEV-TIME ONLY)
 #' @keywords internal
 .TADA_UpdateTADAUsesAliasRef <- function(
-    ATTAINS.CST.tolerance = 0.15,
-    CST.ATTAINS.tolerance = 0.15,
-    set.all.tolerance = NA
+  ATTAINS.CST.tolerance = 0.15,
+  CST.ATTAINS.tolerance = 0.15,
+  set.all.tolerance = NA
 ) {
   df <- TADA_GetTADAUsesAliasRef(
     ATTAINS.CST.tolerance = ATTAINS.CST.tolerance,
@@ -1363,12 +1422,12 @@ TADA_GetTADAUsesAliasRef <- function(
     set.all.tolerance = set.all.tolerance,
     download_only = TRUE
   )
-  
+
   utils::write.csv(
     df,
     file = "inst/extdata/TADAUsesAliasRef.csv",
     row.names = FALSE
   )
-  
+
   invisible(df)
 }
