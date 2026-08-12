@@ -982,14 +982,14 @@ TADA_GetTADAUsesAliasRef <- function(
     "TADAUsesAliasRef.csv",
     package = "EPATADA"
   )
-  
+
   csv_sig <- if (nzchar(uses_csv) && file.exists(uses_csv)) {
     info <- file.info(uses_csv)
     paste0(as.character(info$mtime), "|", info$size)
   } else {
     "missing"
   }
-  
+
   cache_key <- paste(
     "TADAUsesAliasRef",
     sprintf("%.6f", ATTAINS.CST.tolerance),
