@@ -205,10 +205,8 @@ TADA_DefineCriteriaMethodology <- function(
     "FreqValue",
     "FreqMethod",
     # Data Sufficiency Columns
-    "AssessPeriod",
     "AssessPeriodStartDate",
     "AssessPeriodEndDate",
-    "Season",
     "SeasonStartDate",
     "SeasonEndDate",
     "DistrCount",
@@ -683,10 +681,8 @@ TADA_DefineCriteriaMethodology <- function(
           FreqValue = as.numeric(NA),
           FreqMethod = as.character(NA),
           # Data Sufficiency Columns
-          AssessPeriod = as.character(NA),
           AssessPeriodStartDate = as.Date(NA),
           AssessPeriodEndDate = as.Date(NA),
-          Season = as.character(NA),
           SeasonStartDate = as.Date(NA),
           SeasonEndDate = as.Date(NA),
           DistrCount = as.numeric(NA),
@@ -1715,30 +1711,6 @@ TADA_DefineCriteriaMethodology <- function(
       )
     )
 
-    openxlsx::writeData(
-      wb,
-      "Index-Criteria",
-      startCol = 24,
-      startRow = 1,
-      x = data.frame(
-        AssessPeriod = c(
-          "Last 30 years",
-          "Last 10 years",
-          "Last 5 years",
-          "Last 3 years",
-          "Last year",
-          "NA"
-        )
-      )
-    )
-
-    openxlsx::writeData(
-      wb,
-      "Index-Criteria",
-      startCol = 27,
-      startRow = 1,
-      x = data.frame(Season = c("Summer", "Fall", "Spring", "Winter", "NA"))
-    )
 
     openxlsx::writeData(
       wb,
@@ -2285,10 +2257,8 @@ TADA_DefineCriteriaMethodology <- function(
       "DurationMethod",
       "FreqValue",
       "FreqMethod",
-      "AssessPeriod",
       "AssessPeriodStartDate",
       "AssessPeriodEndDate",
-      "Season",
       "SeasonStartDate",
       "SeasonEndDate",
       "DistrCount",
@@ -2336,8 +2306,6 @@ TADA_DefineCriteriaMethodology <- function(
       "Required",
       "Required",
       "Required",
-      "Optional",
-      "Optional",
       "Optional",
       "Optional",
       "Optional",
@@ -2427,8 +2395,6 @@ TADA_DefineCriteriaMethodology <- function(
       "User Supplied",
       "User Supplied",
       "User Supplied",
-      "User Supplied",
-      "User Supplied",
       "User Supplied"
     ),
     ColumnType = c(
@@ -2453,8 +2419,6 @@ TADA_DefineCriteriaMethodology <- function(
       "Criteria",
       "Criteria",
       "Criteria",
-      "Methodology",
-      "Methodology",
       "Methodology",
       "Methodology",
       "Methodology",
@@ -2539,14 +2503,10 @@ TADA_DefineCriteriaMethodology <- function(
       "The numeric value of how often a magnitude value can be exceeded before being considered impaired.",
       # FreqMethod
       "How often a magnitude value can be exceeded percentage or number of times a magnitude value can be exceeded over a specified duration period.",
-      # AssessPeriod
-      "Labels the assessment period of which the WQP data must be collected from. Users should define the assessment date range in the beginning and end date columns that proceeds this one.",
       # AssessPeriodStartDate
       "The start date in which WQP data will be analyzed for this parameter and use.",
       # AssessPeriodEndDate
       "The end date in which WQP data will be analyzed for this parameter and use.",
-      # Season
-      "Labels the season in which the standards apply for this parameter and use. Specify the start and end dates of your season in the proceeding two columns.",
       # SeasonStartDate
       "The start date of the season in which assessments are done for during a calendar year (ex. Apr 1).",
       # SeasonEndDate
@@ -2945,10 +2905,8 @@ TADA_DefineCriteriaMethodology <- function(
       "DurationMethod",
       "FreqValue",
       "FreqMethod",
-      "AssessPeriod",
       "AssessPeriodStartDate",
       "AssessPeriodEndDate",
-      "Season",
       "SeasonStartDate",
       "SeasonEndDate",
       "DistrCount",
@@ -3009,8 +2967,6 @@ TADA_DefineCriteriaMethodology <- function(
       "Methodology",
       "Methodology",
       "Methodology",
-      "Methodology",
-      "Methodology",
       "Equation",
       "Equation",
       "Equation",
@@ -3057,10 +3013,8 @@ TADA_DefineCriteriaMethodology <- function(
       "arithmetic mean; arithmetic median; arithmetic max; arithmetic min; arithmetic extremes; geometric mean; rolling geometric mean; rolling arithmetic mean; mean of daily minima; mean of daily maxima",
       "",
       "Percent of samples not meeting; percentile; n-samples in 3 years; n-samples in 4 years; n-samples in 5 years; binomial test; NumberNotMeeting",
-      "Last 30 years; Last 10 years; Last 5 years; Last 3 years; Last year; NA",
       "",
       "",
-      "Summer; Fall; Spring; Winter",
       "",
       "",
       "",
@@ -3113,10 +3067,8 @@ TADA_DefineCriteriaMethodology <- function(
       "",
       "10",
       "",
-      "",
       "2024-10-01",
       "2025-09-30",
-      "",
       "Apr 01",
       "Jul 15",
       "5",
