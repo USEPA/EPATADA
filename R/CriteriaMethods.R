@@ -213,6 +213,7 @@ TADA_DefineCriteriaMethodology <- function(
     "DistrPeriod",
     "DistrMinSample",
     "Notes",
+    "Links",
     # Equation Columns
     "EquationType",
     "EquationFormula",
@@ -689,6 +690,7 @@ TADA_DefineCriteriaMethodology <- function(
           DistrPeriod = as.character(NA),
           DistrMinSample = as.numeric(NA),
           Notes = as.character(NA),
+          Links = as.character(NA),
           EquationType = as.character(NA),
           EquationFormula = as.character(NA),
           pHThreshold = as.numeric(NA),
@@ -2265,6 +2267,7 @@ TADA_DefineCriteriaMethodology <- function(
       "DistrPeriod",
       "DistrMinSample",
       "Notes",
+      "Links",
       "EquationType",
       "EquationFormula",
       "pHThreshold",
@@ -2306,6 +2309,7 @@ TADA_DefineCriteriaMethodology <- function(
       "Required",
       "Required",
       "Required",
+      "Optional",
       "Optional",
       "Optional",
       "Optional",
@@ -2395,6 +2399,7 @@ TADA_DefineCriteriaMethodology <- function(
       "User Supplied",
       "User Supplied",
       "User Supplied",
+      "User Supplied",
       "User Supplied"
     ),
     ColumnType = c(
@@ -2419,6 +2424,7 @@ TADA_DefineCriteriaMethodology <- function(
       "Criteria",
       "Criteria",
       "Criteria",
+      "Methodology",
       "Methodology",
       "Methodology",
       "Methodology",
@@ -2519,6 +2525,8 @@ TADA_DefineCriteriaMethodology <- function(
       "How many samples must be collected during each specified DistrPeriod",
       # Notes
       "Additonal free form notes column for any notes that must be considered for this parameter and use that may not be able to be captured in the TADA criteria table format.",
+      #Links
+      "Link(s) to relevant WQS document for others who may wish to review the assessment criteria and methods.",
       # EquationType
       "What parameters are dependent for the equation. NOTE: Equation handling in TADA is still in development.",
       # Equation
@@ -2913,6 +2921,7 @@ TADA_DefineCriteriaMethodology <- function(
       "DistrPeriod",
       "DistrMinSample",
       "Notes",
+      "Links",
       "EquationType",
       "EquationFormula",
       "pHThreshold",
@@ -2959,6 +2968,7 @@ TADA_DefineCriteriaMethodology <- function(
       "Criteria",
       "Criteria",
       "Criteria",
+      "Methodology",
       "Methodology",
       "Methodology",
       "Methodology",
@@ -3021,6 +3031,7 @@ TADA_DefineCriteriaMethodology <- function(
       "Seasonal; Annual; Semi-Annual; Quarterly; Monthly; Bi-weekly; Weekly; 10 days; NA",
       "",
       "",
+      "",
       "Hardness; pH; pH and Temperature; pH and Hardness",
       "",
       "",
@@ -3075,6 +3086,7 @@ TADA_DefineCriteriaMethodology <- function(
       "",
       "10",
       "New addition to ATTAINS in FY2026",
+      "https://www.epa.gov/wqc/national-recommended-water-quality-criteria-aquatic-life-criteria-table",
       "",
       paste0(
         c(
