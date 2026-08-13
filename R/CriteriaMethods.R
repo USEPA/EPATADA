@@ -1713,7 +1713,6 @@ TADA_DefineCriteriaMethodology <- function(
       )
     )
 
-
     openxlsx::writeData(
       wb,
       "Index-Criteria",
