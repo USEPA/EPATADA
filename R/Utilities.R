@@ -871,11 +871,12 @@ TADA_ConvertSpecialChars <- function(
 
     clean.data <- TADA_OrderCols(clean.data)
   }
-  
+
   # Flag result values that do not have an associated result unit
   if (
-    col %in% c("ResultMeasureValue", "TADA.ResultMeasureValue") &&
-    "TADA.ResultMeasure.MeasureUnitCode" %in% names(clean.data)
+    col %in%
+      c("ResultMeasureValue", "TADA.ResultMeasureValue") &&
+      "TADA.ResultMeasure.MeasureUnitCode" %in% names(clean.data)
   ) {
     clean.data[[flagcol]] <- ifelse(
       is.na(clean.data$TADA.ResultMeasure.MeasureUnitCode) |
@@ -908,8 +909,8 @@ TADA_ConvertSpecialChars <- function(
         clean.data <- clean.data |>
           dplyr::filter(
             !is.na(TADA.ResultMeasure.MeasureUnitCode),
-            # trimws incorporates " " into this as well as "" 
-            trimws(TADA.ResultMeasure.MeasureUnitCode) != "" 
+            # trimws incorporates " " into this as well as ""
+            trimws(TADA.ResultMeasure.MeasureUnitCode) != ""
           )
       }
 
