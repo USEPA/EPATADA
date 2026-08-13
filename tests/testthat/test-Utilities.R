@@ -71,7 +71,7 @@ test_that("Column names do not contain the pattern 'TADA.TADA.'", {
   )
 })
 
-test_that("TADA_ConvertSpecialChars removes rows with missing result units", {
+test_that("TADA_ConvertSpecialChars removes rows with missing result units when clean = TRUE", {
   testdat <- Data_Nutrients_UT[1:4, ]
 
   testdat$ResultMeasureValue <- c("1.2", "2.3", "3.4", "4.5")
@@ -98,6 +98,86 @@ test_that("TADA_ConvertSpecialChars removes rows with missing result units", {
   expect_false(any(is.na(result$TADA.ResultMeasure.MeasureUnitCode)))
 
   expect_false(any(result$TADA.ResultMeasure.MeasureUnitCode == ""))
+})
+
+test_that("TADA_ConvertSpecialChars flags rows with missing result units when clean = FALSE", {
+  testdat <- Data_Nutrients_UT[1:5, ]
+  
+  testdat$ResultMeasureValue <- c("1.2", "2.3", "3.4", "4.5", "5.6")
+  testdat$ResultMeasure.MeasureUnitCode <- c(
+    "mg/L",
+    NA_character_,
+    "",
+    "   ",
+    "ug/L"
+  )
+  
+  result <- TADA_ConvertSpecialChars(
+    testdat,
+    col = "ResultMeasureValue",
+    clean = FALSE
+  )
+  
+  # No rows should be removed
+  expect_equal(nrow(result), 5)
+  
+  # Confirm all result values are converted and retained
+  expect_equal(
+    result$TADA.ResultMeasureValue,
+    c(1.2, 2.3, 3.4, 4.5, 5.6)
+  )
+  
+  # Confirm missing, blank, and whitespace-only units receive the new flag
+  expect_equal(
+    result$TADA.ResultMeasureValueDataTypes.Flag,
+    c(
+      "Numeric",
+      "No unit associated with result value",
+      "No unit associated with result value",
+      "No unit associated with result value",
+      "Numeric"
+    )
+  )
+  
+  # Confirm result values remain numeric
+  expect_true(is.numeric(result$TADA.ResultMeasureValue))
+  expect_false(any(is.na(result$TADA.ResultMeasureValue)))
+})
+
+test_that("TADA_ConvertSpecialChars returns missing-unit rows when flaggedonly = TRUE", {
+  testdat <- Data_Nutrients_UT[1:5, ]
+  
+  testdat$ResultMeasureValue <- c("1.2", "2.3", "3.4", "4.5", "5.6")
+  testdat$ResultMeasure.MeasureUnitCode <- c(
+    "mg/L",
+    NA_character_,
+    "",
+    "   ",
+    "ug/L"
+  )
+  
+  result <- TADA_ConvertSpecialChars(
+    testdat,
+    col = "ResultMeasureValue",
+    flaggedonly = TRUE
+  )
+  
+  # Only rows with missing, blank, or whitespace-only units should remain
+  expect_equal(nrow(result), 3)
+  
+  # Confirm the expected result values are returned
+  expect_equal(
+    result$TADA.ResultMeasureValue,
+    c(2.3, 3.4, 4.5)
+  )
+  
+  # Confirm all returned rows have the missing-unit flag
+  expect_true(
+    all(
+      result$TADA.ResultMeasureValueDataTypes.Flag ==
+        "No unit associated with result value"
+    )
+  )
 })
 
 test_that("Only numeric data remains after running TADA_ConvertSpecialChars clean = TRUE", {
