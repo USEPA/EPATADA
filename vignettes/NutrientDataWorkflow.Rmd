@@ -201,7 +201,7 @@ Tips:
         characteristicGroup = "Nutrient" and leave characteristicName
         blank.
 
-2.   "siteid" is a general term WQP uses to describe both Site IDs (from
+2.  "siteid" is a general term WQP uses to describe both Site IDs (from
     USGS databases) and Monitoring Location Identifiers (from WQX). Each
     monitoring location in the Water Quality Portal (WQP) has a unique
     Monitoring Location Identifier, regardless of its origin. The
@@ -338,12 +338,11 @@ most.results <- MS_WQP_PrioritySites2 |>
   dplyr::summarise(nResult = dplyr::n_distinct(ResultIdentifier)) |>
   dplyr::slice_max(nResult)
 
-
 ```
 
 `r most.chars$TADA.MonitoringLocationIdentifier[1]` has the greatest
 number of characteristics
-(`r``most.chars$TADA.MonitoringLocationIdentifier[1]` ).
+(``` r``most.chars$TADA.MonitoringLocationIdentifier[1] ``` ).
 
 `r most.visits$TADA.MonitoringLocationIdentifier[1]` has the greatest
 number of results (`rmost.visits$TADA.MonitoringLocationIdentifier[1]`
@@ -353,20 +352,86 @@ number of results (`rmost.visits$TADA.MonitoringLocationIdentifier[1]`
 number of results (`rmost.results$TADA.MonitoringLocationIdentifier[1]`
 ).
 
-After reviewing the overview map, we can move on to some additional data cleaning steps. Let's start this process by removing results tied to monitoring locations with imprecise coordinates (less than 3 decimal digits). How many monitoring locations were identified as having imprecise coordinates? How many results were removed from the data set as a result?
+After reviewing the overview map, we can move on to some additional data
+cleaning steps. Let's start this process by removing results tied to
+monitoring locations with imprecise coordinates (less than 3 decimal
+digits). How many monitoring locations were identified as having
+imprecise coordinates? How many results were removed from the data set
+as a result?
 
 ```{r}
 MS_WQP_PrioritySites3 <- TADA_FlagCoordinates(MS_WQP_PrioritySites2, clean_outsideUSA = "no", clean_imprecise = TRUE)
 ```
 
+```{r coords.answers, echo=FALSE}
 
+imprecise.coords <- TADA_FlagCoordinates(MS_WQP_PrioritySites2, clean_outsideUSA = "no", clean_imprecise = TRUE, flaggedonly = TRUE)
 
-run key flagging functions and remove suspect results (result units,
-method-speciation flags, fraction flag, MeasureQualifierCode and
-Activity Type)
+if (nrow(imprecise.coords) == 0) {
+  cat("No monitoring locations with imprecise coordinates were discovered in the data set.")
+} else {
+  n_sites <- dplyr::n_distinct(imprecise.coords$TADA.MonitoringLocationIdentifier)
+  n_rows <- nrow(imprecise.coords)
+
+  cat(
+    "There were ", n_rows, " flagged rows representing ",
+    n_sites, " unique monitoring locations with imprecise coordinates."
+  )
+}
+
+```
+
+Now we can run key flagging functions and remove results flagged as
+suspect based on their result units, method-speciation, fraction,
+qualifier codes or activity type with **TADA_RunKeyFlagFunctions**. By
+setting clean = TRUE, the function will remove all results flagged as
+suspect.
+
+For more detail on which flagging functions are included as key flag
+functions enter the following in the console:
+
+-    ?TADA_RunKeyFlagFunctions
+
+For details on flagging functions run as part of
+TADA_RunKeyFlagFunctions enter each of the following in the console:
+
+-   ?TADA_FlagResultUnit
+
+-   ?TADA_FlagFraction
+
+-   ?TADA_FlagSpeciation
+
+-   ?TADA_FindQCActivities
+
+-   ?TADA_FlagMeasureQualifierCode
+
+How many results were removed by **TADA_RunKeyFlagFunctions**? How many
+results were flagged in each category (note: a result may be flagged
+more in more than one category).
 
 ```{r}
 MS_WQP_PrioritySites4 <- TADA_RunKeyFlagFunctions(MS_WQP_PrioritySites3, clean = TRUE)
+```
+
+```{r flag.answers}
+MS_WQP_PrioritySites_keyflags <- TADA_RunKeyFlagFunctions(MS_WQP_PrioritySites3, clean = FALSE)
+
+names(MS_WQP_PrioritySites_keyflags)
+
+"TADA.ActivityType.Flag" 
+"TADA.SuspectCoordinates.Flag" 
+"TADA.SampleFraction.Flag"
+"TADA.MethodSpeciation.Flag"
+"TADA.ResultUnit.Flag" 
+"TADA.ResultMeasureValueDataTypes.Flag"
+"TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag"
+"TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag"
+"TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag"
+"TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag"
+"TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag" 
+
+
+
 ```
 
 identify potential dup sites
