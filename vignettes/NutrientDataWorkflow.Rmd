@@ -416,7 +416,6 @@ MS_WQP_PrioritySites4 <- TADA_RunKeyFlagFunctions(MS_WQP_PrioritySites3, clean =
 ```{r flag.answers}
 MS_WQP_PrioritySites_keyflags <- TADA_RunKeyFlagFunctions(MS_WQP_PrioritySites3, clean = FALSE)
 
-names(MS_WQP_PrioritySites_keyflags)
 
 "TADA.ActivityType.Flag" 
 "TADA.SuspectCoordinates.Flag" 
@@ -429,9 +428,6 @@ names(MS_WQP_PrioritySites_keyflags)
 "TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag"
 "TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag"
 "TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag" 
-
-
-
 ```
 
 identify potential dup sites
