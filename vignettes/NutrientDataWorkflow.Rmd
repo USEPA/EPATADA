@@ -381,6 +381,91 @@ if (nrow(imprecise.coords) == 0) {
 
 ```
 
+Now let's identify and handle any censored results. We can start by
+using **TADA_IDCensored** to identify censored data and
+**TADA_FieldValuesPie** to visualize how many non-censored, over-detect,
+and non-detect results are in the data set. How many results are in each
+censored data flag category.
+
+```{r}
+
+MS_WQP_PrioritySites4 <- TADA_IDCensoredData(MS_WQP_PrioritySites3)
+
+test <- TADA_FieldValuesPie(MS_WQP_PrioritySites4, field = "TADA.CensoredData.Flag")
+```
+
+```{r censored.flag.answers}
+
+cens.answers <- TADA_FieldValuesTable(MS_WQP_PrioritySites4, field = "TADA.CensoredData.Flag")
+
+get_count <- function(df, value_name) {
+  x <- df |>
+    dplyr::filter(Value == value_name) |>
+    dplyr::pull(Count)
+  
+  if (length(x) == 0) 0 else x
+}
+
+cens.values <- c(
+  "Non-Detect",
+  "Over Detect",
+  "Uncensored",
+  "Detection condition is missing and required for censored data ID."
+)
+
+cens.counts <- setNames(
+  lapply(cens.values, \(v) {
+    x <- cens.answers |>
+      dplyr::filter(Value == v) |>
+      dplyr::pull(Count)
+    if (length(x) == 0) 0 else x
+  }),
+  c("n.nd", "n.od", "n.uncens", "n.missing")
+)
+```
+
+There `r formatC(cens.counts$n.nd)` non-detect results,
+`r formatC(cens.counts$n.od)` over detect results,
+
+`r formatC(cens.counts$n.uncens)` results and
+`r formatC(cens.counts$n.missing)` results missing detection condition
+information.
+
+We've identified the censored records, and now we need to handle them
+with **TADA_SimpleCensoredMethods** which allows us to assign simple
+methods for handling censored data. We will use the default settings
+which means non-detects values will be estimated as 1/2 the lower
+detection limit and over detect values will be left as-is.
+
+```{r}
+MS_WQP_PrioritySites5 <- TADA_SimpleCensoredMethods(MS_WQP_PrioritySites4)
+```
+
+Now that the censored records have been assigned numeric values, we can
+use **TADA_HarmonizeSynonyms** to harmonize the data to consistent
+target characteristic names, speciation., and fractions.
+
+```{r}
+MS_WQP_PrioritySites6 <- TADA_HarmonizeSynonyms(MS_WQP_PrioritySites5)
+```
+
+We can compare the comparable data identifiers in the data before and
+after harmonization.
+
+```{r comp.ids}
+
+before.comp.ids <- sort(unique(MS_WQP_PrioritySites5$TADA.ComparableDataIdentifier))
+
+after.comp.ids <- sort(unique(MS_WQP_PrioritySites6$TADA.ComparableDataIdentifier))
+
+
+before.comp <- TADA_FieldValuesTable(MS_WQP_PrioritySites5, field = "TADA.ComparableDataIdentifier")
+
+after.comp <- TADA_FieldValuesTable(MS_WQP_PrioritySites6, field = "TADA.ComparableDataIdentifier")
+
+# will create plot to compare
+```
+
 Now we can run key flagging functions and remove results flagged as
 suspect based on their result units, method-speciation, fraction,
 qualifier codes or activity type with **TADA_RunKeyFlagFunctions**. By
@@ -390,7 +475,7 @@ suspect.
 For more detail on which flagging functions are included as key flag
 functions enter the following in the console:
 
--    ?TADA_RunKeyFlagFunctions
+-   ?TADA_RunKeyFlagFunctions
 
 For details on flagging functions run as part of
 TADA_RunKeyFlagFunctions enter each of the following in the console:
@@ -410,30 +495,33 @@ results were flagged in each category (note: a result may be flagged
 more in more than one category).
 
 ```{r}
-MS_WQP_PrioritySites4 <- TADA_RunKeyFlagFunctions(MS_WQP_PrioritySites3, clean = TRUE)
+MS_WQP_PrioritySites7<- TADA_RunKeyFlagFunctions(MS_WQP_PrioritySites6, clean = TRUE)
 ```
 
 ```{r flag.answers}
-MS_WQP_PrioritySites_keyflags <- TADA_RunKeyFlagFunctions(MS_WQP_PrioritySites3, clean = FALSE)
+MS_WQP_PrioritySites_keyflags <- TADA_RunKeyFlagFunctions(MS_WQP_PrioritySites6, clean = FALSE)
+
+sort(unique(MS_WQP_PrioritySites_keyflags$TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag)) 
 
 
-"TADA.ActivityType.Flag" 
-"TADA.SuspectCoordinates.Flag" 
-"TADA.SampleFraction.Flag"
-"TADA.MethodSpeciation.Flag"
-"TADA.ResultUnit.Flag" 
-"TADA.ResultMeasureValueDataTypes.Flag"
-"TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag"
-"TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag"
-"TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag"
-"TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag"
-"TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag" 
+# notes for building code chunk to assess results of key flag functions
+# "TADA.ActivityType.Flag" != "Non_QC"
+# "TADA.SuspectCoordinates.Flag" != "Pass"
+# "TADA.SampleFraction.Flag" != "Not Reviewed", "Pass"
+# "TADA.MethodSpeciation.Flag" != "Not Reviewed", "Pass"
+# "TADA.ResultUnit.Flag" != "Not Reviewed", "Pass"
+# "TADA.ResultMeasureValueDataTypes.Flag"  != "Numeric"
+# "TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag" 
+# "TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag"
+# "TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag"
+# "TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag"
+# "TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag" 
 ```
 
 identify potential dup sites
 
 ```{r}
-MS_WQP_PrioritySites5 <- MS_WQP_PrioritySites4 |>
+MS_WQP_PrioritySites8 <- MS_WQP_PrioritySites7 |>
   TADA_FindPotentialDuplicatesSingleOrg() |>
   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
   TADA_FindPotentialDuplicatesMultipleOrgs(
@@ -443,34 +531,10 @@ MS_WQP_PrioritySites5 <- MS_WQP_PrioritySites4 |>
   dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
 ```
 
-proceed with identifying censored data, if any. Define handling of
-censored data.
-
-```{r}
-MS_WQP_PrioritySites6 <- TADA_SimpleCensoredMethods(MS_WQP_PrioritySites5,
-                                                nd_method = "multiplier",
-                                                nd_multiplier = 0.5,
-                                                od_method = "as-is",
-                                                od_multiplier = "null"
-)
-```
-
-review for censored data
-
-```{r}
-TADA_FieldValuesPie(MS_WQP_PrioritySites6, field = "TADA.CensoredData.Flag")
-```
-
-harmonize synonyms
-
-```{r}
-MS_WQP_PrioritySites7 <- TADA_HarmonizeSynonyms(MS_WQP_PrioritySites6)
-```
-
 uses echos logic to append rows for TN & TP summation
 
 ```{r}
-TotalNP <- TADA_CalculateTotalNP(MS_WQP_PrioritySites7)
+TotalNP <- TADA_CalculateTotalNP(MS_WQP_PrioritySites8)
 ```
 
 view final cleaned table
