@@ -96,14 +96,13 @@ Multiple projects across EPA have experienced challenges with
 harmonization and QAQC of nutrient data from WQP. WQX has a [best
 practices document for nutrient data
 submission](https://gcc02.safelinks.protection.outlook.com/?url=https%3A%2F%2Fwww.epa.gov%2Fwaterdata%2Fwater-quality-data-upload-wqx&data=05%7C02%7CWong.Kenny%40epa.gov%7C59f010b61c194df4a2de08decadedc10%7C88b378b367484867acf976aacbeca6a7%7C0%7C0%7C639171255679011335%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=TfvQIaSAUJeMT7Fdxm%2BoBzpbY4SWpXBn%2FhlJptLlfwU%3D&reserved=0),
-but not all data submitters follow it. TADA uses the the logic with ECHO
-WQI logic for WQP nutrient data. TADA has further expanded this effort
-for additional missing characteristic and speciation combinations that
-are available in WQP.
+but not all data submitters follow it. TADA uses [ECHO Water Quality
+Indicator](https://echo.epa.gov/maps/water-quality-indicators) logic for
+WQP nutrient data. The TADA team has expanded this effort by adding
+additional characteristic and speciation combinations found in the WQP
+to the TADA internal reference file for nutrient data handling.
 
 ## Case Studies
-
-These projects include:
 
 1)  National Nutrient Inventory (NNI)
 
@@ -123,18 +122,16 @@ These projects include:
 
 ## TADA_DataRetrieval
 
-WQP data is retrieved and processed for compatibility with TADA. This
-function, **TADA_DataRetrieval**, builds on USGS's dataRetrieval R
-package functions. It joins three WQP profiles: Site, Sample Results
+**TADA_DataRetrieval** builds on USGS's dataRetrieval R package
+functions to retrieve WQP portal data and process it for compatibility
+with TADA. It joins three WQP profiles: Site, Sample Results
 (physical/chemical metadata), and Project. In addition, it changes all
 data in the Characteristic, Speciation, Fraction, and Unit fields to
 uppercase and addresses result values that include special characters.
+**TADA_DataRetrieval** accepts the same inputs as the dataRetrieval
+`readWQPdata` function.
 
-This function accepts the same inputs as the dataRetrieval `readWQPdata`
-function. `readWQPdata` does not restrict the characteristics pulled
-from [Water Quality Portal (WQP)](https://www.waterqualitydata.us/).
-
-Data retrieval filters include:
+dataRetrieval and **TADA_DataRetrieval** filters include:
 
 -   startDate
 
@@ -163,69 +160,73 @@ Data retrieval filters include:
 
 -   providers
 
-In addition to these filters, TADA_DataRetrieval accepts additional
-geospatial-related filters that are not included in the dataRetrieval
-`readWQPdata` function:
+**TADA_DataRetrieval** accepts additional geospatial-related filters
+including:
 
 -   aoi_sf
 
 -   tribal_area_type
 
--   tribe_name_parcel (Note: The TADA_TribalOptions function can be used
-    to narrow down options for use with this tribe_name_parcel filter
-    option. See ?TADA_TribalOptions for more info).
+-   tribe_name_parcel (Note: The **TADA_TribalOptions** function can be
+    used to narrow down options for use with this tribe_name_parcel
+    filter option. See **?TADA_TribalOptions** for more info).
 
-After data is downloaded using the filters above, the default
-TADA_DataRetrieval function also automatically runs the
-**TADA_AutoClean** function. If desired, users can set applyautoclean =
-FALSE in their TADA_DataRetrieval calls.
+After data are downloaded, **TADA_DataRetrieval** function also
+automatically runs the **TADA_AutoClean** function. If users do not want
+to apply the default TADA data cleaning procedures in
+**TADA_AutoClean**, they can set applyautoclean = FALSE in their
+**TADA_DataRetrieval** calls.
 
 Tips:
 
-1.  All the query filters for the WQP work as an AND but within the
-    fields there are ORs. For example:
+1.  All the **TADA_DataRetrieva**l query params for WQP data work as
+    "AND" between fields and "OR" within fields. For example:
 
-    -   Characteristics: If you choose NITROGEN & PHOSPHORUS - it's an
-        OR. This means you will retrieve both NITROGEN OR PHOSPHORUS
-        data if available.
+    -   characteristicName: If you choose NITROGEN and PHOSPHORUS, both
+        NITROGEN and PHOSPHORUS are retrieved.
 
-    -   States: Similarly, if you choose VA and IL, it's an OR. This
-        means you will retrieve both VA OR IL data if available.
+    -   statecode: If you choose VA and IL, results from either VA or IL
+        are retrieved.
 
-    -   Combinations of fields are ANDs, such as State/VA AND
-        Characteristic/DO". This means you will receive all DO data
-        available in VA.
+    -   characteristicName and statecode: If you choose DISSOLVED OXYGEN
+        (DO) and VA, dissolved oxygen results from Virginia are
+        retrieved.
 
-    -   "Characteristic" and "Characteristic Type" also work as an AND.
-        This means that the Characteristic must fall within the
-        CharacteristicGroup if both filters are being used, if not you
-        will get an error. If you would like all available nutrient
-        labeled data, it is recommended to query by CharacteristicGroup
-        = "Nutrient" and leave "Characteristic" blank.
+    -   characteristicName and characteristicType work together as an
+        AND. This means that the selected characteristicName must fall
+        within the selected characteristicGroup if both filters are
+        being used, Conflicting characteristicNamesand
+        characteristicType will cause an error. If you would like all
+        available nutrient data, it is recommended to query by
+        characteristicGroup = "Nutrient" and leave characteristicName
+        blank.
 
-2.  The "siteid" is a general term WQP uses to describe both Site IDs
-    from USGS databases and Monitoring Location Identifiers (from WQX).
-    Each monitoring location in the Water Quality Portal (WQP) has a
-    unique Monitoring Location Identifier, regardless of the database
-    from which it derives. The Monitoring Location Identifier from the
-    WQP is the concatenated Organization Identifier plus the Site ID
-    number. Site IDs that only include a number are only unique
-    identifiers for monitoring locations within USGS NWIS or EPA's WQX
-    databases separately.
+2.   "siteid" is a general term WQP uses to describe both Site IDs (from
+    USGS databases) and Monitoring Location Identifiers (from WQX). Each
+    monitoring location in the Water Quality Portal (WQP) has a unique
+    Monitoring Location Identifier, regardless of its origin. The
+    Monitoring Location Identifier from the WQP is generated by
+    concatenating the Organization Identifier plus the Site ID number
+    from the source database.
 
-3.  The aoi_sf and tribal arguments are meant to be used on their own.
-    For example, if both an aoi_sf argument and tribal information are
-    provided an error is returned because it's unclear what the priority
-    location should be for the query. Similarly, aoi_sf and
-    tribal_area_type are not meant to be used with location-related
-    filters (e.g., statecode, siteid). In these instances a warning is
-    returned but the query proceeds by using only the aoi_sf or
-    tribal_area_type information.
+3.  The aoi_sf and tribal arguments are not meant to be used
+    simultaneously and will result in an error if a user attempt to
+    apply them together. For example, if both an aoi_sf argument and
+    tribal information are provided an error is returned because the
+    function cannot prioritize both location arguments. Similarly,
+    aoi_sf and tribal_area_type are not meant to be used with other
+    location-related params (e.g., statecode, siteid). In these
+    instances a warning is returned but the query proceeds by using only
+    the aoi_sf or tribal_area_type information.
 
 Additional resources:
 
 -   Review function documentation by entering the following code into
-    the console: ?TADA_DataRetrieval
+    the console:
+
+    -   ?TADA_DataRetrieval
+
+    -   ?TADA_AutoClean
 
 -   [Introduction to the dataRetrieval
     package](https://doi-usgs.github.io/dataRetrieval/)
@@ -237,21 +238,19 @@ Additional resources:
     Tutorial](https://waterdata.usgs.gov/blog/dataretrieval/)
 
 Use the code below to download data from the WQP using
-TADA_DataRetrieval. Edit the code chunk below to define your own WQP
-query inputs.
+TADA_DataRetrieval. Edit the params in the code chunk to define your own
+WQP query.
 
-Downloads using TADA_DataRetrieval will have the same columns each time,
-but be aware that data are uploaded to the Water Quality Portal by
+Downloads using **TADA_DataRetrieval** will have the same columns each
+time. Be aware that data are uploaded to the Water Quality Portal by
 individual organizations, which may or may not follow the same
 conventions. Data and metadata quality are not guaranteed! Carefully
 explore data to make sure it meets your quality assurance requirements.
 
-Note: TADA_DataRetrieval (by leveraging dataRetrieval), automatically
-converts the date times to UTC. It also automatically converts field
-formats to dates, datetimes, and numerics based on a standard algorithm.
-
-Enter ?TADA_DataRetrieval into the console to review example queries and
-additional information.
+Note: **TADA_DataRetrieval** (by leveraging dataRetrieval),
+automatically converts the date times to UTC. It also automatically
+converts field formats to dates, datetimes, and numerics based on a
+standard algorithm.
 
 To retrieve data from the Water Quality Portal (WQP) using a bounding
 box (bbox), we first define a bbox that encloses four HTF-priority sites
@@ -273,11 +272,12 @@ MS_WQP_PrioritySites <- TADA_DataRetrieval(
   )
 ```
 
-Data submitter may define fraction, speciation and units for nutrient
-data differently. TADA aims to capture all these unique identifiers with
-the TADA column: TADA.ComparableDataIdentifier which concatenates the
-characteristic, speciation, fraction and units into one string. How many
-unique TADA.ComparableDataIdentifier do we see?
+Data submitters may define fraction, speciation and units for nutrient
+data differently. TADA aims to capture these difference by creating
+column TADA.ComparableDataIdentifier which is constructed by
+concatenating the characteristic, speciation, fraction and unit into one
+character string string. How many unique TADA.ComparableDataIdentifier
+do we see in the MS priority sites data set?
 
 ```{r}
 TADA_FieldValuesTable(MS_WQP_PrioritySites, field =
@@ -285,10 +285,15 @@ TADA_FieldValuesTable(MS_WQP_PrioritySites, field =
 
 ```
 
-This vignette will showcase how to efficiently clean and harmonize
-synonyms and calculate total nutrient summation from this data. First,
-let's work on cleaning up our WQP data frame. We will start off with
-filtering by surface waters only
+There are
+`r length(unique(MS_WQP_PrioritySites$TADA.ComparableDataIdentifier))`
+TADA.ComparableDataIdentifiers.
+
+Next, we need to clean and harmonize synonyms and calculate total
+nutrient summation. First, let's work on cleaning up our WQP data frame.
+We will start off with filtering to retain only surface water data using
+**TADA_MediaFilter.** How many non-surface water results were removed
+from the data set?
 
 ```{r}
 MS_WQP_PrioritySites2 <- TADA_MediaFilter(MS_WQP_PrioritySites,
@@ -300,12 +305,53 @@ MS_WQP_PrioritySites2 <- TADA_MediaFilter(MS_WQP_PrioritySites,
 )
 ```
 
-view TADA overview map, see result counts, number of char per site and
-site details
+There were
+`r formatC(nrow(MS_WQP_PrioritySites) - nrow(MS_WQP_PrioritySites2), big.mark = ",")`
+non-surface water results removed from the data set.
+
+Nowe, we can take a look at the sites remaining in the data set by using
+**TADA_OverviewMap** which displays the sites on a map, using symbology
+and pop-ups to describe result counts, number of characteristics per
+site and other site details.
+
+Which site has the greatest number of characteristics? Which site was
+visited the most? Which site has the greatest number of results?
 
 ```{r}
 TADA_OverviewMap(MS_WQP_PrioritySites)
 ```
+
+```{r overview.answers, include=FALSE}
+
+most.chars <- MS_WQP_PrioritySites2 |>
+  dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+  dplyr::summarise(nChars = dplyr::n_distinct(TADA.CharacteristicName)) |>
+  dplyr::slice_max(nChars)
+
+most.visits <- MS_WQP_PrioritySites2 |>
+  dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+  dplyr::summarise(nVisit = dplyr::n_distinct(ActivityStartDate)) |>
+  dplyr::slice_max(nVisit)
+
+most.results <- MS_WQP_PrioritySites2 |>
+  dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+  dplyr::summarise(nResult = dplyr::n_distinct(ResultIdentifier)) |>
+  dplyr::slice_max(nResult)
+
+
+```
+
+`r most.chars$TADA.MonitoringLocationIdentifier[1]` has the greatest
+number of characteristics
+(`r``most.chars$TADA.MonitoringLocationIdentifier[1]` ).
+
+`r most.visits$TADA.MonitoringLocationIdentifier[1]` has the greatest
+number of results (`rmost.visits$TADA.MonitoringLocationIdentifier[1]`
+).
+
+`r most.results$TADA.MonitoringLocationIdentifier[1]` has the greatest
+number of results (`rmost.results$TADA.MonitoringLocationIdentifier[1]`
+).
 
 clean for invalid coordinates
 
