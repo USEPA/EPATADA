@@ -353,11 +353,13 @@ number of results (`rmost.visits$TADA.MonitoringLocationIdentifier[1]`
 number of results (`rmost.results$TADA.MonitoringLocationIdentifier[1]`
 ).
 
-clean for invalid coordinates
+After reviewing the overview map, we can move on to some additional data cleaning steps. Let's start this process by removing results tied to monitoring locations with imprecise coordinates (less than 3 decimal digits). How many monitoring locations were identified as having imprecise coordinates? How many results were removed from the data set as a result?
 
 ```{r}
 MS_WQP_PrioritySites3 <- TADA_FlagCoordinates(MS_WQP_PrioritySites2, clean_outsideUSA = "no", clean_imprecise = TRUE)
 ```
+
+
 
 run key flagging functions and remove suspect results (result units,
 method-speciation flags, fraction flag, MeasureQualifierCode and
