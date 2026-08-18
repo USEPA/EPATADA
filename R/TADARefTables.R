@@ -1072,7 +1072,7 @@ TADA_GetTADAUsesAliasRef <- function(
       "O", NA_character_,
       "W", NA_character_,
       NA_character_, NA_character_,
-      "W", NA_character_,
+      "O", NA_character_,
       NA_character_, "O", NA_character_,
       "O", NA_character_
     ),
@@ -1190,9 +1190,9 @@ TADA_GetTADAUsesAliasRef <- function(
       ),
       Flag.PercentMatchToleranceText = dplyr::case_when(
         Flag.MatchByPercentMatch ~ paste0(
-          "percent matches by = CST words in ATTAINS text>=",
+          "percent matches by CST words in ATTAINS text =",
           percent_match_CST_in_ATTAINS,
-          " or ATTAINS words in CST text>=",
+          " or ATTAINS words in CST text =",
           percent_match_ATTAINS_in_CST
         ),
         TRUE ~ NA_character_
