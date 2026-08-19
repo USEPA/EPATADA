@@ -2443,6 +2443,41 @@ TADA_UsesForAnalysis <- function(
     # remove intermediate objects
     rm(ATTAINS_param)
   }
+  
+  ATTAINSOrgToCSTEntityRef <- utils::read.csv(system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"))
+  TADAUsesAliasRef <- utils::read.csv(system.file("extdata", "TADAUsesAliasRef.csv", package = "EPATADA"))
+  
+  cst <- TADA_CST_GetCriteria() |>
+    dplyr::mutate(
+      dplyr::across(
+        c(
+          ENTITY_NAME, ENTITY_ABBR, CRITERIATYPEAQUAHUMHLTH,
+          CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC,
+          CRITERIATYPE_WATERORG, USE_CLASS_NAME_LOCATION_ETC
+        ),
+        toupper
+      )
+    ) |>
+    dplyr::left_join(ATTAINSOrgToCSTEntityRef, "ENTITY_ABBR") |>
+    dplyr::left_join(
+      TADAUsesAliasRef,
+      by = dplyr::join_by(
+        ENTITY_NAME, ENTITY_ABBR, CRITERIATYPEAQUAHUMHLTH,
+        CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG,
+        USE_CLASS_NAME_LOCATION_ETC, ATTAINS.OrganizationIdentifier
+      ),
+      relationship = "many-to-many"
+    )
+  
+  UsesCrosswalk <- UsesCrosswalk |>
+    dplyr::mutate(ATTAINS.UseName = toupper(ATTAINS.UseName)) |>
+    dplyr::left_join(
+      cst,
+      by = c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier")
+    ) |>
+    dplyr::select(colnames(UsesCrosswalk), USE_CLASS_NAME_LOCATION_ETC) |>
+    dplyr::distinct()
+  
   if (excel == TRUE) {
     # get downloads path
     downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
