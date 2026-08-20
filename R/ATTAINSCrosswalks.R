@@ -1083,12 +1083,12 @@ TADA_ParametersForAnalysis <- function(
     )
     ParametersCrosswalk <- data.frame(
       TADA.ComparableDataIdentifier = character(0),
-      ATTAINS.OrganizationIdentifier = character(0),
-      ATTAINS.ParameterName = character(0),
-      ATTAINS.FlagParameterName = character(0),
-      Flag.ParameterInput = character(0),
       CST.PollutantName = character(0),
       Custom.ParameterName = character(0),
+      ATTAINS.ParameterName = character(0),
+      ATTAINS.OrganizationIdentifier = character(0),
+      ATTAINS.FlagParameterName = character(0),
+      Flag.ParameterInput = character(0),
       stringsAsFactors = FALSE
     )
   } else {
@@ -1165,7 +1165,6 @@ TADA_ParametersForAnalysis <- function(
     }
     
     TADA_param <- dplyr::distinct(.data[, c("TADA.ComparableDataIdentifier"), drop = FALSE]) |>
-      dplyr::distinct() |>
       dplyr::mutate(
         ATTAINS.OrganizationIdentifier = NA_character_,
         CST.PollutantName = NA_character_,
@@ -1202,26 +1201,28 @@ TADA_ParametersForAnalysis <- function(
     
     if (tolower(auto_assign) == tolower("None")) {
       ParametersCrosswalk <- TADA_param |>
-        dplyr::mutate(ATTAINS.ParameterName = as.character(NA)) |>
+        dplyr::mutate(
+          ATTAINS.ParameterName = as.character(NA),
+          CST.PollutantName = as.character(NA),
+          Flag.ParameterInput = "manual"
+        ) |>
         dplyr::select(
-          TADA.CharacteristicName,
           TADA.ComparableDataIdentifier,
           CST.PollutantName,
           Custom.ParameterName,
+          ATTAINS.ParameterName,
           ATTAINS.OrganizationIdentifier,
-          ATTAINS.ParameterName
+          ATTAINS.FlagParameterName,
+          Flag.ParameterInput
         ) |>
-        dplyr::arrange(ATTAINS.OrganizationIdentifier) |>
         dplyr::mutate(
-          ATTAINS.ParameterName = as.character(NA),
-          ATTAINS.FlagParameterName = "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
-          Flag.ParameterInput = "Default. No crosswalk was provided."
+          ATTAINS.FlagParameterName = "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment."
         ) |>
         dplyr::distinct()
     }
     
     if (tolower(auto_assign) == tolower("Org")) {
-      message("TADA_ParametersForAnalysis: auto_assign == 'Org' was selected, finding an alias ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier if one is found.")
+      message("TADA_ParametersForAnalysis: auto_assign == 'Org' was selected, finding an alias ATTAINS.ParameterName match, by ATTAINS.OrganizationIdentifier, for each TADA.ComparableDataIdentifier if one is found.")
       
       orgs <- utils::read.csv(system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"))
       
@@ -1243,14 +1244,6 @@ TADA_ParametersForAnalysis <- function(
       
       ParametersCrosswalk <- TADA_param |>
         dplyr::mutate(ATTAINS.ParameterName = as.character(NA)) |>
-        dplyr::select(
-          TADA.CharacteristicName,
-          TADA.ComparableDataIdentifier,
-          CST.PollutantName,
-          Custom.ParameterName,
-          ATTAINS.OrganizationIdentifier,
-          ATTAINS.ParameterName
-        ) |>
         dplyr::left_join(
           TADACharAliasRef_filter,
           by = c(
@@ -1262,12 +1255,11 @@ TADA_ParametersForAnalysis <- function(
         dplyr::mutate(ATTAINS.ParameterName = ATTAINS.ParameterName.y) |>
         dplyr::select(
           TADA.ComparableDataIdentifier,
-          ATTAINS.OrganizationIdentifier,
-          ATTAINS.ParameterName,
           CST.PollutantName = POLLUTANT_NAME,
-          Custom.ParameterName
+          Custom.ParameterName,
+          ATTAINS.ParameterName,
+          ATTAINS.OrganizationIdentifier
         ) |>
-        dplyr::arrange(ATTAINS.OrganizationIdentifier) |>
         dplyr::mutate(
           ATTAINS.FlagParameterName = dplyr::case_when(
             ATTAINS.ParameterName == "Not Applicable for Analysis." | is.na(ATTAINS.ParameterName) ~
@@ -1281,31 +1273,13 @@ TADA_ParametersForAnalysis <- function(
             paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
               paste(ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier, ATTAINSParamUseOrgRef$ATTAINS.ParameterName) ~
               "This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization."
-          )
-        ) |>
-        dplyr::mutate(
+          ),
           Flag.ParameterInput = dplyr::if_else(
             !is.na(ATTAINS.ParameterName),
-            "This crosswalk was provided through an alias match auto_assign = 'Org', between ATTAINS.ParameterName and TADA.CharacteristicName.",
-            "No crosswalk was provided and no alias matches were found."
+            "autoassign = Org",
+            "manual"
           )
         ) |>
-        dplyr::mutate(
-          ATTAINS.ParameterName = dplyr::if_else(
-            ATTAINS.FlagParameterName ==
-              "This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization." |
-              ATTAINS.OrganizationIdentifier == "",
-            ATTAINS.ParameterName,
-            NA
-          )
-        ) |>
-        dplyr::group_by(TADA.ComparableDataIdentifier) |>
-        dplyr::filter(!(
-          any(!is.na(ATTAINS.ParameterName)) &
-            any(!is.na(CST.PollutantName)) &
-            (is.na(ATTAINS.ParameterName) | is.na(CST.PollutantName))
-        )) |>
-        dplyr::ungroup() |>
         dplyr::distinct()
     }
     
@@ -1317,14 +1291,6 @@ TADA_ParametersForAnalysis <- function(
       
       ParametersCrosswalk <- TADA_param |>
         dplyr::mutate(ATTAINS.ParameterName = as.character(NA)) |>
-        dplyr::select(
-          TADA.CharacteristicName,
-          TADA.ComparableDataIdentifier,
-          CST.PollutantName,
-          Custom.ParameterName,
-          ATTAINS.OrganizationIdentifier,
-          ATTAINS.ParameterName
-        ) |>
         dplyr::left_join(
           TADACharAliasRef,
           by = c("TADA.CharacteristicName" = "CharacteristicName"),
@@ -1333,12 +1299,11 @@ TADA_ParametersForAnalysis <- function(
         dplyr::mutate(ATTAINS.ParameterName = ATTAINS.ParameterName.y) |>
         dplyr::select(
           TADA.ComparableDataIdentifier,
-          ATTAINS.OrganizationIdentifier,
-          ATTAINS.ParameterName,
           CST.PollutantName = POLLUTANT_NAME,
-          Custom.ParameterName
+          Custom.ParameterName,
+          ATTAINS.ParameterName,
+          ATTAINS.OrganizationIdentifier
         ) |>
-        dplyr::arrange(ATTAINS.OrganizationIdentifier) |>
         dplyr::mutate(
           ATTAINS.FlagParameterName = dplyr::case_when(
             ATTAINS.ParameterName == "Not Applicable for Analysis." | is.na(ATTAINS.ParameterName) ~
@@ -1352,22 +1317,13 @@ TADA_ParametersForAnalysis <- function(
             paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
               paste(ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier, ATTAINSParamUseOrgRef$ATTAINS.ParameterName) ~
               "This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization."
-          )
-        ) |>
-        dplyr::mutate(
+          ),
           Flag.ParameterInput = dplyr::if_else(
             !is.na(ATTAINS.ParameterName),
-            "This crosswalk was provided through an alias match auto_assign = 'All', between ATTAINS.ParameterName and TADA.CharacteristicName.",
-            "No crosswalk was provided and no alias matches were found for this organization."
+            "autoassign = All",
+            "manual"
           )
         ) |>
-        dplyr::group_by(TADA.ComparableDataIdentifier) |>
-        dplyr::filter(!(
-          any(!is.na(ATTAINS.ParameterName)) &
-            any(!is.na(CST.PollutantName)) &
-            (is.na(ATTAINS.ParameterName) | is.na(CST.PollutantName))
-        )) |>
-        dplyr::ungroup() |>
         dplyr::distinct()
     }
     
@@ -1379,17 +1335,18 @@ TADA_ParametersForAnalysis <- function(
           ATTAINS.ParameterName
         ) |>
         dplyr::mutate(
-          Flag.ParameterInput = "This crosswalk was provided through a user supplied table"
+          Flag.ParameterInput = "manual"
         ) |>
         dplyr::filter(!is.na(ATTAINS.ParameterName))
       
       ParametersCrosswalk <- ParametersCrosswalk |>
         dplyr::select(
-          ATTAINS.OrganizationIdentifier,
           TADA.ComparableDataIdentifier,
           CST.PollutantName,
           Custom.ParameterName,
           ATTAINS.ParameterName,
+          ATTAINS.OrganizationIdentifier,
+          ATTAINS.FlagParameterName,
           Flag.ParameterInput
         ) |>
         dplyr::filter(!TADA.ComparableDataIdentifier %in% paramRef$TADA.ComparableDataIdentifier) |>
@@ -1416,26 +1373,26 @@ TADA_ParametersForAnalysis <- function(
         ) |>
         dplyr::select(
           TADA.ComparableDataIdentifier,
-          ATTAINS.OrganizationIdentifier,
-          ATTAINS.ParameterName,
-          ATTAINS.FlagParameterName,
-          Flag.ParameterInput,
+          CST.PollutantName,
           Custom.ParameterName,
-          CST.PollutantName
+          ATTAINS.ParameterName,
+          ATTAINS.OrganizationIdentifier,
+          ATTAINS.FlagParameterName,
+          Flag.ParameterInput
         )
     }
     
     rm(TADA_param)
     
     ParametersCrosswalk <- ParametersCrosswalk |>
-      dplyr::relocate(
-        ATTAINS.OrganizationIdentifier,
-        ATTAINS.FlagParameterName,
-        Flag.ParameterInput,
-        ATTAINS.ParameterName,
+      dplyr::select(
         TADA.ComparableDataIdentifier,
         CST.PollutantName,
-        Custom.ParameterName
+        Custom.ParameterName,
+        ATTAINS.ParameterName,
+        ATTAINS.OrganizationIdentifier,
+        ATTAINS.FlagParameterName,
+        Flag.ParameterInput
       )
   }
   
@@ -1443,18 +1400,9 @@ TADA_ParametersForAnalysis <- function(
     downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
     wb <- openxlsx::createWorkbook()
     
-    tryCatch(openxlsx::addWorksheet(wb, "ATTAINS.PriorOrgParamUseRef"), error = function(e) {
-      openxlsx::removeWorksheet(wb, "ATTAINS.PriorOrgParamUseRef")
-      openxlsx::addWorksheet(wb, "ATTAINS.PriorOrgParamUseRef")
-    })
-    tryCatch(openxlsx::addWorksheet(wb, "ParametersCrosswalk"), error = function(e) {
-      openxlsx::removeWorksheet(wb, "ParametersCrosswalk")
-      openxlsx::addWorksheet(wb, "ParametersCrosswalk")
-    })
-    tryCatch(openxlsx::addWorksheet(wb, "Index"), error = function(e) {
-      openxlsx::removeWorksheet(wb, "Index")
-      openxlsx::addWorksheet(wb, "Index")
-    })
+    openxlsx::addWorksheet(wb, "ATTAINS.PriorOrgParamUseRef")
+    openxlsx::addWorksheet(wb, "ParametersCrosswalk")
+    openxlsx::addWorksheet(wb, "Index")
     
     sv <- openxlsx::sheetVisibility(wb)
     sn <- names(wb)
@@ -1472,19 +1420,15 @@ TADA_ParametersForAnalysis <- function(
       ))
     }
     
-    set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-    for (i in seq_along(wb$worksheets)) {
-      sV <- wb$worksheets[[i]]$sheetViews
-      wb$worksheets[[i]]$sheetViews <- set_zoom(90)
-    }
-    
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
+    
     openxlsx::setColWidths(wb, "ParametersCrosswalk", cols = 1:ncol(ParametersCrosswalk), widths = "auto")
     
     no_match_df <- data.frame(
       ATTAINS.OrganizationIdentifier = "NA",
       ATTAINS.ParameterName = "Not Applicable for Analysis.",
-      ATTAINS.UseName = "Not Applicable for Analysis."
+      ATTAINS.UseName = "Not Applicable for Analysis.",
+      stringsAsFactors = FALSE
     )
     
     load(system.file("extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"))
@@ -1492,35 +1436,35 @@ TADA_ParametersForAnalysis <- function(
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
       dplyr::arrange(ATTAINS.ParameterName)
     
-    openxlsx::writeData(
-      wb, "Index", startCol = 4,
-      x = rbind(
-        no_match_df,
-        ATTAINSParamUseOrgRef[, c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName")] |>
-          dplyr::arrange(ATTAINS.ParameterName)
-      )
+    index_df <- rbind(
+      no_match_df,
+      ATTAINSParamUseOrgRef[, c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName")] |>
+        dplyr::arrange(ATTAINS.ParameterName)
     )
     
-    openxlsx::writeData(
-      wb, "Index",
-      startCol = 2,
-      x = ParametersCrosswalk[, c("ATTAINS.FlagParameterName", "Flag.ParameterInput")]
-    )
+    if (auto_assign == "All") {
+      cst_domain <- TADACharAliasRef_filter |>
+        dplyr::select(POLLUTANT_NAME, ENTITY_ABBR) |>
+        dplyr::distinct()
+    } else if (auto_assign == "Org") {
+      cst_domain <- TADACharAliasRef_filter |>
+        dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
+        dplyr::pull(STD_POLLUTANT_NAME) |>
+        unique() |>
+        stats::na.omit()
+    } else {
+      cst_domain <- unique(stats::na.omit(ParametersCrosswalk$CST.PollutantName))
+    }
+    
+    openxlsx::writeData(wb, "Index", startCol = 1, x = data.frame(ATTAINS.ParameterName = unique(ATTAINS_param$ATTAINS.ParameterName)))
+    openxlsx::writeData(wb, "Index", startCol = 2, x = data.frame(ATTAINS.FlagParameterName = unique(ParametersCrosswalk$ATTAINS.FlagParameterName)))
+    openxlsx::writeData(wb, "Index", startCol = 3, x = data.frame(Flag.ParameterInput = unique(ParametersCrosswalk$Flag.ParameterInput)))
+    openxlsx::writeData(wb, "Index", startCol = 4, x = index_df)
+    openxlsx::writeData(wb, "Index", startCol = 7, x = data.frame(CST.PollutantName = cst_domain))
     
     openxlsx::writeData(
-      wb, "Index",
-      startCol = 1,
-      x = data.frame(ATTAINS.ParameterName = unique(ATTAINS_param$ATTAINS.ParameterName))
-    )
-    
-    openxlsx::writeData(
-      wb, "Index",
-      startCol = 6,
-      x = data.frame(CST.PollutantName = unique(TADACharAliasRef$POLLUTANT_NAME))
-    )
-    
-    openxlsx::writeData(
-      wb, "ParametersCrosswalk",
+      wb,
+      "ParametersCrosswalk",
       startCol = 1,
       x = ParametersCrosswalk,
       headerStyle = header_st
@@ -1537,10 +1481,10 @@ TADA_ParametersForAnalysis <- function(
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "ParametersCrosswalk",
-      cols = 4,
+      cols = 2,
       rows = 2:1000,
       type = "list",
-      value = "'Index'!$E$2:$E$30000",
+      value = "'Index'!$G$2:$G$30000",
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
@@ -1549,10 +1493,22 @@ TADA_ParametersForAnalysis <- function(
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "ParametersCrosswalk",
-      cols = 6,
+      cols = 4,
       rows = 2:1000,
       type = "list",
-      value = "'Index'!$F$2:$F$30000",
+      value = "'Index'!$A$2:$A$30000",
+      allowBlank = TRUE,
+      showErrorMsg = TRUE,
+      showInputMsg = TRUE
+    ))
+    
+    suppressWarnings(openxlsx::dataValidation(
+      wb,
+      sheet = "ParametersCrosswalk",
+      cols = 5,
+      rows = 2:1000,
+      type = "list",
+      value = "'Index'!$D$2:$D$30000",
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
@@ -1560,67 +1516,91 @@ TADA_ParametersForAnalysis <- function(
     
     max_loops <- min(nrow(ParametersCrosswalk), 100L)
     for (i in seq_len(max_loops)) {
-      # B = ATTAINS.FlagParameterName
+      row_i <- i + 1
+      
       openxlsx::writeFormula(
         wb,
         "ParametersCrosswalk",
-        startCol = 2,
-        startRow = i + 1,
+        startCol = 6,
+        startRow = row_i,
         array = TRUE,
         x = paste0(
-          "=IF(OR(D", i + 1,
-          '="",D', i + 1,
-          '="Not Applicable for Analysis."),"No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",',
-          'IF(ISNA(MATCH(D', i + 1, ',Index!E:E,0)),"Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",',
-          'IF(ISNA(MATCH(1,(D', i + 1, '=ATTAINS.PriorOrgParamUseRef!D:D)*(A', i + 1, '=ATTAINS.PriorOrgParamUseRef!A:A),0)),',
+          '=IF(OR(D', row_i,
+          '="",D', row_i,
+          '="Not Applicable for Analysis."),"No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",',
+          'IF(ISNA(MATCH(D', row_i, ',Index!A:A,0)),"Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",',
+          'IF(ISNA(MATCH(1,(D', row_i, '=ATTAINS.PriorOrgParamUseRef!B:B)*(E', row_i, '=ATTAINS.PriorOrgParamUseRef!A:A),0)),',
           '"This ATTAINS parameter name was included in past ATTAINS assessment cycles, but not for this organization.",',
           '"This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization.")))'
         )
       )
       
-      # C = Flag.ParameterInput
       openxlsx::writeFormula(
         wb,
         "ParametersCrosswalk",
-        startCol = 3,
-        startRow = i + 1,
+        startCol = 7,
+        startRow = row_i,
         array = TRUE,
         x = paste0(
-          "IF(D", i + 1,
-          "=Index!B$", i + 1,
-          ",Index!C$", i + 1,
-          ',"This ATTAINS.ParameterName crosswalk was MODIFIED by your input(s) for this TADA.ComparableDataIdentifier.")'
+          '=IFERROR(INDEX(Index!C:C,MATCH(D', row_i, ',Index!A:A,0)),"manual")'
         )
       )
     }
     
-    openxlsx::conditionalFormatting(
-      wb,
-      "ParametersCrosswalk",
-      cols = 4,
-      rows = 1:nrow(ParametersCrosswalk) + 1,
-      type = "blanks",
-      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
-    )
-    openxlsx::conditionalFormatting(
-      wb,
-      "ParametersCrosswalk",
-      cols = 4,
-      rows = 1:nrow(ParametersCrosswalk) + 1,
-      type = "notBlanks",
-      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
-    )
-    openxlsx::conditionalFormatting(
-      wb,
-      "ParametersCrosswalk",
-      cols = 4,
-      rows = 1:nrow(ParametersCrosswalk) + 1,
-      type = "contains",
-      rule = "Not Applicable for Analysis.",
-      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
-    )
+    if (exists("TADA_ColorPalette", mode = "function")) {
+      openxlsx::conditionalFormatting(
+        wb,
+        "ParametersCrosswalk",
+        cols = 2,
+        rows = 2:(nrow(ParametersCrosswalk) + 1),
+        type = "notBlanks",
+        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+      )
+      openxlsx::conditionalFormatting(
+        wb,
+        "ParametersCrosswalk",
+        cols = 2,
+        rows = 2:(nrow(ParametersCrosswalk) + 1),
+        type = "blanks",
+        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
+      )
+      
+      openxlsx::conditionalFormatting(
+        wb,
+        "ParametersCrosswalk",
+        cols = 3,
+        rows = 2:(nrow(ParametersCrosswalk) + 1),
+        type = "notBlanks",
+        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+      )
+      openxlsx::conditionalFormatting(
+        wb,
+        "ParametersCrosswalk",
+        cols = 3,
+        rows = 2:(nrow(ParametersCrosswalk) + 1),
+        type = "blanks",
+        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
+      )
+      
+      openxlsx::conditionalFormatting(
+        wb,
+        "ParametersCrosswalk",
+        cols = 4,
+        rows = 2:(nrow(ParametersCrosswalk) + 1),
+        type = "notBlanks",
+        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+      )
+      openxlsx::conditionalFormatting(
+        wb,
+        "ParametersCrosswalk",
+        cols = 4,
+        rows = 2:(nrow(ParametersCrosswalk) + 1),
+        type = "blanks",
+        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
+      )
+    }
     
-    openxlsx::setColWidths(wb, "ParametersCrosswalk", cols = 1:ncol(ParametersCrosswalk) + 2, widths = "auto")
+    openxlsx::setColWidths(wb, "ParametersCrosswalk", cols = 1:ncol(ParametersCrosswalk), widths = "auto")
     
     save_path <- downloads_path
     if (!isTRUE(overwrite)) {
@@ -2444,40 +2424,42 @@ TADA_UsesForAnalysis <- function(
     rm(ATTAINS_param)
   }
   
-  ATTAINSOrgToCSTEntityRef <- utils::read.csv(system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"))
-  TADAUsesAliasRef <- utils::read.csv(system.file("extdata", "TADAUsesAliasRef.csv", package = "EPATADA"))
-  
-  cst <- TADA_CST_GetCriteria() |>
-    dplyr::mutate(
-      dplyr::across(
-        c(
+  if (isTRUE(auto_assign)) {
+    ATTAINSOrgToCSTEntityRef <- utils::read.csv(system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"))
+    TADAUsesAliasRef <- utils::read.csv(system.file("extdata", "TADAUsesAliasRef.csv", package = "EPATADA"))
+    
+    cst <- TADA_CST_GetCriteria() |>
+      dplyr::mutate(
+        dplyr::across(
+          c(
+            ENTITY_NAME, ENTITY_ABBR, CRITERIATYPEAQUAHUMHLTH,
+            CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC,
+            CRITERIATYPE_WATERORG, USE_CLASS_NAME_LOCATION_ETC
+          ),
+          toupper
+        )
+      ) |>
+      dplyr::left_join(ATTAINSOrgToCSTEntityRef, "ENTITY_ABBR") |>
+      dplyr::left_join(
+        TADAUsesAliasRef,
+        by = dplyr::join_by(
           ENTITY_NAME, ENTITY_ABBR, CRITERIATYPEAQUAHUMHLTH,
-          CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC,
-          CRITERIATYPE_WATERORG, USE_CLASS_NAME_LOCATION_ETC
+          CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG,
+          USE_CLASS_NAME_LOCATION_ETC, ATTAINS.OrganizationIdentifier
         ),
-        toupper
+        relationship = "many-to-many"
       )
-    ) |>
-    dplyr::left_join(ATTAINSOrgToCSTEntityRef, "ENTITY_ABBR") |>
-    dplyr::left_join(
-      TADAUsesAliasRef,
-      by = dplyr::join_by(
-        ENTITY_NAME, ENTITY_ABBR, CRITERIATYPEAQUAHUMHLTH,
-        CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG,
-        USE_CLASS_NAME_LOCATION_ETC, ATTAINS.OrganizationIdentifier
-      ),
-      relationship = "many-to-many"
-    )
-  
-  UsesCrosswalk <- UsesCrosswalk |>
-    dplyr::mutate(ATTAINS.UseName = toupper(ATTAINS.UseName)) |>
-    dplyr::left_join(
-      cst,
-      by = c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier")
-    ) |>
-    dplyr::select(colnames(UsesCrosswalk), USE_CLASS_NAME_LOCATION_ETC) |>
-    dplyr::distinct()
-  
+
+    UsesCrosswalk <- UsesCrosswalk |>
+      dplyr::mutate(ATTAINS.UseName = toupper(ATTAINS.UseName)) |>
+      dplyr::left_join(
+        cst,
+        by = c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier")
+      ) |>
+      dplyr::select(colnames(UsesCrosswalk), USE_CLASS_NAME_LOCATION_ETC) |>
+      dplyr::distinct()
+  }
+
   if (excel == TRUE) {
     # get downloads path
     downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
