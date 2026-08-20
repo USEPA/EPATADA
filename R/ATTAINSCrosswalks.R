@@ -1212,7 +1212,7 @@ TADA_ParametersForAnalysis <- function(
           Custom.ParameterName,
           ATTAINS.ParameterName,
           ATTAINS.OrganizationIdentifier,
-          ATTAINS.FlagParameterName,
+          #ATTAINS.FlagParameterName,
           Flag.ParameterInput
         ) |>
         dplyr::mutate(
@@ -1426,41 +1426,85 @@ TADA_ParametersForAnalysis <- function(
     
     no_match_df <- data.frame(
       ATTAINS.OrganizationIdentifier = "NA",
+      ATTAINS.OrganizationName = "Not Applicable for Analysis.",
+      ATTAINS.OrganizationType = "Not Applicable for Analysis.",
       ATTAINS.ParameterName = "Not Applicable for Analysis.",
       ATTAINS.UseName = "Not Applicable for Analysis.",
+      ATTAINS.WaterType = "Not Applicable for Analysis.",
       stringsAsFactors = FALSE
     )
     
     load(system.file("extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"))
     ATTAINS_param <- ATTAINSParamUseOrgRef |>
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
-      dplyr::arrange(ATTAINS.ParameterName)
+      dplyr::arrange(ATTAINS.ParameterName) |>
+      dplyr::select(
+        ATTAINS.OrganizationIdentifier,
+        ATTAINS.OrganizationName,
+        ATTAINS.OrganizationType,
+        ATTAINS.ParameterName,
+        ATTAINS.UseName,
+        ATTAINS.WaterType
+      )
     
     index_df <- rbind(
       no_match_df,
-      ATTAINSParamUseOrgRef[, c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName")] |>
+      ATTAINSParamUseOrgRef[, c(
+        "ATTAINS.OrganizationIdentifier",
+        "ATTAINS.OrganizationName",
+        "ATTAINS.OrganizationType",
+        "ATTAINS.ParameterName",
+        "ATTAINS.UseName",
+        "ATTAINS.WaterType"
+      )] |>
         dplyr::arrange(ATTAINS.ParameterName)
     )
     
-    if (auto_assign == "All") {
+    if (auto_assign == "All" ) {
       cst_domain <- TADACharAliasRef_filter |>
         dplyr::select(POLLUTANT_NAME, ENTITY_ABBR) |>
         dplyr::distinct()
     } else if (auto_assign == "Org") {
       cst_domain <- TADACharAliasRef_filter |>
-        dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
-        dplyr::pull(STD_POLLUTANT_NAME) |>
-        unique() |>
-        stats::na.omit()
+        dplyr::filter(ATTAINS.OrganizationIdentifier %in% ATTAINS_param$ATTAINS.OrganizationIdentifier) |>
+        dplyr::select(POLLUTANT_NAME, ENTITY_ABBR) |>
+        dplyr::distinct()
     } else {
-      cst_domain <- unique(stats::na.omit(ParametersCrosswalk$CST.PollutantName))
+      cst_domain <- TADA_CST_GetCriteria() |>
+        dplyr::select(POLLUTANT_NAME, ENTITY_ABBR)
     }
     
-    openxlsx::writeData(wb, "Index", startCol = 1, x = data.frame(ATTAINS.ParameterName = unique(ATTAINS_param$ATTAINS.ParameterName)))
-    openxlsx::writeData(wb, "Index", startCol = 2, x = data.frame(ATTAINS.FlagParameterName = unique(ParametersCrosswalk$ATTAINS.FlagParameterName)))
-    openxlsx::writeData(wb, "Index", startCol = 3, x = data.frame(Flag.ParameterInput = unique(ParametersCrosswalk$Flag.ParameterInput)))
-    openxlsx::writeData(wb, "Index", startCol = 4, x = index_df)
-    openxlsx::writeData(wb, "Index", startCol = 7, x = data.frame(CST.PollutantName = cst_domain))
+    openxlsx::writeData(
+      wb, "Index",
+      startCol = 1,
+      x = data.frame(
+        ATTAINS.ParameterName = unique(ATTAINS_param$ATTAINS.ParameterName)
+      )
+    )
+    openxlsx::writeData(
+      wb, "Index",
+      startCol = 2,
+      x = data.frame(
+        ATTAINS.FlagParameterName = unique(ParametersCrosswalk$ATTAINS.FlagParameterName)
+      )
+    )
+    openxlsx::writeData(
+      wb, "Index",
+      startCol = 3,
+      x = data.frame(
+        Flag.ParameterInput = unique(ParametersCrosswalk$Flag.ParameterInput)
+      )
+    )
+    openxlsx::writeData(
+      wb, "Index",
+      startCol = 4,
+      x = index_df
+    )
+    openxlsx::writeData(
+      wb, "Index",
+      startCol = 7,
+      x = cst_domain
+    )
     
     openxlsx::writeData(
       wb,
@@ -1527,9 +1571,11 @@ TADA_ParametersForAnalysis <- function(
         x = paste0(
           '=IF(OR(D', row_i,
           '="",D', row_i,
-          '="Not Applicable for Analysis."),"No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",',
-          'IF(ISNA(MATCH(D', row_i, ',Index!A:A,0)),"Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",',
-          'IF(ISNA(MATCH(1,(D', row_i, '=ATTAINS.PriorOrgParamUseRef!B:B)*(E', row_i, '=ATTAINS.PriorOrgParamUseRef!A:A),0)),',
+          '="Not Applicable for Analysis."),',
+          '"No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",',
+          'IF(COUNTIF(Index!A:A,D', row_i, ')=0,',
+          '"Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",',
+          'IF(COUNTIFS(ATTAINS.PriorOrgParamUseRef!D:D,D', row_i, ',ATTAINS.PriorOrgParamUseRef!A:A,E', row_i, ')=0,',
           '"This ATTAINS parameter name was included in past ATTAINS assessment cycles, but not for this organization.",',
           '"This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization.")))'
         )
