@@ -22,7 +22,8 @@ getTribalPopup is used within TADA_addPolys and TADA_addPoints
 \examples{
 \dontrun{
 # Read in the Oklahoma Tribal Statistical Areas layer
-layer <- readLayer("extdata", "Tribal.gpkg", "OKTribe")
+tribal_gpkg <- "inst/extdata/Tribal.gpkg"
+layer <- readLayer(tribal_gpkg, "OKTribe")
 # Get popup text for individual markers
 getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
 }
