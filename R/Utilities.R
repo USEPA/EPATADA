@@ -1478,7 +1478,8 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' # Get the Oklahoma Tribal Statistical Areas feature layer and write
 #' # local file to inst/extdata/Tribal.gpkg/OKTribe
 #' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
-#' writeLayerIfChanged(OKTribeUrl, "inst/extdata/Tribal.gpkg","OKTribe")
+#' tribal_gpkg <- "inst/extdata/Tribal.gpkg"
+#' writeLayerIfChanged(OKTribeUrl, tribal_gpkg,"OKTribe")
 #' }
 writeLayerIfChanged <- function(url, layerfilepath, layername) {
   # Build the new feature layer in memory
@@ -1523,8 +1524,6 @@ writeLayerIfChanged <- function(url, layerfilepath, layername) {
 
 #' Read a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
 #' readLayer is used within TADA_addPolys and TADA_addPoints
-#'
-#' @param layerfilepath Local path to the data folder containing the .gpkg file
 #' @param gpkg name of the .gpkg file
 #' @param layer name of the layer within the .gpkg file
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -1549,14 +1548,12 @@ writeLayerIfChanged <- function(url, layerfilepath, layername) {
 #' # Read the American Indian Reservations feature layer,
 #' # filtered by the bounding box for the Data_TribalNations_Harmonized
 #' # example dataset
-#' layerfilepath <- "extdata"
-#' gpkg <- "Tribal.gpkg"
+#' gpkg <- "inst/extdata/Tribal.gpkg"
 #' layer <- "AmericanIndian"
-#' readLayer(layerfilepath, gpkg, layer)
+#' readLayer(tribal_gpkg, layer)
 #' }
-readLayer <- function(layerfilepath, gpkg, layer, bbox = NULL) {
-  gpkg_path <- system.file(layerfilepath, gpkg, package = "EPATADA")
-  layer <- sf::read_sf(dsn = gpkg_path, layer, quiet = TRUE)
+readLayer <- function(gpkg, layer, bbox = NULL) {
+  layer <- sf::read_sf(dsn = gpkg, layer, quiet = TRUE)
   if (!(is.null(bbox))) {
     sf::sf_use_s2(FALSE)
     layer <- sf::st_make_valid(layer)
@@ -1575,7 +1572,8 @@ readLayer <- function(layerfilepath, gpkg, layer, bbox = NULL) {
 #' @examples
 #' \dontrun{
 #' # Read in the Oklahoma Tribal Statistical Areas layer
-#' layer <- readLayer("extdata", "Tribal.gpkg", "OKTribe")
+#' tribal_gpkg <- "inst/extdata/Tribal.gpkg"
+#' layer <- readLayer(tribal_gpkg, "OKTribe")
 #' # Get popup text for individual markers
 #' getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
 #' }
@@ -1637,7 +1635,6 @@ getTribalPopup <- function(layer, layername) {
 #' Add polygons from a spatial layer to a leaflet map
 #'
 #' @param map A leaflet map
-#' @param layerfilepath Local path to the data folder containing the .gpkg file
 #' @param gpkg name of the .gpkg file
 #' @param layer name of the layer within the .gpkg file
 #' @param layergroup Name of the layer group
@@ -1654,20 +1651,20 @@ getTribalPopup <- function(layer, layername) {
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the American Indian Reservations feature layer to the map
-#' lmap <- TADA_addPolys(lmap, "extdata", "Tribal.gpkg","AmericanIndian",
+#' tribal_gpkg <- "inst/extdata/Tribal.gpkg"
+#' lmap <- TADA_addPolys(lmap, tribal_gpkg,"AmericanIndian",
 #' "Tribes", "American Indian Reservations")
 #' lmap
 #' }
 TADA_addPolys <- function(
   map,
-  layerfilepath,
   gpkg,
   layer,
   layergroup,
   layername,
   bbox = NULL
 ) {
-  layer <- readLayer(layerfilepath, gpkg, layer, bbox)
+  layer <- readLayer(gpkg, layer, bbox)
   if (is.null(layer)) {
     return(map)
   }
@@ -1706,7 +1703,6 @@ TADA_addPolys <- function(
 #' Add points from a spatial layer to a leaflet map
 #'
 #' @param map A leaflet map
-#' @param layerfilepath Local path to the data folder containing the .gpkg file
 #' @param gpkg name of the .gpkg file
 #' @param layer name of the layer within the .gpkg file
 #' @param layergroup Name of the layer group
@@ -1723,20 +1719,20 @@ TADA_addPolys <- function(
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
-#' lmap <- TADA_addPoints(lmap, "extdata", "Tribal.gpkg","VATribe",
+#' tribal_gpkg <- "inst/extdata/Tribal.gpkg"
+#' lmap <- TADA_addPoints(lmap, tribal_gpkg,"VATribe",
 #'     "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap
 #' }
 TADA_addPoints <- function(
   map,
-  layerfilepath,
   gpkg,
   layer,
   layergroup,
   layername,
   bbox = NULL
 ) {
-  layer <- readLayer(layerfilepath, gpkg, layer, bbox)
+  layer <- readLayer(gpkg, layer, bbox)
   if (is.null(layer)) {
     return(map)
   }
