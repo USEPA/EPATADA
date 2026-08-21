@@ -169,16 +169,15 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   }
 
   if (isTRUE(byChar)) {
-
     criteria <- criteria |>
       dplyr::mutate(
         TADA.ComparableDataIdentifier = NA_character_,
         TADA.ResultSampleFractionText = NA_character_,
         TADA.MethodSpeciationName = NA_character_
-      ) |> 
+      ) |>
       dplyr::distinct()
   }
-  
+
   # Split criteria into disjoint sets (NO de-duplication)
   criteria1 <- dplyr::filter(
     criteria,
