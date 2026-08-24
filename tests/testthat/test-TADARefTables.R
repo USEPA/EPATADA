@@ -179,7 +179,7 @@ test_that("Is the saved TADACharAliasRef.csv up to date?", {
   skip_if_offline()
 
   ATTAINS.raw <- suppressWarnings(suppressMessages(rExpertQuery::EQ_DomainValues(
-    "param_name"
+    "param_name", api_key = .setEQKey()
   )))
   ref <- unique(ATTAINS.raw[, "name"])
   old <- utils::read.csv(

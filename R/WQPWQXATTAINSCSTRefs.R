@@ -2483,7 +2483,7 @@ TADA_GetATTAINSOrgIDsRef <- function(
   if (live_ok) {
     df <- tryCatch(
       suppressWarnings(suppressMessages(rExpertQuery::EQ_DomainValues(
-        "org_id"
+        "org_id", api_key = .setEQKey()
       ))),
       error = function(e) NULL
     )

@@ -190,7 +190,7 @@ the complete list:
 
 ```{r ATTAINS-params}
 # return ATTAINS parameter domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
+TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name", api_key = .setEQKey()))
 ```
 
 In the next section, we will review which parameters have been listed in
@@ -201,7 +201,7 @@ ATTAINS organization id's to use for the function input.
 
 ```{r ATTAINS-orgs}
 # return ATTAINS organization domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id"))
+TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id", api_key = .setEQKey()))
 ```
 
 # TADA_ParametersForAnalysis() Basics
