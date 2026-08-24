@@ -923,7 +923,7 @@ testthat::test_that("Is the saved ATTAINSOrgIDsRef up to date (live domain subse
   # retrieve the ATTAINS domain value from rExpertQuery
   ATTAINS.raw <- spsUtil::quiet(rExpertQuery::EQ_DomainValues(
     "org_id",
-    api_key = .setEQKey()
+    api_key = EPATADA:::.setEQKey()
   ))
   ref <- unique(ATTAINS.raw[, "name"])
 
