@@ -339,7 +339,10 @@ TADA_DefineCriteriaMethodology <- function(
           # Attempt to retrieve domain orgs; warn on failure but keep going
           org_id <- tryCatch(
             {
-              dv <- rExpertQuery::EQ_DomainValues("org_id", api_key = .setEQKey())
+              dv <- rExpertQuery::EQ_DomainValues(
+                "org_id",
+                api_key = .setEQKey()
+              )
               if (!is.null(dv) && "code" %in% names(dv)) {
                 dv[["code"]]
               } else {
