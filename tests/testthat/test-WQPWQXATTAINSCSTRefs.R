@@ -921,7 +921,10 @@ testthat::test_that("Is the saved ATTAINSOrgIDsRef up to date (live domain subse
   }
 
   # retrieve the ATTAINS domain value from rExpertQuery
-  ATTAINS.raw <- spsUtil::quiet(rExpertQuery::EQ_DomainValues("org_id", api_key = .setEQKey()))
+  ATTAINS.raw <- spsUtil::quiet(rExpertQuery::EQ_DomainValues(
+    "org_id",
+    api_key = .setEQKey()
+  ))
   ref <- unique(ATTAINS.raw[, "name"])
 
   # Baseline from installed RDA
