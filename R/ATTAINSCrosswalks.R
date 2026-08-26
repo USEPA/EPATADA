@@ -5126,6 +5126,15 @@ TADA_SaltFreshIndicator <- function(
   location_col = "AU",
   type_col = "ATTAINS"
 ) {
+
+  if(location_col != "AU" & location_col != "ML") {
+    stop("TADA_SaltFreshIndicator: location_col must equal 'AU' or 'ML'.")
+  }
+
+  if(type_col != "ATTAINS" & type_col != "TADA") {
+    stop("TADA_SaltFreshIndicator: type_col must equal 'ATTAINS' or 'TADA'.")
+  }
+
   reqs <- data.frame(
     col = character(),
     reason = character(),
