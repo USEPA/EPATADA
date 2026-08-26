@@ -85,6 +85,33 @@ jobs:
             suppressPackageStartupMessages(library(EPATADA))
             cat("EPATADA loaded OK\n")
           '
+
+      - name: Diagnose EQ_DomainValues retrieval
+        run: |
+          Rscript -e '
+            suppressPackageStartupMessages(library(rExpertQuery))
+
+            types <- c("water_type", "param_name", "use_name", "org_id")
+
+            cat("=== EQ_DomainValues diagnostic ===\n")
+            cat("EQ_API_KEY env length: ", nchar(Sys.getenv("EQ_API_KEY", "")), "\n", sep = "")
+            cat("Temp dir: ", tempdir(), "\n\n", sep = "")
+
+            for (ty in types) {
+              cat("Type: ", ty, "\n", sep = "")
+              res <- tryCatch(
+                rExpertQuery::EQ_DomainValues(ty),
+                error = function(e) e
+              )
+
+              if (inherits(res, "error")) {
+                cat("  ERROR: ", conditionMessage(res), "\n\n", sep = "")
+              } else {
+                cat("  Rows: ", nrow(res), "\n", sep = "")
+                cat("  Cols: ", paste(names(res), collapse = ", "), "\n\n", sep = "")
+              }
+            }
+          '
           
       - name: Test coverage
         run: |
