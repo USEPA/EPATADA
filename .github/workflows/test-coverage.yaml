@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [develop]
     types: [opened, reopened, synchronize, ready_for_review]
+  workflow_dispatch:
 
 name: test-coverage
 
@@ -51,6 +52,30 @@ jobs:
           name: ci_env_info
           path: ci_env_info.RData
           if-no-files-found: ignore
+
+      - name: Diagnose EQ_API_KEY resolution
+        run: |
+          Rscript -e '
+            .setEQKey <- function() {
+              opt <- getOption("EQ_API_KEY", "")
+              if (nzchar(opt)) return(opt)
+
+              env <- Sys.getenv("EQ_API_KEY", unset = "")
+              if (nzchar(env)) return(env)
+
+              "lfzVzpwIlKS1O4l1QdbHVR5Yf5"
+            }
+
+            opt <- getOption("EQ_API_KEY", "")
+            env <- Sys.getenv("EQ_API_KEY", unset = "")
+            key <- .setEQKey()
+            fallback <- "lfzVzpwIlKS1O4l1QdbHVR5Yf5"
+
+            cat("EQ_API_KEY option set: ", nzchar(opt), "\n", sep = "")
+            cat("EQ_API_KEY env set:    ", nzchar(env), "\n", sep = "")
+            cat("Fallback used:          ", identical(key, fallback), "\n", sep = "")
+            cat("Returned key length:    ", nchar(key), "\n", sep = "")
+          '
           
       - name: Test coverage
         run: |
