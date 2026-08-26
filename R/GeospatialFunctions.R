@@ -3628,7 +3628,7 @@ TADA_CreateAUMLCrosswalk <- function(
 #'
 #' @export
 #'
-#' #' @examples
+#' @examples
 #' \dontrun{
 #' # Example with all POINT geometry
 #' df <- Data_TribalNations_Harmonized |>
