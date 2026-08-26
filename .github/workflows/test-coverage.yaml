@@ -53,28 +53,37 @@ jobs:
           path: ci_env_info.RData
           if-no-files-found: ignore
 
-      - name: Diagnose EQ_API_KEY resolution
+      - name: Diagnose workflow and EQ key
         run: |
           Rscript -e '
+            cat("=== Workflow context ===\n")
+            cat("GITHUB_EVENT_NAME: ", Sys.getenv("GITHUB_EVENT_NAME"), "\n", sep = "")
+            cat("GITHUB_REF: ", Sys.getenv("GITHUB_REF"), "\n", sep = "")
+            cat("GITHUB_SHA: ", Sys.getenv("GITHUB_SHA"), "\n", sep = "")
+            cat("GITHUB_WORKFLOW: ", Sys.getenv("GITHUB_WORKFLOW"), "\n", sep = "")
+            cat("RUNNER_OS: ", Sys.getenv("RUNNER_OS"), "\n\n", sep = "")
+
+            cat("=== EQ_API_KEY resolution ===\n")
+            opt <- getOption("EQ_API_KEY", "")
+            env <- Sys.getenv("EQ_API_KEY", unset = "")
+
             .setEQKey <- function() {
-              opt <- getOption("EQ_API_KEY", "")
               if (nzchar(opt)) return(opt)
-
-              env <- Sys.getenv("EQ_API_KEY", unset = "")
               if (nzchar(env)) return(env)
-
               "lfzVzpwIlKS1O4l1QdbHVR5Yf5"
             }
 
-            opt <- getOption("EQ_API_KEY", "")
-            env <- Sys.getenv("EQ_API_KEY", unset = "")
             key <- .setEQKey()
             fallback <- "lfzVzpwIlKS1O4l1QdbHVR5Yf5"
 
-            cat("EQ_API_KEY option set: ", nzchar(opt), "\n", sep = "")
-            cat("EQ_API_KEY env set:    ", nzchar(env), "\n", sep = "")
-            cat("Fallback used:          ", identical(key, fallback), "\n", sep = "")
-            cat("Returned key length:    ", nchar(key), "\n", sep = "")
+            cat("Option set: ", nzchar(opt), "\n", sep = "")
+            cat("Env set:    ", nzchar(env), "\n", sep = "")
+            cat("Fallback:   ", identical(key, fallback), "\n", sep = "")
+            cat("Key length: ", nchar(key), "\n", sep = "")
+
+            cat("\n=== Minimal package load test ===\n")
+            suppressPackageStartupMessages(library(EPATADA))
+            cat("EPATADA loaded OK\n")
           '
           
       - name: Test coverage
