@@ -1332,7 +1332,9 @@ TADA_ParametersForAnalysis <- function(
         dplyr::select(
           ATTAINS.OrganizationIdentifier,
           TADA.ComparableDataIdentifier,
-          ATTAINS.ParameterName
+          ATTAINS.ParameterName,
+          CST.PollutantName,
+          Custom.ParameterName
         ) |>
         dplyr::mutate(
           Flag.ParameterInput = "manual"
@@ -1353,6 +1355,8 @@ TADA_ParametersForAnalysis <- function(
         dplyr::bind_rows(paramRef[, c(
           "ATTAINS.OrganizationIdentifier",
           "TADA.ComparableDataIdentifier",
+          "CST.PollutantName",
+          "Custom.ParameterName",
           "ATTAINS.ParameterName",
           "Flag.ParameterInput"
         )]) |>
