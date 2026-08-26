@@ -2796,10 +2796,14 @@ TADA_CorrectColType <- function(.data) {
 #' @return Expert Query API key for use in EPATADA functions, checks, or tests.
 .setEQKey <- function() {
   opt <- getOption("EQ_API_KEY", "")
-  if (nzchar(opt)) return(opt)
+  if (nzchar(opt)) {
+    return(opt)
+  }
 
   env <- Sys.getenv("EQ_API_KEY", unset = "")
-  if (nzchar(env)) return(env)
+  if (nzchar(env)) {
+    return(env)
+  }
 
   stop("EQ_API_KEY not found in options or environment.")
 }
