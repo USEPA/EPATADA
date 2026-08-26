@@ -34,7 +34,7 @@ Monitoring Location Type(MonitoringLocationTypeName),18,Facility Privately Owned
 Monitoring Location Type(MonitoringLocationTypeName),16,Facility Public Water Supply (PWS),"A Public Water System is a public water supply for the provision to the public of piped water for human consumption, A Public Water System includes any collection, treatment, storage,
 and distribution facilities under control of such system, including the operator or administrator of such system, and is used primarily in
 connection with such system and any collection or pretreatment storage facilities not under such control which are used primarily in
-connection with such system.â€",NA
+connection with such system.â€",FRESHWATER
 Monitoring Location Type(MonitoringLocationTypeName),72,Floodwater Urban,"A flood is an overflow of water that submerges land that is usually dry  In the sense of ""urban runoff water"". it may occur due to an accumulation of rainwater on saturated ground in an areal flood.",NA
 Monitoring Location Type(MonitoringLocationTypeName),73,Floodwater non-Urban,"A flood is an overflow of water that submerges land that is usually dry  Flooding may occur as an overflow of water from water bodies, such as a river, lake, or ocean, in which the water overtops or breaks levees, resulting in some of that water escaping its usual boundaries",NA
 Monitoring Location Type(MonitoringLocationTypeName),19,Gallery,An infiltration gallery is a structure including perforated conduits in gravel to expedite transfer of water to or from a soil.,NA

@@ -5231,11 +5231,6 @@ TADA_SaltFreshIndicator <- function(
   crosswalk <- crosswalk |>
     dplyr::select(dplyr::all_of(cw.cols)) |>
     dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
-    dplyr::distinct() |>
-    dplyr::right_join(
-      unique.pairs,
-      by = dplyr::join_by(!!rlang::sym(reqs$col[2]))
-    ) |>
     dplyr::distinct()
 
   # Join crosswalk to .data
