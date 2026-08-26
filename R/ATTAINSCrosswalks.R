@@ -2515,76 +2515,129 @@ TADA_UsesForAnalysis <- function(
   if (excel == TRUE) {
     # get downloads path
     downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
-
-    # Create workbook if it doesn't exist (seed Index with Include/Exclude list)
+    
+    # -------------------------------------------------------------------------
+    # Build org-specific CST lookup and full UsesCrosswalk-ready CST table
+    # -------------------------------------------------------------------------
+    ATTAINSOrgToCSTEntityRef <- utils::read.csv(
+      system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"),
+      stringsAsFactors = FALSE
+    )
+    TADAUsesAliasRef <- utils::read.csv(
+      system.file("extdata", "TADAUsesAliasRef.csv", package = "EPATADA"),
+      stringsAsFactors = FALSE
+    )
+    
+    cst <- TADA_CST_GetCriteria() |>
+      dplyr::mutate(
+        dplyr::across(
+          c(
+            ENTITY_NAME, ENTITY_ABBR, CRITERIATYPEAQUAHUMHLTH,
+            CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC,
+            CRITERIATYPE_WATERORG, USE_CLASS_NAME_LOCATION_ETC
+          ),
+          toupper
+        )
+      ) |>
+      dplyr::left_join(ATTAINSOrgToCSTEntityRef, by = "ENTITY_ABBR") |>
+      dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
+      dplyr::left_join(
+        TADAUsesAliasRef,
+        by = dplyr::join_by(
+          ENTITY_NAME, ENTITY_ABBR,
+          CRITERIATYPEAQUAHUMHLTH,
+          CRITERIATYPEFRESHSALTWATER,
+          CRITERIATYPE_ACUTECHRONIC,
+          CRITERIATYPE_WATERORG,
+          USE_CLASS_NAME_LOCATION_ETC,
+          ATTAINS.OrganizationIdentifier
+        ),
+        relationship = "many-to-many"
+      ) |>
+      dplyr::transmute(
+        ATTAINS.OrganizationIdentifier,
+        CST.UseName = USE_CLASS_NAME_LOCATION_ETC,
+        CST.PollutantName = POLLUTANT_NAME
+      ) |>
+      dplyr::distinct()
+    
+    # -------------------------------------------------------------------------
+    # Create workbook if it doesn't exist
+    # -------------------------------------------------------------------------
     if (!file.exists(downloads_path)) {
       message(
-        "TADA_UsesForAnalysis:
-  ParamUseMLCrosswalks.xlsx does not exist yet. Generating the excel file using your paramRef input (or NULL input if generating a blank sheet)."
+        "TADA_UsesForAnalysis:\n  ParamUseMLCrosswalks.xlsx does not exist yet. Generating the excel file."
       )
       if (!isTRUE(overwrite)) {
         message(
-          "TADA_UsesForAnalysis:
-  overwrite = F selected, creating original version as well as a copy with timestamp."
+          "TADA_UsesForAnalysis:\n  overwrite = F selected, creating original version as well as a copy with timestamp."
         )
       }
-      # if no file exists yet, use the paramRef as the input from this function to generate the paramRef tabs from TADA_ParametersForAnalysis
-      # but if generating a blank file, run TADA_ParametersForAnalysis with no inputs
+      
+      # Create blank workbook scaffold if needed
       if (missing(paramRef)) {
-        TADA_ParametersForAnalysis(excel = excel, overwrite = T)
-      }
-      if (!missing(paramRef)) {
+        TADA_ParametersForAnalysis(excel = TRUE, overwrite = TRUE)
+      } else {
         TADA_ParametersForAnalysis(
           .data = .data,
           org_id = org_id,
           paramRef = paramRef,
           AUMLRef = AUMLRef,
-          auto_assign = "All", # this input shouldn't matter if the user supplies a paramRef
-          excel = excel,
-          overwrite = T # to avoid creating two duplicate timestamp files.
+          auto_assign = "All",
+          excel = TRUE,
+          overwrite = TRUE
         )
       }
     }
-
+    
+    # -------------------------------------------------------------------------
     # Load or reuse workbook
+    # -------------------------------------------------------------------------
     wb <- openxlsx::loadWorkbook(downloads_path)
-
-    # if the sheets exist, remove them then re-add them. Must do so to avoid stacking data validation rules.
-    tryCatch(
-      {
-        openxlsx::addWorksheet(wb, "UsesCrosswalk")
-      },
-      error = function(e) {
-        openxlsx::removeWorksheet(wb, "UsesCrosswalk")
-        openxlsx::addWorksheet(wb, "UsesCrosswalk")
-      }
-    )
-
-    # Set visibility
+    
+    # Remove and recreate sheet to avoid stacking validations
+    if ("UsesCrosswalk" %in% openxlsx::sheets(wb)) {
+      openxlsx::removeWorksheet(wb, "UsesCrosswalk")
+    }
+    openxlsx::addWorksheet(wb, "UsesCrosswalk")
+    
+    # Remove and recreate CST lookup sheet
+    if ("CSTLookup" %in% openxlsx::sheets(wb)) {
+      openxlsx::removeWorksheet(wb, "CSTLookup")
+    }
+    openxlsx::addWorksheet(wb, "CSTLookup", visible = FALSE)
+    
+    # Ensure Index sheet exists
+    if (!"Index" %in% openxlsx::sheets(wb)) {
+      openxlsx::addWorksheet(wb, "Index")
+    }
+    
+    # -------------------------------------------------------------------------
+    # Sheet visibility
+    # -------------------------------------------------------------------------
     sv <- openxlsx::sheetVisibility(wb)
     sn <- names(wb)
-
-    idx_dcm <- which(sn == "UsesCrosswalk")
-    if (length(idx_dcm) == 1) {
-      sv[idx_dcm] <- "visible"
-    }
-
-    idx_ic <- which(sn == "Index")
-    if (length(idx_ic) == 1) {
-      sv[idx_ic] <- "hidden"
-    }
-
+    
+    idx_uc <- which(sn == "UsesCrosswalk")
+    if (length(idx_uc) == 1) sv[idx_uc] <- "visible"
+    
+    idx_idx <- which(sn == "Index")
+    if (length(idx_idx) == 1) sv[idx_idx] <- "hidden"
+    
+    idx_cst <- which(sn == "CSTLookup")
+    if (length(idx_cst) == 1) sv[idx_cst] <- "hidden"
+    
     openxlsx::sheetVisibility(wb) <- sv
-
-    # Ensure the ATTAINS.PriorOrgParamUseRef sheet exists and contains
-    # org-filtered parameter and use names in the expected columns:
-    # A = ATTAINS.OrganizationIdentifier, D = ATTAINS.ParameterName, E = ATTAINS.UseName
+    
+    # -------------------------------------------------------------------------
+    # Build helper tables for validation lists
+    # -------------------------------------------------------------------------
     load(system.file(
       "extdata",
       "ATTAINSParamUseOrgRef.rda",
       package = "EPATADA"
     ))
-    # If org_id is empty, include all orgs; otherwise filter
+    
     org_filter <- org_id
     if (is.null(org_filter)) {
       org_filter <- ""
@@ -2592,52 +2645,80 @@ TADA_UsesForAnalysis <- function(
         "Proceeding function with 'org_id = NULL'. If this was not intentional, please supply a valid 'org_id'."
       )
     }
+    
     if (length(org_filter) == 1 && org_filter == "") {
       ATTAINS_param <- ATTAINSParamUseOrgRef
     } else {
       ATTAINS_param <- ATTAINSParamUseOrgRef |>
         dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_filter)
     }
+    
     ATTAINS_param <- ATTAINS_param |>
       dplyr::select(
         ATTAINS.OrganizationIdentifier,
-        .colB = ATTAINS.OrganizationIdentifier, # filler to keep D/E positions stable
-        .colC = ATTAINS.OrganizationIdentifier, # filler to keep D/E positions stable
         ATTAINS.ParameterName,
         ATTAINS.UseName
       ) |>
-      dplyr::arrange(ATTAINS.ParameterName, ATTAINS.UseName) |>
-      dplyr::distinct()
-
-    if ("ATTAINS.PriorOrgParamUseRef" %in% openxlsx::sheets(wb)) {
-      openxlsx::removeWorksheet(wb, "ATTAINS.PriorOrgParamUseRef")
-    }
-    openxlsx::addWorksheet(wb, "ATTAINS.PriorOrgParamUseRef", visible = FALSE)
+      dplyr::distinct() |>
+      dplyr::arrange(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, ATTAINS.UseName)
+    
+    # Org-specific CST list for editable dropdown
+    cst_lookup <- cst |>
+      dplyr::select(
+        ATTAINS.OrganizationIdentifier,
+        CST.UseName
+      ) |>
+      dplyr::filter(
+        ATTAINS.OrganizationIdentifier %in% org_id,
+        !is.na(CST.UseName),
+        CST.UseName != ""
+      ) |>
+      dplyr::distinct() |>
+      dplyr::arrange(ATTAINS.OrganizationIdentifier, CST.UseName)
+    
+    # -------------------------------------------------------------------------
+    # Write helper sheets
+    # -------------------------------------------------------------------------
     openxlsx::writeData(
       wb,
       "ATTAINS.PriorOrgParamUseRef",
       startCol = 1,
       x = ATTAINS_param
     )
-
-    # Set zoom on all sheets (guarded)
-    set_zoom <- function(x) {
-      if (!is.null(sV)) {
-        gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-      } else {
-        NULL
-      }
-    }
-    n_sheets <- length(wb$worksheets)
-    for (i in 1:n_sheets) {
-      sV <- wb$worksheets[[i]]$sheetViews
-      wb$worksheets[[i]]$sheetViews <- set_zoom(90)
-    }
-
-    # Format header
+    
+    openxlsx::writeData(
+      wb,
+      "CSTLookup",
+      startCol = 1,
+      x = cst_lookup
+    )
+    
+    # Index sheet values for Include/Exclude
+    openxlsx::writeData(
+      wb,
+      "Index",
+      startCol = 9,
+      x = data.frame(IncludeOrExclude = c("Include", "Exclude"))
+    )
+    
+    # -------------------------------------------------------------------------
+    # Write UsesCrosswalk output
+    # -------------------------------------------------------------------------
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
-
-    # Write UsesCrosswalk to sheet
+    
+    UsesCrosswalk <- UsesCrosswalk |>
+      dplyr::select(
+        TADA.ComparableDataIdentifier,
+        ATTAINS.OrganizationIdentifier,
+        ATTAINS.ParameterName,
+        ATTAINS.UseName,
+        IncludeOrExclude,
+        ATTAINS.FlagUseName,
+        Flag.UseInput,
+        CST.PollutantName,
+        CST.UseName
+      )
+    
     openxlsx::writeData(
       wb,
       "UsesCrosswalk",
@@ -2645,53 +2726,57 @@ TADA_UsesForAnalysis <- function(
       x = UsesCrosswalk,
       headerStyle = header_st
     )
-
-    # Index: keep per-row flags in columns G and H to support the formulas below
-    openxlsx::writeData(
-      wb,
-      "Index",
-      startCol = 7,
-      x = UsesCrosswalk[, c("ATTAINS.FlagUseName", "Flag.UseInput")]
-    )
-
-    # Index: IncludeOrExclude column added to the sheet.
-    openxlsx::writeData(
-      wb,
-      "Index",
-      startCol = 9,
-      x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
-    )
-
-    # Data validation for ATTAINS.UseName (column 4) from ATTAINS.PriorOrgParamUseRef column D
-    suppressWarnings(openxlsx::dataValidation(
+    
+    # -------------------------------------------------------------------------
+    # Data validation
+    # -------------------------------------------------------------------------
+    # ATTAINS.UseName drop-down from helper sheet column C (A=org, B=param, C=use)
+    openxlsx::dataValidation(
       wb,
       sheet = "UsesCrosswalk",
       cols = 4,
       rows = 2:10000,
       type = "list",
-      value = "'ATTAINS.PriorOrgParamUseRef'!$D$2:$D$50000",
+      value = "'ATTAINS.PriorOrgParamUseRef'!$C$2:$C$50000",
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
-    ))
-
-    # Data validation for IncludeOrExclude (column 5) from Index column I
-    suppressWarnings(openxlsx::dataValidation(
+    )
+    
+    # Include/Exclude drop-down from Index sheet
+    openxlsx::dataValidation(
       wb,
       sheet = "UsesCrosswalk",
       cols = 5,
       rows = 2:10000,
       type = "list",
-      value = "'Index'!$I$2:$I$5",
+      value = "'Index'!$I$2:$I$3",
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
-    ))
-
-    # Write formulas for ATTAINS.FlagUseName (col 6) and Flag.UseInput (col 7)
+    )
+    
+    # CST.UseName editable and org-specific via hidden CSTLookup sheet
+    openxlsx::dataValidation(
+      wb,
+      sheet = "UsesCrosswalk",
+      cols = 9,
+      rows = 2:10000,
+      type = "list",
+      value = "'CSTLookup'!$B$2:$B$50000",
+      allowBlank = TRUE,
+      showErrorMsg = TRUE,
+      showInputMsg = TRUE
+    )
+    
+    # -------------------------------------------------------------------------
+    # Formula columns
+    # -------------------------------------------------------------------------
+    # Rebuild formulas for flag columns based on current workbook data.
     max_loops <- min(nrow(UsesCrosswalk), 100L)
+    
     for (i in 1:max_loops) {
-      # F (col 6): ATTAINS.FlagUseName
+      # F = ATTAINS.FlagUseName
       openxlsx::writeFormula(
         wb,
         "UsesCrosswalk",
@@ -2699,32 +2784,19 @@ TADA_UsesForAnalysis <- function(
         startRow = i + 1,
         array = TRUE,
         x = paste0(
-          "=IF(E",
-          i + 1,
-          '="Exclude",',
+          '=IF(E', i + 1, '="Exclude",',
           '"Use name does not apply for this ATTAINS.ParameterName. Excluding this use name from analysis.",',
-          "IF(ISBLANK(D",
-          i + 1,
-          "),",
+          'IF(ISBLANK(D', i + 1, '),',
           '"No use name is provided. Consider choosing an appropriate ATTAINS.UseName.",',
-          "IF(ISNA(MATCH(1,(D",
-          i + 1,
-          "=ATTAINS.PriorOrgParamUseRef!E:E)*(B",
-          i + 1,
-          "=ATTAINS.PriorOrgParamUseRef!A:A),0)),",
+          'IF(ISNA(MATCH(1,(D', i + 1, '=ATTAINS.PriorOrgParamUseRef!C:C)*(B', i + 1, '=ATTAINS.PriorOrgParamUseRef!A:A),0)),',
           '"Use name has not been assessed in prior cycles.",',
-          "IF(ISNA(MATCH(1,(C",
-          i + 1,
-          "=ATTAINS.PriorOrgParamUseRef!D:D)*(D",
-          i + 1,
-          "=ATTAINS.PriorOrgParamUseRef!E:E)*(B",
-          i + 1,
-          "=ATTAINS.PriorOrgParamUseRef!A:A),0)),",
+          'IF(ISNA(MATCH(1,(C', i + 1, '=ATTAINS.PriorOrgParamUseRef!B:B)*(D', i + 1, '=ATTAINS.PriorOrgParamUseRef!C:C)*(B', i + 1, '=ATTAINS.PriorOrgParamUseRef!A:A),0)),',
           '"Use name has been assessed in prior cycles by this organization, but not for this parameter name.",',
           '"Use name has been assessed in prior cycles by this organization."))))'
         )
       )
-      # G (col 7): Flag.UseInput
+      
+      # G = Flag.UseInput
       openxlsx::writeFormula(
         wb,
         "UsesCrosswalk",
@@ -2732,23 +2804,21 @@ TADA_UsesForAnalysis <- function(
         startRow = i + 1,
         array = TRUE,
         x = paste0(
-          "IF(F",
-          i + 1,
-          "=Index!G$",
-          i + 1,
-          ",Index!H$",
-          i + 1,
-          ',"This row was MODIFIED by your input(s).")'
+          '=IF(F', i + 1, '="Default: no modification was made to this row.",',
+          '"Default: no modification was made to this row.",',
+          '"This row was MODIFIED by your input(s).")'
         )
       )
     }
-
-    # Conditional formatting for UseName column (D=4)
+    
+    # -------------------------------------------------------------------------
+    # Conditional formatting
+    # -------------------------------------------------------------------------
     openxlsx::conditionalFormatting(
       wb,
       "UsesCrosswalk",
       cols = 4,
-      rows = 1:nrow(UsesCrosswalk) + 1,
+      rows = 2:(nrow(UsesCrosswalk) + 1),
       type = "blanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     )
@@ -2756,17 +2826,16 @@ TADA_UsesForAnalysis <- function(
       wb,
       "UsesCrosswalk",
       cols = 4,
-      rows = 1:nrow(UsesCrosswalk) + 1,
+      rows = 2:(nrow(UsesCrosswalk) + 1),
       type = "notBlanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     )
-
-    # Conditional formatting for IncludeOrExclude column (E=5)
+    
     openxlsx::conditionalFormatting(
       wb,
       "UsesCrosswalk",
       cols = 5,
-      rows = 1:nrow(UsesCrosswalk) + 1,
+      rows = 2:(nrow(UsesCrosswalk) + 1),
       type = "contains",
       rule = "Exclude",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
@@ -2775,57 +2844,82 @@ TADA_UsesForAnalysis <- function(
       wb,
       "UsesCrosswalk",
       cols = 5,
-      rows = 1:nrow(UsesCrosswalk) + 1,
+      rows = 2:(nrow(UsesCrosswalk) + 1),
       type = "contains",
       rule = "Include",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     )
-
+    
+    # Optional formatting for CST.UseName
+    openxlsx::conditionalFormatting(
+      wb,
+      "UsesCrosswalk",
+      cols = 9,
+      rows = 2:(nrow(UsesCrosswalk) + 1),
+      type = "blanks",
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
+    )
+    openxlsx::conditionalFormatting(
+      wb,
+      "UsesCrosswalk",
+      cols = 9,
+      rows = 2:(nrow(UsesCrosswalk) + 1),
+      type = "notBlanks",
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+    )
+    
+    # -------------------------------------------------------------------------
     # Column widths
+    # -------------------------------------------------------------------------
     openxlsx::setColWidths(
       wb,
       "UsesCrosswalk",
-      cols = 1:ncol(UsesCrosswalk) + 2,
+      cols = 1:ncol(UsesCrosswalk),
       widths = "auto"
     )
-
-    # Determine actual save path
+    
+    openxlsx::setColWidths(
+      wb,
+      "CSTLookup",
+      cols = 1:ncol(cst_lookup),
+      widths = "auto"
+    )
+    
+    openxlsx::setColWidths(
+      wb,
+      "ATTAINS.PriorOrgParamUseRef",
+      cols = 1:ncol(ATTAINS_param),
+      widths = "auto"
+    )
+    
+    # -------------------------------------------------------------------------
+    # Save path handling
+    # -------------------------------------------------------------------------
     save_path <- downloads_path
-
-    # If overwrite = F, check if original exists yet. If not, save it as an original and create a copy.
-    # Note: file should always exist now at this point. See beginning of excel = T in this function for this file generation.
+    
     if (!isTRUE(overwrite)) {
       if (!file.exists(downloads_path)) {
         openxlsx::activeSheet(wb) <- "UsesCrosswalk"
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
         message(
-          "TADA_UsesForAnalysis: ",
-          "overwrite = F selected but no original ParamUseMLCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
+          "TADA_UsesForAnalysis: overwrite = F selected but no original ParamUseMLCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
         )
         wb <- openxlsx::loadWorkbook(downloads_path)
       }
-      if (file.exists(downloads_path)) {
-        base <- tools::file_path_sans_ext(downloads_path)
-        ext <- tools::file_ext(downloads_path)
-        ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
-        save_path <- sprintf("%s_%s.%s", base, ts, ext)
-      }
+      
+      base <- tools::file_path_sans_ext(downloads_path)
+      ext <- tools::file_ext(downloads_path)
+      ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
+      save_path <- sprintf("%s_%s.%s", base, ts, ext)
     }
-
-    # Save current workbook structure first so file exists at final path
+    
+    # Final save
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
-
-    # Reload the updated workbook so wb now includes those tabs
-    wb <- openxlsx::loadWorkbook(save_path)
-
-    # Make "DefineCriteriaMethodology" the active sheet
+    
     if ("activeSheet" %in% getNamespaceExports("openxlsx")) {
       openxlsx::activeSheet(wb) <- "UsesCrosswalk"
     }
-
-    # now continue any remaining edits if needed, then final save
-    openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
-
+    
     message("Saved as: ", normalizePath(save_path))
   }
   return(UsesCrosswalk)
