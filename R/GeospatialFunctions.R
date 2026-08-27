@@ -3666,7 +3666,6 @@ TADA_CreatePointAUGeometry <- function(
     "TADA.MonitoringLocationIdentifier"
   )
 
-
   # Find missing coordinate cols
   missing_coords <- setdiff(coord_req, names(.data))
   if (length(missing_coords) > 0) {
@@ -3743,7 +3742,7 @@ TADA_CreatePointAUGeometry <- function(
     save_sf_as_shp(sf_out = sf_out, shp_path = point.path)
   }
 
-    return(sf_out)
+  return(sf_out)
 
   invisible(NULL)
 }
