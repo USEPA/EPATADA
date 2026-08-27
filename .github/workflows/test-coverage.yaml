@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [develop]
     types: [opened, reopened, synchronize, ready_for_review]
+  workflow_dispatch:
 
 name: test-coverage
 
@@ -51,7 +52,7 @@ jobs:
           name: ci_env_info
           path: ci_env_info.RData
           if-no-files-found: ignore
-          
+
       - name: Test coverage
         run: |
           orig <- getwd(); on.exit(setwd(orig), add = TRUE)
