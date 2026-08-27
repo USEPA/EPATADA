@@ -22,9 +22,9 @@
 #'
 #' Allowable values for ATTAINS.UseName, ATTAINS.ParameterName, and
 #' ATTAINS.OrganizationIdentifier:
-#' ATTAINS.uses = rExpertQuery::EQ_DomainValues("use_name")
-#' ATTAINS.parameters <- rExpertQuery::EQ_DomainValues("param_name")
-#' ATTAINS.organizations <- rExpertQuery::EQ_DomainValues("org_id")
+#' ATTAINS.uses = rExpertQuery::EQ_DomainValues("use_name", api_key = .setEQKey())
+#' ATTAINS.parameters <- rExpertQuery::EQ_DomainValues("param_name", api_key = .setEQKey())
+#' ATTAINS.organizations <- rExpertQuery::EQ_DomainValues("org_id", api_key = .setEQKey())
 #'
 #' @param .data A TADA data frame. The user should run all desired data cleaning,
 #' processing, harmonization, filtering, and handling of censored data functions
@@ -39,9 +39,10 @@
 #' organizations in prior ATTAINS assessment cycles as individual rows for each
 #' organization. If "NULL" is selected all unique prior ATTAINS information from
 #' any ATTAINS organizations are returned but are not labeled and can be manually
-#' edited. Enter `rExpertQuery::EQ_DomainValues("org_id")` into the console to
-#' get a list of valid organization identifiers. A list of organization identifiers
-#' can also be found by downloading the ATTAINS Domains Excel file:
+#' edited. Enter `rExpertQuery::EQ_DomainValues("org_id", api_key = .setEQKey())`
+#' into the console to get a list of valid organization identifiers. A list of
+#' organization identifiers can also be found by downloading the ATTAINS Domains
+#' Excel file:
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
@@ -302,7 +303,10 @@ TADA_DefineCriteriaMethodology <- function(
           )
           tryCatch(
             {
-              dv <- rExpertQuery::EQ_DomainValues("org_id")
+              dv <- rExpertQuery::EQ_DomainValues(
+                "org_id",
+                api_key = .setEQKey()
+              )
               if (!is.null(dv) && "code" %in% names(dv)) {
                 dv[["code"]]
               } else {

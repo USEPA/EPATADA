@@ -2161,7 +2161,7 @@ TADA_CharStringRemoveNANone <- function(char_string) {
 #' @examples
 #' \dontrun{
 #' # return ATTAINS parameter domain values
-#' TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
+#' TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name", api_key = .setEQKey()))
 #' }
 TADA_TableExport <- function(.data = NULL) {
   if (is.null(.data)) {
