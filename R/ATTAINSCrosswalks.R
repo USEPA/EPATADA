@@ -4672,7 +4672,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 }
 
 
-#' Review ATTAINS Water Types
+#' Update ATTAINS Water Types
 #'
 #' Validates ATTAINS.WaterType against allowable ATTAINS domain values.
 #' Can either flag invalid values or update them using the crosswalk.
@@ -4696,9 +4696,9 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' ATTAINS.WaterType = c("INVALID WATER TYPE 1", "INVALID WATER TYPE 2")
 #' )
 #'
-#' review.df <- TADA_ReviewATTAINSWaterTypes(df, review_action = "update")
+#' review.df <- TADA_UpdateATTAINSWaterTypes(df, review_action = "update")
 #' }
-TADA_ReviewATTAINSWaterTypes <- function(
+TADA_UpdateATTAINSWaterTypes <- function(
   .data,
   review_action = c("flag", "update")
 ) {
@@ -5199,7 +5199,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 }
 
 
-#' Review ATTAINS Water Types
+#' Update ATTAINS Water Types
 #'
 #' Validates ATTAINS.WaterType against allowable ATTAINS domain values.
 #' Can either flag invalid values or update them using the crosswalk.
@@ -5223,9 +5223,9 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' ATTAINS.WaterType = c("INVALID WATER TYPE 1", "INVALID WATER TYPE 2")
 #' )
 #'
-#' review.df <- TADA_ReviewATTAINSWaterTypes(df, review_action = "update")
+#' review.df <- TADA_UpdateATTAINSWaterTypes(df, review_action = "update")
 #' }
-TADA_ReviewATTAINSWaterTypes <- function(
+TADA_UpdateATTAINSWaterTypes <- function(
   .data,
   review_action = c("flag", "update")
 ) {

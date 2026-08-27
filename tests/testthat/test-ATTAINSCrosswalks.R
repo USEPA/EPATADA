@@ -582,19 +582,19 @@ testthat::test_that("TADA_CrosswalkATTAINSWaterTypes errors on invalid org_id", 
 
 
 # Test TADA_ReviewATTAINSWaterTypes
-testthat::test_that("TADA_ReviewATTAINSWaterTypes errors when required columns are missing", {
+testthat::test_that("TADA_UpdateATTAINSWaterTypes errors when required columns are missing", {
   df <- tibble::tibble(
     TADA.MonitoringLocationIdentifier = "id1",
     TADA.MonitoringLocationTypeName = "RIVER"
   )
 
   testthat::expect_error(
-    TADA_ReviewATTAINSWaterTypes(df),
+    TADA_UpdateATTAINSWaterTypes(df),
     "must contain TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationTypeName, and ATTAINS.WaterType"
   )
 })
 
-testthat::test_that("TADA_ReviewATTAINSWaterTypes creates a flag column for invalid values", {
+testthat::test_that("TADA_UpdateATTAINSWaterTypes creates a flag column for invalid values", {
   skip_if_not_installed("rExpertQuery")
 
   df <- tibble::tibble(
@@ -603,7 +603,7 @@ testthat::test_that("TADA_ReviewATTAINSWaterTypes creates a flag column for inva
     ATTAINS.WaterType = "INVALID WATER TYPE"
   )
 
-  out <- TADA_ReviewATTAINSWaterTypes(df, review_action = "flag")
+  out <- TADA_UpdateATTAINSWaterTypes(df, review_action = "flag")
 
   testthat::expect_true("TADA.ATTAINSWaterType.Flag" %in% names(out))
   testthat::expect_true(any(grepl(
@@ -612,7 +612,7 @@ testthat::test_that("TADA_ReviewATTAINSWaterTypes creates a flag column for inva
   )))
 })
 
-testthat::test_that("TADA_ReviewATTAINSWaterTypes leaves valid values flagged as valid", {
+testthat::test_that("TADA_UpdateATTAINSWaterTypes leaves valid values flagged as valid", {
   skip_if_not_installed("rExpertQuery")
 
   # Use values that are very likely valid in ATTAINS, but if your environment
@@ -623,7 +623,7 @@ testthat::test_that("TADA_ReviewATTAINSWaterTypes leaves valid values flagged as
     ATTAINS.WaterType = "STREAM"
   )
 
-  out <- TADA_ReviewATTAINSWaterTypes(df, review_action = "flag")
+  out <- TADA_UpdateATTAINSWaterTypes(df, review_action = "flag")
 
   testthat::expect_true("TADA.ATTAINSWaterType.Flag" %in% names(out))
   testthat::expect_true(
@@ -632,7 +632,7 @@ testthat::test_that("TADA_ReviewATTAINSWaterTypes leaves valid values flagged as
   )
 })
 
-testthat::test_that("TADA_ReviewATTAINSWaterTypes updates invalid values when review_action = 'update'", {
+testthat::test_that("TADA_UpdateATTAINSWaterTypes updates invalid values when review_action = 'update'", {
   skip_if_not_installed("rExpertQuery")
 
   df <- tibble::tibble(
@@ -641,7 +641,7 @@ testthat::test_that("TADA_ReviewATTAINSWaterTypes updates invalid values when re
     ATTAINS.WaterType = c("INVALID WATER TYPE 1", "INVALID WATER TYPE 2")
   )
 
-  out <- TADA_ReviewATTAINSWaterTypes(df, review_action = "update")
+  out <- TADA_UpdateATTAINSWaterTypes(df, review_action = "update")
 
   testthat::expect_true(all(
     out$ATTAINS.WaterType %in% c("STREAM/CREEK/RIVER", "LAKE")
