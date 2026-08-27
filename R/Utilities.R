@@ -2795,17 +2795,26 @@ TADA_CorrectColType <- function(.data) {
 #' Resolve the rExpertQuery API key, preferring env/options over default
 #' @return Expert Query API key for use in EPATADA functions, checks, or tests.
 .setEQKey <- function() {
+  # check to see if key is stored in R session
+  # this allows developers to easily use their own key during local dev and testing
+  # per session: options(epatada.eq_key = "YOUR_KEY_HERE")
+  # use options(epatada.eq_key = NULL) to remove
   opt <- getOption("EQ_API_KEY", "")
   if (nzchar(opt)) {
     return(opt)
   }
 
+  # check to see if key is stored in system environment (primarily for use in checks)
   env <- Sys.getenv("EQ_API_KEY", unset = "")
   if (nzchar(env)) {
     return(env)
   }
 
-  stop("EQ_API_KEY not found in options or environment.")
+  # if neither exist
+  def <- "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
+  if (nzchar(def)) {
+    return(def)
+  }
 }
 
 #' Get the excel downloads path for criteria files
