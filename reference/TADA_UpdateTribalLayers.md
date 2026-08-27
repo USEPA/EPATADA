@@ -7,5 +7,12 @@ first if they exist.
 ## Usage
 
 ``` r
-TADA_UpdateTribalLayers()
+TADA_UpdateTribalLayers(tribal_gpkg = NULL)
 ```
+
+## Arguments
+
+- tribal_gpkg:
+
+  full path to the tribal geopackage file. Default is
+  "inst/extdata/Tribal.gpkg".

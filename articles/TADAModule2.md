@@ -243,7 +243,7 @@ If you have your own crosswalk, this step can be skipped.
 ``` r
 
 # review valid ATTAINS org IDs
-ATTAINS_orgs <- rExpertQuery::EQ_DomainValues("org_id")
+ATTAINS_orgs <- rExpertQuery::EQ_DomainValues("org_id", api_key = EPATADA:::.setEQKey())
 
 # get crosswalk from ATTAINS
 attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(

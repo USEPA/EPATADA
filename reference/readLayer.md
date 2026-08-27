@@ -7,14 +7,10 @@ TADA_addPolys and TADA_addPoints
 ## Usage
 
 ``` r
-readLayer(layerfilepath, gpkg, layer, bbox = NULL)
+readLayer(gpkg, layer, bbox = NULL)
 ```
 
 ## Arguments
-
-- layerfilepath:
-
-  Local path to the data folder containing the .gpkg file
 
 - gpkg:
 
@@ -54,9 +50,8 @@ bbox <- sf::st_bbox(
 # Read the American Indian Reservations feature layer,
 # filtered by the bounding box for the Data_TribalNations_Harmonized
 # example dataset
-layerfilepath <- "extdata"
-gpkg <- "Tribal.gpkg"
+gpkg <- "inst/extdata/Tribal.gpkg"
 layer <- "AmericanIndian"
-readLayer(layerfilepath, gpkg, layer)
+readLayer(tribal_gpkg, layer)
 } # }
 ```

@@ -34,6 +34,7 @@ if (FALSE) { # \dontrun{
 # Get the Oklahoma Tribal Statistical Areas feature layer and write
 # local file to inst/extdata/Tribal.gpkg/OKTribe
 OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
-writeLayerIfChanged(OKTribeUrl, "inst/extdata/Tribal.gpkg","OKTribe")
+tribal_gpkg <- "inst/extdata/Tribal.gpkg"
+writeLayerIfChanged(OKTribeUrl, tribal_gpkg,"OKTribe")
 } # }
 ```

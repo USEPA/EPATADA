@@ -209,7 +209,7 @@ domains (see example below).
 ``` r
 
 # return ATTAINS parameter domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
+TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name", api_key = rEQ_api))
 ```
 
 In the next section, we will review which parameters have been listed in
@@ -221,7 +221,7 @@ id for Montana is “MTDEQ”.
 ``` r
 
 # return ATTAINS organization domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id"))
+TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id", api_key = rEQ_api))
 ```
 
 ## TADA_ParametersForAnalysis() Basics

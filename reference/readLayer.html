@@ -69,18 +69,14 @@ readLayer is used within TADA_addPolys and TADA_addPoints</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">readLayer</span><span class="op">(</span><span class="va">layerfilepath</span>, <span class="va">gpkg</span>, <span class="va">layer</span>, bbox <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">readLayer</span><span class="op">(</span><span class="va">gpkg</span>, <span class="va">layer</span>, bbox <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-layerfilepath">layerfilepath<a class="anchor" aria-label="anchor" href="#arg-layerfilepath"></a></dt>
-<dd><p>Local path to the data folder containing the .gpkg file</p></dd>
-
-
-<dt id="arg-gpkg">gpkg<a class="anchor" aria-label="anchor" href="#arg-gpkg"></a></dt>
+<dl><dt id="arg-gpkg">gpkg<a class="anchor" aria-label="anchor" href="#arg-gpkg"></a></dt>
 <dd><p>name of the .gpkg file</p></dd>
 
 
@@ -117,10 +113,9 @@ readLayer is used within TADA_addPolys and TADA_addPoints</p>
 <span class="r-in"><span><span class="co"># Read the American Indian Reservations feature layer,</span></span></span>
 <span class="r-in"><span><span class="co"># filtered by the bounding box for the Data_TribalNations_Harmonized</span></span></span>
 <span class="r-in"><span><span class="co"># example dataset</span></span></span>
-<span class="r-in"><span><span class="va">layerfilepath</span> <span class="op">&lt;-</span> <span class="st">"extdata"</span></span></span>
-<span class="r-in"><span><span class="va">gpkg</span> <span class="op">&lt;-</span> <span class="st">"Tribal.gpkg"</span></span></span>
+<span class="r-in"><span><span class="va">gpkg</span> <span class="op">&lt;-</span> <span class="st">"inst/extdata/Tribal.gpkg"</span></span></span>
 <span class="r-in"><span><span class="va">layer</span> <span class="op">&lt;-</span> <span class="st">"AmericanIndian"</span></span></span>
-<span class="r-in"><span><span class="fu">readLayer</span><span class="op">(</span><span class="va">layerfilepath</span>, <span class="va">gpkg</span>, <span class="va">layer</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">readLayer</span><span class="op">(</span><span class="va">tribal_gpkg</span>, <span class="va">layer</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

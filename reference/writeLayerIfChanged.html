@@ -95,7 +95,8 @@ and has changed. writeLayerIfChanged is used by TADA_UpdateTribalLayers in TADAG
 <span class="r-in"><span><span class="co"># Get the Oklahoma Tribal Statistical Areas feature layer and write</span></span></span>
 <span class="r-in"><span><span class="co"># local file to inst/extdata/Tribal.gpkg/OKTribe</span></span></span>
 <span class="r-in"><span><span class="va">OKTribeUrl</span> <span class="op">&lt;-</span> <span class="st">"https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"</span></span></span>
-<span class="r-in"><span><span class="fu">writeLayerIfChanged</span><span class="op">(</span><span class="va">OKTribeUrl</span>, <span class="st">"inst/extdata/Tribal.gpkg"</span>,<span class="st">"OKTribe"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tribal_gpkg</span> <span class="op">&lt;-</span> <span class="st">"inst/extdata/Tribal.gpkg"</span></span></span>
+<span class="r-in"><span><span class="fu">writeLayerIfChanged</span><span class="op">(</span><span class="va">OKTribeUrl</span>, <span class="va">tribal_gpkg</span>,<span class="st">"OKTribe"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

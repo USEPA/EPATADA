@@ -5,15 +5,7 @@ Add polygons from a spatial layer to a leaflet map
 ## Usage
 
 ``` r
-TADA_addPolys(
-  map,
-  layerfilepath,
-  gpkg,
-  layer,
-  layergroup,
-  layername,
-  bbox = NULL
-)
+TADA_addPolys(map, gpkg, layer, layergroup, layername, bbox = NULL)
 ```
 
 ## Arguments
@@ -21,10 +13,6 @@ TADA_addPolys(
 - map:
 
   A leaflet map
-
-- layerfilepath:
-
-  Local path to the data folder containing the .gpkg file
 
 - gpkg:
 
@@ -60,7 +48,8 @@ lmap <- leaflet::leaflet() |>
   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
   leaflet::addMapPane("featurelayers", zIndex = 300)
 # Add the American Indian Reservations feature layer to the map
-lmap <- TADA_addPolys(lmap, "extdata", "Tribal.gpkg","AmericanIndian",
+tribal_gpkg <- "inst/extdata/Tribal.gpkg"
+lmap <- TADA_addPolys(lmap, tribal_gpkg,"AmericanIndian",
 "Tribes", "American Indian Reservations")
 lmap
 } # }

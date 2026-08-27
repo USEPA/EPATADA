@@ -142,8 +142,11 @@ domains (see example below).
 
 ``` r
 
+# set rExpertQuery api key, use your own key if you have one
+rEQ_api <- EPATADA:::.setEQKey()
+
 # return ATTAINS domain names
-rExpertQuery::EQ_DomainValues()
+rExpertQuery::EQ_DomainValues(api_key = rEQ_api)
 ```
 
 ParameterName is one of the ATTAINS domains that has a specific list of
@@ -155,7 +158,7 @@ the complete list:
 ``` r
 
 # return ATTAINS parameter domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
+TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name", api_key = rEQ_key))
 ```
 
 In the next section, we will review which parameters have been listed in
@@ -167,7 +170,7 @@ ATTAINS organization id’s to use for the function input.
 ``` r
 
 # return ATTAINS organization domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id"))
+TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id", api_key = rEQ_key))
 ```
 
 ## TADA_ParametersForAnalysis() Basics

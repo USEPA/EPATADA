@@ -24,6 +24,6 @@ A data table with multiple download options (.csv, .xlsx or .pdf).
 ``` r
 if (FALSE) { # \dontrun{
 # return ATTAINS parameter domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
+TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name", api_key = .setEQKey()))
 } # }
 ```
