@@ -251,7 +251,7 @@ id for Montana is "MTDEQ".
 
 ```{r ATTAINS-orgs}
 # return ATTAINS organization domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id"), api_key = rEQ_api)
+TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id", api_key = rEQ_api))
 ```
 
 # TADA_ParametersForAnalysis() Basics
