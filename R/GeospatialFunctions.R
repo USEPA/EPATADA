@@ -3727,7 +3727,7 @@ TADA_CreatePointAUGeometry <- function(
   # Save as shp file if required
   if (isTRUE(download_geo)) {
     today <- format(Sys.Date(), "%m_%d_%Y")
-    file.name <- paste0("TADAPointAUGeometry_", today, ".shp")
+    file.name <- paste0("TADAPointAUGeometry_", today)
 
     if (!is.null(auid_prefix)) {
       auid_prefix <- trimws(auid_prefix)
@@ -3739,7 +3739,7 @@ TADA_CreatePointAUGeometry <- function(
     }
 
     point.path <- .get_downloads_path(file.name)
-    save_sf_as_shp(sf_out = sf_out, shp_path = point.path)
+    save_sf_as_zip(sf_out, point.path)
   }
 
   return(sf_out)
