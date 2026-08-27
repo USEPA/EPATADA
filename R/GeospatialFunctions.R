@@ -3607,12 +3607,11 @@ TADA_CreateAUMLCrosswalk <- function(
 #' @param target_crs Numeric. Target CRS EPSG code. Default is 4269.
 #' @param download_geo Logical. If `TRUE`, write a shapefile to the user's
 #'   downloads folder.
-#' @param return_geo Logical. If `TRUE`, return the `sf` object.
 #' @param auid_prefix Character or `NULL`. If provided and non-empty, this
 #'   prefix is applied only to newly created
 #'   `ATTAINS.AssessmentUnitIdentifier` values.
 #'
-#' @return If `return_geo = TRUE`, an `sf` object with:
+#' @return An `sf` object with:
 #'   - `AU_ID`
 #'   - `geometry`
 #'
@@ -3634,7 +3633,7 @@ TADA_CreateAUMLCrosswalk <- function(
 #' df <- Data_TribalNations_Harmonized |>
 #' dplyr::filter(OrganizationFormalName == "Blackfeet Nation (Montana)")
 #'
-#' result <- TADA_CreatePointAUGeometry(df, return_geo = TRUE)
+#' result <- TADA_CreatePointAUGeometry(df)
 #'
 #' # Example with POINT and MULTIPOINT geometry
 #' df <- data.frame(
@@ -3645,14 +3644,13 @@ TADA_CreateAUMLCrosswalk <- function(
 #'  HorizontalCoordinateReferenceSystemDatumName = c("NAD83", "NAD83", "NAD83"),
 #'  stringsAsFactors = FALSE)
 #'
-#'  result <- TADA_CreatePointAUGeometry(df, return_geo = TRUE)
+#'  result <- TADA_CreatePointAUGeometry(df)
 #' }
 #'
 TADA_CreatePointAUGeometry <- function(
   .data,
   target_crs = 4269,
   download_geo = FALSE,
-  return_geo = TRUE,
   auid_prefix = NULL
 ) {
   # Required geospatial cols
@@ -3667,6 +3665,7 @@ TADA_CreatePointAUGeometry <- function(
     "ATTAINS.AssessmentUnitIdentifier",
     "TADA.MonitoringLocationIdentifier"
   )
+
 
   # Find missing coordinate cols
   missing_coords <- setdiff(coord_req, names(.data))
@@ -3729,7 +3728,7 @@ TADA_CreatePointAUGeometry <- function(
   # Save as shp file if required
   if (isTRUE(download_geo)) {
     today <- format(Sys.Date(), "%m_%d_%Y")
-    file.name <- paste0("TADAPointAUGeometry_", today)
+    file.name <- paste0("TADAPointAUGeometry_", today, ".shp")
 
     if (!is.null(auid_prefix)) {
       auid_prefix <- trimws(auid_prefix)
@@ -3744,9 +3743,7 @@ TADA_CreatePointAUGeometry <- function(
     save_sf_as_shp(sf_out = sf_out, shp_path = point.path)
   }
 
-  if (isTRUE(return_geo)) {
     return(sf_out)
-  }
 
   invisible(NULL)
 }

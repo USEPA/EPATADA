@@ -8,7 +8,6 @@ TADA_CreatePointAUGeometry(
   .data,
   target_crs = 4269,
   download_geo = FALSE,
-  return_geo = TRUE,
   auid_prefix = NULL
 )
 }
@@ -31,14 +30,12 @@ And at least one of:
 \item{download_geo}{Logical. If \code{TRUE}, write a shapefile to the user's
 downloads folder.}
 
-\item{return_geo}{Logical. If \code{TRUE}, return the \code{sf} object.}
-
 \item{auid_prefix}{Character or \code{NULL}. If provided and non-empty, this
 prefix is applied only to newly created
 \code{ATTAINS.AssessmentUnitIdentifier} values.}
 }
 \value{
-If \code{return_geo = TRUE}, an \code{sf} object with:
+An \code{sf} object with:
 \itemize{
 \item \code{AU_ID}
 \item \code{geometry}
@@ -58,6 +55,27 @@ with \code{TADA.MonitoringLocationIdentifier}.
 \item Single-location groups retain \code{POINT} geometry.
 \item Multi-location groups are written as \code{MULTIPOINT}.
 }
+}
+\examples{
+\dontrun{
+# Example with all POINT geometry
+df <- Data_TribalNations_Harmonized |>
+dplyr::filter(OrganizationFormalName == "Blackfeet Nation (Montana)")
+
+result <- TADA_CreatePointAUGeometry(df)
+
+# Example with POINT and MULTIPOINT geometry
+df <- data.frame(
+ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU1", "AU2"),
+TADA.MonitoringLocationIdentifier = c("ML1", "ML1", "ML2"),
+TADA.LongitudeMeasure = c(-90, -90, -91),
+TADA.LatitudeMeasure = c(40, 41, 41),
+ HorizontalCoordinateReferenceSystemDatumName = c("NAD83", "NAD83", "NAD83"),
+ stringsAsFactors = FALSE)
+
+ result <- TADA_CreatePointAUGeometry(df)
+}
+
 }
 \seealso{
 \code{\link[=TADA_CreatePointAUs]{TADA_CreatePointAUs()}}
