@@ -4559,28 +4559,27 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     )
   }
 
-  if (
-    !is.null(org_id) &&
-      (!is.character(org_id) || length(org_id) != 1 || is.na(org_id))
-  ) {
+  org.ref <- TADA_GetATTAINSOrgIDsRef() |>
+    dplyr::select(code) |>
+    dplyr::pull()
+
+  if (length(org_id) > 1) {
     stop(
-      "TADA_CrosswalkATTAINSWaterTypes: org_id must be NULL or a single non-NA character string."
+      paste0("TADA_CrosswalkATTAINSWaterTypes: org_id must be either NULL or a single non-NA character string matching an ATTAINSOrganizationIdentifier.")
     )
   }
 
-  if (!is.logical(org_only) || length(org_only) != 1 || is.na(org_only)) {
+  if (!org_id %in% org.ref & !is.null(org_id)) {
+
+    print.org <- paste0(org_id, " is not a valid input.")
+
     stop(
-      "TADA_CrosswalkATTAINSWaterTypes: org_only must be a single non-NA logical."
+      paste0("TADA_CrosswalkATTAINSWaterTypes: org_type must be a single non-NA logical. ",
+             print.org)
     )
   }
 
-  if (
-    !is.logical(replace_all) || length(replace_all) != 1 || is.na(replace_all)
-  ) {
-    stop(
-      "TADA_CrosswalkATTAINSWaterTypes: replace_all must be a single non-NA logical."
-    )
-  }
+  # need check for org_only
 
   # normalize NA to blanks
   if ("ATTAINS.WaterType" %in% names(.data)) {
