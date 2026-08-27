@@ -1,4 +1,4 @@
-test_that("returns empty dataframe (names only) when all args missing", {
+testthat::test_that("returns empty dataframe (names only) when all args missing", {
   res <- TADA_DefineCriteriaMethodology()
   expect_type(res, "list")
   expect_named(
@@ -112,7 +112,7 @@ test_that("cannot supply both MLSummaryRef and criteriaMethods", {
   )
 })
 
-test_that("criteriaMethods + auto_assign = TRUE errors", {
+testthat::test_that("criteriaMethods + auto_assign = TRUE errors", {
   df <- data.frame(
     TADA.ComparableDataIdentifier = "C1",
     TADA.CharacteristicName = "CHAR_A",
@@ -129,7 +129,7 @@ test_that("criteriaMethods + auto_assign = TRUE errors", {
   )
 })
 
-test_that("MLSummaryRef must contain required columns", {
+testthat::test_that("MLSummaryRef must contain required columns", {
   df <- data.frame(
     TADA.ComparableDataIdentifier = "C1",
     TADA.CharacteristicName = "CHAR_A",
@@ -154,7 +154,7 @@ test_that("MLSummaryRef must contain required columns", {
   )
 })
 
-test_that("returns rows from MLSummaryRef path and hides ComparableDataIdentifier when displayUniqueId = FALSE", {
+testthat::test_that("returns rows from MLSummaryRef path and hides ComparableDataIdentifier when displayUniqueId = FALSE", {
   df <- data.frame(
     TADA.ComparableDataIdentifier = c("C1", "C2"),
     TADA.CharacteristicName = c("CHAR_A", "CHAR_B"),
