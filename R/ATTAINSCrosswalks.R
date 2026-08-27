@@ -4708,12 +4708,8 @@ TADA_ReviewATTAINSWaterTypes <- function(
     "ATTAINS.WaterType"
   )
 
-  missing_cols <- setdiff(required_cols, names(.data))
-  if (length(missing_cols) > 0) {
-    stop(
-      "TADA_ReviewATTAINSWaterTypes: .data must contain TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationTypeName, and ATTAINS.WaterType."
-    )
-  }
+  # check that all required columns are present in .data
+  TADA_CheckColumns(.data, required_cols)
 
   review_action <- match.arg(review_action)
 
