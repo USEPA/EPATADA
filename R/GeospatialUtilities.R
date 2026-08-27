@@ -1960,7 +1960,11 @@ save_sf_as_zip <- function(sf_out, zip_path) {
   )
 
   # List all files created for that layer
-  shp_files <- list.files(temp_dir, pattern = paste0("^", layer_name, "\\."), full.names = FALSE)
+  shp_files <- list.files(
+    temp_dir,
+    pattern = paste0("^", layer_name, "\\."),
+    full.names = FALSE
+  )
 
   old_wd <- getwd()
   on.exit(setwd(old_wd), add = TRUE)
