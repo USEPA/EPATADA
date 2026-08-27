@@ -4564,6 +4564,9 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     dplyr::pull()
 
   if (length(org_id) > 1) {
+
+    print.org <- paste0(org_id, " is not a valid input.")
+
     stop(
       paste0("TADA_CrosswalkATTAINSWaterTypes: org_id must be either NULL or a single non-NA character string matching an ATTAINSOrganizationIdentifier.")
     )
@@ -4579,7 +4582,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     )
   }
 
-  # need check for org_only
+  # need better check for org_only
 
   # normalize NA to blanks
   if ("ATTAINS.WaterType" %in% names(.data)) {
