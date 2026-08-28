@@ -4559,27 +4559,23 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     )
   }
 
-  org.ref <- TADA_GetATTAINSOrgIDsRef() |>
-    dplyr::select(code) |>
-    dplyr::pull()
+  org.ref <- TADA_GetATTAINSOrgIDsRef() |> dplyr::select(code) |> dplyr::pull()
 
   if (length(org_id) > 1) {
-
     print.org <- paste0(org_id, " is not a valid input.")
 
-    stop(
-      paste0("TADA_CrosswalkATTAINSWaterTypes: org_id must be either NULL or a single non-NA character string matching an ATTAINSOrganizationIdentifier.")
-    )
+    stop(paste0(
+      "TADA_CrosswalkATTAINSWaterTypes: org_id must be either NULL or a single non-NA character string matching an ATTAINSOrganizationIdentifier."
+    ))
   }
 
   if (!org_id %in% org.ref & !is.null(org_id)) {
-
     print.org <- paste0(org_id, " is not a valid input.")
 
-    stop(
-      paste0("TADA_CrosswalkATTAINSWaterTypes: org_type must be a single non-NA logical. ",
-             print.org)
-    )
+    stop(paste0(
+      "TADA_CrosswalkATTAINSWaterTypes: org_type must be a single non-NA logical. ",
+      print.org
+    ))
   }
 
   # need better check for org_only
