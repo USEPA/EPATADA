@@ -4941,7 +4941,6 @@ TADA_CreatePointAUs <- function(
     .data = .data,
     target_crs = 4269,
     download_geo = download_geo,
-    return_geo = TRUE,
     auid_prefix = auid_prefix
   )
 
