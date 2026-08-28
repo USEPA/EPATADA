@@ -1438,7 +1438,6 @@ TADA_ParametersForAnalysis <- function(
     
     load(system.file("extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"))
     ATTAINS_param <- ATTAINSParamUseOrgRef |>
-      #dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
       dplyr::arrange(ATTAINS.ParameterName) |>
       dplyr::select(
         ATTAINS.OrganizationIdentifier,
@@ -1450,24 +1449,26 @@ TADA_ParametersForAnalysis <- function(
       )
     
     if(auto_assign %in% c("All", "None")) {
-      message("auto_assign = ", auto_assign, " selected, the dropdown values in the excel file will contain all prior",
-              "ATTAINS.ParameterName and ATTAINS.UseName from prior assessment cycles for all ATTAINS.OrganizationIdentifers."
-      )
-    }
-    
-    if(auto_assign == "Org") {
-      message("auto_assign = 'Org' selected, the dropdown values in the excel file will contain all prior",
-              "ATTAINS.ParameterName and ATTAINS.UseName from prior assessment cycles for only your organization."
-      )
-      ATTAINS_param <- ATTAINS_param |>
-        dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
+
     }
 
     if (auto_assign %in% c("All", "None") ) {
+      message(
+        "auto_assign = ", auto_assign, " selected, the dropdown values in the excel file will contain all prior",
+        " ATTAINS.ParameterName and ATTAINS.UseName from prior assessment cycles for all ATTAINS.OrganizationIdentifers."
+      )
+      
       cst_domain <- TADACharAliasRef_filter |>
         dplyr::select(POLLUTANT_NAME, ENTITY_ABBR, ATTAINS.OrganizationIdentifier) |>
         dplyr::distinct()
     } else if (auto_assign == "Org") {
+      message(
+        "auto_assign = 'Org' selected, the dropdown values in the excel file will contain all prior",
+        " ATTAINS.ParameterName and ATTAINS.UseName from prior assessment cycles for only your organization."
+      )
+      ATTAINS_param <- ATTAINS_param |>
+        dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
+
       cst_domain <- TADACharAliasRef_filter |>
         dplyr::filter(ATTAINS.OrganizationIdentifier %in% ATTAINS_param$ATTAINS.OrganizationIdentifier) |>
         dplyr::select(POLLUTANT_NAME, ENTITY_ABBR, ATTAINS.OrganizationIdentifier) |>
@@ -2423,7 +2424,7 @@ TADA_UsesForAnalysis <- function(
     dplyr::mutate(
       dplyr::across(
         c(
-          ENTITY_NAME, ENTITY_ABBR, CRITERIATYPEAQUAHUMHLTH,
+          POLLUTANT_NAME, ENTITY_NAME, ENTITY_ABBR, CRITERIATYPEAQUAHUMHLTH,
           CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC,
           CRITERIATYPE_WATERORG, USE_CLASS_NAME_LOCATION_ETC
         ),
@@ -2439,13 +2440,18 @@ TADA_UsesForAnalysis <- function(
         USE_CLASS_NAME_LOCATION_ETC, ATTAINS.OrganizationIdentifier
       ),
       relationship = "many-to-many"
-    )
+    ) |>
+    dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
 
   UsesCrosswalk <- UsesCrosswalk |>
-    dplyr::mutate(ATTAINS.UseName = toupper(ATTAINS.UseName)) |>
+    dplyr::mutate(
+      CST.PollutantName = toupper(CST.PollutantName),
+      ATTAINS.UseName = toupper(ATTAINS.UseName),
+      ATTAINS.OrganizationIdentifier = toupper(ATTAINS.OrganizationIdentifier)
+      ) |>
     dplyr::left_join(
       cst,
-      by = c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier")
+      by = c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier", "CST.PollutantName" = "POLLUTANT_NAME")
     ) |>
     dplyr::select(colnames(UsesCrosswalk), CST.PollutantName, CST.UseName = USE_CLASS_NAME_LOCATION_ETC) |>
     dplyr::distinct()
