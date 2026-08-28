@@ -1207,6 +1207,21 @@ TADA_ParametersForAnalysis <- function(
     
     TADACharAliasRef <- utils::read.csv(system.file("extdata", "TADACharAliasRef.csv", package = "EPATADA"))
     
+    orgs <- utils::read.csv(system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"))
+    
+    TADACharAliasRef_filter <- TADA_CST_GetCriteria() |>
+      dplyr::mutate(
+        POLLUTANT_NAME = toupper(POLLUTANT_NAME),
+        STD_POLLUTANT_NAME = toupper(STD_POLLUTANT_NAME)
+      ) |>
+      dplyr::left_join(
+        TADACharAliasRef,
+        by = c("POLLUTANT_NAME", "STD_POLLUTANT_NAME"),
+        relationship = "many-to-many"
+      ) |>
+      dplyr::left_join(orgs, "ENTITY_ABBR") |>
+      dplyr::select(colnames(TADACharAliasRef), ENTITY_ABBR, ATTAINS.OrganizationIdentifier)
+
     if (tolower(auto_assign) == tolower("None")) {
       ParametersCrosswalk <- TADA_param |>
         dplyr::mutate(
@@ -1231,22 +1246,7 @@ TADA_ParametersForAnalysis <- function(
     
     if (tolower(auto_assign) == tolower("Org")) {
       message("TADA_ParametersForAnalysis: auto_assign == 'Org' was selected, finding an alias ATTAINS.ParameterName match, by ATTAINS.OrganizationIdentifier, for each TADA.ComparableDataIdentifier if one is found.")
-      
-      orgs <- utils::read.csv(system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"))
-      
-      TADACharAliasRef_filter <- TADA_CST_GetCriteria() |>
-        dplyr::mutate(
-          POLLUTANT_NAME = toupper(POLLUTANT_NAME),
-          STD_POLLUTANT_NAME = toupper(STD_POLLUTANT_NAME)
-        ) |>
-        dplyr::left_join(
-          TADACharAliasRef,
-          by = c("POLLUTANT_NAME", "STD_POLLUTANT_NAME"),
-          relationship = "many-to-many"
-        ) |>
-        dplyr::left_join(orgs, "ENTITY_ABBR") |>
-        dplyr::select(colnames(TADACharAliasRef), ENTITY_ABBR, ATTAINS.OrganizationIdentifier)
-      
+
       TADACharAliasRef_filter <- TADACharAliasRef_filter |>
         dplyr::filter(ATTAINS.ParameterName %in% ATTAINS_param$ATTAINS.ParameterName)
       
@@ -1436,19 +1436,9 @@ TADA_ParametersForAnalysis <- function(
     
     openxlsx::setColWidths(wb, "ParametersCrosswalk", cols = 1:ncol(ParametersCrosswalk), widths = "auto")
     
-    no_match_df <- data.frame(
-      ATTAINS.OrganizationIdentifier = "NA",
-      ATTAINS.OrganizationName = "Not Applicable for Analysis.",
-      ATTAINS.OrganizationType = "Not Applicable for Analysis.",
-      ATTAINS.ParameterName = "Not Applicable for Analysis.",
-      ATTAINS.UseName = "Not Applicable for Analysis.",
-      ATTAINS.WaterType = "Not Applicable for Analysis.",
-      stringsAsFactors = FALSE
-    )
-    
     load(system.file("extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"))
     ATTAINS_param <- ATTAINSParamUseOrgRef |>
-      dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
+      #dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
       dplyr::arrange(ATTAINS.ParameterName) |>
       dplyr::select(
         ATTAINS.OrganizationIdentifier,
@@ -1459,62 +1449,34 @@ TADA_ParametersForAnalysis <- function(
         ATTAINS.WaterType
       )
     
-    index_df <- rbind(
-      no_match_df,
-      ATTAINSParamUseOrgRef[, c(
-        "ATTAINS.OrganizationIdentifier",
-        "ATTAINS.OrganizationName",
-        "ATTAINS.OrganizationType",
-        "ATTAINS.ParameterName",
-        "ATTAINS.UseName",
-        "ATTAINS.WaterType"
-      )] |>
-        dplyr::arrange(ATTAINS.ParameterName)
-    )
+    if(auto_assign %in% c("All", "None")) {
+      message("auto_assign = ", auto_assign, " selected, the dropdown values in the excel file will contain all prior",
+              "ATTAINS.ParameterName and ATTAINS.UseName from prior assessment cycles for all ATTAINS.OrganizationIdentifers."
+      )
+    }
     
-    if (auto_assign == "All" ) {
+    if(auto_assign == "Org") {
+      message("auto_assign = 'Org' selected, the dropdown values in the excel file will contain all prior",
+              "ATTAINS.ParameterName and ATTAINS.UseName from prior assessment cycles for only your organization."
+      )
+      ATTAINS_param <- ATTAINS_param |>
+        dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
+    }
+
+    if (auto_assign %in% c("All", "None") ) {
       cst_domain <- TADACharAliasRef_filter |>
-        dplyr::select(POLLUTANT_NAME, ENTITY_ABBR) |>
+        dplyr::select(POLLUTANT_NAME, ENTITY_ABBR, ATTAINS.OrganizationIdentifier) |>
         dplyr::distinct()
     } else if (auto_assign == "Org") {
       cst_domain <- TADACharAliasRef_filter |>
         dplyr::filter(ATTAINS.OrganizationIdentifier %in% ATTAINS_param$ATTAINS.OrganizationIdentifier) |>
-        dplyr::select(POLLUTANT_NAME, ENTITY_ABBR) |>
+        dplyr::select(POLLUTANT_NAME, ENTITY_ABBR, ATTAINS.OrganizationIdentifier) |>
         dplyr::distinct()
-    } else {
-      cst_domain <- TADA_CST_GetCriteria() |>
-        dplyr::select(POLLUTANT_NAME, ENTITY_ABBR)
     }
-    
+
     openxlsx::writeData(
       wb, "Index",
       startCol = 1,
-      x = data.frame(
-        ATTAINS.ParameterName = unique(ATTAINS_param$ATTAINS.ParameterName)
-      )
-    )
-    openxlsx::writeData(
-      wb, "Index",
-      startCol = 2,
-      x = data.frame(
-        ATTAINS.FlagParameterName = unique(ParametersCrosswalk$ATTAINS.FlagParameterName)
-      )
-    )
-    openxlsx::writeData(
-      wb, "Index",
-      startCol = 3,
-      x = data.frame(
-        Flag.ParameterInput = unique(ParametersCrosswalk$Flag.ParameterInput)
-      )
-    )
-    openxlsx::writeData(
-      wb, "Index",
-      startCol = 4,
-      x = index_df
-    )
-    openxlsx::writeData(
-      wb, "Index",
-      startCol = 7,
       x = cst_domain
     )
     
@@ -1540,7 +1502,7 @@ TADA_ParametersForAnalysis <- function(
       cols = 2,
       rows = 2:1000,
       type = "list",
-      value = "'Index'!$G$2:$G$30000",
+      value = "'Index'!$A$2:$A$30000",
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
@@ -1552,23 +1514,23 @@ TADA_ParametersForAnalysis <- function(
       cols = 4,
       rows = 2:1000,
       type = "list",
-      value = "'Index'!$A$2:$A$30000",
+      value = "'ATTAINS.PriorOrgParamUseRef'!$D$2:$D$30000",
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
     
-    suppressWarnings(openxlsx::dataValidation(
-      wb,
-      sheet = "ParametersCrosswalk",
-      cols = 5,
-      rows = 2:1000,
-      type = "list",
-      value = "'Index'!$D$2:$D$30000",
-      allowBlank = TRUE,
-      showErrorMsg = TRUE,
-      showInputMsg = TRUE
-    ))
+    # suppressWarnings(openxlsx::dataValidation(
+    #   wb,
+    #   sheet = "ParametersCrosswalk",
+    #   cols = 5,
+    #   rows = 2:1000,
+    #   type = "list",
+    #   value = "'Index'!$D$2:$D$30000",
+    #   allowBlank = TRUE,
+    #   showErrorMsg = TRUE,
+    #   showInputMsg = TRUE
+    # ))
     
     max_loops <- min(nrow(ParametersCrosswalk), 100L)
     for (i in seq_len(max_loops)) {
@@ -1606,40 +1568,6 @@ TADA_ParametersForAnalysis <- function(
     }
     
     if (exists("TADA_ColorPalette", mode = "function")) {
-      openxlsx::conditionalFormatting(
-        wb,
-        "ParametersCrosswalk",
-        cols = 2,
-        rows = 2:(nrow(ParametersCrosswalk) + 1),
-        type = "notBlanks",
-        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
-      )
-      openxlsx::conditionalFormatting(
-        wb,
-        "ParametersCrosswalk",
-        cols = 2,
-        rows = 2:(nrow(ParametersCrosswalk) + 1),
-        type = "blanks",
-        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
-      )
-      
-      openxlsx::conditionalFormatting(
-        wb,
-        "ParametersCrosswalk",
-        cols = 3,
-        rows = 2:(nrow(ParametersCrosswalk) + 1),
-        type = "notBlanks",
-        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
-      )
-      openxlsx::conditionalFormatting(
-        wb,
-        "ParametersCrosswalk",
-        cols = 3,
-        rows = 2:(nrow(ParametersCrosswalk) + 1),
-        type = "blanks",
-        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
-      )
-      
       openxlsx::conditionalFormatting(
         wb,
         "ParametersCrosswalk",
