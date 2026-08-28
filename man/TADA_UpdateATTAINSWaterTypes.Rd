@@ -2,35 +2,61 @@
 % Please edit documentation in R/ATTAINSCrosswalks.R
 \name{TADA_UpdateATTAINSWaterTypes}
 \alias{TADA_UpdateATTAINSWaterTypes}
-\title{Update ATTAINS Water Types}
+\title{Crosswalk WQP Monitoring Location Type to ATTAINS Water Type}
 \usage{
-TADA_UpdateATTAINSWaterTypes(.data, review_action = c("flag", "update"))
+TADA_UpdateATTAINSWaterTypes(
+  .data,
+  org_id = NULL,
+  org_only = FALSE,
+  replace_all = FALSE
+)
+
+TADA_UpdateATTAINSWaterTypes(
+  .data,
+  org_id = NULL,
+  org_only = FALSE,
+  replace_all = FALSE
+)
 }
 \arguments{
 \item{.data}{A TADA data frame.}
 
-\item{review_action}{Character string. One of "flag" or "update".}
+\item{org_id}{Character string. Optional organization ID used to prioritize
+organization-specific ATTAINS values.}
+
+\item{org_only}{Logical. If TRUE, only org-specific ATTAINS values are used.
+If FALSE, unmatched types fall back to the TADA default crosswalk.}
+
+\item{replace_all}{Logical. If TRUE, replace all ATTAINS.WaterType values.
+If FALSE, only fill missing values. Default is FALSE.}
 }
 \value{
-A TADA data frame with \code{TADA.ATTAINSWaterType.Flag} added.
-If \code{review_action = "update"}, invalid values may also be replaced if an
-ATTAINS water type match is available.
+A TADA data frame with ATTAINS.WaterType populated.
+
+A TADA data frame with ATTAINS.WaterType populated.
 }
 \description{
-Validates ATTAINS.WaterType against allowable ATTAINS domain values.
-Can either flag invalid values or update them using the crosswalk.
+Adds or updates ATTAINS.WaterType using TADA.MonitoringLocationTypeName.
+By default, only missing ATTAINS.WaterType values are populated.
+
+Adds or updates ATTAINS.WaterType using TADA.MonitoringLocationTypeName.
+By default, only missing ATTAINS.WaterType values are populated.
 }
 \examples{
 
 \dontrun{
 
-# example of updating invalid ATTAINS water types
-example.df <- tibble::tibble(
-TADA.MonitoringLocationIdentifier = c("id1", "id2"),
-TADA.MonitoringLocationTypeName = c("RIVER/STREAM", "LAKE"),
-ATTAINS.WaterType = c("INVALID WATER TYPE 1", "INVALID WATER TYPE 2")
-)
+# example for MT data
+testdat <- Data_MT_MissoulaCounty
 
-review.df <- TADA_UpdateATTAINSWaterTypes(df, review_action = "update")
+crosswalk <- TADA_UpdateATTAINSWaterTypes(testat, org_Id = "MTDEQ")
+}
+
+\dontrun{
+
+# example for MT data
+testdat <- Data_MT_MissoulaCounty
+
+crosswalk <- TADA_UpdateATTAINSWaterTypes(testat, org_Id = "MTDEQ")
 }
 }
