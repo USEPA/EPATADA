@@ -433,6 +433,7 @@ batchupload
 bbox
 bnd
 bottomvalue
+byChar
 bycategory
 cdx
 characteristicName
@@ -480,6 +481,7 @@ epa
 expertquery
 extdata
 fabec
+fallbacks
 fetchATTAINS
 fetchNHD
 fetchWaterType

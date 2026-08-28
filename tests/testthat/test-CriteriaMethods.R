@@ -1,4 +1,4 @@
-test_that("returns empty dataframe (names only) when all args missing", {
+testthat::test_that("returns empty dataframe (names only) when all args missing", {
   res <- TADA_DefineCriteriaMethodology()
   expect_type(res, "list")
   expect_named(
@@ -79,7 +79,7 @@ test_that("auto_assign must be logical", {
   )
   expect_error(
     TADA_DefineCriteriaMethodology(.data = df, auto_assign = "yes"),
-    "auto_assign must be a boolean"
+    "auto_assign must be TRUE/FALSE"
   )
 })
 
@@ -108,11 +108,11 @@ test_that("cannot supply both MLSummaryRef and criteriaMethods", {
       MLSummaryRef = ml,
       criteriaMethods = data.frame()
     ),
-    "both provided"
+    "provide only one of MLSummaryRef or criteriaMethods"
   )
 })
 
-test_that("criteriaMethods + auto_assign = TRUE errors", {
+testthat::test_that("criteriaMethods + auto_assign = TRUE errors", {
   df <- data.frame(
     TADA.ComparableDataIdentifier = "C1",
     TADA.CharacteristicName = "CHAR_A",
@@ -125,11 +125,11 @@ test_that("criteriaMethods + auto_assign = TRUE errors", {
       criteriaMethods = data.frame(ATTAINS.ParameterName = "PARAM_X"),
       auto_assign = TRUE
     ),
-    "criteriaMethods is provided and auto_assign = TRUE"
+    "TADA_DefineCriteriaMethodology: criteriaMethods and auto_assign = TRUE are not valid together."
   )
 })
 
-test_that("MLSummaryRef must contain required columns", {
+testthat::test_that("MLSummaryRef must contain required columns", {
   df <- data.frame(
     TADA.ComparableDataIdentifier = "C1",
     TADA.CharacteristicName = "CHAR_A",
@@ -154,7 +154,7 @@ test_that("MLSummaryRef must contain required columns", {
   )
 })
 
-test_that("returns rows from MLSummaryRef path and hides ComparableDataIdentifier when displayUniqueId = FALSE", {
+testthat::test_that("returns rows from MLSummaryRef path and hides ComparableDataIdentifier when displayUniqueId = FALSE", {
   df <- data.frame(
     TADA.ComparableDataIdentifier = c("C1", "C2"),
     TADA.CharacteristicName = c("CHAR_A", "CHAR_B"),
@@ -386,13 +386,15 @@ test_that("org_id = 'All' uses AUMLRef orgs without external calls", {
     stringsAsFactors = FALSE
   )
   # org_id = "All" should pull orgs from AUMLRef (ORG1, ORG2) and not hit rExpertQuery
-  res <- TADA_DefineCriteriaMethodology(
-    .data = df,
-    MLSummaryRef = ml,
-    org_id = "All",
-    AUMLRef = aumlref,
-    displayUniqueId = TRUE,
-    excel = FALSE
+  expect_warning(
+    res <- TADA_DefineCriteriaMethodology(
+      .data = df,
+      MLSummaryRef = ml,
+      org_id = "All",
+      AUMLRef = aumlref,
+      displayUniqueId = TRUE,
+      excel = FALSE
+    )
   )
   res <- res$DefineCriteriaMethodology
   # It should include at least org from MLSummaryRef and not error
@@ -487,8 +489,6 @@ test_that("Date columns have Date class after MLSummaryRef path", {
   res <- res$DefineCriteriaMethodology
   expect_s3_class(res$AssessPeriodStartDate, "Date")
   expect_s3_class(res$AssessPeriodEndDate, "Date")
-  expect_s3_class(res$SeasonStartDate, "Date")
-  expect_s3_class(res$SeasonEndDate, "Date")
 })
 
 test_that("criteriaMethods warnings appear for missing crosswalks (displayUniqueId TRUE/FALSE)", {
@@ -680,7 +680,7 @@ test_that("org_id 'all' correctly filters by organizations found in user supplie
   expect_true(any(res$TADA.CharacteristicName == "CHAR_A"))
 })
 
-test_that("criteriaMethods season date strings are parsed to Date class", {
+test_that("criteriaMethods season date strings are parsed to correct format", {
   df <- data.frame(
     TADA.ComparableDataIdentifier = "C1",
     TADA.CharacteristicName = "CHAR_A",
@@ -703,16 +703,19 @@ test_that("criteriaMethods season date strings are parsed to Date class", {
     excel = FALSE
   )
   res <- res$DefineCriteriaMethodology
-  expect_s3_class(res$SeasonStartDate, "Date")
-  expect_s3_class(res$SeasonEndDate, "Date")
+  #expect_s3_class(res$SeasonStartDate, "Date")
+  #expect_s3_class(res$SeasonEndDate, "Date")
   # Parsed dates should not be NA when strings were provided
   sub <- subset(
     res,
     ATTAINS.OrganizationIdentifier == "ORGX" &
       TADA.CharacteristicName == "CHAR_A"
   )
-  expect_true(any(!is.na(sub$SeasonStartDate)))
-  expect_true(any(!is.na(sub$SeasonEndDate)))
+  # Check formatted output is Mon DD
+  expect_type(sub$SeasonStartDate, "character")
+  expect_type(sub$SeasonEndDate, "character")
+  expect_equal(sub$SeasonStartDate, "Jun-15")
+  expect_equal(sub$SeasonEndDate, "Jun-30")
 })
 
 test_that("displayUniqueId = FALSE dedupes multiple IDs into one row", {
@@ -1011,6 +1014,6 @@ test_that("org_id = 'All' without AUMLRef emits a message and attempts to pull d
       displayUniqueId = TRUE,
       excel = FALSE
     ),
-    "org_id == 'All' was selected"
+    "org_id.*All.*AUMLRef.*domain orgs"
   )
 })

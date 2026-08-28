@@ -31,9 +31,10 @@ selected, this will return all prior ATTAINS information from all ATTAINS
 organizations in prior ATTAINS assessment cycles as individual rows for each
 organization. If "NULL" is selected all unique prior ATTAINS information from
 any ATTAINS organizations are returned but are not labeled and can be manually
-edited. Enter \code{rExpertQuery::EQ_DomainValues("org_id")} into the console to
-get a list of valid organization identifiers. A list of organization identifiers
-can also be found by downloading the ATTAINS Domains Excel file:
+edited. Enter \code{rExpertQuery::EQ_DomainValues("org_id", api_key = .setEQKey())}
+into the console to get a list of valid organization identifiers. A list of
+organization identifiers can also be found by downloading the ATTAINS Domains
+Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 Organization identifiers are listed in the "code" column of the "OrgName" tab.}
 
@@ -69,17 +70,20 @@ R and re-run this function, TADA_DefineCriteriaMethodology, again. This time,
 use the criteriaMethods function input to specify the criteria and methodology
 table that has already been filled out.}
 
-\item{AUMLRef}{An optional data frame input. If provided, this data frame
-should contain a completed crosswalk of monitoring location sites associated
-with an assessment unit. This data frame must contain the following
-column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
+\item{AUMLRef}{An optional data frame input containing a completed crosswalk
+of monitoring location sites associated with an assessment unit. If provided,
+each Monitoring location site will get assigned to an ATTAINS.AssessmentUnitIdentifier
+to allow users to analyze by either assessment units or by monitoring location.
+This data frame must contain the following column names which can be generated
+from the output of TADA_CreateAUMLCrosswalk:
 ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
 ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.}
 
 \item{AU_UsesRef}{An optional data frame input. If provided, the ATTAINS.UseName
-will be populated from the ATTAINS.UseName found in this data frame rather
-than the ATTAINS assessment profile. This data frame must contain the following
-column names which can be generated from the output of TADA_AssignUsesToAU:
+will be filtered by the ATTAINS.UseName found in this data frame. It will also
+assign the uses to each assessment unit defined in this table if an AUMLRef
+is also provided. This data frame must contain the following column names
+which can be generated from the output of TADA_AssignUsesToAU:
 ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
 and ATTAINS.WaterType.}
 
@@ -132,9 +136,9 @@ assessment period dates, and seasonality.
 
 Allowable values for ATTAINS.UseName, ATTAINS.ParameterName, and
 ATTAINS.OrganizationIdentifier:
-ATTAINS.uses = rExpertQuery::EQ_DomainValues("use_name")
-ATTAINS.parameters <- rExpertQuery::EQ_DomainValues("param_name")
-ATTAINS.organizations <- rExpertQuery::EQ_DomainValues("org_id")
+ATTAINS.uses = rExpertQuery::EQ_DomainValues("use_name", api_key = .setEQKey())
+ATTAINS.parameters <- rExpertQuery::EQ_DomainValues("param_name", api_key = .setEQKey())
+ATTAINS.organizations <- rExpertQuery::EQ_DomainValues("org_id", api_key = .setEQKey())
 }
 \examples{
 # Example 1
