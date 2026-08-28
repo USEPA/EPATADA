@@ -2105,7 +2105,7 @@ TADA_UsesForAnalysis <- function(
         )
       ) |>
       dplyr::mutate(
-        Flag.UseInput = "Default: no modification was made to this row."
+        Flag.UseInput = "Default"
       )
 
     if (auto_assign == TRUE) {
@@ -2156,7 +2156,7 @@ TADA_UsesForAnalysis <- function(
         # dplyr::mutate(TADA.ComparableDataIdentifier = dplyr::coalesce(TADA.ComparableDataIdentifier.x, TADA.ComparableDataIdentifier.y)) |>
         # dplyr::select(-c(TADA.ComparableDataIdentifier.x, TADA.ComparableDataIdentifier.y)) |>
         dplyr::mutate(IncludeOrExclude = "Include") |>
-        dplyr::mutate(Flag.UseInput = "This row was MODIFIED by your input(s).")
+        dplyr::mutate(Flag.UseInput = "auto_assign = TRUE")
 
       UsesCrosswalk <- UsesCrosswalk |>
         # dplyr::select(TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.OrganizationIdentifier) |>
@@ -2309,7 +2309,7 @@ TADA_UsesForAnalysis <- function(
           )
         ) |>
         dplyr::mutate(
-          Flag.UseInput = "This row was MODIFIED by your input(s)."
+          Flag.UseInput = "user supplied ref"
         ) |>
         dplyr::select(
           "TADA.ComparableDataIdentifier",
@@ -2383,7 +2383,7 @@ TADA_UsesForAnalysis <- function(
           Flag.UseInput = dplyr::case_when(
             is.na(
               Flag.UseInput
-            ) ~ "Default: no modification was made to this row.",
+            ) ~ "Default",
             !is.na(Flag.UseInput) ~ Flag.UseInput
           )
         ) |>
@@ -2453,7 +2453,10 @@ TADA_UsesForAnalysis <- function(
       cst,
       by = c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier", "CST.PollutantName" = "POLLUTANT_NAME")
     ) |>
-    dplyr::select(colnames(UsesCrosswalk), CST.PollutantName, CST.UseName = USE_CLASS_NAME_LOCATION_ETC) |>
+    dplyr::relocate(
+      TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, CST.PollutantName,
+      ATTAINS.UseName, CST.UseName = USE_CLASS_NAME_LOCATION_ETC, IncludeOrExclude, ATTAINS.FlagUseName, Flag.UseInput
+    ) |> 
     dplyr::distinct()
 
   if (excel == TRUE) {
@@ -2472,38 +2475,38 @@ TADA_UsesForAnalysis <- function(
       stringsAsFactors = FALSE
     )
     
-    cst <- TADA_CST_GetCriteria() |>
-      dplyr::mutate(
-        dplyr::across(
-          c(
-            ENTITY_NAME, ENTITY_ABBR, CRITERIATYPEAQUAHUMHLTH,
-            CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC,
-            CRITERIATYPE_WATERORG, USE_CLASS_NAME_LOCATION_ETC
-          ),
-          toupper
-        )
-      ) |>
-      dplyr::left_join(ATTAINSOrgToCSTEntityRef, by = "ENTITY_ABBR") |>
-      dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
-      dplyr::left_join(
-        TADAUsesAliasRef,
-        by = dplyr::join_by(
-          ENTITY_NAME, ENTITY_ABBR,
-          CRITERIATYPEAQUAHUMHLTH,
-          CRITERIATYPEFRESHSALTWATER,
-          CRITERIATYPE_ACUTECHRONIC,
-          CRITERIATYPE_WATERORG,
-          USE_CLASS_NAME_LOCATION_ETC,
-          ATTAINS.OrganizationIdentifier
-        ),
-        relationship = "many-to-many"
-      ) |>
-      dplyr::transmute(
-        ATTAINS.OrganizationIdentifier,
-        CST.UseName = USE_CLASS_NAME_LOCATION_ETC,
-        CST.PollutantName = POLLUTANT_NAME
-      ) |>
-      dplyr::distinct()
+    # cst <- TADA_CST_GetCriteria() |>
+    #   dplyr::mutate(
+    #     dplyr::across(
+    #       c(
+    #         ENTITY_NAME, ENTITY_ABBR, CRITERIATYPEAQUAHUMHLTH,
+    #         CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC,
+    #         CRITERIATYPE_WATERORG, USE_CLASS_NAME_LOCATION_ETC
+    #       ),
+    #       toupper
+    #     )
+    #   ) |>
+    #   dplyr::left_join(ATTAINSOrgToCSTEntityRef, by = "ENTITY_ABBR") |>
+    #   dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
+    #   dplyr::left_join(
+    #     TADAUsesAliasRef,
+    #     by = dplyr::join_by(
+    #       ENTITY_NAME, ENTITY_ABBR,
+    #       CRITERIATYPEAQUAHUMHLTH,
+    #       CRITERIATYPEFRESHSALTWATER,
+    #       CRITERIATYPE_ACUTECHRONIC,
+    #       CRITERIATYPE_WATERORG,
+    #       USE_CLASS_NAME_LOCATION_ETC,
+    #       ATTAINS.OrganizationIdentifier
+    #     ),
+    #     relationship = "many-to-many"
+    #   ) |>
+    #   dplyr::transmute(
+    #     ATTAINS.OrganizationIdentifier,
+    #     CST.UseName = USE_CLASS_NAME_LOCATION_ETC,
+    #     CST.PollutantName = POLLUTANT_NAME
+    #   ) |>
+    #   dplyr::distinct()
     
     # -------------------------------------------------------------------------
     # Create workbook if it doesn't exist
@@ -2607,18 +2610,7 @@ TADA_UsesForAnalysis <- function(
       dplyr::arrange(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, ATTAINS.UseName)
     
     # Org-specific CST list for editable dropdown
-    cst_lookup <- cst |>
-      dplyr::select(
-        ATTAINS.OrganizationIdentifier,
-        CST.UseName
-      ) |>
-      dplyr::filter(
-        ATTAINS.OrganizationIdentifier %in% org_id,
-        !is.na(CST.UseName),
-        CST.UseName != ""
-      ) |>
-      dplyr::distinct() |>
-      dplyr::arrange(ATTAINS.OrganizationIdentifier, CST.UseName)
+    cst_lookup <- cst
     
     # -------------------------------------------------------------------------
     # Write helper sheets
@@ -2655,12 +2647,12 @@ TADA_UsesForAnalysis <- function(
         TADA.ComparableDataIdentifier,
         ATTAINS.OrganizationIdentifier,
         ATTAINS.ParameterName,
+        CST.PollutantName,
         ATTAINS.UseName,
+        CST.UseName,
         IncludeOrExclude,
         ATTAINS.FlagUseName,
-        Flag.UseInput,
-        CST.PollutantName,
-        CST.UseName
+        Flag.UseInput
       )
     
     openxlsx::writeData(
@@ -2674,11 +2666,11 @@ TADA_UsesForAnalysis <- function(
     # -------------------------------------------------------------------------
     # Data validation
     # -------------------------------------------------------------------------
-    # ATTAINS.UseName drop-down from helper sheet column C (A=org, B=param, C=use)
+    # ATTAINS.UseName drop-down -> column 5
     openxlsx::dataValidation(
       wb,
       sheet = "UsesCrosswalk",
-      cols = 4,
+      cols = 5,
       rows = 2:10000,
       type = "list",
       value = "'ATTAINS.PriorOrgParamUseRef'!$C$2:$C$50000",
@@ -2687,24 +2679,11 @@ TADA_UsesForAnalysis <- function(
       showInputMsg = TRUE
     )
     
-    # Include/Exclude drop-down from Index sheet
+    # CST.UseName drop-down -> column 6
     openxlsx::dataValidation(
       wb,
       sheet = "UsesCrosswalk",
-      cols = 5,
-      rows = 2:10000,
-      type = "list",
-      value = "'Index'!$I$2:$I$3",
-      allowBlank = TRUE,
-      showErrorMsg = TRUE,
-      showInputMsg = TRUE
-    )
-    
-    # CST.UseName editable and org-specific via hidden CSTLookup sheet
-    openxlsx::dataValidation(
-      wb,
-      sheet = "UsesCrosswalk",
-      cols = 9,
+      cols = 6,
       rows = 2:10000,
       type = "list",
       value = "'CSTLookup'!$B$2:$B$50000",
@@ -2713,42 +2692,56 @@ TADA_UsesForAnalysis <- function(
       showInputMsg = TRUE
     )
     
+    # Include/Exclude drop-down -> column 7
+    openxlsx::dataValidation(
+      wb,
+      sheet = "UsesCrosswalk",
+      cols = 7,
+      rows = 2:10000,
+      type = "list",
+      value = "'Index'!$I$2:$I$3",
+      allowBlank = TRUE,
+      showErrorMsg = TRUE,
+      showInputMsg = TRUE
+    )
+    
     # -------------------------------------------------------------------------
     # Formula columns
     # -------------------------------------------------------------------------
-    # Rebuild formulas for flag columns based on current workbook data.
+    # H = ATTAINS.FlagUseName
+    # I = Flag.UseInput
     max_loops <- min(nrow(UsesCrosswalk), 100L)
     
     for (i in 1:max_loops) {
-      # F = ATTAINS.FlagUseName
+      # H column
       openxlsx::writeFormula(
         wb,
         "UsesCrosswalk",
-        startCol = 6,
+        startCol = 8,
         startRow = i + 1,
         array = TRUE,
         x = paste0(
-          '=IF(E', i + 1, '="Exclude",',
+          '=IF(G', i + 1, '="Exclude",',
           '"Use name does not apply for this ATTAINS.ParameterName. Excluding this use name from analysis.",',
-          'IF(ISBLANK(D', i + 1, '),',
+          'IF(ISBLANK(E', i + 1, '),',
           '"No use name is provided. Consider choosing an appropriate ATTAINS.UseName.",',
-          'IF(ISNA(MATCH(1,(D', i + 1, '=ATTAINS.PriorOrgParamUseRef!C:C)*(B', i + 1, '=ATTAINS.PriorOrgParamUseRef!A:A),0)),',
+          'IF(ISNA(MATCH(1,(E', i + 1, '=ATTAINS.PriorOrgParamUseRef!C:C)*(B', i + 1, '=ATTAINS.PriorOrgParamUseRef!A:A),0)),',
           '"Use name has not been assessed in prior cycles.",',
-          'IF(ISNA(MATCH(1,(C', i + 1, '=ATTAINS.PriorOrgParamUseRef!B:B)*(D', i + 1, '=ATTAINS.PriorOrgParamUseRef!C:C)*(B', i + 1, '=ATTAINS.PriorOrgParamUseRef!A:A),0)),',
+          'IF(ISNA(MATCH(1,(C', i + 1, '=ATTAINS.PriorOrgParamUseRef!B:B)*(E', i + 1, '=ATTAINS.PriorOrgParamUseRef!C:C)*(B', i + 1, '=ATTAINS.PriorOrgParamUseRef!A:A),0)),',
           '"Use name has been assessed in prior cycles by this organization, but not for this parameter name.",',
           '"Use name has been assessed in prior cycles by this organization."))))'
         )
       )
       
-      # G = Flag.UseInput
+      # I column
       openxlsx::writeFormula(
         wb,
         "UsesCrosswalk",
-        startCol = 7,
+        startCol = 9,
         startRow = i + 1,
         array = TRUE,
         x = paste0(
-          '=IF(F', i + 1, '="Default: no modification was made to this row.",',
+          '=IF(H', i + 1, '="Default: no modification was made to this row.",',
           '"Default: no modification was made to this row.",',
           '"This row was MODIFIED by your input(s).")'
         )
@@ -2758,10 +2751,11 @@ TADA_UsesForAnalysis <- function(
     # -------------------------------------------------------------------------
     # Conditional formatting
     # -------------------------------------------------------------------------
+    # E = ATTAINS.UseName
     openxlsx::conditionalFormatting(
       wb,
       "UsesCrosswalk",
-      cols = 4,
+      cols = 5,
       rows = 2:(nrow(UsesCrosswalk) + 1),
       type = "blanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
@@ -2769,16 +2763,17 @@ TADA_UsesForAnalysis <- function(
     openxlsx::conditionalFormatting(
       wb,
       "UsesCrosswalk",
-      cols = 4,
+      cols = 5,
       rows = 2:(nrow(UsesCrosswalk) + 1),
       type = "notBlanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     )
     
+    # G = IncludeOrExclude
     openxlsx::conditionalFormatting(
       wb,
       "UsesCrosswalk",
-      cols = 5,
+      cols = 7,
       rows = 2:(nrow(UsesCrosswalk) + 1),
       type = "contains",
       rule = "Exclude",
@@ -2787,18 +2782,18 @@ TADA_UsesForAnalysis <- function(
     openxlsx::conditionalFormatting(
       wb,
       "UsesCrosswalk",
-      cols = 5,
+      cols = 7,
       rows = 2:(nrow(UsesCrosswalk) + 1),
       type = "contains",
       rule = "Include",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     )
     
-    # Optional formatting for CST.UseName
+    # F = CST.UseName
     openxlsx::conditionalFormatting(
       wb,
       "UsesCrosswalk",
-      cols = 9,
+      cols = 6,
       rows = 2:(nrow(UsesCrosswalk) + 1),
       type = "blanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
@@ -2806,7 +2801,7 @@ TADA_UsesForAnalysis <- function(
     openxlsx::conditionalFormatting(
       wb,
       "UsesCrosswalk",
-      cols = 9,
+      cols = 6,
       rows = 2:(nrow(UsesCrosswalk) + 1),
       type = "notBlanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
