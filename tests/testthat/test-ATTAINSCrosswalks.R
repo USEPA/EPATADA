@@ -466,16 +466,16 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_MLSum
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-# test TADA_CrosswalkATTAINSWaterTypes
-testthat::test_that("TADA_CrosswalkATTAINSWaterTypes errors when required columns are missing", {
+# test TADA_UpdateATTAINSWaterType
+testthat::test_that("TADA_UpdateATTAINSWaterType errors when required columns are missing", {
   df_missing_id <- data.frame(
     TADA.MonitoringLocationTypeName = c("Stream", "Lake"),
     stringsAsFactors = FALSE
   )
 
   testthat::expect_error(
-    TADA_CrosswalkATTAINSWaterTypes(df_missing_id),
-    "TADA_CrosswalkATTAINSWaterTypes: .data must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName."
+    TADA_UpdateATTAINSWaterType(df_missing_id),
+    "TADA_UpdateATTAINSWaterType: .data must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName."
   )
 
   df_missing_type <- data.frame(
@@ -484,12 +484,12 @@ testthat::test_that("TADA_CrosswalkATTAINSWaterTypes errors when required column
   )
 
   testthat::expect_error(
-    TADA_CrosswalkATTAINSWaterTypes(df_missing_type),
-    "TADA_CrosswalkATTAINSWaterTypes: .data must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName."
+    TADA_UpdateATTAINSWaterType(df_missing_type),
+    "TADA_UpdateATTAINSWaterType: .data must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName."
   )
 })
 
-testthat::test_that("TADA_CrosswalkATTAINSWaterTypes errors when overwrite_existing is not a single logical", {
+testthat::test_that("TADA_UpdateATTAINSWaterType errors when overwrite_existing is not a single logical", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = "A",
     TADA.MonitoringLocationTypeName = "Stream",
@@ -497,58 +497,58 @@ testthat::test_that("TADA_CrosswalkATTAINSWaterTypes errors when overwrite_exist
   )
 
   testthat::expect_error(
-    TADA_CrosswalkATTAINSWaterTypes(df, replace_all = "yes"),
-    "TADA_CrosswalkATTAINSWaterTypes: replace_all must be a single non-NA logical."
+    TADA_UpdateATTAINSWaterType(df, replace_all = "yes"),
+    "TADA_UpdateATTAINSWaterType: replace_all must be a single non-NA logical."
   )
 
   testthat::expect_error(
-    TADA_CrosswalkATTAINSWaterTypes(df, replace_all = c(TRUE, FALSE)),
-    "TADA_CrosswalkATTAINSWaterTypes: replace_all must be a single non-NA logical."
+    TADA_UpdateATTAINSWaterType(df, replace_all = c(TRUE, FALSE)),
+    "TADA_UpdateATTAINSWaterType: replace_all must be a single non-NA logical."
   )
 })
 
-# Test TADA_CrosswalkATTAINSWaterTypes
-testthat::test_that("TADA_CrosswalkATTAINSWaterTypes fills missing ATTAINS.WaterType", {
+# Test TADA_UpdateATTAINSWaterType
+testthat::test_that("TADA_UpdateATTAINSWaterType fills missing ATTAINS.WaterType", {
   df <- tibble::tibble(
     TADA.MonitoringLocationIdentifier = c("id1", "id2"),
     TADA.MonitoringLocationTypeName = c("RIVER/STREAM", "LAKE"),
     ATTAINS.WaterType = c(NA, "")
   )
 
-  out <- TADA_CrosswalkATTAINSWaterTypes(df)
+  out <- TADA_UpdateATTAINSWaterType(df)
 
   testthat::expect_s3_class(out, "data.frame")
   testthat::expect_true("ATTAINS.WaterType" %in% names(out))
   testthat::expect_false(any(is.na(out$ATTAINS.WaterType)))
 })
 
-testthat::test_that("TADA_CrosswalkATTAINSWaterTypes does not overwrite existing values when replace_all = FALSE", {
+testthat::test_that("TADA_UpdateATTAINSWaterType does not overwrite existing values when replace_all = FALSE", {
   df <- tibble::tibble(
     TADA.MonitoringLocationIdentifier = c("id1", "id2"),
     TADA.MonitoringLocationTypeName = c("RIVER/STREAM", "LAKE"),
     ATTAINS.WaterType = c("CUSTOM TYPE", NA)
   )
 
-  out <- TADA_CrosswalkATTAINSWaterTypes(df, replace_all = FALSE)
+  out <- TADA_UpdateATTAINSWaterType(df, replace_all = FALSE)
 
   testthat::expect_equal(out$ATTAINS.WaterType[1], "CUSTOM TYPE")
 })
 
-testthat::test_that("TADA_CrosswalkATTAINSWaterTypes overwrites all values when replace_all = TRUE", {
+testthat::test_that("TADA_UpdateATTAINSWaterType overwrites all values when replace_all = TRUE", {
   df <- tibble::tibble(
     TADA.MonitoringLocationIdentifier = c("id1", "id2"),
     TADA.MonitoringLocationTypeName = c("RIVER/STREAM", "LAKE"),
     ATTAINS.WaterType = c("CUSTOM TYPE", "ANOTHER TYPE")
   )
 
-  out <- TADA_CrosswalkATTAINSWaterTypes(df, replace_all = TRUE)
+  out <- TADA_UpdateATTAINSWaterType(df, replace_all = TRUE)
 
   testthat::expect_false(any(
     out$ATTAINS.WaterType %in% c("CUSTOM TYPE", "ANOTHER TYPE")
   ))
 })
 
-testthat::test_that("TADA_CrosswalkATTAINSWaterTypes creates ATTAINS.WaterType when missing", {
+testthat::test_that("TADA_UpdateATTAINSWaterType creates ATTAINS.WaterType when missing", {
   df <- tibble::tibble(
     TADA.MonitoringLocationIdentifier = c("id1", "id2"),
     TADA.MonitoringLocationTypeName = c("RIVER", "LAKE")
@@ -582,19 +582,19 @@ testthat::test_that("TADA_CrosswalkATTAINSWaterTypes errors on invalid org_id", 
 
 
 # Test TADA_ReviewATTAINSWaterTypes
-testthat::test_that("TADA_UpdateATTAINSWaterTypes errors when required columns are missing", {
+testthat::test_that("TADA_ReviewATTAINSWaterTypes errors when required columns are missing", {
   df <- tibble::tibble(
     TADA.MonitoringLocationIdentifier = "id1",
     TADA.MonitoringLocationTypeName = "RIVER"
   )
 
   testthat::expect_error(
-    TADA_UpdateATTAINSWaterTypes(df),
+    TADA_ReviewATTAINSWaterTypes(df),
     "must contain TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationTypeName, and ATTAINS.WaterType"
   )
 })
 
-testthat::test_that("TADA_UpdateATTAINSWaterTypes creates a flag column for invalid values", {
+testthat::test_that("TADA_ReviewATTAINSWaterTypes creates a flag column for invalid values", {
   skip_if_not_installed("rExpertQuery")
 
   df <- tibble::tibble(
@@ -603,7 +603,7 @@ testthat::test_that("TADA_UpdateATTAINSWaterTypes creates a flag column for inva
     ATTAINS.WaterType = "INVALID WATER TYPE"
   )
 
-  out <- TADA_UpdateATTAINSWaterTypes(df, review_action = "flag")
+  out <- TADA_ReviewATTAINSWaterTypes(df, review_action = "flag")
 
   testthat::expect_true("TADA.ATTAINSWaterType.Flag" %in% names(out))
   testthat::expect_true(any(grepl(
@@ -612,7 +612,7 @@ testthat::test_that("TADA_UpdateATTAINSWaterTypes creates a flag column for inva
   )))
 })
 
-testthat::test_that("TADA_UpdateATTAINSWaterTypes leaves valid values flagged as valid", {
+testthat::test_that("TADA_ReviewATTAINSWaterTypes leaves valid values flagged as valid", {
   skip_if_not_installed("rExpertQuery")
 
   # Use values that are very likely valid in ATTAINS, but if your environment
@@ -623,7 +623,7 @@ testthat::test_that("TADA_UpdateATTAINSWaterTypes leaves valid values flagged as
     ATTAINS.WaterType = "STREAM"
   )
 
-  out <- TADA_UpdateATTAINSWaterTypes(df, review_action = "flag")
+  out <- TADA_ReviewATTAINSWaterTypes(df, review_action = "flag")
 
   testthat::expect_true("TADA.ATTAINSWaterType.Flag" %in% names(out))
   testthat::expect_true(
@@ -632,7 +632,7 @@ testthat::test_that("TADA_UpdateATTAINSWaterTypes leaves valid values flagged as
   )
 })
 
-testthat::test_that("TADA_UpdateATTAINSWaterTypes updates invalid values when review_action = 'update'", {
+testthat::test_that("TADA_ReviewATTAINSWaterTypes updates invalid values when review_action = 'update'", {
   skip_if_not_installed("rExpertQuery")
 
   df <- tibble::tibble(
@@ -641,7 +641,7 @@ testthat::test_that("TADA_UpdateATTAINSWaterTypes updates invalid values when re
     ATTAINS.WaterType = c("INVALID WATER TYPE 1", "INVALID WATER TYPE 2")
   )
 
-  out <- TADA_UpdateATTAINSWaterTypes(df, review_action = "update")
+  out <- TADA_ReviewATTAINSWaterTypes(df, review_action = "update")
 
   testthat::expect_true(all(
     out$ATTAINS.WaterType %in% c("STREAM/CREEK/RIVER", "LAKE")

@@ -70,7 +70,7 @@ the point or multipoint geometry and its corresponding assessment unit identifie
 }
 \details{
 If \code{ATTAINS.WaterType} is missing or contains any blank values, the function
-attempts to populate it by calling \code{TADA_CrosswalkATTAINSWaterTypes()}
+attempts to populate it by calling \code{TADA_UpdateATTAINSWaterType()}
 internally with \code{overwrite_existing = FALSE} and \code{validation = "none"}.
 \itemize{
 \item Missing or blank \code{ATTAINS.AssessmentUnitIdentifier} values are replaced
@@ -83,5 +83,5 @@ created AUIDs.
 }
 }
 \seealso{
-\code{\link[=TADA_CrosswalkATTAINSWaterTypes]{TADA_CrosswalkATTAINSWaterTypes()}}, \code{\link[=TADA_CreatePointAUGeometry]{TADA_CreatePointAUGeometry()}}
+\code{\link[=TADA_UpdateATTAINSWaterType]{TADA_UpdateATTAINSWaterType()}}, \code{\link[=TADA_CreatePointAUGeometry]{TADA_CreatePointAUGeometry()}}
 }

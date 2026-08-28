@@ -4539,9 +4539,9 @@ TADA_MLSummary <- function(
 #' # example for MT data
 #' testdat <- Data_MT_MissoulaCounty
 #'
-#' crosswalk <- TADA_CrosswalkATTAINSWaterTypes(testat, org_Id = "MTDEQ")
+#' crosswalk <- TADA_UpdateATTAINSWaterType(testat, org_Id = "MTDEQ")
 #' }
-TADA_CrosswalkATTAINSWaterTypes <- function(
+TADA_UpdateATTAINSWaterType <- function(
   .data,
   org_id = NULL,
   org_only = FALSE,
@@ -4555,7 +4555,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   missing_cols <- setdiff(required_cols, names(.data))
   if (length(missing_cols) > 0) {
     stop(
-      "TADA_CrosswalkATTAINSWaterTypes: .data must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName."
+      "TADA_UpdateATTAINSWaterType: .data must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName."
     )
   }
 
@@ -4565,7 +4565,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     print.org <- paste0(org_id, " is not a valid input.")
 
     stop(paste0(
-      "TADA_CrosswalkATTAINSWaterTypes: org_id must be either NULL or a single non-NA character string matching an ATTAINSOrganizationIdentifier."
+      "TADA_UpdateATTAINSWaterType: org_id must be either NULL or a single non-NA character string matching an ATTAINSOrganizationIdentifier."
     ))
   }
 
@@ -4573,7 +4573,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     print.org <- paste0(org_id, " is not a valid input.")
 
     stop(paste0(
-      "TADA_CrosswalkATTAINSWaterTypes: org_type must be a single non-NA logical. ",
+      "TADA_UpdateATTAINSWaterType: org_type must be a single non-NA logical. ",
       print.org
     ))
   }
@@ -4822,7 +4822,7 @@ TADA_UpdateATTAINSWaterTypes <- function(
 #' the point or multipoint geometry and its corresponding assessment unit identifier.
 #'
 #' If `ATTAINS.WaterType` is missing or contains any blank values, the function
-#' attempts to populate it by calling `TADA_CrosswalkATTAINSWaterTypes()`
+#' attempts to populate it by calling `TADA_UpdateATTAINSWaterType()`
 #' internally with `overwrite_existing = FALSE` and `validation = "none"`.
 #'
 #' @param .data A data frame containing, at minimum:
@@ -4867,7 +4867,7 @@ TADA_UpdateATTAINSWaterTypes <- function(
 #'   `TADA.MonitoringLocationIdentifier`.
 #' - `ATTAINS.WaterType` is not overwritten unless it is missing or blank.
 #'
-#' @seealso [TADA_CrosswalkATTAINSWaterTypes()], [TADA_CreatePointAUGeometry()]
+#' @seealso [TADA_UpdateATTAINSWaterType()], [TADA_CreatePointAUGeometry()]
 #'
 #' @export
 TADA_CreatePointAUs <- function(
@@ -4916,7 +4916,7 @@ TADA_CreatePointAUs <- function(
       )
     }
 
-    .data <- TADA_CrosswalkATTAINSWaterTypes(.data, replace_all = FALSE)
+    .data <- TADA_UpdateATTAINSWaterType(.data, replace_all = FALSE)
   }
 
   if (nrow(.data) == 0) {
@@ -4955,7 +4955,7 @@ TADA_CreatePointAUs <- function(
 #' Internal helper to construct the crosswalk used to assign ATTAINS.WaterType
 #' from TADA.MonitoringLocationTypeName.
 #'
-#' @inheritParams TADA_CrosswalkATTAINSWaterTypes
+#' @inheritParams TADA_UpdateATTAINSWaterType
 #' @param org_only Logical. If TRUE, only organization-specific ATTAINS water
 #' types are used. If FALSE, unmatched types fall back to the TADA default
 #' crosswalk.
@@ -5091,9 +5091,9 @@ build_attains_water_type_crosswalk <- function(
 #' # example for MT data
 #' testdat <- Data_MT_MissoulaCounty
 #'
-#' crosswalk <- TADA_CrosswalkATTAINSWaterTypes(testat, org_Id = "MTDEQ")
+#' crosswalk <- TADA_UpdateATTAINSWaterType(testat, org_Id = "MTDEQ")
 #' }
-TADA_CrosswalkATTAINSWaterTypes <- function(
+TADA_UpdateATTAINSWaterType <- function(
   .data,
   org_id = NULL,
   org_only = FALSE,
@@ -5107,7 +5107,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
   missing_cols <- setdiff(required_cols, names(.data))
   if (length(missing_cols) > 0) {
     stop(
-      "TADA_CrosswalkATTAINSWaterTypes: .data must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName."
+      "TADA_UpdateATTAINSWaterType: .data must contain TADA.MonitoringLocationIdentifier and TADA.MonitoringLocationTypeName."
     )
   }
 
@@ -5116,13 +5116,13 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
       (!is.character(org_id) || length(org_id) != 1 || is.na(org_id))
   ) {
     stop(
-      "TADA_CrosswalkATTAINSWaterTypes: org_id must be NULL or a single non-NA character string."
+      "TADA_UpdateATTAINSWaterType: org_id must be NULL or a single non-NA character string."
     )
   }
 
   if (!is.logical(org_only) || length(org_only) != 1 || is.na(org_only)) {
     stop(
-      "TADA_CrosswalkATTAINSWaterTypes: org_only must be a single non-NA logical."
+      "TADA_UpdateATTAINSWaterType: org_only must be a single non-NA logical."
     )
   }
 
@@ -5130,7 +5130,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
     !is.logical(replace_all) || length(replace_all) != 1 || is.na(replace_all)
   ) {
     stop(
-      "TADA_CrosswalkATTAINSWaterTypes: replace_all must be a single non-NA logical."
+      "TADA_UpdateATTAINSWaterType: replace_all must be a single non-NA logical."
     )
   }
 
@@ -5195,7 +5195,7 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 }
 
 
-#' Update ATTAINS Water Types
+#' Review ATTAINS Water Types
 #'
 #' Validates ATTAINS.WaterType against allowable ATTAINS domain values.
 #' Can either flag invalid values or update them using the crosswalk.
@@ -5219,9 +5219,9 @@ TADA_CrosswalkATTAINSWaterTypes <- function(
 #' ATTAINS.WaterType = c("INVALID WATER TYPE 1", "INVALID WATER TYPE 2")
 #' )
 #'
-#' review.df <- TADA_UpdateATTAINSWaterTypes(df, review_action = "update")
+#' review.df <- TADA_ReviewATTAINSWaterTypes(df, review_action = "update")
 #' }
-TADA_UpdateATTAINSWaterTypes <- function(
+TADA_ReviewATTAINSWaterTypes <- function(
   .data,
   review_action = c("flag", "update")
 ) {
