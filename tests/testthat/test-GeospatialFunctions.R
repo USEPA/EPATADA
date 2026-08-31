@@ -638,7 +638,7 @@ testthat::test_that("TADA_CreateAUPointGeometry returns sf geometry for valid in
     stringsAsFactors = FALSE
   )
 
-  result <- TADA_CreatePointAUGeometry(df, return_geo = TRUE)
+  result <- TADA_CreatePointAUGeometry(df)
 
   testthat::expect_s3_class(result, "sf")
   testthat::expect_true("geometry" %in% names(result))
@@ -655,25 +655,10 @@ testthat::test_that("TADA_CreatePointAUGeometry creates POINT for one location a
     stringsAsFactors = FALSE
   )
 
-  result <- TADA_CreatePointAUGeometry(df, return_geo = TRUE)
+  result <- TADA_CreatePointAUGeometry(df)
 
   geom_types <- sf::st_geometry_type(result)
   testthat::expect_true(any(geom_types %in% c("POINT", "MULTIPOINT")))
-})
-
-testthat::test_that("TADA_CreatePointAUGeometry returns invisible NULL when return_geo is FALSE", {
-  df <- data.frame(
-    ATTAINS.AssessmentUnitIdentifier = "AU1",
-    TADA.MonitoringLocationIdentifier = "ML1",
-    TADA.LongitudeMeasure = -90,
-    TADA.LatitudeMeasure = 40,
-    HorizontalCoordinateReferenceSystemDatumName = "NAD83",
-    stringsAsFactors = FALSE
-  )
-
-  result <- TADA_CreatePointAUGeometry(df, return_geo = FALSE)
-
-  testthat::expect_null(result)
 })
 
 testthat::test_that("TADA_CreatePointAUGeometry drops rows with missing coordinates", {
@@ -686,7 +671,7 @@ testthat::test_that("TADA_CreatePointAUGeometry drops rows with missing coordina
     stringsAsFactors = FALSE
   )
 
-  result <- TADA_CreatePointAUGeometry(df, return_geo = TRUE)
+  result <- TADA_CreatePointAUGeometry(df)
 
   testthat::expect_equal(nrow(result), 1)
 })
@@ -702,8 +687,7 @@ testthat::test_that("TADA_CreatePointAUGeometry accepts auid_prefix", {
 
   result <- TADA_CreatePointAUGeometry(
     df,
-    auid_prefix = "TEST",
-    return_geo = TRUE
+    auid_prefix = "TEST"
   )
 
   testthat::expect_s3_class(result, "sf")
@@ -718,7 +702,7 @@ testthat::test_that("TADA_CreatePointAUGeometry works with only TADA.MonitoringL
     stringsAsFactors = FALSE
   )
 
-  result <- TADA_CreatePointAUGeometry(df, return_geo = TRUE)
+  result <- TADA_CreatePointAUGeometry(df)
 
   testthat::expect_s3_class(result, "sf")
 })
