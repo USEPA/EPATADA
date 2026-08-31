@@ -1619,6 +1619,185 @@ TADA_ParametersForAnalysis <- function(
 
 
 
+TADA_UsesRef <- function(org_id = NULL, excel = TRUE, overwrite = TRUE) {
+  
+  # -------------------------------------------------------------------------
+  # Build reference table
+  # -------------------------------------------------------------------------
+  ATTAINS.uses <- rExpertQuery::EQ_DomainValues(
+    domain = "use_name",
+    api_key = .setEQKey()
+  )
+  
+  if (!is.null(org_id)) {
+    ATTAINS.uses <- ATTAINS.uses |>
+      dplyr::filter(context %in% org_id)
+  }
+  
+  TADAUsesAliasRef <- utils::read.csv(
+    system.file("extdata", "TADAUsesAliasRef.csv", package = "EPATADA"),
+    stringsAsFactors = FALSE
+  )
+  
+  uses <- ATTAINS.uses |>
+    dplyr::mutate(
+      name = toupper(name),
+      IncludeOrExclude = "Include"
+    ) |>
+    dplyr::select(
+      ATTAINS.OrganizationIdentifier = context,
+      ATTAINS.UseName = name
+    ) |>
+    dplyr::left_join(
+      TADAUsesAliasRef,
+      by = c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier")
+    ) |>
+    dplyr::select(
+      ATTAINS.OrganizationIdentifier,
+      ATTAINS.UseName,
+      CST.UseName = USE_CLASS_NAME_LOCATION_ETC,
+      CRITERIATYPEAQUAHUMHLTH,
+      CRITERIATYPEFRESHSALTWATER,
+      CRITERIATYPE_ACUTECHRONIC,
+      CRITERIATYPE_WATERORG,
+      ENTITY_NAME,
+      ENTITY_ABBR,
+      USE_CLASS_NAME_LOCATION_ETC
+    ) |>
+    dplyr::distinct()
+  
+  # -------------------------------------------------------------------------
+  # Excel output
+  # -------------------------------------------------------------------------
+  if (isTRUE(excel)) {
+    # set save path to Downloads
+    file <- .get_downloads_path("TADA_UsesRef_Template.xlsx")
+    
+    # ---- Create workbook ----
+    wb <- openxlsx::createWorkbook()
+    
+    # Sheet 1: data entry template
+    openxlsx::addWorksheet(wb, "Uses")
+    openxlsx::writeData(wb, "Uses", uses)
+    
+    # Sheet 2: reference lists for dropdowns
+    openxlsx::addWorksheet(wb, "Lists")
+    
+    # Dropdown lists
+    attains_list <- sort(unique(na.omit(uses$ATTAINS.UseName)))
+    cst_list <- sort(unique(na.omit(uses$CST.UseName)))
+    
+    # Write lists into workbook
+    openxlsx::writeData(
+      wb, "Lists",
+      x = data.frame(ATTAINS_UseName = attains_list),
+      startCol = 1, startRow = 1
+    )
+    openxlsx::writeData(
+      wb, "Lists",
+      x = data.frame(CST_UseName = cst_list),
+      startCol = 2, startRow = 1
+    )
+    
+    # Define named regions for data validation
+    if (length(attains_list) > 0) {
+      openxlsx::createNamedRegion(
+        wb, sheet = "Lists", name = "ATTAINS_UseName_List",
+        rows = 1:length(attains_list), cols = 1
+      )
+    }
+    
+    if (length(cst_list) > 0) {
+      openxlsx::createNamedRegion(
+        wb, sheet = "Lists", name = "CST_UseName_List",
+        rows = 1:length(cst_list), cols = 2
+      )
+    }
+    
+    # Apply dropdowns to the Uses sheet
+    if (length(attains_list) > 0) {
+      openxlsx::dataValidation(
+        wb,
+        sheet = "Uses",
+        cols = which(names(uses) == "ATTAINS.UseName"),
+        rows = 2:(nrow(uses) + 1),
+        type = "list",
+        value = "=ATTAINS_UseName_List"
+      )
+    }
+    
+    if (length(cst_list) > 0) {
+      openxlsx::dataValidation(
+        wb,
+        sheet = "Uses",
+        cols = which(names(uses) == "CST.UseName"),
+        rows = 2:(nrow(uses) + 1),
+        type = "list",
+        value = "=CST_UseName_List"
+      )
+    }
+    
+    # Style header
+    header_style <- openxlsx::createStyle(
+      textDecoration = "bold",
+      fgFill = "#D9EAF7",
+      border = "Bottom"
+    )
+    
+    openxlsx::addStyle(
+      wb, "Uses", header_style,
+      rows = 1, cols = 1:ncol(uses),
+      gridExpand = TRUE, stack = TRUE
+    )
+    
+    # Freeze top row
+    openxlsx::freezePane(wb, "Uses", firstRow = TRUE)
+    
+    # Manual column widths
+    openxlsx::setColWidths(wb, "Uses", cols = 1:ncol(uses), widths = c(20, 25, 25, 20, 20, 20, 18))
+    openxlsx::setColWidths(wb, "Lists", cols = 1:2, widths = c(30, 30))
+    
+    # Wrap text style
+    wrap_style <- openxlsx::createStyle(wrapText = TRUE, valign = "top")
+    
+    # Apply wrap text to all data cells in Uses
+    openxlsx::addStyle(
+      wb, "Uses", wrap_style,
+      rows = 1:(nrow(uses) + 1),
+      cols = 1:ncol(uses),
+      gridExpand = TRUE,
+      stack = TRUE
+    )
+    
+    # Optional: wrap text in Lists sheet too
+    openxlsx::addStyle(
+      wb, "Lists", wrap_style,
+      rows = 1:max(length(attains_list), length(cst_list)) + 1,
+      cols = 1:2,
+      gridExpand = TRUE,
+      stack = TRUE
+    )
+    
+    # Hide list sheet
+    sv <- openxlsx::sheetVisibility(wb)
+    sv[which(names(wb) == "Lists")] <- "hidden"
+    openxlsx::sheetVisibility(wb) <- sv
+    
+    # Save workbook to Downloads
+    openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
+    
+    message("Saved to: ", normalizePath(file))
+    
+    # Return both reference data and file path
+    list(
+      uses = uses,
+      file = file
+    )
+  }
+}
+
+
+
 #' Create or Update ATTAINS Parameter and Use crosswalk
 #'
 #' This function generates a crosswalk of all parameters and uses applicable to
@@ -1784,6 +1963,7 @@ TADA_UsesForAnalysis <- function(
   org_id = NULL,
   paramRef = NULL, # Required, filter the use(s) by only those found for unique param(s) found in this ref.
   usesRef = NULL, # If provided, any param(s) to use(s) assignments will be based on this user supplied list.
+  new_uses_ref = NULL,
   AU_UsesRef = NULL, # If provided, any use assignments will be based on this domain list rather than from ATTAINS.
   AUMLRef = NULL, # If provided and if org_id = "ALL" then this will filter org_id(s) from this df.
   auto_assign = FALSE, # DEV NOTE: Should only auto assign any ATTAINS.ParameterName that isn't found in either user supplied usesRef or in ATTAINS.
@@ -2418,7 +2598,14 @@ TADA_UsesForAnalysis <- function(
   
   # joins CST uses
   ATTAINSOrgToCSTEntityRef <- utils::read.csv(system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"))
-  TADAUsesAliasRef <- utils::read.csv(system.file("extdata", "TADAUsesAliasRef.csv", package = "EPATADA"))
+  
+  if (is.null(new_uses_ref)) {
+    TADAUsesAliasRef <- utils::read.csv(
+      system.file("extdata", "TADAUsesAliasRef.csv", package = "EPATADA")
+    )
+  } else {
+    TADAUsesAliasRef <- new_uses_ref[[1]]
+  }
   
   cst <- TADA_CST_GetCriteria() |>
     dplyr::mutate(

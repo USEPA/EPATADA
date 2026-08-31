@@ -9,6 +9,7 @@ TADA_UsesForAnalysis(
   org_id = NULL,
   paramRef = NULL,
   usesRef = NULL,
+  new_uses_ref = NULL,
   AU_UsesRef = NULL,
   AUMLRef = NULL,
   auto_assign = FALSE,
