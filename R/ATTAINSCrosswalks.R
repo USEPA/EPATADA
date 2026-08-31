@@ -4694,8 +4694,10 @@ TADA_UpdateATTAINSWaterTypes <- function(
 #'
 #' review.df <- TADA_ReviewATTAINSWaterTypes(df, review_action = "update")
 #' }
-TADA_ReviewATTAINSWaterTypes <- function(.data, review_action = c("flag", "update")) {
-
+TADA_ReviewATTAINSWaterTypes <- function(
+  .data,
+  review_action = c("flag", "update")
+) {
   # set flags
   allowable_value_flag <- "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value."
   invalid_flag <- "ATTAINS.WaterType value does not match any allowable ATTAINS.WaterType."
@@ -4722,7 +4724,10 @@ TADA_ReviewATTAINSWaterTypes <- function(.data, review_action = c("flag", "updat
   # get rows with invalid ATTAINS water types
   invalid_lookup <- .data |>
     dplyr::filter(!ATTAINS.WaterType %in% attains.types) |>
-    dplyr::distinct(TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationTypeName)
+    dplyr::distinct(
+      TADA.MonitoringLocationIdentifier,
+      TADA.MonitoringLocationTypeName
+    )
 
   # set water type flags
   .data <- .data |>
@@ -4757,7 +4762,10 @@ TADA_ReviewATTAINSWaterTypes <- function(.data, review_action = c("flag", "updat
 
   # identify replacement ATTAINS.WaterType values for invalid rows via crosswalk
   update_lookup <- invalid_lookup |>
-    dplyr::left_join(cw, by = dplyr::join_by(TADA.MonitoringLocationTypeName)) |>
+    dplyr::left_join(
+      cw,
+      by = dplyr::join_by(TADA.MonitoringLocationTypeName)
+    ) |>
     dplyr::transmute(
       TADA.MonitoringLocationIdentifier,
       TADA.MonitoringLocationTypeName,
@@ -4780,7 +4788,10 @@ TADA_ReviewATTAINSWaterTypes <- function(.data, review_action = c("flag", "updat
       relationship = "many-to-many"
     ) |>
     dplyr::mutate(
-      ATTAINS.WaterType = dplyr::coalesce(New.ATTAINS.WaterType, ATTAINS.WaterType),
+      ATTAINS.WaterType = dplyr::coalesce(
+        New.ATTAINS.WaterType,
+        ATTAINS.WaterType
+      ),
       TADA.ATTAINSWaterType.Flag = dplyr::if_else(
         is.na(TADA.ATTAINSWaterType.Flag),
         allowable_value_flag,
