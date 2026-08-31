@@ -209,16 +209,15 @@ TADA_DefineCriteriaMethodology <- function(
     "FreqValue",
     "FreqMethod",
     # Data Sufficiency Columns
-    "AssessPeriod",
     "AssessPeriodStartDate",
     "AssessPeriodEndDate",
-    "Season",
     "SeasonStartDate",
     "SeasonEndDate",
     "DistrCount",
     "DistrPeriod",
     "DistrMinSample",
     "Notes",
+    "Links",
     # Equation Columns
     "EquationType",
     "EquationFormula",
@@ -644,16 +643,15 @@ TADA_DefineCriteriaMethodology <- function(
           FreqValue = as.numeric(NA),
           FreqMethod = as.character(NA),
           # Data Sufficiency Columns
-          AssessPeriod = as.character(NA),
           AssessPeriodStartDate = as.Date(NA),
           AssessPeriodEndDate = as.Date(NA),
-          Season = as.character(NA),
           SeasonStartDate = as.Date(NA),
           SeasonEndDate = as.Date(NA),
           DistrCount = as.numeric(NA),
           DistrPeriod = as.character(NA),
           DistrMinSample = as.numeric(NA),
           Notes = as.character(NA),
+          Links = as.character(NA),
           EquationType = as.character(NA),
           EquationFormula = as.character(NA),
           pHThreshold = as.numeric(NA),
@@ -1658,31 +1656,6 @@ TADA_DefineCriteriaMethodology <- function(
     openxlsx::writeData(
       wb,
       "Index-Criteria",
-      startCol = 24,
-      startRow = 1,
-      x = data.frame(
-        AssessPeriod = c(
-          "Last 30 years",
-          "Last 10 years",
-          "Last 5 years",
-          "Last 3 years",
-          "Last year",
-          "NA"
-        )
-      )
-    )
-
-    openxlsx::writeData(
-      wb,
-      "Index-Criteria",
-      startCol = 27,
-      startRow = 1,
-      x = data.frame(Season = c("Summer", "Fall", "Spring", "Winter", "NA"))
-    )
-
-    openxlsx::writeData(
-      wb,
-      "Index-Criteria",
       startCol = 31,
       startRow = 1,
       x = data.frame(
@@ -2225,16 +2198,15 @@ TADA_DefineCriteriaMethodology <- function(
       "DurationMethod",
       "FreqValue",
       "FreqMethod",
-      "AssessPeriod",
       "AssessPeriodStartDate",
       "AssessPeriodEndDate",
-      "Season",
       "SeasonStartDate",
       "SeasonEndDate",
       "DistrCount",
       "DistrPeriod",
       "DistrMinSample",
       "Notes",
+      "Links",
       "EquationType",
       "EquationFormula",
       "pHThreshold",
@@ -2276,7 +2248,6 @@ TADA_DefineCriteriaMethodology <- function(
       "Required",
       "Required",
       "Required",
-      "Optional",
       "Optional",
       "Optional",
       "Optional",
@@ -2368,7 +2339,6 @@ TADA_DefineCriteriaMethodology <- function(
       "User Supplied",
       "User Supplied",
       "User Supplied",
-      "User Supplied",
       "User Supplied"
     ),
     ColumnType = c(
@@ -2393,7 +2363,6 @@ TADA_DefineCriteriaMethodology <- function(
       "Criteria",
       "Criteria",
       "Criteria",
-      "Methodology",
       "Methodology",
       "Methodology",
       "Methodology",
@@ -2479,14 +2448,10 @@ TADA_DefineCriteriaMethodology <- function(
       "The numeric value of how often a magnitude value can be exceeded before being considered impaired.",
       # FreqMethod
       "How often a magnitude value can be exceeded percentage or number of times a magnitude value can be exceeded over a specified duration period.",
-      # AssessPeriod
-      "Labels the assessment period of which the WQP data must be collected from. Users should define the assessment date range in the beginning and end date columns that proceeds this one.",
       # AssessPeriodStartDate
       "The start date in which WQP data will be analyzed for this parameter and use.",
       # AssessPeriodEndDate
       "The end date in which WQP data will be analyzed for this parameter and use.",
-      # Season
-      "Labels the season in which the standards apply for this parameter and use. Specify the start and end dates of your season in the proceeding two columns.",
       # SeasonStartDate
       "The start date of the season in which assessments are done for during a calendar year (ex. Apr 1).",
       # SeasonEndDate
@@ -2499,6 +2464,8 @@ TADA_DefineCriteriaMethodology <- function(
       "How many samples must be collected during each specified DistrPeriod",
       # Notes
       "Additonal free form notes column for any notes that must be considered for this parameter and use that may not be able to be captured in the TADA criteria table format.",
+      #Links
+      "Link(s) to relevant WQS document for others who may wish to review the assessment criteria and methods.",
       # EquationType
       "What parameters are dependent for the equation. NOTE: Equation handling in TADA is still in development.",
       # Equation
@@ -2885,16 +2852,15 @@ TADA_DefineCriteriaMethodology <- function(
       "DurationMethod",
       "FreqValue",
       "FreqMethod",
-      "AssessPeriod",
       "AssessPeriodStartDate",
       "AssessPeriodEndDate",
-      "Season",
       "SeasonStartDate",
       "SeasonEndDate",
       "DistrCount",
       "DistrPeriod",
       "DistrMinSample",
       "Notes",
+      "Links",
       "EquationType",
       "EquationFormula",
       "pHThreshold",
@@ -2950,7 +2916,6 @@ TADA_DefineCriteriaMethodology <- function(
       "Methodology",
       "Methodology",
       "Methodology",
-      "Methodology",
       "Equation",
       "Equation",
       "Equation",
@@ -2997,14 +2962,13 @@ TADA_DefineCriteriaMethodology <- function(
       "arithmetic mean; arithmetic median; arithmetic max; arithmetic min; arithmetic extremes; geometric mean; rolling geometric mean; rolling arithmetic mean; mean of daily minima; mean of daily maxima",
       "",
       "Percent of samples not meeting; percentile; n-samples in 3 years; n-samples in 4 years; n-samples in 5 years; binomial test; NumberNotMeeting",
-      "Last 30 years; Last 10 years; Last 5 years; Last 3 years; Last year; NA",
       "",
       "",
-      "Summer; Fall; Spring; Winter",
       "",
       "",
       "",
       "Seasonal; Annual; Semi-Annual; Quarterly; Monthly; Bi-weekly; Weekly; 10 days; NA",
+      "",
       "",
       "",
       "Hardness; pH; pH and Temperature; pH and Hardness",
@@ -3053,16 +3017,15 @@ TADA_DefineCriteriaMethodology <- function(
       "",
       "10",
       "",
-      "",
       "2024-10-01",
       "2025-09-30",
-      "",
       "Apr 01",
       "Jul 15",
       "5",
       "",
       "10",
       "New addition to ATTAINS in FY2026",
+      "https://www.epa.gov/wqc/national-recommended-water-quality-criteria-aquatic-life-criteria-table",
       "",
       paste0(
         c(
