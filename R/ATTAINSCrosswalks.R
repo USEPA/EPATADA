@@ -4698,6 +4698,12 @@ TADA_ReviewATTAINSWaterTypes <- function(
   .data,
   review_action = c("flag", "update")
 ) {
+
+  #set flags
+  # allowable_value_flag <-
+  #
+  # invalid_flag <-
+
   required_cols <- c(
     "TADA.MonitoringLocationIdentifier",
     "TADA.MonitoringLocationTypeName",
