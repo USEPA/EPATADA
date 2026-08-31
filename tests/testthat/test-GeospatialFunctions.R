@@ -685,10 +685,7 @@ testthat::test_that("TADA_CreatePointAUGeometry accepts auid_prefix", {
     stringsAsFactors = FALSE
   )
 
-  result <- TADA_CreatePointAUGeometry(
-    df,
-    auid_prefix = "TEST"
-  )
+  result <- TADA_CreatePointAUGeometry(df, auid_prefix = "TEST")
 
   testthat::expect_s3_class(result, "sf")
 })
