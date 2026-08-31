@@ -4699,10 +4699,9 @@ TADA_ReviewATTAINSWaterTypes <- function(
   review_action = c("flag", "update")
 ) {
 
-  #set flags
-  # allowable_value_flag <-
-  #
-  # invalid_flag <-
+  # set flags
+  allowable_value_flag <- "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value."
+  invalid_flag <- "ATTAINS.WaterType value does not match any allowable ATTAINS.WaterType."
 
   required_cols <- c(
     "TADA.MonitoringLocationIdentifier",
@@ -4739,7 +4738,7 @@ TADA_ReviewATTAINSWaterTypes <- function(
   if (nrow(invalid_lookup) == 0) {
     .data <- .data |>
       dplyr::mutate(
-        TADA.ATTAINSWaterType.Flag = "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value."
+        TADA.ATTAINSWaterType.Flag = allowable_value_flag
       )
     return(.data |> TADA_OrderCols())
   }
@@ -4747,7 +4746,7 @@ TADA_ReviewATTAINSWaterTypes <- function(
   if (review_action == "flag") {
     flag_lookup <- invalid_lookup |>
       dplyr::mutate(
-        TADA.ATTAINSWaterType.Flag = "ATTAINS.WaterType value does not match any allowable ATTAINS.WaterType."
+        TADA.ATTAINSWaterType.Flag = invalid_flag
       )
 
     .data <- .data |>
@@ -4762,7 +4761,7 @@ TADA_ReviewATTAINSWaterTypes <- function(
       dplyr::mutate(
         TADA.ATTAINSWaterType.Flag = dplyr::if_else(
           is.na(TADA.ATTAINSWaterType.Flag),
-          "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value.",
+          allowable_value_flag,
           TADA.ATTAINSWaterType.Flag
         )
       )
@@ -4772,6 +4771,12 @@ TADA_ReviewATTAINSWaterTypes <- function(
 
   # review_action == "update"
   if (review_action == "update") {
+
+    # set additional flags for updates
+    update_to_allowable <- "ATTAINS.WaterType was updated to match an allowable ATTAINS.WaterType value by crosswalking TADA.MonitoringLocationTypeName."
+
+    update_set_NA <- "ATTAINS.WaterType was updated to NA as no ATTAINS.WaterType value was found for the TADA.MonitoringLocationTypeName."
+
     cw <- build_attains_water_type_crosswalk()
 
     update_lookup <- invalid_lookup |>
@@ -4785,8 +4790,7 @@ TADA_ReviewATTAINSWaterTypes <- function(
         New.ATTAINS.WaterType = TADA.ATTAINS.WaterType,
         TADA.ATTAINSWaterType.Flag = dplyr::if_else(
           !is.na(New.ATTAINS.WaterType),
-          "ATTAINS.WaterType was updated to match an allowable ATTAINS.WaterType value by crosswalking TADA.MonitoringLocationTypeName.",
-          "ATTAINS.WaterType set to NA as no ATTAINS.WaterType value was found for this TADA.MonitoringLocationTypeName."
+          update_to_allowable, update_set_NA
         )
       )
 
@@ -4806,7 +4810,7 @@ TADA_ReviewATTAINSWaterTypes <- function(
         ),
         TADA.ATTAINSWaterType.Flag = dplyr::if_else(
           is.na(TADA.ATTAINSWaterType.Flag),
-          "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value.",
+         allowable_value_flag,
           TADA.ATTAINSWaterType.Flag
         )
       ) |>
