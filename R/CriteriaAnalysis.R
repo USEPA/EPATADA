@@ -136,19 +136,6 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   # ------------------------------------------------------------
   # Criteria join logic
   # ------------------------------------------------------------
-  if (isTRUE(byChar)) {
-    crit_char <- criteria |>
-      dplyr::filter(!is.na(.data$`TADA.CharacteristicName`))
-
-    wqp_criteria <- dplyr::left_join(
-      .data,
-      crit_char,
-      by = "TADA.CharacteristicName",
-      relationship = "many-to-many"
-    )
-
-    return(wqp_criteria)
-  }
 
   # Join keys if MLSummaryRef is supplied
   ML_id_col <- c(
@@ -179,6 +166,16 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     id_col3 <- c(id_col3, ML_id_col)
     id_col4 <- c(id_col4, ML_id_col)
     id_col5 <- c(id_col5, ML_id_col)
+  }
+
+  if (isTRUE(byChar)) {
+    criteria <- criteria |>
+      dplyr::mutate(
+        TADA.ComparableDataIdentifier = NA_character_,
+        TADA.ResultSampleFractionText = NA_character_,
+        TADA.MethodSpeciationName = NA_character_
+      ) |>
+      dplyr::distinct()
   }
 
   # Split criteria into disjoint sets (NO de-duplication)
