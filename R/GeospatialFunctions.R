@@ -3588,3 +3588,161 @@ TADA_CreateAUMLCrosswalk <- function(
   # return final list of dfs based on user inputs
   return(final_list)
 }
+
+#' Create point geometry for ATTAINS Assessment Units
+#'
+#' Creates point or multipoint geometry for ATTAINS Assessment Units using
+#' `ATTAINS.AssessmentUnitIdentifier` when available, otherwise
+#' `TADA.MonitoringLocationIdentifier`.
+#'
+#' @param .data A data frame containing:
+#'   - `TADA.LongitudeMeasure`
+#'   - `TADA.LatitudeMeasure`
+#'   - `HorizontalCoordinateReferenceSystemDatumName`
+#'
+#'   And at least one of:
+#'   - `ATTAINS.AssessmentUnitIdentifier`
+#'   - `TADA.MonitoringLocationIdentifier`
+#'
+#' @param target_crs Numeric. Target CRS EPSG code. Default is 4269.
+#' @param download_geo Logical. If `TRUE`, write a shapefile to the user's
+#'   downloads folder.
+#' @param auid_prefix Character or `NULL`. If provided and non-empty, this
+#'   prefix is applied only to newly created
+#'   `ATTAINS.AssessmentUnitIdentifier` values.
+#'
+#' @return An `sf` object with:
+#'   - `AU_ID`
+#'   - `geometry`
+#'
+#'   If `download_geo = TRUE`, a shapefile is written to the downloads folder.
+#'
+#' @details
+#' - Missing or blank `ATTAINS.AssessmentUnitIdentifier` values are replaced
+#'   with `TADA.MonitoringLocationIdentifier`.
+#' - Single-location groups retain `POINT` geometry.
+#' - Multi-location groups are written as `MULTIPOINT`.
+#'
+#' @seealso [TADA_CreatePointAUs()]
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Example with all POINT geometry
+#' df <- Data_TribalNations_Harmonized |>
+#' dplyr::filter(OrganizationFormalName == "Blackfeet Nation (Montana)")
+#'
+#' result <- TADA_CreatePointAUGeometry(df)
+#'
+#' # Example with POINT and MULTIPOINT geometry
+#' df <- data.frame(
+#' ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU1", "AU2"),
+#' TADA.MonitoringLocationIdentifier = c("ML1", "ML1", "ML2"),
+#' TADA.LongitudeMeasure = c(-90, -90, -91),
+#' TADA.LatitudeMeasure = c(40, 41, 41),
+#'  HorizontalCoordinateReferenceSystemDatumName = c("NAD83", "NAD83", "NAD83"),
+#'  stringsAsFactors = FALSE)
+#'
+#'  result <- TADA_CreatePointAUGeometry(df)
+#' }
+#'
+TADA_CreatePointAUGeometry <- function(
+  .data,
+  target_crs = 4269,
+  download_geo = FALSE,
+  auid_prefix = NULL
+) {
+  # Required geospatial cols
+  coord_req <- c(
+    "TADA.LongitudeMeasure",
+    "TADA.LatitudeMeasure",
+    "HorizontalCoordinateReferenceSystemDatumName"
+  )
+
+  # Required id cols
+  id_cols <- c(
+    "ATTAINS.AssessmentUnitIdentifier",
+    "TADA.MonitoringLocationIdentifier"
+  )
+
+  # Find missing coordinate cols
+  missing_coords <- setdiff(coord_req, names(.data))
+  if (length(missing_coords) > 0) {
+    stop(
+      "TADA_CreatePointAUGeometry: Missing required coordinate column(s): ",
+      paste(missing_coords, collapse = ", ")
+    )
+  }
+
+  # Find missing id cols
+  if (!any(id_cols %in% names(.data))) {
+    stop(
+      "TADA_CreatePointAUGeometry: Input data must contain at least one of: ",
+      "ATTAINS.AssessmentUnitIdentifier or TADA.MonitoringLocationIdentifier"
+    )
+  }
+
+  # Fill in missing assessment unit ids if needed
+  .data <- fill_missing_assessment_unit_id(.data, auid_prefix = auid_prefix)
+
+  # Set id col
+  id.col <- if ("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
+    "ATTAINS.AssessmentUnitIdentifier"
+  } else {
+    "TADA.MonitoringLocationIdentifier"
+  }
+
+  # Set CRS target
+  crs_target <- sf::st_crs(target_crs)
+
+  # Create geospatial df
+  sf_out <- .data |>
+    dplyr::select(rlang::sym(id.col), dplyr::all_of(coord_req)) |>
+    dplyr::distinct() |>
+    dplyr::filter(
+      !is.na(TADA.LongitudeMeasure),
+      !is.na(TADA.LatitudeMeasure)
+    ) |>
+    sf::st_as_sf(
+      coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+      crs = 4269,
+      remove = TRUE
+    ) |>
+    sf::st_transform(crs = target_crs) |>
+    dplyr::group_by(!!rlang::sym(id.col)) |>
+    dplyr::summarise(
+      geometry = {
+        coords <- sf::st_coordinates(geometry)[, 1:2, drop = FALSE]
+        if (dplyr::n() == 1) {
+          sf::st_sfc(geometry[[1]], crs = crs_target)
+        } else {
+          sf::st_sfc(sf::st_multipoint(coords), crs = crs_target)
+        }
+      },
+      .groups = "drop"
+    ) |>
+    dplyr::rename(AU_ID = !!rlang::sym(id.col))
+
+  # Save as shp file if required
+  if (isTRUE(download_geo)) {
+    today <- format(Sys.Date(), "%m_%d_%Y")
+    file.name <- paste0("TADAPointAUGeometry_", today)
+
+    if (!is.null(auid_prefix)) {
+      auid_prefix <- trimws(auid_prefix)
+      auid_prefix <- sub("[-_;:]+$", "", auid_prefix)
+
+      if (nzchar(auid_prefix)) {
+        file.name <- paste0(auid_prefix, "_", file.name)
+      }
+    }
+
+    point.path <- .get_downloads_path(file.name)
+    save_sf_as_zip(sf_out, point.path)
+  }
+
+  return(sf_out)
+
+  invisible(NULL)
+}
