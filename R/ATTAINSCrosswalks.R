@@ -1682,7 +1682,7 @@ TADA_ParametersForAnalysis <- function(
 #' # First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
 #' paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 #' 
-#' usesRef_UT <- TADA_UsesForAnalysis()
+#' usesRef_UT <- TADA_UsesForAnalysis( org_id = "UTAHDWQ", paramRef = paramRef_UT)
 #'
 TADA_UsesForAnalysis <- function(
     org_id = NULL,
@@ -2054,7 +2054,7 @@ TADA_ParamUseRef <- function(
   # Optional AU_UsesRef / AUMLRef handling
   # -------------------------------------------------------------------------
   if (!is.null(AUMLRef) && !is.null(AU_UsesRef)) {
-    message("TADA_ParamUseRef: Both AUMLRef and AU_UsesRef are supplied. Filtering AU_UsesRef by AUMLRef.")
+    message("TADA_ParamUseRef: Both AUMLRef and AU_UsesRef are supplied. Filtering AU_UsesRef by assessment units in AUMLRef.")
     AU_UsesRef <- dplyr::filter(
       AU_UsesRef,
       ATTAINS.AssessmentUnitIdentifier %in% AUMLRef$ATTAINS.AssessmentUnitIdentifier
@@ -2298,6 +2298,7 @@ TADA_ParamUseRef <- function(
       CST.UseName = USE_CLASS_NAME_LOCATION_ETC, IncludeOrExclude,
       ATTAINS.FlagUseName, Flag.UseInput
     ) |>
+    dplyr::filter(is.na(CST.UseName) == FALSE | is.na(ATTAINS.UseName)) |>
     dplyr::distinct()
   
   # -------------------------------------------------------------------------

@@ -74,6 +74,6 @@ usesRef_All <- TADA_UsesForAnalysis()
 # First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
 paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 
-usesRef_UT <- TADA_UsesForAnalysis()
+usesRef_UT <- TADA_UsesForAnalysis( org_id = "UTAHDWQ", paramRef = paramRef_UT)
 
 }
