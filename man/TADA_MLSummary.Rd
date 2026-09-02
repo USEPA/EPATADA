@@ -7,7 +7,7 @@
 TADA_MLSummary(
   .data,
   org_id = NULL,
-  usesRef = NULL,
+  paramUsesRef = NULL,
   AUMLRef = NULL,
   AU_UsesRef = NULL,
   MLSummaryRef = NULL,
@@ -37,7 +37,7 @@ Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 Organization identifiers are listed in the "code" column of the "OrgName" tab.}
 
-\item{usesRef}{A data frame which contains a completed crosswalk of
+\item{paramUsesRef}{A data frame which contains a completed crosswalk of
 ATTAINS.ParameterName(s) that will be analyzed for each ATTAINS.UseName.
 Users will need to ensure this crosswalk contains the appropriate column
 names in order to  run the function. Users who have previously completed
@@ -130,7 +130,7 @@ paramRef_UT3 <- TADA_ParametersForAnalysis(
 
 # Next, enter the crosswalk generated above as the paramRef function input
 # for TADA_ParamUseRef():
-usesRef_UT <- TADA_ParamUseRef(
+paramUsesRef_UT <- TADA_ParamUseRef(
   Data_Nutrients_UT,
   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 )
@@ -140,7 +140,7 @@ MLSummaryRef_UT <- TADA_MLSummary(
   Data_Nutrients_UT,
   org_id = c("UTAHDWQ"),
   AU_UsesRef = NULL, AUMLRef = NULL,
-  usesRef = usesRef_UT,
+  paramUsesRef = paramUsesRef_UT,
   excel = FALSE
 )
 }
