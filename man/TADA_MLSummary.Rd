@@ -96,7 +96,7 @@ A data frame with any unique spatial descriptions defined with columns:
 \description{
 This function will pull in all unique MonitoringLocationName, MonitoringLocationType,
 and MonitoringLocationIdentifier from the TADA dataframe and join it to
-TADA_UsesForAnalysis. Users are not required to provide a crosswalk between
+TADA_ParamUseRef. Users are not required to provide a crosswalk between
 WQP Monitoring locations and Assessment units if they are only interested in
 summarizing assessments on a monitoring location level.
 }
@@ -129,8 +129,8 @@ paramRef_UT3 <- TADA_ParametersForAnalysis(
 )
 
 # Next, enter the crosswalk generated above as the paramRef function input
-# for TADA_UsesForAnalysis():
-usesRef_UT <- TADA_UsesForAnalysis(
+# for TADA_ParamUseRef():
+usesRef_UT <- TADA_ParamUseRef(
   Data_Nutrients_UT,
   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 )
@@ -147,7 +147,7 @@ MLSummaryRef_UT <- TADA_MLSummary(
 
 }
 \seealso{
-\code{\link[=TADA_UsesForAnalysis]{TADA_UsesForAnalysis()}}
+\code{\link[=TADA_ParamUseRef]{TADA_ParamUseRef()}}
 
 \code{\link[=TADA_AssignUsesToAU]{TADA_AssignUsesToAU()}}
 

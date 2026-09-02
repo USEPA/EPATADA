@@ -1619,11 +1619,23 @@ TADA_ParametersForAnalysis <- function(
 
 
 
-TADA_UsesRef <- function(org_id = NULL, excel = TRUE, overwrite = TRUE) {
+TADA_UsesRef <- function(org_id = NULL, paramRef = NULL, excel = FALSE, overwrite = FALSE) {
   
-  # -------------------------------------------------------------------------
+  if (is.null(paramRef)) {
+    message(
+      "TADA_UsesRef: paramRef = NULL",
+      "returning all ATTAINS.UseName for your organization and the TADA recommended use names from the Criteria Search Tool(CST)"
+    )
+  }
+  
+  if (is.null(org_id)) {
+    message(
+      "TADA_UsesRef: org_id = NULL",
+      "No organization specified. Returning all ATTAINS.UseName from the ATTAINS domain."
+    )
+  }
+  
   # Build reference table
-  # -------------------------------------------------------------------------
   ATTAINS.uses <- rExpertQuery::EQ_DomainValues(
     domain = "use_name",
     api_key = .setEQKey()
@@ -1632,6 +1644,21 @@ TADA_UsesRef <- function(org_id = NULL, excel = TRUE, overwrite = TRUE) {
   if (!is.null(org_id)) {
     ATTAINS.uses <- ATTAINS.uses |>
       dplyr::filter(context %in% org_id)
+  }
+  
+  if (!is.null(paramRef)) {
+    load(system.file(
+      "extdata",
+      "ATTAINSParamUseOrgRef.rda",
+      package = "EPATADA"
+    ))
+    
+    ATTAINSParamUseOrgRef <- ATTAINSParamUseOrgRef |>
+      dplyr::filter(ATTAINS.ParameterName %in% paramRef$ATTAINS.ParameterName) |>
+      dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
+    
+    ATTAINS.uses <- ATTAINS.uses |>
+      dplyr::filter(name %in% ATTAINSParamUseOrgRef$ATTAINS.UseName)
   }
   
   TADAUsesAliasRef <- utils::read.csv(
@@ -1665,136 +1692,8 @@ TADA_UsesRef <- function(org_id = NULL, excel = TRUE, overwrite = TRUE) {
     ) |>
     dplyr::distinct()
   
-  # -------------------------------------------------------------------------
-  # Excel output
-  # -------------------------------------------------------------------------
-  if (isTRUE(excel)) {
-    # set save path to Downloads
-    file <- .get_downloads_path("TADA_UsesRef_Template.xlsx")
-    
-    # ---- Create workbook ----
-    wb <- openxlsx::createWorkbook()
-    
-    # Sheet 1: data entry template
-    openxlsx::addWorksheet(wb, "Uses")
-    openxlsx::writeData(wb, "Uses", uses)
-    
-    # Sheet 2: reference lists for dropdowns
-    openxlsx::addWorksheet(wb, "Lists")
-    
-    # Dropdown lists
-    attains_list <- sort(unique(na.omit(uses$ATTAINS.UseName)))
-    cst_list <- sort(unique(na.omit(uses$CST.UseName)))
-    
-    # Write lists into workbook
-    openxlsx::writeData(
-      wb, "Lists",
-      x = data.frame(ATTAINS_UseName = attains_list),
-      startCol = 1, startRow = 1
-    )
-    openxlsx::writeData(
-      wb, "Lists",
-      x = data.frame(CST_UseName = cst_list),
-      startCol = 2, startRow = 1
-    )
-    
-    # Define named regions for data validation
-    if (length(attains_list) > 0) {
-      openxlsx::createNamedRegion(
-        wb, sheet = "Lists", name = "ATTAINS_UseName_List",
-        rows = 1:length(attains_list), cols = 1
-      )
-    }
-    
-    if (length(cst_list) > 0) {
-      openxlsx::createNamedRegion(
-        wb, sheet = "Lists", name = "CST_UseName_List",
-        rows = 1:length(cst_list), cols = 2
-      )
-    }
-    
-    # Apply dropdowns to the Uses sheet
-    if (length(attains_list) > 0) {
-      openxlsx::dataValidation(
-        wb,
-        sheet = "Uses",
-        cols = which(names(uses) == "ATTAINS.UseName"),
-        rows = 2:(nrow(uses) + 1),
-        type = "list",
-        value = "=ATTAINS_UseName_List"
-      )
-    }
-    
-    if (length(cst_list) > 0) {
-      openxlsx::dataValidation(
-        wb,
-        sheet = "Uses",
-        cols = which(names(uses) == "CST.UseName"),
-        rows = 2:(nrow(uses) + 1),
-        type = "list",
-        value = "=CST_UseName_List"
-      )
-    }
-    
-    # Style header
-    header_style <- openxlsx::createStyle(
-      textDecoration = "bold",
-      fgFill = "#D9EAF7",
-      border = "Bottom"
-    )
-    
-    openxlsx::addStyle(
-      wb, "Uses", header_style,
-      rows = 1, cols = 1:ncol(uses),
-      gridExpand = TRUE, stack = TRUE
-    )
-    
-    # Freeze top row
-    openxlsx::freezePane(wb, "Uses", firstRow = TRUE)
-    
-    # Manual column widths
-    openxlsx::setColWidths(wb, "Uses", cols = 1:ncol(uses), widths = c(20, 25, 25, 20, 20, 20, 18))
-    openxlsx::setColWidths(wb, "Lists", cols = 1:2, widths = c(30, 30))
-    
-    # Wrap text style
-    wrap_style <- openxlsx::createStyle(wrapText = TRUE, valign = "top")
-    
-    # Apply wrap text to all data cells in Uses
-    openxlsx::addStyle(
-      wb, "Uses", wrap_style,
-      rows = 1:(nrow(uses) + 1),
-      cols = 1:ncol(uses),
-      gridExpand = TRUE,
-      stack = TRUE
-    )
-    
-    # Optional: wrap text in Lists sheet too
-    openxlsx::addStyle(
-      wb, "Lists", wrap_style,
-      rows = 1:max(length(attains_list), length(cst_list)) + 1,
-      cols = 1:2,
-      gridExpand = TRUE,
-      stack = TRUE
-    )
-    
-    # Hide list sheet
-    sv <- openxlsx::sheetVisibility(wb)
-    sv[which(names(wb) == "Lists")] <- "hidden"
-    openxlsx::sheetVisibility(wb) <- sv
-    
-    # Save workbook to Downloads
-    openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
-    
-    message("Saved to: ", normalizePath(file))
-    
-    # Return both reference data and file path
-    list(
-      uses = uses,
-      file = file
-    )
-  }
+  return(uses)
 }
-
 
 
 #' Create or Update ATTAINS Parameter and Use crosswalk
@@ -1802,7 +1701,7 @@ TADA_UsesRef <- function(org_id = NULL, excel = TRUE, overwrite = TRUE) {
 #' This function generates a crosswalk of all parameters and uses applicable to
 #' your WQP/TADA data frame and selected organization(s) in ATTAINS.
 #' Users should review and validate each ATTAINS.ParameterName and associated
-#' ATTAINS.UseName combination.As part of this review process, users should
+#' ATTAINS.UseName combination. As part of this review process, users should
 #' check to make sure each ATTAINS.UseName generated by this
 #' function accurately corresponds to the correct TADA.ComparableDataIdentifier
 #' and ATTAINS.ParameterName found in the TADA dataframe. This function should be
@@ -1937,8 +1836,8 @@ TADA_UsesRef <- function(org_id = NULL, excel = TRUE, overwrite = TRUE) {
 #' )
 #'
 #' # Next, enter the crosswalk generated above as the paramRef function input
-#' # for TADA_UsesForAnalysis():
-#' usesRef_UT <- TADA_UsesForAnalysis(
+#' # for TADA_ParamUseRef():
+#' usesRef_UT <- TADA_ParamUseRef(
 #'   Data_Nutrients_UT,
 #'   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 #' )
@@ -1946,18 +1845,18 @@ TADA_UsesRef <- function(org_id = NULL, excel = TRUE, overwrite = TRUE) {
 #' # Now, let's compare the crosswalk for paramRef_UT4 when we use auto_assign = "All".
 #' # Notice, there are NA values for ATTAINS.UseName as these UT ATTAINS Parameter Name were
 #' # not listed as a cause in prior ATTAINS assessment cycles.
-#' usesRef_UT2 <- TADA_UsesForAnalysis(
+#' usesRef_UT2 <- TADA_ParamUseRef(
 #'   Data_Nutrients_UT,
 #'   paramRef = paramRef_UT4, org_id = c("UTAHDWQ"), excel = FALSE
 #' )
 #'
 #' # Let's test the "auto_assign" input
-#' usesRef_UT3 <- TADA_UsesForAnalysis(
+#' usesRef_UT3 <- TADA_ParamUseRef(
 #'   Data_Nutrients_UT,
 #'   paramRef = paramRef_UT4, auto_assign = TRUE, org_id = c("UTAHDWQ"), excel = FALSE
 #' )
 #'
-TADA_UsesForAnalysis <- function(
+TADA_ParamUseRef <- function(
   .data,
   org_id = NULL,
   paramRef = NULL, # Required, filter the use(s) by only those found for unique param(s) found in this ref.
@@ -2004,7 +1903,7 @@ TADA_UsesForAnalysis <- function(
 
     # Checks if paramRef argument contains a dataframe and necessary columns to proceed.
     if (is.null(paramRef)) {
-      stop("TADA_UsesForAnalysis: 'paramRef' is required.")
+      stop("TADA_ParamUseRef: 'paramRef' is required.")
     }
 
     # If a user does not fill in ANY values for the crosswalk of ATTAINS.ParameterName.
@@ -2012,7 +1911,7 @@ TADA_UsesForAnalysis <- function(
     # therefore we will allow users to proceed in this case.
     if (sum(!is.na(paramRef$ATTAINS.ParameterName)) == 0) {
       warning(paste0(
-        "TADA_UsesForAnalysis: No values were found in ATTAINS.ParameterName. ",
+        "TADA_ParamUseRef: No values were found in ATTAINS.ParameterName. ",
         "Please ensure that you have inputted all field values of interest in the ",
         "ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function."
       ))
@@ -2023,7 +1922,7 @@ TADA_UsesForAnalysis <- function(
     # there is no crosswalk, but leaving it blank will be treated similarly.
     if (sum(is.na(paramRef$ATTAINS.ParameterName)) > 1) {
       message(paste0(
-        "TADA_UsesForAnalysis: \n",
+        "TADA_ParamUseRef: \n",
         "  NAs were found in ATTAINS.ParameterName. \n",
         "  Please ensure that you have inputted all field values of interest in \n",
         "  the ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function."
@@ -2034,7 +1933,7 @@ TADA_UsesForAnalysis <- function(
     if (!is.null(paramRef) & !is.character(paramRef)) {
       if (!is.data.frame(paramRef)) {
         stop(paste0(
-          "TADA_UsesForAnalysis: \n",
+          "TADA_ParamUseRef: \n",
           "  'paramRef' must be a data frame with these 2 columns:\n",
           "  TADA.ComparableDataIdentifier and ATTAINS.ParameterName."
         ))
@@ -2050,7 +1949,7 @@ TADA_UsesForAnalysis <- function(
             !("TADA.ComparableDataIdentifier" %in% names(paramRef))
         ) {
           stop(paste0(
-            "TADA_UsesForAnalysis: 'paramRef' must be a data frame with these 2 columns:",
+            "TADA_ParamUseRef: 'paramRef' must be a data frame with these 2 columns:",
             "TADA.ComparableDataIdentifier and ATTAINS.ParameterName."
           ))
         }
@@ -2060,7 +1959,7 @@ TADA_UsesForAnalysis <- function(
     # check to see if user-supplied parameter-use ref is a df with appropriate columns and is filled out.
     if (!is.null(usesRef) && !is.character(usesRef)) {
       if (!is.data.frame(usesRef)) {
-        stop("TADA_UsesForAnalysis: 'usesRef' must be a data frame.")
+        stop("TADA_ParamUseRef: 'usesRef' must be a data frame.")
       }
       required <- c(
         "ATTAINS.OrganizationIdentifier",
@@ -2070,7 +1969,7 @@ TADA_UsesForAnalysis <- function(
       missing <- setdiff(required, names(usesRef))
       if (length(missing)) {
         stop(
-          "TADA_UsesForAnalysis: 'usesRef' is missing required column(s): ",
+          "TADA_ParamUseRef: 'usesRef' is missing required column(s): ",
           paste(missing, collapse = ", "),
           ". Required: ",
           paste(required, collapse = ", "),
@@ -2092,7 +1991,7 @@ TADA_UsesForAnalysis <- function(
     # if both AUMLRef and AU_UsesRef are provided
     if (!is.null(AUMLRef) & !is.null(AU_UsesRef)) {
       message(paste(
-        "TADA_UsesForAnalysis: Both AUMLRef and AU_UsesRef are supplied.",
+        "TADA_ParamUseRef: Both AUMLRef and AU_UsesRef are supplied.",
         "Filtering you AU_UsesRef by AU found in your AUMLRef if applicable."
       ))
 
@@ -2106,7 +2005,7 @@ TADA_UsesForAnalysis <- function(
     # If a user only provides an AU_MLRef, run TADA_AssignUsesToAU()
     if (!is.null(AUMLRef) & is.null(AU_UsesRef)) {
       message(paste(
-        "TADA_UsesForAnalysis: An AUMLRef was provided, pulling in all prior use names for these assessment unit's water type from prior ATTAINS assessment cycles for your defined org_id(s) as the default."
+        "TADA_ParamUseRef: An AUMLRef was provided, pulling in all prior use names for these assessment unit's water type from prior ATTAINS assessment cycles for your defined org_id(s) as the default."
       ))
       # runs TADA_AssignUsesToAU to create the AU_UsesRef for this function
       AU_UsesRef <- TADA_AssignUsesToAU(
@@ -2147,7 +2046,7 @@ TADA_UsesForAnalysis <- function(
       # prints message to indicate any uses not found in prior assessments for a parameter. Will assign all unique use names to it.
       # message(
       #   paste(
-      #     "TADA_UsesForAnalysis: Your user supplied AU_UsesRef contains",
+      #     "TADA_ParamUseRef: Your user supplied AU_UsesRef contains",
       #     length(setdiff(ATTAINSParamUseOrgRef$ATTAINS.ParameterName, ATTAINSParamUseOrgRef_overlap$ATTAINS.ParameterName)),
       #     "parameters that could not be found in prior assessments for the specified water types of your assessment unit.",
       #     "Assigning all unique use names to these parameters.",
@@ -2235,7 +2134,7 @@ TADA_UsesForAnalysis <- function(
         0
     ) {
       warning(paste0(
-        "TADA_UsesForAnalysis: ",
+        "TADA_ParamUseRef: ",
         "One or more organization identifiers entered by user is not found in ATTAINS. "
       ))
     }
@@ -2289,7 +2188,7 @@ TADA_UsesForAnalysis <- function(
 
     if (auto_assign == TRUE) {
       message(paste(
-        "TADA_UsesForAnalysis: auto_assign == TRUE was selected, ",
+        "TADA_ParamUseRef: auto_assign == TRUE was selected, ",
         "  assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an ",
         "  organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.",
         sep = "\r\n"
@@ -2603,7 +2502,7 @@ TADA_UsesForAnalysis <- function(
       system.file("extdata", "TADAUsesAliasRef.csv", package = "EPATADA")
     )
   } else {
-    TADAUsesAliasRef <- new_uses_ref[[1]]
+    TADAUsesAliasRef <- new_uses_ref
   }
   
   cst <- TADA_CST_GetCriteria() |>
@@ -2639,7 +2538,7 @@ TADA_UsesForAnalysis <- function(
       cst,
       by = c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier", "CST.PollutantName" = "POLLUTANT_NAME")
     ) |>
-    dplyr::relocate(
+    dplyr::select(
       TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, CST.PollutantName,
       ATTAINS.UseName, CST.UseName = USE_CLASS_NAME_LOCATION_ETC, IncludeOrExclude, ATTAINS.FlagUseName, Flag.UseInput
     ) |> 
@@ -2699,11 +2598,11 @@ TADA_UsesForAnalysis <- function(
     # -------------------------------------------------------------------------
     if (!file.exists(downloads_path)) {
       message(
-        "TADA_UsesForAnalysis:\n  ParamUseMLCrosswalks.xlsx does not exist yet. Generating the excel file."
+        "TADA_ParamUseRef:\n  ParamUseMLCrosswalks.xlsx does not exist yet. Generating the excel file."
       )
       if (!isTRUE(overwrite)) {
         message(
-          "TADA_UsesForAnalysis:\n  overwrite = F selected, creating original version as well as a copy with timestamp."
+          "TADA_ParamUseRef:\n  overwrite = F selected, creating original version as well as a copy with timestamp."
         )
       }
       
@@ -3027,7 +2926,7 @@ TADA_UsesForAnalysis <- function(
         openxlsx::activeSheet(wb) <- "UsesCrosswalk"
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
         message(
-          "TADA_UsesForAnalysis: overwrite = F selected but no original ParamUseMLCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
+          "TADA_ParamUseRef: overwrite = F selected but no original ParamUseMLCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
         )
         wb <- openxlsx::loadWorkbook(downloads_path)
       }
@@ -3831,7 +3730,7 @@ TADA_AssignUsesToWaterType <- function(
 #'
 #' This function will pull in all unique MonitoringLocationName, MonitoringLocationType,
 #' and MonitoringLocationIdentifier from the TADA dataframe and join it to
-#' TADA_UsesForAnalysis. Users are not required to provide a crosswalk between
+#' TADA_ParamUseRef. Users are not required to provide a crosswalk between
 #' WQP Monitoring locations and Assessment units if they are only interested in
 #' summarizing assessments on a monitoring location level.
 #'
@@ -3923,7 +3822,7 @@ TADA_AssignUsesToWaterType <- function(
 #' "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
 #' "LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".
 #'
-#' @seealso [TADA_UsesForAnalysis()]
+#' @seealso [TADA_ParamUseRef()]
 #' @seealso [TADA_AssignUsesToAU()]
 #' @seealso [TADA_AssignUsesToWaterType()]
 #'
@@ -3944,8 +3843,8 @@ TADA_AssignUsesToWaterType <- function(
 #' )
 #'
 #' # Next, enter the crosswalk generated above as the paramRef function input
-#' # for TADA_UsesForAnalysis():
-#' usesRef_UT <- TADA_UsesForAnalysis(
+#' # for TADA_ParamUseRef():
+#' usesRef_UT <- TADA_ParamUseRef(
 #'   Data_Nutrients_UT,
 #'   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 #' )
@@ -4287,11 +4186,11 @@ TADA_MLSummary <- function(
   overwrite = F selected, creating original version as well as a copy with timestamp."
         )
       }
-      # if no file exists yet, use the usesRef as the input from this function to generate the usesRef tabs from TADA_UsesForAnalysis
-      # but if generating a blank file, run TADA_UsesForAnalysis with no inputs
+      # if no file exists yet, use the usesRef as the input from this function to generate the usesRef tabs from TADA_ParamUseRef
+      # but if generating a blank file, run TADA_ParamUseRef with no inputs
       if (missing(usesRef)) {
-        # TADA_UsesForAnalysis will run TADA_ParametersForAnalysis too if the ParamUseMLCrosswalks.xlsx does not exist yet
-        TADA_UsesForAnalysis(
+        # TADA_ParamUseRef will run TADA_ParametersForAnalysis too if the ParamUseMLCrosswalks.xlsx does not exist yet
+        TADA_ParamUseRef(
           excel = excel,
           overwrite = T # to avoid creating two duplicate timestamp files.
         )
@@ -4305,7 +4204,7 @@ TADA_MLSummary <- function(
         ) |>
           dplyr::distinct()
 
-        TADA_UsesForAnalysis(
+        TADA_ParamUseRef(
           .data = .data,
           org_id = org_id,
           paramRef = paramRef,
@@ -4444,7 +4343,7 @@ TADA_MLSummary <- function(
         openxlsx::activeSheet(wb) <- "UsesCrosswalk"
         openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
         message(
-          "TADA_UsesForAnalysis: ",
+          "TADA_ParamUseRef: ",
           "overwrite = F selected but no original ParamUseMLCrosswalks.xlsx was found. Creating original version as well as a copy with timestamp."
         )
         wb <- openxlsx::loadWorkbook(downloads_path)
