@@ -1655,14 +1655,13 @@ TADA_UsesRef <- function(org_id = NULL, excel = TRUE, overwrite = TRUE) {
     dplyr::select(
       ATTAINS.OrganizationIdentifier,
       ATTAINS.UseName,
-      CST.UseName = USE_CLASS_NAME_LOCATION_ETC,
+      USE_CLASS_NAME_LOCATION_ETC,
       CRITERIATYPEAQUAHUMHLTH,
       CRITERIATYPEFRESHSALTWATER,
       CRITERIATYPE_ACUTECHRONIC,
       CRITERIATYPE_WATERORG,
       ENTITY_NAME,
-      ENTITY_ABBR,
-      USE_CLASS_NAME_LOCATION_ETC
+      ENTITY_ABBR
     ) |>
     dplyr::distinct()
   
