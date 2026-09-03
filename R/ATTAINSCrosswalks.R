@@ -2227,6 +2227,7 @@ TADA_ParamUseRef <- function(
         ATTAINS.OrganizationIdentifier,
         ATTAINS.ParameterName,
         ATTAINS.UseName,
+        CST.PollutantName,
         IncludeOrExclude,
         ATTAINS.FlagUseName,
         Flag.UseInput
@@ -2282,12 +2283,14 @@ TADA_ParamUseRef <- function(
   
   UsesCrosswalk <- UsesCrosswalk |>
     dplyr::mutate(
+      CST.PollutantName = toupper(CST.PollutantName),
       ATTAINS.UseName = toupper(ATTAINS.UseName),
       ATTAINS.OrganizationIdentifier = toupper(ATTAINS.OrganizationIdentifier)
     ) |>
     dplyr::left_join(
       cst,
       by = c(
+        "CST.PollutantName" = "POLLUTANT_NAME",
         "ATTAINS.UseName",
         "ATTAINS.OrganizationIdentifier"
       )
@@ -2296,7 +2299,7 @@ TADA_ParamUseRef <- function(
       TADA.ComparableDataIdentifier,
       ATTAINS.OrganizationIdentifier,
       ATTAINS.ParameterName,
-      POLLUTANT_NAME,
+      CST.PollutantName,
       ATTAINS.UseName,
       CST.UseName = USE_CLASS_NAME_LOCATION_ETC,
       IncludeOrExclude,

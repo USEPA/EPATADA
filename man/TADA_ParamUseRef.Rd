@@ -8,7 +8,7 @@ TADA_ParamUseRef(
   .data,
   org_id = NULL,
   paramRef = NULL,
-  paramUsesRef = NULL,
+  paramUseRef = NULL,
   usesRef = NULL,
   AU_UsesRef = NULL,
   AUMLRef = NULL,
@@ -46,7 +46,7 @@ Users who are interested in performing analyses for more than
 one organization (multiple states and/or tribes) also need to include an
 additional column name: 'ATTAINS.OrganizationIdentifier'.}
 
-\item{paramUsesRef}{A data frame which contains a completed crosswalk of
+\item{paramUseRef}{A data frame which contains a completed crosswalk of
 ATTAINS.ParameterName(s) that will be analyzed for each ATTAINS.UseName.
 Users will need to ensure this crosswalk contains the appropriate column
 names in order to  run the function. Users who have previously completed
@@ -121,7 +121,7 @@ cannot be retrieved from ATTAINS assessment profiles until the current/new
 assessment cycle is approved.
 
 Thus, if a user has a list of new use names that cannot be pulled from ATTAINS,
-they should consider using the AU_UsesRef argument input or the paramUsesRef
+they should consider using the AU_UsesRef argument input or the paramUseRef
 argument input which would specify that the use names should come from a
 user supplied list rather than from prior ATTAINS assessment cycles.
 If a list of use names come from the AU_UsesRef, this function will apply any
@@ -156,7 +156,7 @@ paramRef_UT4 <- TADA_ParametersForAnalysis(
 )
 
 # If usesRef is not provided, we will use the entire uses domain list (the default)
-paramUsesRef_UT <- TADA_ParamUseRef(
+paramUseRef_UT <- TADA_ParamUseRef(
   Data_Nutrients_UT,
   paramRef = paramRef_UT4, org_id = c("UTAHDWQ"), excel = FALSE
 )

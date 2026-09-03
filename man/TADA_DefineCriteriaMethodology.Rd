@@ -61,10 +61,10 @@ analysis to be done for it.}
 \item{auto_assign}{Boolean argument with two possible values: TRUE and FALSE.
 The default value is FALSE. If TRUE, a draft criteria and methods table is
 generated using default function inputs for \code{\link[=TADA_ParametersForAnalysis]{TADA_ParametersForAnalysis()}},
-\link{TADA_UsesForAnalysis}, and \link{TADA_MLSummary}. .data and org_id are
-required inputs for this function if auto_assign = TRUE. It is also
-recommended to set excel = TRUE when auto_assign = TRUE. The criteria
-and methodology template should be reviewed carefully and edits can be
+\code{\link[=TADA_UsesForAnalysis]{TADA_UsesForAnalysis()}}, \code{\link[=TADA_ParamUseRef]{TADA_ParamUseRef()}} and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}.
+.data and org_id are required inputs for this function if auto_assign = TRUE.
+It is also recommended to set excel = TRUE when auto_assign = TRUE. The
+criteria and methodology template should be reviewed carefully and edits can be
 made manually in Excel. When your review is complete, read the file back into
 R and re-run this function, TADA_DefineCriteriaMethodology, again. This time,
 use the criteriaMethods function input to specify the criteria and methodology
@@ -119,9 +119,9 @@ criteria and methodologies for each parameter and use combination they are
 interested in analyzing. This table can be filled out manually, auto-populated
 with uses and parameters from ATTAINS and the input WQP dataframe, or
 developed with TADA helper functions (recommended). It is recommended to run
-these three TADA helper functions, \code{\link[=TADA_ParametersForAnalysis]{TADA_ParametersForAnalysis()}},
-\link{TADA_UsesForAnalysis}, and \link{TADA_MLSummary}, in that order to
-generate the Criteria and Methodology table specific for your organization.
+these four TADA helper functions, \code{\link[=TADA_ParametersForAnalysis]{TADA_ParametersForAnalysis()}},
+\code{\link[=TADA_UsesForAnalysis]{TADA_UsesForAnalysis()}}, \code{\link[=TADA_ParamUseRef]{TADA_ParamUseRef()}} and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}, in that
+order to generate the Criteria and Methodology table specific for your organization.
 }
 \details{
 This criteria and methodology table will be in a TADA compatible format and
@@ -144,21 +144,34 @@ ATTAINS.organizations <- rExpertQuery::EQ_DomainValues("org_id", api_key = .setE
 # Example 1
 # First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
 paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
-paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
+
+modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
   grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 ))
-paramRef_UT3 <- TADA_ParametersForAnalysis(
+
+paramRef_UT2 <- TADA_ParametersForAnalysis(
   Data_Nutrients_UT,
-  paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
+  paramRef = modified.paramRef_UT, org_id = "UTAHDWQ", excel = FALSE
 )
+
+# Optional step: Modify the ATTAINS.UseName to CST.UseName crosswalk
+usesRef_UT <- TADA_UsesForAnalysis(org_id = "UTAHDWQ", paramRef = paramRef_UT2)
+
+modified.useRef_UT <- dplyr::filter(
+  usesRef_UT,
+    USE_CLASS_NAME_LOCATION_ETC == "AQUATIC WILDLIFE; CLASSES 3A, 3B, 3C, 3D" &
+      (ATTAINS.UseName == "AQUATIC WILDLIFE (COLD WATER)" |
+      ATTAINS.UseName == "AQUATIC WILDLIFE (WARM WATER)"),
+    USE_CLASS_NAME_LOCATION_ETC == "DOMESTIC SOURCE, CLASS 1C" &
+      ATTAINS.UseName == "DOMESTIC SOURCE")
 
 # Next, enter the crosswalk generated above as the paramRef function input
 # for TADA_UsesForAnalysis():
-usesRef_UT <- TADA_UsesForAnalysis(
-  Data_Nutrients_UT,
-  paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
+paramUsesRef_UT <- TADA_ParamUseRef(
+  Data_Nutrients_UT, usesRef = modified.useRef_UT,
+  paramRef = paramRef_UT2, org_id = c("UTAHDWQ"), excel = FALSE
 )
 
 # Now, run TADA_MLSummary()
