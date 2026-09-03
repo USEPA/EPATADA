@@ -139,6 +139,7 @@ include an ATTAINS use name that was not listed in prior ATTAINS assessment cycl
 \examples{
 # First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
 paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
@@ -151,28 +152,13 @@ paramRef_UT3 <- TADA_ParametersForAnalysis(
 
 paramRef_UT4 <- TADA_ParametersForAnalysis(
   Data_Nutrients_UT,
-  org_id = "UTAHDWQ", auto_assign = "All", excel = FALSE
+  org_id = "UTAHDWQ", auto_assign = "Org", excel = FALSE
 )
 
-# Next, enter the crosswalk generated above as the paramRef function input
-# for TADA_ParamUseRef():
+# If usesRef is not provided, we will use the entire uses domain list (the default)
 paramUsesRef_UT <- TADA_ParamUseRef(
   Data_Nutrients_UT,
-  paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
-)
-
-# Now, let's compare the crosswalk for paramRef_UT4 when we use auto_assign = "All".
-# Notice, there are NA values for ATTAINS.UseName as these UT ATTAINS Parameter Name were
-# not listed as a cause in prior ATTAINS assessment cycles.
-paramUsesRef_UT2 <- TADA_ParamUseRef(
-  Data_Nutrients_UT,
   paramRef = paramRef_UT4, org_id = c("UTAHDWQ"), excel = FALSE
-)
-
-# Let's test the "auto_assign" input
-paramUsesRef_UT3 <- TADA_ParamUseRef(
-  Data_Nutrients_UT,
-  paramRef = paramRef_UT4, auto_assign = TRUE, org_id = c("UTAHDWQ"), excel = FALSE
 )
 
 }

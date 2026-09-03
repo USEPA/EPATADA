@@ -71,7 +71,7 @@ MT_data_criteria <- TADA_Analysis_Join_WQP_Criteria(MT_data, criteria_MT)
 params <- TADA_ParametersForAnalysis(
   Data_MT_MissoulaCounty, org_id = "MTDEQ", auto_assign = "Org")
 
-uses <- TADA_UsesForAnalysis(Data_MT_MissoulaCounty,
+uses <- TADA_ParamUseRef(Data_MT_MissoulaCounty,
  org_id = "MTDEQ", paramRef = params, auto_assign = TRUE)
 
 mlsummary <- TADA_MLSummary(

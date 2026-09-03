@@ -2,7 +2,7 @@
 % Please edit documentation in R/ATTAINSCrosswalks.R
 \name{TADA_UsesForAnalysis}
 \alias{TADA_UsesForAnalysis}
-\title{Create or Update ATTAINS Uses to CST Uses Crosswalk}
+\title{Retrieve or Update ATTAINS Uses to CST Uses Crosswalk}
 \usage{
 TADA_UsesForAnalysis(
   org_id = NULL,

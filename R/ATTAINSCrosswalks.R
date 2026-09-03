@@ -1618,7 +1618,7 @@ TADA_ParametersForAnalysis <- function(
 }
 
 
-#' Create or Update ATTAINS Uses to CST Uses Crosswalk
+#' Retrieve or Update ATTAINS Uses to CST Uses Crosswalk
 #'
 #' This function generates a crosswalk between the uses in ATTAINS with the uses
 #' in the Criteria Search Tool (CST). TADA has created an internal uses alias
@@ -1797,7 +1797,7 @@ TADA_UsesForAnalysis <- function(
 #' assessment cycle is approved.
 #'
 #' Thus, if a user has a list of new use names that cannot be pulled from ATTAINS,
-#' they should consider using the AU_UsesRef argument input or the paramUsesRef
+#' they should consider using the AU_UsesRef argument input or the paramUseRef
 #' argument input which would specify that the use names should come from a
 #' user supplied list rather than from prior ATTAINS assessment cycles.
 #' If a list of use names come from the AU_UsesRef, this function will apply any
@@ -1840,7 +1840,7 @@ TADA_UsesForAnalysis <- function(
 #' one organization (multiple states and/or tribes) also need to include an
 #' additional column name: 'ATTAINS.OrganizationIdentifier'.
 #'
-#' @param paramUsesRef A data frame which contains a completed crosswalk of
+#' @param paramUseRef A data frame which contains a completed crosswalk of
 #' ATTAINS.ParameterName(s) that will be analyzed for each ATTAINS.UseName.
 #' Users will need to ensure this crosswalk contains the appropriate column
 #' names in order to  run the function. Users who have previously completed
@@ -1907,7 +1907,7 @@ TADA_UsesForAnalysis <- function(
 #' )
 #'
 #' # If usesRef is not provided, we will use the entire uses domain list (the default)
-#' paramUsesRef_UT <- TADA_ParamUseRef(
+#' paramUseRef_UT <- TADA_ParamUseRef(
 #'   Data_Nutrients_UT,
 #'   paramRef = paramRef_UT4, org_id = c("UTAHDWQ"), excel = FALSE
 #' )
@@ -1916,7 +1916,7 @@ TADA_ParamUseRef <- function(
     .data,
     org_id = NULL,
     paramRef = NULL,
-    paramUsesRef = NULL,
+    paramUseRef = NULL,
     usesRef = NULL,
     AU_UsesRef = NULL,
     AUMLRef = NULL,
@@ -1945,7 +1945,7 @@ TADA_ParamUseRef <- function(
   }
   
   if (missing(.data) && missing(org_id) && missing(paramRef) &&
-      missing(paramUsesRef) && missing(AU_UsesRef) && missing(AUMLRef)) {
+      missing(paramUseRef) && missing(AU_UsesRef) && missing(AUMLRef)) {
     message("All arguments are blank, returning an empty dataframe with column names only.")
     return(empty_crosswalk)
   }
@@ -1975,19 +1975,19 @@ TADA_ParamUseRef <- function(
     )
   }
   
-  if (!is.null(paramUsesRef)) {
-    if (!is.data.frame(paramUsesRef)) {
-      stop("TADA_ParamUseRef: 'paramUsesRef' must be a data frame.")
+  if (!is.null(paramUseRef)) {
+    if (!is.data.frame(paramUseRef)) {
+      stop("TADA_ParamUseRef: 'paramUseRef' must be a data frame.")
     }
     required <- c(
       "ATTAINS.OrganizationIdentifier",
       "ATTAINS.ParameterName",
       "ATTAINS.UseName"
     )
-    miss <- setdiff(required, names(paramUsesRef))
+    miss <- setdiff(required, names(paramUseRef))
     if (length(miss)) {
       stop(
-        "TADA_ParamUseRef: 'paramUsesRef' is missing required column(s): ",
+        "TADA_ParamUseRef: 'paramUseRef' is missing required column(s): ",
         paste(miss, collapse = ", "),
         ". Required: ",
         paste(required, collapse = ", "),
@@ -2145,14 +2145,14 @@ TADA_ParamUseRef <- function(
     
     load(system.file("extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"))
     
-    use.names <- ATTAINSParamUseOrgRef |>
-      dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
-      dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) |>
-      tidyr::drop_na() |>
-      dplyr::distinct()
-    
-    if (!is.null(AU_UsesRef)) {
-      use.names <- AU_UsesRef |>
+    all_uses <- if (!is.null(AU_UsesRef)) {
+      AU_UsesRef |>
+        dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
+        dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) |>
+        tidyr::drop_na() |>
+        dplyr::distinct()
+    } else {
+      ATTAINSParamUseOrgRef |>
         dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
         dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) |>
         tidyr::drop_na() |>
@@ -2161,27 +2161,43 @@ TADA_ParamUseRef <- function(
     
     temp <- UsesCrosswalk |>
       dplyr::filter(is.na(ATTAINS.UseName)) |>
-      dplyr::left_join(use.names, by = "ATTAINS.OrganizationIdentifier", relationship = "many-to-many") |>
+      dplyr::select(
+        TADA.ComparableDataIdentifier,
+        ATTAINS.OrganizationIdentifier,
+        ATTAINS.ParameterName,
+        CST.PollutantName,
+        IncludeOrExclude,
+        ATTAINS.FlagUseName,
+        Flag.UseInput
+      ) |>
+      dplyr::left_join(
+        all_uses,
+        by = "ATTAINS.OrganizationIdentifier",
+        relationship = "many-to-many"
+      ) |>
       dplyr::mutate(
-        ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y),
         IncludeOrExclude = "Include",
         Flag.UseInput = "auto_assign = TRUE"
       ) |>
-      dplyr::select(-ATTAINS.UseName.x, -ATTAINS.UseName.y)
+      dplyr::select(
+        TADA.ComparableDataIdentifier,
+        ATTAINS.OrganizationIdentifier,
+        ATTAINS.ParameterName,
+        ATTAINS.UseName,
+        CST.PollutantName,
+        IncludeOrExclude,
+        ATTAINS.FlagUseName,
+        Flag.UseInput
+      )
     
     UsesCrosswalk <- UsesCrosswalk |>
       dplyr::filter(!is.na(ATTAINS.UseName)) |>
-      dplyr::full_join(
-        temp,
-        by = c(
-          "ATTAINS.ParameterName",
-          "ATTAINS.UseName",
-          "ATTAINS.OrganizationIdentifier",
-          "IncludeOrExclude",
-          "ATTAINS.FlagUseName",
-          "Flag.UseInput",
-          "CST.PollutantName"
-        )
+      dplyr::bind_rows(temp) |>
+      dplyr::distinct() |>
+      dplyr::arrange(
+        ATTAINS.OrganizationIdentifier,
+        ATTAINS.ParameterName,
+        ATTAINS.UseName
       ) |>
       dplyr::mutate(
         ATTAINS.FlagUseName = dplyr::case_when(
@@ -2266,7 +2282,6 @@ TADA_ParamUseRef <- function(
   
   UsesCrosswalk <- UsesCrosswalk |>
     dplyr::mutate(
-      CST.PollutantName = toupper(CST.PollutantName),
       ATTAINS.UseName = toupper(ATTAINS.UseName),
       ATTAINS.OrganizationIdentifier = toupper(ATTAINS.OrganizationIdentifier)
     ) |>
@@ -2274,17 +2289,23 @@ TADA_ParamUseRef <- function(
       cst,
       by = c(
         "ATTAINS.UseName",
-        "ATTAINS.OrganizationIdentifier",
-        "CST.PollutantName" = "POLLUTANT_NAME"
+        "ATTAINS.OrganizationIdentifier"
       )
     ) |>
     dplyr::select(
-      TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier,
-      ATTAINS.ParameterName, CST.PollutantName, ATTAINS.UseName,
-      CST.UseName = USE_CLASS_NAME_LOCATION_ETC, IncludeOrExclude,
-      ATTAINS.FlagUseName, Flag.UseInput
+      TADA.ComparableDataIdentifier,
+      ATTAINS.OrganizationIdentifier,
+      ATTAINS.ParameterName,
+      POLLUTANT_NAME,
+      ATTAINS.UseName,
+      CST.UseName = USE_CLASS_NAME_LOCATION_ETC,
+      IncludeOrExclude,
+      ATTAINS.FlagUseName,
+      Flag.UseInput
     ) |>
-    dplyr::filter(is.na(CST.UseName) == FALSE | is.na(ATTAINS.UseName)) |>
+    dplyr::filter(
+      !is.na(CST.UseName) | is.na(ATTAINS.UseName)
+    ) |>
     dplyr::distinct()
   
   # -------------------------------------------------------------------------
@@ -3231,7 +3252,7 @@ TADA_AssignUsesToWaterType <- function(
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
-#' @param paramUsesRef A data frame which contains a completed crosswalk of
+#' @param paramUseRef A data frame which contains a completed crosswalk of
 #' ATTAINS.ParameterName(s) that will be analyzed for each ATTAINS.UseName.
 #' Users will need to ensure this crosswalk contains the appropriate column
 #' names in order to  run the function. Users who have previously completed
@@ -3308,7 +3329,7 @@ TADA_AssignUsesToWaterType <- function(
 #'
 #' # Next, enter the crosswalk generated above as the paramRef function input
 #' # for TADA_ParamUseRef():
-#' paramUsesRef_UT <- TADA_ParamUseRef(
+#' paramUseRef_UT <- TADA_ParamUseRef(
 #'   Data_Nutrients_UT,
 #'   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 #' )
@@ -3318,7 +3339,7 @@ TADA_AssignUsesToWaterType <- function(
 #'   Data_Nutrients_UT,
 #'   org_id = c("UTAHDWQ"),
 #'   AU_UsesRef = NULL, AUMLRef = NULL,
-#'   paramUsesRef = paramUsesRef_UT,
+#'   paramUseRef = paramUseRef_UT,
 #'   excel = FALSE
 #' )
 #' }
@@ -3326,7 +3347,7 @@ TADA_AssignUsesToWaterType <- function(
 TADA_MLSummary <- function(
   .data,
   org_id = NULL,
-  paramUsesRef = NULL,
+  paramUseRef = NULL,
   AUMLRef = NULL,
   AU_UsesRef = NULL,
   MLSummaryRef = NULL,
@@ -3370,7 +3391,7 @@ TADA_MLSummary <- function(
   if (
     missing(.data) &&
       missing(org_id) &&
-      missing(paramUsesRef) &&
+      missing(paramUseRef) &&
       missing(AUMLRef) &&
       missing(AU_UsesRef) &&
       missing(MLSummaryRef)
@@ -3397,21 +3418,21 @@ TADA_MLSummary <- function(
       "AU_UsesRef"
     )
     check_ref(
-      paramUsesRef,
+      paramUseRef,
       c(
         "ATTAINS.OrganizationIdentifier",
         "ATTAINS.ParameterName",
         "ATTAINS.UseName"
       ),
-      "paramUsesRef"
+      "paramUseRef"
     )
 
-    paramUsesRef <- dplyr::filter(paramUsesRef, IncludeOrExclude == "Include")
+    paramUseRef <- dplyr::filter(paramUseRef, IncludeOrExclude == "Include")
     unique_ML <- unique(.data$MonitoringLocationIdentifier)
 
     if (
       displayNA &&
-        (nrow(paramUsesRef) * length(unique_ML) > 1000 || length(org_id) > 20)
+        (nrow(paramUseRef) * length(unique_ML) > 1000 || length(org_id) > 20)
     ) {
       warning(
         "TADA_MLSummary: displayNA = TRUE was selected: Too many sites or uses and parameters. ",
@@ -3422,10 +3443,10 @@ TADA_MLSummary <- function(
 
     build_ml <- function(display_all = FALSE) {
       out <- if (display_all) {
-        paramUsesRef |>
+        paramUseRef |>
           tidyr::uncount(weights = length(unique_ML)) |>
           dplyr::mutate(
-            MonitoringLocationIdentifier = rep(unique_ML, each = nrow(paramUsesRef))
+            MonitoringLocationIdentifier = rep(unique_ML, each = nrow(paramUseRef))
           ) |>
           dplyr::full_join(
             .data,
@@ -3436,7 +3457,7 @@ TADA_MLSummary <- function(
             relationship = "many-to-many"
           )
       } else {
-        paramUsesRef |>
+        paramUseRef |>
           dplyr::full_join(
             .data,
             by = "TADA.ComparableDataIdentifier",
@@ -3531,7 +3552,7 @@ TADA_MLSummary <- function(
           )
         ) |>
         dplyr::left_join(
-          paramUsesRef,
+          paramUseRef,
           by = c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier")
         ) |>
         dplyr::select(
@@ -3642,7 +3663,7 @@ TADA_MLSummary <- function(
     if (!file.exists(downloads_path)) {
       message(
         "TADA_MLSummary:
-  ParamUseMLCrosswalks.xlsx does not exist yet. Generating the excel file using your paramUsesRef input (or NULL input if generating a blank sheet)."
+  ParamUseMLCrosswalks.xlsx does not exist yet. Generating the excel file using your paramUseRef input (or NULL input if generating a blank sheet)."
       )
       if (!isTRUE(overwrite)) {
         message(
@@ -3650,18 +3671,18 @@ TADA_MLSummary <- function(
   overwrite = F selected, creating original version as well as a copy with timestamp."
         )
       }
-      # if no file exists yet, use the paramUsesRef as the input from this function to generate the paramUsesRef tabs from TADA_ParamUseRef
+      # if no file exists yet, use the paramUseRef as the input from this function to generate the paramUseRef tabs from TADA_ParamUseRef
       # but if generating a blank file, run TADA_ParamUseRef with no inputs
-      if (missing(paramUsesRef)) {
+      if (missing(paramUseRef)) {
         # TADA_ParamUseRef will run TADA_ParametersForAnalysis too if the ParamUseMLCrosswalks.xlsx does not exist yet
         TADA_ParamUseRef(
           excel = excel,
           overwrite = T # to avoid creating two duplicate timestamp files.
         )
       }
-      if (!missing(paramUsesRef)) {
+      if (!missing(paramUseRef)) {
         paramRef <- dplyr::select(
-          paramUsesRef,
+          paramUseRef,
           ATTAINS.OrganizationIdentifier,
           ATTAINS.ParameterName,
           TADA.ComparableDataIdentifier
@@ -3672,10 +3693,10 @@ TADA_MLSummary <- function(
           .data = .data,
           org_id = org_id,
           paramRef = paramRef,
-          paramUsesRef = paramUsesRef,
+          paramUseRef = paramUseRef,
           AUMLRef = AUMLRef,
           AU_UsesRef = AU_UsesRef,
-          auto_assign = F, # this input shouldn't matter if the user supplies a paramUsesRef
+          auto_assign = F, # this input shouldn't matter if the user supplies a paramUseRef
           excel = excel,
           overwrite = T # to avoid creating duplicate timestamp files.
         )
