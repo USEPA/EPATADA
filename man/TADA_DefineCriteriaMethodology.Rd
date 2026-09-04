@@ -163,9 +163,9 @@ modified.useRef_UT <- dplyr::filter(
   usesRef_UT,
     USE_CLASS_NAME_LOCATION_ETC == "AQUATIC WILDLIFE; CLASSES 3A, 3B, 3C, 3D" &
       (ATTAINS.UseName == "AQUATIC WILDLIFE (COLD WATER)" |
-      ATTAINS.UseName == "AQUATIC WILDLIFE (WARM WATER)"),
-    USE_CLASS_NAME_LOCATION_ETC == "DOMESTIC SOURCE, CLASS 1C" &
-      ATTAINS.UseName == "DOMESTIC SOURCE")
+      ATTAINS.UseName == "AQUATIC WILDLIFE (WARM WATER)") |
+    (USE_CLASS_NAME_LOCATION_ETC == "DOMESTIC SOURCE, CLASS 1C" &
+      ATTAINS.UseName == "DOMESTIC SOURCE"))
 
 # Next, enter the crosswalk generated above as the paramRef function input
 # for TADA_UsesForAnalysis():

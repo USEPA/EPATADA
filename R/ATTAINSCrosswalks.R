@@ -1937,9 +1937,7 @@ TADA_ParamUseRef <- function(
     Flag.UseInput = character(0)
   )
   
-  # -------------------------------------------------------------------------
   # Basic validation
-  # -------------------------------------------------------------------------
   if (excel == FALSE && overwrite == TRUE) {
     stop("Argument input excel = FALSE and overwrite = TRUE is an invalid combination.")
   }
@@ -1999,9 +1997,7 @@ TADA_ParamUseRef <- function(
   
   .data <- as.data.frame(.data)
   
-  # -------------------------------------------------------------------------
-  # Base ATTAINS reference
-  # -------------------------------------------------------------------------
+  # Base ATTAINS Param and Use by Org reference
   load(system.file(
     "extdata",
     "ATTAINSParamUseOrgRef.rda",
@@ -2036,9 +2032,7 @@ TADA_ParamUseRef <- function(
     warning("TADA_ParamUseRef: One or more organization identifiers entered by user is not found in ATTAINS.")
   }
   
-  # -------------------------------------------------------------------------
   # Optional AU_UsesRef / AUMLRef handling
-  # -------------------------------------------------------------------------
   if (!is.null(AUMLRef) && !is.null(AU_UsesRef)) {
     message("TADA_ParamUseRef: Both AUMLRef and AU_UsesRef are supplied. Filtering AU_UsesRef by assessment units in AUMLRef.")
     AU_UsesRef <- dplyr::filter(
@@ -2075,9 +2069,7 @@ TADA_ParamUseRef <- function(
       dplyr::distinct()
   }
   
-  # -------------------------------------------------------------------------
-  # Param ref completion
-  # -------------------------------------------------------------------------
+  # Param ref ensure TADA.ComparableDataIdentifier is included.
   if (!("TADA.ComparableDataIdentifier" %in% names(paramRef))) {
     paramRef <- paramRef |>
       dplyr::left_join(
@@ -2094,9 +2086,7 @@ TADA_ParamUseRef <- function(
       )
   }
   
-  # -------------------------------------------------------------------------
-  # Build ATTAINS parameter-use crosswalk
-  # -------------------------------------------------------------------------
+  # Build ATTAINS parameter-use crosswalk filtered by only what is found in user's WQP data frame
   ATTAINS_param <- ATTAINSParamUseOrgRef |>
     dplyr::select(
       ATTAINS.OrganizationIdentifier,
@@ -2133,9 +2123,7 @@ TADA_ParamUseRef <- function(
       Flag.UseInput = "Default"
     )
   
-  # -------------------------------------------------------------------------
   # auto_assign any ATTAINS.ParameterName with NAs with ATTAINS.UseName
-  # -------------------------------------------------------------------------
   if (isTRUE(auto_assign)) {
     message(
       "TADA_ParamUseRef: auto_assign == TRUE selected. ",
@@ -2236,9 +2224,7 @@ TADA_ParamUseRef <- function(
       dplyr::distinct()
   }
   
-  # -------------------------------------------------------------------------
-  # Add CST crosswalk
-  # -------------------------------------------------------------------------
+  # Add CST crosswalk (ALWAYS include)
   ATTAINSOrgToCSTEntityRef <- utils::read.csv(
     system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"),
     stringsAsFactors = FALSE
@@ -2266,7 +2252,7 @@ TADA_ParamUseRef <- function(
       )
     ) |>
     dplyr::left_join(ATTAINSOrgToCSTEntityRef, by = "ENTITY_ABBR") |>
-    dplyr::left_join(
+    dplyr::right_join(
       TADAUsesAliasRef,
       by = dplyr::join_by(
         ENTITY_NAME, ENTITY_ABBR,
@@ -2281,20 +2267,40 @@ TADA_ParamUseRef <- function(
     ) |>
     dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
   
-  UsesCrosswalk <- UsesCrosswalk |>
+  # rows where UseName should be ignored
+  UsesCrosswalk_na <- UsesCrosswalk |>
     dplyr::mutate(
       CST.PollutantName = toupper(CST.PollutantName),
-      ATTAINS.UseName = toupper(ATTAINS.UseName),
-      ATTAINS.OrganizationIdentifier = toupper(ATTAINS.OrganizationIdentifier)
+      ATTAINS.OrganizationIdentifier = toupper(ATTAINS.OrganizationIdentifier),
+      ATTAINS.UseName = toupper(ATTAINS.UseName)
     ) |>
+    dplyr::filter(is.na(ATTAINS.UseName) | ATTAINS.UseName == "NA") |>
     dplyr::left_join(
       cst,
       by = c(
         "CST.PollutantName" = "POLLUTANT_NAME",
-        "ATTAINS.UseName",
         "ATTAINS.OrganizationIdentifier"
       )
+    )
+  
+  # rows where UseName should be used in the join
+  UsesCrosswalk_use <- UsesCrosswalk |>
+    dplyr::mutate(
+      CST.PollutantName = toupper(CST.PollutantName),
+      ATTAINS.OrganizationIdentifier = toupper(ATTAINS.OrganizationIdentifier),
+      ATTAINS.UseName = toupper(ATTAINS.UseName)
     ) |>
+    dplyr::filter(!is.na(ATTAINS.UseName) & ATTAINS.UseName != "NA") |>
+    dplyr::left_join(
+      cst,
+      by = c(
+        "CST.PollutantName" = "POLLUTANT_NAME",
+        "ATTAINS.OrganizationIdentifier",
+        "ATTAINS.UseName"
+      )
+    )
+  
+  UsesCrosswalk <- dplyr::bind_rows(UsesCrosswalk_na, UsesCrosswalk_use) |>
     dplyr::select(
       TADA.ComparableDataIdentifier,
       ATTAINS.OrganizationIdentifier,
@@ -2307,13 +2313,12 @@ TADA_ParamUseRef <- function(
       Flag.UseInput
     ) |>
     dplyr::filter(
-      !is.na(CST.UseName) | is.na(ATTAINS.UseName)
+      (!is.na(CST.UseName) | is.na(ATTAINS.UseName)) &
+        CST.PollutantName %in% cst$POLLUTANT_NAME
     ) |>
     dplyr::distinct()
   
-  # -------------------------------------------------------------------------
   # Excel output
-  # -------------------------------------------------------------------------
   if (isTRUE(excel)) {
     downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
     
