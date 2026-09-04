@@ -140,25 +140,33 @@ include an ATTAINS use name that was not listed in prior ATTAINS assessment cycl
 # First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
 paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 
-paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
+modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
-  grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
+  grepl("NITROGEN_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITRATE",
   grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 ))
-paramRef_UT3 <- TADA_ParametersForAnalysis(
-  Data_Nutrients_UT,
-  paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
+
+paramRef_UT2 <- TADA_ParametersForAnalysis(
+  Data_Nutrients_UT, auto_assign = "None",
+  paramRef = modified.paramRef_UT, org_id = "UTAHDWQ", excel = FALSE
 )
 
-paramRef_UT4 <- TADA_ParametersForAnalysis(
-  Data_Nutrients_UT,
-  org_id = "UTAHDWQ", auto_assign = "Org", excel = FALSE
-)
+# Optional step: Modify the ATTAINS.UseName to CST.UseName crosswalk
+usesRef_UT <- TADA_UsesForAnalysis(org_id = "UTAHDWQ", paramRef = paramRef_UT2)
 
-# If usesRef is not provided, we will use the entire uses domain list (the default)
-paramUseRef_UT <- TADA_ParamUseRef(
-  Data_Nutrients_UT,
-  paramRef = paramRef_UT4, org_id = c("UTAHDWQ"), excel = FALSE
+modified.useRef_UT <- dplyr::filter(
+  usesRef_UT,
+    USE_CLASS_NAME_LOCATION_ETC == "AQUATIC WILDLIFE; CLASSES 3A, 3B, 3C, 3D" &
+      (ATTAINS.UseName == "AQUATIC WILDLIFE (COLD WATER)" |
+      ATTAINS.UseName == "AQUATIC WILDLIFE (WARM WATER)") |
+    (USE_CLASS_NAME_LOCATION_ETC == "DOMESTIC SOURCE, CLASS 1C" &
+      ATTAINS.UseName == "DOMESTIC SOURCE"))
+
+# Next, enter the crosswalk generated above as the paramRef function input
+# for TADA_UsesForAnalysis():
+paramUsesRef_UT <- TADA_ParamUseRef(
+  Data_Nutrients_UT, usesRef = modified.useRef_UT,
+  paramRef = paramRef_UT2, org_id = c("UTAHDWQ"), excel = FALSE
 )
 
 }

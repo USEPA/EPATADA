@@ -133,7 +133,7 @@
 #' ))
 #' 
 #' paramRef_UT2 <- TADA_ParametersForAnalysis(
-#'   Data_Nutrients_UT,
+#'   Data_Nutrients_UT, auto_assign = "None",
 #'   paramRef = modified.paramRef_UT, org_id = "UTAHDWQ", excel = FALSE
 #' )
 #'
