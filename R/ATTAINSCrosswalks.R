@@ -1874,8 +1874,8 @@ TADA_UsesForAnalysis <- function(
 #' 
 #' modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
 #'   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
-#'   grepl("NITROGEN_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITRATE",
-#'   grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
+#'   grepl("NITROGEN_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITROGEN",
+#'   grepl("NITRATE_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 #' ))
 #' 
 #' paramRef_UT2 <- TADA_ParametersForAnalysis(
@@ -2241,7 +2241,7 @@ TADA_ParamUseRef <- function(
       )
     ) |>
     dplyr::left_join(ATTAINSOrgToCSTEntityRef, by = "ENTITY_ABBR") |>
-    dplyr::right_join(
+    dplyr::left_join(
       TADAUsesAliasRef,
       by = dplyr::join_by(
         ENTITY_NAME, ENTITY_ABBR,
@@ -2272,11 +2272,11 @@ TADA_ParamUseRef <- function(
       USE_CLASS_NAME_LOCATION_ETC = NA_character_
     )
   
-  # 2) rows where UseName should be ignored in the join
+  # 2) rows where UseName should be ignored in the join (ensure all cst.pollutant and uses are returned)
   UsesCrosswalk_na_ATTAINS_Use <- UsesCrosswalk_std |>
     dplyr::filter(
-      !is.na(CST.PollutantName),
-      is.na(ATTAINS.UseName)
+      !is.na(CST.PollutantName)#,
+      #is.na(ATTAINS.UseName)
     ) |>
     dplyr::left_join(
       cst,
@@ -2317,9 +2317,17 @@ TADA_ParamUseRef <- function(
       ATTAINS.FlagUseName,
       Flag.UseInput
     ) |>
-    # dplyr::filter(
-    #   ATTAINS.UseName %in% unique(TADAUsesAliasRef$ATTAINS.UseName) | 
-    #     CST.UseName %in% unique(TADAUsesAliasRef$CST.UseName)) |>
+    dplyr::group_by(
+      TADA.ComparableDataIdentifier,
+      ATTAINS.OrganizationIdentifier,
+      CST.PollutantName,
+      CST.UseName
+    ) |>
+    dplyr::filter(
+      is.na(ATTAINS.UseName) | ATTAINS.UseName %in% unique(TADAUsesAliasRef$ATTAINS.UseName),
+      dplyr::n() == 1 | !is.na(ATTAINS.UseName)
+    ) |>
+    dplyr::ungroup() |>
     dplyr::distinct()
   
   # Excel output
