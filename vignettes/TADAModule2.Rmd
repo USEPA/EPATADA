@@ -419,7 +419,7 @@ leaflet::leaflet() |>
     )
   ) |>
   leaflet::clearShapes() |>
-  EPATADA:::addMapReset() |>
+  #EPATADA:::addMapReset() |>
   leaflet::addLegend(
     position = "bottomright",
     colors = "black",
