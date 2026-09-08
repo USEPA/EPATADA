@@ -169,6 +169,12 @@ paramUsesRef_UT <- TADA_ParamUseRef(
   paramRef = paramRef_UT2, org_id = c("UTAHDWQ"), excel = FALSE
 )
 
+# Now, let's use auto_assign = TRUE
+paramUsesRef_UT2 <- TADA_ParamUseRef(
+  Data_Nutrients_UT, usesRef = modified.useRef_UT, auto_assign = TRUE,
+  paramRef = paramRef_UT2, org_id = c("UTAHDWQ"), excel = FALSE
+)
+
 }
 \seealso{
 \code{\link[=TADA_ParametersForAnalysis]{TADA_ParametersForAnalysis()}}
