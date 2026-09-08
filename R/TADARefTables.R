@@ -1373,7 +1373,11 @@ TADA_GetTADAUsesAliasRef <- function(
       CRITERIATYPE_ACUTECHRONIC,
       CRITERIATYPE_WATERORG,
       USE_CLASS_NAME_LOCATION_ETC,
-      ATTAINS.UseName
+      ATTAINS.UseName,
+      Flag.MatchSource,
+      Flag.PercentMatchToleranceText,
+      review,
+      Last.Change.Date
     ) |>
     dplyr::distinct()
   

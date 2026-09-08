@@ -1389,6 +1389,20 @@ TADA_ParametersForAnalysis <- function(
       )
   }
   
+  # identifies any case in which ATTAINS.ParameterName is populated but not CST.PollutantName or vice versa
+  attains_blank <- is.na(ParametersCrosswalk$ATTAINS.ParameterName) | trimws(ParametersCrosswalk$ATTAINS.ParameterName) == ""
+  cst_blank <- is.na(ParametersCrosswalk$CST.PollutantName) | trimws(ParametersCrosswalk$CST.PollutantName) == ""
+  
+  mask <- (attains_blank & !cst_blank) | (!attains_blank & cst_blank)
+  
+  if (any(mask)) {
+    message(
+      "TADA_ParametersForAnalysis: some rows have a missing ATTAINS.ParameterName or CST.PollutantName, or vice versa. ",
+      "If both fields are not provided, the parameter and its associated uses from the different data sources may be missing in future steps. ",
+      "Please provide a crosswalk for the missing field(s) to ensure complete retrieval of information."
+    )
+  }
+  
   if (excel == TRUE) {
     downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
     wb <- openxlsx::createWorkbook()
@@ -1428,10 +1442,6 @@ TADA_ParametersForAnalysis <- function(
         ATTAINS.UseName,
         ATTAINS.WaterType
       )
-    
-    if(auto_assign %in% c("All", "None")) {
-
-    }
 
     if (auto_assign %in% c("All", "None") ) {
       message(
@@ -1870,7 +1880,11 @@ TADA_UsesForAnalysis <- function(
 #'
 #' @examples
 #' # First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
-#' paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+#' paramRef_UT <- TADA_ParametersForAnalysis(
+#'  Data_Nutrients_UT,
+#'  auto_assign = "All",
+#'  org_id = "UTAHDWQ", 
+#'  excel = FALSE)
 #' 
 #' modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
 #'   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
@@ -1897,8 +1911,11 @@ TADA_UsesForAnalysis <- function(
 #' # Next, enter the crosswalk generated above as the paramRef function input
 #' # for TADA_UsesForAnalysis():
 #' paramUsesRef_UT <- TADA_CreateParamUseRef(
-#'   Data_Nutrients_UT, usesRef = modified.useRef_UT,
-#'   paramRef = paramRef_UT2, org_id = c("UTAHDWQ"), excel = FALSE
+#'   org_id = "UTAHDWQ",
+#'   Data_Nutrients_UT,
+#'   usesRef = modified.useRef_UT,
+#'   paramRef = paramRef_UT2,
+#'   excel = FALSE
 #' )
 #' 
 #' # Now, let's use auto_assign = TRUE
@@ -2090,7 +2107,7 @@ TADA_CreateParamUseRef <- function(
   }
   
   # Build ATTAINS parameter-use crosswalk filtered by only what is found in user's WQP data frame
-  ATTAINS_param <- ATTAINSParamUseOrgRef |>
+  ATTAINSParamUseOrgRef <- ATTAINSParamUseOrgRef |>
     dplyr::select(
       ATTAINS.OrganizationIdentifier,
       ATTAINS.ParameterName,
@@ -2104,7 +2121,7 @@ TADA_CreateParamUseRef <- function(
   
   UsesCrosswalk <- paramRef |>
     dplyr::left_join(
-      ATTAINS_param,
+      ATTAINSParamUseOrgRef,
       by = c("ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier"),
       relationship = "many-to-many"
     ) |>
@@ -2172,16 +2189,8 @@ TADA_CreateParamUseRef <- function(
   }
 
   # Add CST crosswalk (ALWAYS include)
-  ATTAINSOrgToCSTEntityRef <- utils::read.csv(
-    system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"),
-    stringsAsFactors = FALSE
-  )
-  
   if (is.null(usesRef)) {
-    TADAUsesAliasRef <- utils::read.csv(
-      system.file("extdata", "TADAUsesAliasRef.csv", package = "EPATADA"),
-      stringsAsFactors = FALSE
-    )
+    TADAUsesAliasRef <- TADA_UsesForAnalysis()
   } else {
     TADAUsesAliasRef <- usesRef
   }
@@ -2198,7 +2207,6 @@ TADA_CreateParamUseRef <- function(
         toupper
       )
     ) |>
-    dplyr::left_join(ATTAINSOrgToCSTEntityRef, by = "ENTITY_ABBR") |>
     dplyr::left_join(
       TADAUsesAliasRef,
       by = dplyr::join_by(
@@ -2285,7 +2293,7 @@ TADA_CreateParamUseRef <- function(
       CST.UseName
     ) |>
     dplyr::filter(
-      is.na(ATTAINS.UseName) | ATTAINS.UseName %in% unique(ATTAINS_param$ATTAINS.UseName),
+      is.na(ATTAINS.UseName) | ATTAINS.UseName %in% unique(ATTAINSParamUseOrgRef$ATTAINS.UseName),
       dplyr::n() == 1 | !is.na(ATTAINS.UseName)
     ) |>
     dplyr::ungroup() |>

@@ -120,7 +120,7 @@ interested in analyzing. This table can be filled out manually, auto-populated
 with uses and parameters from ATTAINS and the input WQP dataframe, or
 developed with TADA helper functions (recommended). It is recommended to run
 these four TADA helper functions, \code{\link[=TADA_ParametersForAnalysis]{TADA_ParametersForAnalysis()}},
-\code{\link[=TADA_UsesForAnalysis]{TADA_UsesForAnalysis()}}, \code{\link[=TADA_ParamUseRef]{TADA_ParamUseRef()}} and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}, in that
+\code{\link[=TADA_UsesForAnalysis]{TADA_UsesForAnalysis()}}, \code{\link[=TADA_CreateParamUseRef]{TADA_CreateParamUseRef()}} and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}, in that
 order to generate the Criteria and Methodology table specific for your organization.
 }
 \details{

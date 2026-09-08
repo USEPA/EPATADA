@@ -7,7 +7,7 @@
 #' with uses and parameters from ATTAINS and the input WQP dataframe, or
 #' developed with TADA helper functions (recommended). It is recommended to run
 #' these four TADA helper functions, [TADA_ParametersForAnalysis()],
-#' [TADA_UsesForAnalysis()], [TADA_ParamUseRef()] and [TADA_MLSummary()], in that
+#' [TADA_UsesForAnalysis()], [TADA_CreateParamUseRef()] and [TADA_MLSummary()], in that
 #' order to generate the Criteria and Methodology table specific for your organization.
 #'
 #' This criteria and methodology table will be in a TADA compatible format and

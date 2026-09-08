@@ -138,7 +138,11 @@ include an ATTAINS use name that was not listed in prior ATTAINS assessment cycl
 }
 \examples{
 # First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
-paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+paramRef_UT <- TADA_ParametersForAnalysis(
+ Data_Nutrients_UT,
+ auto_assign = "All",
+ org_id = "UTAHDWQ", 
+ excel = FALSE)
 
 modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
@@ -165,8 +169,11 @@ modified.useRef_UT <- dplyr::filter(
 # Next, enter the crosswalk generated above as the paramRef function input
 # for TADA_UsesForAnalysis():
 paramUsesRef_UT <- TADA_CreateParamUseRef(
-  Data_Nutrients_UT, usesRef = modified.useRef_UT,
-  paramRef = paramRef_UT2, org_id = c("UTAHDWQ"), excel = FALSE
+  org_id = "UTAHDWQ",
+  Data_Nutrients_UT,
+  usesRef = modified.useRef_UT,
+  paramRef = paramRef_UT2,
+  excel = FALSE
 )
 
 # Now, let's use auto_assign = TRUE
