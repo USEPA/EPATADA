@@ -1051,30 +1051,30 @@ TADA_GetTADAUsesAliasRef <- function(
   UsesType <- data.frame(
     context2 = c(
       rep(NA, 3),
-      rep("CULTURAL_USE", 2),
-      rep("DRINKINGWATER_USE", 2),
-      rep("ECOLOGICAL_USE", 2),
-      rep("FISHCONSUMPTION_USE", 2),
+      rep("CULTURAL_USE", 1),
+      rep("DRINKINGWATER_USE", 1),
+      rep("ECOLOGICAL_USE", 1),
+      rep("FISHCONSUMPTION_USE", 1),
       rep("OTHER_USE", 3),
-      rep("RECREATION_USE", 2)
+      rep("RECREATION_USE", 1)
     ),
     CRITERIATYPEAQUAHUMHLTH = c(
       "A", "H", NA_character_,
-      "H", NA_character_,
-      "H", NA_character_,
-      "A", NA_character_,
-      "H", NA_character_,
+      "H", 
+      "H", 
+      "A", 
+      "H", 
       "A", "H", NA_character_,
-      "H", NA_character_
+      "H" 
     ),
     CRITERIATYPE_WATERORG = c(
       NA_character_, NA_character_, NA_character_,
-      "O", NA_character_,
-      "W", NA_character_,
-      NA_character_, NA_character_,
-      "O", NA_character_,
+      "O",
+      "W",
+      NA_character_,
+      "O", 
       NA_character_, "O", NA_character_,
-      "O", NA_character_
+      "O"
     ),
     stringsAsFactors = FALSE
   )
@@ -1239,7 +1239,7 @@ TADA_GetTADAUsesAliasRef <- function(
     dplyr::distinct()
   
   rm(
-    CST, CST.raw, ATTAINSUseRef, CST2, ATTAINSUseRef2,
+    CST, ATTAINSUseRef, CST2, ATTAINSUseRef2,
     ATTAINS_CST, ATTAINS_CST2
   )
   
@@ -1330,6 +1330,52 @@ TADA_GetTADAUsesAliasRef <- function(
   if (!download_only) {
     .tada_cache_set(cache_key, TADAUsesAliasRef)
   }
+  
+  # Define crosswalk by org id
+  ATTAINSOrgToCSTEntityRef <- utils::read.csv(
+    system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"),
+    stringsAsFactors = FALSE
+  )
+  
+  TADAUsesAliasRef <- CST.raw |>
+    dplyr::mutate(
+      dplyr::across(
+        c(
+          POLLUTANT_NAME, ENTITY_NAME, ENTITY_ABBR,
+          CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
+          CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG,
+          USE_CLASS_NAME_LOCATION_ETC
+        ),
+        toupper
+      )
+    ) |>
+    dplyr::left_join(ATTAINSOrgToCSTEntityRef, by = "ENTITY_ABBR") |>
+    dplyr::left_join(
+      TADAUsesAliasRef,
+      by = dplyr::join_by(
+        ENTITY_NAME, ENTITY_ABBR,
+        CRITERIATYPEAQUAHUMHLTH,
+        CRITERIATYPEFRESHSALTWATER,
+        CRITERIATYPE_ACUTECHRONIC,
+        CRITERIATYPE_WATERORG,
+        USE_CLASS_NAME_LOCATION_ETC,
+        ATTAINS.OrganizationIdentifier
+      ),
+      relationship = "many-to-many"
+    ) |>
+    dplyr::select(
+      ATTAINS.OrganizationIdentifier,
+      context2,
+      ENTITY_ABBR,
+      ENTITY_NAME,
+      CRITERIATYPEAQUAHUMHLTH,
+      CRITERIATYPEFRESHSALTWATER,
+      CRITERIATYPE_ACUTECHRONIC,
+      CRITERIATYPE_WATERORG,
+      USE_CLASS_NAME_LOCATION_ETC,
+      ATTAINS.UseName
+    ) |>
+    dplyr::distinct()
   
   TADAUsesAliasRef
 }
