@@ -143,7 +143,11 @@ ATTAINS.organizations <- rExpertQuery::EQ_DomainValues("org_id", api_key = .setE
 \examples{
 # Example 1
 # First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
-paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+paramRef_UT <- TADA_ParametersForAnalysis(
+  Data_Nutrients_UT,
+  auto_assign = "All",
+  org_id = "UTAHDWQ",
+  excel = FALSE)
 
 modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",

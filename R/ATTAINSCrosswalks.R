@@ -1366,6 +1366,7 @@ TADA_ParametersForAnalysis <- function(
             "manual"
           )
         ) |>
+        dplyr::filter(!is.na(CST.PollutantName)) |>
         dplyr::distinct()
     }
     
@@ -2255,14 +2256,28 @@ TADA_ParamUseRef <- function(
     ) |>
     dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
   
-  # rows where UseName should be ignored
-  UsesCrosswalk_na <- UsesCrosswalk |>
+  # standardize once
+  UsesCrosswalk_std <- UsesCrosswalk |>
     dplyr::mutate(
       CST.PollutantName = toupper(CST.PollutantName),
       ATTAINS.OrganizationIdentifier = toupper(ATTAINS.OrganizationIdentifier),
       ATTAINS.UseName = toupper(ATTAINS.UseName)
+    )
+  
+  # 1) rows where CST.PollutantName is NA
+  UsesCrosswalk_na_CST_pollutant <- UsesCrosswalk_std |>
+    dplyr::filter(is.na(CST.PollutantName)) |>
+    dplyr::mutate(
+      POLLUTANT_NAME = NA_character_,
+      USE_CLASS_NAME_LOCATION_ETC = NA_character_
+    )
+  
+  # 2) rows where UseName should be ignored in the join
+  UsesCrosswalk_na_ATTAINS_Use <- UsesCrosswalk_std |>
+    dplyr::filter(
+      !is.na(CST.PollutantName),
+      is.na(ATTAINS.UseName)
     ) |>
-    dplyr::filter(is.na(ATTAINS.UseName) | ATTAINS.UseName == "NA") |>
     dplyr::left_join(
       cst,
       by = c(
@@ -2271,14 +2286,12 @@ TADA_ParamUseRef <- function(
       )
     )
   
-  # rows where UseName should be used in the join
-  UsesCrosswalk_use <- UsesCrosswalk |>
-    dplyr::mutate(
-      CST.PollutantName = toupper(CST.PollutantName),
-      ATTAINS.OrganizationIdentifier = toupper(ATTAINS.OrganizationIdentifier),
-      ATTAINS.UseName = toupper(ATTAINS.UseName)
+  # 3) rows where UseName should be used in the join
+  UsesCrosswalk_w_ATTAINS_use <- UsesCrosswalk_std |>
+    dplyr::filter(
+      !is.na(CST.PollutantName),
+      !is.na(ATTAINS.UseName)
     ) |>
-    dplyr::filter(!is.na(ATTAINS.UseName) & ATTAINS.UseName != "NA") |>
     dplyr::left_join(
       cst,
       by = c(
@@ -2288,7 +2301,11 @@ TADA_ParamUseRef <- function(
       )
     )
   
-  UsesCrosswalk <- dplyr::bind_rows(UsesCrosswalk_na, UsesCrosswalk_use) |>
+  UsesCrosswalk <- dplyr::bind_rows(
+    UsesCrosswalk_na_ATTAINS_Use,
+    UsesCrosswalk_w_ATTAINS_use,
+    UsesCrosswalk_na_CST_pollutant
+  ) |>
     dplyr::select(
       TADA.ComparableDataIdentifier,
       ATTAINS.OrganizationIdentifier,
@@ -2301,9 +2318,8 @@ TADA_ParamUseRef <- function(
       Flag.UseInput
     ) |>
     # dplyr::filter(
-    #   (!is.na(CST.UseName) | is.na(ATTAINS.UseName)) &
-    #     CST.PollutantName %in% cst$POLLUTANT_NAME
-    # ) |>
+    #   ATTAINS.UseName %in% unique(TADAUsesAliasRef$ATTAINS.UseName) | 
+    #     CST.UseName %in% unique(TADAUsesAliasRef$CST.UseName)) |>
     dplyr::distinct()
   
   # Excel output
