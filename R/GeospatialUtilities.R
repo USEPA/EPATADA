@@ -984,7 +984,9 @@ createTADABasemap <- function(.data) {
 #'
 addMapReset <- function(map, bbox = NULL) {
   if (is.null(bbox) || length(bbox) != 4) {
-    stop("bbox must be a numeric vector of length 4: c(xmin, ymin, xmax, ymax).")
+    stop(
+      "bbox must be a numeric vector of length 4: c(xmin, ymin, xmax, ymax)."
+    )
   }
 
   btn <- leaflet::easyButton(
@@ -993,7 +995,10 @@ addMapReset <- function(map, bbox = NULL) {
     position = "topleft",
     onClick = htmlwidgets::JS(sprintf(
       "function(btn, map){ map.fitBounds([[%f,%f],[%f,%f]]); }",
-      bbox[2], bbox[1], bbox[4], bbox[3]
+      bbox[2],
+      bbox[1],
+      bbox[4],
+      bbox[3]
     ))
   )
 
