@@ -955,19 +955,6 @@ createTADABasemap <- function(.data) {
   ))
   bbox <- createBBox(.data, as_vector = TRUE)
 
-  btn <- leaflet::easyButton(
-    icon = "fa-arrows-alt",
-    title = "Reset view",
-    position = "topleft",
-    onClick = htmlwidgets::JS(sprintf(
-      "function(btn, map){ map.fitBounds([[%f,%f],[%f,%f]]); }",
-      bbox[2],
-      bbox[1],
-      bbox[4],
-      bbox[3]
-    ))
-  )
-
   leaflet::leaflet() |>
     leaflet::addTiles(
       urlTemplate = "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
@@ -981,7 +968,7 @@ createTADABasemap <- function(.data) {
     ) |>
     leaflet::clearShapes() |>
     leaflet::fitBounds(bbox[1], bbox[2], bbox[3], bbox[4]) |>
-    addMapReset(bbox = bbox)
+    EPATADA:::addMapReset(bbox = bbox)
 }
 
 #' addMapReset
@@ -996,24 +983,21 @@ createTADABasemap <- function(.data) {
 #' @return The original map with a reset button added.
 #'
 addMapReset <- function(map, bbox = NULL) {
+  if (is.null(bbox) || length(bbox) != 4) {
+    stop("bbox must be a numeric vector of length 4: c(xmin, ymin, xmax, ymax).")
+  }
+
   btn <- leaflet::easyButton(
     icon = "fa-arrows-alt",
     title = "Reset view",
     position = "topleft",
     onClick = htmlwidgets::JS(sprintf(
       "function(btn, map){ map.fitBounds([[%f,%f],[%f,%f]]); }",
-      bbox[2],
-      bbox[1],
-      bbox[4],
-      bbox[3]
+      bbox[2], bbox[1], bbox[4], bbox[3]
     ))
   )
 
-  map <- map |> leaflet::addEasyButton(btn)
-
-  rm(btn)
-
-  return(map)
+  leaflet::addEasyButton(map, btn)
 }
 
 #' createBBox
