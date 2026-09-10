@@ -61,7 +61,7 @@ analysis to be done for it.}
 \item{auto_assign}{Boolean argument with two possible values: TRUE and FALSE.
 The default value is FALSE. If TRUE, a draft criteria and methods table is
 generated using default function inputs for \code{\link[=TADA_ParametersForAnalysis]{TADA_ParametersForAnalysis()}},
-\code{\link[=TADA_UsesForAnalysis]{TADA_UsesForAnalysis()}}, \code{\link[=TADA_ParamUseRef]{TADA_ParamUseRef()}} and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}.
+\code{\link[=TADA_UsesForAnalysis]{TADA_UsesForAnalysis()}}, \code{\link[=TADA_CreateParamUseRef]{TADA_CreateParamUseRef()}} and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}.
 .data and org_id are required inputs for this function if auto_assign = TRUE.
 It is also recommended to set excel = TRUE when auto_assign = TRUE. The
 criteria and methodology template should be reviewed carefully and edits can be
@@ -173,7 +173,7 @@ modified.useRef_UT <- dplyr::filter(
 
 # Next, enter the crosswalk generated above as the paramRef function input
 # for TADA_UsesForAnalysis():
-paramUsesRef_UT <- TADA_ParamUseRef(
+paramUsesRef_UT <- TADA_CreateParamUseRef(
   Data_Nutrients_UT, usesRef = modified.useRef_UT,
   paramRef = paramRef_UT2, org_id = c("UTAHDWQ"), excel = FALSE
 )

@@ -150,40 +150,26 @@ ATTAINS assessment cycles.
 \examples{
 \dontrun{
 # This creates a blank paramRef template of UT Nutrients data.
-# Users will need to fill this template out.
-# Uncomment example below to generate Excel file
-# (we recommended working on this in Excel):
-# TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = TRUE)
-# Example below generates the same output as a dataframe
-paramRef_UT <- TADA_ParametersForAnalysis(
+paramRef_UT_none <- TADA_ParametersForAnalysis(
   Data_Nutrients_UT,
   org_id = "UTAHDWQ", auto_assign = "None", excel = FALSE
 )
-# Users can choose to edit the paramRef_UT through the R environment or in
-# the excel spreadsheet. Users should be aware that any updates done only
-# in the R environment will not reflect the 'ATTAINS.FlagParameterName' values
-# correctly. If completed in R, we recommend users rerun this function
-# to update the 'ATTAINS.FlagParameterName'.
-# See below for a simple example of this workflow:
 
-# Manually add ATTAINS parameters to crosswalk using R
-paramRef_UT2 <- dplyr::mutate(paramRef_UT,
-  ATTAINS.ParameterName = dplyr::case_when(
-    grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
-    grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
-    grepl("NITROGEN", TADA.ComparableDataIdentifier) ~
-      "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
-  )
-)
-# Update the 'ATTAINS.FlagParameterName' values
-paramRef_UT3 <- TADA_ParametersForAnalysis(Data_Nutrients_UT,
-  paramRef = paramRef_UT2,
-  org_id = "UTAHDWQ", auto_assign = "None", excel = FALSE
-)
+paramRef_UT <- TADA_ParametersForAnalysis(
+ Data_Nutrients_UT,
+ auto_assign = "All",
+ org_id = "UTAHDWQ", 
+ excel = FALSE)
 
-# How does auto_assign = "All" compare to paramRef_UT3?
-paramRef_UT4 <- TADA_ParametersForAnalysis(Data_Nutrients_UT,
-  org_id = "UTAHDWQ", auto_assign = "All", excel = FALSE
+modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
+  grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
+  grepl("NITROGEN_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITROGEN",
+  grepl("NITRATE_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
+))
+
+paramRef_UT2 <- TADA_ParametersForAnalysis(
+  Data_Nutrients_UT, auto_assign = "None",
+  paramRef = modified.paramRef_UT, org_id = "UTAHDWQ", excel = FALSE
 )
 
 # Example where multiple org_id's are selected

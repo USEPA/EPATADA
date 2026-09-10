@@ -86,7 +86,7 @@
 #' @param auto_assign Boolean argument with two possible values: TRUE and FALSE.
 #' The default value is FALSE. If TRUE, a draft criteria and methods table is
 #' generated using default function inputs for [TADA_ParametersForAnalysis()],
-#' [TADA_UsesForAnalysis()], [TADA_ParamUseRef()] and [TADA_MLSummary()]. 
+#' [TADA_UsesForAnalysis()], [TADA_CreateParamUseRef()] and [TADA_MLSummary()]. 
 #' .data and org_id are required inputs for this function if auto_assign = TRUE.
 #' It is also recommended to set excel = TRUE when auto_assign = TRUE. The
 #' criteria and methodology template should be reviewed carefully and edits can be
@@ -154,7 +154,7 @@
 #' 
 #' # Next, enter the crosswalk generated above as the paramRef function input
 #' # for TADA_UsesForAnalysis():
-#' paramUsesRef_UT <- TADA_ParamUseRef(
+#' paramUsesRef_UT <- TADA_CreateParamUseRef(
 #'   Data_Nutrients_UT, usesRef = modified.useRef_UT,
 #'   paramRef = paramRef_UT2, org_id = c("UTAHDWQ"), excel = FALSE
 #' )

@@ -1010,40 +1010,26 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #' @examples
 #' \dontrun{
 #' # This creates a blank paramRef template of UT Nutrients data.
-#' # Users will need to fill this template out.
-#' # Uncomment example below to generate Excel file
-#' # (we recommended working on this in Excel):
-#' # TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = TRUE)
-#' # Example below generates the same output as a dataframe
-#' paramRef_UT <- TADA_ParametersForAnalysis(
+#' paramRef_UT_none <- TADA_ParametersForAnalysis(
 #'   Data_Nutrients_UT,
 #'   org_id = "UTAHDWQ", auto_assign = "None", excel = FALSE
 #' )
-#' # Users can choose to edit the paramRef_UT through the R environment or in
-#' # the excel spreadsheet. Users should be aware that any updates done only
-#' # in the R environment will not reflect the 'ATTAINS.FlagParameterName' values
-#' # correctly. If completed in R, we recommend users rerun this function
-#' # to update the 'ATTAINS.FlagParameterName'.
-#' # See below for a simple example of this workflow:
-#'
-#' # Manually add ATTAINS parameters to crosswalk using R
-#' paramRef_UT2 <- dplyr::mutate(paramRef_UT,
-#'   ATTAINS.ParameterName = dplyr::case_when(
-#'     grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
-#'     grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
-#'     grepl("NITROGEN", TADA.ComparableDataIdentifier) ~
-#'       "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
-#'   )
-#' )
-#' # Update the 'ATTAINS.FlagParameterName' values
-#' paramRef_UT3 <- TADA_ParametersForAnalysis(Data_Nutrients_UT,
-#'   paramRef = paramRef_UT2,
-#'   org_id = "UTAHDWQ", auto_assign = "None", excel = FALSE
-#' )
-#'
-#' # How does auto_assign = "All" compare to paramRef_UT3?
-#' paramRef_UT4 <- TADA_ParametersForAnalysis(Data_Nutrients_UT,
-#'   org_id = "UTAHDWQ", auto_assign = "All", excel = FALSE
+#' 
+#' paramRef_UT <- TADA_ParametersForAnalysis(
+#'  Data_Nutrients_UT,
+#'  auto_assign = "All",
+#'  org_id = "UTAHDWQ", 
+#'  excel = FALSE)
+#' 
+#' modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
+#'   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
+#'   grepl("NITROGEN_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITROGEN",
+#'   grepl("NITRATE_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
+#' ))
+#' 
+#' paramRef_UT2 <- TADA_ParametersForAnalysis(
+#'   Data_Nutrients_UT, auto_assign = "None",
+#'   paramRef = modified.paramRef_UT, org_id = "UTAHDWQ", excel = FALSE
 #' )
 #'
 #' # Example where multiple org_id's are selected
@@ -1213,6 +1199,11 @@ TADA_ParametersForAnalysis <- function(
       dplyr::select(colnames(TADACharAliasRef), ENTITY_ABBR, ATTAINS.OrganizationIdentifier)
     
     if (!is.null(paramRef)) {
+      message(paste0(
+        "TADA_ParametersForAnalysis: Returning all crosswalk from your paramRef input. Any missing TADA.ComparableDataIdentifier",
+        "not defined in your paramRef input will be assigned based on your auto_assign method specifiation, please review flags carefully."
+      ))
+      
       # Format manual parameter reference
       ParametersCrosswalk_Complete <- paramRef |>
         dplyr::select(
@@ -1236,9 +1227,10 @@ TADA_ParametersForAnalysis <- function(
             paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
               paste(ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier, ATTAINSParamUseOrgRef$ATTAINS.ParameterName) ~
               "This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization"
-          )
-        ) |>
-        dplyr::filter(!is.na(ATTAINS.ParameterName))
+          ),
+          ATTAINS.ParameterName = dplyr::if_else(is.na(ATTAINS.ParameterName), "Not applicable for analysis", ATTAINS.ParameterName),
+          CST.PollutantName = dplyr::if_else(ATTAINS.ParameterName == "Not applicable for analysis", "Not applicable for analysis", CST.PollutantName)
+        )
       
       # Identify TADA.ComparableDataIdentifier not defined in user supplied paramRef
       TADA_param <- TADA_param |>
@@ -1386,7 +1378,8 @@ TADA_ParametersForAnalysis <- function(
         ATTAINS.OrganizationIdentifier,
         ATTAINS.FlagParameterName,
         Flag.ParameterInput
-      )
+      ) |>
+      dplyr::distinct()
   }
   
   # identifies any case in which ATTAINS.ParameterName is populated but not CST.PollutantName or vice versa
@@ -2116,6 +2109,7 @@ TADA_CreateParamUseRef <- function(
     dplyr::mutate(ATTAINS.UseName = toupper(ATTAINS.UseName)) |>
     dplyr::filter(
       ATTAINS.ParameterName %in% paramRef$ATTAINS.ParameterName,
+      ATTAINS.UseName %in% usesRef$ATTAINS.UseName,
       ATTAINS.OrganizationIdentifier %in% org_id
     )
   
@@ -2190,10 +2184,17 @@ TADA_CreateParamUseRef <- function(
 
   # Add CST crosswalk (ALWAYS include)
   if (is.null(usesRef)) {
-    TADAUsesAliasRef <- TADA_UsesForAnalysis()
+    TADAUsesAliasRef <- TADA_UsesForAnalysis(org_id = org_id)
+    warning("TADA_CreateParamUseRef: You did not supply a usesRef, returning a list of all prior ATTAINS.UseName and CST.UseName that have been identified as a potential alias")
   } else {
     TADAUsesAliasRef <- usesRef
   }
+  
+  # Define crosswalk by org id
+  ATTAINSOrgToCSTEntityRef <- utils::read.csv(
+    system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"),
+    stringsAsFactors = FALSE
+  )
   
   cst <- TADA_CST_GetCriteria() |>
     dplyr::mutate(
@@ -2207,6 +2208,7 @@ TADA_CreateParamUseRef <- function(
         toupper
       )
     ) |>
+    dplyr::left_join(ATTAINSOrgToCSTEntityRef, by = dplyr::join_by(ENTITY_ABBR))|>
     dplyr::left_join(
       TADAUsesAliasRef,
       by = dplyr::join_by(
@@ -2221,7 +2223,8 @@ TADA_CreateParamUseRef <- function(
       relationship = "many-to-many"
     ) |>
     dplyr::filter(
-      ATTAINS.OrganizationIdentifier %in% org_id
+      ATTAINS.OrganizationIdentifier %in% org_id,
+      POLLUTANT_NAME %in% paramRef$CST.PollutantName
       )
   
   # standardize once
@@ -2246,14 +2249,14 @@ TADA_CreateParamUseRef <- function(
       !is.na(CST.PollutantName)#,
       #is.na(ATTAINS.UseName)
     ) |>
+    dplyr::select(-ATTAINS.UseName) |>
     dplyr::left_join(
       cst,
       by = c(
         "CST.PollutantName" = "POLLUTANT_NAME",
         "ATTAINS.OrganizationIdentifier"
       )
-    ) |>
-    dplyr::mutate(ATTAINS.UseName = ATTAINS.UseName.y)
+    )
   
   # 3) rows where UseName should be used in the join
   UsesCrosswalk_w_ATTAINS_use <- UsesCrosswalk_std |>
@@ -2297,6 +2300,7 @@ TADA_CreateParamUseRef <- function(
       dplyr::n() == 1 | !is.na(ATTAINS.UseName)
     ) |>
     dplyr::ungroup() |>
+    dplyr::mutate(ATTAINS.UseName = dplyr::if_else(ATTAINS.UseName %in% TADAUsesAliasRef$ATTAINS.UseName, ATTAINS.UseName, NA)) |>
     dplyr::distinct()
   
   if (isTRUE(auto_assign)) {
