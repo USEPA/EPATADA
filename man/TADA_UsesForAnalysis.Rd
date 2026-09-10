@@ -7,6 +7,7 @@
 TADA_UsesForAnalysis(
   org_id = NULL,
   paramRef = NULL,
+  source = NULL,
   excel = FALSE,
   overwrite = FALSE
 )
@@ -32,6 +33,10 @@ Organization identifiers are listed in the "code" column of the "OrgName" tab.}
 TADA_ComparableDataIdentifier(s) and ATTAINS.ParameterName(s). If provided,
 the ATTAINS.UseName will be filtered by only uses associated with the
 parameters in this ref from prior ATTAINS assessment cycles.}
+
+\item{source}{return matches from the CST from different methods from the TADA
+Uses Alias table. Options include "percent_word", "column_indicator", "both"
+or left as NULL for any methods.}
 
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.

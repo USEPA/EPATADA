@@ -1050,30 +1050,30 @@ TADA_GetTADAUsesAliasRef <- function(
   
   UsesType <- data.frame(
     context2 = c(
-      rep(NA, 3),
+      rep(NA, 1),
       rep("CULTURAL_USE", 1),
       rep("DRINKINGWATER_USE", 1),
       rep("ECOLOGICAL_USE", 1),
       rep("FISHCONSUMPTION_USE", 1),
-      rep("OTHER_USE", 3),
+      rep("OTHER_USE", 1),
       rep("RECREATION_USE", 1)
     ),
     CRITERIATYPEAQUAHUMHLTH = c(
-      "A", "H", NA_character_,
+      NA_character_,
       "H", 
       "H", 
       "A", 
       "H", 
-      "A", "H", NA_character_,
+      NA_character_,
       "H" 
     ),
     CRITERIATYPE_WATERORG = c(
-      NA_character_, NA_character_, NA_character_,
+      NA_character_,
       "O",
       "W",
       NA_character_,
       "O", 
-      NA_character_, "O", NA_character_,
+      NA_character_,
       "O"
     ),
     stringsAsFactors = FALSE

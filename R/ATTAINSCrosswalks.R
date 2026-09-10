@@ -1651,6 +1651,10 @@ TADA_ParametersForAnalysis <- function(
 #' replaced (overwritten) by the new file you create if you re-run this function.
 #' Users should only specify overwrite = TRUE once they are ready to re-run this
 #' function if they have already ran it once.
+#' 
+#' @param source return matches from the CST from different methods from the TADA
+#' Uses Alias table. Options include "percent_word", "column_indicator", "both"
+#' or left as NULL for any methods.
 #'
 #' @return A dataframe which contains the columns: TADA.ComparableDataIdentifier,
 #' ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName,
@@ -1671,6 +1675,7 @@ TADA_ParametersForAnalysis <- function(
 TADA_UsesForAnalysis <- function(
     org_id = NULL,
     paramRef = NULL,
+    source = NULL,
     excel = FALSE,
     overwrite = FALSE
     ) {
@@ -1742,9 +1747,18 @@ TADA_UsesForAnalysis <- function(
       CRITERIATYPE_ACUTECHRONIC,
       CRITERIATYPE_WATERORG,
       ENTITY_NAME,
-      ENTITY_ABBR
+      ENTITY_ABBR,
+      Flag.MatchSource
     ) |>
     dplyr::distinct()
+  
+  if( !is.null(source)) {
+    if (!source %in% c("percent_word", "column_indicator", "both")) {
+      stop('TADA_UsesForAnalysis: invalid source argument input provided. Please supply one of "percent_word", "column_indicator", "both" or leave as NULL')
+    } else if (source == "percent_word") {
+      uses <- uses |> dplyr::filter(Flag.MatchSource == "percent_word")
+    }
+  }
   
   return(uses)
 }
@@ -1922,7 +1936,6 @@ TADA_UsesForAnalysis <- function(
 #' )
 #' 
 #' # what if you do not define the usesRef crosswalk?
-#' #' # Now, let's use auto_assign = TRUE
 #' paramUsesRef_UT3 <- TADA_CreateParamUseRef(
 #'   org_id = "UTAHDWQ",
 #'   Data_Nutrients_UT,
