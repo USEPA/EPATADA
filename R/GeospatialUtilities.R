@@ -969,12 +969,14 @@ createTADABasemap <- function(.data) {
   )
 
   leaflet::leaflet() |>
-    leaflet::addProviderTiles(
-      "Esri.WorldTopoMap",
-      group = "World topo",
-      options = leaflet::providerTileOptions(
+    leaflet::addTiles(
+      urlTemplate = "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
+      group = "USGS Topo",
+      options = leaflet::tileOptions(
+        maxZoom = 20,
         updateWhenZooming = FALSE,
-        updateWhenIdle = TRUE
+        updateWhenIdle = TRUE,
+        attribution = 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>'
       )
     ) |>
     leaflet::clearShapes() |>

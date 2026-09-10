@@ -206,8 +206,8 @@ tada6 <- TADA_DataRetrieval(
 )
 
 # query American Indian layer for Navajo Nation
-
-navajo_sf <- sf::read_sf("inst/extdata/tribal.gpkg","AmericanIndian") |>
+tribal_gpkg <- "inst/extdata/Tribal.gpkg"
+navajo_sf <- sf::read_sf(tribal_gpkg,"AmericanIndian") |>
   dplyr::filter(NAME == "Navajo Nation")
 
 tada7 <- TADA_DataRetrieval(

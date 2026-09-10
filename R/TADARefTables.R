@@ -496,7 +496,10 @@ TADA_GetTADACharAliasRef <- function(
   ))
 
   # Retrieve the ATTAINS domain value from rExpertQuery
-  ATTAINS.raw <- rExpertQuery::EQ_DomainValues("param_name")
+  ATTAINS.raw <- rExpertQuery::EQ_DomainValues(
+    "param_name",
+    api_key = .setEQKey()
+  )
   ATTAINSParamRef <- ATTAINS.raw[, "name", drop = FALSE]
 
   # Extract all words from each ATTAINS Parameter Name
@@ -1100,7 +1103,10 @@ TADA_GetTADAUsesAliasRef <- function(
   )
 
   # ATTAINS use_name domain
-  ATTAINS.raw <- rExpertQuery::EQ_DomainValues("use_name") |>
+  ATTAINS.raw <- rExpertQuery::EQ_DomainValues(
+    "use_name",
+    api_key = .setEQKey()
+  ) |>
     dplyr::select(name, context, context2)
 
   ATTAINSUseRef <- ATTAINS.raw |>
