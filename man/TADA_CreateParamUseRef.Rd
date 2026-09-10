@@ -178,15 +178,23 @@ paramUsesRef_UT <- TADA_CreateParamUseRef(
 
 # Now, let's use auto_assign = TRUE
 paramUsesRef_UT2 <- TADA_CreateParamUseRef(
-  Data_Nutrients_UT, usesRef = modified.useRef_UT, auto_assign = TRUE,
-  paramRef = paramRef_UT2, org_id = c("UTAHDWQ"), excel = FALSE
+  org_id = "UTAHDWQ",
+  Data_Nutrients_UT,
+  usesRef = modified.useRef_UT,
+  auto_assign = TRUE,
+  paramRef = paramRef_UT2,
+  excel = FALSE
 )
 
 # what if you do not define the usesRef crosswalk?
 #' # Now, let's use auto_assign = TRUE
 paramUsesRef_UT3 <- TADA_CreateParamUseRef(
+  org_id = "UTAHDWQ",
   Data_Nutrients_UT,
-  paramRef = paramRef_UT2, org_id = c("UTAHDWQ"), excel = FALSE
+  usesRef = NULL,
+  auto_assign = FALSE,
+  paramRef = paramRef_UT2,
+  excel = FALSE
 )
 
 

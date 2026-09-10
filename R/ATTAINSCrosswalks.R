@@ -1913,15 +1913,23 @@ TADA_UsesForAnalysis <- function(
 #' 
 #' # Now, let's use auto_assign = TRUE
 #' paramUsesRef_UT2 <- TADA_CreateParamUseRef(
-#'   Data_Nutrients_UT, usesRef = modified.useRef_UT, auto_assign = TRUE,
-#'   paramRef = paramRef_UT2, org_id = c("UTAHDWQ"), excel = FALSE
+#'   org_id = "UTAHDWQ",
+#'   Data_Nutrients_UT,
+#'   usesRef = modified.useRef_UT,
+#'   auto_assign = TRUE,
+#'   paramRef = paramRef_UT2,
+#'   excel = FALSE
 #' )
 #' 
 #' # what if you do not define the usesRef crosswalk?
 #' #' # Now, let's use auto_assign = TRUE
 #' paramUsesRef_UT3 <- TADA_CreateParamUseRef(
+#'   org_id = "UTAHDWQ",
 #'   Data_Nutrients_UT,
-#'   paramRef = paramRef_UT2, org_id = c("UTAHDWQ"), excel = FALSE
+#'   usesRef = NULL,
+#'   auto_assign = FALSE,
+#'   paramRef = paramRef_UT2,
+#'   excel = FALSE
 #' )
 #' 
 #'
@@ -2297,7 +2305,8 @@ TADA_CreateParamUseRef <- function(
     ) |>
     dplyr::filter(
       is.na(ATTAINS.UseName) | ATTAINS.UseName %in% unique(ATTAINSParamUseOrgRef$ATTAINS.UseName),
-      dplyr::n() == 1 | !is.na(ATTAINS.UseName)
+      dplyr::n() == 1 | !is.na(ATTAINS.UseName),
+      toupper(ATTAINS.ParameterName) != "NOT APPLICABLE FOR ANALYSIS"
     ) |>
     dplyr::ungroup() |>
     dplyr::mutate(ATTAINS.UseName = dplyr::if_else(ATTAINS.UseName %in% TADAUsesAliasRef$ATTAINS.UseName, ATTAINS.UseName, NA)) |>
