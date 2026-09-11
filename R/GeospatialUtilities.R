@@ -1652,14 +1652,12 @@ addLayerControl <- function(map = NULL, overlay_groups = NULL) {
 #' @param .data A TADA data frame containing TADA.LatitudeMeasure and
 #' TADA.LongitudeMeasure for mapping.
 #'
-#' @param flag_type Character argument. Flag types are "lowres" and "outsideusa".
-#'
 #' @param map A leaflet map of TADA data to apply the symbology for flagged sites to.
 #'
 #' @return A TADA leaflet map with flagged site markers added.
 #'
 # add ATTAINS geometry to existing leaflet map
-addFlaggedSitesMarkers <- function(.data, map = NULL, flag_type = NULL) {
+addFlaggedSitesMarkers <- function(.data, map = NULL) {
   # add line for null map
 
   # set markers based on flag type

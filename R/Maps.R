@@ -302,27 +302,37 @@ TADA_OverviewMap <- function(.data) {
 #'
 TADA_FlaggedSitesMap <- function(.data) {
   invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
-  lowres <- invalid[
-    invalid$TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits",
-  ]
-  outsideusa <- invalid[
-    invalid$TADA.SuspectCoordinates.Flag %in%
-      c("LAT_OutsideUSA", "LONG_OutsideUSA"),
-  ]
+
+  # get TADA color palette
+  tada.pal <- TADA_ColorPalette()
+
+  # assign colors by flag
+  invalid <- invalid |>
+    dplyr::mutate(FlaggedColor =
+                    dplyr::case_when(TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits" ~ tada.pal[3],
+                              TADA.SuspectCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA") ~ tada.pal[3]))
 
   # create TADA basemap
-  map <- createTADABasemap(.data)
-
-  if (nrow(outsideusa) > 0) {
-    map <- addFlaggedSitesMarkers(
-      outsideusa,
-      map = map,
-      flag_type = "outsideusa"
+  map <- createTADABasemap(invalid) |>
+    leaflet::addCircleMarkers(
+      data = invalid,
+      lng = ~TADA.LongitudeMeasure,
+      lat = ~TADA.LatitudeMeasure,
+      color = ~FlaggedColor,
+      fillColor = ~FlaggedColor,
+      fillOpacity = 0.7,
+      stroke = TRUE,
+      weight = 1.5,
+      radius = 10,
+      popup = ~paste0(
+        "Site ID: ", TADA.MonitoringLocationIdentifier,
+        "<br> Site Name: ", TADA.MonitoringLocationName,
+        "<br> Organization Name: ", TADA.OrganizationFormalName,
+        "<br> Latitude: ", TADA.LatitudeMeasure,
+        "<br> Longitude: ", TADA.LongitudeMeasure,
+        "<br> Reason Flagged: ", TADA.SuspectCoordinates.Flag
+      )
     )
-  }
-  if (nrow(lowres) > 0) {
-    map <- addFlaggedSitesMarkers(lowres, map = map, flag_type = "lowres")
-  }
 
   # remove intermediate objects
   rm(invalid, lowres, outsideusa)
