@@ -347,7 +347,7 @@ TADA_FlaggedSitesMap <- function(.data) {
       opacity = 1,
       labels = c("Imprecise coordinates", "Outside of US", "Coordinate State Mismatch",
                  "Coordinate County Mismatch", "Multiple Flags"),
-      title = "Coordinate Flag Status"
+      title = "Coordinate Flag Category"
     ) |>
     addLegendToggle()
 
