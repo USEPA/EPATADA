@@ -314,6 +314,7 @@ SSN
 STORET
 STV
 SaltFresh
+SaltFreshIndicator
 SampleCollectionEquipmentName
 SampleCollectionMethod
 SampleFraction
@@ -433,6 +434,7 @@ batchupload
 bbox
 bnd
 bottomvalue
+byChar
 bycategory
 cdx
 characteristicName
