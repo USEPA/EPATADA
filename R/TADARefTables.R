@@ -939,26 +939,18 @@ TADA_GetTADAUsesAliasRef <- function(
     download_only = FALSE,
     refresh = FALSE
 ) {
-  # Set shared tolerance
   if (!is.na(set.all.tolerance)) {
     ATTAINS.CST.tolerance <- CST.ATTAINS.tolerance <- set.all.tolerance
   }
   
-  # Validate tolerance bounds
   if (ATTAINS.CST.tolerance > 1.00 || CST.ATTAINS.tolerance > 1.00) {
-    stop(
-      "One or more tolerance defined is greater than 1.00. Tolerance cannot exceed 100%."
-    )
+    stop("One or more tolerance defined is greater than 1.00. Tolerance cannot exceed 100%.")
   }
   if (ATTAINS.CST.tolerance < 0.00 || CST.ATTAINS.tolerance < 0.00) {
-    stop(
-      "One or more tolerance defined is less than 0.00. Tolerance cannot be less than 0%."
-    )
+    stop("One or more tolerance defined is less than 0.00. Tolerance cannot be less than 0%.")
   }
   
-  # Build cache key
   uses_csv <- system.file("extdata", "TADAUsesAliasRef.csv", package = "EPATADA")
-  
   csv_sig <- if (nzchar(uses_csv) && file.exists(uses_csv)) {
     info <- file.info(uses_csv)
     paste0(as.character(info$mtime), "|", info$size)
@@ -981,16 +973,11 @@ TADA_GetTADAUsesAliasRef <- function(
   }
   
   if (!requireNamespace("rExpertQuery", quietly = TRUE)) {
-    stop(
-      "Package 'rExpertQuery' is required by TADA_GetTADAUsesAliasRef(). Please install it."
-    )
+    stop("Package 'rExpertQuery' is required by TADA_GetTADAUsesAliasRef(). Please install it.")
   }
   
-  # Read review cache
   if (!nzchar(uses_csv) || !file.exists(uses_csv)) {
-    message(
-      "TADAUsesAliasRef.csv not found in EPATADA inst/extdata; proceeding with an empty review list."
-    )
+    message("TADAUsesAliasRef.csv not found in EPATADA inst/extdata; proceeding with an empty review list.")
     current_TADAUsesAlias <- data.frame(
       ENTITY_ABBR = character(),
       ENTITY_NAME = character(),
@@ -1028,44 +1015,28 @@ TADA_GetTADAUsesAliasRef <- function(
   }
   
   UsesType <- data.frame(
-    context2 = c(
-      rep(NA, 1),
-      rep("CULTURAL_USE", 1),
-      rep("DRINKINGWATER_USE", 1),
-      rep("ECOLOGICAL_USE", 1),
-      rep("FISHCONSUMPTION_USE", 1),
-      rep("OTHER_USE", 1),
-      rep("RECREATION_USE", 1)
-    ),
-    CRITERIATYPEAQUAHUMHLTH = c(
-      NA_character_,
-      "H",
-      "H",
-      "A",
-      "H",
-      NA_character_,
-      "H"
-    ),
-    CRITERIATYPE_WATERORG = c(
-      NA_character_,
-      "O",
-      "W",
-      NA_character_,
-      "O",
-      NA_character_,
-      "O"
-    ),
+    context2 = c(NA, "CULTURAL_USE", "DRINKINGWATER_USE", "ECOLOGICAL_USE", "FISHCONSUMPTION_USE", "OTHER_USE", "RECREATION_USE"),
+    CRITERIATYPEAQUAHUMHLTH = c(NA_character_, "H", "H", "A", "H", NA_character_, "H"),
+    CRITERIATYPE_WATERORG = c(NA_character_, "O", "W", NA_character_, "O", NA_character_, "O"),
     stringsAsFactors = FALSE
   )
   
   stop_words <- c(
-    "a","an","for","and","nor","but","or","yet","so","the",
+    "an","for","and","nor","but","or","yet","so","the",
     "!","\"","#","$","%","&","'","(",")","*","+",
     ",","-",".","/",";",":","<","=",">","?","@",
     "[","\\","]","^","_","`","{","|","}","~","(%)","--"
   )
   
-  # use_name domain
+  select_class_tokens_simple <- function(x) {
+    x <- toupper(x)
+    words <- unlist(stringr::str_split(x, "\\s+"))
+    words <- gsub("[^A-Z0-9]", "", words)
+    words <- words[nzchar(words)]
+    class_codes <- words[stringr::str_detect(words, "^[A-Z]{1,3}$")]
+    unique(class_codes)
+  }
+  
   ATTAINS.raw <- rExpertQuery::EQ_DomainValues("use_name") |>
     dplyr::select(name, context, context2)
   
@@ -1086,7 +1057,6 @@ TADA_GetTADAUsesAliasRef <- function(
     dplyr::filter(name_words != "") |>
     dplyr::distinct(ATTAINS.OrganizationIdentifier, name, name_words, .keep_all = TRUE)
   
-  # use_class domain
   ATTAINS.use_class.raw <- rExpertQuery::EQ_DomainValues(
     domain = "use_class",
     api_key = .setEQKey()
@@ -1103,11 +1073,8 @@ TADA_GetTADAUsesAliasRef <- function(
     dplyr::distinct()
   
   ATTAINSUseClassRef2 <- ATTAINSUseClassRef |>
-    dplyr::mutate(use_class_words = stringr::str_split(ATTAINS.UseClass, " ")) |>
+    dplyr::mutate(use_class_words = lapply(ATTAINS.UseClass, select_class_tokens_simple)) |>
     tidyr::unnest(cols = c(use_class_words)) |>
-    dplyr::filter(!use_class_words %in% toupper(c(stop_words, "class"))) |>
-    dplyr::mutate(use_class_words = toupper(gsub("[^[:alnum:] ]", "", use_class_words))) |>
-    dplyr::filter(use_class_words != "") |>
     dplyr::distinct(
       ATTAINS.OrganizationIdentifier,
       ATTAINS.UseName,
@@ -1167,7 +1134,6 @@ TADA_GetTADAUsesAliasRef <- function(
     dplyr::mutate(ENTITY_NAME = toupper(ENTITY_NAME)) |>
     dplyr::left_join(ATTAINS_CST.org, by = "ENTITY_ABBR")
   
-  # Column match with use_name
   ATTAINS_CST <- dplyr::full_join(
     CST,
     ATTAINSUseRef,
@@ -1175,11 +1141,9 @@ TADA_GetTADAUsesAliasRef <- function(
     relationship = "many-to-many"
   ) |>
     dplyr::mutate(
-      Flag.MatchByColumnIndicator = !is.na(ATTAINS.OrganizationIdentifier) &
-        !is.na(USE_CLASS_NAME_LOCATION_ETC)
+      Flag.MatchByColumnIndicator = !is.na(ATTAINS.OrganizationIdentifier) & !is.na(USE_CLASS_NAME_LOCATION_ETC)
     )
   
-  # Percent match with use_name
   ATTAINS_CST2 <- dplyr::full_join(
     CST2,
     ATTAINSUseRef2,
@@ -1214,9 +1178,6 @@ TADA_GetTADAUsesAliasRef <- function(
       relationship = "many-to-many"
     )
   
-  # Percent match with use_class:
-  # If ATTAINS.UseClass matches a CST USE_CLASS_NAME_LOCATION_ETC, return
-  # all ATTAINS.UseName values tied to that UseClass.
   ATTAINS_CST3 <- dplyr::full_join(
     CST2,
     ATTAINSUseClassRef2,
@@ -1263,7 +1224,6 @@ TADA_GetTADAUsesAliasRef <- function(
     ) |>
     dplyr::filter(!is.na(ATTAINS.UseClass))
   
-  # Merge match sources
   ATTAINS_CST_final <- ATTAINS_CST |>
     dplyr::full_join(
       ATTAINS_CST2,
@@ -1308,38 +1268,53 @@ TADA_GetTADAUsesAliasRef <- function(
         TRUE ~ NA_character_
       ),
       Flag.PercentMatchToleranceTextUseName = dplyr::if_else(
-        Flag.MatchByPercentMatchUseName,
-        Flag.PercentMatchToleranceTextUseName,
-        NA_character_
+        Flag.MatchByPercentMatchUseName, Flag.PercentMatchToleranceTextUseName, NA_character_
       ),
       Flag.PercentMatchToleranceTextUseClass = dplyr::if_else(
-        Flag.MatchByPercentMatchUseClass,
-        Flag.PercentMatchToleranceTextUseClass,
-        NA_character_
+        Flag.MatchByPercentMatchUseClass, Flag.PercentMatchToleranceTextUseClass, NA_character_
       )
     ) |>
     dplyr::distinct()
   
-  rm(
-    CST, ATTAINSUseRef, CST2, ATTAINSUseRef2,
-    ATTAINS_CST, ATTAINS_CST2, ATTAINS_CST3,
-    ATTAINSUseClassRef, ATTAINSUseClassRef2
-  )
-  
-  TADAUsesAliasRef <- ATTAINS_CST_final |>
+  matched_rows <- ATTAINS_CST_final |>
     dplyr::filter(
       Flag.MatchByColumnIndicator |
         Flag.MatchByPercentMatchUseName |
-        Flag.MatchByPercentMatchUseClass |
-        (is.na(percent_match_CST_in_ATTAINS) & is.na(percent_match_ATTAINS_in_CST) &
-           is.na(percent_match_CST_in_ATTAINS_use_class) & is.na(percent_match_ATTAINS_use_class_in_CST))
+        Flag.MatchByPercentMatchUseClass
     ) |>
     dplyr::mutate(
-      ATTAINS.UseName = name,
       review = "New row: Needs Review",
       Last.Change.Date = NA_character_
+    )
+  
+  unmatched_attains <- ATTAINSUseRef |>
+    dplyr::transmute(
+      ATTAINS.OrganizationIdentifier,
+      context2,
+      ENTITY_ABBR = NA_character_,
+      ENTITY_NAME = NA_character_,
+      CRITERIATYPEAQUAHUMHLTH = NA_character_,
+      CRITERIATYPEFRESHSALTWATER = NA_character_,
+      CRITERIATYPE_ACUTECHRONIC = NA_character_,
+      CRITERIATYPE_WATERORG = NA_character_,
+      USE_CLASS_NAME_LOCATION_ETC = NA_character_,
+      ATTAINS.UseName = name,
+      ATTAINS.UseClass = NA_character_,
+      Flag.MatchSource = "No match found",
+      Flag.PercentMatchToleranceTextUseName = NA_character_,
+      Flag.PercentMatchToleranceTextUseClass = NA_character_,
+      review = "No match found",
+      Last.Change.Date = NA_character_
     ) |>
-    dplyr::select(
+    dplyr::anti_join(
+      matched_rows,
+      by = dplyr::join_by(ATTAINS.OrganizationIdentifier, ATTAINS.UseName)
+    )
+  
+  unmatched_cst <- CST |>
+    dplyr::transmute(
+      ATTAINS.OrganizationIdentifier,
+      context2 = NA_character_,
       ENTITY_ABBR,
       ENTITY_NAME,
       CRITERIATYPEAQUAHUMHLTH,
@@ -1347,46 +1322,34 @@ TADA_GetTADAUsesAliasRef <- function(
       CRITERIATYPE_ACUTECHRONIC,
       CRITERIATYPE_WATERORG,
       USE_CLASS_NAME_LOCATION_ETC,
-      ATTAINS.OrganizationIdentifier,
-      context2,
-      ATTAINS.UseName,
-      ATTAINS.UseClass,
-      Flag.MatchSource,
-      Flag.PercentMatchToleranceTextUseName,
-      Flag.PercentMatchToleranceTextUseClass,
-      review,
-      Last.Change.Date
-    )
-  
-  current_TADAUsesAlias_keep <- current_TADAUsesAlias |>
-    dplyr::filter(review %in% c("APPROVED", "REJECTED"))
-  
-  for (nm in setdiff(names(TADAUsesAliasRef), names(current_TADAUsesAlias_keep))) {
-    current_TADAUsesAlias_keep[[nm]] <- TADAUsesAliasRef[[nm]][0]
-  }
-  current_TADAUsesAlias_keep <- current_TADAUsesAlias_keep[, names(TADAUsesAliasRef), drop = FALSE] |>
-    dplyr::mutate(Last.Change.Date = as.character(Last.Change.Date))
-  
-  TADAUsesAliasRef <- TADAUsesAliasRef |>
-    dplyr::filter(!is.na(ATTAINS.UseName), !is.na(USE_CLASS_NAME_LOCATION_ETC)) |>
+      ATTAINS.UseName = NA_character_,
+      ATTAINS.UseClass = NA_character_,
+      Flag.MatchSource = "No match found",
+      Flag.PercentMatchToleranceTextUseName = NA_character_,
+      Flag.PercentMatchToleranceTextUseClass = NA_character_,
+      review = "No match found",
+      Last.Change.Date = NA_character_
+    ) |>
     dplyr::anti_join(
-      current_TADAUsesAlias_keep,
+      matched_rows,
       by = dplyr::join_by(
         ATTAINS.OrganizationIdentifier,
-        context2,
         ENTITY_ABBR,
         ENTITY_NAME,
         CRITERIATYPEAQUAHUMHLTH,
         CRITERIATYPEFRESHSALTWATER,
         CRITERIATYPE_ACUTECHRONIC,
         CRITERIATYPE_WATERORG,
-        USE_CLASS_NAME_LOCATION_ETC,
-        ATTAINS.UseName,
-        ATTAINS.UseClass
-      ),
-      na_matches = "na"
-    ) |>
-    dplyr::bind_rows(current_TADAUsesAlias_keep) |>
+        USE_CLASS_NAME_LOCATION_ETC
+      )
+    )
+  
+  TADAUsesAliasRef <- dplyr::bind_rows(
+    matched_rows,
+    unmatched_attains,
+    unmatched_cst
+  ) |>
+    dplyr::distinct() |>
     dplyr::relocate(
       ATTAINS.OrganizationIdentifier,
       context2,
@@ -1401,7 +1364,7 @@ TADA_GetTADAUsesAliasRef <- function(
       ATTAINS.UseClass
     )
   
-  allowed_review <- c("APPROVED", "REJECTED", "New row: Needs Review")
+  allowed_review <- c("APPROVED", "REJECTED", "New row: Needs Review", "No match found")
   bad_review <- unique(TADAUsesAliasRef$review[
     !is.na(TADAUsesAliasRef$review) &
       !TADAUsesAliasRef$review %in% allowed_review
@@ -1420,38 +1383,7 @@ TADA_GetTADAUsesAliasRef <- function(
     .tada_cache_set(cache_key, TADAUsesAliasRef)
   }
   
-  # Define crosswalk by org id
-  ATTAINSOrgToCSTEntityRef <- utils::read.csv(
-    system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"),
-    stringsAsFactors = FALSE
-  )
-  
-  TADAUsesAliasRef <- CST.raw |>
-    dplyr::mutate(
-      dplyr::across(
-        c(
-          POLLUTANT_NAME, ENTITY_NAME, ENTITY_ABBR,
-          CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
-          CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG,
-          USE_CLASS_NAME_LOCATION_ETC
-        ),
-        toupper
-      )
-    ) |>
-    dplyr::left_join(ATTAINSOrgToCSTEntityRef, by = "ENTITY_ABBR") |>
-    dplyr::left_join(
-      TADAUsesAliasRef,
-      by = dplyr::join_by(
-        ENTITY_NAME, ENTITY_ABBR,
-        CRITERIATYPEAQUAHUMHLTH,
-        CRITERIATYPEFRESHSALTWATER,
-        CRITERIATYPE_ACUTECHRONIC,
-        CRITERIATYPE_WATERORG,
-        USE_CLASS_NAME_LOCATION_ETC,
-        ATTAINS.OrganizationIdentifier
-      ),
-      relationship = "many-to-many"
-    ) |>
+  TADAUsesAliasRef <- TADAUsesAliasRef |>
     dplyr::select(
       ATTAINS.OrganizationIdentifier,
       ENTITY_ABBR,
@@ -1471,24 +1403,27 @@ TADA_GetTADAUsesAliasRef <- function(
       Last.Change.Date
     ) |>
     dplyr::distinct()
-  
-  TADAUsesAliasRef
 }
 
-# Update TADAUsesAlias Reference Table internal file
-# (for internal use only)
+#' Update TADA Uses Alias Reference Table (DEV-TIME ONLY)
+#' @keywords internal
 .TADA_UpdateTADAUsesAliasRef <- function(
-  ATTAINS.CST.tolerance = 0.15,
-  CST.ATTAINS.tolerance = 0.15,
-  set.all.tolerance = NA
+    ATTAINS.CST.tolerance = 0.15,
+    CST.ATTAINS.tolerance = 0.15,
+    set.all.tolerance = NA
 ) {
+  df <- TADA_GetTADAUsesAliasRef(
+    ATTAINS.CST.tolerance = ATTAINS.CST.tolerance,
+    CST.ATTAINS.tolerance = CST.ATTAINS.tolerance,
+    set.all.tolerance = set.all.tolerance,
+    download_only = TRUE
+  )
+  
   utils::write.csv(
-    TADA_GetTADAUsesAliasRef(
-      ATTAINS.CST.tolerance = ATTAINS.CST.tolerance,
-      CST.ATTAINS.tolerance = CST.ATTAINS.tolerance,
-      set.all.tolerance = set.all.tolerance
-    ),
+    df,
     file = "inst/extdata/TADAUsesAliasRef.csv",
     row.names = FALSE
   )
+  
+  invisible(df)
 }
