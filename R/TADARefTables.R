@@ -933,31 +933,39 @@ TADA_GetTADACharAliasRef <- function(
 #' @export
 #'
 TADA_GetTADAUsesAliasRef <- function(
-    ATTAINS.CST.tolerance = 0.15,
-    CST.ATTAINS.tolerance = 0.15,
-    set.all.tolerance = NA,
-    download_only = FALSE,
-    refresh = FALSE
+  ATTAINS.CST.tolerance = 0.15,
+  CST.ATTAINS.tolerance = 0.15,
+  set.all.tolerance = NA,
+  download_only = FALSE,
+  refresh = FALSE
 ) {
   if (!is.na(set.all.tolerance)) {
     ATTAINS.CST.tolerance <- CST.ATTAINS.tolerance <- set.all.tolerance
   }
-  
+
   if (ATTAINS.CST.tolerance > 1.00 || CST.ATTAINS.tolerance > 1.00) {
-    stop("One or more tolerance defined is greater than 1.00. Tolerance cannot exceed 100%.")
+    stop(
+      "One or more tolerance defined is greater than 1.00. Tolerance cannot exceed 100%."
+    )
   }
   if (ATTAINS.CST.tolerance < 0.00 || CST.ATTAINS.tolerance < 0.00) {
-    stop("One or more tolerance defined is less than 0.00. Tolerance cannot be less than 0%.")
+    stop(
+      "One or more tolerance defined is less than 0.00. Tolerance cannot be less than 0%."
+    )
   }
-  
-  uses_csv <- system.file("extdata", "TADAUsesAliasRef.csv", package = "EPATADA")
+
+  uses_csv <- system.file(
+    "extdata",
+    "TADAUsesAliasRef.csv",
+    package = "EPATADA"
+  )
   csv_sig <- if (nzchar(uses_csv) && file.exists(uses_csv)) {
     info <- file.info(uses_csv)
     paste0(as.character(info$mtime), "|", info$size)
   } else {
     "missing"
   }
-  
+
   cache_key <- paste(
     "TADAUsesAliasRef",
     sprintf("%.6f", ATTAINS.CST.tolerance),
@@ -966,18 +974,22 @@ TADA_GetTADAUsesAliasRef <- function(
     csv_sig,
     sep = "|"
   )
-  
+
   if (!download_only) {
     cached <- .tada_cache_get(cache_key)
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
-  
+
   if (!requireNamespace("rExpertQuery", quietly = TRUE)) {
-    stop("Package 'rExpertQuery' is required by TADA_GetTADAUsesAliasRef(). Please install it.")
+    stop(
+      "Package 'rExpertQuery' is required by TADA_GetTADAUsesAliasRef(). Please install it."
+    )
   }
-  
+
   if (!nzchar(uses_csv) || !file.exists(uses_csv)) {
-    message("TADAUsesAliasRef.csv not found in EPATADA inst/extdata; proceeding with an empty review list.")
+    message(
+      "TADAUsesAliasRef.csv not found in EPATADA inst/extdata; proceeding with an empty review list."
+    )
     current_TADAUsesAlias <- data.frame(
       ENTITY_ABBR = character(),
       ENTITY_NAME = character(),
@@ -1002,7 +1014,10 @@ TADA_GetTADAUsesAliasRef <- function(
       comment.char = ""
     )
     reviewed_n <- if ("review" %in% names(current_TADAUsesAlias)) {
-      sum(current_TADAUsesAlias$review %in% c("APPROVED", "REJECTED"), na.rm = TRUE)
+      sum(
+        current_TADAUsesAlias$review %in% c("APPROVED", "REJECTED"),
+        na.rm = TRUE
+      )
     } else {
       0L
     }
@@ -1013,21 +1028,84 @@ TADA_GetTADAUsesAliasRef <- function(
       "Reviewed rows will be kept; newly discovered potential aliases will be appended."
     ))
   }
-  
+
   UsesType <- data.frame(
-    context2 = c(NA, "CULTURAL_USE", "DRINKINGWATER_USE", "ECOLOGICAL_USE", "FISHCONSUMPTION_USE", "OTHER_USE", "RECREATION_USE"),
-    CRITERIATYPEAQUAHUMHLTH = c(NA_character_, "H", "H", "A", "H", NA_character_, "H"),
-    CRITERIATYPE_WATERORG = c(NA_character_, "O", "W", NA_character_, "O", NA_character_, "O"),
+    context2 = c(
+      NA,
+      "CULTURAL_USE",
+      "DRINKINGWATER_USE",
+      "ECOLOGICAL_USE",
+      "FISHCONSUMPTION_USE",
+      "OTHER_USE",
+      "RECREATION_USE"
+    ),
+    CRITERIATYPEAQUAHUMHLTH = c(
+      NA_character_,
+      "H",
+      "H",
+      "A",
+      "H",
+      NA_character_,
+      "H"
+    ),
+    CRITERIATYPE_WATERORG = c(
+      NA_character_,
+      "O",
+      "W",
+      NA_character_,
+      "O",
+      NA_character_,
+      "O"
+    ),
     stringsAsFactors = FALSE
   )
-  
+
   stop_words <- c(
-    "an","for","and","nor","but","or","yet","so","the",
-    "!","\"","#","$","%","&","'","(",")","*","+",
-    ",","-",".","/",";",":","<","=",">","?","@",
-    "[","\\","]","^","_","`","{","|","}","~","(%)","--"
+    "an",
+    "for",
+    "and",
+    "nor",
+    "but",
+    "or",
+    "yet",
+    "so",
+    "the",
+    "!",
+    "\"",
+    "#",
+    "$",
+    "%",
+    "&",
+    "'",
+    "(",
+    ")",
+    "*",
+    "+",
+    ",",
+    "-",
+    ".",
+    "/",
+    ";",
+    ":",
+    "<",
+    "=",
+    ">",
+    "?",
+    "@",
+    "[",
+    "\\",
+    "]",
+    "^",
+    "_",
+    "`",
+    "{",
+    "|",
+    "}",
+    "~",
+    "(%)",
+    "--"
   )
-  
+
   select_class_tokens_simple <- function(x) {
     x <- toupper(x)
     words <- unlist(stringr::str_split(x, "\\s+"))
@@ -1036,44 +1114,61 @@ TADA_GetTADAUsesAliasRef <- function(
     class_codes <- words[stringr::str_detect(words, "^[A-Z]{1,3}$")]
     unique(class_codes)
   }
-  
+
   ATTAINS.raw <- rExpertQuery::EQ_DomainValues("use_name") |>
     dplyr::select(name, context, context2)
-  
+
   ATTAINSUseRef <- ATTAINS.raw |>
-    dplyr::left_join(UsesType, by = dplyr::join_by(context2), relationship = "many-to-many") |>
+    dplyr::left_join(
+      UsesType,
+      by = dplyr::join_by(context2),
+      relationship = "many-to-many"
+    ) |>
     dplyr::mutate(
       name = toupper(name),
       ATTAINS.OrganizationIdentifier = context
     ) |>
     dplyr::select(-context) |>
     dplyr::distinct()
-  
+
   ATTAINSUseRef2 <- ATTAINSUseRef |>
     dplyr::mutate(name_words = stringr::str_split(name, " ")) |>
     tidyr::unnest(cols = c(name_words)) |>
     dplyr::filter(!name_words %in% toupper(stop_words)) |>
-    dplyr::mutate(name_words = toupper(gsub("[^[:alnum:] ]", "", name_words))) |>
+    dplyr::mutate(
+      name_words = toupper(gsub("[^[:alnum:] ]", "", name_words))
+    ) |>
     dplyr::filter(name_words != "") |>
-    dplyr::distinct(ATTAINS.OrganizationIdentifier, name, name_words, .keep_all = TRUE)
-  
+    dplyr::distinct(
+      ATTAINS.OrganizationIdentifier,
+      name,
+      name_words,
+      .keep_all = TRUE
+    )
+
   ATTAINS.use_class.raw <- rExpertQuery::EQ_DomainValues(
     domain = "use_class",
     api_key = .setEQKey()
   ) |>
     dplyr::select(name, context, context2)
-  
+
   ATTAINSUseClassRef <- ATTAINS.use_class.raw |>
     dplyr::mutate(
       ATTAINS.UseName = toupper(name),
       ATTAINS.OrganizationIdentifier = context2,
       ATTAINS.UseClass = toupper(context)
     ) |>
-    dplyr::select(ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ATTAINS.UseClass) |>
+    dplyr::select(
+      ATTAINS.UseName,
+      ATTAINS.OrganizationIdentifier,
+      ATTAINS.UseClass
+    ) |>
     dplyr::distinct()
-  
+
   ATTAINSUseClassRef2 <- ATTAINSUseClassRef |>
-    dplyr::mutate(use_class_words = lapply(ATTAINS.UseClass, select_class_tokens_simple)) |>
+    dplyr::mutate(
+      use_class_words = lapply(ATTAINS.UseClass, select_class_tokens_simple)
+    ) |>
     tidyr::unnest(cols = c(use_class_words)) |>
     dplyr::distinct(
       ATTAINS.OrganizationIdentifier,
@@ -1082,9 +1177,9 @@ TADA_GetTADAUsesAliasRef <- function(
       use_class_words,
       .keep_all = TRUE
     )
-  
+
   rm(ATTAINS.raw, ATTAINS.use_class.raw)
-  
+
   CST.raw <- tryCatch(
     TADA_CST_GetCriteria(download_only = FALSE),
     error = function(e) {
@@ -1095,7 +1190,7 @@ TADA_GetTADAUsesAliasRef <- function(
       )
     }
   )
-  
+
   CST <- CST.raw |>
     dplyr::select(
       ENTITY_ABBR,
@@ -1106,62 +1201,86 @@ TADA_GetTADAUsesAliasRef <- function(
       CRITERIATYPE_WATERORG,
       USE_CLASS_NAME_LOCATION_ETC
     ) |>
-    dplyr::mutate(USE_CLASS_NAME_LOCATION_ETC = toupper(USE_CLASS_NAME_LOCATION_ETC)) |>
+    dplyr::mutate(
+      USE_CLASS_NAME_LOCATION_ETC = toupper(USE_CLASS_NAME_LOCATION_ETC)
+    ) |>
     dplyr::distinct()
-  
+
   CST2 <- CST |>
-    dplyr::mutate(name_words = stringr::str_split(USE_CLASS_NAME_LOCATION_ETC, " ")) |>
+    dplyr::mutate(
+      name_words = stringr::str_split(USE_CLASS_NAME_LOCATION_ETC, " ")
+    ) |>
     tidyr::unnest(cols = c(name_words)) |>
     dplyr::filter(!name_words %in% toupper(stop_words)) |>
-    dplyr::mutate(name_words = toupper(gsub("[^[:alnum:] ]", "", name_words))) |>
+    dplyr::mutate(
+      name_words = toupper(gsub("[^[:alnum:] ]", "", name_words))
+    ) |>
     dplyr::filter(name_words != "") |>
     dplyr::distinct(USE_CLASS_NAME_LOCATION_ETC, name_words, .keep_all = TRUE)
-  
+
   ATTAINSOrgIDsRef <- TADA_GetATTAINSOrgIDsRef()
   ATTAINSOrgIDsRef$name <- toupper(ATTAINSOrgIDsRef$name)
-  
-  ATTAINS_CST.org <- data.frame(unique(CST[, c("ENTITY_NAME", "ENTITY_ABBR")])) |>
+
+  ATTAINS_CST.org <- data.frame(unique(CST[, c(
+    "ENTITY_NAME",
+    "ENTITY_ABBR"
+  )])) |>
     dplyr::mutate(ENTITY_NAME = toupper(ENTITY_NAME)) |>
     dplyr::left_join(ATTAINSOrgIDsRef, by = c("ENTITY_NAME" = "name")) |>
     dplyr::rename(ATTAINS.OrganizationIdentifier = code) |>
     dplyr::select(ENTITY_ABBR, ATTAINS.OrganizationIdentifier)
-  
+
   CST2 <- CST2 |>
     dplyr::mutate(ENTITY_NAME = toupper(ENTITY_NAME)) |>
     dplyr::left_join(ATTAINS_CST.org, by = "ENTITY_ABBR")
-  
+
   CST <- CST |>
     dplyr::mutate(ENTITY_NAME = toupper(ENTITY_NAME)) |>
     dplyr::left_join(ATTAINS_CST.org, by = "ENTITY_ABBR")
-  
+
   ATTAINS_CST <- dplyr::full_join(
     CST,
     ATTAINSUseRef,
-    by = c("ATTAINS.OrganizationIdentifier", "CRITERIATYPEAQUAHUMHLTH", "CRITERIATYPE_WATERORG"),
+    by = c(
+      "ATTAINS.OrganizationIdentifier",
+      "CRITERIATYPEAQUAHUMHLTH",
+      "CRITERIATYPE_WATERORG"
+    ),
     relationship = "many-to-many"
   ) |>
     dplyr::mutate(
-      Flag.MatchByColumnIndicator = !is.na(ATTAINS.OrganizationIdentifier) & !is.na(USE_CLASS_NAME_LOCATION_ETC)
+      Flag.MatchByColumnIndicator = !is.na(ATTAINS.OrganizationIdentifier) &
+        !is.na(USE_CLASS_NAME_LOCATION_ETC)
     )
-  
+
   ATTAINS_CST2 <- dplyr::full_join(
     CST2,
     ATTAINSUseRef2,
     by = c("name_words", "ATTAINS.OrganizationIdentifier"),
     relationship = "many-to-many"
   ) |>
-    dplyr::distinct(USE_CLASS_NAME_LOCATION_ETC, name, name_words, .keep_all = TRUE) |>
-    dplyr::group_by(ATTAINS.OrganizationIdentifier, USE_CLASS_NAME_LOCATION_ETC, name, context2) |>
+    dplyr::distinct(
+      USE_CLASS_NAME_LOCATION_ETC,
+      name,
+      name_words,
+      .keep_all = TRUE
+    ) |>
+    dplyr::group_by(
+      ATTAINS.OrganizationIdentifier,
+      USE_CLASS_NAME_LOCATION_ETC,
+      name,
+      context2
+    ) |>
     dplyr::count() |>
     dplyr::ungroup() |>
     dplyr::group_by(name) |>
     dplyr::mutate(
-      percent_match_CST_in_ATTAINS = n / stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
+      percent_match_CST_in_ATTAINS = n /
+        stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
       percent_match_ATTAINS_in_CST = n / stringr::str_count(name, "\\S+"),
-      Flag.MatchByPercentMatchUseName = (
-        percent_match_CST_in_ATTAINS >= CST.ATTAINS.tolerance |
-          percent_match_ATTAINS_in_CST >= ATTAINS.CST.tolerance
-      ),
+      Flag.MatchByPercentMatchUseName = (percent_match_CST_in_ATTAINS >=
+        CST.ATTAINS.tolerance |
+        percent_match_ATTAINS_in_CST >= ATTAINS.CST.tolerance),
       Flag.PercentMatchToleranceTextUseName = dplyr::case_when(
         Flag.MatchByPercentMatchUseName ~ paste0(
           "use_name percent matches by CST words in ATTAINS text = ",
@@ -1177,7 +1296,7 @@ TADA_GetTADAUsesAliasRef <- function(
       by = c("ATTAINS.OrganizationIdentifier", "USE_CLASS_NAME_LOCATION_ETC"),
       relationship = "many-to-many"
     )
-  
+
   ATTAINS_CST3 <- dplyr::full_join(
     CST2,
     ATTAINSUseClassRef2,
@@ -1201,12 +1320,13 @@ TADA_GetTADAUsesAliasRef <- function(
     dplyr::ungroup() |>
     dplyr::group_by(ATTAINS.UseClass) |>
     dplyr::mutate(
-      percent_match_CST_in_ATTAINS_use_class = n / stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
-      percent_match_ATTAINS_use_class_in_CST = n / stringr::str_count(ATTAINS.UseClass, "\\S+"),
-      Flag.MatchByPercentMatchUseClass = (
-        percent_match_CST_in_ATTAINS_use_class >= CST.ATTAINS.tolerance |
-          percent_match_ATTAINS_use_class_in_CST >= ATTAINS.CST.tolerance
-      ),
+      percent_match_CST_in_ATTAINS_use_class = n /
+        stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
+      percent_match_ATTAINS_use_class_in_CST = n /
+        stringr::str_count(ATTAINS.UseClass, "\\S+"),
+      Flag.MatchByPercentMatchUseClass = (percent_match_CST_in_ATTAINS_use_class >=
+        CST.ATTAINS.tolerance |
+        percent_match_ATTAINS_use_class_in_CST >= ATTAINS.CST.tolerance),
       Flag.PercentMatchToleranceTextUseClass = dplyr::case_when(
         Flag.MatchByPercentMatchUseClass ~ paste0(
           "use_class percent matches by CST words in ATTAINS text = ",
@@ -1223,7 +1343,7 @@ TADA_GetTADAUsesAliasRef <- function(
       relationship = "many-to-many"
     ) |>
     dplyr::filter(!is.na(ATTAINS.UseClass))
-  
+
   ATTAINS_CST_final <- ATTAINS_CST |>
     dplyr::full_join(
       ATTAINS_CST2,
@@ -1254,28 +1374,46 @@ TADA_GetTADAUsesAliasRef <- function(
       )
     ) |>
     dplyr::mutate(
-      Flag.MatchByColumnIndicator = dplyr::coalesce(Flag.MatchByColumnIndicator, FALSE),
-      Flag.MatchByPercentMatchUseName = dplyr::coalesce(Flag.MatchByPercentMatchUseName, FALSE),
-      Flag.MatchByPercentMatchUseClass = dplyr::coalesce(Flag.MatchByPercentMatchUseClass, FALSE),
+      Flag.MatchByColumnIndicator = dplyr::coalesce(
+        Flag.MatchByColumnIndicator,
+        FALSE
+      ),
+      Flag.MatchByPercentMatchUseName = dplyr::coalesce(
+        Flag.MatchByPercentMatchUseName,
+        FALSE
+      ),
+      Flag.MatchByPercentMatchUseClass = dplyr::coalesce(
+        Flag.MatchByPercentMatchUseClass,
+        FALSE
+      ),
       Flag.MatchSource = dplyr::case_when(
-        Flag.MatchByColumnIndicator & Flag.MatchByPercentMatchUseName & Flag.MatchByPercentMatchUseClass ~ "Rank 1: by all three methods",
-        Flag.MatchByColumnIndicator & Flag.MatchByPercentMatchUseName ~ "Rank 2: by column indicator and use_name percent match",
-        Flag.MatchByColumnIndicator & Flag.MatchByPercentMatchUseClass ~ "Rank 2: by column indicator and use_class percent match",
-        Flag.MatchByPercentMatchUseName & Flag.MatchByPercentMatchUseClass ~ "Rank 2: by both percent match methods",
+        Flag.MatchByColumnIndicator &
+          Flag.MatchByPercentMatchUseName &
+          Flag.MatchByPercentMatchUseClass ~ "Rank 1: by all three methods",
+        Flag.MatchByColumnIndicator &
+          Flag.MatchByPercentMatchUseName ~ "Rank 2: by column indicator and use_name percent match",
+        Flag.MatchByColumnIndicator &
+          Flag.MatchByPercentMatchUseClass ~ "Rank 2: by column indicator and use_class percent match",
+        Flag.MatchByPercentMatchUseName &
+          Flag.MatchByPercentMatchUseClass ~ "Rank 2: by both percent match methods",
         Flag.MatchByColumnIndicator ~ "Rank 5: by column indicator",
         Flag.MatchByPercentMatchUseName ~ "Rank 4: by use_name percent match",
         Flag.MatchByPercentMatchUseClass ~ "Rank 3: by use_class percent match",
         TRUE ~ NA_character_
       ),
       Flag.PercentMatchToleranceTextUseName = dplyr::if_else(
-        Flag.MatchByPercentMatchUseName, Flag.PercentMatchToleranceTextUseName, NA_character_
+        Flag.MatchByPercentMatchUseName,
+        Flag.PercentMatchToleranceTextUseName,
+        NA_character_
       ),
       Flag.PercentMatchToleranceTextUseClass = dplyr::if_else(
-        Flag.MatchByPercentMatchUseClass, Flag.PercentMatchToleranceTextUseClass, NA_character_
+        Flag.MatchByPercentMatchUseClass,
+        Flag.PercentMatchToleranceTextUseClass,
+        NA_character_
       )
     ) |>
     dplyr::distinct()
-  
+
   matched_rows <- ATTAINS_CST_final |>
     dplyr::filter(
       Flag.MatchByColumnIndicator |
@@ -1286,7 +1424,7 @@ TADA_GetTADAUsesAliasRef <- function(
       review = "New row: Needs Review",
       Last.Change.Date = NA_character_
     )
-  
+
   unmatched_attains <- ATTAINSUseRef |>
     dplyr::transmute(
       ATTAINS.OrganizationIdentifier,
@@ -1310,7 +1448,7 @@ TADA_GetTADAUsesAliasRef <- function(
       matched_rows,
       by = dplyr::join_by(ATTAINS.OrganizationIdentifier, ATTAINS.UseName)
     )
-  
+
   unmatched_cst <- CST |>
     dplyr::transmute(
       ATTAINS.OrganizationIdentifier,
@@ -1343,7 +1481,7 @@ TADA_GetTADAUsesAliasRef <- function(
         USE_CLASS_NAME_LOCATION_ETC
       )
     )
-  
+
   TADAUsesAliasRef <- dplyr::bind_rows(
     matched_rows,
     unmatched_attains,
@@ -1363,8 +1501,13 @@ TADA_GetTADAUsesAliasRef <- function(
       ATTAINS.UseName,
       ATTAINS.UseClass
     )
-  
-  allowed_review <- c("APPROVED", "REJECTED", "New row: Needs Review", "No match found")
+
+  allowed_review <- c(
+    "APPROVED",
+    "REJECTED",
+    "New row: Needs Review",
+    "No match found"
+  )
   bad_review <- unique(TADAUsesAliasRef$review[
     !is.na(TADAUsesAliasRef$review) &
       !TADAUsesAliasRef$review %in% allowed_review
@@ -1378,11 +1521,11 @@ TADA_GetTADAUsesAliasRef <- function(
       "."
     )
   }
-  
+
   if (!download_only) {
     .tada_cache_set(cache_key, TADAUsesAliasRef)
   }
-  
+
   TADAUsesAliasRef <- TADAUsesAliasRef |>
     dplyr::select(
       ATTAINS.OrganizationIdentifier,
@@ -1408,9 +1551,9 @@ TADA_GetTADAUsesAliasRef <- function(
 #' Update TADA Uses Alias Reference Table (DEV-TIME ONLY)
 #' @keywords internal
 .TADA_UpdateTADAUsesAliasRef <- function(
-    ATTAINS.CST.tolerance = 0.15,
-    CST.ATTAINS.tolerance = 0.15,
-    set.all.tolerance = NA
+  ATTAINS.CST.tolerance = 0.15,
+  CST.ATTAINS.tolerance = 0.15,
+  set.all.tolerance = NA
 ) {
   df <- TADA_GetTADAUsesAliasRef(
     ATTAINS.CST.tolerance = ATTAINS.CST.tolerance,
@@ -1418,12 +1561,12 @@ TADA_GetTADAUsesAliasRef <- function(
     set.all.tolerance = set.all.tolerance,
     download_only = TRUE
   )
-  
+
   utils::write.csv(
     df,
     file = "inst/extdata/TADAUsesAliasRef.csv",
     row.names = FALSE
   )
-  
+
   invisible(df)
 }
