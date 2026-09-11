@@ -56,6 +56,17 @@ This functionality exists in the current draft of TADAShinyJoinToAU but can be s
 - button to select file type for upload
 - preview of data imported
 
+```{r tada.df}
+
+# load TADA df (mod 1 output)
+MT.testdat <- Data_MT_MissoulaCounty
+
+# preview table
+DT::datatable(MT.testdat)
+
+```
+
+
 # Tab 2: Flag and Review Sites
 
 Runs two functions on the TADA df:
@@ -64,7 +75,25 @@ Runs two functions on the TADA df:
 
 Displays a map showing the results of each with the functions:
 1) TADA_NearbySitesMap
-2)TADA_ViewFlaggedSites
+2)TADA_FlaggedSitesMap
+
+Displays editable tables where users can review and edit nearby site groupings and choose to include/exclude monitoring locations based on coordinate flags.
+
+```{r flag.review.sites}
+
+# run site flagging functions
+MT.testdat2 <- MT.testdat |>
+  TADA_FlagCoordinates() |>
+  TADA_FindNearbySites()
+
+# flagged coordinates map
+TADA_FlaggedSitesMap(MT.testdat2)
+
+# nearby sites map
+TADA_NearbySitesMap(MT.testdat2)
+
+```
+
 
 # Tab 3: Join and Review AUs
 
