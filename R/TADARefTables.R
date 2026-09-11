@@ -1024,6 +1024,7 @@ TADA_GetTADAUsesAliasRef <- function(
       ATTAINS.OrganizationIdentifier = character(),
       context2 = character(),
       ATTAINS.UseName = character(),
+      ATTAINS.UseClass = character(),
       review = character(),
       Last.Change.Date = character(),
       stringsAsFactors = FALSE
@@ -1060,19 +1061,19 @@ TADA_GetTADAUsesAliasRef <- function(
     ),
     CRITERIATYPEAQUAHUMHLTH = c(
       NA_character_,
-      "H", 
-      "H", 
-      "A", 
-      "H", 
+      "H",
+      "H",
+      "A",
+      "H",
       NA_character_,
-      "H" 
+      "H"
     ),
     CRITERIATYPE_WATERORG = c(
       NA_character_,
       "O",
       "W",
       NA_character_,
-      "O", 
+      "O",
       NA_character_,
       "O"
     ),
@@ -1086,6 +1087,7 @@ TADA_GetTADAUsesAliasRef <- function(
     "[","\\","]","^","_","`","{","|","}","~","(%)","--"
   )
   
+  # use_name domain
   ATTAINS.raw <- rExpertQuery::EQ_DomainValues("use_name") |>
     dplyr::select(name, context, context2)
   
@@ -1106,7 +1108,37 @@ TADA_GetTADAUsesAliasRef <- function(
     dplyr::filter(name_words != "") |>
     dplyr::distinct(ATTAINS.OrganizationIdentifier, name, name_words, .keep_all = TRUE)
   
-  rm(ATTAINS.raw)
+  # use_class domain
+  ATTAINS.use_class.raw <- rExpertQuery::EQ_DomainValues(
+    domain = "use_class",
+    api_key = .setEQKey()
+  ) |>
+    dplyr::select(name, context, context2)
+  
+  ATTAINSUseClassRef <- ATTAINS.use_class.raw |>
+    dplyr::mutate(
+      ATTAINS.UseName = toupper(name),
+      ATTAINS.OrganizationIdentifier = context2,
+      ATTAINS.UseClass = toupper(context)
+    ) |>
+    dplyr::select(ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ATTAINS.UseClass) |>
+    dplyr::distinct()
+  
+  ATTAINSUseClassRef2 <- ATTAINSUseClassRef |>
+    dplyr::mutate(use_class_words = stringr::str_split(ATTAINS.UseClass, " ")) |>
+    tidyr::unnest(cols = c(use_class_words)) |>
+    dplyr::filter(!use_class_words %in% toupper(c(stop_words, "class"))) |>
+    dplyr::mutate(use_class_words = toupper(gsub("[^[:alnum:] ]", "", use_class_words))) |>
+    dplyr::filter(use_class_words != "") |>
+    dplyr::distinct(
+      ATTAINS.OrganizationIdentifier,
+      ATTAINS.UseName,
+      ATTAINS.UseClass,
+      use_class_words,
+      .keep_all = TRUE
+    )
+  
+  rm(ATTAINS.raw, ATTAINS.use_class.raw)
   
   CST.raw <- tryCatch(
     TADA_CST_GetCriteria(download_only = FALSE),
@@ -1157,7 +1189,7 @@ TADA_GetTADAUsesAliasRef <- function(
     dplyr::mutate(ENTITY_NAME = toupper(ENTITY_NAME)) |>
     dplyr::left_join(ATTAINS_CST.org, by = "ENTITY_ABBR")
   
-  # Column match
+  # Column match with use_name
   ATTAINS_CST <- dplyr::full_join(
     CST,
     ATTAINSUseRef,
@@ -1169,7 +1201,7 @@ TADA_GetTADAUsesAliasRef <- function(
         !is.na(USE_CLASS_NAME_LOCATION_ETC)
     )
   
-  # Token match
+  # Percent match with use_name
   ATTAINS_CST2 <- dplyr::full_join(
     CST2,
     ATTAINSUseRef2,
@@ -1184,15 +1216,15 @@ TADA_GetTADAUsesAliasRef <- function(
     dplyr::mutate(
       percent_match_CST_in_ATTAINS = n / stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
       percent_match_ATTAINS_in_CST = n / stringr::str_count(name, "\\S+"),
-      Flag.MatchByPercentMatch = (
+      Flag.MatchByPercentMatchUseName = (
         percent_match_CST_in_ATTAINS >= CST.ATTAINS.tolerance |
           percent_match_ATTAINS_in_CST >= ATTAINS.CST.tolerance
       ),
-      Flag.PercentMatchToleranceText = dplyr::case_when(
-        Flag.MatchByPercentMatch ~ paste0(
-          "percent matches by CST words in ATTAINS text =",
+      Flag.PercentMatchToleranceTextUseName = dplyr::case_when(
+        Flag.MatchByPercentMatchUseName ~ paste0(
+          "use_name percent matches by CST words in ATTAINS text = ",
           percent_match_CST_in_ATTAINS,
-          " or ATTAINS words in CST text =",
+          " or ATTAINS words in CST text = ",
           percent_match_ATTAINS_in_CST
         ),
         TRUE ~ NA_character_
@@ -1203,6 +1235,55 @@ TADA_GetTADAUsesAliasRef <- function(
       by = c("ATTAINS.OrganizationIdentifier", "USE_CLASS_NAME_LOCATION_ETC"),
       relationship = "many-to-many"
     )
+  
+  # Percent match with use_class:
+  # If ATTAINS.UseClass matches a CST USE_CLASS_NAME_LOCATION_ETC, return
+  # all ATTAINS.UseName values tied to that UseClass.
+  ATTAINS_CST3 <- dplyr::full_join(
+    CST2,
+    ATTAINSUseClassRef2,
+    by = c("name_words" = "use_class_words", "ATTAINS.OrganizationIdentifier"),
+    relationship = "many-to-many"
+  ) |>
+    dplyr::distinct(
+      USE_CLASS_NAME_LOCATION_ETC,
+      ATTAINS.UseName,
+      ATTAINS.UseClass,
+      name_words,
+      .keep_all = TRUE
+    ) |>
+    dplyr::group_by(
+      ATTAINS.OrganizationIdentifier,
+      USE_CLASS_NAME_LOCATION_ETC,
+      ATTAINS.UseClass,
+      ATTAINS.UseName
+    ) |>
+    dplyr::count() |>
+    dplyr::ungroup() |>
+    dplyr::group_by(ATTAINS.UseClass) |>
+    dplyr::mutate(
+      percent_match_CST_in_ATTAINS_use_class = n / stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
+      percent_match_ATTAINS_use_class_in_CST = n / stringr::str_count(ATTAINS.UseClass, "\\S+"),
+      Flag.MatchByPercentMatchUseClass = (
+        percent_match_CST_in_ATTAINS_use_class >= CST.ATTAINS.tolerance |
+          percent_match_ATTAINS_use_class_in_CST >= ATTAINS.CST.tolerance
+      ),
+      Flag.PercentMatchToleranceTextUseClass = dplyr::case_when(
+        Flag.MatchByPercentMatchUseClass ~ paste0(
+          "use_class percent matches by CST words in ATTAINS text = ",
+          percent_match_CST_in_ATTAINS_use_class,
+          " or ATTAINS words in CST text = ",
+          percent_match_ATTAINS_use_class_in_CST
+        ),
+        TRUE ~ NA_character_
+      )
+    ) |>
+    dplyr::right_join(
+      CST,
+      by = c("ATTAINS.OrganizationIdentifier", "USE_CLASS_NAME_LOCATION_ETC"),
+      relationship = "many-to-many"
+    ) |>
+    dplyr::filter(!is.na(ATTAINS.UseClass))
   
   # Merge match sources
   ATTAINS_CST_final <- ATTAINS_CST |>
@@ -1221,18 +1302,41 @@ TADA_GetTADAUsesAliasRef <- function(
         context2
       )
     ) |>
+    dplyr::full_join(
+      ATTAINS_CST3,
+      by = dplyr::join_by(
+        ENTITY_ABBR,
+        ENTITY_NAME,
+        CRITERIATYPEAQUAHUMHLTH,
+        CRITERIATYPEFRESHSALTWATER,
+        CRITERIATYPE_ACUTECHRONIC,
+        CRITERIATYPE_WATERORG,
+        USE_CLASS_NAME_LOCATION_ETC,
+        ATTAINS.OrganizationIdentifier
+      )
+    ) |>
     dplyr::mutate(
       Flag.MatchByColumnIndicator = dplyr::coalesce(Flag.MatchByColumnIndicator, FALSE),
-      Flag.MatchByPercentMatch = dplyr::coalesce(Flag.MatchByPercentMatch, FALSE),
+      Flag.MatchByPercentMatchUseName = dplyr::coalesce(Flag.MatchByPercentMatchUseName, FALSE),
+      Flag.MatchByPercentMatchUseClass = dplyr::coalesce(Flag.MatchByPercentMatchUseClass, FALSE),
       Flag.MatchSource = dplyr::case_when(
-        Flag.MatchByColumnIndicator & Flag.MatchByPercentMatch ~ "by both methods",
-        Flag.MatchByColumnIndicator ~ "by column indicator",
-        Flag.MatchByPercentMatch ~ "by percent match",
+        Flag.MatchByColumnIndicator & Flag.MatchByPercentMatchUseName & Flag.MatchByPercentMatchUseClass ~ "Rank 1: by all three methods",
+        Flag.MatchByColumnIndicator & Flag.MatchByPercentMatchUseName ~ "Rank 2: by column indicator and use_name percent match",
+        Flag.MatchByColumnIndicator & Flag.MatchByPercentMatchUseClass ~ "Rank 2: by column indicator and use_class percent match",
+        Flag.MatchByPercentMatchUseName & Flag.MatchByPercentMatchUseClass ~ "Rank 2: by both percent match methods",
+        Flag.MatchByColumnIndicator ~ "Rank 5: by column indicator",
+        Flag.MatchByPercentMatchUseName ~ "Rank 4: by use_name percent match",
+        Flag.MatchByPercentMatchUseClass ~ "Rank 3: by use_class percent match",
         TRUE ~ NA_character_
       ),
-      Flag.PercentMatchToleranceText = dplyr::if_else(
-        Flag.MatchByPercentMatch,
-        Flag.PercentMatchToleranceText,
+      Flag.PercentMatchToleranceTextUseName = dplyr::if_else(
+        Flag.MatchByPercentMatchUseName,
+        Flag.PercentMatchToleranceTextUseName,
+        NA_character_
+      ),
+      Flag.PercentMatchToleranceTextUseClass = dplyr::if_else(
+        Flag.MatchByPercentMatchUseClass,
+        Flag.PercentMatchToleranceTextUseClass,
         NA_character_
       )
     ) |>
@@ -1240,14 +1344,17 @@ TADA_GetTADAUsesAliasRef <- function(
   
   rm(
     CST, ATTAINSUseRef, CST2, ATTAINSUseRef2,
-    ATTAINS_CST, ATTAINS_CST2
+    ATTAINS_CST, ATTAINS_CST2, ATTAINS_CST3,
+    ATTAINSUseClassRef, ATTAINSUseClassRef2
   )
   
   TADAUsesAliasRef <- ATTAINS_CST_final |>
     dplyr::filter(
       Flag.MatchByColumnIndicator |
-        Flag.MatchByPercentMatch |
-        (is.na(percent_match_CST_in_ATTAINS) & is.na(percent_match_ATTAINS_in_CST))
+        Flag.MatchByPercentMatchUseName |
+        Flag.MatchByPercentMatchUseClass |
+        (is.na(percent_match_CST_in_ATTAINS) & is.na(percent_match_ATTAINS_in_CST) &
+           is.na(percent_match_CST_in_ATTAINS_use_class) & is.na(percent_match_ATTAINS_use_class_in_CST))
     ) |>
     dplyr::mutate(
       ATTAINS.UseName = name,
@@ -1265,8 +1372,10 @@ TADA_GetTADAUsesAliasRef <- function(
       ATTAINS.OrganizationIdentifier,
       context2,
       ATTAINS.UseName,
+      ATTAINS.UseClass,
       Flag.MatchSource,
-      Flag.PercentMatchToleranceText,
+      Flag.PercentMatchToleranceTextUseName,
+      Flag.PercentMatchToleranceTextUseClass,
       review,
       Last.Change.Date
     )
@@ -1294,7 +1403,8 @@ TADA_GetTADAUsesAliasRef <- function(
         CRITERIATYPE_ACUTECHRONIC,
         CRITERIATYPE_WATERORG,
         USE_CLASS_NAME_LOCATION_ETC,
-        ATTAINS.UseName
+        ATTAINS.UseName,
+        ATTAINS.UseClass
       ),
       na_matches = "na"
     ) |>
@@ -1309,7 +1419,8 @@ TADA_GetTADAUsesAliasRef <- function(
       CRITERIATYPE_ACUTECHRONIC,
       CRITERIATYPE_WATERORG,
       USE_CLASS_NAME_LOCATION_ETC,
-      ATTAINS.UseName
+      ATTAINS.UseName,
+      ATTAINS.UseClass
     )
   
   allowed_review <- c("APPROVED", "REJECTED", "New row: Needs Review")
@@ -1374,8 +1485,10 @@ TADA_GetTADAUsesAliasRef <- function(
       CRITERIATYPE_WATERORG,
       USE_CLASS_NAME_LOCATION_ETC,
       ATTAINS.UseName,
+      ATTAINS.UseClass,
       Flag.MatchSource,
-      Flag.PercentMatchToleranceText,
+      Flag.PercentMatchToleranceTextUseName,
+      Flag.PercentMatchToleranceTextUseClass,
       review,
       Last.Change.Date
     ) |>
@@ -1383,6 +1496,7 @@ TADA_GetTADAUsesAliasRef <- function(
   
   TADAUsesAliasRef
 }
+
 
 #' Update TADA Uses Alias Reference Table (DEV-TIME ONLY)
 #' @keywords internal
