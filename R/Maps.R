@@ -310,11 +310,19 @@ TADA_FlaggedSitesMap <- function(.data) {
   invalid <- invalid |>
     dplyr::mutate(
       FlaggedColor = dplyr::case_when(
-        TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits" ~ tada.pal[13],
-        TADA.SuspectCoordinates.Flag == "Coordinate_StateMismatch" ~ tada.pal[7],
-        TADA.SuspectCoordinates.Flag == "Coordinate_CountyMismatch" ~ tada.pal[8],
+        TADA.SuspectCoordinates.Flag ==
+          "Imprecise_lessthan3decimaldigits" ~ tada.pal[13],
+        TADA.SuspectCoordinates.Flag == "Coordinate_StateMismatch" ~ tada.pal[
+          7
+        ],
+        TADA.SuspectCoordinates.Flag == "Coordinate_CountyMismatch" ~ tada.pal[
+          8
+        ],
 
-        grepl("^((LAT_OutsideUSA|LONG_OutsideUSA)(;\\s*)?)+$", TADA.SuspectCoordinates.Flag) ~ tada.pal[12],
+        grepl(
+          "^((LAT_OutsideUSA|LONG_OutsideUSA)(;\\s*)?)+$",
+          TADA.SuspectCoordinates.Flag
+        ) ~ tada.pal[12],
 
         TRUE ~ tada.pal[3]
       )
@@ -332,21 +340,38 @@ TADA_FlaggedSitesMap <- function(.data) {
       stroke = TRUE,
       weight = 1.5,
       radius = 10,
-      popup = ~paste0(
-        "Site ID: ", TADA.MonitoringLocationIdentifier,
-        "<br> Site Name: ", TADA.MonitoringLocationName,
-        "<br> Organization Name: ", OrganizationFormalName,
-        "<br> Latitude: ", TADA.LatitudeMeasure,
-        "<br> Longitude: ", TADA.LongitudeMeasure,
-        "<br> Reason Flagged: ", TADA.SuspectCoordinates.Flag
+      popup = ~ paste0(
+        "Site ID: ",
+        TADA.MonitoringLocationIdentifier,
+        "<br> Site Name: ",
+        TADA.MonitoringLocationName,
+        "<br> Organization Name: ",
+        OrganizationFormalName,
+        "<br> Latitude: ",
+        TADA.LatitudeMeasure,
+        "<br> Longitude: ",
+        TADA.LongitudeMeasure,
+        "<br> Reason Flagged: ",
+        TADA.SuspectCoordinates.Flag
       )
     ) |>
     leaflet::addLegend(
       position = "bottomright",
-      colors = c(tada.pal[13], tada.pal[12], tada.pal[7], tada.pal[8], tada.pal[3]),
+      colors = c(
+        tada.pal[13],
+        tada.pal[12],
+        tada.pal[7],
+        tada.pal[8],
+        tada.pal[3]
+      ),
       opacity = 1,
-      labels = c("Imprecise coordinates", "Outside of US", "Coordinate State Mismatch",
-                 "Coordinate County Mismatch", "Multiple Flags"),
+      labels = c(
+        "Imprecise coordinates",
+        "Outside of US",
+        "Coordinate State Mismatch",
+        "Coordinate County Mismatch",
+        "Multiple Flags"
+      ),
       title = "Coordinate Flag Category"
     ) |>
     addLegendToggle()

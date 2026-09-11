@@ -1414,11 +1414,11 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' )
 #'
 TADA_FlagCoordinates <- function(
-    .data,
-    clean_outsideUSA = c("no", "remove", "change sign"),
-    clean_imprecise = FALSE,
-    flaggedonly = FALSE,
-    check_location_metadata = FALSE
+  .data,
+  clean_outsideUSA = c("no", "remove", "change sign"),
+  clean_imprecise = FALSE,
+  flaggedonly = FALSE,
+  check_location_metadata = FALSE
 ) {
   # check .data is data.frame and has required columns
   TADA_CheckColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
@@ -1447,19 +1447,24 @@ TADA_FlagCoordinates <- function(
     flags <- character(0)
 
     # exempted US territories
-    exempt <- (
-      !is.na(lat) && !is.na(lon) &&
-        lat < -11.046934 && lat > -14.548699 &&
-        lon < -168.1433 && lon > -171.089874
-    ) || (
-      !is.na(lat) && !is.na(lon) &&
-        lat < 20.553802 && lat > 14.110472 &&
-        lon < 146.064818 && lon > 144.886331
-    ) || (
-      !is.na(lat) && !is.na(lon) &&
-        lat < 13.654383 && lat > 13.234189 &&
-        lon < 144.956712 && lon > 144.618068
-    )
+    exempt <- (!is.na(lat) &&
+      !is.na(lon) &&
+      lat < -11.046934 &&
+      lat > -14.548699 &&
+      lon < -168.1433 &&
+      lon > -171.089874) ||
+      (!is.na(lat) &&
+        !is.na(lon) &&
+        lat < 20.553802 &&
+        lat > 14.110472 &&
+        lon < 146.064818 &&
+        lon > 144.886331) ||
+      (!is.na(lat) &&
+        !is.na(lon) &&
+        lat < 13.654383 &&
+        lat > 13.234189 &&
+        lon < 144.956712 &&
+        lon > 144.618068)
 
     if (!exempt) {
       if (!is.na(lat) && !is.na(lon) && lat == 0 && lon == 0) {
@@ -1474,8 +1479,9 @@ TADA_FlagCoordinates <- function(
       }
     }
     if (
-      !is.na(lat) && !is.na(lon) &&
-      (TADA_DecimalPlaces(lat) < 3 || TADA_DecimalPlaces(lon) < 3)
+      !is.na(lat) &&
+        !is.na(lon) &&
+        (TADA_DecimalPlaces(lat) < 3 || TADA_DecimalPlaces(lon) < 3)
     ) {
       flags <- c(flags, "Imprecise_lessthan3decimaldigits")
     }
@@ -1542,26 +1548,26 @@ TADA_FlagCoordinates <- function(
           !is.na(StateCode) &
             !is.na(CoordinateStateCode) &
             StateCode != CoordinateStateCode ~ dplyr::if_else(
-              TADA.SuspectCoordinates.Flag == "Pass",
+            TADA.SuspectCoordinates.Flag == "Pass",
+            "Coordinate_StateMismatch",
+            paste(
+              TADA.SuspectCoordinates.Flag,
               "Coordinate_StateMismatch",
-              paste(
-                TADA.SuspectCoordinates.Flag,
-                "Coordinate_StateMismatch",
-                sep = "; "
-              )
-            ),
+              sep = "; "
+            )
+          ),
 
           !is.na(CountyCode) &
             !is.na(CoordinateCountyCode) &
             CountyCode != CoordinateCountyCode ~ dplyr::if_else(
-              TADA.SuspectCoordinates.Flag == "Pass",
+            TADA.SuspectCoordinates.Flag == "Pass",
+            "Coordinate_CountyMismatch",
+            paste(
+              TADA.SuspectCoordinates.Flag,
               "Coordinate_CountyMismatch",
-              paste(
-                TADA.SuspectCoordinates.Flag,
-                "Coordinate_CountyMismatch",
-                sep = "; "
-              )
-            ),
+              sep = "; "
+            )
+          ),
 
           TRUE ~ TADA.SuspectCoordinates.Flag
         )
@@ -1594,11 +1600,17 @@ TADA_FlagCoordinates <- function(
     .data <- .data |>
       dplyr::mutate(
         TADA.LatitudeMeasure = dplyr::case_when(
-          grepl("LAT_OutsideUSA", TADA.SuspectCoordinates.Flag) ~ TADA.LatitudeMeasure * (-1),
+          grepl(
+            "LAT_OutsideUSA",
+            TADA.SuspectCoordinates.Flag
+          ) ~ TADA.LatitudeMeasure * (-1),
           TRUE ~ TADA.LatitudeMeasure
         ),
         TADA.LongitudeMeasure = dplyr::case_when(
-          grepl("LONG_OutsideUSA", TADA.SuspectCoordinates.Flag) ~ TADA.LongitudeMeasure * (-1),
+          grepl(
+            "LONG_OutsideUSA",
+            TADA.SuspectCoordinates.Flag
+          ) ~ TADA.LongitudeMeasure * (-1),
           TRUE ~ TADA.LongitudeMeasure
         )
       )
