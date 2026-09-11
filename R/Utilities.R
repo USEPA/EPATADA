@@ -872,6 +872,20 @@ TADA_ConvertSpecialChars <- function(
     clean.data <- TADA_OrderCols(clean.data)
   }
 
+  # Flag result values that do not have an associated result unit
+  if (
+    col %in%
+      c("ResultMeasureValue", "TADA.ResultMeasureValue") &&
+      "TADA.ResultMeasure.MeasureUnitCode" %in% names(clean.data)
+  ) {
+    clean.data[[flagcol]] <- ifelse(
+      is.na(clean.data$TADA.ResultMeasure.MeasureUnitCode) |
+        trimws(clean.data$TADA.ResultMeasure.MeasureUnitCode) == "",
+      "No unit associated with result value",
+      clean.data[[flagcol]]
+    )
+  }
+
   if (flaggedonly == FALSE) {
     if (clean == TRUE) {
       clean.data <- clean.data |>
@@ -885,6 +899,20 @@ TADA_ConvertSpecialChars <- function(
               "Coerced to NA"
             )
         )
+
+      # Remove records with missing result units when cleaning result values
+      if (
+        col %in%
+          c("ResultMeasureValue", "TADA.ResultMeasureValue") &&
+          "TADA.ResultMeasure.MeasureUnitCode" %in% names(clean.data)
+      ) {
+        clean.data <- clean.data |>
+          dplyr::filter(
+            !is.na(TADA.ResultMeasure.MeasureUnitCode),
+            # trimws incorporates " " into this as well as ""
+            trimws(TADA.ResultMeasure.MeasureUnitCode) != ""
+          )
+      }
 
       return(clean.data)
     }
@@ -903,6 +931,7 @@ TADA_ConvertSpecialChars <- function(
             "Text",
             "Non-ASCII Character(s)",
             "Result Value/Unit Cannot Be Estimated From Detection Limit",
+            "No unit associated with result value",
             "Coerced to NA"
           )
       )
