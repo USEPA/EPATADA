@@ -1681,10 +1681,10 @@ TADA_UsesForAnalysis <- function(
     ) {
   
   if (is.null(paramRef)) {
-    message(
-      "TADA_UsesRef: paramRef = NULL",
+    message(paste0(
+      "TADA_UsesForAnalysis: paramRef = NULL",
       "returning all ATTAINS.UseName for your organization and the TADA recommended use names from the Criteria Search Tool(CST)"
-    )
+    ))
   }
   
   if (is.null(org_id)) {
@@ -2119,6 +2119,51 @@ TADA_CreateParamUseRef <- function(
         ATTAINS.FlagParameterName
       )
   }
+
+  # Build CST pollutant-use crosswalk (ALWAYS include)
+  if (is.null(usesRef)) {
+    usesRef <- TADA_UsesForAnalysis(org_id = org_id, paramRef = paramRef)
+    warning("You did not supply a usesRef, returning a list of all prior ATTAINS.UseName and CST.UseName that have been identified as a potential alias")
+  } 
+  
+  TADAUsesAliasRef <- usesRef
+  
+  # Define crosswalk by ATTAINS org id
+  ATTAINSOrgToCSTEntityRef <- utils::read.csv(
+    system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"),
+    stringsAsFactors = FALSE
+  )
+  
+  CSTPollutantUseOrgRef<- TADA_CST_GetCriteria() |>
+    dplyr::mutate(
+      dplyr::across(
+        c(
+          POLLUTANT_NAME, ENTITY_NAME, ENTITY_ABBR,
+          CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
+          CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG,
+          USE_CLASS_NAME_LOCATION_ETC
+        ),
+        toupper
+      )
+    ) |>
+    dplyr::left_join(ATTAINSOrgToCSTEntityRef, by = dplyr::join_by(ENTITY_ABBR))|>
+    dplyr::left_join(
+      TADAUsesAliasRef,
+      by = dplyr::join_by(
+        ENTITY_NAME, ENTITY_ABBR,
+        CRITERIATYPEAQUAHUMHLTH,
+        CRITERIATYPEFRESHSALTWATER,
+        CRITERIATYPE_ACUTECHRONIC,
+        CRITERIATYPE_WATERORG,
+        USE_CLASS_NAME_LOCATION_ETC,
+        ATTAINS.OrganizationIdentifier
+      ),
+      relationship = "many-to-many"
+    ) |>
+    dplyr::filter(
+      ATTAINS.OrganizationIdentifier %in% org_id,
+      POLLUTANT_NAME %in% paramRef$CST.PollutantName
+    )
   
   # Build ATTAINS parameter-use crosswalk filtered by only what is found in user's WQP data frame
   ATTAINSParamUseOrgRef <- ATTAINSParamUseOrgRef |>
@@ -2134,6 +2179,7 @@ TADA_CreateParamUseRef <- function(
       ATTAINS.OrganizationIdentifier %in% org_id
     )
   
+  # Return all ATTAINS Use Names associated with ATTAINS Parameter Names first
   UsesCrosswalk <- paramRef |>
     dplyr::left_join(
       ATTAINSParamUseOrgRef,
@@ -2202,51 +2248,6 @@ TADA_CreateParamUseRef <- function(
         )
       )
   }
-
-  # Add CST crosswalk (ALWAYS include)
-  if (is.null(usesRef)) {
-    TADAUsesAliasRef <- TADA_UsesForAnalysis(org_id = org_id)
-    warning("TADA_CreateParamUseRef: You did not supply a usesRef, returning a list of all prior ATTAINS.UseName and CST.UseName that have been identified as a potential alias")
-  } else {
-    TADAUsesAliasRef <- usesRef
-  }
-  
-  # Define crosswalk by org id
-  ATTAINSOrgToCSTEntityRef <- utils::read.csv(
-    system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"),
-    stringsAsFactors = FALSE
-  )
-  
-  cst <- TADA_CST_GetCriteria() |>
-    dplyr::mutate(
-      dplyr::across(
-        c(
-          POLLUTANT_NAME, ENTITY_NAME, ENTITY_ABBR,
-          CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
-          CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG,
-          USE_CLASS_NAME_LOCATION_ETC
-        ),
-        toupper
-      )
-    ) |>
-    dplyr::left_join(ATTAINSOrgToCSTEntityRef, by = dplyr::join_by(ENTITY_ABBR))|>
-    dplyr::left_join(
-      TADAUsesAliasRef,
-      by = dplyr::join_by(
-        ENTITY_NAME, ENTITY_ABBR,
-        CRITERIATYPEAQUAHUMHLTH,
-        CRITERIATYPEFRESHSALTWATER,
-        CRITERIATYPE_ACUTECHRONIC,
-        CRITERIATYPE_WATERORG,
-        USE_CLASS_NAME_LOCATION_ETC,
-        ATTAINS.OrganizationIdentifier
-      ),
-      relationship = "many-to-many"
-    ) |>
-    dplyr::filter(
-      ATTAINS.OrganizationIdentifier %in% org_id,
-      POLLUTANT_NAME %in% paramRef$CST.PollutantName
-      )
   
   # standardize once
   UsesCrosswalk_std <- UsesCrosswalk |>
@@ -2272,7 +2273,7 @@ TADA_CreateParamUseRef <- function(
     ) |>
     dplyr::select(-ATTAINS.UseName) |>
     dplyr::left_join(
-      cst,
+      CSTPollutantUseOrgRef,
       by = c(
         "CST.PollutantName" = "POLLUTANT_NAME",
         "ATTAINS.OrganizationIdentifier"
@@ -2286,7 +2287,7 @@ TADA_CreateParamUseRef <- function(
       !is.na(ATTAINS.UseName)
     ) |>
     dplyr::left_join(
-      cst,
+      CSTPollutantUseOrgRef,
       by = c(
         "CST.PollutantName" = "POLLUTANT_NAME",
         "ATTAINS.OrganizationIdentifier",
