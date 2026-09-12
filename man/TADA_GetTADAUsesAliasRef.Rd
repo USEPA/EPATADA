@@ -7,7 +7,9 @@
 TADA_GetTADAUsesAliasRef(
   ATTAINS.CST.tolerance = 0.15,
   CST.ATTAINS.tolerance = 0.15,
-  set.all.tolerance = NA
+  set.all.tolerance = NA,
+  download_only = FALSE,
+  refresh = FALSE
 )
 }
 \arguments{
