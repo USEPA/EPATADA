@@ -1220,7 +1220,7 @@ TADA_GetTADAUsesAliasRef <- function(
 
   ATTAINSOrgIDsRef <- TADA_GetATTAINSOrgIDsRef()
   ATTAINSOrgIDsRef$name <- toupper(ATTAINSOrgIDsRef$name)
-  
+
   ATTAINS_CST.org <- data.frame(unique(CST[, c(
     "ENTITY_NAME",
     "ENTITY_ABBR"
@@ -1365,14 +1365,28 @@ TADA_GetTADAUsesAliasRef <- function(
       )
     ) |>
     dplyr::mutate(
-      Flag.MatchByColumnIndicator = dplyr::coalesce(Flag.MatchByColumnIndicator, FALSE),
-      Flag.MatchByPercentMatchUseName = dplyr::coalesce(Flag.MatchByPercentMatchUseName, FALSE),
-      Flag.MatchByPercentMatchUseClass = dplyr::coalesce(Flag.MatchByPercentMatchUseClass, FALSE),
+      Flag.MatchByColumnIndicator = dplyr::coalesce(
+        Flag.MatchByColumnIndicator,
+        FALSE
+      ),
+      Flag.MatchByPercentMatchUseName = dplyr::coalesce(
+        Flag.MatchByPercentMatchUseName,
+        FALSE
+      ),
+      Flag.MatchByPercentMatchUseClass = dplyr::coalesce(
+        Flag.MatchByPercentMatchUseClass,
+        FALSE
+      ),
       Flag.MatchSource = dplyr::case_when(
-        Flag.MatchByColumnIndicator & Flag.MatchByPercentMatchUseName & Flag.MatchByPercentMatchUseClass ~ "Rank 1: by all three methods",
-        Flag.MatchByColumnIndicator & Flag.MatchByPercentMatchUseName ~ "Rank 2: by column indicator and use_name percent match",
-        Flag.MatchByColumnIndicator & Flag.MatchByPercentMatchUseClass ~ "Rank 2: by column indicator and use_class percent match",
-        Flag.MatchByPercentMatchUseName & Flag.MatchByPercentMatchUseClass ~ "Rank 2: by both percent match methods",
+        Flag.MatchByColumnIndicator &
+          Flag.MatchByPercentMatchUseName &
+          Flag.MatchByPercentMatchUseClass ~ "Rank 1: by all three methods",
+        Flag.MatchByColumnIndicator &
+          Flag.MatchByPercentMatchUseName ~ "Rank 2: by column indicator and use_name percent match",
+        Flag.MatchByColumnIndicator &
+          Flag.MatchByPercentMatchUseClass ~ "Rank 2: by column indicator and use_class percent match",
+        Flag.MatchByPercentMatchUseName &
+          Flag.MatchByPercentMatchUseClass ~ "Rank 2: by both percent match methods",
         Flag.MatchByColumnIndicator ~ "Rank 5: by column indicator",
         Flag.MatchByPercentMatchUseName ~ "Rank 4: by use_name percent match",
         Flag.MatchByPercentMatchUseClass ~ "Rank 3: by use_class percent match",
@@ -1390,20 +1404,28 @@ TADA_GetTADAUsesAliasRef <- function(
       )
     ) |>
     dplyr::distinct()
-  
+
   rm(
-    CST, ATTAINSUseRef, CST2, ATTAINSUseRef2,
-    ATTAINS_CST, ATTAINS_CST2, ATTAINS_CST3,
-    ATTAINSUseClassRef, ATTAINSUseClassRef2
+    CST,
+    ATTAINSUseRef,
+    CST2,
+    ATTAINSUseRef2,
+    ATTAINS_CST,
+    ATTAINS_CST2,
+    ATTAINS_CST3,
+    ATTAINSUseClassRef,
+    ATTAINSUseClassRef2
   )
-  
+
   TADAUsesAliasRef <- ATTAINS_CST_final |>
     dplyr::filter(
       Flag.MatchByColumnIndicator |
         Flag.MatchByPercentMatchUseName |
         Flag.MatchByPercentMatchUseClass |
-        (is.na(percent_match_CST_in_ATTAINS) & is.na(percent_match_ATTAINS_in_CST) &
-           is.na(percent_match_CST_in_ATTAINS_use_class) & is.na(percent_match_ATTAINS_use_class_in_CST))
+        (is.na(percent_match_CST_in_ATTAINS) &
+          is.na(percent_match_ATTAINS_in_CST) &
+          is.na(percent_match_CST_in_ATTAINS_use_class) &
+          is.na(percent_match_ATTAINS_use_class_in_CST))
     ) |>
     dplyr::mutate(
       ATTAINS.UseName = name,
@@ -1429,18 +1451,27 @@ TADA_GetTADAUsesAliasRef <- function(
       Last.Change.Date
     ) |>
     dplyr::distinct()
-  
+
   current_TADAUsesAlias_keep <- current_TADAUsesAlias |>
     dplyr::filter(review %in% c("APPROVED", "REJECTED"))
-  
-  for (nm in setdiff(names(TADAUsesAliasRef), names(current_TADAUsesAlias_keep))) {
+
+  for (nm in setdiff(
+    names(TADAUsesAliasRef),
+    names(current_TADAUsesAlias_keep)
+  )) {
     current_TADAUsesAlias_keep[[nm]] <- TADAUsesAliasRef[[nm]][0]
   }
-  current_TADAUsesAlias_keep <- current_TADAUsesAlias_keep[, names(TADAUsesAliasRef), drop = FALSE] |>
+  current_TADAUsesAlias_keep <- current_TADAUsesAlias_keep[,
+    names(TADAUsesAliasRef),
+    drop = FALSE
+  ] |>
     dplyr::mutate(Last.Change.Date = as.character(Last.Change.Date))
-  
+
   TADAUsesAliasRef <- TADAUsesAliasRef |>
-    dplyr::filter(!is.na(ATTAINS.UseName), !is.na(USE_CLASS_NAME_LOCATION_ETC)) |>
+    dplyr::filter(
+      !is.na(ATTAINS.UseName),
+      !is.na(USE_CLASS_NAME_LOCATION_ETC)
+    ) |>
     dplyr::anti_join(
       current_TADAUsesAlias_keep,
       by = dplyr::join_by(
@@ -1472,7 +1503,7 @@ TADA_GetTADAUsesAliasRef <- function(
       ATTAINS.UseName,
       ATTAINS.UseClass
     )
-  
+
   allowed_review <- c("APPROVED", "REJECTED", "New row: Needs Review")
   bad_review <- unique(TADAUsesAliasRef$review[
     !is.na(TADAUsesAliasRef$review) &
@@ -1487,34 +1518,37 @@ TADA_GetTADAUsesAliasRef <- function(
       "."
     )
   }
-  
+
   if (!download_only) {
     .tada_cache_set(cache_key, TADAUsesAliasRef)
   }
-  
+
   # Define crosswalk by org id
   ATTAINSOrgToCSTEntityRef <- utils::read.csv(
     system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"),
     stringsAsFactors = FALSE
   )
-  
+
   TADAUsesAliasRef <- CST.raw |>
-    dplyr::mutate(
-      dplyr::across(
-        c(
-          POLLUTANT_NAME, ENTITY_NAME, ENTITY_ABBR,
-          CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
-          CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG,
-          USE_CLASS_NAME_LOCATION_ETC
-        ),
-        toupper
-      )
-    ) |>
+    dplyr::mutate(dplyr::across(
+      c(
+        POLLUTANT_NAME,
+        ENTITY_NAME,
+        ENTITY_ABBR,
+        CRITERIATYPEAQUAHUMHLTH,
+        CRITERIATYPEFRESHSALTWATER,
+        CRITERIATYPE_ACUTECHRONIC,
+        CRITERIATYPE_WATERORG,
+        USE_CLASS_NAME_LOCATION_ETC
+      ),
+      toupper
+    )) |>
     dplyr::left_join(ATTAINSOrgToCSTEntityRef, by = "ENTITY_ABBR") |>
     dplyr::left_join(
       TADAUsesAliasRef,
       by = dplyr::join_by(
-        ENTITY_NAME, ENTITY_ABBR,
+        ENTITY_NAME,
+        ENTITY_ABBR,
         CRITERIATYPEAQUAHUMHLTH,
         CRITERIATYPEFRESHSALTWATER,
         CRITERIATYPE_ACUTECHRONIC,
@@ -1543,16 +1577,16 @@ TADA_GetTADAUsesAliasRef <- function(
       Last.Change.Date
     ) |>
     dplyr::distinct()
-  
+
   TADAUsesAliasRef
 }
 
 #' Update TADA Uses Alias Reference Table (DEV-TIME ONLY)
 #' @keywords internal
 .TADA_UpdateTADAUsesAliasRef <- function(
-    ATTAINS.CST.tolerance = 0.15,
-    CST.ATTAINS.tolerance = 0.15,
-    set.all.tolerance = NA
+  ATTAINS.CST.tolerance = 0.15,
+  CST.ATTAINS.tolerance = 0.15,
+  set.all.tolerance = NA
 ) {
   df <- TADA_GetTADAUsesAliasRef(
     ATTAINS.CST.tolerance = ATTAINS.CST.tolerance,
@@ -1560,12 +1594,12 @@ TADA_GetTADAUsesAliasRef <- function(
     set.all.tolerance = set.all.tolerance,
     download_only = TRUE
   )
-  
+
   utils::write.csv(
     df,
     file = "inst/extdata/TADAUsesAliasRef.csv",
     row.names = FALSE
   )
-  
+
   invisible(df)
 }
