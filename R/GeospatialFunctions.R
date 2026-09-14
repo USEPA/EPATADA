@@ -790,9 +790,9 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
       fill_USGS_catchments <- vector("list", length = nrow(unique_sites))
 
       for (i in 1:nrow(unique_sites)) {
-        # Use {nhdplusTools} to grab associated catchments...
+        # Use {hydrogeofetch} to grab associated catchments...
         try(
-          fill_USGS_catchments[[i]] <- nhdplusTools::get_nhdplus(
+          fill_USGS_catchments[[i]] <- hydrogeofetch::get_catchments(
             AOI = unique_sites[i, ],
             realization = "catchment"
           ) |>
@@ -857,9 +857,9 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
         unique_sites <- fill_USGS_catchments
 
         for (i in 1:nrow(unique_sites)) {
-          # Use {nhdplusTools} to grab associated flowlines...
+          # Use {hydrogeofetch} to grab associated flowlines...
           try(
-            nhd_flowlines[[i]] <- nhdplusTools::get_nhdplus(
+            nhd_flowlines[[i]] <- hydrogeofetch::get_flowlines(
               AOI = unique_sites[i, ],
               realization = "flowline"
             ) |>
@@ -917,9 +917,9 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
         unique_sites <- fill_USGS_catchments
 
         for (i in 1:nrow(unique_sites)) {
-          # Use {nhdplusTools} to grab associated flowlines...
+          # Use {hydrogeofetch} to grab associated waterbodies...
           try(
-            nhd_waterbodies[[i]] <- nhdplusTools::get_waterbodies(
+            nhd_waterbodies[[i]] <- hydrogeofetch::get_waterbodies(
               AOI = unique_sites[i, ]
             ) |>
               sf::st_make_valid(),
@@ -2019,12 +2019,6 @@ TADA_GetATTAINSByAUID <- function(
 #' if they are within the same NHD catchment. When catchment = FALSE catchment
 #' is not considered when matching sites. Default is catchment = TRUE.
 #'
-#' @param by_AU Boolean. When by_AU = TRUE, two sites will only be matched
-#' if they are within the same ATTAINS assessment unit. When by_AU = FALSE the
-#' assessment unit is not considered when matching nearby sites. In order to
-#' consider assessment unit when matching, the TADA data frame must contain the
-#' column ATTAINS.AssessmentUnitIdentifier. Default is by_AU = TRUE.
-#'
 #' @param nhd_res Character argument to determine whether the NHD catchments
 #' used should be high ("Hi") or medium ("Med") res. Default = "Hi" for
 #' consistency with other TADA geospatial functions.
@@ -2076,35 +2070,30 @@ TADA_GetATTAINSByAUID <- function(
 #' # example grouping nearby sites by distance only
 #' test.dist <- TADA_FindNearbySites(testdat,
 #'   catchment = FALSE,
-#'   by_AU = FALSE,
 #'   dist_buffer = 250
 #' )
 #'
 #' # example grouping nearby sites by distance and catchment
 #' test.catch <- TADA_FindNearbySites(testdat,
 #'   catchment = TRUE,
-#'   by_AU = FALSE,
 #'   dist_buffer = 250
 #' )
 #'
 #' # example grouping nearby sites by distance and assessment unit
 #' test.au.only <- TADA_FindNearbySites(testdat,
 #'   catchment = FALSE,
-#'   by_AU = TRUE,
 #'   dist_buffer = 250
 #' )
 #'
 #' # example grouping nearby sites by distance, catchment, and assessment unit
 #' test.all <- TADA_FindNearbySites(testdat,
 #'   catchment = TRUE,
-#'   by_AU = TRUE,
 #'   dist_buffer = 250
 #' )
 #'
 #' # example grouping nearby sites by distance and organization
 #' test.org <- TADA_FindNearbySites(testdat,
 #'   catchment = FALSE,
-#'   by_AU = FALSE,
 #'   by_org = TRUE,
 #'   dist_buffer = 250
 #')
@@ -2116,7 +2105,6 @@ TADA_FindNearbySites <- function(
   org_hierarchy = "none",
   meta_select = "random",
   catchment = TRUE,
-  by_AU = TRUE,
   by_org = FALSE
 ) {
   # check .data is data.frame and has required columns
@@ -2302,44 +2290,6 @@ TADA_FindNearbySites <- function(
         )
 
       return(.data)
-    }
-  }
-
-  # check if .data contains the column "ATTAINS.AssessmentUnitIdentifier"
-  # and status of by_AU param
-  if ("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
-    if (by_AU == TRUE) {
-      message(
-        "TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. Monitoring Locations will only be grouped if they fall within the same assessment unit."
-      )
-
-      # create crosswalk for monitoring locations and assessment units
-      au.ml.cw <- .data |>
-        dplyr::select(
-          TADA.MonitoringLocationIdentifier,
-          ATTAINS.AssessmentUnitIdentifier
-        ) |>
-        dplyr::distinct()
-
-      # group by ATTAINS.AssessmentUnitIdentifier (and catchment)
-      group.sites <- group.sites |>
-        sf::st_drop_geometry() |>
-        dplyr::left_join(
-          au.ml.cw,
-          by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
-        ) |>
-        dplyr::group_by(ATTAINS.AssessmentUnitIdentifier) |>
-        dplyr::filter(
-          !is.na(ATTAINS.AssessmentUnitIdentifier),
-          ATTAINS.AssessmentUnitIdentifier != ""
-        ) |>
-        dplyr::mutate(Group.n = dplyr::n()) |>
-        dplyr::filter(Group.n > 1) |>
-        dplyr::select(-Group.n)
-    } else {
-      message(
-        "TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. User has specified that assessment unit should not be considered when grouping nearby sites."
-      )
     }
   }
 
