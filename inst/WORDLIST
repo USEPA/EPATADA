@@ -212,7 +212,6 @@ NCTC
 NDs
 NHD
 NHDPlus
-NHDPlusTools
 NLCD
 NLDI
 NONEs
@@ -511,6 +510,7 @@ helpdesk
 https
 huc
 hucs
+hydrogeofetch
 hydrographic
 hydrography
 hydrologic
@@ -529,7 +529,6 @@ mlt
 nd
 nhd
 nhdplus
-nhdplusTools
 nondetections
 nondetects
 nonstandardized
