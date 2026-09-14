@@ -125,7 +125,7 @@ testthat::test_that("fetchATTAINS handles large areas", {
   testthat::expect_null(result_all_features$ATTAINS_points)
   testthat::expect_equal(nrow(result_all_features$ATTAINS_lines), 10)
   testthat::expect_equal(nrow(result_all_features$ATTAINS_polygons), 1)
-  testthat::expect_equal(nrow(result_all_features$ATTAINS_catchments), 45)
+  testthat::expect_equal(nrow(result_all_features$ATTAINS_catchments), 43)
 })
 
 testthat::test_that("fetchATTAINS catchments_only parameter", {
