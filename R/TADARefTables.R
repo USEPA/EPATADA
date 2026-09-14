@@ -1037,7 +1037,8 @@ TADA_GetTADAUsesAliasRef <- function(
       "ECOLOGICAL_USE",
       "FISHCONSUMPTION_USE",
       "OTHER_USE",
-      "RECREATION_USE", "RECREATION_USE"
+      "RECREATION_USE",
+      "RECREATION_USE"
     ),
     CRITERIATYPEAQUAHUMHLTH = c(
       NA_character_,
@@ -1046,7 +1047,8 @@ TADA_GetTADAUsesAliasRef <- function(
       "A",
       "H",
       NA_character_,
-      "H","H"
+      "H",
+      "H"
     ),
     CRITERIATYPE_WATERORG = c(
       NA_character_,
@@ -1055,7 +1057,8 @@ TADA_GetTADAUsesAliasRef <- function(
       NA_character_,
       "O",
       NA_character_,
-      NA_character_, "O"
+      NA_character_,
+      "O"
     ),
     stringsAsFactors = FALSE
   )
@@ -1581,7 +1584,7 @@ TADA_GetTADAUsesAliasRef <- function(
 
   # Save updated table in session cache
   .tada_cache_set(cache_key, TADAUsesAliasRef)
-  
+
   TADAUsesAliasRef
 }
 
