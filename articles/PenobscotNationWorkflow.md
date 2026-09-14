@@ -426,7 +426,9 @@ ME_criteria_ecoli <- TADA_DefineCriteriaMethodology(df_singleML, org_id = "MEDEP
 
     ## TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_UsesForAnalysis with default assignment.
 
-    ## TADA_UsesForAnalysis: auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.
+    ## TADA_UsesForAnalysis: auto_assign == TRUE was selected, 
+    ##   assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an 
+    ##   organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.
 
     ## TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.
     ##   Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.

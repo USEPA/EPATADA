@@ -150,12 +150,6 @@ of the spatial summary, parameters and uses for analysis.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># join the table by best match from what is filled out from the criteria table</span></span></span>
 <span class="r-in"><span><span class="va">MT_data_criteria</span> <span class="op">&lt;-</span> <span class="fu">TADA_Analysis_Join_WQP_Criteria</span><span class="op">(</span><span class="va">MT_data</span>, <span class="va">criteria_MT</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Failed to coerce column 'SeasonStartDate' to type 'date'; leaving unchanged.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Failed to coerce column 'SeasonEndDate' to type 'date'; leaving unchanged.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Failed to coerce column 'SeasonStartDate' to type 'date'; leaving unchanged.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Failed to coerce column 'SeasonEndDate' to type 'date'; leaving unchanged.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Failed to coerce column 'SeasonStartDate' to type 'date'; leaving unchanged.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Failed to coerce column 'SeasonEndDate' to type 'date'; leaving unchanged.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># create the MLSummaryRef (ML only - no AU or other spatial columns)</span></span></span>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis</a></span><span class="op">(</span></span></span>
@@ -164,23 +158,20 @@ of the spatial summary, parameters and uses for analysis.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">uses</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_UsesForAnalysis.html">TADA_UsesForAnalysis</a></span><span class="op">(</span><span class="va">Data_MT_MissoulaCounty</span>,</span></span>
 <span class="r-in"><span> org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>, paramRef <span class="op">=</span> <span class="va">params</span>, auto_assign <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_UsesForAnalysis: auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_UsesForAnalysis: auto_assign == TRUE was selected, </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">mlsummary</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_MLSummary.html">TADA_MLSummary</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">Data_MT_MissoulaCounty</span>,</span></span>
 <span class="r-in"><span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span></span>
 <span class="r-in"><span>  usesRef <span class="op">=</span> <span class="va">uses</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your TADA data frame.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># join the table by best match, along with the MLSummaryRef</span></span></span>
 <span class="r-in"><span><span class="va">MT_data_criteria2</span> <span class="op">&lt;-</span> <span class="fu">TADA_Analysis_Join_WQP_Criteria</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">MT_data</span>,</span></span>
 <span class="r-in"><span>  <span class="va">criteria_MT</span>,</span></span>
 <span class="r-in"><span>  MLSummaryRef <span class="op">=</span> <span class="va">mlsummary</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Failed to coerce column 'SeasonStartDate' to type 'date'; leaving unchanged.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Failed to coerce column 'SeasonEndDate' to type 'date'; leaving unchanged.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Failed to coerce column 'SeasonStartDate' to type 'date'; leaving unchanged.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Failed to coerce column 'SeasonEndDate' to type 'date'; leaving unchanged.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -208,6 +208,8 @@ domains (see example below).
 
 ``` r
 
+# set API key for rExpertQuery
+rEQ_api <- EPATADA:::.setEQKey()
 # return ATTAINS parameter domain values
 TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name", api_key = rEQ_api))
 ```
@@ -666,7 +668,8 @@ Coli that was unable to be retrieved from ATTAINS. We also see PH was
 not found in the user supplied UsesRef table. We will assume MTDEQ has
 forgotten to include PH in their table and showcase the importance of
 considering all readily available data from your WQP data retrieval that
-you may need to consider for analysis.
+you may need to consider for analysis and how TADA handles these
+scenarios with warning messages.
 
 ``` r
 
@@ -1021,21 +1024,30 @@ insufficient data.)
 ``` r
 
 nrow(MT.MLSummaryRef.AU)
+```
+
+    ## [1] 234
+
+``` r
+
 nrow(MT.MLSummaryRef.ML)
 ```
+
+    ## [1] 79
 
 ## TADA DefineCriteriaMethodology()
 
 Now, lets get to generating the criteria and methodology file for MTDEQ
-to fill out. We will showcase how this table will be generated for the
-first time using the recommended step-by-step workflow and showcase how
-a user can go about updating their criteria and methodology file as
+to fill out. We will demonstrate how this table is created for the first
+time using the recommended step-by-step workflow, and then show how a
+user can update and validate their criteria and methodology file as
 needed.
 
-First, let’s show how our step-by-step process all come together. Users
-will need to fill out this template that is generated. It is highly
-recommended to export this to the excel spreadsheet to show the
-allowable values and easy interface for inputs to the table.
+First, let’s look at how the step-by-step process comes together. Users
+will need to complete the generated template. It is highly recommended
+to export this template to an Excel spreadsheet, as this provides a
+user-friendly interface for entering values and displaying the allowable
+options for each table field.
 
 ``` r
 
@@ -1192,4 +1204,96 @@ MT.CriteriaMethods.Final2 <- TADA_DefineCriteriaMethodology(
 )
 
 TADA_TableExport(MT.CriteriaMethods.Final2[[1]])
+```
+
+### Join the Criteria Table to Your WQP Data
+
+Now that your criteria table is ready, the next step is to join it to
+your WQP data frame.  
+If you are only interested in performing a monitoring location–level
+analysis, you can provide just the WQP data and the criteria table.
+
+First, join the criteria table to your WQP data frame. The criteria
+table will automatically be joined using the best match based on either
+`TADA.ComparableDataIdentifier` or the combination of
+`TADA.CharacteristicName`, `TADA.ResultSampleFractionText`, and
+`TADA.MethodSpeciationName`. In this example, the table includes all
+characteristics and/or parameters.
+
+Keep in mind that any spatial columns that are populated
+(`ATTAINS.WaterType`, `SaltFresh`, `UniqueSpatialCriteria`, or
+`DepthCategory`) cannot be differentiated if a spatial reference table
+(the MLSummaryRef) is not provided. In these cases, any monitoring
+location that contains a characteristic name found in the WQP data will
+be assigned the spatial criteria specified in the criteria table. For
+example, if you specify that *E. coli* should only be assessed for
+`ATTAINS.WaterType = "LAKE"`, then any site containing *E. coli* will be
+assessed using that criterion, because the water type of the site cannot
+be distinguished without a user-supplied crosswalk indicating which
+sites are truly representative of `"LAKE"`.
+
+``` r
+
+MT_data_criteria_no_spatial <- TADA_Analysis_Join_WQP_Criteria(
+  .data = tada.MT.clean,
+  criteria = MT.CriteriaMethods.Final
+)
+```
+
+Each uses in this criteria table will be assigned to each monitoring
+location for analysis, if that monitoring location contains that WQP
+characteristic name. Let’s check to ensure all characteristic names have
+been matched to those found in the criteria table.
+
+``` r
+
+rows1 <- nrow(MT.CriteriaMethods.Final[MT.CriteriaMethods.Final$TADA.CharacteristicName == "ESCHERICHIA COLI", ])
+rows2 <- nrow(tada.MT.clean[tada.MT.clean$TADA.CharacteristicName == "ESCHERICHIA COLI",])
+rows3 <- nrow(MT.CriteriaMethods.Final[MT.CriteriaMethods.Final$TADA.CharacteristicName == "PH", ])
+rows4 <- nrow(tada.MT.clean[tada.MT.clean$TADA.CharacteristicName == "PH",])
+
+(rows1 * rows2 + rows3 * rows4) == nrow(MT_data_criteria_no_spatial)
+```
+
+    ## [1] TRUE
+
+Let’s now also join the MLSummaryRef crosswalk outputs from
+\[TADAModule2.Rmd\] to show how to work with assessment unit–level
+analysis.
+
+``` r
+
+MT_data_w_criteria <- TADA_Analysis_Join_WQP_Criteria(
+  .data = tada.MT.clean,
+  criteria = MT.CriteriaMethods.Final,
+  MLSummaryRef = MT.MLSummaryRef.AU
+  )
+```
+
+How many columns do you see?
+
+``` r
+
+ncol(tada.MT.clean)
+```
+
+    ## [1] 163
+
+``` r
+
+ncol(MT.CriteriaMethods.Final)
+```
+
+    ## [1] 56
+
+``` r
+
+ncol(MT_data_w_criteria)
+```
+
+    ## [1] 221
+
+``` r
+
+# length(union(names(tada.MT.clean), names(MT.CriteriaMethods.Final)))
 ```

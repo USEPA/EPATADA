@@ -106,20 +106,23 @@ TADA_DefineCriteriaMethodology(
 
 - AUMLRef:
 
-  An optional data frame input. If provided, this data frame should
-  contain a completed crosswalk of monitoring location sites associated
-  with an assessment unit. This data frame must contain the following
-  column names which can be generated from the output of
-  TADA_CreateAUMLCrosswalk: ATTAINS.OrganizationIdentifier,
+  An optional data frame input containing a completed crosswalk of
+  monitoring location sites associated with an assessment unit. If
+  provided, each Monitoring location site will get assigned to an
+  ATTAINS.AssessmentUnitIdentifier to allow users to analyze by either
+  assessment units or by monitoring location. This data frame must
+  contain the following column names which can be generated from the
+  output of TADA_CreateAUMLCrosswalk: ATTAINS.OrganizationIdentifier,
   TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier,
   and ATTAINS.WaterType.
 
 - AU_UsesRef:
 
   An optional data frame input. If provided, the ATTAINS.UseName will be
-  populated from the ATTAINS.UseName found in this data frame rather
-  than the ATTAINS assessment profile. This data frame must contain the
-  following column names which can be generated from the output of
+  filtered by the ATTAINS.UseName found in this data frame. It will also
+  assign the uses to each assessment unit defined in this table if an
+  AUMLRef is also provided. This data frame must contain the following
+  column names which can be generated from the output of
   TADA_AssignUsesToAU: ATTAINS.OrganizationIdentifier,
   ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName, and
   ATTAINS.WaterType.
@@ -212,7 +215,6 @@ MLSummaryRef_UT <- TADA_MLSummary(
   usesRef = usesRef_UT,
   excel = FALSE
 )
-#> displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your TADA data frame.
 
 DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
   Data_Nutrients_UT,
@@ -235,9 +237,11 @@ epa_only <- TADA_DefineCriteriaMethodology(
 #>   NAs were found in ATTAINS.ParameterName. 
 #>   Please ensure that you have inputted all field values of interest in 
 #>   the ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function.
-#> TADA_UsesForAnalysis: auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.
+#> TADA_UsesForAnalysis: auto_assign == TRUE was selected, 
+#>   assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an 
+#>   organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.
 #> TADA_DefineCriteriaMethodology: displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis.
-#> TADA_DefineCriteriaMethodology: USEPA was included ...
+#> TADA_DefineCriteriaMethodology: USEPA was included in 'org_id'.EPA section 304(a) recommended criteria were included for parameters that could be matched to the available data.
 
 # Example 3: fill template with EPA304(a)
 # and ATTAINS parameters and uses for MTDEQ:
@@ -251,7 +255,9 @@ epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty,
 #>   NAs were found in ATTAINS.ParameterName. 
 #>   Please ensure that you have inputted all field values of interest in 
 #>   the ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function.
-#> TADA_UsesForAnalysis: auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.
+#> TADA_UsesForAnalysis: auto_assign == TRUE was selected, 
+#>   assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an 
+#>   organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.
 #> TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.
 #>   Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.
 #>   Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.
@@ -260,5 +266,5 @@ epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty,
 #> TADA_DefineCriteriaMethodology: removing any instances where CST Pollutant names are 'PH VARIATION', 'TEMPERATURE RISE ABOVE AMBIENT'. TADA functions cannot currently handle analysis for these instances.
 #> Warning in TADA_DefineCriteriaMethodology:  There are 2 TADA.CharacteristicName units that do not match with the CST autoassign MagnitudeUnit values. Converting these MagnitudeUnit Values from the CST to match the TADA.ResultMeasure.MeasureUnitCode in your dataframe. Please review these conversions.
 #> TADA_DefineCriteriaMethodology: displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis.
-#> TADA_DefineCriteriaMethodology: USEPA was included ...
+#> TADA_DefineCriteriaMethodology: USEPA was included in 'org_id'.EPA section 304(a) recommended criteria were included for parameters that could be matched to the available data.
 ```

@@ -204,7 +204,7 @@ volunteer_data <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(
   clean = T)
 ```
 
-    ## TADA_FindPotentialDuplicatesSingleOrg: 633 groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and one result from each group was randomly selected to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Duplicate Selected', while duplicates are flagged as 'Duplicate Not Selected' for easy filtering.
+    ## TADA_FindPotentialDuplicatesSingleOrg: 642 groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and one result from each group was randomly selected to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Duplicate Selected', while duplicates are flagged as 'Duplicate Not Selected' for easy filtering.
 
 Prepare censored (nondetects and overdetects) results for analysis:
 
@@ -247,7 +247,7 @@ volunteer_data <- EPATADA::TADA_FlagAboveThreshold(volunteer_data,
 )
 ```
 
-    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3156, Pass: 150434, Suspect: 1830
+    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3156, Pass: 152504, Suspect: 1830
 
 ``` r
 
@@ -257,7 +257,7 @@ volunteer_data <- EPATADA::TADA_FlagBelowThreshold(volunteer_data,
 )
 ```
 
-    ## TADA_FlagBelowThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3156, Pass: 152255, Suspect: 9
+    ## TADA_FlagBelowThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3156, Pass: 154325, Suspect: 9
 
 Harmonize synonyms if found:
 
@@ -274,8 +274,8 @@ EPATADA::TADA_FieldValuesTable(volunteer_data, field = "ActivityTypeCode")
 ```
 
     ##            Value  Count
-    ## 1  Field Msr/Obs 119537
-    ## 2 Sample-Routine  35883
+    ## 1  Field Msr/Obs 120575
+    ## 2 Sample-Routine  36915
 
 Generate pie chart:
 
@@ -317,9 +317,9 @@ EPATADA::TADA_SummarizeColumn(volunteer_data)
     ##    TADA.CharacteristicName              n_sites n_records
     ##    <chr>                                  <int>     <int>
     ##  1 AMMONIA                                   15       244
-    ##  2 CHLOROPHYLL A                              4       144
+    ##  2 CHLOROPHYLL A                             13       493
     ##  3 CONDUCTANCE                               15       149
-    ##  4 COUNT                                    808     23121
+    ##  4 COUNT                                    828     24153
     ##  5 DEPTH, SECCHI DISK DEPTH                  47       616
     ##  6 DISSOLVED OXYGEN (DO)                     15       589
     ##  7 ENTEROCOCCUS                              35       444
@@ -347,7 +347,7 @@ Generate scatter plot for E. coli:
 EPATADA::TADA_GroupedScatterplot(ecoli)
 ```
 
-    ## TADA_GroupedScatterplot: No 'groups' selected for MonitoringLocationName. There are 396 MonitoringLocationNames in the TADA dataframe. The top four MonitoringLocationNames by number of results will be plotted: Sunderland Boat Ramp; CT River at Barton Cove Boat Ramp (now MA-CTR_122.5); DCR/UMASS boat dock and Oxbow/Easthampton Boat Ramp.
+    ## TADA_GroupedScatterplot: No 'groups' selected for MonitoringLocationName. There are 396 MonitoringLocationNames in the TADA dataframe. The top four MonitoringLocationNames by number of results will be plotted: Sunderland Boat Ramp; DCR/UMASS boat dock; CT River at Barton Cove Boat Ramp (now MA-CTR_122.5) and Oxbow/Easthampton Boat Ramp.
 
 Filter to a single site and continue exploring E. coli:
 

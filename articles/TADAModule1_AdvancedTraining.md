@@ -403,7 +403,7 @@ all_counts
     ## 3                                                  ResultMeasureValue  42595
     ## 4                                                  ActivityIdentifier  17547
     ## 5                                 ResultDetectionQuantitationLimitUrl  12228
-    ## 6                                               ActivityStartDateTime  10734
+    ## 6                                               ActivityStartDateTime  10733
     ## 7                                                         LastUpdated   3502
     ## 8                               ResultDepthHeightMeasure.MeasureValue   3006
     ## 9                          TADA.ResultDepthHeightMeasure.MeasureValue   3006
@@ -411,7 +411,7 @@ all_counts
     ## 11                                             ActivityStartTime.Time   1350
     ## 12                            ActivityDepthHeightMeasure.MeasureValue   1155
     ## 13                       TADA.ActivityDepthHeightMeasure.MeasureValue   1155
-    ## 14                                                  ActivityStartDate    671
+    ## 14                                                  ActivityStartDate    670
     ## 15                                                  AnalysisStartDate    568
     ## 16                                  ActivityLocation.LongitudeMeasure    465
     ## 17                                   ActivityLocation.LatitudeMeasure    460
@@ -443,7 +443,7 @@ all_counts
     ## 43                                                        ProjectName     25
     ## 44                                                  ProjectIdentifier     25
     ## 45                                 TADA.ResultMeasure.MeasureUnitCode     22
-    ## 46                                                  HUCEightDigitCode     17
+    ## 46                                                  HUCEightDigitCode     16
     ## 47                     ResultAnalyticalMethod.MethodIdentifierContext     15
     ## 48                                                         CountyCode     14
     ## 49                            SampleCollectionMethod.MethodIdentifier     14
@@ -594,12 +594,12 @@ org_counts <- TADA_FieldValuesTable(dataset, field = "OrganizationFormalName")
 org_counts
 ```
 
-    ##                                         Value Count
-    ## 1                                Red Lake DNR 84965
-    ## 2           Fond du Lac Band of Chippewa (MN) 27928
-    ## 3                  Blackfeet Nation (Montana) 20126
-    ## 4 Ute Mountain Utes Tribe (Colorado) (Tribal)  4257
-    ## 5                  Pueblo Of Tesuque (Tribal)   793
+    ##                                        Value Count
+    ## 1                               Red Lake DNR 84965
+    ## 2 Fond du Lac Band of Chippewa (MN) (Tribal) 27928
+    ## 3                 Blackfeet Nation (Montana) 20126
+    ## 4         Ute Mountain Utes Tribe (Colorado)  4257
+    ## 5                 Pueblo Of Tesuque (Tribal)   793
 
 **Question 4: When might a user choose to view a column’s unique values
 as a table rather than in a pie chart?**
@@ -853,7 +853,7 @@ removal
     ## 3                                                            Activity media is not water.
     ## 4                     Detection limit information contains errors or missing information.
     ##   Count
-    ## 1 35809
+    ## 1 35812
     ## 2 13418
     ## 3  5050
     ## 4    18
@@ -931,7 +931,7 @@ TADA_FieldValuesTable(dataset_flags, field = "TADA.ResultMeasureValueDataTypes.F
 ```
 
     ##                      Value Count
-    ## 1                  Numeric 87532
+    ## 1                  Numeric 87529
     ## 2               Percentage   992
     ## 3 Numeric Range - Averaged   266
     ## 4                Less Than    18
@@ -948,7 +948,7 @@ TADA_FieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTypes.Fl
 ```
 
     ##                                              Value Count
-    ## 1                                          Numeric 87527
+    ## 1                                          Numeric 87524
     ## 2                                       Percentage   992
     ## 3                         Numeric Range - Averaged   266
     ## 4                                        Less Than    18

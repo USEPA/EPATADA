@@ -85,12 +85,6 @@ criteria_MT <- EPATADA::TADA_GetCriteriaFile(org_id = "MTDEQ")
 
 # join the table by best match from what is filled out from the criteria table
 MT_data_criteria <- TADA_Analysis_Join_WQP_Criteria(MT_data, criteria_MT)
-#> Warning: Failed to coerce column 'SeasonStartDate' to type 'date'; leaving unchanged.
-#> Warning: Failed to coerce column 'SeasonEndDate' to type 'date'; leaving unchanged.
-#> Warning: Failed to coerce column 'SeasonStartDate' to type 'date'; leaving unchanged.
-#> Warning: Failed to coerce column 'SeasonEndDate' to type 'date'; leaving unchanged.
-#> Warning: Failed to coerce column 'SeasonStartDate' to type 'date'; leaving unchanged.
-#> Warning: Failed to coerce column 'SeasonEndDate' to type 'date'; leaving unchanged.
 
 # create the MLSummaryRef (ML only - no AU or other spatial columns)
 params <- TADA_ParametersForAnalysis(
@@ -99,21 +93,18 @@ params <- TADA_ParametersForAnalysis(
 
 uses <- TADA_UsesForAnalysis(Data_MT_MissoulaCounty,
  org_id = "MTDEQ", paramRef = params, auto_assign = TRUE)
-#> TADA_UsesForAnalysis: auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.
+#> TADA_UsesForAnalysis: auto_assign == TRUE was selected, 
+#>   assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an 
+#>   organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.
 
 mlsummary <- TADA_MLSummary(
   Data_MT_MissoulaCounty,
   org_id = "MTDEQ",
   usesRef = uses)
-#> displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your TADA data frame.
 
 # join the table by best match, along with the MLSummaryRef
 MT_data_criteria2 <- TADA_Analysis_Join_WQP_Criteria(
   MT_data,
   criteria_MT,
   MLSummaryRef = mlsummary)
-#> Warning: Failed to coerce column 'SeasonStartDate' to type 'date'; leaving unchanged.
-#> Warning: Failed to coerce column 'SeasonEndDate' to type 'date'; leaving unchanged.
-#> Warning: Failed to coerce column 'SeasonStartDate' to type 'date'; leaving unchanged.
-#> Warning: Failed to coerce column 'SeasonEndDate' to type 'date'; leaving unchanged.
 ```

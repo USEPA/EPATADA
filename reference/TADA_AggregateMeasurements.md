@@ -84,7 +84,7 @@ Data_TribalNations_max <- TADA_AggregateMeasurements(Data_TribalNations,
 #> ! no non-missing arguments to max; returning -Inf
 #> ℹ Run `dplyr::last_dplyr_warnings()` to see the 244 remaining warnings.
 #> Aggregation results:
-#> 5489111648
+#> 5489711645
 
 # Calculate a mean value per day, site, comparable data identifier, unit,
 # result detection condition,
@@ -100,5 +100,5 @@ Data_TribalNations_mean <- TADA_AggregateMeasurements(Data_TribalNations,
 )
 #> Warning: TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation.
 #> Aggregation results:
-#> 765805489111648
+#> 765775489711645
 ```
