@@ -2615,7 +2615,7 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
 
 #' TADA_CorrectColType
 #'
-#' Correct column data types for TADA, ATTAINS, and user reference data using the
+#' Correct column data types for TADA, ATTAINS, WQP, and user reference data using the
 #' TADA column-type reference file bundled with EPATADA. This ensures downstream
 #' TADA functions operate with expected classes.
 #'
