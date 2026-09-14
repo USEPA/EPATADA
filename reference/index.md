@@ -357,6 +357,9 @@
 - [`TADA_RunKeyFlagFunctions()`](https://usepa.github.io/EPATADA/reference/TADA_RunKeyFlagFunctions.md)
   : Run key flagging functions
 
+- [`TADA_SaltFreshIndicator()`](https://usepa.github.io/EPATADA/reference/TADA_SaltFreshIndicator.md)
+  : Assign Salt or Freshwater Indicator
+
 - [`TADA_Scatterplot()`](https://usepa.github.io/EPATADA/reference/TADA_Scatterplot.md)
   : Create Scatterplot(s)
 
