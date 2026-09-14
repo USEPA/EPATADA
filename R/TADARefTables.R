@@ -1474,8 +1474,9 @@ TADA_GetTADAUsesAliasRef <- function(
     names(TADAUsesAliasRef),
     names(current_TADAUsesAlias_keep)
   )) {
-    current_TADAUsesAlias_keep[[nm]] <- TADAUsesAliasRef[[nm]][0]
+    current_TADAUsesAlias_keep[[nm]] <- rep(NA, nrow(current_TADAUsesAlias_keep))
   }
+
   current_TADAUsesAlias_keep <- current_TADAUsesAlias_keep[,
     names(TADAUsesAliasRef),
     drop = FALSE
@@ -1573,6 +1574,7 @@ TADA_GetTADAUsesAliasRef <- function(
       ),
       relationship = "many-to-many"
     ) |>
+    dplyr::rename(ATTAINS.UseGroup = context2) |>
     dplyr::select(
       ATTAINS.OrganizationIdentifier,
       ENTITY_ABBR,
@@ -1584,13 +1586,13 @@ TADA_GetTADAUsesAliasRef <- function(
       USE_CLASS_NAME_LOCATION_ETC,
       ATTAINS.UseName,
       ATTAINS.UseClass,
-      ATTAINS.UseGroup = context2,
+      ATTAINS.UseGroup,
       Flag.MatchSource,
       Flag.PercentMatchToleranceTextUseName,
       Flag.PercentMatchToleranceTextUseClass,
       review,
       Last.Change.Date
-    ) |>
+    )|>
     dplyr::distinct()
 
   # Save updated table in session cache
