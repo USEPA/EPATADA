@@ -1474,7 +1474,10 @@ TADA_GetTADAUsesAliasRef <- function(
     names(TADAUsesAliasRef),
     names(current_TADAUsesAlias_keep)
   )) {
-    current_TADAUsesAlias_keep[[nm]] <- rep(NA, nrow(current_TADAUsesAlias_keep))
+    current_TADAUsesAlias_keep[[nm]] <- rep(
+      NA,
+      nrow(current_TADAUsesAlias_keep)
+    )
   }
 
   current_TADAUsesAlias_keep <- current_TADAUsesAlias_keep[,
@@ -1592,7 +1595,7 @@ TADA_GetTADAUsesAliasRef <- function(
       Flag.PercentMatchToleranceTextUseClass,
       review,
       Last.Change.Date
-    )|>
+    ) |>
     dplyr::distinct()
 
   # Save updated table in session cache
