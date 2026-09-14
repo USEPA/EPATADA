@@ -516,7 +516,22 @@ utils::globalVariables(c(
   "ATTAINSWaterTypeByOrgName",
   "TADA.ATTAINS.WaterType",
   "TADA.Rank",
-  "TADA.ResultValueAggregation.Flag"
+  "TADA.ResultValueAggregation.Flag",
+  "ATTAINS.UseClass",
+  "Flag.MatchByColumnIndicator",
+  "Flag.MatchByPercentMatchUseClass",
+  "Flag.MatchByPercentMatchUseName",
+  "Flag.MatchSource",
+  "Flag.PercentMatchToleranceTextUseClass",
+  "Flag.PercentMatchToleranceTextUseName",
+  "capture.output",
+  "n_attains_words",
+  "n_cst_words",
+  "percent_match_ATTAINS_in_CST",
+  "percent_match_ATTAINS_use_class_in_CST",
+  "percent_match_CST_in_ATTAINS",
+  "percent_match_CST_in_ATTAINS_use_class",
+  "use_class_words"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
