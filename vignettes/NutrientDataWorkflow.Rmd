@@ -1,0 +1,625 @@
+---
+title: "Nutrient Data: Water Quality Portal Data Discovery and Cleaning"
+format: html
+editor: visual
+author: "TADA Team"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Nutrient Data: Water Quality Portal Data Discovery and Cleaning}
+  %\VignetteEngine{knitr::rmarkdown}
+description: An overview of TADA functionalities to clean, harmonize and calculate Total Nitrogen and Total Phosphorus data from the WQP. This vignette will go through a standardized and consistent workflow for a variety of users interested in using WQP data for nutrient analysis. 
+editor_options:
+  chunk_output_type: console
+  markdown:
+    wrap: 72
+---
+
+```{r setup, include = F}
+library(knitr)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+```{css, include = F}
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+pre[class] {
+  max-height: 300px;
+}
+```
+
+## Overview
+
+This vignette walks through how to use the TADA R Package to discover
+and clean (i.e., wrangle, Quality Assure and Quality Control (QAQC), and
+harmonize) [Water Quality Portal
+(WQP)](https://www.waterqualitydata.us/) data from multiple
+organizations.
+
+## Install and Load the EPATADA R Package
+
+First, install and load the remotes package specifying the repo. This is
+needed before installing EPATADA because it is only available on GitHub
+(not CRAN).
+
+```{r install_remotes, results = 'hide', eval = F}
+install.packages("remotes")
+# Load the remotes library
+library(remotes)
+```
+
+Next, install and load TADA using the remotes package. TADA R Package
+dependencies will also be downloaded automatically from CRAN with the
+TADA install. You may be prompted in the console to update dependency
+packages that have more recent versions available. If you see this
+prompt, it is recommended to update all of them (enter 1 into the
+console).
+
+```{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+```
+
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
+
+```{r library, results = 'hide'}
+library(EPATADA)
+```
+
+## Background
+
+This vignette summarizes cross-project efforts within EPA to discover,
+harmonize, and analyze nutrient data from the WQP, with a focus on
+reproducibly calculating Total Nitrogen (TN) and Total Phosphorus (TP)
+from available fraction and sub-species. It outlines shared challenges,
+the TADA workflow, and related tools and updates that may affect your
+data retrieval and processing.
+
+Multiple projects across EPA have experienced challenges with
+harmonization and QAQC of nutrient data from WQP. WQX has a [best
+practices document for nutrient data
+submission](https://gcc02.safelinks.protection.outlook.com/?url=https%3A%2F%2Fwww.epa.gov%2Fwaterdata%2Fwater-quality-data-upload-wqx&data=05%7C02%7CWong.Kenny%40epa.gov%7C59f010b61c194df4a2de08decadedc10%7C88b378b367484867acf976aacbeca6a7%7C0%7C0%7C639171255679011335%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=TfvQIaSAUJeMT7Fdxm%2BoBzpbY4SWpXBn%2FhlJptLlfwU%3D&reserved=0),
+but not all data submitters follow it. TADA uses [ECHO Water Quality
+Indicator](https://echo.epa.gov/maps/water-quality-indicators) logic for
+WQP nutrient data. The TADA team has expanded this effort by adding
+additional characteristic and speciation combinations found in the WQP
+to the TADA internal reference file for nutrient data handling.
+
+## Case Studies
+
+1)  National Nutrient Inventory (NNI)
+
+2)  Hypoxia Task Force (HTF) Monitoring Group
+
+3)  ECHOS and ICIS integration
+
+4)  Freshwater Explorer
+
+## Relevant TADA functions
+
+-   [TADA_DataRetrieval()](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.html)
+
+-   [TADA_HarmonizeSynonyms()](https://usepa.github.io/EPATADA/reference/TADA_HarmonizeSynonyms.html)
+
+-   [TADA_CalculateTotalNP()](https://usepa.github.io/EPATADA/reference/TADA_CalculateTotalNP.html)
+
+## TADA_DataRetrieval
+
+**TADA_DataRetrieval** builds on USGS's dataRetrieval R package
+functions to retrieve WQP portal data and process it for compatibility
+with TADA. It joins three WQP profiles: Site, Sample Results
+(physical/chemical metadata), and Project. In addition, it changes all
+data in the Characteristic, Speciation, Fraction, and Unit fields to
+uppercase and addresses result values that include special characters.
+**TADA_DataRetrieval** accepts the same inputs as the dataRetrieval
+`readWQPdata` function.
+
+dataRetrieval and **TADA_DataRetrieval** filters include:
+
+-   startDate
+
+-   endDate
+
+-   characteristicName
+
+-   sampleMedia
+
+-   siteType
+
+-   statecode (see list of possible state and territory abbreviations
+    [here](https://www2.census.gov/geo/docs/reference/state.txt))
+
+-   countycode
+
+-   siteid
+
+-   organization
+
+-   project
+
+-   huc
+
+-   characteristicType
+
+-   providers
+
+**TADA_DataRetrieval** accepts additional geospatial-related filters
+including:
+
+-   aoi_sf
+
+-   tribal_area_type
+
+-   tribe_name_parcel (Note: The **TADA_TribalOptions** function can be
+    used to narrow down options for use with this tribe_name_parcel
+    filter option. See **?TADA_TribalOptions** for more info).
+
+After data are downloaded, **TADA_DataRetrieval** function also
+automatically runs the **TADA_AutoClean** function. If users do not want
+to apply the default TADA data cleaning procedures in
+**TADA_AutoClean**, they can set applyautoclean = FALSE in their
+**TADA_DataRetrieval** calls.
+
+Tips:
+
+1.  All the **TADA_DataRetrieva**l query params for WQP data work as
+    "AND" between fields and "OR" within fields. For example:
+
+    -   characteristicName: If you choose NITROGEN and PHOSPHORUS, both
+        NITROGEN and PHOSPHORUS are retrieved.
+
+    -   statecode: If you choose VA and IL, results from either VA or IL
+        are retrieved.
+
+    -   characteristicName and statecode: If you choose DISSOLVED OXYGEN
+        (DO) and VA, dissolved oxygen results from Virginia are
+        retrieved.
+
+    -   characteristicName and characteristicType work together as an
+        AND. This means that the selected characteristicName must fall
+        within the selected characteristicGroup if both filters are
+        being used, Conflicting characteristicNamesand
+        characteristicType will cause an error. If you would like all
+        available nutrient data, it is recommended to query by
+        characteristicGroup = "Nutrient" and leave characteristicName
+        blank.
+
+2.  "siteid" is a general term WQP uses to describe both Site IDs (from
+    USGS databases) and Monitoring Location Identifiers (from WQX). Each
+    monitoring location in the Water Quality Portal (WQP) has a unique
+    Monitoring Location Identifier, regardless of its origin. The
+    Monitoring Location Identifier from the WQP is generated by
+    concatenating the Organization Identifier plus the Site ID number
+    from the source database.
+
+3.  The aoi_sf and tribal arguments are not meant to be used
+    simultaneously and will result in an error if a user attempt to
+    apply them together. For example, if both an aoi_sf argument and
+    tribal information are provided an error is returned because the
+    function cannot prioritize both location arguments. Similarly,
+    aoi_sf and tribal_area_type are not meant to be used with other
+    location-related params (e.g., statecode, siteid). In these
+    instances a warning is returned but the query proceeds by using only
+    the aoi_sf or tribal_area_type information.
+
+Additional resources:
+
+-   Review function documentation by entering the following code into
+    the console:
+
+    -   ?TADA_DataRetrieval
+
+    -   ?TADA_AutoClean
+
+-   [Introduction to the dataRetrieval
+    package](https://doi-usgs.github.io/dataRetrieval/)
+
+-   [Water Quality Portal Web Services
+    Guide](https://www.waterqualitydata.us/webservices_documentation/)
+
+-   [dataRetrieval
+    Tutorial](https://waterdata.usgs.gov/blog/dataretrieval/)
+
+Use the code below to download data from the WQP using
+TADA_DataRetrieval. Edit the params in the code chunk to define your own
+WQP query.
+
+Downloads using **TADA_DataRetrieval** will have the same columns each
+time. Be aware that data are uploaded to the Water Quality Portal by
+individual organizations, which may or may not follow the same
+conventions. Data and metadata quality are not guaranteed! Carefully
+explore data to make sure it meets your quality assurance requirements.
+
+Note: **TADA_DataRetrieval** (by leveraging dataRetrieval),
+automatically converts the date times to UTC. It also automatically
+converts field formats to dates, datetimes, and numerics based on a
+standard algorithm.
+
+To retrieve data from the Water Quality Portal (WQP) using a bounding
+box (bbox), we first define a bbox that encloses four HTF-priority sites
+in Mississippi. We’ll use this spatial extent to identify existing WQP
+data within the area. If broader coverage is needed, we can expand the
+bbox to include a wider extent and capture additional results beyond the
+initial boundary.
+
+```{r}
+MS_WQP_PrioritySites <- TADA_DataRetrieval(
+  startDate = "2000-01-01",
+  endDate = "2020-12-31",
+  # bBox = c(-90.914167, 32.018, -90.696944, 32.444167), # original bbox
+  bBox = c(-91.179367, 31.793500, -90.431744, 32.668667), # bbox expanded 25km
+  #characteristicName = c("Phosphorus","Nitrogen","Nitrate"),
+  characteristicType = "Nutrient", # also try it without this filter (all chars) - check to see if there's any missing nutrient data
+  applyautoclean = TRUE,
+  ask = FALSE
+  )
+```
+
+Data submitters may define fraction, speciation and units for nutrient
+data differently. TADA aims to capture these difference by creating
+column TADA.ComparableDataIdentifier which is constructed by
+concatenating the characteristic, speciation, fraction and unit into one
+character string string. How many unique TADA.ComparableDataIdentifier
+do we see in the MS priority sites data set?
+
+```{r}
+TADA_FieldValuesTable(MS_WQP_PrioritySites, field =
+"TADA.ComparableDataIdentifier")
+
+```
+
+There are
+`r length(unique(MS_WQP_PrioritySites$TADA.ComparableDataIdentifier))`
+TADA.ComparableDataIdentifiers.
+
+Next, we need to clean and harmonize synonyms and calculate total
+nutrient summation. First, let's work on cleaning up our WQP data frame.
+We will start off with filtering to retain only surface water data using
+**TADA_MediaFilter.** How many non-surface water results were removed
+from the data set?
+
+```{r}
+MS_WQP_PrioritySites2 <- TADA_MediaFilter(MS_WQP_PrioritySites,
+                                clean = TRUE,
+                                surface_water = FALSE,
+                                ground_water = TRUE,
+                                sediment = TRUE,
+                                other = TRUE
+)
+```
+
+There were
+`r formatC(nrow(MS_WQP_PrioritySites) - nrow(MS_WQP_PrioritySites2), big.mark = ",")`
+non-surface water results removed from the data set.
+
+Nowe, we can take a look at the sites remaining in the data set by using
+**TADA_OverviewMap** which displays the sites on a map, using symbology
+and pop-ups to describe result counts, number of characteristics per
+site and other site details.
+
+Which site has the greatest number of characteristics? Which site was
+visited the most? Which site has the greatest number of results?
+
+```{r}
+TADA_OverviewMap(MS_WQP_PrioritySites)
+```
+
+```{r overview.answers, include=FALSE}
+
+most.chars <- MS_WQP_PrioritySites2 |>
+  dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+  dplyr::summarise(nChars = dplyr::n_distinct(TADA.CharacteristicName)) |>
+  dplyr::slice_max(nChars)
+
+most.visits <- MS_WQP_PrioritySites2 |>
+  dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+  dplyr::summarise(nVisit = dplyr::n_distinct(ActivityStartDate)) |>
+  dplyr::slice_max(nVisit)
+
+most.results <- MS_WQP_PrioritySites2 |>
+  dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+  dplyr::summarise(nResult = dplyr::n_distinct(ResultIdentifier)) |>
+  dplyr::slice_max(nResult)
+
+```
+
+`r most.chars$TADA.MonitoringLocationIdentifier[1]` has the greatest
+number of characteristics
+(``` r``most.chars$TADA.MonitoringLocationIdentifier[1] ``` ).
+
+`r most.visits$TADA.MonitoringLocationIdentifier[1]` has the greatest
+number of results (`rmost.visits$TADA.MonitoringLocationIdentifier[1]`
+).
+
+`r most.results$TADA.MonitoringLocationIdentifier[1]` has the greatest
+number of results (`rmost.results$TADA.MonitoringLocationIdentifier[1]`
+).
+
+After reviewing the overview map, we can move on to some additional data
+cleaning steps. Let's start this process by removing results tied to
+monitoring locations with imprecise coordinates (less than 3 decimal
+digits). How many monitoring locations were identified as having
+imprecise coordinates? How many results were removed from the data set
+as a result?
+
+```{r}
+MS_WQP_PrioritySites3 <- TADA_FlagCoordinates(MS_WQP_PrioritySites2, clean_outsideUSA = "no", clean_imprecise = TRUE)
+```
+
+```{r coords.answers, echo=FALSE}
+
+imprecise.coords <- TADA_FlagCoordinates(MS_WQP_PrioritySites2, clean_outsideUSA = "no", clean_imprecise = TRUE, flaggedonly = TRUE)
+
+if (nrow(imprecise.coords) == 0) {
+  cat("No monitoring locations with imprecise coordinates were discovered in the data set.")
+} else {
+  n_sites <- dplyr::n_distinct(imprecise.coords$TADA.MonitoringLocationIdentifier)
+  n_rows <- nrow(imprecise.coords)
+
+  cat(
+    "There were ", n_rows, " flagged rows representing ",
+    n_sites, " unique monitoring locations with imprecise coordinates."
+  )
+}
+
+```
+
+Now let's identify and handle any censored results. We can start by
+using **TADA_IDCensored** to identify censored data and
+**TADA_FieldValuesPie** to visualize how many non-censored, over-detect,
+and non-detect results are in the data set. How many results are in each
+censored data flag category.
+
+```{r}
+
+MS_WQP_PrioritySites4 <- TADA_IDCensoredData(MS_WQP_PrioritySites3)
+
+test <- TADA_FieldValuesPie(MS_WQP_PrioritySites4, field = "TADA.CensoredData.Flag")
+```
+
+```{r censored.flag.answers}
+
+cens.answers <- TADA_FieldValuesTable(MS_WQP_PrioritySites4, field = "TADA.CensoredData.Flag")
+
+get_count <- function(df, value_name) {
+  x <- df |>
+    dplyr::filter(Value == value_name) |>
+    dplyr::pull(Count)
+  
+  if (length(x) == 0) 0 else x
+}
+
+cens.values <- c(
+  "Non-Detect",
+  "Over Detect",
+  "Uncensored",
+  "Detection condition is missing and required for censored data ID."
+)
+
+cens.counts <- setNames(
+  lapply(cens.values, \(v) {
+    x <- cens.answers |>
+      dplyr::filter(Value == v) |>
+      dplyr::pull(Count)
+    if (length(x) == 0) 0 else x
+  }),
+  c("n.nd", "n.od", "n.uncens", "n.missing")
+)
+```
+
+There `r formatC(cens.counts$n.nd)` non-detect results,
+`r formatC(cens.counts$n.od)` over detect results,
+
+`r formatC(cens.counts$n.uncens)` results and
+`r formatC(cens.counts$n.missing)` results missing detection condition
+information.
+
+We've identified the censored records, and now we need to handle them
+with **TADA_SimpleCensoredMethods** which allows us to assign simple
+methods for handling censored data. We will use the default settings
+which means non-detects values will be estimated as 1/2 the lower
+detection limit and over detect values will be left as-is.
+
+```{r}
+MS_WQP_PrioritySites5 <- TADA_SimpleCensoredMethods(MS_WQP_PrioritySites4)
+```
+
+Now that the censored records have been assigned numeric values, we can
+use **TADA_HarmonizeSynonyms** to harmonize the data to consistent
+target characteristic names, speciation., and fractions.
+
+```{r}
+MS_WQP_PrioritySites6 <- TADA_HarmonizeSynonyms(MS_WQP_PrioritySites5)
+```
+
+We can compare the comparable data identifiers in the data before and
+after harmonization.
+
+```{r comp.ids}
+
+before.comp.ids <- sort(unique(MS_WQP_PrioritySites5$TADA.ComparableDataIdentifier))
+
+after.comp.ids <- sort(unique(MS_WQP_PrioritySites6$TADA.ComparableDataIdentifier))
+
+
+before.comp <- TADA_FieldValuesTable(MS_WQP_PrioritySites5, field = "TADA.ComparableDataIdentifier")
+
+after.comp <- TADA_FieldValuesTable(MS_WQP_PrioritySites6, field = "TADA.ComparableDataIdentifier")
+
+# will create plot to compare
+```
+
+Now we can run key flagging functions and remove results flagged as
+suspect based on their result units, method-speciation, fraction,
+qualifier codes or activity type with **TADA_RunKeyFlagFunctions**. By
+setting clean = TRUE, the function will remove all results flagged as
+suspect.
+
+For more detail on which flagging functions are included as key flag
+functions enter the following in the console:
+
+-   ?TADA_RunKeyFlagFunctions
+
+For details on flagging functions run as part of
+TADA_RunKeyFlagFunctions enter each of the following in the console:
+
+-   ?TADA_FlagResultUnit
+
+-   ?TADA_FlagFraction
+
+-   ?TADA_FlagSpeciation
+
+-   ?TADA_FindQCActivities
+
+-   ?TADA_FlagMeasureQualifierCode
+
+How many results were removed by **TADA_RunKeyFlagFunctions**? How many
+results were flagged in each category (note: a result may be flagged
+more in more than one category).
+
+```{r}
+MS_WQP_PrioritySites7<- TADA_RunKeyFlagFunctions(MS_WQP_PrioritySites6, clean = TRUE)
+```
+
+```{r flag.answers}
+MS_WQP_PrioritySites_keyflags <- TADA_RunKeyFlagFunctions(MS_WQP_PrioritySites6, clean = FALSE)
+
+sort(unique(MS_WQP_PrioritySites_keyflags$TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag)) 
+
+
+# notes for building code chunk to assess results of key flag functions
+# "TADA.ActivityType.Flag" != "Non_QC"
+# "TADA.SuspectCoordinates.Flag" != "Pass"
+# "TADA.SampleFraction.Flag" != "Not Reviewed", "Pass"
+# "TADA.MethodSpeciation.Flag" != "Not Reviewed", "Pass"
+# "TADA.ResultUnit.Flag" != "Not Reviewed", "Pass"
+# "TADA.ResultMeasureValueDataTypes.Flag"  != "Numeric"
+# "TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag" 
+# "TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag"
+# "TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag"
+# "TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag"
+# "TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag" 
+```
+
+identify potential dup sites
+
+```{r}
+MS_WQP_PrioritySites8 <- MS_WQP_PrioritySites7 |>
+  TADA_FindPotentialDuplicatesSingleOrg() |>
+  dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
+  TADA_FindPotentialDuplicatesMultipleOrgs(
+    dist_buffer = 100,
+    org_hierarchy = "none"
+  ) |>
+  dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
+```
+
+uses echos logic to append rows for TN & TP summation
+
+```{r}
+TotalNP <- TADA_CalculateTotalNP(MS_WQP_PrioritySites8)
+```
+
+view final cleaned table
+
+```{r}
+TADA_FieldValuesTable(TotalNP, field = "TADA.ComparableDataIdentifier")
+```
+
+### Case Study 1: Hypoxia Task Force
+
+For this case study the HTF monitoring group is interested in
+determining where to prioritize funds for a list of priority monitoring
+sites using NPS grant funds.
+
+Looking at historical 20 years of nutrient data (from 2000 to 2020) for
+a certain region of Mississippi, let's determine if there are any
+existing overlapping WQP sites with these priority sites of interest. We
+are also interested in determining if there are prior water bodies that
+have been assessed in prior ATTAINS assessment cycles near these
+priority sites.
+
+First, let's look at our cleaned nutrient data on the map. We will run
+TADA_CreateAUMLCrosswalk to determine what sites can be matched to
+ATTAINS Assessment Units through a geospatial join or if any exists
+directly from ATTAINS in this region.
+
+Crosswalk ATTAINS AU and ML sites
+
+```{r}
+AUML <- TADA_CreateAUMLCrosswalk(TotalNP, org_id = "21MSWQ")
+# View ATTAINS AU and ML sites map
+TADA_ViewATTAINS(AUML)
+```
+
+Now let's add our priority sites to the map. These lat/longs are
+provided from the HTF list of priority sites appendix.
+
+Add dummy variables with priority sites in the WQP data frame to map it
+in TADA (edit in excel)
+
+```{r}
+extra_sites <- tibble::tibble(
+  OrganizationIdentifier = "USGS",
+  TADA.MonitoringLocationIdentifier = c("USGS-07288955", "USGS-322023090544500", "USGS-07290000", "21MSWQ_WQX-07290650"),
+  TADA.MonitoringLocationName = c("Priority Site 1", "Priority Site 2", "Priority Site 3", "Priority Site 4"),
+  TADA.MonitoringLocationTypeName = "River/Stream",
+  LatitudeMeasure = c(32.444167, 32.339722, 32.347778, 32.018),
+  TADA.LatitudeMeasure = c(32.444167, 32.339722, 32.347778, 32.018),
+  LongitudeMeasure = c(-90.914167, -90.9125, -90.696944, -90.877194),
+  TADA.LongitudeMeasure = c(-90.914167, -90.9125, -90.696944, -90.877194),
+  .source = "overlay"  # optional flag to tell them apart later
+) |>
+  TADA_CorrectColType()
+```
+
+Make sure types match and bind to data
+
+```{r}
+MS_WQP_modified <- dplyr::bind_rows(
+  TotalNP |>
+    dplyr::mutate(.source = ".wqp"),
+  extra_sites
+) |> TADA_CorrectColType()
+```
+
+Identify these priority sites on the map (include one existing AU row as
+TADA_CreateAUMLCrosswalk() currently crashes if no AUML from a user
+supplied ref is found in the data frame.
+
+```{r}
+flag_priority_AURef <- tibble::tibble(
+  OrganizationIdentifier = "USGS",
+  TADA.MonitoringLocationIdentifier = c("USGS-07290000", "USGS-07288955", "USGS-322023090544500", "USGS-07290000", "21MSWQ_WQX-07290650"),
+  TADA.MonitoringLocationName = c("NA", "Priority Site 1", "Priority Site 2", "Priority Site 3", "Priority Site 4"),
+  ATTAINS.OrganizationIdentifier = c("21MSWQ", "21MSWQ", "21MSWQ", "21MSWQ", "21MSWQ"),
+  ATTAINS.AssessmentUnitIdentifier = c("MS107811", "Flag1", "Flag2", "Flag3", "Flag4"),
+  ATTAINS.WaterType = c("STREAM/CREEK/RIVER", "STREAM/CREEK/RIVER", "STREAM/CREEK/RIVER", "STREAM/CREEK/RIVER", "STREAM/CREEK/RIVER")
+) |>
+  TADA_CorrectColType()
+```
+
+recreate the AUML crosswalk with the dummy priority sites
+
+```{r}
+AUML2 <- TADA_CreateAUMLCrosswalk(MS_WQP_modified, org_id = "21MSWQ", au_ref = flag_priority_AURef)
+# view the map, examine where sites overlap (exact), where there exists nearby sites, and if ATTAINS assessments are found prior.
+TADA_ViewATTAINS(AUML2)
+```
