@@ -26,6 +26,17 @@ CST pollutant name to an ATTAINS parameter to for it to be considered an alias m
 \item{set.all.tolerance}{optional: default is NA, if a user specifies a numeric
 value ranging from 0 to 1 (0\% to 100\%), this will populate all tolerances to
 this value.}
+
+\item{download_only}{Logical. If TRUE, bypasses the cache and package fallback and
+attempts to download the latest Characteristic Validation reference table directly from WQX,
+returning it without updating the cache. Errors if the download fails. If FALSE
+(default), uses a cached copy when available and updates the cache; on download
+failure, falls back to the package’s internal file.}
+
+\item{refresh}{Logical. Only used when download_only = FALSE. If TRUE, ignore any
+cached copy and attempt to retrieve a fresh table (download, falling back to the
+package’s internal file on failure), then update the cache. If FALSE (default),
+return the cached table when available. Ignored when download_only = TRUE.}
 }
 \value{
 a data frame consisting of potential additional ATTAINS.ParameterName
