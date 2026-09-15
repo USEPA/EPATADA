@@ -517,7 +517,7 @@ utils::globalVariables(c(
   "TADA.ATTAINS.WaterType",
   "TADA.Rank",
   "TADA.ResultValueAggregation.Flag",
-  "n_pts"
+  "n_pts",
   "ATTAINS.UseClass",
   "Flag.MatchByColumnIndicator",
   "Flag.MatchByPercentMatchUseClass",
