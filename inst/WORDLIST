@@ -314,6 +314,7 @@ SSN
 STORET
 STV
 SaltFresh
+SaltFreshIndicator
 SampleCollectionEquipmentName
 SampleCollectionMethod
 SampleFraction
@@ -481,6 +482,7 @@ epa
 expertquery
 extdata
 fabec
+fallbacks
 fetchATTAINS
 fetchNHD
 fetchWaterType

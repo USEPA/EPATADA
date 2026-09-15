@@ -411,15 +411,18 @@ Now we can review the monitoring locations on a map:
 
 ```{r mapMLs}
 leaflet::leaflet() |>
-  leaflet::addProviderTiles("Esri.WorldTopoMap",
-    group = "World topo",
-    options = leaflet::providerTileOptions(
-      updateWhenZooming = FALSE,
-      updateWhenIdle = TRUE
-    )
-  ) |>
+    leaflet::addTiles(
+      urlTemplate = "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
+      group = "USGS Topo",
+      options = leaflet::tileOptions(
+        maxZoom = 20,
+        updateWhenZooming = FALSE,
+        updateWhenIdle = TRUE,
+        attribution = 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>'
+      )
+    ) |>
   leaflet::clearShapes() |>
-  EPATADA:::addMapReset() |>
+  EPATADA:::addMapReset(bbox = sf::st_bbox(TADA_spatial)) |>
   leaflet::addLegend(
     position = "bottomright",
     colors = "black",
