@@ -583,3 +583,123 @@ testthat::test_that("TADA_FindNearbySites does not combine known sites from diff
     fixed = TRUE
   )))
 })
+
+# tests for TADA_CreatePointAUGeometry
+testthat::test_that("TADA_CreatePointAUGeometry errors when required coordinate columns are missing", {
+  base_df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    TADA.MonitoringLocationIdentifier = "ML1",
+    TADA.LongitudeMeasure = -90,
+    TADA.LatitudeMeasure = 40,
+    HorizontalCoordinateReferenceSystemDatumName = "NAD83",
+    stringsAsFactors = FALSE
+  )
+
+  testthat::expect_error(
+    TADA_CreatePointAUGeometry(dplyr::select(base_df, -TADA.LongitudeMeasure)),
+    "TADA_CreatePointAUGeometry: Missing required coordinate column\\(s\\): TADA.LongitudeMeasure"
+  )
+
+  testthat::expect_error(
+    TADA_CreatePointAUGeometry(dplyr::select(base_df, -TADA.LatitudeMeasure)),
+    "TADA_CreatePointAUGeometry: Missing required coordinate column\\(s\\): TADA.LatitudeMeasure"
+  )
+
+  testthat::expect_error(
+    TADA_CreatePointAUGeometry(dplyr::select(
+      base_df,
+      -HorizontalCoordinateReferenceSystemDatumName
+    )),
+    "TADA_CreatePointAUGeometry: Missing required coordinate column\\(s\\): HorizontalCoordinateReferenceSystemDatumName"
+  )
+})
+
+testthat::test_that("TADA_CreatePointAUGeometry: errors when neither ID column is present", {
+  df <- data.frame(
+    TADA.LongitudeMeasure = -90,
+    TADA.LatitudeMeasure = 40,
+    HorizontalCoordinateReferenceSystemDatumName = "NAD83",
+    stringsAsFactors = FALSE
+  )
+
+  testthat::expect_error(
+    TADA_CreatePointAUGeometry(df),
+    "TADA_CreatePointAUGeometry: Input data must contain at least one of: ATTAINS.AssessmentUnitIdentifier or TADA.MonitoringLocationIdentifier"
+  )
+})
+
+testthat::test_that("TADA_CreateAUPointGeometry returns sf geometry for valid input", {
+  df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU1"),
+    TADA.MonitoringLocationIdentifier = c("ML1", "ML1"),
+    TADA.LongitudeMeasure = c(-90, -90.1),
+    TADA.LatitudeMeasure = c(40, 40.1),
+    HorizontalCoordinateReferenceSystemDatumName = c("NAD83", "NAD83"),
+    stringsAsFactors = FALSE
+  )
+
+  result <- TADA_CreatePointAUGeometry(df)
+
+  testthat::expect_s3_class(result, "sf")
+  testthat::expect_true("geometry" %in% names(result))
+  testthat::expect_true("AU_ID" %in% names(result))
+})
+
+testthat::test_that("TADA_CreatePointAUGeometry creates POINT for one location and MULTIPOINT for multiple locations", {
+  df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU1", "AU2"),
+    TADA.MonitoringLocationIdentifier = c("ML1", "ML1", "ML2"),
+    TADA.LongitudeMeasure = c(-90, -90, -91),
+    TADA.LatitudeMeasure = c(40, 41, 41),
+    HorizontalCoordinateReferenceSystemDatumName = c("NAD83", "NAD83", "NAD83"),
+    stringsAsFactors = FALSE
+  )
+
+  result <- TADA_CreatePointAUGeometry(df)
+
+  geom_types <- sf::st_geometry_type(result)
+  testthat::expect_true(any(geom_types %in% c("POINT", "MULTIPOINT")))
+})
+
+testthat::test_that("TADA_CreatePointAUGeometry drops rows with missing coordinates", {
+  df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU2"),
+    TADA.MonitoringLocationIdentifier = c("ML1", "ML2"),
+    TADA.LongitudeMeasure = c(-90, NA),
+    TADA.LatitudeMeasure = c(40, 41),
+    HorizontalCoordinateReferenceSystemDatumName = c("NAD83", "NAD83"),
+    stringsAsFactors = FALSE
+  )
+
+  result <- TADA_CreatePointAUGeometry(df)
+
+  testthat::expect_equal(nrow(result), 1)
+})
+
+testthat::test_that("TADA_CreatePointAUGeometry accepts auid_prefix", {
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = "ML1",
+    TADA.LongitudeMeasure = -90,
+    TADA.LatitudeMeasure = 40,
+    HorizontalCoordinateReferenceSystemDatumName = "NAD83",
+    stringsAsFactors = FALSE
+  )
+
+  result <- TADA_CreatePointAUGeometry(df, auid_prefix = "TEST")
+
+  testthat::expect_s3_class(result, "sf")
+})
+
+testthat::test_that("TADA_CreatePointAUGeometry works with only TADA.MonitoringLocationIdentifier present", {
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = "ML1",
+    TADA.LongitudeMeasure = -90,
+    TADA.LatitudeMeasure = 40,
+    HorizontalCoordinateReferenceSystemDatumName = "NAD83",
+    stringsAsFactors = FALSE
+  )
+
+  result <- TADA_CreatePointAUGeometry(df)
+
+  testthat::expect_s3_class(result, "sf")
+})

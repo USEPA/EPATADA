@@ -2,14 +2,26 @@
 % Please edit documentation in R/ATTAINSCrosswalks.R
 \name{TADA_CreatePointAUs}
 \alias{TADA_CreatePointAUs}
-\title{Create an ATTAINS AU–ML Crosswalk from WQP Monitoring Location IDs}
+\title{Create an ATTAINS AU–ML Crosswalk from WQP Monitoring Location IDs for New Point AUs}
 \usage{
-TADA_CreatePointAUs(.data, auid_prefix = NULL)
+TADA_CreatePointAUs(
+  .data,
+  auid_prefix = NULL,
+  create_geo = FALSE,
+  download_geo = FALSE
+)
 }
 \arguments{
 \item{.data}{A data frame containing, at minimum:
 \itemize{
 \item \code{TADA.MonitoringLocationIdentifier}
+}
+
+If \code{create_geo = TRUE}, the input must also contain:
+\itemize{
+\item \code{TADA.LatitudeMeasure}
+\item \code{TADA.LongitudeMeasure}
+\item \code{HorizontalCoordinateReferenceSystemDatumName}
 }
 
 If missing water-type values need to be crosswalked, the input must also
@@ -18,81 +30,58 @@ contain:
 \item \code{TADA.MonitoringLocationTypeName}
 }
 
-Optionally, the input may already include:
+Optional columns:
 \itemize{
 \item \code{ATTAINS.AssessmentUnitIdentifier}
 \item \code{ATTAINS.WaterType}
-}
-
-If \code{ATTAINS.AssessmentUnitIdentifier} is absent, it will be added.}
+}}
 
 \item{auid_prefix}{Character or \code{NULL}. If provided and non-empty, this
-prefix is included only for newly created
-\code{ATTAINS.AssessmentUnitIdentifier} values that were filled from
-\code{TADA.MonitoringLocationIdentifier}. Existing non-missing AUIDs are not
-modified. Use \code{NULL} to skip prefixing.}
+prefix is added only to newly created
+\code{ATTAINS.AssessmentUnitIdentifier} values.}
+
+\item{create_geo}{Logical. If \code{TRUE}, also create point geometry using
+\code{TADA_CreatePointAUGeometry()}.}
+
+\item{download_geo}{Logical. If \code{TRUE}, write the geometry shapefile to the
+user's downloads folder.}
 }
 \value{
-A distinct AU–ML crosswalk data frame containing:
+If \code{create_geo = FALSE}, a distinct crosswalk data frame containing:
 \itemize{
 \item \code{ATTAINS.MonitoringLocationIdentifier}
 \item \code{ATTAINS.AssessmentUnitIdentifier}
 \item \code{ATTAINS.WaterType}
 }
+
+If \code{create_geo = TRUE}, a named list with:
+\itemize{
+\item \code{crosswalk}
+\item \code{geometry}
+}
 }
 \description{
 Build a distinct crosswalk between WQP Monitoring Locations and ATTAINS
-Assessment Units. For rows where \code{ATTAINS.AssessmentUnitIdentifier} is
-missing or blank, the value is filled with
-\code{TADA.MonitoringLocationIdentifier}, optionally with an \code{auid_prefix}
-appended. Existing non-missing, non-blank AUIDs are left unchanged.
+Assessment Units. Missing or blank \code{ATTAINS.AssessmentUnitIdentifier} values
+are filled from \code{TADA.MonitoringLocationIdentifier}, optionally prefixed
+with \code{auid_prefix}. Existing non-missing, non-blank AUIDs are left unchanged.
+Optionally, this function can also return either a df or a shp file containing
+the point or multipoint geometry and its corresponding assessment unit identifier.
 }
 \details{
 If \code{ATTAINS.WaterType} is missing or contains any blank values, the function
-will attempt to populate it by calling
-\code{TADA_CrosswalkATTAINSWaterTypes()} internally with
-\code{overwrite_existing = FALSE} and \code{validation = "none"}.
+attempts to populate it by calling \code{TADA_UpdateATTAINSWaterTypes()}
+internally with \code{overwrite_existing = FALSE} and \code{validation = "none"}.
 \itemize{
-\item Missing \code{ATTAINS.AssessmentUnitIdentifier}
-values are replaced with \code{TADA.MonitoringLocationIdentifier}.
-\item If \code{auid_prefix} is supplied and non-empty, it is included for only
-newly created AUIDs.
+\item Missing or blank \code{ATTAINS.AssessmentUnitIdentifier} values are replaced
+with \code{TADA.MonitoringLocationIdentifier}.
+\item If \code{auid_prefix} is supplied and non-empty, it is used only for newly
+created AUIDs.
 \item \code{ATTAINS.MonitoringLocationIdentifier} is created from
 \code{TADA.MonitoringLocationIdentifier}.
 \item \code{ATTAINS.WaterType} is not overwritten unless it is missing or blank.
 }
 }
-\examples{
-\dontrun{
-# Example 1: Create missing AUIDs
-ex_df <- data.frame(
-  TADA.MonitoringLocationIdentifier = c("LOC1", "LOC2", "LOC3"),
-  TADA.MonitoringLocationTypeName   = c("Stream", "Lake", "Estuary"),
-  ATTAINS.AssessmentUnitIdentifier  = c(NA_character_, "EXISTING_AU_001", ""),
-  ATTAINS.WaterType                 = c(NA_character_, "", "ESTUARY"),
-  stringsAsFactors = FALSE
-)
-
-result <- TADA_CreatePointAUs(ex_df)
-
-# Example 2: Prefix only newly created AUIDs
-result_prefixed <- TADA_CreatePointAUs(
-  ex_df,
-  auid_prefix = "WQX_"
-)
-
-# Example 3: AUID column is absent entirely
-ex_df2 <- data.frame(
-  TADA.MonitoringLocationIdentifier = c("SITE_A", "SITE_B"),
-  TADA.MonitoringLocationTypeName   = c("River/Stream", "Lake, Reservoir, Impoundment"),
-  ATTAINS.WaterType                 = c(NA_character_, NA_character_),
-  stringsAsFactors = FALSE
-)
-
-result_missing_auid <- TADA_CreatePointAUs(ex_df2)
-}
-
-}
 \seealso{
-\code{\link[=TADA_CrosswalkATTAINSWaterTypes]{TADA_CrosswalkATTAINSWaterTypes()}}
+\code{\link[=TADA_UpdateATTAINSWaterTypes]{TADA_UpdateATTAINSWaterTypes()}}, \code{\link[=TADA_CreatePointAUGeometry]{TADA_CreatePointAUGeometry()}}
 }
