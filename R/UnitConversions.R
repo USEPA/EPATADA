@@ -1207,44 +1207,48 @@ TADA_ConvertDepthUnits <- function(
     ) |>
     dplyr::filter(Target.Unit == unit)
 
+ # Loop over all supplied depth columns, create TADA columns, then join conversion table
+ for (i in 1:length(valid_fields)) {
+   field <- valid_fields[i]
+   # if ((field %in% fields) == TRUE) {
+   # OG unit column
+   unitCol <- paste(field, ".MeasureUnitCode", sep = "")
+   valCol <- paste0(field, ".MeasureValue")
+   # proceed only if unitCol has values other than NA
+   # requirement to proceed only if not all NA removed on 9/1/23, so that TADA depth cols are ALWAYS created
+   # this avoid downstream conflicts with figure and analysis functions that req TADA depth columns
+   # if (sum(!is.na(check.data[unitCol])) > 0) {
+   # new TADA column
+   unitCol2 <- paste0("TADA.", unitCol)
+
+   # deal with any units that are "meters" and change to "m" (USGS convention)
+   check.data$new <- check.data[, unitCol]
+   check.data$new[check.data$new == "meters"] <- "m"
+   names(check.data)[names(check.data) == "new"] <- unitCol2
+
+   # Join conversion factor from unit.ref to .data by unitCol
+   check.data <- merge(
+     check.data,
+     length.ref[, c("Code", "Conversion.Factor")],
+     by.x = unitCol2,
+     by.y = "Code",
+     all.x = TRUE,
+     sort = FALSE
+   )
+
+   # rename new columns
+   names(check.data)[names(check.data) == "Conversion.Factor"] <- paste(
+     "TADA.WQXConversionFactor.",
+     field,
+     sep = ""
+   )
+   check.data <- TADA_ConvertSpecialChars(check.data, valCol)
+
+
+ }
+ # function should always run all code above
+
   # Loop over all supplied depth columns, create TADA columns, then join conversion table
-  for (i in 1:length(valid_fields)) {
-    field <- valid_fields[i]
-    # if ((field %in% fields) == TRUE) {
-    # OG unit column
-    unitCol <- paste(field, ".MeasureUnitCode", sep = "")
-    valCol <- paste0(field, ".MeasureValue")
-    # proceed only if unitCol has values other than NA
-    # requirement to proceed only if not all NA removed on 9/1/23, so that TADA depth cols are ALWAYS created
-    # this avoid downstream conflicts with figure and analysis functions that req TADA depth columns
-    # if (sum(!is.na(check.data[unitCol])) > 0) {
-    # new TADA column
-    unitCol2 <- paste0("TADA.", unitCol)
-
-    # deal with any units that are "meters" and change to "m" (USGS convention)
-    check.data$new <- check.data[, unitCol]
-    check.data$new[check.data$new == "meters"] <- "m"
-    names(check.data)[names(check.data) == "new"] <- unitCol2
-
-    # Join conversion factor from unit.ref to .data by unitCol
-    check.data <- merge(
-      check.data,
-      length.ref[, c("Code", "Conversion.Factor")],
-      by.x = unitCol2,
-      by.y = "Code",
-      all.x = TRUE,
-      sort = FALSE
-    )
-
-    # rename new columns
-    names(check.data)[names(check.data) == "Conversion.Factor"] <- paste(
-      "TADA.WQXConversionFactor.",
-      field,
-      sep = ""
-    )
-    check.data <- TADA_ConvertSpecialChars(check.data, valCol)
-  }
-  # function should always run all code above
 
   # if transform = FALSE, output data
   if (transform == FALSE) {

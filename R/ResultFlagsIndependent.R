@@ -1634,6 +1634,7 @@ TADA_FlagCoordinates <- function(
   }
 
   .data <- TADA_OrderCols(.data)
+  .data <- as.data.frame(.data)
   return(.data)
 }
 
