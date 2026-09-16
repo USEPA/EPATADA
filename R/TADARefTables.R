@@ -1160,7 +1160,12 @@ TADA_GetTADAUsesAliasRef <- function(
     tidyr::unnest(name_words) |>
     dplyr::mutate(name_words = toupper(gsub("[^[:alnum:]]", "", name_words))) |>
     dplyr::filter(name_words != "", !name_words %in% toupper(stop_words)) |>
-    dplyr::distinct(ATTAINS.OrganizationIdentifier, name, name_words, .keep_all = TRUE)
+    dplyr::distinct(
+      ATTAINS.OrganizationIdentifier,
+      name,
+      name_words,
+      .keep_all = TRUE
+    )
 
   # ATTAINS use class word match
   ATTAINS.use_class.raw <- rExpertQuery::EQ_DomainValues(
@@ -1239,7 +1244,12 @@ TADA_GetTADAUsesAliasRef <- function(
     tidyr::unnest(name_words) |>
     dplyr::mutate(name_words = toupper(gsub("[^[:alnum:]]", "", name_words))) |>
     dplyr::filter(name_words != "", !name_words %in% toupper(stop_words)) |>
-    dplyr::distinct(ATTAINS.OrganizationIdentifier, USE_CLASS_NAME_LOCATION_ETC, name_words, .keep_all = TRUE)
+    dplyr::distinct(
+      ATTAINS.OrganizationIdentifier,
+      USE_CLASS_NAME_LOCATION_ETC,
+      name_words,
+      .keep_all = TRUE
+    )
 
   # use alias method 1 by column indicators
   ATTAINS_CST <- dplyr::full_join(
@@ -1266,7 +1276,9 @@ TADA_GetTADAUsesAliasRef <- function(
   ) |>
     dplyr::filter(
       (is.na(temp_tag_cst) & is.na(temp_tag_attains)) |
-        (!is.na(temp_tag_cst) & !is.na(temp_tag_attains) & temp_tag_cst == temp_tag_attains)
+        (!is.na(temp_tag_cst) &
+          !is.na(temp_tag_attains) &
+          temp_tag_cst == temp_tag_attains)
     ) |>
     dplyr::distinct(
       ATTAINS.OrganizationIdentifier,
@@ -1285,16 +1297,13 @@ TADA_GetTADAUsesAliasRef <- function(
     dplyr::ungroup() |>
     dplyr::group_by(name) |>
     dplyr::mutate(
-      percent_match_CST_in_ATTAINS = n / stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
+      percent_match_CST_in_ATTAINS = n /
+        stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
       percent_match_ATTAINS_in_CST = n / stringr::str_count(name, "\\S+"),
-      Flag.MatchByPercentMatchUseName = (
-        !is.na(percent_match_CST_in_ATTAINS) &
-          !is.na(percent_match_ATTAINS_in_CST) &
-          (
-            percent_match_CST_in_ATTAINS >= CST.ATTAINS.tolerance |
-              percent_match_ATTAINS_in_CST >= ATTAINS.CST.tolerance
-          )
-      ),
+      Flag.MatchByPercentMatchUseName = (!is.na(percent_match_CST_in_ATTAINS) &
+        !is.na(percent_match_ATTAINS_in_CST) &
+        (percent_match_CST_in_ATTAINS >= CST.ATTAINS.tolerance |
+          percent_match_ATTAINS_in_CST >= ATTAINS.CST.tolerance)),
       Flag.PercentMatchToleranceTextUseName = dplyr::case_when(
         Flag.MatchByPercentMatchUseName ~ paste0(
           "use_name percent matches by CST words in ATTAINS text = ",
