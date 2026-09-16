@@ -1118,6 +1118,8 @@ TADA_GetTADAUsesAliasRef <- function(
       stringr::str_detect(x, "\\bCOLD\\b") ~ "COLD",
       stringr::str_detect(x, "\\bCOLDWATER\\b") ~ "COLDWATER",
       stringr::str_detect(x, "\\bWARM\\b") ~ "WARM",
+      stringr::str_detect(x, "\\bPRIMARY\\b") ~ "PRIMARY",
+      stringr::str_detect(x, "\\bSECONDARY\\b") ~ "SECONDARY",
       TRUE ~ NA_character_
     )
   }
