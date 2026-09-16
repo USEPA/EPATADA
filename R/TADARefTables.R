@@ -1288,8 +1288,12 @@ TADA_GetTADAUsesAliasRef <- function(
       percent_match_CST_in_ATTAINS = n / stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
       percent_match_ATTAINS_in_CST = n / stringr::str_count(name, "\\S+"),
       Flag.MatchByPercentMatchUseName = (
-        percent_match_CST_in_ATTAINS >= CST.ATTAINS.tolerance |
-          percent_match_ATTAINS_in_CST >= ATTAINS.CST.tolerance
+        !is.na(percent_match_CST_in_ATTAINS) &
+          !is.na(percent_match_ATTAINS_in_CST) &
+          (
+            percent_match_CST_in_ATTAINS >= CST.ATTAINS.tolerance |
+              percent_match_ATTAINS_in_CST >= ATTAINS.CST.tolerance
+          )
       ),
       Flag.PercentMatchToleranceTextUseName = dplyr::case_when(
         Flag.MatchByPercentMatchUseName ~ paste0(
