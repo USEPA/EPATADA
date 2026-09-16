@@ -1119,6 +1119,17 @@ TADA_GetTADAUsesAliasRef <- function(
     "--"
   )
 
+  # use name additional helper: extract common tags that must also be contained in a word for a match
+  get_temp <- function(x) {
+    dplyr::case_when(
+      stringr::str_detect(x, "\\bWARM\\b") ~ "WARM",
+      stringr::str_detect(x, "\\bCOLD\\b") ~ "COLD",
+      stringr::str_detect(x, "\\bCOLDWATER\\b") ~ "COLDWATER",
+      stringr::str_detect(x, "\\bWARM\\b") ~ "WARM",
+      TRUE ~ NA_character_
+    )
+  }
+
   # use class word list identifier
   select_class_tokens_simple <- function(x) {
     x <- toupper(x)
@@ -1148,19 +1159,14 @@ TADA_GetTADAUsesAliasRef <- function(
 
   # ATTAINS use name word match
   ATTAINSUseNameRef2 <- ATTAINSUseNameRef |>
-    dplyr::mutate(name_words = stringr::str_split(name, " ")) |>
-    tidyr::unnest(cols = c(name_words)) |>
-    dplyr::filter(!name_words %in% toupper(stop_words)) |>
     dplyr::mutate(
-      name_words = toupper(gsub("[^[:alnum:] ]", "", name_words))
+      temp_tag_attains = get_temp(name),
+      name_words = stringr::str_split(name, " ")
     ) |>
-    dplyr::filter(name_words != "") |>
-    dplyr::distinct(
-      ATTAINS.OrganizationIdentifier,
-      name,
-      name_words,
-      .keep_all = TRUE
-    )
+    tidyr::unnest(name_words) |>
+    dplyr::mutate(name_words = toupper(gsub("[^[:alnum:]]", "", name_words))) |>
+    dplyr::filter(name_words != "", !name_words %in% toupper(stop_words)) |>
+    dplyr::distinct(ATTAINS.OrganizationIdentifier, name, name_words, .keep_all = TRUE)
 
   # ATTAINS use class word match
   ATTAINS.use_class.raw <- rExpertQuery::EQ_DomainValues(
@@ -1233,15 +1239,13 @@ TADA_GetTADAUsesAliasRef <- function(
   # CST use name and use class word match
   CST2 <- CST |>
     dplyr::mutate(
+      temp_tag_cst = get_temp(USE_CLASS_NAME_LOCATION_ETC),
       name_words = stringr::str_split(USE_CLASS_NAME_LOCATION_ETC, " ")
     ) |>
-    tidyr::unnest(cols = c(name_words)) |>
-    dplyr::filter(!name_words %in% toupper(stop_words)) |>
-    dplyr::mutate(
-      name_words = toupper(gsub("[^[:alnum:] ]", "", name_words))
-    ) |>
-    dplyr::filter(name_words != "") |>
-    dplyr::distinct(USE_CLASS_NAME_LOCATION_ETC, name_words, .keep_all = TRUE)
+    tidyr::unnest(name_words) |>
+    dplyr::mutate(name_words = toupper(gsub("[^[:alnum:]]", "", name_words))) |>
+    dplyr::filter(name_words != "", !name_words %in% toupper(stop_words)) |>
+    dplyr::distinct(ATTAINS.OrganizationIdentifier, USE_CLASS_NAME_LOCATION_ETC, name_words, .keep_all = TRUE)
 
   # use alias method 1 by column indicators
   ATTAINS_CST <- dplyr::full_join(
@@ -1263,10 +1267,15 @@ TADA_GetTADAUsesAliasRef <- function(
   ATTAINS_CST2 <- dplyr::full_join(
     CST2,
     ATTAINSUseNameRef2,
-    by = c("name_words", "ATTAINS.OrganizationIdentifier"),
+    by = c("ATTAINS.OrganizationIdentifier", "name_words"),
     relationship = "many-to-many"
   ) |>
+    dplyr::filter(
+      (is.na(temp_tag_cst) & is.na(temp_tag_attains)) |
+        (!is.na(temp_tag_cst) & !is.na(temp_tag_attains) & temp_tag_cst == temp_tag_attains)
+    ) |>
     dplyr::distinct(
+      ATTAINS.OrganizationIdentifier,
       USE_CLASS_NAME_LOCATION_ETC,
       name,
       name_words,
@@ -1282,12 +1291,12 @@ TADA_GetTADAUsesAliasRef <- function(
     dplyr::ungroup() |>
     dplyr::group_by(name) |>
     dplyr::mutate(
-      percent_match_CST_in_ATTAINS = n /
-        stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
+      percent_match_CST_in_ATTAINS = n / stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
       percent_match_ATTAINS_in_CST = n / stringr::str_count(name, "\\S+"),
-      Flag.MatchByPercentMatchUseName = (percent_match_CST_in_ATTAINS >=
-        CST.ATTAINS.tolerance |
-        percent_match_ATTAINS_in_CST >= ATTAINS.CST.tolerance),
+      Flag.MatchByPercentMatchUseName = (
+        percent_match_CST_in_ATTAINS >= CST.ATTAINS.tolerance |
+          percent_match_ATTAINS_in_CST >= ATTAINS.CST.tolerance
+      ),
       Flag.PercentMatchToleranceTextUseName = dplyr::case_when(
         Flag.MatchByPercentMatchUseName ~ paste0(
           "use_name percent matches by CST words in ATTAINS text = ",
