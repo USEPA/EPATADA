@@ -1051,15 +1051,7 @@ TADA_GetTADAUsesAliasRef <- function(
       "RECREATION_USE",
       "RECREATION_USE"
     ),
-    CRITERIATYPEAQUAHUMHLTH = c(
-      "H",
-      "H",
-      "A",
-      "H",
-      NA_character_,
-      "H",
-      "H"
-    ),
+    CRITERIATYPEAQUAHUMHLTH = c("H", "H", "A", "H", NA_character_, "H", "H"),
     CRITERIATYPE_WATERORG = c(
       "O",
       "W",
@@ -1511,7 +1503,11 @@ TADA_GetTADAUsesAliasRef <- function(
     ) |>
     dplyr::bind_rows(current_TADAUsesAlias_keep) |>
     dplyr::mutate(
-      Flag.MatchSource = dplyr::if_else(is.na(Flag.MatchSource), "No alias match found", Flag.MatchSource)
+      Flag.MatchSource = dplyr::if_else(
+        is.na(Flag.MatchSource),
+        "No alias match found",
+        Flag.MatchSource
+      )
     ) |>
     dplyr::relocate(
       ATTAINS.OrganizationIdentifier,
