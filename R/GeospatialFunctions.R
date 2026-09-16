@@ -859,7 +859,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
         for (i in 1:nrow(unique_sites)) {
           # Use {hydrogeofetch} to grab associated flowlines...
           try(
-            nhd_flowlines[[i]] <- hydrogeofetch::get_flowlines(
+            nhd_flowlines[[i]] <- hydrogeofetch::get_nhdplus(
               AOI = unique_sites[i, ],
               realization = "flowline"
             ) |>
