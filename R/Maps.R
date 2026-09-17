@@ -363,11 +363,7 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' TADA_NearbySitesMap(Data_TribalNations_Harmonized)
 #' }
 #'
-TADA_NearbySitesMap <- function(
-  .data,
-  dist_buffer = 100,
-  catchment = FALSE
-) {
+TADA_NearbySitesMap <- function(.data, dist_buffer = 100, catchment = FALSE) {
   # columns to select for nearby site
   nearby.cols <- c(
     "LongitudeMeasure",
@@ -458,11 +454,11 @@ TADA_NearbySitesMap <- function(
   # create nearby sites map
   map <- createTADABasemap(TADA_nearby)
 
-    if (!any(required_columns %in% colnames(TADA_table))) {
-      stop(
-        "Your dataframe does not contain the necessary WQP-style column names."
-      )
-    }
+  if (!any(required_columns %in% colnames(TADA_table))) {
+    stop(
+      "Your dataframe does not contain the necessary WQP-style column names."
+    )
+  }
 
   # add nearby sites to map
   if (nrow(TADA_nearby) > 0) {
