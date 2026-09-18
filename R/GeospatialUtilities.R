@@ -968,7 +968,7 @@ createTADABasemap <- function(.data) {
     ) |>
     leaflet::clearShapes() |>
     leaflet::fitBounds(bbox[1], bbox[2], bbox[3], bbox[4]) |>
-    EPATADA:::addMapReset(bbox = bbox)
+    addMapReset(bbox = bbox)
 }
 
 #' addMapReset
