@@ -342,11 +342,6 @@ TADA_FlaggedSitesMap <- function(.data) {
 #'
 #' @param dist_buffer Distance in m to show a radius around each site marker.
 #'
-#' @param attains Boolean. If attains = TRUE and assessment unit geometry is available
-#' in the list of data frames created by TADA_CreateATTAINSAUMLCrosswalk or
-#' TADA_CreateAUMLCrosswalk, assessment units will be added to the review map.
-#' If attains = FALSE, no assessment units will be shown. Default is attains = TRUE.
-#'
 #' @param catchment Boolean. If catchment = TRUE, any catchment data available in
 #' .data are added to the review map. If catchment = FALSE, catchments are not
 #' added to the review map. Default is catchment = FALSE.
@@ -368,12 +363,7 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' TADA_NearbySitesMap(Data_TribalNations_Harmonized)
 #' }
 #'
-TADA_NearbySitesMap <- function(
-  .data,
-  dist_buffer = 100,
-  attains = TRUE,
-  catchment = FALSE
-) {
+TADA_NearbySitesMap <- function(.data, dist_buffer = 100, catchment = FALSE) {
   # columns to select for nearby site
   nearby.cols <- c(
     "LongitudeMeasure",
@@ -393,25 +383,6 @@ TADA_NearbySitesMap <- function(
   # check to see if input is a single df
   if (inherits(.data, "data.frame")) {
     TADA_table <- .data
-  }
-
-  # check to see if input is a list
-  if (inherits(.data, "list")) {
-    # name dfs for use in function
-    TADA_table <- .data[["TADA_with_ATTAINS"]]
-    ATTAINS_catchments <- .data[["ATTAINS_catchments"]]
-    ATTAINS_points <- .data[["ATTAINS_points"]]
-    ATTAINS_lines <- .data[["ATTAINS_lines"]]
-    ATTAINS_polygons <- .data[["ATTAINS_polygons"]]
-
-    # add assessment unit columns to nearby.cols
-    nearby.cols <- append(
-      nearby.cols,
-      c("ATTAINS.AssessmentUnitIdentifier", "TADA.AURefSource")
-    )
-
-    # check to make sure WQP observations exist
-    checkForWQPData(TADA_table)
   }
 
   # if not previously run, run TADA_FindNearbySites
@@ -483,132 +454,10 @@ TADA_NearbySitesMap <- function(
   # create nearby sites map
   map <- createTADABasemap(TADA_nearby)
 
-  # if attains = TRUE and assessment unit geometry is included in TADA df add AUs to map
-  if (
-    attains == TRUE & "ATTAINS.AssessmentUnitIdentifier" %in% names(TADA_table)
-  ) {
-    # use internal function to get paths to images and labels
-    list.images <- getMapIconLabels()
-
-    # define the paths to the images
-    images <- unlist(list.images[1])
-
-    # define the labels
-    img.labels <- unlist(list.images[2])
-
-    # remove intermediate objects
-    rm(list.images)
-
-    # Check if all image paths exist
-    for (path in images) {
-      if (!file.exists(path)) {
-        stop(sprintf("Image file not found: %s", path))
-      }
-    }
-
-    # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
-    # Use catchments for those instances for mapping purposes:
-    # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
-    # Use catchments for those instances for mapping purposes:
-    try(
-      missing_raw_features <- findATTAINSMissingRawFeatures(
-        ATTAINS_catchments,
-        points_layer = ATTAINS_points,
-        polygons_layer = ATTAINS_polygons,
-        lines_layer = ATTAINS_lines,
-        auid_list = unique(TADA_table$ATTAINS.AssessmentUnitIdentifier)
-      ),
-      silent = TRUE
+  if (!any(required_columns %in% colnames(TADA_table))) {
+    stop(
+      "Your dataframe does not contain the necessary WQP-style column names."
     )
-
-    if (!any(required_columns %in% colnames(TADA_table))) {
-      stop(
-        "Your dataframe does not contain the necessary WQP-style column names."
-      )
-    }
-
-    suppressMessages(suppressWarnings({
-      # create df to assign color based on ATTAINS overall status
-      colors <- getATTAINSColorsRef()
-
-      # prep ATTAINS assessment unit features
-      au_mapper <- prepAllATTAINSMapper(
-        color_ref = colors,
-        lines_layer = ATTAINS_lines,
-        points_layer = ATTAINS_points,
-        polygons_layer = ATTAINS_polygons,
-        auid_list = unique(TADA_nearby$ATTAINS.AssessmentUnitIdentifier)
-      )
-
-      # CATCHMENT FEATURES - try to pull missing feature AU data if it exists. Otherwise, move on...
-      try(
-        missing_raw_mapper <- missing_raw_features |>
-          dplyr::left_join(colors, by = "overallstatus") |>
-          dplyr::mutate(type = "Raw Feature Unavailable"),
-        silent = TRUE
-      )
-
-      # remove intermediate object
-      rm(missing_raw_features)
-
-      # Initialize vectors to hold the names of groups we actually add
-      overlay_groups <- character(0)
-
-      # add these steps to prepATTAINS and prepAllATTAINS
-      if (!is.null(ATTAINS_catchments)) {
-        ATTAINS_catchments <- ATTAINS_catchments |>
-          dplyr::filter(
-            assessmentunitidentifier %in%
-              unique(TADA_nearby$ATTAINS.AssessmentUnitIdentifier)
-          )
-      }
-
-      if (!is.null(without_ATTAINS_catchments)) {
-        without_ATTAINS_catchments <- without_ATTAINS_catchments |>
-          dplyr::filter(
-            assessmentunitidentifier %in%
-              unique(TADA_nearby$ATTAINS.AssessmentUnitIdentifier)
-          )
-      }
-
-      # add all ATTAINS geometry to map
-      all_attains <- addAllATTAINS(
-        map = map,
-        points_layer = au_mapper$points_mapper,
-        polygons_layer = au_mapper$polygons_mapper,
-        lines_layer = au_mapper$lines_layer,
-        catchment_layer = ATTAINS_catchments,
-        outline_layer = without_ATTAINS_catchments,
-        missing_raw_layer = missing_raw_mapper,
-        overlay_groups = overlay_groups,
-        icons = images
-      )
-
-      map <- all_attains$map
-
-      overlay_groups <- all_attains$overlay_groups
-
-      rm(all_attains)
-
-      # add symbology for any assessment units missing geometry from ATTAINS
-      try({
-        missing_aus <- showMissingATTAINSAUs(
-          ATTAINS_table = TADA_table,
-          ATTAINS_polygons = ATTAINS_polygons,
-          ATTAINS_points = ATTAINS_points,
-          ATTAINS_lines = ATTAINS_lines,
-          map = map,
-          overlay_groups = overlay_groups
-        )
-
-        map <- missing_aus$map
-
-        overlay_groups <- missing_aus$overlay_groups
-
-        # remove intermediate objects
-        rm(missing_aus)
-      })
-    }))
   }
 
   # add nearby sites to map
