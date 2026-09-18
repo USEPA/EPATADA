@@ -101,11 +101,11 @@ can also access function help pages from RStudio by entering
 
 # Introduction to TADA Module 3
 
-This [RMarkdown](https://yihui.org/rmarkdown/) document walks
-users through how to create WQP and ATTAINS crosswalks that are needed
-prior to defining and capturing organization specific water quality
-analysis criteria and methodologies. It is the first of several
-vignettes that are being developed as part of TADA Module 3.
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks users
+through how to create WQP and ATTAINS crosswalks that are needed prior
+to defining and capturing organization specific water quality analysis
+criteria and methodologies. It is the first of several vignettes that
+are being developed as part of TADA Module 3.
 
 Specifically, this vignette provides an overview of two functions that
 can assist users with:
@@ -149,7 +149,7 @@ Data_NCTC <- Data_HUC8_02070004_Mod1Output
 This example includes results from multiple states. In the following
 sections, for demonstration purposes, we will focus only on Maryland.
 The remainder of this vignette will walk through how to fill out two
-crosswalk tables (TADA_ParametersForAnalysis and TADA_UsesForAnalysis)
+crosswalk tables (**`TADA_ParametersForAnalysis`** and ***`TADA_UsesForAnalysis`**)
 that are needed before we can start assigning applicable criteria and
 methodologies information for this specific ATTAINS organization
 (Maryland).
@@ -159,8 +159,8 @@ methodologies information for this specific ATTAINS organization
 A crosswalk between TADA characteristics and ATTAINS parameters is
 needed before we can integrate information from these two datasets.
 Before creating the TADA and ATTAINS parameter crosswalk table
-(TADA_ParametersForAnalysis), let's review unique
-TADA.ComparableDataIdentifier's (characteristic, fraction and speciation
+(**`TADA_ParametersForAnalysis`**), let's review unique
+TADA.ComparableDataIdentifiers (characteristic, fraction and speciation
 combinations) in the example data. How many results are available for
 each within the example data set (Data_NCTC)?
 
@@ -169,13 +169,7 @@ each within the example data set (Data_NCTC)?
 TADA_FieldValuesTable(Data_NCTC, field = "TADA.ComparableDataIdentifier")
 ```
 
-In this vignette, we will crosswalk each of these
-TADA.ComparableDataIdentifier's to ATTAINS parameter names. ATTAINS has
-multiple domains, including the parameter names domain, that have
-allowable values. Using a function from rExpertQuery, which provides
-functions for downloading tidy data from the ATTAINS public web services
-(<https://github.com/USEPA/rExpertQuery>), we can review all ATTAINS
-domains (see example below).
+In this vignette, we will crosswalk the TADA.ComparableDataIdentifiers to ATTAINS parameter names. ATTAINS has multiple domains, including the parameter names domain, that have allowable values. Using a function from rExpertQuery, which provides functions for downloading tidy data from the ATTAINS public web services (<https://github.com/USEPA/rExpertQuery>), we can review all ATTAINS domains (see example below).
 
 ```{r ATTAINS-domains}
 
@@ -186,81 +180,62 @@ rEQ_api <- EPATADA:::.setEQKey()
 rExpertQuery::EQ_DomainValues(api_key = rEQ_api)
 ```
 
-ParameterName is one of the ATTAINS domains that has a specific list of
-allowable values. Keep in mind that the ATTAINS parameters domain list
-only includes parameters that have been listed as causes (of water
-quality impairment) in prior ATTAINS CWA assessment cycles. Let's review
-the complete list:
+Parameter Name is one of the ATTAINS domains that has a specific list of
+allowable values. Let's review the complete list:
 
 ```{r ATTAINS-params}
 # return ATTAINS parameter domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name", api_key = rEQ_key))
+TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name", api_key = rEQ_api))
 ```
 
-In the next section, we will review which parameters have been listed in
-ATTAINS in the past for a specific organization. In order to select a
-specific organization in the TADA_ParametersForAnalysis() function, we
-must first review the ATTAINS organization domain list to get the
-ATTAINS organization id's to use for the function input.
+In the next section, we will review which parameters a single organization has included in their submission to ATTAINS in previous cycles. In order to select a specific organization in the **`TADA_ParametersForAnalysis()`** function, we can review the ATTAINS organization identifier domain values and choose one.
 
 ```{r ATTAINS-orgs}
 # return ATTAINS organization domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id", api_key = rEQ_key))
+TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id", api_key = rEQ_api))
 ```
 
 # TADA_ParametersForAnalysis() Basics
 
 ATTAINS Parameter Names are more general than the TADA Comparable Data
-Identifiers. Therefore, we recommend users manually provide a crosswalk.
-TADA_ParametersForAnalysis() can help generate this crosswalk, but if
-desired, users can provide a pre-filled crosswalk with the required
-column names ("TADA.ComparableDataIdentifier" and
-"ATTAINS.ParameterName"). TADA_ParametersForAnalysis() includes an
-argument input 'auto_assign' to assist users in doing an exact match
-between TADA Characteristic Names to ATTAINS Parameter Name. There are
-roughly 598/1180 unique ATTAINS Parameter Names that have an exact
-match. \*\*It is important to note that even with these exact matches,
-there are additional complexities related to the fraction, speciation
-and units that may be unique to your organization. For example, some
-organizations may consider any of Nitrate/Nitrite, Ammonia as "Nitrogen"
-as the ATTAINS.ParameterName and may not consider the speciation.
+Identifiers. Therefore, we recommend users provide a crosswalk between the two.
+**`TADA_ParametersForAnalysis()`** can be used to help generate this crosswalk
+or users can create their own crosswalk with the required columns
+(`TADA.ComparableDataIdentifier` and `ATTAINS.ParameterName`).
+**`TADA_ParametersForAnalysis()`** includes an argument input 'auto_assign' to
+assist users in finding exact matches between TADA Characteristic Names
+to ATTAINS Parameter Names. Out of the 1180 unique ATTAINS
+Parameter Names, 598 have an exact match. \*\*It is important to note
+that even with these exact matches, there are additional complexities
+related to the fraction, speciation and units that may be unique to your
+organization. For example, some organizations may consider any of
+Nitrate/Nitrite, Ammonia as "Nitrogen" as the `ATTAINS.ParameterName` and
+may not consider the speciation.
 
 Let's go through a few examples.
 
-TADA_ParametersForAnalysis() creates a template which includes all
-TADA.ComparableDataIdentifiers from the TADA data frame and provides a
-blank column, "ATTAINS.ParameterName" for users to input the
+**`TADA_ParametersForAnalysis()`** creates a template which includes all unique
+`TADA.ComparableDataIdentifier` values from the TADA data frame and provides a
+blank column, `ATTAINS.ParameterName` for users to input the
 corresponding ATTAINS parameter name.
 
-Setting "excel = TRUE" in TADA_ParametersForAnalysis tells the function
-to create an Excel spreadsheet of the reference table for easy user
-review and editing. The excel output includes logic to help a user
-select ATTAINS parameter names that have been used in the past by the
-selected organization. If users do not want to work in Excel, they can
+Setting "excel = TRUE" in **`TADA_ParametersForAnalysis`** tells the function
+to create an Excel spreadsheet of the reference table for users to
+review and edit. The excel output includes logic to help a user
+select ATTAINS parameter names used by the selected organization in previous assessment cycles. If users do not want to work in Excel, they can
 use "excel = FALSE" to return a data frame. The data frame can be edited
-directly in R if desired, although there are no TADA-specific functions
+directly in R although there are no TADA-specific functions
 designed to facilitate this.
 
-When using TADA_ParametersForAnalysis(), users should specify the
+When using **`TADA_ParametersForAnalysis()`**, users should specify the
 organization(s) of interested in the "org_names" argument. This ensures
 that the correct number of rows will be created in the reference table.
-When "excel = TRUE", specifying the organization(s) also creates a
-separate tab in the Excel file which contains the parameter names used
-in prior assessment cycles by the specified ATTAINS organization(s).
-This will allow users to decide whether to continue to use the same
-ATTAINS parameter names from prior assessments that their
-organizations(s) have used in the past, or to use other valid parameter
-names from the entire ATTAINS domain list. If there is not a suitable
-ATTAINS parameter name to match a TADA.ComparableDataIdentifier, users
-should contact the ATTAINS team (attains\@epa.gov) for assistance.
+When "excel = TRUE", a separate tab in the Excel file which contains the parameter names used in prior assessment cycles by the selected organization(s) is created.
+Users then decide whether to use only the same ATTAINS parameter names from prior assessments or to use additional parameter names from the entire ATTAINS domain list. If  a suitable ATTAINS parameter name does not exist users should contact the ATTAINS team (attains\@epa.gov) for assistance or to request the addition of a new parameter name.
 
-For our first example, let's start of with a single organization. In
-this example TADA data frame, this spatial area consists of WQP data
-from several different states. We will specify Maryland "MDE_EASP" as
-our ATTAINS organization identifier of interest. By default, auto_assign
-= "None" which will not populate any entries for the
-ATTAINS.ParameterName column, and users will need to manually fill this
-crosswalk out.
+For our first example, let's start with a single organization. This example data set contains WQP data from multiple states. We will specify Maryland "MDE_EASP" as
+the ATTAINS organization identifier(`org_id`). By default, auto_assign
+equals "None" which means the ATTAINS.ParameterName column will not auto-populate, and users will need to manually fill this crosswalk.
 
 ```{r auto_assign-none}
 # create TADA parameter reference table for specified organization
@@ -277,12 +252,7 @@ NCTC_ParamRef_None <- TADA_ParametersForAnalysis(
 TADA_TableExport(NCTC_ParamRef_None)
 ```
 
-Now, let's go through an example in which users auto-populate the
-crosswalk with exact matches. We will use auto_assign = 'All' to
-indicate we will use exact matches regardless of if your organization
-has used this "ATTAINS.ParameterName" domain value in the past. i.e.
-Your organization is fine with using an ATTAINS Parameter Name that has
-been submitted to ATTAINS outside of your organization.
+Now, let's go through an example of auto-populating the crosswalk with exact matches. We will use auto_assign = 'All' to indicate we will use exact matches from all allowable ATTAINS parameter names. This means parameter names matched may not have been included in the selected organization's previous ATTAINS submissions.
 
 ```{r auto_assign-All}
 # create TADA parameter reference table for specified organization
@@ -299,9 +269,7 @@ NCTC_ParamRef_All <- TADA_ParametersForAnalysis(
 TADA_TableExport(NCTC_ParamRef_All)
 ```
 
-We can also use auto_assign = 'Org' to indicate we will use exact
-matches ONLY if your organization has used this "ATTAINS.ParameterName"
-domain value in the past.
+It is also possible to restrict the assignment of exact matches to only include ATTAINS parameter names that have been used by the selected organization in previous submissions.
 
 ```{r auto_assign-Org}
 # create TADA parameter reference table for specified organization
@@ -320,14 +288,11 @@ TADA_TableExport(NCTC_ParamRef_Org)
 
 The code chunk below demonstrates how the parameter reference table can
 be modified in R. Once modifications are complete, we can re-run
-TADA_ParametersForAnalysis using the modified parameter reference table
+**`TADA_ParametersForAnalysis`** using the modified parameter reference table
 as the input for "paramRef". This will update the
-ATTAINS.FlagParameterName column in the parameter reference table (see
+`ATTAINS.FlagParameterName` column in the parameter reference table (see
 NCTC_ParamRef2 in example below). This column provides information about
-whether or not the organization specified in the
-"ATTAINS.OrganizationIdentifier" column has listed this parameter as a
-cause in prior assessment cycles. It also flags rows where the
-TADA.ComparableDataIdentifier as not been assigned an ATTAINS parameter
+whether or not the organization specified in the `ATTAINS.OrganizationIdentifier` column has listed this parameter as a cause in prior assessment cycles. It also flags rows where the `TADA.ComparableDataIdentifier` as not been assigned an ATTAINS parameter
 name.
 
 ```{r Manually-Create-ParamRef}
@@ -363,7 +328,7 @@ TADA_TableExport(NCTC_ParamRef_Manual)
 ```
 
 We can now save and reuse NCTC_ParamRef_Manual as the paramRef argument
-input in TADA_ParametersForAnalysis(). This is useful to go through a
+input in **`TADA_ParametersForAnalysis()`**. This is useful to go through a
 review process if new WQX characteristic names are added as a domain
 value.
 
@@ -384,9 +349,9 @@ However, auto_assign will fill in any remaining blanks that you have not
 filled in. For example, this 'paramRef' argument input that was provided
 matched 'Nitrate' to 'NITROGEN, TOTAL' rather than 'NITRATE', thus even
 if you specified 'auto_assign = 'All', this crosswalk will prioritize
-'NITROGEN, TOTAL' as the ATTAINS.ParameterName. However, by specifying
+'NITROGEN, TOTAL' as the `ATTAINS.ParameterName`. However, by specifying
 auto_assign = 'All' for any values that have not been crosswalk,
-TADA_ParametersForAnalysis() will fill those if there is an exact match,
+**`TADA_ParametersForAnalysis()`** will fill those if there is an exact match,
 in the example below, no crosswalk of pH in your ParamRef2 was provided,
 so NCTC_ParamRef_Manual2 will crosswalk the TADA Characteristic name to
 'PH' as the exact match for ATTAINS parameter name.
@@ -411,28 +376,28 @@ TADA_TableExport(NCTC_ParamRef_Final)
 ```
 
 Once the parameter reference table has been reviewed and modified, it
-can be saved and reused for analysis of future TADA data frames.
+can be saved and reused.
 
 # TADA_UsesForAnalysis() Basics
 
-Our first example will pull in all prior ATTAINS uses (ATTAINS.UseNames)
-and parameter names (ATTAINS.ParameterName) specific to the specified
+Our first example will pull in all prior ATTAINS uses (`ATTAINS.UseNames`)
+and parameter names (`ATTAINS.ParameterName`) specific to the specified
 ATTAINS organization (defined by the org_names function argument for
-TADA_UsesForAnalysis), which in this case is "MDE_EASP" (Maryland).
+**`TADA_UsesForAnalysis`**), which in this case is "MDE_EASP" (Maryland).
 Users will review the output and choose which ATTAINS.UseName's are
 applicable to their analysis. The default functionality is to "Include"
-all ATTAINS use_names (see the "IncludeOrExclude" column) that has an
-ATTAINS.UseName associated with it. Later in the data analysis process,
+all ATTAINS use_names (see the `IncludeOrExclude` column) that has an
+`ATTAINS.UseName` associated with it. Later in the data analysis process,
 users will be asked to define criteria and methodologies that is
 applicable to each ATTAINS use_name and parameter name labeled as
-"Include". If a ATTAINS.UseName is not applicable, users should choose
+"Include". If an `ATTAINS.UseName` is not applicable, users should choose
 "Exclude" for that ATTAINS parameter name and use name.
 
 For any ATTAINS parameter name(s) that have not been used by an
 organization in prior assessment cycles, there will be no prior use
 names associated with them. In this case, users will be responsible for
 manually assigning the appropriate ATTAINS.UseName applicable to their
-org under the column 'ATTAINS.UseName', and for inputting additional
+org under the column `ATTAINS.UseName`, and for inputting additional
 rows as needed if the parameter applies to multiples uses. Users can
 also choose to 'auto_assign' all unique ATTAINS.UseName by
 ATTAINS.OrganizationName to any ATTAINS.ParameterName missing a use name
@@ -512,10 +477,10 @@ TADA_TableExport(NCTC_usesRef_AutoAssign)
 
 If a user includes wants to include additional organizations beyond
 "MDE_EASP" , they will need to have defined those organizations in
-TADA_ParametersForAnalysis with the org_id argument input. We will
-create another example paramRef from TADA_ParametersForAnalysis that
+**`TADA_ParametersForAnalysis`** with the org_id argument input. We will
+create another example paramRef from **`TADA_ParametersForAnalysis`** that
 would allow us to pull in this information for more than one
-organization. We will also run TADA_UsesForAnalysis for multiple
+organization. We will also run **`TADA_UsesForAnalysis`** for multiple
 organizations using autoassign = TRUE.
 
 ```{r usesRef-multipleorgs}
@@ -569,5 +534,4 @@ analysis process, including:
 
 Disclaimer: The EPATADA Module 3 functions are under active development.
 EPATADA functions do not constitute current EPA recommendations, policy
-or regulatory requirements. Organizations may optionally choose to use
-EPATADA as a a tool in their process. Use of EPATADA is not required.
+or regulatory requirements. EPATADA is an optional tool and its use is not required.
