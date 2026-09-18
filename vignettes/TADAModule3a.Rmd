@@ -180,7 +180,7 @@ rEQ_api <- EPATADA:::.setEQKey()
 rExpertQuery::EQ_DomainValues(api_key = rEQ_api)
 ```
 
-parameterName is one of the ATTAINS domains that has a specific list of
+Parameter Name is one of the ATTAINS domains that has a specific list of
 allowable values. Let's review the complete list:
 
 ```{r ATTAINS-params}
@@ -188,7 +188,7 @@ allowable values. Let's review the complete list:
 TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name", api_key = rEQ_api))
 ```
 
-In the next section, we will review which parameters a signle organization has included in their submissiont to ATTAINS in previous cycles. In order to select a specific organization in the TADA_ParametersForAnalysis() function, we must first review the ATTAINS organization domain list to get the ATTAINS organization ids to use for the function input.
+In the next section, we will review which parameters a single organization has included in their submissiont to ATTAINS in previous cycles. In order to select a specific organization in the TADA_ParametersForAnalysis() function, we must first review the ATTAINS organization domain list to get the ATTAINS organization ids to use for the function input.
 
 ```{r ATTAINS-orgs}
 # return ATTAINS organization domain values
