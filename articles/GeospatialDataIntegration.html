@@ -83,7 +83,7 @@
 
       <h1>Geospatial Data Integration</h1>
             
-            <h4 data-toc-skip class="date">2026-09-14</h4>
+            <h4 data-toc-skip class="date">2026-09-18</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/GeospatialDataIntegration.Rmd" class="external-link"><code>vignettes/GeospatialDataIntegration.Rmd</code></a></small>
       <div class="d-none name"><code>GeospatialDataIntegration.Rmd</code></div>
@@ -120,7 +120,7 @@ EPA/USGS and other federal agencies.</p>
 <p><strong>Leveraged R Packages</strong></p>
 <ul>
 <li><p>EPA: EPATADA, StreamCatTools, spsurvey, spmodel, SSN2</p></li>
-<li><p>USGS: dataRetrieval, nhdplusTools, hydroloom</p></li>
+<li><p>USGS: dataRetrieval, hydrogeofetch, hydroloom</p></li>
 <li><p>Fundamental geospatial packages: sf, prism, terra, leaflet and
 tmap</p></li>
 </ul>
@@ -395,38 +395,38 @@ filter to just the 25 unique locations.</p>
 <h3 id="access-nhdplus-comids-for-sites">Access NHDPlus COMIDs for sites<a class="anchor" aria-label="anchor" href="#access-nhdplus-comids-for-sites"></a>
 </h3>
 <p>We use <code>StreamCatTools</code> function <code>sc_get_comid</code>
-(which uses an <code>nhdplusTools</code> web service client) to get the
+(which uses a <code>hydrogeofetch</code> web service client) to get the
 comid for each location.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">GreenBay_FoxRiver_sf_locs</span><span class="op">$</span><span class="va">COMID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/strsplit.html" class="external-link">strsplit</a></span><span class="op">(</span><span class="fu">StreamCatTools</span><span class="fu">::</span><span class="fu">sc_get_comid</span><span class="op">(</span><span class="va">GreenBay_FoxRiver_sf_locs</span><span class="op">)</span>, split <span class="op">=</span> <span class="st">","</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">nhdplus_data</span> <span class="op">&lt;-</span> <span class="fu">nhdplusTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/nhdplusTools/man/subset_nhdplus.html" class="external-link">subset_nhdplus</a></span><span class="op">(</span><span class="va">GreenBay_FoxRiver_sf_locs</span><span class="op">$</span><span class="va">COMID</span>, nhdplus_data <span class="op">=</span> <span class="st">"download"</span><span class="op">)</span></span>
+<span><span class="va">nhdplus_data</span> <span class="op">&lt;-</span> <span class="fu">hydrogeofetch</span><span class="fu">::</span><span class="fu"><a href="https://doi-usgs.github.io/nhdplusTools/reference/subset_nhdplus.html" class="external-link">subset_nhdplus</a></span><span class="op">(</span><span class="va">GreenBay_FoxRiver_sf_locs</span><span class="op">$</span><span class="va">COMID</span>, nhdplus_data <span class="op">=</span> <span class="st">"download"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">outlet</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">nhdplus_data</span><span class="op">$</span><span class="va">NHDFlowline_Network</span>, <span class="va">hydroseq</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">hydroseq</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">nhdplusTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/nhdplusTools/man/plot_nhdplus.html" class="external-link">plot_nhdplus</a></span><span class="op">(</span>bbox <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_bbox.html" class="external-link">st_bbox</a></span><span class="op">(</span><span class="va">outlet</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">hydrogeofetch</span><span class="fu">::</span><span class="fu"><a href="https://doi-usgs.github.io/nhdplusTools/reference/plot_nhdplus.html" class="external-link">plot_nhdplus</a></span><span class="op">(</span>bbox <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_bbox.html" class="external-link">st_bbox</a></span><span class="op">(</span><span class="va">outlet</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_transform.html" class="external-link">st_transform</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_geometry</a></span><span class="op">(</span><span class="va">GreenBay_FoxRiver_sf_locs</span><span class="op">)</span>, <span class="fl">3857</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="dataretrievalnldi-nhdplustools-hydroloom">dataRetrieval/NLDI, nhdplusTools, hydroloom<a class="anchor" aria-label="anchor" href="#dataretrievalnldi-nhdplustools-hydroloom"></a>
+<h3 id="dataretrievalnldi-hydrogeofetch-hydroloom">dataRetrieval/NLDI, hydrogeofetch, hydroloom<a class="anchor" aria-label="anchor" href="#dataretrievalnldi-hydrogeofetch-hydroloom"></a>
 </h3>
 <p>Do a network navigation and get NHDPlus for our data. Note that the
 network navigation only includes flowline geometry.
-<code>nhdplusTools</code> subsets all of the NHDPlus.</p>
+<code>hydrogeofetch</code> subsets all of the NHDPlus.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_network</span> <span class="op">&lt;-</span> <span class="fu">dataRetrieval</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dataRetrieval/man/findNLDI.html" class="external-link">findNLDI</a></span><span class="op">(</span>comid <span class="op">=</span> <span class="va">outlet</span><span class="op">$</span><span class="va">comid</span>, nav <span class="op">=</span> <span class="st">"UT"</span>, distance_km <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># we could select only comids on network</span></span>
-<span><span class="va">nhdplus_data</span> <span class="op">&lt;-</span> <span class="fu">nhdplusTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/nhdplusTools/man/subset_nhdplus.html" class="external-link">subset_nhdplus</a></span><span class="op">(</span>comids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">all_network</span><span class="op">$</span><span class="va">UT_flowlines</span><span class="op">$</span><span class="va">nhdplus_comid</span><span class="op">)</span>, nhdplus_data <span class="op">=</span> <span class="st">"download"</span>, flowline_only <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">nhdplus_data</span> <span class="op">&lt;-</span> <span class="fu">hydrogeofetch</span><span class="fu">::</span><span class="fu"><a href="https://doi-usgs.github.io/nhdplusTools/reference/subset_nhdplus.html" class="external-link">subset_nhdplus</a></span><span class="op">(</span>comids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">all_network</span><span class="op">$</span><span class="va">UT_flowlines</span><span class="op">$</span><span class="va">nhdplus_comid</span><span class="op">)</span>, nhdplus_data <span class="op">=</span> <span class="st">"download"</span>, flowline_only <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># or we could just get everything in the bbox to be sure we get non-network stuff too!</span></span>
-<span><span class="va">nhdplus_data</span> <span class="op">&lt;-</span> <span class="fu">nhdplusTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/nhdplusTools/man/subset_nhdplus.html" class="external-link">subset_nhdplus</a></span><span class="op">(</span></span>
+<span><span class="va">nhdplus_data</span> <span class="op">&lt;-</span> <span class="fu">hydrogeofetch</span><span class="fu">::</span><span class="fu"><a href="https://doi-usgs.github.io/nhdplusTools/reference/subset_nhdplus.html" class="external-link">subset_nhdplus</a></span><span class="op">(</span></span>
 <span>  bbox <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_bbox.html" class="external-link">st_bbox</a></span><span class="op">(</span><span class="va">all_network</span><span class="op">$</span><span class="va">UT_flowlines</span><span class="op">)</span>,</span>
 <span>  nhdplus_data <span class="op">=</span> <span class="st">"download"</span>,</span>
 <span>  flowline_only <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># see ?nhdplusTools::subset_nhdplus for lots more options!</span></span>
+<span><span class="co"># see ?hydrogeofetch::subset_nhdplus for lots more options!</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">nhdplus_data</span>, <span class="va">nrow</span><span class="op">)</span></span>
 <span></span>
@@ -477,7 +477,7 @@ flowline for each waterbody.</p>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">nhdplusTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/nhdplusTools/man/plot_nhdplus.html" class="external-link">plot_nhdplus</a></span><span class="op">(</span></span>
+<span><span class="fu">hydrogeofetch</span><span class="fu">::</span><span class="fu"><a href="https://doi-usgs.github.io/nhdplusTools/reference/plot_nhdplus.html" class="external-link">plot_nhdplus</a></span><span class="op">(</span></span>
 <span>  bbox <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_bbox.html" class="external-link">st_bbox</a></span><span class="op">(</span><span class="va">GreenBay_FoxRiver_sf</span><span class="op">)</span>,</span>
 <span>  cache_data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".rds"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
@@ -491,9 +491,9 @@ flowline for each waterbody.</p>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_transform.html" class="external-link">st_transform</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_geometry</a></span><span class="op">(</span><span class="va">GreenBay_FoxRiver_sf_locs</span><span class="op">)</span>, <span class="fl">3857</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">TRUE</span>, col <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span></span></code></pre></div>
 <p>There’s much much more where that came from. See the pkgdown sites
-for <a href="https://doi-usgs.github.io/nhdplusTools/" class="external-link">nhdplusTools</a>
-and <a href="https://doi-usgs.github.io/hydroloom/index.html" class="external-link">hydroloom</a> for
-more!</p>
+for <a href="https://doi-usgs.github.io/hydrogeofetch/" class="external-link">hydrogeofetch</a> and
+<a href="https://doi-usgs.github.io/hydroloom/index.html" class="external-link">hydroloom</a>
+for more!</p>
 </div>
 </div>
 <div class="section level3">
@@ -670,7 +670,7 @@ associations for accuracy.</li>
 <div class="section level5">
 <h5 id="analyzing-areas-outside-of-attains-assessment-unit-areas">Analyzing areas outside of ATTAINS assessment unit areas<a class="anchor" aria-label="anchor" href="#analyzing-areas-outside-of-attains-assessment-unit-areas"></a>
 </h5>
-<p><em>See: nhdplusTools, TADA::fetchNHD(),
+<p><em>See: hydrogeofetch, TADA::fetchNHD(),
 TADA_CreateATTAINSAUMLCrosswalk(), TADA_ViewATTAINS()</em></p>
 <p>Some waterbodies have data available in the WQP or from other
 sources, but there are no existing Assessment Units in ATTAINS for them.
@@ -678,7 +678,7 @@ If you are interested in analyzing WQP data available in areas that fall
 outside of the ATTAINS assessment unit areas (using all available data
 from the WQP), TADA has included a way to explore this using
 TADA_CreateATTAINSAUMLCrosswalk() fill_USGS_catch function input
-(leveraging USGS’s nhdplusTools and TADA geospatial functions). This is
+(leveraging USGS’s hydrogeofetch and TADA geospatial functions). This is
 included for exploratory purposes only. In theory, states and tribal
 nations could use the high res catchments as new assessment unit
 polygons to assess additional areas where there is WQP data but no
@@ -688,7 +688,7 @@ feature (neither ATTAINS NHDPlus high res catchment snap shot or state
 submitted points/lines/polys), there is nothing to use from ATTAINS
 because these are areas where there is WQP data but no ATTAINS
 Assessment Unit yet.</p>
-<p>For these, we implemented a solution using NHDPlusTools to pull in
+<p>For these, we implemented a solution using hydrogeofetch to pull in
 either NHDPlus high res or med res catchments (user can choose, but high
 res is the default) and match those with the WQP sites &amp; create new
 IDs (essentially creating new AUs that are the catchments that intersect

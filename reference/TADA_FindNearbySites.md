@@ -32,7 +32,6 @@ TADA_FindNearbySites(
   org_hierarchy = "none",
   meta_select = "random",
   catchment = TRUE,
-  by_AU = TRUE,
   by_org = FALSE
 )
 ```
@@ -83,15 +82,6 @@ TADA_FindNearbySites(
   are within the same NHD catchment. When catchment = FALSE catchment is
   not considered when matching sites. Default is catchment = TRUE.
 
-- by_AU:
-
-  Boolean. When by_AU = TRUE, two sites will only be matched if they are
-  within the same ATTAINS assessment unit. When by_AU = FALSE the
-  assessment unit is not considered when matching nearby sites. In order
-  to consider assessment unit when matching, the TADA data frame must
-  contain the column ATTAINS.AssessmentUnitIdentifier. Default is by_AU
-  = TRUE.
-
 - by_org:
 
   Boolean. When by_org = TRUE, two sites will only be matched if they
@@ -127,35 +117,18 @@ testdat <- Data_MT_AUMLRef$TADA_with_ATTAINS
 # example grouping nearby sites by distance only
 test.dist <- TADA_FindNearbySites(testdat,
   catchment = FALSE,
-  by_AU = FALSE,
   dist_buffer = 250
 )
 
 # example grouping nearby sites by distance and catchment
 test.catch <- TADA_FindNearbySites(testdat,
   catchment = TRUE,
-  by_AU = FALSE,
-  dist_buffer = 250
-)
-
-# example grouping nearby sites by distance and assessment unit
-test.au.only <- TADA_FindNearbySites(testdat,
-  catchment = FALSE,
-  by_AU = TRUE,
-  dist_buffer = 250
-)
-
-# example grouping nearby sites by distance, catchment, and assessment unit
-test.all <- TADA_FindNearbySites(testdat,
-  catchment = TRUE,
-  by_AU = TRUE,
   dist_buffer = 250
 )
 
 # example grouping nearby sites by distance and organization
 test.org <- TADA_FindNearbySites(testdat,
   catchment = FALSE,
-  by_AU = FALSE,
   by_org = TRUE,
   dist_buffer = 250
 )

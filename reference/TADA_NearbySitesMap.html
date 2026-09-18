@@ -66,12 +66,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_NearbySitesMap</span><span class="op">(</span></span>
-<span>  <span class="va">.data</span>,</span>
-<span>  dist_buffer <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>  attains <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  catchment <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_NearbySitesMap</span><span class="op">(</span><span class="va">.data</span>, dist_buffer <span class="op">=</span> <span class="fl">100</span>, catchment <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -89,13 +84,6 @@ TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk.</p></dd>
 
 <dt id="arg-dist-buffer">dist_buffer<a class="anchor" aria-label="anchor" href="#arg-dist-buffer"></a></dt>
 <dd><p>Distance in m to show a radius around each site marker.</p></dd>
-
-
-<dt id="arg-attains">attains<a class="anchor" aria-label="anchor" href="#arg-attains"></a></dt>
-<dd><p>Boolean. If attains = TRUE and assessment unit geometry is available
-in the list of data frames created by TADA_CreateATTAINSAUMLCrosswalk or
-TADA_CreateAUMLCrosswalk, assessment units will be added to the review map.
-If attains = FALSE, no assessment units will be shown. Default is attains = TRUE.</p></dd>
 
 
 <dt id="arg-catchment">catchment<a class="anchor" aria-label="anchor" href="#arg-catchment"></a></dt>

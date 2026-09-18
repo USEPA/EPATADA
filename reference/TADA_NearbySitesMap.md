@@ -5,12 +5,7 @@ Create Nearby Sites Map
 ## Usage
 
 ``` r
-TADA_NearbySitesMap(
-  .data,
-  dist_buffer = 100,
-  attains = TRUE,
-  catchment = FALSE
-)
+TADA_NearbySitesMap(.data, dist_buffer = 100, catchment = FALSE)
 ```
 
 ## Arguments
@@ -28,14 +23,6 @@ TADA_NearbySitesMap(
 - dist_buffer:
 
   Distance in m to show a radius around each site marker.
-
-- attains:
-
-  Boolean. If attains = TRUE and assessment unit geometry is available
-  in the list of data frames created by TADA_CreateATTAINSAUMLCrosswalk
-  or TADA_CreateAUMLCrosswalk, assessment units will be added to the
-  review map. If attains = FALSE, no assessment units will be shown.
-  Default is attains = TRUE.
 
 - catchment:
 
