@@ -425,10 +425,6 @@
   (lines, points, or polygons) or ATTAINS catchments (polygons) to TADA
   maps.
 
-- [`addFlaggedSitesMarkers()`](https://usepa.github.io/EPATADA/reference/addFlaggedSitesMarkers.md)
-  : addFlaggedSitesMarkers Internal function to add flagged sites to map
-  for review.
-
 - [`addLayerControl()`](https://usepa.github.io/EPATADA/reference/addLayerControl.md)
   : addLayerControl Internal function to add layer control to a TADA
   leaflet map to toggle the legend on/off.

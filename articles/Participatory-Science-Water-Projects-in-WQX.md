@@ -188,6 +188,8 @@ volunteer_data <- EPATADA::TADA_FlagCoordinates(volunteer_data,
 )
 ```
 
+    ## All Suspect coordinates were removed. Returning input dataframe with TADA.SuspectCoordinates.Flag column for tracking.
+
 Use `TADA_OverviewMap` to generate a map:
 
 ``` r
