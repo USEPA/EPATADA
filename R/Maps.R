@@ -302,30 +302,82 @@ TADA_OverviewMap <- function(.data) {
 #'
 TADA_FlaggedSitesMap <- function(.data) {
   invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
-  lowres <- invalid[
-    invalid$TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits",
-  ]
-  outsideusa <- invalid[
-    invalid$TADA.SuspectCoordinates.Flag %in%
-      c("LAT_OutsideUSA", "LONG_OutsideUSA"),
-  ]
+
+  # get TADA color palette
+  tada.pal <- TADA_ColorPalette()
+
+  # assign colors by flag
+  invalid <- invalid |>
+    dplyr::mutate(
+      FlaggedColor = dplyr::case_when(
+        TADA.SuspectCoordinates.Flag ==
+          "Imprecise_lessthan3decimaldigits" ~ tada.pal[13],
+        TADA.SuspectCoordinates.Flag == "Coordinate_StateMismatch" ~ tada.pal[
+          7
+        ],
+        TADA.SuspectCoordinates.Flag == "Coordinate_CountyMismatch" ~ tada.pal[
+          8
+        ],
+
+        grepl(
+          "^((LAT_OutsideUSA|LONG_OutsideUSA)(;\\s*)?)+$",
+          TADA.SuspectCoordinates.Flag
+        ) ~ tada.pal[12],
+
+        TRUE ~ tada.pal[3]
+      )
+    )
 
   # create TADA basemap
-  map <- createTADABasemap(.data)
+  map <- createTADABasemap(invalid) |>
+    leaflet::addCircleMarkers(
+      data = invalid,
+      lng = ~TADA.LongitudeMeasure,
+      lat = ~TADA.LatitudeMeasure,
+      color = ~FlaggedColor,
+      fillColor = ~FlaggedColor,
+      fillOpacity = 0.7,
+      stroke = TRUE,
+      weight = 1.5,
+      radius = 10,
+      popup = ~ paste0(
+        "Site ID: ",
+        TADA.MonitoringLocationIdentifier,
+        "<br> Site Name: ",
+        TADA.MonitoringLocationName,
+        "<br> Organization Name: ",
+        OrganizationFormalName,
+        "<br> Latitude: ",
+        TADA.LatitudeMeasure,
+        "<br> Longitude: ",
+        TADA.LongitudeMeasure,
+        "<br> Reason Flagged: ",
+        TADA.SuspectCoordinates.Flag
+      )
+    ) |>
+    leaflet::addLegend(
+      position = "bottomright",
+      colors = c(
+        tada.pal[13],
+        tada.pal[12],
+        tada.pal[7],
+        tada.pal[8],
+        tada.pal[3]
+      ),
+      opacity = 1,
+      labels = c(
+        "Imprecise coordinates",
+        "Outside of US",
+        "Coordinate State Mismatch",
+        "Coordinate County Mismatch",
+        "Multiple Flags"
+      ),
+      title = "Coordinate Flag Category"
+    ) |>
+    addLegendToggle()
 
-  if (nrow(outsideusa) > 0) {
-    map <- addFlaggedSitesMarkers(
-      outsideusa,
-      map = map,
-      flag_type = "outsideusa"
-    )
-  }
-  if (nrow(lowres) > 0) {
-    map <- addFlaggedSitesMarkers(lowres, map = map, flag_type = "lowres")
-  }
-
-  # remove intermediate objects
-  rm(invalid, lowres, outsideusa)
+  # remove intermediate object
+  rm(invalid)
 
   # return flagged sites map
   return(map)
