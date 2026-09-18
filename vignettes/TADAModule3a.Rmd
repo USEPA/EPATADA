@@ -149,7 +149,7 @@ Data_NCTC <- Data_HUC8_02070004_Mod1Output
 This example includes results from multiple states. In the following
 sections, for demonstration purposes, we will focus only on Maryland.
 The remainder of this vignette will walk through how to fill out two
-crosswalk tables (TADA_ParametersForAnalysis and TADA_UsesForAnalysis)
+crosswalk tables (**`TADA_ParametersForAnalysis`** and ***'TADA_UsesForAnalysis'**)
 that are needed before we can start assigning applicable criteria and
 methodologies information for this specific ATTAINS organization
 (Maryland).
@@ -159,8 +159,8 @@ methodologies information for this specific ATTAINS organization
 A crosswalk between TADA characteristics and ATTAINS parameters is
 needed before we can integrate information from these two datasets.
 Before creating the TADA and ATTAINS parameter crosswalk table
-(TADA_ParametersForAnalysis), let's review unique
-TADA.ComparableDataIdentifier's (characteristic, fraction and speciation
+(**'TADA_ParametersForAnalysis'**), let's review unique
+TADA.ComparableDataIdentifiers (characteristic, fraction and speciation
 combinations) in the example data. How many results are available for
 each within the example data set (Data_NCTC)?
 
@@ -169,13 +169,7 @@ each within the example data set (Data_NCTC)?
 TADA_FieldValuesTable(Data_NCTC, field = "TADA.ComparableDataIdentifier")
 ```
 
-In this vignette, we will crosswalk each of these
-TADA.ComparableDataIdentifier's to ATTAINS parameter names. ATTAINS has
-multiple domains, including the parameter names domain, that have
-allowable values. Using a function from rExpertQuery, which provides
-functions for downloading tidy data from the ATTAINS public web services
-(<https://github.com/USEPA/rExpertQuery>), we can review all ATTAINS
-domains (see example below).
+In this vignette, we will crosswalk the TADA.ComparableDataIdentifiers to ATTAINS parameter names. ATTAINS has multiple domains, including the parameter names domain, that have allowable values. Using a function from rExpertQuery, which provides functions for downloading tidy data from the ATTAINS public web services (<https://github.com/USEPA/rExpertQuery>), we can review all ATTAINS domains (see example below).
 
 ```{r ATTAINS-domains}
 
@@ -186,44 +180,37 @@ rEQ_api <- EPATADA:::.setEQKey()
 rExpertQuery::EQ_DomainValues(api_key = rEQ_api)
 ```
 
-ParameterName is one of the ATTAINS domains that has a specific list of
-allowable values. Keep in mind that the ATTAINS parameters domain list
-only includes parameters that have been listed as causes (of water
-quality impairment) in prior ATTAINS CWA assessment cycles. Let's review
-the complete list:
+parameterName is one of the ATTAINS domains that has a specific list of
+allowable values. Let's review the complete list:
 
 ```{r ATTAINS-params}
 # return ATTAINS parameter domain values
 TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name", api_key = rEQ_api))
 ```
 
-In the next section, we will review which parameters have been listed in
-ATTAINS in the past for a specific organization. In order to select a
-specific organization in the TADA_ParametersForAnalysis() function, we
-must first review the ATTAINS organization domain list to get the
-ATTAINS organization id's to use for the function input.
+In the next section, we will review which parameters a signle organization has included in their submissiont to ATTAINS in previous cycles. In order to select a specific organization in the TADA_ParametersForAnalysis() function, we must first review the ATTAINS organization domain list to get the ATTAINS organization ids to use for the function input.
 
 ```{r ATTAINS-orgs}
 # return ATTAINS organization domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id", api_key = rEQ_key))
+TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id", api_key = rEQ_api))
 ```
 
 # TADA_ParametersForAnalysis() Basics
 
 ATTAINS Parameter Names are more general than the TADA Comparable Data
-Identifiers. Therefore, we recommend users manually provide a crosswalk.
-TADA_ParametersForAnalysis() can help generate this crosswalk, but if
-desired, users can provide a pre-filled crosswalk with the required
-column names ("TADA.ComparableDataIdentifier" and
-"ATTAINS.ParameterName"). TADA_ParametersForAnalysis() includes an
-argument input 'auto_assign' to assist users in doing an exact match
-between TADA Characteristic Names to ATTAINS Parameter Name. There are
-roughly 598/1180 unique ATTAINS Parameter Names that have an exact
-match. \*\*It is important to note that even with these exact matches,
-there are additional complexities related to the fraction, speciation
-and units that may be unique to your organization. For example, some
-organizations may consider any of Nitrate/Nitrite, Ammonia as "Nitrogen"
-as the ATTAINS.ParameterName and may not consider the speciation.
+Identifiers. Therefore, we recommend users provide a crosswalk between the two.
+**'TADA_ParametersForAnalysis()'** can be used to help generate this crosswalk
+or users can create their own crosswalk with the required columns
+("TADA.ComparableDataIdentifier" and "ATTAINS.ParameterName").
+**'TADA_ParametersForAnalysis()'** includes an argument input 'auto_assign' to
+assist users in finding exact matches between TADA Characteristic Names
+to ATTAINS Parameter Names. Out of the 1180 unique ATTAINS
+Parameter Names, 598 have an exact match. \*\*It is important to note
+that even with these exact matches, there are additional complexities
+related to the fraction, speciation and units that may be unique to your
+organization. For example, some organizations may consider any of
+Nitrate/Nitrite, Ammonia as "Nitrogen" as the ATTAINS.ParameterName and
+may not consider the speciation.
 
 Let's go through a few examples.
 
