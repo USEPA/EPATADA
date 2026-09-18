@@ -214,7 +214,7 @@ may not consider the speciation.
 
 Let's go through a few examples.
 
-**`TADA_ParametersForAnalysis()`** creates a template which includes all ubnique
+**`TADA_ParametersForAnalysis()`** creates a template which includes all unique
 `TADA.ComparableDataIdentifier` values from the TADA data frame and provides a
 blank column, `ATTAINS.ParameterName` for users to input the
 corresponding ATTAINS parameter name.
