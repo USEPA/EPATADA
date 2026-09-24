@@ -54,7 +54,7 @@ clean = FALSE. When flaggedonly = TRUE, data frame is filtered to show only
 rows with non-numeric result values. Default is flaggedonly = FALSE.
 }
 \examples{
-HandleSpecialChars_ResultMeasureValue <-
+HandleSpecialChars_ResultMeasureValue3 <-
   TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
 unique(HandleSpecialChars_ResultMeasureValue$
   TADA.ResultMeasureValueDataTypes.Flag)

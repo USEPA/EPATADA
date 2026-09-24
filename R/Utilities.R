@@ -653,7 +653,7 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #' @export
 #'
 #' @examples
-#' HandleSpecialChars_ResultMeasureValue <-
+#' HandleSpecialChars_ResultMeasureValue3 <-
 #'   TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
 #' unique(HandleSpecialChars_ResultMeasureValue$
 #'   TADA.ResultMeasureValueDataTypes.Flag)
@@ -723,11 +723,13 @@ TADA_ConvertSpecialChars <- function(
         chars.data$ResultMeasure.MeasureUnitCode
       )
 
-      # TADA.ResultMeasure.MeasureUnitCode to uppercase
-      chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(
-        chars.data$TADA.ResultMeasure.MeasureUnitCode
-      )
-    }
+      if (!"TADA.ResultMeasure.MeasureUnitCode" %in% names(chars.data)) {
+        # TADA.ResultMeasure.MeasureUnitCode to uppercase
+        chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(
+          chars.data$TADA.ResultMeasure.MeasureUnitCode
+        )
+      }
+    } 
 
     # If column is already numeric, just discern between NA and numeric
     if (is.numeric(chars.data$orig)) {
