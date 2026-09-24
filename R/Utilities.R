@@ -683,12 +683,12 @@ TADA_ConvertSpecialChars <- function(
 
   # Stop if any TADA. prefixed columns already exist
   if (paste0("TADA.", col) %in% names(.data)) {
-    stop(
-      paste0(
-        "Column TADA.", col, " already exists.",
-        " Please remove or rename these columns before running TADA_ConvertSpecialChars()."
-        )
-      )
+    stop(paste0(
+      "Column TADA.",
+      col,
+      " already exists.",
+      " Please remove or rename these columns before running TADA_ConvertSpecialChars()."
+    ))
   }
 
   if (!col %in% names(.data)) {
@@ -739,7 +739,7 @@ TADA_ConvertSpecialChars <- function(
           chars.data$TADA.ResultMeasure.MeasureUnitCode
         )
       }
-    } 
+    }
 
     # If column is already numeric, just discern between NA and numeric
     if (is.numeric(chars.data$orig)) {
@@ -906,17 +906,18 @@ TADA_ConvertSpecialChars <- function(
   # Determine the associated unit column, if applicable
   unitcol <- dplyr::case_when(
     col == "ResultMeasureValue" ~ "TADA.ResultMeasure.MeasureUnitCode",
-    col == "DetectionQuantitationLimitMeasureValue" ~ "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    col ==
+      "DetectionQuantitationLimitMeasureValue" ~ "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
     col == "TADA.ResultMeasureValue" ~ "TADA.ResultMeasure.MeasureUnitCode",
-    col == "TADA.DetectionQuantitationLimitMeasureValue" ~ "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    col ==
+      "TADA.DetectionQuantitationLimitMeasureValue" ~ "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
     TRUE ~ NA_character_
   )
-  
+
   # Flag result values that do not have an associated result unit
   if (!is.na(unitcol) && unitcol %in% names(clean.data)) {
     clean.data[[flagcol]] <- ifelse(
-      !is.na(clean.data[[numcol]]) &
-        trimws(clean.data[[unitcol]]) == "NONE",
+      !is.na(clean.data[[numcol]]) & trimws(clean.data[[unitcol]]) == "NONE",
       "No unit associated with result value",
       clean.data[[flagcol]]
     )
@@ -935,7 +936,7 @@ TADA_ConvertSpecialChars <- function(
               "Coerced to NA"
             )
         )
-      
+
       # Remove records with missing result units when cleaning result values
       if (!is.na(unitcol) && unitcol %in% names(clean.data)) {
         clean.data <- clean.data |>
@@ -944,7 +945,7 @@ TADA_ConvertSpecialChars <- function(
             trimws(.data[[unitcol]]) != ""
           )
       }
-      
+
       return(clean.data)
     }
 
