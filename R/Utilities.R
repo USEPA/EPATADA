@@ -653,7 +653,7 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #' @export
 #'
 #' @examples
-#' HandleSpecialChars_ResultMeasureValue3 <-
+#' HandleSpecialChars_ResultMeasureValue <-
 #'   TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
 #' unique(HandleSpecialChars_ResultMeasureValue$
 #'   TADA.ResultMeasureValueDataTypes.Flag)
@@ -679,6 +679,16 @@ TADA_ConvertSpecialChars <- function(
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
+  }
+
+  # Stop if any TADA. prefixed columns already exist
+  if (paste0("TADA.", col) %in% names(.data)) {
+    stop(
+      paste0(
+        "Column TADA.", col, " already exists.",
+        " Please remove or rename these columns before running TADA_ConvertSpecialChars()."
+        )
+      )
   }
 
   if (!col %in% names(.data)) {
@@ -893,15 +903,20 @@ TADA_ConvertSpecialChars <- function(
     clean.data <- TADA_OrderCols(clean.data)
   }
 
+  # Determine the associated unit column, if applicable
+  unitcol <- dplyr::case_when(
+    col == "ResultMeasureValue" ~ "TADA.ResultMeasure.MeasureUnitCode",
+    col == "DetectionQuantitationLimitMeasureValue" ~ "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    col == "TADA.ResultMeasureValue" ~ "TADA.ResultMeasure.MeasureUnitCode",
+    col == "TADA.DetectionQuantitationLimitMeasureValue" ~ "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    TRUE ~ NA_character_
+  )
+  
   # Flag result values that do not have an associated result unit
-  if (
-    col %in%
-      c("ResultMeasureValue", "TADA.ResultMeasureValue") &&
-      "TADA.ResultMeasure.MeasureUnitCode" %in% names(clean.data)
-  ) {
+  if (!is.na(unitcol) && unitcol %in% names(clean.data)) {
     clean.data[[flagcol]] <- ifelse(
-      is.na(clean.data$TADA.ResultMeasure.MeasureUnitCode) |
-        trimws(clean.data$TADA.ResultMeasure.MeasureUnitCode) == "",
+      !is.na(clean.data[[numcol]]) &
+        trimws(clean.data[[unitcol]]) == "NONE",
       "No unit associated with result value",
       clean.data[[flagcol]]
     )
@@ -920,21 +935,16 @@ TADA_ConvertSpecialChars <- function(
               "Coerced to NA"
             )
         )
-
+      
       # Remove records with missing result units when cleaning result values
-      if (
-        col %in%
-          c("ResultMeasureValue", "TADA.ResultMeasureValue") &&
-          "TADA.ResultMeasure.MeasureUnitCode" %in% names(clean.data)
-      ) {
+      if (!is.na(unitcol) && unitcol %in% names(clean.data)) {
         clean.data <- clean.data |>
           dplyr::filter(
-            !is.na(TADA.ResultMeasure.MeasureUnitCode),
-            # trimws incorporates " " into this as well as ""
-            trimws(TADA.ResultMeasure.MeasureUnitCode) != ""
+            !is.na(.data[[unitcol]]),
+            trimws(.data[[unitcol]]) != ""
           )
       }
-
+      
       return(clean.data)
     }
 
