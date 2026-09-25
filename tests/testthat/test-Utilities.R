@@ -16,10 +16,10 @@ test_that("Column names do not contain the pattern 'TADA.TADA.'", {
     ),
     error = function(e) Data_R5_TADAPackageDemo
   )
-  
+
   # Create a logical vector indicating which columns contain the pattern
   pattern_found <- grepl("TADA.TADA.", colnames(test_TADA.TADA.))
-  
+
   # Test should pass if none of the columns contain the pattern
   expect_false(
     any(pattern_found),
@@ -35,9 +35,9 @@ test_that("Column names do not contain the pattern 'TADA.TADA.'", {
     ),
     error = function(e) Data_R5_TADAPackageDemo
   )
-  
+
   pattern_found <- grepl("TADA.TADA.", colnames(test_TADA.TADA.))
-  
+
   expect_false(
     any(pattern_found),
     info = "Some column names contain the pattern 'TADA.TADA.'"
