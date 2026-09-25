@@ -13,6 +13,7 @@ test_that("Column names do not contain the pattern 'TADA.TADA.'", {
     Data_Nutrients_UT,
     "TADA.DetectionQuantitationLimitMeasure.MeasureValue"
   )
+
   # Create a logical vector indicating which columns contain the pattern
   pattern_found <- grepl("TADA.TADA.", colnames(test_TADA.TADA.))
 
@@ -28,14 +29,34 @@ test_that("Column names do not contain the pattern 'TADA.TADA.'", {
     Data_Nutrients_UT,
     "TADA.ResultMeasureValue"
   )
-  # Create a logical vector indicating which columns contain the pattern
+
   pattern_found <- grepl("TADA.TADA.", colnames(test_TADA.TADA.))
 
-  # Test should pass if none of the columns contain the pattern
   expect_false(
     any(pattern_found),
     info = "Some column names contain the pattern 'TADA.TADA.'"
   )
+})
+
+test_that("TADA_ConvertSpecialChars removes missing result units when clean is TRUE", {
+  testdat <- TADA_RandomTestingData()
+
+  # Ensure the test includes both NA and blank result units
+  testdat$TADA.ResultMeasure.MeasureUnitCode[1] <- NA_character_
+  testdat$TADA.ResultMeasure.MeasureUnitCode[2] <- ""
+
+  result <- TADA_ConvertSpecialChars(
+    testdat,
+    col = "TADA.ResultMeasureValue",
+    clean = TRUE
+  )
+
+  expect_true(is.numeric(result$TADA.ResultMeasureValue))
+  expect_false(any(is.na(result$TADA.ResultMeasureValue)))
+
+  expect_false(any(is.na(result$TADA.ResultMeasure.MeasureUnitCode)))
+
+  expect_false(any(result$TADA.ResultMeasure.MeasureUnitCode == ""))
 })
 
 test_that("Column names do not contain the pattern 'TADA.TADA.'", {
@@ -50,6 +71,109 @@ test_that("Column names do not contain the pattern 'TADA.TADA.'", {
   )
 })
 
+test_that("TADA_ConvertSpecialChars removes rows with missing result units when clean = TRUE", {
+  testdat <- Data_R5_TADAPackageDemo[1:4, ]
+
+  testdat$ResultMeasureValue <- c("1.2", "2.3", "3.4", "4.5")
+  testdat$ResultMeasure.MeasureUnitCode <- c("mg/L", NA_character_, "", "ug/L")
+
+  result <- TADA_ConvertSpecialChars(
+    testdat,
+    col = "ResultMeasureValue",
+    clean = TRUE
+  ) |>
+    dplyr::arrange(ResultMeasureValue)
+
+  # Rows with NA or blank result units should be removed
+  expect_equal(nrow(result), 2)
+
+  # Confirm that the correct converted values remain
+  expect_equal(result$TADA.ResultMeasureValue, c(1.2, 4.5))
+
+  expect_equal(result$TADA.ResultMeasure.MeasureUnitCode, c("MG/L", "UG/L"))
+
+  # Confirm the output columns have the expected types and values
+  expect_true(is.numeric(result$TADA.ResultMeasureValue))
+  expect_false(any(is.na(result$TADA.ResultMeasureValue)))
+
+  expect_false(any(is.na(result$TADA.ResultMeasure.MeasureUnitCode)))
+
+  expect_false(any(result$TADA.ResultMeasure.MeasureUnitCode == ""))
+})
+
+test_that("TADA_ConvertSpecialChars flags rows with missing result units when clean = FALSE", {
+  testdat <- Data_R5_TADAPackageDemo[1:5, ]
+
+  testdat$ResultMeasureValue <- c("1.2", "2.3", "3.4", "4.5", "5.6")
+  testdat$ResultMeasure.MeasureUnitCode <- c(
+    "mg/L",
+    NA_character_,
+    "",
+    "   ",
+    "ug/L"
+  )
+
+  result <- TADA_ConvertSpecialChars(
+    testdat,
+    col = "ResultMeasureValue",
+    clean = FALSE
+  ) |>
+    dplyr::arrange(ResultMeasureValue)
+
+  # No rows should be removed
+  expect_equal(nrow(result), 5)
+
+  # Confirm all result values are converted and retained
+  expect_equal(result$TADA.ResultMeasureValue, c(1.2, 2.3, 3.4, 4.5, 5.6))
+
+  # Confirm missing, blank, and whitespace-only units receive the new flag
+  expect_equal(
+    result$TADA.ResultMeasureValueDataTypes.Flag,
+    c(
+      "Numeric",
+      "No unit associated with measure value",
+      "No unit associated with measure value",
+      "No unit associated with measure value",
+      "Numeric"
+    )
+  )
+
+  # Confirm result values remain numeric
+  expect_true(is.numeric(result$TADA.ResultMeasureValue))
+  expect_false(any(is.na(result$TADA.ResultMeasureValue)))
+})
+
+test_that("TADA_ConvertSpecialChars returns missing-unit rows when flaggedonly = TRUE", {
+  testdat <- Data_R5_TADAPackageDemo[1:5, ]
+
+  testdat$ResultMeasureValue <- c("1.2", "2.3", "3.4", "4.5", "5.6")
+  testdat$ResultMeasure.MeasureUnitCode <- c(
+    "mg/L",
+    NA_character_,
+    "",
+    "   ",
+    "ug/L"
+  )
+
+  result <- TADA_ConvertSpecialChars(
+    testdat,
+    col = "ResultMeasureValue",
+    flaggedonly = TRUE
+  ) |>
+    dplyr::arrange(ResultMeasureValue)
+
+  # Only rows with missing, blank, or whitespace-only units should remain
+  expect_equal(nrow(result), 3)
+
+  # Confirm the expected result values are returned
+  expect_equal(result$TADA.ResultMeasureValue, c(2.3, 3.4, 4.5))
+
+  # Confirm all returned rows have the missing-unit flag
+  expect_true(all(
+    result$TADA.ResultMeasureValueDataTypes.Flag ==
+      "No unit associated with measure value"
+  ))
+})
 
 test_that("Only numeric data remains after running TADA_ConvertSpecialChars clean = TRUE", {
   testdat <- TADA_RandomTestingData(
@@ -73,6 +197,7 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
     unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in%
       c(
         "Numeric",
+        "No unit associated with measure value",
         "Result Value/Unit Estimated from Detection Limit",
         "Less Than",
         "Percentage",
@@ -187,6 +312,7 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
     unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in%
       c(
         "Numeric",
+        "No unit associated with measure value",
         "Result Value/Unit Estimated from Detection Limit",
         "Less Than",
         "Percentage",
@@ -198,6 +324,29 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
         "Approximate Value"
       )
   ))
+})
+
+test_that("TADA_ConvertSpecialChars errors when TADA.ResultMeasureValue already exists and col = ResultMeasureValue", {
+  testdat <- TADA_RandomTestingData(
+    number_of_days = 1,
+    choose_random_state = TRUE,
+    autoclean = TRUE
+  )
+
+  # Check if the required data frame is empty or null
+  if (is.null(testdat) || nrow(testdat) == 0) {
+    skip("Skipping test because testdat is empty or null")
+  }
+
+  # Add a pre-existing TADA.ResultMeasureValue column
+  testdat$TADA.ResultMeasureValue <- testdat$ResultMeasureValue
+
+  # Expect an error because the output TADA.ResultMeasureValue would already exist
+  expect_error(
+    TADA_ConvertSpecialChars(testdat, col = "ResultMeasureValue", clean = TRUE),
+    regexp = "already exists",
+    info = "Function should error when TADA.ResultMeasureValue already exists and col = ResultMeasureValue."
+  )
 })
 
 # test_that("pH harmonization works as expected throughout workflow", {
@@ -286,23 +435,6 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
     skip("Skipping test because testdat is empty or null")
   }
 
-  # expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in%
-  #                   c("Numeric",
-  #                     "Result Value/Unit Estimated from Detection Limit",
-  #                     "Less Than",
-  #                     "Percentage",
-  #                     "Approximate Value",
-  #                     "Greater Than",
-  #                     "Comma-Separated Numeric",
-  #                     "Numeric Range - Averaged",
-  #                     "Percentage Range - Averaged",
-  #                     "Approximate Value",
-  #                     "Result Value/Unit Copied from Detection Limit",
-  #                     "NA - Not Available",
-  #                     "Text",
-  #                     "Non-ASCII Character(s)",
-  #                     "Result Value/Unit Cannot Be Estimated From Detection Limit")))
-
   # Apply Convert Special Chars function
   testdat <- TADA_ConvertSpecialChars(
     testdat,
@@ -321,6 +453,7 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
     unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in%
       c(
         "Numeric",
+        "No unit associated with measure value",
         "Result Value/Unit Estimated from Detection Limit",
         "Less Than",
         "Percentage",
@@ -506,20 +639,26 @@ test_that("does not change non-deprecated names except for uppercasing", {
 # tests for TADA_SummarizeResultFrequency
 testthat::test_that("TADA_SummarizeResultFrequency errors on invalid daily_agg", {
   expect_error(
-    TADA_SummarizeResultFrequency(Data_Nutrients_UT, daily_agg = "bad_value"),
+    TADA_SummarizeResultFrequency(
+      Data_R5_TADAPackageDemo,
+      daily_agg = "bad_value"
+    ),
     "daily_agg"
   )
 })
 
 testthat::test_that("TADA_SummarizeResultFrequency errors on invalid time_period", {
   expect_error(
-    TADA_SummarizeResultFrequency(Data_Nutrients_UT, time_period = "decade"),
+    TADA_SummarizeResultFrequency(
+      Data_R5_TADAPackageDemo,
+      time_period = "decade"
+    ),
     "time_period"
   )
 })
 
 testthat::test_that("TADA_SummarizeResultFrequency errors when ActivityStartDate is missing", {
-  bad_data <- Data_Nutrients_UT |> dplyr::select(-ActivityStartDate)
+  bad_data <- Data_R5_TADAPackageDemo |> dplyr::select(-ActivityStartDate)
 
   expect_error(TADA_SummarizeResultFrequency(bad_data), "ActivityStartDate")
 })
