@@ -10,9 +10,9 @@ test_that("TADA_AutoClean function does not grow dataset", {
 
 test_that("Column names do not contain the pattern 'TADA.TADA.'", {
   test_TADA.TADA. <- TADA_ConvertSpecialChars(
-      Data_Nutrients_UT,
-      "TADA.DetectionQuantitationLimitMeasure.MeasureValue"
-    )
+    Data_Nutrients_UT,
+    "TADA.DetectionQuantitationLimitMeasure.MeasureValue"
+  )
 
   # Create a logical vector indicating which columns contain the pattern
   pattern_found <- grepl("TADA.TADA.", colnames(test_TADA.TADA.))
@@ -26,9 +26,9 @@ test_that("Column names do not contain the pattern 'TADA.TADA.'", {
 
 test_that("Column names do not contain the pattern 'TADA.TADA.'", {
   test_TADA.TADA. <- TADA_ConvertSpecialChars(
-      Data_Nutrients_UT,
-      "TADA.ResultMeasureValue"
-    )
+    Data_Nutrients_UT,
+    "TADA.ResultMeasureValue"
+  )
 
   pattern_found <- grepl("TADA.TADA.", colnames(test_TADA.TADA.))
 
