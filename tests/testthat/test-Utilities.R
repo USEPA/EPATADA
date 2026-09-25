@@ -338,9 +338,6 @@ test_that("TADA_ConvertSpecialChars errors when TADA.ResultMeasureValue already 
     skip("Skipping test because testdat is empty or null")
   }
   
-  # Add a pre-existing TADA.ResultMeasureValue column
-  testdat$TADA.ResultMeasureValue <- testdat$ResultMeasureValue
-  
   # Expect an error because the output TADA.ResultMeasureValue would already exist
   expect_error(
     TADA_ConvertSpecialChars(
@@ -350,6 +347,30 @@ test_that("TADA_ConvertSpecialChars errors when TADA.ResultMeasureValue already 
     ),
     regexp = "already exists",
     info = "Function should error when TADA.ResultMeasureValue already exists and col = ResultMeasureValue."
+  )
+})
+
+test_that("TADA_ConvertSpecialChars errors when TADA.DetectionQuantitationLimitMeasure.MeasureValue already exists and col = DetectionQuantitationLimitMeasure.MeasureValue", {
+  testdat <- TADA_RandomTestingData(
+    number_of_days = 1,
+    choose_random_state = TRUE,
+    autoclean = TRUE
+  )
+  
+  # Check if the required data frame is empty or null
+  if (is.null(testdat) || nrow(testdat) == 0) {
+    skip("Skipping test because testdat is empty or null")
+  }
+  
+  # Expect an error because the output TADA.ResultMeasureValue would already exist
+  expect_error(
+    TADA_ConvertSpecialChars(
+      testdat,
+      col = "DetectionQuantitationLimitMeasure.MeasureValue",
+      clean = TRUE
+    ),
+    regexp = "already exists",
+    info = "Function should error when TADA.ResultMeasureValue already exists and col = DetectionQuantitationLimitMeasure.MeasureValue."
   )
 })
 
