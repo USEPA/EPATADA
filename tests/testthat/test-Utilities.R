@@ -476,6 +476,7 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
     unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in%
       c(
         "Numeric",
+        "No unit associated with measure value",
         "Result Value/Unit Estimated from Detection Limit",
         "Less Than",
         "Percentage",
