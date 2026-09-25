@@ -9,13 +9,10 @@ test_that("TADA_AutoClean function does not grow dataset", {
 })
 
 test_that("Column names do not contain the pattern 'TADA.TADA.'", {
-  test_TADA.TADA. <- tryCatch(
-    TADA_ConvertSpecialChars(
-      Data_R5_TADAPackageDemo,
+  test_TADA.TADA. <- TADA_ConvertSpecialChars(
+      Data_Nutrients_UT,
       "TADA.DetectionQuantitationLimitMeasure.MeasureValue"
-    ),
-    error = function(e) Data_R5_TADAPackageDemo
-  )
+    )
 
   # Create a logical vector indicating which columns contain the pattern
   pattern_found <- grepl("TADA.TADA.", colnames(test_TADA.TADA.))
@@ -28,13 +25,10 @@ test_that("Column names do not contain the pattern 'TADA.TADA.'", {
 })
 
 test_that("Column names do not contain the pattern 'TADA.TADA.'", {
-  test_TADA.TADA. <- tryCatch(
-    TADA_ConvertSpecialChars(
-      Data_R5_TADAPackageDemo,
+  test_TADA.TADA. <- TADA_ConvertSpecialChars(
+      Data_Nutrients_UT,
       "TADA.ResultMeasureValue"
-    ),
-    error = function(e) Data_R5_TADAPackageDemo
-  )
+    )
 
   pattern_found <- grepl("TADA.TADA.", colnames(test_TADA.TADA.))
 
@@ -440,23 +434,6 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
   if (is.null(testdat) || nrow(testdat) == 0) {
     skip("Skipping test because testdat is empty or null")
   }
-
-  # expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in%
-  #                   c("Numeric",
-  #                     "Result Value/Unit Estimated from Detection Limit",
-  #                     "Less Than",
-  #                     "Percentage",
-  #                     "Approximate Value",
-  #                     "Greater Than",
-  #                     "Comma-Separated Numeric",
-  #                     "Numeric Range - Averaged",
-  #                     "Percentage Range - Averaged",
-  #                     "Approximate Value",
-  #                     "Result Value/Unit Copied from Detection Limit",
-  #                     "NA - Not Available",
-  #                     "Text",
-  #                     "Non-ASCII Character(s)",
-  #                     "Result Value/Unit Cannot Be Estimated From Detection Limit")))
 
   # Apply Convert Special Chars function
   testdat <- TADA_ConvertSpecialChars(
