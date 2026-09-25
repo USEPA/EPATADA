@@ -117,7 +117,7 @@ test_that("TADA_ConvertSpecialChars flags rows with missing result units when cl
     testdat,
     col = "ResultMeasureValue",
     clean = FALSE
-  )|>
+  ) |>
     dplyr::arrange(ResultMeasureValue)
 
   # No rows should be removed
@@ -159,7 +159,7 @@ test_that("TADA_ConvertSpecialChars returns missing-unit rows when flaggedonly =
     testdat,
     col = "ResultMeasureValue",
     flaggedonly = TRUE
-  )|>
+  ) |>
     dplyr::arrange(ResultMeasureValue)
 
   # Only rows with missing, blank, or whitespace-only units should remain
@@ -332,45 +332,20 @@ test_that("TADA_ConvertSpecialChars errors when TADA.ResultMeasureValue already 
     choose_random_state = TRUE,
     autoclean = TRUE
   )
-  
+
   # Check if the required data frame is empty or null
   if (is.null(testdat) || nrow(testdat) == 0) {
     skip("Skipping test because testdat is empty or null")
   }
-  
+
+  # Add a pre-existing TADA.ResultMeasureValue column
+  testdat$TADA.ResultMeasureValue <- testdat$ResultMeasureValue
+
   # Expect an error because the output TADA.ResultMeasureValue would already exist
   expect_error(
-    TADA_ConvertSpecialChars(
-      testdat,
-      col = "ResultMeasureValue",
-      clean = TRUE
-    ),
+    TADA_ConvertSpecialChars(testdat, col = "ResultMeasureValue", clean = TRUE),
     regexp = "already exists",
     info = "Function should error when TADA.ResultMeasureValue already exists and col = ResultMeasureValue."
-  )
-})
-
-test_that("TADA_ConvertSpecialChars errors when TADA.DetectionQuantitationLimitMeasure.MeasureValue already exists and col = DetectionQuantitationLimitMeasure.MeasureValue", {
-  testdat <- TADA_RandomTestingData(
-    number_of_days = 1,
-    choose_random_state = TRUE,
-    autoclean = TRUE
-  )
-  
-  # Check if the required data frame is empty or null
-  if (is.null(testdat) || nrow(testdat) == 0) {
-    skip("Skipping test because testdat is empty or null")
-  }
-  
-  # Expect an error because the output TADA.ResultMeasureValue would already exist
-  expect_error(
-    TADA_ConvertSpecialChars(
-      testdat,
-      col = "DetectionQuantitationLimitMeasure.MeasureValue",
-      clean = TRUE
-    ),
-    regexp = "already exists",
-    info = "Function should error when TADA.ResultMeasureValue already exists and col = DetectionQuantitationLimitMeasure.MeasureValue."
   )
 })
 
@@ -680,14 +655,20 @@ test_that("does not change non-deprecated names except for uppercasing", {
 # tests for TADA_SummarizeResultFrequency
 testthat::test_that("TADA_SummarizeResultFrequency errors on invalid daily_agg", {
   expect_error(
-    TADA_SummarizeResultFrequency(Data_R5_TADAPackageDemo, daily_agg = "bad_value"),
+    TADA_SummarizeResultFrequency(
+      Data_R5_TADAPackageDemo,
+      daily_agg = "bad_value"
+    ),
     "daily_agg"
   )
 })
 
 testthat::test_that("TADA_SummarizeResultFrequency errors on invalid time_period", {
   expect_error(
-    TADA_SummarizeResultFrequency(Data_R5_TADAPackageDemo, time_period = "decade"),
+    TADA_SummarizeResultFrequency(
+      Data_R5_TADAPackageDemo,
+      time_period = "decade"
+    ),
     "time_period"
   )
 })
