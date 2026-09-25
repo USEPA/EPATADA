@@ -733,12 +733,9 @@ TADA_ConvertSpecialChars <- function(
         chars.data$ResultMeasure.MeasureUnitCode
       )
 
-      if (!"TADA.ResultMeasure.MeasureUnitCode" %in% names(chars.data)) {
-        # TADA.ResultMeasure.MeasureUnitCode to uppercase
-        chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(
-          chars.data$TADA.ResultMeasure.MeasureUnitCode
-        )
-      }
+      chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(
+        chars.data$TADA.ResultMeasure.MeasureUnitCode
+      )
     }
 
     # If column is already numeric, just discern between NA and numeric
@@ -917,8 +914,13 @@ TADA_ConvertSpecialChars <- function(
   # Flag result values that do not have an associated result unit
   if (!is.na(unitcol) && unitcol %in% names(clean.data)) {
     clean.data[[flagcol]] <- ifelse(
-      !is.na(clean.data[[numcol]]) & trimws(clean.data[[unitcol]]) == "NONE",
-      "No unit associated with result value",
+      !is.na(clean.data[[numcol]]) &
+        (
+          is.na(clean.data[[unitcol]]) |
+            trimws(clean.data[[unitcol]]) == "" |
+            toupper(trimws(clean.data[[unitcol]])) == "NONE"
+        ),
+      "No unit associated with measure value",
       clean.data[[flagcol]]
     )
   }
@@ -963,10 +965,11 @@ TADA_ConvertSpecialChars <- function(
             "Text",
             "Non-ASCII Character(s)",
             "Result Value/Unit Cannot Be Estimated From Detection Limit",
-            "No unit associated with result value",
+            "No unit associated with measure value",
             "Coerced to NA"
           )
       )
+    return(clean.data)
   }
 }
 

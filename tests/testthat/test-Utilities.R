@@ -10,7 +10,7 @@ test_that("TADA_AutoClean function does not grow dataset", {
 
 test_that("Column names do not contain the pattern 'TADA.TADA.'", {
   test_TADA.TADA. <- TADA_ConvertSpecialChars(
-    Data_Nutrients_UT,
+    Data_R5_TADAPackageDemo,
     "TADA.DetectionQuantitationLimitMeasure.MeasureValue"
   )
   # Create a logical vector indicating which columns contain the pattern
@@ -25,7 +25,7 @@ test_that("Column names do not contain the pattern 'TADA.TADA.'", {
 
 test_that("Column names do not contain the pattern 'TADA.TADA.'", {
   test_TADA.TADA. <- TADA_ConvertSpecialChars(
-    Data_Nutrients_UT,
+    Data_R5_TADAPackageDemo,
     "TADA.ResultMeasureValue"
   )
   # Create a logical vector indicating which columns contain the pattern
@@ -72,7 +72,7 @@ test_that("Column names do not contain the pattern 'TADA.TADA.'", {
 })
 
 test_that("TADA_ConvertSpecialChars removes rows with missing result units when clean = TRUE", {
-  testdat <- Data_Nutrients_UT[1:4, ]
+  testdat <- Data_R5_TADAPackageDemo[1:4, ]
 
   testdat$ResultMeasureValue <- c("1.2", "2.3", "3.4", "4.5")
   testdat$ResultMeasure.MeasureUnitCode <- c("mg/L", NA_character_, "", "ug/L")
@@ -81,7 +81,8 @@ test_that("TADA_ConvertSpecialChars removes rows with missing result units when 
     testdat,
     col = "ResultMeasureValue",
     clean = TRUE
-  )
+  ) |>
+    dplyr::arrange(ResultMeasureValue)
 
   # Rows with NA or blank result units should be removed
   expect_equal(nrow(result), 2)
@@ -101,7 +102,7 @@ test_that("TADA_ConvertSpecialChars removes rows with missing result units when 
 })
 
 test_that("TADA_ConvertSpecialChars flags rows with missing result units when clean = FALSE", {
-  testdat <- Data_Nutrients_UT[1:5, ]
+  testdat <- Data_R5_TADAPackageDemo[1:5, ]
 
   testdat$ResultMeasureValue <- c("1.2", "2.3", "3.4", "4.5", "5.6")
   testdat$ResultMeasure.MeasureUnitCode <- c(
@@ -116,7 +117,8 @@ test_that("TADA_ConvertSpecialChars flags rows with missing result units when cl
     testdat,
     col = "ResultMeasureValue",
     clean = FALSE
-  )
+  )|>
+    dplyr::arrange(ResultMeasureValue)
 
   # No rows should be removed
   expect_equal(nrow(result), 5)
@@ -129,9 +131,9 @@ test_that("TADA_ConvertSpecialChars flags rows with missing result units when cl
     result$TADA.ResultMeasureValueDataTypes.Flag,
     c(
       "Numeric",
-      "No unit associated with result value",
-      "No unit associated with result value",
-      "No unit associated with result value",
+      "No unit associated with measure value",
+      "No unit associated with measure value",
+      "No unit associated with measure value",
       "Numeric"
     )
   )
@@ -142,7 +144,7 @@ test_that("TADA_ConvertSpecialChars flags rows with missing result units when cl
 })
 
 test_that("TADA_ConvertSpecialChars returns missing-unit rows when flaggedonly = TRUE", {
-  testdat <- Data_Nutrients_UT[1:5, ]
+  testdat <- Data_R5_TADAPackageDemo[1:5, ]
 
   testdat$ResultMeasureValue <- c("1.2", "2.3", "3.4", "4.5", "5.6")
   testdat$ResultMeasure.MeasureUnitCode <- c(
@@ -157,7 +159,8 @@ test_that("TADA_ConvertSpecialChars returns missing-unit rows when flaggedonly =
     testdat,
     col = "ResultMeasureValue",
     flaggedonly = TRUE
-  )
+  )|>
+    dplyr::arrange(ResultMeasureValue)
 
   # Only rows with missing, blank, or whitespace-only units should remain
   expect_equal(nrow(result), 3)
@@ -168,7 +171,7 @@ test_that("TADA_ConvertSpecialChars returns missing-unit rows when flaggedonly =
   # Confirm all returned rows have the missing-unit flag
   expect_true(all(
     result$TADA.ResultMeasureValueDataTypes.Flag ==
-      "No unit associated with result value"
+      "No unit associated with measure value"
   ))
 })
 
@@ -194,6 +197,7 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
     unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in%
       c(
         "Numeric",
+        "No unit associated with measure value",
         "Result Value/Unit Estimated from Detection Limit",
         "Less Than",
         "Percentage",
@@ -308,6 +312,7 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
     unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in%
       c(
         "Numeric",
+        "No unit associated with measure value",
         "Result Value/Unit Estimated from Detection Limit",
         "Less Than",
         "Percentage",
@@ -319,6 +324,33 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
         "Approximate Value"
       )
   ))
+})
+
+test_that("TADA_ConvertSpecialChars errors when TADA.ResultMeasureValue already exists and col = ResultMeasureValue", {
+  testdat <- TADA_RandomTestingData(
+    number_of_days = 1,
+    choose_random_state = TRUE,
+    autoclean = TRUE
+  )
+  
+  # Check if the required data frame is empty or null
+  if (is.null(testdat) || nrow(testdat) == 0) {
+    skip("Skipping test because testdat is empty or null")
+  }
+  
+  # Add a pre-existing TADA.ResultMeasureValue column
+  testdat$TADA.ResultMeasureValue <- testdat$ResultMeasureValue
+  
+  # Expect an error because the output TADA.ResultMeasureValue would already exist
+  expect_error(
+    TADA_ConvertSpecialChars(
+      testdat,
+      col = "ResultMeasureValue",
+      clean = TRUE
+    ),
+    regexp = "already exists",
+    info = "Function should error when TADA.ResultMeasureValue already exists and col = ResultMeasureValue."
+  )
 })
 
 # test_that("pH harmonization works as expected throughout workflow", {
@@ -627,20 +659,20 @@ test_that("does not change non-deprecated names except for uppercasing", {
 # tests for TADA_SummarizeResultFrequency
 testthat::test_that("TADA_SummarizeResultFrequency errors on invalid daily_agg", {
   expect_error(
-    TADA_SummarizeResultFrequency(Data_Nutrients_UT, daily_agg = "bad_value"),
+    TADA_SummarizeResultFrequency(Data_R5_TADAPackageDemo, daily_agg = "bad_value"),
     "daily_agg"
   )
 })
 
 testthat::test_that("TADA_SummarizeResultFrequency errors on invalid time_period", {
   expect_error(
-    TADA_SummarizeResultFrequency(Data_Nutrients_UT, time_period = "decade"),
+    TADA_SummarizeResultFrequency(Data_R5_TADAPackageDemo, time_period = "decade"),
     "time_period"
   )
 })
 
 testthat::test_that("TADA_SummarizeResultFrequency errors when ActivityStartDate is missing", {
-  bad_data <- Data_Nutrients_UT |> dplyr::select(-ActivityStartDate)
+  bad_data <- Data_R5_TADAPackageDemo |> dplyr::select(-ActivityStartDate)
 
   expect_error(TADA_SummarizeResultFrequency(bad_data), "ActivityStartDate")
 })
@@ -784,7 +816,7 @@ testthat::test_that("TADA_SummarizeResultFrequency factors in depth for result f
 })
 
 testthat::test_that("TADA_SummarizeResultFrequency returns grouped output without duplicates", {
-  testdat <- Data_Nutrients_UT |>
+  testdat <- Data_R5_TADAPackageDemo |>
     dplyr::filter(
       TADA.MonitoringLocationIdentifier %in%
         c(
@@ -831,7 +863,7 @@ testthat::test_that("TADA_SummarizeResultFrequency daily aggregation runs with t
 })
 
 testthat::test_that("TADA_SummarizeResultFrequency errors when input lacks required grouping columns", {
-  bad_data <- Data_Nutrients_UT |>
+  bad_data <- Data_R5_TADAPackageDemo |>
     dplyr::select(-TADA.MonitoringLocationIdentifier)
 
   expect_error(
