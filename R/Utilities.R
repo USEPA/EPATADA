@@ -915,11 +915,9 @@ TADA_ConvertSpecialChars <- function(
   if (!is.na(unitcol) && unitcol %in% names(clean.data)) {
     clean.data[[flagcol]] <- ifelse(
       !is.na(clean.data[[numcol]]) &
-        (
-          is.na(clean.data[[unitcol]]) |
-            trimws(clean.data[[unitcol]]) == "" |
-            toupper(trimws(clean.data[[unitcol]])) == "NONE"
-        ),
+        (is.na(clean.data[[unitcol]]) |
+          trimws(clean.data[[unitcol]]) == "" |
+          toupper(trimws(clean.data[[unitcol]])) == "NONE"),
       "No unit associated with measure value",
       clean.data[[flagcol]]
     )
