@@ -48,7 +48,7 @@
 #' # join the table by best match from what is filled out from the criteria table
 #' MT_data_criteria <- TADA_Analysis_Join_WQP_Criteria(MT_data, criteria_MT)
 #'
-#' # create the MLSummaryRef (ML only - no AU or other spatial columns)
+#' # create the MLSummaryRef
 #' params <- TADA_ParametersForAnalysis(
 #'   Data_MT_MissoulaCounty, org_id = "MTDEQ", auto_assign = "Org")
 #'
@@ -58,6 +58,8 @@
 #' mlsummary <- TADA_MLSummary(
 #'   Data_MT_MissoulaCounty,
 #'   org_id = "MTDEQ",
+#'   AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
+#'   AU_UsesRef = Data_MT_AU_UsesRef_Water,
 #'   usesRef = uses)
 #'
 #' # join the table by best match, along with the MLSummaryRef
@@ -123,65 +125,33 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   # Join MLSummaryRef first (if provided)
   # ------------------------------------------------------------
   if (!is.null(MLSummaryRef) && nrow(MLSummaryRef) > 0) {
-    needed <- c("MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier")
-    optional <- c("SaltFresh", "UniqueSpatialCriteria", "DepthCategory", "ATTAINS.WaterType")
-    
-    if (all(needed %in% names(.data)) && all(needed %in% names(MLSummaryRef))) {
-      
-      optional_present <- intersect(optional, names(MLSummaryRef))
-      optional_to_use <- optional_present[
-        vapply(MLSummaryRef[optional_present], function(x) any(!is.na(x)), logical(1))
-      ]
-      
-      join_cols <- c(needed, optional_to_use)
+    compare_keys <- intersect(
+      c(
+        "TADA.ComparableDataIdentifier",
+        "ATTAINS.ParameterName",
+        "ATTAINS.UseName",
+        "ATTAINS.AssessmentUnitIdentifier",
+        "ATTAINS.WaterType",
+        "MonitoringLocationIdentifier",
+        "SaltFresh",
+        "UniqueSpatialCriteria",
+        "DepthCategory"
+      ),
+      intersect(names(MLSummaryRef), names(.data))
+    )
       
       .data <- dplyr::left_join(
         .data,
         MLSummaryRef,
-        by = join_cols,
+        by = compare_keys,
         relationship = "many-to-many"
       )
-      
-      # identify mismatching rows in MLSummaryRef
-      wqp_not_in_mlsummaryref <- dplyr::anti_join(
-        MLSummaryRef,
-        .data,
-        by = join_cols
-      )
-      
-      if (nrow(wqp_not_in_mlsummaryref) > 0) {
-        mismatch_summary <- lapply(join_cols, function(col) {
-          vals <- unique(wqp_not_in_mlsummaryref[[col]])
-          vals <- vals[!is.na(vals)]
-          
-          if (length(vals) == 0) {
-            NULL
-          } else {
-            paste0(col, ": ", paste(vals, collapse = ", "))
-          }
-        })
-        
-        mismatch_summary <- unlist(mismatch_summary)
-        
-        warning(
-          paste0(
-            "Some rows in MLSummaryRef could not be joined to .data.\n\n",
-            "Please check these unmatched values in MLSummaryRef:\n",
-            paste0("- ", mismatch_summary, collapse = "\n"),
-            "\n\nMake sure the MonitoringLocationIdentifier and TADA.ComparableDataIdentifier ",
-            "match the values in .data."
-          ),
-          call. = FALSE
-        )
-      }
-      
     } else {
       warning(
         "MLSummaryRef could not be joined because required columns are missing.",
         call. = FALSE
       )
     }
-  }
   
   # ------------------------------------------------------------
   # Criteria join logic
