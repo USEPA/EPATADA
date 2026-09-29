@@ -63,7 +63,7 @@ Imports:
     plotly,
     tibble,
     rlang (>= 0.4.7),
-    nhdplusTools,
+    hydrogeofetch,
     arcgislayers,
     MESS,
     units,

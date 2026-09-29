@@ -212,7 +212,6 @@ NCTC
 NDs
 NHD
 NHDPlus
-NHDPlusTools
 NLCD
 NLDI
 NONEs
@@ -482,6 +481,7 @@ epa
 expertquery
 extdata
 fabec
+fallbacks
 fetchATTAINS
 fetchNHD
 fetchWaterType
@@ -511,6 +511,7 @@ helpdesk
 https
 huc
 hucs
+hydrogeofetch
 hydrographic
 hydrography
 hydrologic
@@ -529,7 +530,6 @@ mlt
 nd
 nhd
 nhdplus
-nhdplusTools
 nondetections
 nondetects
 nonstandardized

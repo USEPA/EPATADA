@@ -524,7 +524,6 @@ testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
   test_no_org_filter <- TADA_FindNearbySites(
     nearby_data,
     catchment = FALSE,
-    by_AU = FALSE,
     by_org = FALSE,
     dist_buffer = 100
   )
@@ -546,7 +545,6 @@ testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
   test_by_org <- TADA_FindNearbySites(
     nearby_data,
     catchment = FALSE,
-    by_AU = FALSE,
     by_org = TRUE,
     dist_buffer = 100
   )
@@ -568,7 +566,6 @@ testthat::test_that("TADA_FindNearbySites does not combine known sites from diff
   test_by_org <- TADA_FindNearbySites(
     nearby_data,
     catchment = FALSE,
-    by_AU = FALSE,
     by_org = TRUE,
     dist_buffer = 100
   )
