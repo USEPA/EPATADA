@@ -955,19 +955,6 @@ createTADABasemap <- function(.data) {
   ))
   bbox <- createBBox(.data, as_vector = TRUE)
 
-  btn <- leaflet::easyButton(
-    icon = "fa-arrows-alt",
-    title = "Reset view",
-    position = "topleft",
-    onClick = htmlwidgets::JS(sprintf(
-      "function(btn, map){ map.fitBounds([[%f,%f],[%f,%f]]); }",
-      bbox[2],
-      bbox[1],
-      bbox[4],
-      bbox[3]
-    ))
-  )
-
   leaflet::leaflet() |>
     leaflet::addTiles(
       urlTemplate = "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
@@ -996,6 +983,12 @@ createTADABasemap <- function(.data) {
 #' @return The original map with a reset button added.
 #'
 addMapReset <- function(map, bbox = NULL) {
+  if (is.null(bbox) || length(bbox) != 4) {
+    stop(
+      "bbox must be a numeric vector of length 4: c(xmin, ymin, xmax, ymax)."
+    )
+  }
+
   btn <- leaflet::easyButton(
     icon = "fa-arrows-alt",
     title = "Reset view",
@@ -1009,11 +1002,7 @@ addMapReset <- function(map, bbox = NULL) {
     ))
   )
 
-  map <- map |> leaflet::addEasyButton(btn)
-
-  rm(btn)
-
-  return(map)
+  leaflet::addEasyButton(map, btn)
 }
 
 #' createBBox
@@ -1644,71 +1633,6 @@ addLayerControl <- function(map = NULL, overlay_groups = NULL) {
     # return map with added layer control
     return(map)
   }
-}
-
-#' addFlaggedSitesMarkers
-#' Internal function to add flagged sites to map for review.
-#'
-#' @param .data A TADA data frame containing TADA.LatitudeMeasure and
-#' TADA.LongitudeMeasure for mapping.
-#'
-#' @param flag_type Character argument. Flag types are "lowres" and "outsideusa".
-#'
-#' @param map A leaflet map of TADA data to apply the symbology for flagged sites to.
-#'
-#' @return A TADA leaflet map with flagged site markers added.
-#'
-# add ATTAINS geometry to existing leaflet map
-addFlaggedSitesMarkers <- function(.data, map = NULL, flag_type = NULL) {
-  # add line for null map
-
-  # set markers based on flag type
-  # low resolution markers
-  if (flag_type == "lowres") {
-    flagIcon <- leaflet::makeAwesomeIcon(
-      icon = "circle",
-      library = "fa",
-      iconColor = "#ffffff",
-      markerColor = "green"
-    )
-  }
-
-  # outside usa markers
-  if (flag_type == "outsideusa") {
-    flagIcon <- leaflet::makeAwesomeIcon(
-      icon = "circle",
-      library = "fa",
-      iconColor = "#ffffff",
-      markerColor = "darkblue"
-    )
-  }
-
-  # create map with selected markers
-  map <- map |>
-    leaflet::addAwesomeMarkers(
-      ~TADA.LongitudeMeasure,
-      ~TADA.LatitudeMeasure,
-      icon = flagIcon,
-      popup = paste0(
-        "Site ID: ",
-        .data$TADA.MonitoringLocationIdentifier,
-        "<br> Site Name: ",
-        .data$TADA.MonitoringLocationName,
-        "<br> Organization Name: ",
-        .data$TADA.OrganizationFormalName,
-        "<br> Latitude: ",
-        .data$TADA.LatitudeMeasure,
-        "<br> Longitude: ",
-        .data$TADA.LongitudeMeasure
-      ),
-      data = .data
-    )
-
-  # remove intermediate objects
-  rm(flagIcon)
-
-  # return map
-  return(map)
 }
 
 #' findATTAINSMissingRawFeatures
