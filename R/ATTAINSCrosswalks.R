@@ -4147,6 +4147,47 @@ TADA_MLSummary <- function(
       )
     }
 
+    # ------------------------------------------------------------
+    # Final sanity check: keep only rows supported by .data
+    # ------------------------------------------------------------
+    compare_keys <- intersect(
+      c(
+        "MonitoringLocationIdentifier",
+        "TADA.ComparableDataIdentifier",
+        "ATTAINS.ParameterName",
+        "ATTAINS.UseName"
+      ),
+      intersect(names(MLSummaryRef), names(.data))
+    )
+    
+    if (length(compare_keys) > 0) {
+      MLSummaryRef <- TADA_CorrectColType(MLSummaryRef)
+      .data2 <- TADA_CorrectColType(.data)
+      
+      mismatched_rows <- dplyr::anti_join(
+        MLSummaryRef,
+        .data2,
+        by = compare_keys
+      )
+      
+      if (nrow(mismatched_rows) > 0) {
+        warning(
+          paste0(
+            "TADA_MLSummary: The final MLSummaryRef contains rows not found in .data. ",
+            "These rows will be removed.\n\n",
+            paste(capture.output(print(mismatched_rows)), collapse = "\n")
+          ),
+          call. = FALSE
+        )
+      }
+      
+      MLSummaryRef <- dplyr::semi_join(
+        MLSummaryRef,
+        .data2,
+        by = compare_keys
+      )
+    }
+    
     MLSummaryRef
   }
   # Only run if user wants to create an excel guided spreadsheet.

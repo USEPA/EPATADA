@@ -1362,14 +1362,6 @@ TADA_DefineCriteriaMethodology <- function(
     dplyr::any_of(desired_cols) # NOTE: 12/16/25 changed from dplyr::select to relocate. Allow additional columns from user supplied table.
   )
 
-  # validations - does criteria table inputs match the AUMLRef and AU_UsesRef if provided?
-  TADA_Analysis_Validate_Ref(
-    .data,
-    criteria = DefineCriteriaMethodology,
-    AUMLRef = AUMLRef,
-    AU_UsesRef = AU_UsesRef
-  )
-
   # Generates the excel function (HIGHLY Recommended for users to export)
   if (excel == TRUE) {
     # get downloads path
