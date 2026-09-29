@@ -133,6 +133,25 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     }
   }
 
+  # identify mismatching MonitoringLocationIdentifier and TADA.ComparableDataIdentifier and print message
+  wqp_not_in_mlsummaryref <- dplyr::anti_join(
+    MLSummaryRef,
+    .data,
+    by = needed
+  ) |> 
+    dplyr::select(needed) |>
+    dplyr::distinct()
+  
+  if (nrow(wqp_not_in_mlsummaryref) > 0) {
+    warning(
+      paste0(
+        "These rows in MLSummaryRef could not be joined to .data, please ensure you have included the appropriate Monitoring Location Identifier and TADA.ComparableDataIdentifier in your MLSummaryRef:\n",
+        paste(capture.output(print(wqp_not_in_mlsummaryref)), collapse = "\n")
+      ),
+      call. = FALSE
+    )
+  }
+  
   # ------------------------------------------------------------
   # Criteria join logic
   # ------------------------------------------------------------
@@ -290,6 +309,35 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   }
 
   wqp_criteria <- TADA_CorrectColType(wqp_criteria)
+
+  # identifies all mismatching criteria table that could not be matched to .data
+  do_anti_join <- function(crit, df, keys) {
+    crit <- TADA_CorrectColType(crit)
+    df <- TADA_CorrectColType(df)
+    
+    if (nrow(crit) == 0 || nrow(df) == 0) return(NULL)
+    if (!all(keys %in% names(crit)) || !all(keys %in% names(df))) return(NULL)
+    
+    dplyr::anti_join(crit, df, by = keys)
+  }
+
+  criteria_all_unmatched <- dplyr::bind_rows(
+    do_anti_join(criteria1, .data, id_col1),
+    do_anti_join(criteria2, .data, id_col2),
+    do_anti_join(criteria3, .data, id_col3),
+    do_anti_join(criteria4, .data, id_col4),
+    do_anti_join(criteria5, .data, id_col5)
+  )
+  
+  if (nrow(criteria_all_unmatched) > 0) {
+    warning(
+      paste0(
+        "These criteria key combinations could not be joined to .data:\n",
+        paste(capture.output(print(criteria_all_unmatched)), collapse = "\n")
+      ),
+      call. = FALSE
+    )
+  }
 
   cols <- spsUtil::quiet(names(TADA_DefineCriteriaMethodology()[[1]])[
     -seq_len(8)
@@ -464,7 +512,7 @@ TADA_Analysis_Validate_Ref <- function(
           msg <- c(
             msg,
             paste0(
-              "1: Your final criteria table output contains values not found in your AU_UsesRef for these ATTAINS.UseName(s):",
+              "Your final criteria table output contains values not found in your AU_UsesRef for these ATTAINS.UseName(s), analysis cannot be done for these rows without defining them in your AU_UsesRef reference table:",
               "\n\n  ",
               paste(vals1, collapse = "\n  ")
             )
@@ -474,7 +522,7 @@ TADA_Analysis_Validate_Ref <- function(
           msg <- c(
             msg,
             paste0(
-              "2: Your AU_UsesRef contains values not found in criteria for these ATTAINS.UseName(s):",
+              "Your AU_UsesRef contains values not found in criteria for these ATTAINS.UseName(s), please ensure you have defined all criteria relevant for analysis:",
               "\n\n  ",
               paste(vals2, collapse = "\n  ")
             )
@@ -508,7 +556,7 @@ TADA_Analysis_Validate_Ref <- function(
           msg <- c(
             msg,
             paste0(
-              "1: Your final criteria table output contains values not found in your AUMLRef for these ATTAINS.WaterType(s):",
+              "Your final criteria table contains values not found in your AUMLRef for these ATTAINS.WaterType(s), analysis cannot be done for these rows without defining them in your AUMLRef reference table:",
               "\n\n  ",
               paste(vals1, collapse = "\n  ")
             )
@@ -518,7 +566,7 @@ TADA_Analysis_Validate_Ref <- function(
           msg <- c(
             msg,
             paste0(
-              "2: Your AUMLRef contains values not found in criteria for these ATTAINS.WaterType(s):",
+              "Your AUMLRef contains values not found in criteria for these ATTAINS.WaterType(s), please ensure you have defined all criteria relevant for analysis:",
               "\n\n  ",
               paste(vals2, collapse = "\n  ")
             )
@@ -559,7 +607,7 @@ TADA_Analysis_Validate_Ref <- function(
       if (nrow(missing_combos) > 0) {
         warning(
           paste0(
-            "These spatial combinations exist in criteria but not in your WQP .data for your TADA.CharacteristicName(s):\n",
+            "These spatial combinations exist in your criteria table, but not in your WQP .data for your TADA.CharacteristicName(s):\n",
             "Please ensure these entries are correct or these values cannot be joined due to a mismatch.\n",
             paste(capture.output(print(missing_combos)), collapse = "\n")
           ),
