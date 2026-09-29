@@ -4,20 +4,10 @@
 \alias{TADA_addPoints}
 \title{Add points from a spatial layer to a leaflet map}
 \usage{
-TADA_addPoints(
-  map,
-  layerfilepath,
-  gpkg,
-  layer,
-  layergroup,
-  layername,
-  bbox = NULL
-)
+TADA_addPoints(map, gpkg, layer, layergroup, layername, bbox = NULL)
 }
 \arguments{
 \item{map}{A leaflet map}
-
-\item{layerfilepath}{Local path to the data folder containing the .gpkg file}
 
 \item{gpkg}{name of the .gpkg file}
 
@@ -42,7 +32,8 @@ lmap <- leaflet::leaflet() |>
   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
   leaflet::addMapPane("featurelayers", zIndex = 300)
 # Add the Virginia Federally Recognized Tribes feature layer to the map
-lmap <- TADA_addPoints(lmap, "extdata", "Tribal.gpkg","VATribe",
+tribal_gpkg <- "inst/extdata/Tribal.gpkg"
+lmap <- TADA_addPoints(lmap, tribal_gpkg,"VATribe",
     "Tribes", "Virginia Federally Recognized Tribes")
 lmap
 }

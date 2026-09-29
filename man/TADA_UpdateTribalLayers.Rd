@@ -6,7 +6,10 @@
 Tribal geopackage is stored in inst/extdata.
 Existing layers with the same name will be deleted first if they exist.}
 \usage{
-TADA_UpdateTribalLayers()
+TADA_UpdateTribalLayers(tribal_gpkg = NULL)
+}
+\arguments{
+\item{tribal_gpkg}{full path to the tribal geopackage file. Default is "inst/extdata/Tribal.gpkg".}
 }
 \description{
 Function to update tribal layer shapefiles.

@@ -18,6 +18,6 @@ This function creates a data table that can be downloaded as a .csv, .xlsx or .p
 \examples{
 \dontrun{
 # return ATTAINS parameter domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
+TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name", api_key = .setEQKey()))
 }
 }

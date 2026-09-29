@@ -256,8 +256,8 @@ AssessPeriod,character
 AssessPeriodStartDate,date
 AssessPeriodEndDate,date
 Season,character
-SeasonStartDate,date
-SeasonEndDate,date
+SeasonStartDate,date_special
+SeasonEndDate,date_special
 DistrCount,numeric
 DistrPeriod,character
 DistrMinSample,numeric

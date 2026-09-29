@@ -4,12 +4,7 @@
 \alias{TADA_NearbySitesMap}
 \title{Create Nearby Sites Map}
 \usage{
-TADA_NearbySitesMap(
-  .data,
-  dist_buffer = 100,
-  attains = TRUE,
-  catchment = FALSE
-)
+TADA_NearbySitesMap(.data, dist_buffer = 100, catchment = FALSE)
 }
 \arguments{
 \item{.data}{Either(1) a TADA dataframe or (2) the list of data frames created
@@ -20,11 +15,6 @@ sites map, .data must be the list of data frames created by
 TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk.}
 
 \item{dist_buffer}{Distance in m to show a radius around each site marker.}
-
-\item{attains}{Boolean. If attains = TRUE and assessment unit geometry is available
-in the list of data frames created by TADA_CreateATTAINSAUMLCrosswalk or
-TADA_CreateAUMLCrosswalk, assessment units will be added to the review map.
-If attains = FALSE, no assessment units will be shown. Default is attains = TRUE.}
 
 \item{catchment}{Boolean. If catchment = TRUE, any catchment data available in
 .data are added to the review map. If catchment = FALSE, catchments are not
