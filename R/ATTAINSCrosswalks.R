@@ -4164,13 +4164,9 @@ TADA_MLSummary <- function(
       ),
       intersect(names(MLSummaryRef), names(.data))
     )
-    
-    MLSummaryRef <- dplyr::semi_join(
-      MLSummaryRef,
-      .data,
-      by = compare_keys
-    )
-    
+
+    MLSummaryRef <- dplyr::semi_join(MLSummaryRef, .data, by = compare_keys)
+
     MLSummaryRef
   }
   # Only run if user wants to create an excel guided spreadsheet.

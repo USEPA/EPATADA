@@ -139,7 +139,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
       ),
       intersect(names(MLSummaryRef), names(.data))
     )
-    
+
     if (length(compare_keys) == 0) {
       warning(
         "MLSummaryRef could not be joined because required columns are missing.",
@@ -154,7 +154,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
       )
     }
   }
-  
+
   # ------------------------------------------------------------
   # Criteria join logic
   # ------------------------------------------------------------
@@ -316,105 +316,162 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   # ------------------------------------------------------------
   # Identify all mismatching criteria table rows that could not be matched to .data
   # ------------------------------------------------------------
-  
+
   do_anti_join <- function(crit, df, keys) {
-    if (is.null(crit) || is.null(df)) return(NULL)
-    if (!is.data.frame(crit) || !is.data.frame(df)) return(NULL)
-    
+    if (is.null(crit) || is.null(df)) {
+      return(NULL)
+    }
+    if (!is.data.frame(crit) || !is.data.frame(df)) {
+      return(NULL)
+    }
+
     crit <- TADA_CorrectColType(crit)
     df <- TADA_CorrectColType(df)
-    
-    if (is.null(crit) || is.null(df)) return(NULL)
-    if (nrow(crit) == 0 || nrow(df) == 0) return(NULL)
-    if (length(keys) == 0) return(NULL)
-    if (!all(keys %in% names(crit)) || !all(keys %in% names(df))) return(NULL)
-    
+
+    if (is.null(crit) || is.null(df)) {
+      return(NULL)
+    }
+    if (nrow(crit) == 0 || nrow(df) == 0) {
+      return(NULL)
+    }
+    if (length(keys) == 0) {
+      return(NULL)
+    }
+    if (!all(keys %in% names(crit)) || !all(keys %in% names(df))) {
+      return(NULL)
+    }
+
     dplyr::anti_join(crit, df, by = keys)
   }
-  
+
   summarize_missing_causes <- function(unmatched_df, ref_df, join_cols) {
-    if (is.null(unmatched_df) || !is.data.frame(unmatched_df) || nrow(unmatched_df) == 0) {
+    if (
+      is.null(unmatched_df) ||
+        !is.data.frame(unmatched_df) ||
+        nrow(unmatched_df) == 0
+    ) {
       return(NULL)
     }
     if (is.null(ref_df) || !is.data.frame(ref_df) || nrow(ref_df) == 0) {
       return(NULL)
     }
-    
-    join_cols <- intersect(join_cols, intersect(names(unmatched_df), names(ref_df)))
-    if (!length(join_cols)) return(NULL)
-    
+
+    join_cols <- intersect(
+      join_cols,
+      intersect(names(unmatched_df), names(ref_df))
+    )
+    if (!length(join_cols)) {
+      return(NULL)
+    }
+
     main_col <- join_cols[1]
     other_cols <- setdiff(join_cols, main_col)
-    
+
     main_vals <- unique(unmatched_df[[main_col]])
     main_vals <- main_vals[!is.na(main_vals)]
-    if (!length(main_vals)) return(NULL)
-    
+    if (!length(main_vals)) {
+      return(NULL)
+    }
+
     msgs <- lapply(main_vals, function(main_val) {
-      row_match <- unmatched_df[unmatched_df[[main_col]] == main_val, , drop = FALSE]
-      
+      row_match <- unmatched_df[
+        unmatched_df[[main_col]] == main_val,
+        ,
+        drop = FALSE
+      ]
+
       cause_msgs <- lapply(other_cols, function(col) {
         vals <- unique(row_match[[col]])
         vals <- vals[!is.na(vals)]
-        
-        if (!length(vals)) return(NULL)
-        
+
+        if (!length(vals)) {
+          return(NULL)
+        }
+
         ref_vals <- unique(ref_df[[col]])
         ref_vals <- ref_vals[!is.na(ref_vals)]
-        
+
         bad_vals <- setdiff(vals, ref_vals)
-        
-        if (!length(bad_vals)) return(NULL)
-        
+
+        if (!length(bad_vals)) {
+          return(NULL)
+        }
+
         paste0(
           "\n",
-          paste0("  * ", bad_vals, " not found in column: '", col, "'", collapse = "\n")
+          paste0(
+            "  * ",
+            bad_vals,
+            " not found in column: '",
+            col,
+            "'",
+            collapse = "\n"
+          )
         )
       })
-      
+
       cause_msgs <- unlist(cause_msgs)
-      if (!length(cause_msgs)) return(NULL)
-      
-      paste0(
-        main_val, " for ",
-        paste(cause_msgs, collapse = "")
-      )
+      if (!length(cause_msgs)) {
+        return(NULL)
+      }
+
+      paste0(main_val, " for ", paste(cause_msgs, collapse = ""))
     })
-    
+
     msgs <- Filter(Negate(is.null), msgs)
-    
-    if (!length(msgs)) return(NULL)
-    
+
+    if (!length(msgs)) {
+      return(NULL)
+    }
+
     paste0(
       "Row(s) for these TADA.CharacteristicName from your criteria table input could not be matched to your WQP data or MLSummaryRef due to a mismatch. Please correct these values found within each defined column in your criteria table or MLSummaryRef if you would like to perform analysis for them:\n\n",
       paste0("- ", msgs, collapse = "\n")
     )
   }
-  
+
   # Run anti-joins and preserve the join columns used for each set
   unmatched_sets <- list(
-    list(df = do_anti_join(criteria1, .data, id_col1), keys = id_col1, name = "criteria1"),
-    list(df = do_anti_join(criteria2, .data, id_col2), keys = id_col2, name = "criteria2"),
-    list(df = do_anti_join(criteria3, .data, id_col3), keys = id_col3, name = "criteria3"),
-    list(df = do_anti_join(criteria4, .data, id_col4), keys = id_col4, name = "criteria4"),
-    list(df = do_anti_join(criteria5, .data, id_col5), keys = id_col5, name = "criteria5")
+    list(
+      df = do_anti_join(criteria1, .data, id_col1),
+      keys = id_col1,
+      name = "criteria1"
+    ),
+    list(
+      df = do_anti_join(criteria2, .data, id_col2),
+      keys = id_col2,
+      name = "criteria2"
+    ),
+    list(
+      df = do_anti_join(criteria3, .data, id_col3),
+      keys = id_col3,
+      name = "criteria3"
+    ),
+    list(
+      df = do_anti_join(criteria4, .data, id_col4),
+      keys = id_col4,
+      name = "criteria4"
+    ),
+    list(
+      df = do_anti_join(criteria5, .data, id_col5),
+      keys = id_col5,
+      name = "criteria5"
+    )
   )
-  
+
   # Remove NULL results
   unmatched_sets <- Filter(function(x) !is.null(x$df), unmatched_sets)
-  
+
   # Print warnings for each unmatched set
   if (length(unmatched_sets) > 0) {
     mismatch_msgs <- lapply(unmatched_sets, function(x) {
       summarize_missing_causes(x$df, .data, x$keys)
     })
-    
+
     mismatch_msgs <- Filter(Negate(is.null), mismatch_msgs)
-    
+
     if (length(mismatch_msgs) > 0) {
-      message(
-          paste0("- ", unlist(mismatch_msgs), collapse = "\n")
-      )
+      message(paste0("- ", unlist(mismatch_msgs), collapse = "\n"))
     }
   }
 
