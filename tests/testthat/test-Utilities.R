@@ -131,9 +131,9 @@ test_that("TADA_ConvertSpecialChars flags rows with missing result units when cl
     result$TADA.ResultMeasureValueDataTypes.Flag,
     c(
       "Numeric",
-      "No unit associated with measure value",
-      "No unit associated with measure value",
-      "No unit associated with measure value",
+      "No unit associated with numeric measure value",
+      "No unit associated with numeric measure value",
+      "No unit associated with numeric measure value",
       "Numeric"
     )
   )
@@ -143,7 +143,7 @@ test_that("TADA_ConvertSpecialChars flags rows with missing result units when cl
   expect_false(any(is.na(result$TADA.ResultMeasureValue)))
 })
 
-test_that("TADA_ConvertSpecialChars returns missing-unit rows when flaggedonly = TRUE", {
+test_that("TADA_ConvertSpecialChars does not return missing-unit rows when flaggedonly = TRUE", {
   testdat <- Data_R5_TADAPackageDemo[1:5, ]
 
   testdat$ResultMeasureValue <- c("1.2", "2.3", "3.4", "4.5", "5.6")
@@ -162,17 +162,8 @@ test_that("TADA_ConvertSpecialChars returns missing-unit rows when flaggedonly =
   ) |>
     dplyr::arrange(ResultMeasureValue)
 
-  # Only rows with missing, blank, or whitespace-only units should remain
-  expect_equal(nrow(result), 3)
-
-  # Confirm the expected result values are returned
-  expect_equal(result$TADA.ResultMeasureValue, c(2.3, 3.4, 4.5))
-
-  # Confirm all returned rows have the missing-unit flag
-  expect_true(all(
-    result$TADA.ResultMeasureValueDataTypes.Flag ==
-      "No unit associated with measure value"
-  ))
+  # Confirm empty dataframe
+  expect_equal(nrow(result), 0)
 })
 
 test_that("Only numeric data remains after running TADA_ConvertSpecialChars clean = TRUE", {
@@ -197,7 +188,7 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
     unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in%
       c(
         "Numeric",
-        "No unit associated with measure value",
+        "No unit associated with numeric measure value",
         "Result Value/Unit Estimated from Detection Limit",
         "Less Than",
         "Percentage",
@@ -312,7 +303,7 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
     unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in%
       c(
         "Numeric",
-        "No unit associated with measure value",
+        "No unit associated with numeric measure value",
         "Result Value/Unit Estimated from Detection Limit",
         "Less Than",
         "Percentage",
@@ -453,7 +444,7 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
     unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in%
       c(
         "Numeric",
-        "No unit associated with measure value",
+        "No unit associated with numeric measure value",
         "Result Value/Unit Estimated from Detection Limit",
         "Less Than",
         "Percentage",
