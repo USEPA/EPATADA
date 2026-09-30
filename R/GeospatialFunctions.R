@@ -500,7 +500,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
     # If data is already spatial, just make sure it is in the right CRS
     if (!is.null(.data) & inherits(.data, "sf")) {
       if (sf::st_crs(.data)$epsg != 4326) {
-        geospatial_data <- .data |> sf::st_transform(out_epsg)
+        geospatial_data <- .data |> sf::st_transform(4326)
       } else {
         geospatial_data <- .data
       }
