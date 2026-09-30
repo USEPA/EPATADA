@@ -461,6 +461,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 #' @param .data A dataframe created by `TADA_DataRetrieval()` or the geospatial equivalent made by `TADA_MakeSpatial()`.
 #' @param resolution Whether to download the NHDPlus HiRes resolution ("Hi") or medium NHDPlus V2 resolution ("Med") version of the National Hydrography Dataset (NHD). Default is "Hi".
 #' @param features Which NHD features to return: "catchments", "flowlines", "waterbodies", or any combination.
+#' @param check_service Boolean argument. When check_service equals TRUE, the selected NHD service (High or Medium resolution) will be inspected before attempting to run this function. Default is check_service equals TRUE.
 #'
 #' @return A list containing all selected NHD features associated with the WQP observations of interest. Or, if a single feature type is selected, a single geospatial object instead of a list. Default is "catchments" only.
 #'
@@ -483,7 +484,25 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 #'   features = c("catchments", "waterbodies", "flowlines")
 #' )
 #' }
-fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
+fetchNHD <- function(.data,
+                     resolution = "Hi",
+                     features = "catchments",
+                     check_service = TRUE) {
+
+  # check web services when check_service equals TRUE
+  if (isTRUE(check_service)) {
+
+    if (resolution == "Med") {
+      if (!.checkNHD_Med()) {
+        return(NULL)
+      }
+    } else {
+      if (!.checkNHD_High()) {
+        return(NULL)
+      }
+    }
+  }
+
   # function settings that we ensure go back to their original settings
   # after the function stops running:
   original_s2 <- sf::sf_use_s2() # Store the original s2 setting first

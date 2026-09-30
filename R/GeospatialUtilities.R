@@ -1847,3 +1847,59 @@ fetchWaterType <- function(au_list, api_key = NULL) {
 
   return(results)
 }
+
+# internal check function to see if NHD HR web services are working
+.checkNHD_High <- function(timeout_sec = 10) {
+  old_timeout <- getOption("timeout")
+  options(timeout = timeout_sec)
+  on.exit(options(timeout = old_timeout), add = TRUE)
+
+  nhd_plus_hr_url <- "https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer"
+
+  tryCatch(
+    {
+      arcgislayers::arc_open(nhd_plus_hr_url)
+      TRUE
+    },
+    error = function(e) {
+      message(
+        "The NHD High Resolution web service is currently unavailable. ",
+        "Please try again later."
+      )
+      FALSE
+    }
+  )
+}
+
+# internal check function to see if NHD MR web services are working
+.checkNHD_Med <- function(timeout_sec = 10) {
+  old_timeout <- getOption("timeout")
+  options(timeout = timeout_sec)
+  on.exit(options(timeout = old_timeout), add = TRUE)
+
+  dummy_aoi <- sf::st_as_sf(
+    data.frame(x = -90, y = 40),
+    coords = c("x", "y"),
+    crs = 4326
+  )
+
+  tryCatch(
+    {
+      suppressMessages(
+        hydrogeofetch::get_nhdplus(
+          AOI = dummy_aoi,
+          realization = "catchment"
+        )
+      )
+      invisible(TRUE)
+    },
+    error = function(e) {
+      message(
+        "The NHDPlus V2 service is currently unavailable. ",
+        "Please try again later.\n",
+        "Reason: ", conditionMessage(e),
+        call. = FALSE
+      )
+    }
+  )
+}
