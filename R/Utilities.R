@@ -618,14 +618,14 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #' This function will screen a column of the user's choice for special
 #' characters. It creates a NEW column that describes the content of the column
 #' prior to conversion to numeric (named `"TADA.COLUMN NAME DataTypes.Flag"`).
-#' It also creates a NEW column to hold the new, numeric format (named 
-#' `"TADA.COLUMN NAME"`). If a column name is supplied when the 
+#' It also creates a NEW column to hold the new, numeric format (named
+#' `"TADA.COLUMN NAME"`). If a column name is supplied when the
 #' `"TADA.COLUMN NAME"` prefix already exists, the function will not run.
-#' To re-run the function, users should supply the newly created 
+#' To re-run the function, users should supply the newly created
 #' `"TADA.COLUMN NAME"` column. In that case, no additional columns are created,
 #' and the existing `"TADA.COLUMN NAME"` and `"TADA.COLUMN NAME DataTypes.Flag"`
 #' columns are updated with the new conversion.
-#' 
+#'
 #' This function will successfully convert some special character
 #' formats to numeric: whitespace, >, <, ~, %, and commas are removed before
 #' converting a result value to numeric. Result values in the format # - # are
