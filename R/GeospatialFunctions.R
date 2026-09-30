@@ -490,14 +490,14 @@ fetchNHD <- function(.data,
                      check_service = TRUE) {
 
   # check web services when check_service equals TRUE
-  if (isTRUE(check_service)) {
+  if(isTRUE(check_service)) {
 
-    if (resolution == "Med") {
-      if (!.checkNHD_Med()) {
+    if(resolution == "Med") {
+      if(!.checkNHD_Med()) {
         return(NULL)
       }
-    } else {
-      if (!.checkNHD_High()) {
+    } else if(resolution == "Hi") {
+      if(!.checkNHD_High()) {
         return(NULL)
       }
     }
