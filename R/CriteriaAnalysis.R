@@ -139,19 +139,21 @@ TADA_Analysis_Join_WQP_Criteria <- function(
       ),
       intersect(names(MLSummaryRef), names(.data))
     )
-      
+    
+    if (length(compare_keys) == 0) {
+      warning(
+        "MLSummaryRef could not be joined because required columns are missing.",
+        call. = FALSE
+      )
+    } else {
       .data <- dplyr::left_join(
         .data,
         MLSummaryRef,
         by = compare_keys,
         relationship = "many-to-many"
       )
-    } else {
-      warning(
-        "MLSummaryRef could not be joined because required columns are missing.",
-        call. = FALSE
-      )
     }
+  }
   
   # ------------------------------------------------------------
   # Criteria join logic
@@ -384,7 +386,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     if (!length(msgs)) return(NULL)
     
     paste0(
-      "Row(s) for these TADA.CharacteristicName from your criteria table input or MLSummaryRef could not be matched to your WQP data due to a mismatch. Please correct these values found within each defined column in your criteria table or MLSummaryRef if you would like to perform analysis for them:\n\n",
+      "Row(s) for these TADA.CharacteristicName from your criteria table input could not be matched to your WQP data or MLSummaryRef due to a mismatch. Please correct these values found within each defined column in your criteria table or MLSummaryRef if you would like to perform analysis for them:\n\n",
       paste0("- ", msgs, collapse = "\n")
     )
   }
