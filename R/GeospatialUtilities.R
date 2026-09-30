@@ -1891,15 +1891,15 @@ fetchWaterType <- function(au_list, api_key = NULL) {
           realization = "catchment"
         )
       )
-      invisible(TRUE)
+      TRUE
     },
     error = function(e) {
       message(
         "The NHDPlus V2 service is currently unavailable. ",
         "Please try again later.\n",
-        "Reason: ", conditionMessage(e),
-        call. = FALSE
+        "Reason: ", conditionMessage(e)
       )
+      FALSE
     }
   )
 }
