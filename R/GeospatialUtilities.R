@@ -1848,58 +1848,65 @@ fetchWaterType <- function(au_list, api_key = NULL) {
   return(results)
 }
 
-# internal check function to see if NHD HR web services are working
-.checkNHD_High <- function(timeout_sec = 10) {
+#' .checkNHD
+#'
+#' Check NHD web services. For use in functions that rely on fetchNHD. This
+#' helper function will stop the function if web service is not available.
+#'
+#' @param resolution Character argument. Options are "Hi" or "Med" resolution. Default is resolution = "Hi".
+#' @param timeout_sec Numeric argument. The number of seconds allowed before timeout.
+
+
+.checkNHD <- function(resolution = "Hi",
+                      timeout_sec = 10) {
+  resolution <- match.arg(resolution)
+
   old_timeout <- getOption("timeout")
   options(timeout = timeout_sec)
   on.exit(options(timeout = old_timeout), add = TRUE)
 
-  nhd_plus_hr_url <- "https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer"
+  if (resolution == "Hi") {
+    nhd_plus_hr_url <- "https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer"
 
-  tryCatch(
-    {
-      arcgislayers::arc_open(nhd_plus_hr_url)
-      TRUE
-    },
-    error = function(e) {
-      message(
-        "The NHD High Resolution web service is currently unavailable. ",
-        "Please try again later."
-      )
-      FALSE
-    }
-  )
-}
-
-# internal check function to see if NHD MR web services are working
-.checkNHD_Med <- function(timeout_sec = 10) {
-  old_timeout <- getOption("timeout")
-  options(timeout = timeout_sec)
-  on.exit(options(timeout = old_timeout), add = TRUE)
-
-  dummy_aoi <- sf::st_as_sf(
-    data.frame(x = -90, y = 40),
-    coords = c("x", "y"),
-    crs = 4326
-  )
-
-  tryCatch(
-    {
-      suppressMessages(
-        hydrogeofetch::get_nhdplus(
-          AOI = dummy_aoi,
-          realization = "catchment"
+    tryCatch(
+      {
+        arcgislayers::arc_open(nhd_plus_hr_url)
+        TRUE
+      },
+      error = function(e) {
+        message(
+          "The NHD High Resolution web service is currently unavailable. ",
+          "Please try again later."
         )
-      )
-      TRUE
-    },
-    error = function(e) {
-      message(
-        "The NHDPlus V2 service is currently unavailable. ",
-        "Please try again later.\n",
-        "Reason: ", conditionMessage(e)
-      )
-      FALSE
-    }
-  )
+        FALSE
+      }
+    )
+
+  } else if (resolution == "Med") {
+    dummy_aoi <- sf::st_as_sf(
+      data.frame(x = -90, y = 40),
+      coords = c("x", "y"),
+      crs = 4326
+    )
+
+    tryCatch(
+      {
+        suppressMessages(
+          hydrogeofetch::get_nhdplus(
+            AOI = dummy_aoi,
+            realization = "catchment"
+          )
+        )
+        TRUE
+      },
+      error = function(e) {
+        message(
+          "The NHDPlus V2 service is currently unavailable. ",
+          "Please try again later.\n",
+          "Reason: ", conditionMessage(e)
+        )
+        FALSE
+      }
+    )
+  }
 }

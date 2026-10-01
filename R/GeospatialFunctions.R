@@ -491,17 +491,10 @@ fetchNHD <- function(.data,
 
   # check web services when check_service equals TRUE
   if (isTRUE(check_service)) {
-    message("Checking NHD service availability...")
-    if (resolution == "Med") {
-      if (!.checkNHD_Med()) {
-        message("NHD medium resolutation service check failed.")
-        return(NULL)
-      }
-    } else if (resolution == "Hi") {
-      if (!.checkNHD_High()) {
-        message("NHD high resolution service check failed.")
-        return(NULL)
-      }
+    ok <- .checkNHD(resolution = resolution)
+    if (isFALSE(ok)) {
+      message(paste0("NHD web service check failed for ", resolution, "resolution."))
+      return(NULL)
     }
   }
 

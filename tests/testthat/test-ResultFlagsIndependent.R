@@ -134,7 +134,7 @@ test_that("No NAs in independent flag columns", {
 test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 
   # Skip the test if NHD High Res web service is unavailable
-  if(!.checkNHD_High()) {
+  if(!.checkNHD(resolution = "Hi")) {
     skip("NHD Hi Res web service not available, skipping test.")
   }
 
@@ -166,7 +166,6 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 # 6. └─base::diff.default(testdat2)
 # test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
 #   testthat::skip_on_cran()
-#   testthat::skip_if_offline("www.waterqualitydata.us")
 #   testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
 #
 #   testthat::skip_if(
@@ -208,7 +207,13 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 # })
 
 test_that("TADA_FindPotentialDuplicatesMultipleOrgs has non-NA values for each row in columns added in function", {
-  testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
+
+  # Skip the test if NHD High Res web service is unavailable
+  if(!.checkNHD(resolution = "Hi")) {
+    skip("NHD Hi Res web service not available, skipping test.")
+  }
+
+   testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
 
   testthat::skip_if(
     is.null(testdat) || NROW(testdat) == 0,

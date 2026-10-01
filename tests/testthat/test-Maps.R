@@ -20,7 +20,7 @@ test_that("TADA_FlaggedSitesMap return leaflet map", {
 # failing as of 7/21/26
  test_that("TADA_NearbySitesMap returns a leaflet map", {
    # Skip the test if NHD High Res web service is unavailable
-   if(!.checkNHD_High()) {
+   if(!.checkNHD(resolution = "Hi")) {
      skip("NHD Hi Res web service not available, skipping test.")
    }
 

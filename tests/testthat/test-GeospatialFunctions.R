@@ -173,7 +173,7 @@ testthat::test_that("fetchATTAINS org_id parameter", {
 
 testthat::test_that("fetchNHD handles small areas with defaults", {
   # Skip the test if NHD High Res web service is unavailable
-  if(!.checkNHD_High()) {
+  if(!.checkNHD(resolution = "Hi")) {
     skip("NHD Hi Res web service not available, skipping test.")
   }
 
@@ -210,7 +210,7 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
 
 testthat::test_that("fetchNHD with valid non-default resolution param Med", {
   # Skip the test if NHD High Res web service is unavailable
-  if(!.checkNHD_Med()) {
+  if(!.checkNHD(resolution = "Hi")) {
     skip("NHD Med Res web service not available, skipping test.")
   }
 
@@ -222,7 +222,7 @@ testthat::test_that("fetchNHD with valid non-default resolution param Med", {
 
 testthat::test_that("fetchNHD error when invalid features param", {
 # Skip the test if NHD High Res web service is unavailable
-if(!.checkNHD_High()) {
+if(!.checkNHD(resolution = "Hi")) {
   skip("NHD Hi Res web service not available, skipping test.")
 }
   testthat::expect_error(
@@ -435,7 +435,7 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
 # takes too long to run as of 7/21/26 - needs mocks
 # testthat::test_that("TADA_FindNearbySites returns expected number of site groups", {
 #   # Skip the test if NHD High Res web service is unavailable
-# if(!.checkNHD_High()) {
+# if(!.checkNHD(resolution = "Hi")) {
 #  skip("NHD Hi Res web service not available, skipping test.")
 # }
 #   # find nearby sites tests
@@ -488,7 +488,7 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
 # # 10/1/26 takes to long to run - needs mocks
 #  testthat::test_that("TADA_FindNearbySites returns expected metadata", {
 # # Skip the test if NHD High Res web service is unavailable
-# if(!.checkNHD_High()) {
+# if(!.checkNHD(resolution = "Hi")) {
 #   skip("NHD Hi Res web service not available, skipping test.")
 # }
 #    # select by count
@@ -546,6 +546,11 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
 # })
 
 testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
+  # Skip the test if NHD High Res web service is unavailable
+  if(!.checkNHD(resolution = "Hi")) {
+    skip("NHD Hi Res web service not available, skipping test.")
+  }
+
   # Without organization filtering, at least one nearby-site group
   # should contain sites from multiple organizations.
   test_no_org_filter <- TADA_FindNearbySites(
@@ -590,6 +595,11 @@ testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
 })
 
 testthat::test_that("TADA_FindNearbySites does not combine known sites from different organizations", {
+  # Skip the test if NHD High Res web service is unavailable
+  if(!.checkNHD(resolution = "Hi")) {
+    skip("NHD Hi Res web service not available, skipping test.")
+  }
+
   test_by_org <- TADA_FindNearbySites(
     nearby_data,
     catchment = FALSE,
