@@ -505,6 +505,15 @@ fetchNHD <- function(.data,
     }
   }
 
+  # check user params
+if(!features %in% c("catchments", "flowlines", "waterbodies")) {
+  stop("Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument.")
+}
+
+  if(!resolution %in% c("Hi", "Med")) {
+    stop("User-supplied resolution unavailable. Please select between 'Med' or 'Hi'.")
+  }
+
   # function settings that we ensure go back to their original settings
   # after the function stops running:
   original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
