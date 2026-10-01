@@ -1856,9 +1856,7 @@ fetchWaterType <- function(au_list, api_key = NULL) {
 #' @param resolution Character argument. Options are "Hi" or "Med" resolution. Default is resolution = "Hi".
 #' @param timeout_sec Numeric argument. The number of seconds allowed before timeout.
 
-
-.checkNHD <- function(resolution = "Hi",
-                      timeout_sec = 10) {
+.checkNHD <- function(resolution = "Hi", timeout_sec = 10) {
   resolution <- match.arg(resolution)
 
   old_timeout <- getOption("timeout")
@@ -1881,7 +1879,6 @@ fetchWaterType <- function(au_list, api_key = NULL) {
         FALSE
       }
     )
-
   } else if (resolution == "Med") {
     dummy_aoi <- sf::st_as_sf(
       data.frame(x = -90, y = 40),
@@ -1891,19 +1888,18 @@ fetchWaterType <- function(au_list, api_key = NULL) {
 
     tryCatch(
       {
-        suppressMessages(
-          hydrogeofetch::get_nhdplus(
-            AOI = dummy_aoi,
-            realization = "catchment"
-          )
-        )
+        suppressMessages(hydrogeofetch::get_nhdplus(
+          AOI = dummy_aoi,
+          realization = "catchment"
+        ))
         TRUE
       },
       error = function(e) {
         message(
           "The NHDPlus V2 service is currently unavailable. ",
           "Please try again later.\n",
-          "Reason: ", conditionMessage(e)
+          "Reason: ",
+          conditionMessage(e)
         )
         FALSE
       }

@@ -173,7 +173,7 @@ testthat::test_that("fetchATTAINS org_id parameter", {
 
 testthat::test_that("fetchNHD handles small areas with defaults", {
   # Skip the test if NHD High Res web service is unavailable
-  if(!.checkNHD(resolution = "Hi")) {
+  if (!.checkNHD(resolution = "Hi")) {
     skip("NHD Hi Res web service not available, skipping test.")
   }
 
@@ -210,7 +210,7 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
 
 testthat::test_that("fetchNHD with valid non-default resolution param Med", {
   # Skip the test if NHD High Res web service is unavailable
-  if(!.checkNHD(resolution = "Hi")) {
+  if (!.checkNHD(resolution = "Hi")) {
     skip("NHD Med Res web service not available, skipping test.")
   }
 
@@ -221,10 +221,10 @@ testthat::test_that("fetchNHD with valid non-default resolution param Med", {
 })
 
 testthat::test_that("fetchNHD error when invalid features param", {
-# Skip the test if NHD High Res web service is unavailable
-if(!.checkNHD(resolution = "Hi")) {
-  skip("NHD Hi Res web service not available, skipping test.")
-}
+  # Skip the test if NHD High Res web service is unavailable
+  if (!.checkNHD(resolution = "Hi")) {
+    skip("NHD Hi Res web service not available, skipping test.")
+  }
   testthat::expect_error(
     EPATADA:::fetchNHD(.data = small_bbox_data, features = "Hi"),
     "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
@@ -547,7 +547,7 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
 
 testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
   # Skip the test if NHD High Res web service is unavailable
-  if(!.checkNHD(resolution = "Hi")) {
+  if (!.checkNHD(resolution = "Hi")) {
     skip("NHD Hi Res web service not available, skipping test.")
   }
 
@@ -596,7 +596,7 @@ testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
 
 testthat::test_that("TADA_FindNearbySites does not combine known sites from different organizations", {
   # Skip the test if NHD High Res web service is unavailable
-  if(!.checkNHD(resolution = "Hi")) {
+  if (!.checkNHD(resolution = "Hi")) {
     skip("NHD Hi Res web service not available, skipping test.")
   }
 
