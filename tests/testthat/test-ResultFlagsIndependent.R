@@ -132,6 +132,12 @@ test_that("No NAs in independent flag columns", {
 })
 
 test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
+
+  # Skip the test if NHD High Res web service is unavailable
+  if(!.checkNHD_High()) {
+    skip("NHD Hi Res web service not available, skipping test.")
+  }
+
   testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
 
   # Skip the test if the test dataframe is empty

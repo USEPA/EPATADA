@@ -172,6 +172,11 @@ testthat::test_that("fetchATTAINS org_id parameter", {
 
 
 testthat::test_that("fetchNHD handles small areas with defaults", {
+  # Skip the test if NHD High Res web service is unavailable
+  if(!.checkNHD_High()) {
+    skip("NHD Hi Res web service not available, skipping test.")
+  }
+
   # small_bbox_data subset of large_bbox_data fixture (testdata/Hill_MT_pH.Rd)
   testthat::expect_no_error(
     result_NHD_small <- EPATADA:::fetchNHD(.data = small_bbox_data)
@@ -182,6 +187,11 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
 
 # not working on 7/21/26
 # testthat::test_that("fetchNHD with valid non-default features params", {
+# Skip the test if NHD High Res web service is unavailable
+# if(!.checkNHD_High()) {
+#  skip("NHD Hi Res web service not available, skipping test.")
+# }
+
 #   testthat::expect_no_error(
 #     flines <- EPATADA:::fetchNHD(
 #       .data = small_bbox_data,
@@ -199,6 +209,11 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
 # })
 
 testthat::test_that("fetchNHD with valid non-default resolution param Med", {
+  # Skip the test if NHD High Res web service is unavailable
+  if(!.checkNHD_Med()) {
+    skip("NHD Med Res web service not available, skipping test.")
+  }
+
   testthat::expect_no_error(
     med_cat <- EPATADA:::fetchNHD(.data = small_bbox_data, resolution = "Med")
   )
@@ -206,6 +221,10 @@ testthat::test_that("fetchNHD with valid non-default resolution param Med", {
 })
 
 # testthat::test_that("fetchNHD error when invalid features param", {
+## Skip the test if NHD High Res web service is unavailable
+# if(!.checkNHD_High()) {
+#   skip("NHD Hi Res web service not available, skipping test.")
+# }
 #   testthat::expect_error(
 #     EPATADA:::fetchNHD(.data = small_bbox_data, features = "Hi"),
 #     "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
@@ -415,6 +434,10 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
 
 # takes too long to run as of 7/21/26
 # testthat::test_that("TADA_FindNearbySites returns expected number of site groups", {
+#   # Skip the test if NHD High Res web service is unavailable
+# if(!.checkNHD_High()) {
+#  skip("NHD Hi Res web service not available, skipping test.")
+# }
 #   # find nearby sites tests
 #
 #   # with defaults
@@ -463,60 +486,64 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
 # })
 
 # fails as of 7/21/26
-# testthat::test_that("TADA_FindNearbySites returns expected metadata", {
-#   # select by count
-#   test_count <- TADA_FindNearbySites(
-#     nearby_data,
-#     org_hierarchy = "none",
-#     meta_select = "count"
-#   )
-#
-#   test_count_filt <- test_count |>
-#     dplyr::filter(ResultIdentifier == "NWIS-33738169")
-#
-#   testthat::expect_equal(
-#     test_count_filt$TADA.MonitoringLocationIdentifier,
-#     "[USGS-06138570, CHIPCREE_WQX-LBS4]"
-#   )
-#
-#   testthat::expect_equal(test_count_filt$TADA.LatitudeMeasure, 48.4091576)
-#
-#   testthat::expect_equal(
-#     test_count_filt$TADA.MonitoringLocationTypeName,
-#     "STREAM"
-#   )
-#
-#   testthat::expect_equal(
-#     test_count_filt$TADA.NearbySites.Flag,
-#     "This monitoring location was grouped with other nearby site(s). Metadata were selected from MonitoringLocation with the most results available across all characteristics."
-#   )
-#
-#   # select by org hierarchy
-#   test_org <- TADA_FindNearbySites(
-#     nearby_data,
-#     org_hierarchy = c("CHIPCREE_WQX", "USGS-MT")
-#   )
-#
-#   test_org_filt <- test_org |>
-#     dplyr::filter(ResultIdentifier == "NWIS-33738169")
-#
-#   testthat::expect_equal(
-#     test_org_filt$TADA.MonitoringLocationIdentifier,
-#     "[USGS-06138570, CHIPCREE_WQX-LBS4]"
-#   )
-#
-#   testthat::expect_equal(test_org_filt$TADA.LatitudeMeasure, 48.40935910)
-#
-#   testthat::expect_equal(
-#     test_org_filt$TADA.MonitoringLocationTypeName,
-#     "RIVER/STREAM"
-#   )
-#
-#   testthat::expect_equal(
-#     test_org_filt$TADA.NearbySites.Flag,
-#     "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly."
-#   )
-# })
+ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
+# Skip the test if NHD High Res web service is unavailable
+if(!.checkNHD_High()) {
+  skip("NHD Hi Res web service not available, skipping test.")
+}
+   # select by count
+   test_count <- TADA_FindNearbySites(
+     nearby_data,
+     org_hierarchy = "none",
+     meta_select = "count"
+   )
+
+   test_count_filt <- test_count |>
+     dplyr::filter(ResultIdentifier == "NWIS-33738169")
+
+   testthat::expect_equal(
+     test_count_filt$TADA.MonitoringLocationIdentifier,
+     "[USGS-06138570, CHIPCREE_WQX-LBS4]"
+   )
+
+  testthat::expect_equal(test_count_filt$TADA.LatitudeMeasure, 48.4091576)
+
+  testthat::expect_equal(
+    test_count_filt$TADA.MonitoringLocationTypeName,
+    "STREAM"
+  )
+
+  testthat::expect_equal(
+    test_count_filt$TADA.NearbySites.Flag,
+    "This monitoring location was grouped with other nearby site(s). Metadata were selected from MonitoringLocation with the most results available across all characteristics."
+  )
+
+  # select by org hierarchy
+  test_org <- TADA_FindNearbySites(
+    nearby_data,
+    org_hierarchy = c("CHIPCREE_WQX", "USGS-MT")
+  )
+
+  test_org_filt <- test_org |>
+    dplyr::filter(ResultIdentifier == "NWIS-33738169")
+
+  testthat::expect_equal(
+    test_org_filt$TADA.MonitoringLocationIdentifier,
+    "[USGS-06138570, CHIPCREE_WQX-LBS4]"
+  )
+
+  testthat::expect_equal(test_org_filt$TADA.LatitudeMeasure, 48.40935910)
+
+  testthat::expect_equal(
+    test_org_filt$TADA.MonitoringLocationTypeName,
+    "RIVER/STREAM"
+  )
+
+  testthat::expect_equal(
+    test_org_filt$TADA.NearbySites.Flag,
+    "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly."
+  )
+})
 
 testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
   # Without organization filtering, at least one nearby-site group

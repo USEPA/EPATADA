@@ -498,7 +498,7 @@ fetchNHD <- function(.data,
         return(NULL)
       }
     } else if (resolution == "Hi") {
-      if (.checkNHD_High()) {
+      if (!.checkNHD_High()) {
         message("NHD high resolution service check failed.")
         return(NULL)
       }
@@ -2009,7 +2009,7 @@ TADA_GetATTAINSByAUID <- function(
   return(final_features)
 }
 
-#' Identify and group nearby monitoring locations (UNDER ACTIVE DEVELOPMENT)
+#' Identify and group nearby monitoring locations
 #'
 #' This function takes a TADA dataset and identifies the NHD catchments that
 #' each MonitoringLocation is in. Within each group of MonitoringLocations in
