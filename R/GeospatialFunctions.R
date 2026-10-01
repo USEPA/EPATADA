@@ -484,27 +484,36 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 #'   features = c("catchments", "waterbodies", "flowlines")
 #' )
 #' }
-fetchNHD <- function(.data,
-                     resolution = "Hi",
-                     features = "catchments",
-                     check_service = TRUE) {
-
+fetchNHD <- function(
+  .data,
+  resolution = "Hi",
+  features = "catchments",
+  check_service = TRUE
+) {
   # check web services when check_service equals TRUE
   if (isTRUE(check_service)) {
     ok <- .checkNHD(resolution = resolution)
     if (isFALSE(ok)) {
-      message(paste0("NHD web service check failed for ", resolution, "resolution."))
+      message(paste0(
+        "NHD web service check failed for ",
+        resolution,
+        "resolution."
+      ))
       return(NULL)
     }
   }
 
   # check user params
-if(!features %in% c("catchments", "flowlines", "waterbodies")) {
-  stop("Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument.")
-}
+  if (!features %in% c("catchments", "flowlines", "waterbodies")) {
+    stop(
+      "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
+    )
+  }
 
-  if(!resolution %in% c("Hi", "Med")) {
-    stop("User-supplied resolution unavailable. Please select between 'Med' or 'Hi'.")
+  if (!resolution %in% c("Hi", "Med")) {
+    stop(
+      "User-supplied resolution unavailable. Please select between 'Med' or 'Hi'."
+    )
   }
 
   # function settings that we ensure go back to their original settings

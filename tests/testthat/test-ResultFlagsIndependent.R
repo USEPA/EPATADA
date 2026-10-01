@@ -132,9 +132,8 @@ test_that("No NAs in independent flag columns", {
 })
 
 test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
-
   # Skip the test if NHD High Res web service is unavailable
-  if(!.checkNHD(resolution = "Hi")) {
+  if (!.checkNHD(resolution = "Hi")) {
     skip("NHD Hi Res web service not available, skipping test.")
   }
 

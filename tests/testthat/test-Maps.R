@@ -18,13 +18,13 @@ test_that("TADA_FlaggedSitesMap return leaflet map", {
 })
 
 # failing as of 7/21/26
- test_that("TADA_NearbySitesMap returns a leaflet map", {
-   # Skip the test if NHD High Res web service is unavailable
-   if(!.checkNHD(resolution = "Hi")) {
-     skip("NHD Hi Res web service not available, skipping test.")
-   }
+test_that("TADA_NearbySitesMap returns a leaflet map", {
+  # Skip the test if NHD High Res web service is unavailable
+  if (!.checkNHD(resolution = "Hi")) {
+    skip("NHD Hi Res web service not available, skipping test.")
+  }
 
-   testmap <- TADA_NearbySitesMap(Data_Nutrients_UT)
+  testmap <- TADA_NearbySitesMap(Data_Nutrients_UT)
 
-   expect_true(all(c("leaflet", "htmlwidget") %in% class(testmap)))
- })
+  expect_true(all(c("leaflet", "htmlwidget") %in% class(testmap)))
+})
