@@ -170,6 +170,31 @@ testthat::test_that("fetchATTAINS org_id parameter", {
   )
 })
 
+make_fake_hi_nhd <- function() {
+  sf::st_sf(
+    NHD.nhdplusid = as.character(1:16),
+    NHD.resolution = rep("HR", 16),
+    NHD.catchmentareasqkm = rep(1.0, 16),
+    geometry = sf::st_sfc(
+      lapply(1:16, function(i) sf::st_point(c(-90 + i * 1e-4, 40 + i * 1e-4))),
+      crs = 4326
+    )
+  )
+}
+
+make_fake_med_nhd <- function() {
+  sf::st_sf(
+    NHD.comid = as.character(1:2),
+    NHD.resolution = rep("nhdplusV2", 2),
+    NHD.catchmentareasqkm = c(10, 20),
+    geometry = sf::st_sfc(
+      sf::st_point(c(-90, 40)),
+      sf::st_point(c(-90.001, 40.001)),
+      crs = 4326
+    )
+  )
+}
+
 
 testthat::test_that("fetchNHD handles small areas with defaults", {
   # Skip the test if NHD High Res web service is unavailable
