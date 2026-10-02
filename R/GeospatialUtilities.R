@@ -1930,22 +1930,22 @@ fetchWaterType <- function(au_list, api_key = NULL) {
       fetchNHD(.data, resolution = nhd_res),
       error = function(e) e
     )
-    
+
     if (!inherits(result, "error")) {
       Sys.sleep(pause_sec)
       return(result)
     }
-    
+
     msg <- conditionMessage(result)
-    
+
     # Retry only for server-side errors
-    if (!grepl("500|internal server|server", msg, ignore.case = TRUE) || i == max_tries) {
-      stop(
-        "fetchNHD failed after ", i, " attempt(s): ", msg,
-        call. = FALSE
-      )
+    if (
+      !grepl("500|internal server|server", msg, ignore.case = TRUE) ||
+        i == max_tries
+    ) {
+      stop("fetchNHD failed after ", i, " attempt(s): ", msg, call. = FALSE)
     }
-    
+
     message("fetchNHD failed (attempt ", i, "), retrying after delay: ", msg)
     Sys.sleep(pause_sec * i)
   }
