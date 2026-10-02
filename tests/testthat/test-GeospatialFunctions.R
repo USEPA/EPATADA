@@ -234,10 +234,9 @@ testthat::test_that("fetchNHD error when invalid features param", {
 testthat::test_that("fetchNHD error when invalid resolution param", {
   testthat::expect_error(
     EPATADA:::fetchNHD(.data = small_bbox_data, resolution = "Lo"),
-    "User-supplied resolution unavailable. Please select between 'Med' or 'Hi'."
+    "should be one of"
   )
 })
-
 
 testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk correctly identifies already joined ATTAINS data", {
   # Create mock data with ATTAINS columns
