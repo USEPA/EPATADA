@@ -2233,7 +2233,9 @@ TADA_FindNearbySites <- function(
 
     # fetch nhdplus catchment information
     nhd.catch <- near.dfs |>
-      purrr::map(~ .safe_fetchNHD(.x, nhd_res = nhd_res, pause_sec = 1, max_tries = 3))
+      purrr::map(
+        ~ .safe_fetchNHD(.x, nhd_res = nhd_res, pause_sec = 1, max_tries = 3)
+      )
 
     # remove intermediate object
     rm(near.dfs)
