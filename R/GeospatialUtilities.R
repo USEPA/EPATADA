@@ -1906,3 +1906,39 @@ fetchWaterType <- function(au_list, api_key = NULL) {
     )
   }
 }
+
+
+#' .safe_fetchNHD
+#'
+#' For use when fetchNHD must be applied with purrr::map(). This adds a pause between
+#' requests, retries on server failures, and stops function after the retries fail.
+#'
+#' @param nhd_res Character argument. Options are "Hi" or "Med" resolution. Default is resolution = "Hi".
+#' @param pause_sex Numeric argument. The number of seconds to pause between queries.
+#' @param max_tries Integer argument. The number of times to retry a query after failure.
+
+.safe_fetchNHD <- function(x, nhd_res, pause_sec = 1, max_tries = 3) {
+  for (i in seq_len(max_tries)) {
+    result <- tryCatch(
+      {
+        fetchNHD(x, resolution = nhd_res)
+      },
+      error = function(e) e
+    )
+
+    if (!inherits(result, "error")) {
+      Sys.sleep(pause_sec)
+      return(result)
+    }
+
+    msg <- conditionMessage(result)
+
+    # retry only for 500-like/server errors
+    if (!grepl("500|internal server|server", msg, ignore.case = TRUE) || i == max_tries) {
+      stop("fetchNHD failed after ", i, " attempt(s): ", msg, call. = FALSE)
+    }
+
+    message("fetchNHD failed (attempt ", i, "), retrying after delay: ", msg)
+    Sys.sleep(pause_sec * i)
+  }
+}
