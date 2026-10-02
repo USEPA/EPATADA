@@ -1934,7 +1934,10 @@ fetchWaterType <- function(au_list, api_key = NULL) {
     msg <- conditionMessage(result)
 
     # retry only for 500-like/server errors
-    if (!grepl("500|internal server|server", msg, ignore.case = TRUE) || i == max_tries) {
+    if (
+      !grepl("500|internal server|server", msg, ignore.case = TRUE) ||
+        i == max_tries
+    ) {
       stop("fetchNHD failed after ", i, " attempt(s): ", msg, call. = FALSE)
     }
 
