@@ -210,7 +210,7 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
 
 testthat::test_that("fetchNHD with valid non-default resolution param Med", {
   # Skip the test if NHD High Res web service is unavailable
-  if (!.checkNHD(resolution = "Hi")) {
+  if (!.checkNHD(resolution = "Med")) {
     skip("NHD Med Res web service not available, skipping test.")
   }
 
