@@ -497,7 +497,7 @@ fetchNHD <- function(
       message(paste0(
         "NHD web service check failed for ",
         resolution,
-        "resolution."
+        " resolution."
       ))
       return(NULL)
     }
