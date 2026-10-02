@@ -1907,40 +1907,45 @@ fetchWaterType <- function(au_list, api_key = NULL) {
   }
 }
 
-
 #' .safe_fetchNHD
 #'
-#' For use when fetchNHD must be applied with purrr::map(). This adds a pause between
-#' requests, retries on server failures, and stops function after the retries fail.
+#' Helper for use with `purrr::map()` when calling `fetchNHD()`. Adds a pause
+#' between requests, retries on server-side failures, and stops after the
+#' maximum number of retries is reached.
 #'
-#' @param nhd_res Character argument. Options are "Hi" or "Med" resolution. Default is resolution = "Hi".
-#' @param pause_sex Numeric argument. The number of seconds to pause between queries.
-#' @param max_tries Integer argument. The number of times to retry a query after failure.
-
-.safe_fetchNHD <- function(x, nhd_res, pause_sec = 1, max_tries = 3) {
+#' @param .data Object passed to `fetchNHD()`.
+#' @param nhd_res Character. NHD resolution to use, either `"Hi"` or `"Med"`.
+#' @param pause_sec Numeric. Number of seconds to pause between queries.
+#' @param max_tries Integer. Number of attempts to make before stopping.
+#'
+#' @return The result of `fetchNHD()` if successful.
+#'
+#' @examples
+#' \dontrun{
+#' .safe_fetchNHD(.data, nhd_res = "Hi")
+#' }
+.safe_fetchNHD <- function(.data, nhd_res, pause_sec = 1, max_tries = 3) {
   for (i in seq_len(max_tries)) {
     result <- tryCatch(
-      {
-        fetchNHD(x, resolution = nhd_res)
-      },
+      fetchNHD(.data, resolution = nhd_res),
       error = function(e) e
     )
-
+    
     if (!inherits(result, "error")) {
       Sys.sleep(pause_sec)
       return(result)
     }
-
+    
     msg <- conditionMessage(result)
-
-    # retry only for 500-like/server errors
-    if (
-      !grepl("500|internal server|server", msg, ignore.case = TRUE) ||
-        i == max_tries
-    ) {
-      stop("fetchNHD failed after ", i, " attempt(s): ", msg, call. = FALSE)
+    
+    # Retry only for server-side errors
+    if (!grepl("500|internal server|server", msg, ignore.case = TRUE) || i == max_tries) {
+      stop(
+        "fetchNHD failed after ", i, " attempt(s): ", msg,
+        call. = FALSE
+      )
     }
-
+    
     message("fetchNHD failed (attempt ", i, "), retrying after delay: ", msg)
     Sys.sleep(pause_sec * i)
   }

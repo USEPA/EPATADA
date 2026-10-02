@@ -4,16 +4,27 @@
 \alias{.safe_fetchNHD}
 \title{.safe_fetchNHD}
 \usage{
-.safe_fetchNHD(x, nhd_res, pause_sec = 1, max_tries = 3)
+.safe_fetchNHD(.data, nhd_res, pause_sec = 1, max_tries = 3)
 }
 \arguments{
-\item{nhd_res}{Character argument. Options are "Hi" or "Med" resolution. Default is resolution = "Hi".}
+\item{.data}{Object passed to \code{fetchNHD()}.}
 
-\item{max_tries}{Integer argument. The number of times to retry a query after failure.}
+\item{nhd_res}{Character. NHD resolution to use, either \code{"Hi"} or \code{"Med"}.}
 
-\item{pause_sex}{Numeric argument. The number of seconds to pause between queries.}
+\item{pause_sec}{Numeric. Number of seconds to pause between queries.}
+
+\item{max_tries}{Integer. Number of attempts to make before stopping.}
+}
+\value{
+The result of \code{fetchNHD()} if successful.
 }
 \description{
-For use when fetchNHD must be applied with purrr::map(). This adds a pause between
-requests, retries on server failures, and stops function after the retries fail.
+Helper for use with \code{purrr::map()} when calling \code{fetchNHD()}. Adds a pause
+between requests, retries on server-side failures, and stops after the
+maximum number of retries is reached.
+}
+\examples{
+\dontrun{
+.safe_fetchNHD(.data, nhd_res = "Hi")
+}
 }
