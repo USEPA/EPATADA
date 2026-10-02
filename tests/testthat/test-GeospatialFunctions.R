@@ -172,6 +172,11 @@ testthat::test_that("fetchATTAINS org_id parameter", {
 
 
 testthat::test_that("fetchNHD handles small areas with defaults", {
+  # Skip the test if NHD High Res web service is unavailable
+  if (!.checkNHD(resolution = "Hi")) {
+    skip("NHD Hi Res web service not available, skipping test.")
+  }
+
   # small_bbox_data subset of large_bbox_data fixture (testdata/Hill_MT_pH.Rd)
   testthat::expect_no_error(
     result_NHD_small <- EPATADA:::fetchNHD(.data = small_bbox_data)
@@ -182,6 +187,11 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
 
 # not working on 7/21/26
 # testthat::test_that("fetchNHD with valid non-default features params", {
+# Skip the test if NHD High Res web service is unavailable
+# if(!.checkNHD_High()) {
+#  skip("NHD Hi Res web service not available, skipping test.")
+# }
+
 #   testthat::expect_no_error(
 #     flines <- EPATADA:::fetchNHD(
 #       .data = small_bbox_data,
@@ -199,26 +209,34 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
 # })
 
 testthat::test_that("fetchNHD with valid non-default resolution param Med", {
+  # Skip the test if NHD High Res web service is unavailable
+  if (!.checkNHD(resolution = "Med")) {
+    skip("NHD Med Res web service not available, skipping test.")
+  }
+
   testthat::expect_no_error(
     med_cat <- EPATADA:::fetchNHD(.data = small_bbox_data, resolution = "Med")
   )
   expect_equal(nrow(med_cat), 2) # Expected results
 })
 
-# testthat::test_that("fetchNHD error when invalid features param", {
-#   testthat::expect_error(
-#     EPATADA:::fetchNHD(.data = small_bbox_data, features = "Hi"),
-#     "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
-#   )
-# })
+testthat::test_that("fetchNHD error when invalid features param", {
+  # Skip the test if NHD High Res web service is unavailable
+  if (!.checkNHD(resolution = "Hi")) {
+    skip("NHD Hi Res web service not available, skipping test.")
+  }
+  testthat::expect_error(
+    EPATADA:::fetchNHD(.data = small_bbox_data, features = "Hi"),
+    "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
+  )
+})
 
 testthat::test_that("fetchNHD error when invalid resolution param", {
   testthat::expect_error(
     EPATADA:::fetchNHD(.data = small_bbox_data, resolution = "Lo"),
-    'User-supplied resolution unavailable. Please select between "Med" or "Hi".'
+    "should be one of"
   )
 })
-
 
 testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk correctly identifies already joined ATTAINS data", {
   # Create mock data with ATTAINS columns
@@ -413,170 +431,242 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
   )
 })
 
-# takes too long to run as of 7/21/26
-# testthat::test_that("TADA_FindNearbySites returns expected number of site groups", {
-#   # find nearby sites tests
-#
-#   # with defaults
-#   test_defaults <- TADA_FindNearbySites(nearby_data)
-#
-#   n_defaults <- test_defaults |>
-#     dplyr::select(TADA.NearbySiteGroup) |>
-#     dplyr::n_distinct()
-#
-#   testthat::expect_equal(n_defaults, 12)
-#
-#   # at 50 m with catchment
-#   test_fifty <- TADA_FindNearbySites(nearby_data, dist_buffer = 50)
-#
-#   n_fifty <- test_fifty |>
-#     dplyr::select(TADA.NearbySiteGroup) |>
-#     dplyr::n_distinct()
-#
-#   testthat::expect_equal(n_fifty, 8)
-#
-#   # without catchment
-#   test_bufferonly <- TADA_FindNearbySites(
-#     nearby_data,
-#     catchment = FALSE,
-#     dist_buffer = 100
-#   )
-#
-#   n_bufferonly <- test_bufferonly |>
-#     dplyr::select(TADA.NearbySiteGroup) |>
-#     dplyr::n_distinct()
-#
-#   testthat::expect_equal(n_bufferonly, 15)
-#
-#   # with AU
-#   # the expected value here may need to be updated if geospatial data for Data_MT_AUMLRef change
-#   test_au <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
-#     dplyr::filter(OrganizationIdentifier == "MTVOLWQM_WQX") |>
-#     TADA_FindNearbySites(by_AU = TRUE)
-#
-#   n_au <- test_au |>
-#     sf::st_drop_geometry() |>
-#     dplyr::select(TADA.NearbySiteGroup) |>
-#     dplyr::n_distinct()
-#
-#   testthat::expect_equal(n_au, 2)
-# })
+testthat::test_that("TADA_FindNearbySites returns no nearby sites when points are far apart", {
+  TADA_fake <- tibble::tibble(
+    TADA.MonitoringLocationIdentifier = c("site1", "site2"),
+    TADA.MonitoringLocationName = c("Site 1", "Site 2"),
+    TADA.LongitudeMeasure = c(-90, -80),
+    TADA.LatitudeMeasure = c(40, 50),
+    HorizontalCoordinateReferenceSystemDatumName = c("WGS84", "WGS84"),
+    OrganizationIdentifier = c("org1", "org2"),
+    TADA.MonitoringLocationTypeName = c("WELL", "WELL"),
+    ActivityStartDate = as.Date(c("2020-01-01", "2020-01-02")),
+    TADA.ResultMeasureValue = c(1, 2)
+  )
 
-# fails as of 7/21/26
-# testthat::test_that("TADA_FindNearbySites returns expected metadata", {
-#   # select by count
-#   test_count <- TADA_FindNearbySites(
-#     nearby_data,
-#     org_hierarchy = "none",
-#     meta_select = "count"
-#   )
-#
-#   test_count_filt <- test_count |>
-#     dplyr::filter(ResultIdentifier == "NWIS-33738169")
-#
-#   testthat::expect_equal(
-#     test_count_filt$TADA.MonitoringLocationIdentifier,
-#     "[USGS-06138570, CHIPCREE_WQX-LBS4]"
-#   )
-#
-#   testthat::expect_equal(test_count_filt$TADA.LatitudeMeasure, 48.4091576)
-#
-#   testthat::expect_equal(
-#     test_count_filt$TADA.MonitoringLocationTypeName,
-#     "STREAM"
-#   )
-#
-#   testthat::expect_equal(
-#     test_count_filt$TADA.NearbySites.Flag,
-#     "This monitoring location was grouped with other nearby site(s). Metadata were selected from MonitoringLocation with the most results available across all characteristics."
-#   )
-#
-#   # select by org hierarchy
-#   test_org <- TADA_FindNearbySites(
-#     nearby_data,
-#     org_hierarchy = c("CHIPCREE_WQX", "USGS-MT")
-#   )
-#
-#   test_org_filt <- test_org |>
-#     dplyr::filter(ResultIdentifier == "NWIS-33738169")
-#
-#   testthat::expect_equal(
-#     test_org_filt$TADA.MonitoringLocationIdentifier,
-#     "[USGS-06138570, CHIPCREE_WQX-LBS4]"
-#   )
-#
-#   testthat::expect_equal(test_org_filt$TADA.LatitudeMeasure, 48.40935910)
-#
-#   testthat::expect_equal(
-#     test_org_filt$TADA.MonitoringLocationTypeName,
-#     "RIVER/STREAM"
-#   )
-#
-#   testthat::expect_equal(
-#     test_org_filt$TADA.NearbySites.Flag,
-#     "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly."
-#   )
-# })
+  fake_nhd <- sf::st_sf(
+    NHD.nhdplusid = "1001",
+    NHD.resolution = "HR",
+    NHD.catchmentareasqkm = 1.23,
+    geometry = sf::st_sfc(sf::st_point(c(-90, 40)), crs = 4326)
+  )
 
-testthat::test_that("TADA_FindNearbySites respects the by_org argument", {
-  # Without organization filtering, at least one nearby-site group
-  # should contain sites from multiple organizations.
-  test_no_org_filter <- TADA_FindNearbySites(
-    nearby_data,
-    catchment = FALSE,
+  testthat::local_mocked_bindings(
+    .safe_fetchNHD = function(...) fake_nhd,
+    .package = "EPATADA"
+  )
+
+  result <- EPATADA::TADA_FindNearbySites(
+    TADA_fake,
+    catchment = TRUE,
+    dist_buffer = 100
+  )
+
+  testthat::expect_true(all(is.na(result$TADA.NearbySiteGroup)))
+  testthat::expect_true(all(
+    result$TADA.NearbySites.Flag == "No nearby sites detected."
+  ))
+})
+
+testthat::test_that("TADA_FindNearbySites groups nearby sites across organizations when by_org = FALSE", {
+  TADA_fake <- tibble::tibble(
+    TADA.MonitoringLocationIdentifier = c("site1", "site2", "site3"),
+    TADA.MonitoringLocationName = c("Site 1", "Site 2", "Site 3"),
+    TADA.LongitudeMeasure = c(-90.0000, -90.0001, -90.0002),
+    TADA.LatitudeMeasure = c(40.0000, 40.0001, 40.0002),
+    HorizontalCoordinateReferenceSystemDatumName = c("WGS84", "WGS84", "WGS84"),
+    OrganizationIdentifier = c("org1", "org2", "org1"),
+    TADA.MonitoringLocationTypeName = c("WELL", "WELL", "STREAM"),
+    ActivityStartDate = as.Date(c("2020-01-01", "2020-01-02", "2020-01-03")),
+    TADA.ResultMeasureValue = c(1, 2, 3)
+  )
+
+  fake_nhd <- sf::st_sf(
+    NHD.nhdplusid = c("1001", "1001", "1003"),
+    NHD.resolution = c("HR", "HR", "HR"),
+    NHD.catchmentareasqkm = c(1.1, 1.2, 1.3),
+    geometry = sf::st_sfc(
+      sf::st_point(c(-90.0000, 40.0000)),
+      sf::st_point(c(-90.0001, 40.0001)),
+      sf::st_point(c(-90.0002, 40.0002)),
+      crs = 4326
+    )
+  )
+
+  testthat::local_mocked_bindings(
+    .safe_fetchNHD = function(...) fake_nhd,
+    .package = "EPATADA"
+  )
+
+  result <- EPATADA::TADA_FindNearbySites(
+    TADA_fake,
+    catchment = TRUE,
     by_org = FALSE,
-    dist_buffer = 100
+    dist_buffer = 1000
   )
 
-  mixed_org_groups <- test_no_org_filter |>
+  testthat::expect_true(any(!is.na(result$TADA.NearbySiteGroup)))
+
+  grouped <- result |>
     sf::st_drop_geometry() |>
     dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
-    dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
-    dplyr::summarise(
-      n_orgs = dplyr::n_distinct(OrganizationIdentifier),
-      .groups = "drop"
-    ) |>
-    dplyr::filter(n_orgs > 1)
-
-  testthat::expect_gt(nrow(mixed_org_groups), 0)
-
-  # With organization filtering, no nearby-site group should contain
-  # monitoring locations from more than one organization.
-  test_by_org <- TADA_FindNearbySites(
-    nearby_data,
-    catchment = FALSE,
-    by_org = TRUE,
-    dist_buffer = 100
-  )
-
-  orgs_per_group <- test_by_org |>
-    sf::st_drop_geometry() |>
-    dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
-    dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+    dplyr::group_by(TADA.NearbySiteGroup) |>
     dplyr::summarise(
       n_orgs = dplyr::n_distinct(OrganizationIdentifier),
       .groups = "drop"
     )
 
-  testthat::expect_true(nrow(orgs_per_group) > 0)
-  testthat::expect_true(all(orgs_per_group$n_orgs == 1))
+  testthat::expect_true(any(grouped$n_orgs > 1))
 })
 
-testthat::test_that("TADA_FindNearbySites does not combine known sites from different organizations", {
-  test_by_org <- TADA_FindNearbySites(
-    nearby_data,
-    catchment = FALSE,
-    by_org = TRUE,
-    dist_buffer = 100
+
+testthat::test_that("TADA_FindNearbySites separates nearby sites by organization when by_org = TRUE", {
+  TADA_fake <- tibble::tibble(
+    TADA.MonitoringLocationIdentifier = c("site1", "site2", "site3"),
+    TADA.MonitoringLocationName = c("Site 1", "Site 2", "Site 3"),
+    TADA.LongitudeMeasure = c(-90.0000, -90.0001, -90.0002),
+    TADA.LatitudeMeasure = c(40.0000, 40.0001, 40.0002),
+    HorizontalCoordinateReferenceSystemDatumName = c("WGS84", "WGS84", "WGS84"),
+    OrganizationIdentifier = c("org1", "org2", "org1"),
+    TADA.MonitoringLocationTypeName = c("WELL", "WELL", "STREAM"),
+    ActivityStartDate = as.Date(c("2020-01-01", "2020-01-02", "2020-01-03")),
+    TADA.ResultMeasureValue = c(1, 2, 3)
   )
 
-  usgs_result <- test_by_org |>
-    sf::st_drop_geometry() |>
-    dplyr::filter(ResultIdentifier == "NWIS-33738169")
+  fake_nhd <- sf::st_sf(
+    NHD.nhdplusid = c("1001", "1001", "1001"),
+    NHD.resolution = c("HR", "HR", "HR"),
+    NHD.catchmentareasqkm = c(1.1, 1.2, 1.3),
+    geometry = sf::st_sfc(
+      sf::st_point(c(-90.0000, 40.0000)),
+      sf::st_point(c(-90.0001, 40.0001)),
+      sf::st_point(c(-90.0002, 40.0002)),
+      crs = 4326
+    )
+  )
 
-  testthat::expect_false(any(grepl(
-    "CHIPCREE_WQX-LBS4",
-    usgs_result$TADA.MonitoringLocationIdentifier,
-    fixed = TRUE
-  )))
+  testthat::local_mocked_bindings(
+    .safe_fetchNHD = function(...) fake_nhd,
+    .package = "EPATADA"
+  )
+
+  result <- EPATADA::TADA_FindNearbySites(
+    TADA_fake,
+    catchment = TRUE,
+    by_org = TRUE,
+    dist_buffer = 1000
+  )
+
+  grouped <- result |>
+    sf::st_drop_geometry() |>
+    dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
+    dplyr::group_by(TADA.NearbySiteGroup) |>
+    dplyr::summarise(
+      n_orgs = dplyr::n_distinct(OrganizationIdentifier),
+      .groups = "drop"
+    )
+
+  testthat::expect_true(nrow(grouped) == 1)
+  testthat::expect_true(all(grouped$n_orgs == 1))
+})
+
+testthat::test_that("TADA_FindNearbySites selects metadata by count", {
+  TADA_fake <- tibble::tibble(
+    TADA.MonitoringLocationIdentifier = c("site1", "site1", "site1", "site2"),
+    TADA.MonitoringLocationName = c("Site 1", "Site 1", "Site 1", "Site 2"),
+    TADA.LongitudeMeasure = c(-90.0000, -90.0000, -90.0000, -90.0003),
+    TADA.LatitudeMeasure = c(40.0000, 40.0000, 40.0000, 40.0003),
+    HorizontalCoordinateReferenceSystemDatumName = c(
+      "WGS84",
+      "WGS84",
+      "WGS84",
+      "WGS84"
+    ),
+    OrganizationIdentifier = c("org1", "org1", "org1", "org2"),
+    TADA.MonitoringLocationTypeName = c("STREAM", "STREAM", "STREAM", "WELL"),
+    ActivityStartDate = as.Date(c(
+      "2020-01-01",
+      "2021-01-01",
+      "2021-01-02",
+      "2020-01-03"
+    )),
+    TADA.ResultMeasureValue = c(1, 2, 3, 4)
+  )
+
+  fake_nhd <- sf::st_sf(
+    NHD.nhdplusid = c("1001", "1001", "1001", "1001"),
+    NHD.resolution = c("HR", "HR", "HR", "HR"),
+    NHD.catchmentareasqkm = c(1.1, 1.1, 1.1, 1.1),
+    geometry = sf::st_sfc(
+      sf::st_point(c(-90.0000, 40.0000)),
+      sf::st_point(c(-90.0000, 40.0000)),
+      sf::st_point(c(-90.0000, 40.0000)),
+      sf::st_point(c(-90.0003, 40.0003)),
+      crs = 4326
+    )
+  )
+
+  testthat::local_mocked_bindings(
+    .safe_fetchNHD = function(...) fake_nhd,
+    .package = "EPATADA"
+  )
+
+  result <- EPATADA::TADA_FindNearbySites(
+    TADA_fake,
+    org_hierarchy = "none",
+    meta_select = "count",
+    dist_buffer = 1000
+  )
+
+  result.watertype <- result |> dplyr::filter(OrganizationIdentifier == "org2")
+
+  testthat::expect_true(result$TADA.MonitoringLocationTypeName[1] == "STREAM")
+  testthat::expect_true(result$TADA.MonitoringLocationName[1] == "Site 1")
+})
+
+testthat::test_that("TADA_FindNearbySites groups nearby sites by distance", {
+  fake_nhd <- sf::st_sf(
+    NHD.nhdplusid = c("1001", "1001", "1001"),
+    NHD.resolution = c("HR", "HR", "HR"),
+    NHD.catchmentareasqkm = c(1.1, 1.1, 1.1),
+    geometry = sf::st_sfc(
+      sf::st_point(c(-90.0000, 40.0000)),
+      sf::st_point(c(-90.0001, 40.0001)),
+      sf::st_point(c(-90.0002, 40.0002)),
+      crs = 4326
+    )
+  )
+
+  fake_tada <- tibble::tibble(
+    TADA.MonitoringLocationIdentifier = c("site_a", "site_b", "site_c"),
+    TADA.MonitoringLocationName = c("Site A", "Site B", "Site C"),
+    TADA.LongitudeMeasure = c(-90.0000, -90.0001, -90.0002),
+    TADA.LatitudeMeasure = c(40.0000, 40.0001, 40.0050),
+    HorizontalCoordinateReferenceSystemDatumName = c("WGS84", "WGS84", "WGS84"),
+    OrganizationIdentifier = c("org1", "org2", "org1"),
+    TADA.MonitoringLocationTypeName = c("STREAM", "STREAM", "STREAM"),
+    ActivityStartDate = as.Date(c("2020-01-01", "2020-01-02", "2020-01-03")),
+    TADA.ResultMeasureValue = c(1, 2, 3)
+  )
+
+  testthat::local_mocked_bindings(
+    .safe_fetchNHD = function(...) fake_nhd,
+    .package = "EPATADA"
+  )
+
+  result <- EPATADA::TADA_FindNearbySites(
+    fake_tada,
+    catchment = FALSE,
+    by_org = FALSE,
+    dist_buffer = 50
+  )
+
+  testthat::expect_true(any(!is.na(result$TADA.NearbySiteGroup)))
+
+  grouped_ids <- result |>
+    dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
+    dplyr::pull(TADA.MonitoringLocationIdentifier)
+
+  testthat::expect_true("[site_a, site_b]" %in% grouped_ids)
+  testthat::expect_false("site_c" %in% grouped_ids)
 })

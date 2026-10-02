@@ -1847,3 +1847,106 @@ fetchWaterType <- function(au_list, api_key = NULL) {
 
   return(results)
 }
+
+#' .checkNHD
+#'
+#' Check NHD web services. For use in functions that rely on fetchNHD. This
+#' helper function will stop the function if web service is not available.
+#'
+#' @param resolution Character argument. Options are "Hi" or "Med" resolution. Default is resolution = "Hi".
+#' @param timeout_sec Numeric argument. The number of seconds allowed before timeout.
+
+.checkNHD <- function(resolution = c("Hi", "Med"), timeout_sec = 10) {
+  resolution <- match.arg(resolution)
+
+  old_timeout <- getOption("timeout")
+  options(timeout = timeout_sec)
+  on.exit(options(timeout = old_timeout), add = TRUE)
+
+  if (resolution == "Hi") {
+    nhd_plus_hr_url <- "https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer"
+
+    tryCatch(
+      {
+        arcgislayers::arc_open(nhd_plus_hr_url)
+        TRUE
+      },
+      error = function(e) {
+        message(
+          "The NHD High Resolution web service is currently unavailable. ",
+          "Please try again later."
+        )
+        FALSE
+      }
+    )
+  } else if (resolution == "Med") {
+    dummy_aoi <- sf::st_as_sf(
+      data.frame(x = -90, y = 40),
+      coords = c("x", "y"),
+      crs = 4326
+    )
+
+    tryCatch(
+      {
+        suppressMessages(hydrogeofetch::get_nhdplus(
+          AOI = dummy_aoi,
+          realization = "catchment"
+        ))
+        TRUE
+      },
+      error = function(e) {
+        message(
+          "The NHDPlus V2 service is currently unavailable. ",
+          "Please try again later.\n",
+          "Reason: ",
+          conditionMessage(e)
+        )
+        FALSE
+      }
+    )
+  }
+}
+
+#' .safe_fetchNHD
+#'
+#' Helper for use with `purrr::map()` when calling `fetchNHD()`. Adds a pause
+#' between requests, retries on server-side failures, and stops after the
+#' maximum number of retries is reached.
+#'
+#' @param .data Object passed to `fetchNHD()`.
+#' @param nhd_res Character. NHD resolution to use, either `"Hi"` or `"Med"`.
+#' @param pause_sec Numeric. Number of seconds to pause between queries.
+#' @param max_tries Integer. Number of attempts to make before stopping.
+#'
+#' @return The result of `fetchNHD()` if successful.
+#'
+#' @examples
+#' \dontrun{
+#' .safe_fetchNHD(.data, nhd_res = "Hi")
+#' }
+.safe_fetchNHD <- function(.data, nhd_res, pause_sec = 1, max_tries = 3) {
+  for (i in seq_len(max_tries)) {
+    result <- tryCatch(
+      fetchNHD(.data, resolution = nhd_res),
+      error = function(e) e
+    )
+
+    if (!inherits(result, "error")) {
+      Sys.sleep(pause_sec)
+      return(result)
+    }
+
+    msg <- conditionMessage(result)
+
+    # Retry only for server-side errors
+    if (
+      !grepl("500|internal server|server", msg, ignore.case = TRUE) ||
+        i == max_tries
+    ) {
+      stop("fetchNHD failed after ", i, " attempt(s): ", msg, call. = FALSE)
+    }
+
+    message("fetchNHD failed (attempt ", i, "), retrying after delay: ", msg)
+    Sys.sleep(pause_sec * i)
+  }
+}

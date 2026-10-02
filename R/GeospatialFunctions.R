@@ -461,6 +461,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 #' @param .data A dataframe created by `TADA_DataRetrieval()` or the geospatial equivalent made by `TADA_MakeSpatial()`.
 #' @param resolution Whether to download the NHDPlus HiRes resolution ("Hi") or medium NHDPlus V2 resolution ("Med") version of the National Hydrography Dataset (NHD). Default is "Hi".
 #' @param features Which NHD features to return: "catchments", "flowlines", "waterbodies", or any combination.
+#' @param check_service Boolean argument. When check_service equals TRUE, the selected NHD service (High or Medium resolution) will be inspected before attempting to run this function. Default is check_service equals TRUE.
 #'
 #' @return A list containing all selected NHD features associated with the WQP observations of interest. Or, if a single feature type is selected, a single geospatial object instead of a list. Default is "catchments" only.
 #'
@@ -483,7 +484,38 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 #'   features = c("catchments", "waterbodies", "flowlines")
 #' )
 #' }
-fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
+fetchNHD <- function(
+  .data,
+  resolution = "Hi",
+  features = "catchments",
+  check_service = TRUE
+) {
+  # check web services when check_service equals TRUE
+  if (isTRUE(check_service)) {
+    ok <- .checkNHD(resolution = resolution)
+    if (isFALSE(ok)) {
+      message(paste0(
+        "NHD web service check failed for ",
+        resolution,
+        " resolution."
+      ))
+      return(NULL)
+    }
+  }
+
+  # check user params
+  if (!features %in% c("catchments", "flowlines", "waterbodies")) {
+    stop(
+      "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
+    )
+  }
+
+  if (!resolution %in% c("Hi", "Med")) {
+    stop(
+      "User-supplied resolution unavailable. Please select between 'Med' or 'Hi'."
+    )
+  }
+
   # function settings that we ensure go back to their original settings
   # after the function stops running:
   original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
@@ -500,7 +532,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
     # If data is already spatial, just make sure it is in the right CRS
     if (!is.null(.data) & inherits(.data, "sf")) {
       if (sf::st_crs(.data)$epsg != 4326) {
-        geospatial_data <- .data |> sf::st_transform(out_epsg)
+        geospatial_data <- .data |> sf::st_transform(4326)
       } else {
         geospatial_data <- .data
       }
@@ -1988,7 +2020,7 @@ TADA_GetATTAINSByAUID <- function(
   return(final_features)
 }
 
-#' Identify and group nearby monitoring locations (UNDER ACTIVE DEVELOPMENT)
+#' Identify and group nearby monitoring locations
 #'
 #' This function takes a TADA dataset and identifies the NHD catchments that
 #' each MonitoringLocation is in. Within each group of MonitoringLocations in
@@ -2200,7 +2232,10 @@ TADA_FindNearbySites <- function(
     near.dfs <- near.sites |> dplyr::group_split(Group, .keep = FALSE)
 
     # fetch nhdplus catchment information
-    nhd.catch <- near.dfs |> purrr::map(~ .x |> fetchNHD(resolution = nhd_res))
+    nhd.catch <- near.dfs |>
+      purrr::map(
+        ~ .safe_fetchNHD(.data, nhd_res = nhd_res, pause_sec = 1, max_tries = 3)
+      )
 
     # remove intermediate object
     rm(near.dfs)
