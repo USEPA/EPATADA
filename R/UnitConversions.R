@@ -1246,6 +1246,8 @@ TADA_ConvertDepthUnits <- function(
   }
   # function should always run all code above
 
+  # Loop over all supplied depth columns, create TADA columns, then join conversion table
+
   # if transform = FALSE, output data
   if (transform == FALSE) {
     # add WQX.Depth.TargetUnit column
