@@ -51,6 +51,14 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      # gdtools, used by MESS::cumsumbinning(), requires libXrender on macOS.
+      # Install XQuartz before R dependencies so gdtools can be built and loaded.
+      - name: Install XQuartz
+        if: runner.os == 'macOS'
+        run: |
+          brew install --cask xquartz
+          test -f /opt/X11/lib/libXrender.1.dylib
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
