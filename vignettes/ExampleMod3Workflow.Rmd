@@ -293,11 +293,9 @@ list of all allowable ATTAINS parameter names in order to select a
 match. If there is not a suitable existing ATTAINS parameter name ,
 users should contact the ATTAINS team (attains\@epa.gov) for assistance.
 
-For our first example, we will specify Montana's organization identifier
-("MTDEQ") as our ATTAINS organization identifier of interest. By
-default, auto_assign = "None" which will not populate any entries for
-the ATTAINS.ParameterName column, and users will need to manually fill
-this crosswalk out.
+For our first example, we will set Montana's organization identifier
+("MTDEQ") as the org_id. By default, auto_assign = "None" which will not
+populate any entries for the ATTAINS.ParameterName column.
 
 ```{r auto_assign-none}
 # create TADA parameter reference table for specified organization
@@ -316,10 +314,11 @@ TADA_TableExport(MT.ParamRef.None)
 ### Auto_assign Options
 
 Now, let's see what happens we we use auto_assign = 'All' to
-autopopulate characteristic alias matches. The auto assignment will
-create exact matches based on the entire list of allowable ATTAINS
-parameters. This means that parameter names your organization has not
-previously record in ATTAINS may be included in the assignments.
+autopopulate characteristic matches. The auto assignment will create
+exact matches based on the entire list of allowable ATTAINS parameters.
+This means that parameter names your organization has not previously
+associated with an assessment in ATTAINS may be included in the
+assignments.
 
 ```{r auto_assign-All}
 # create TADA parameter reference table for specified organization
@@ -335,8 +334,8 @@ TADA_TableExport(MT.ParamRef.All)
 ```
 
 Another option is to set auto_assign = 'Org'. This limits the
-characteristic alias matches to return only ATTAINS.ParameterNames that
-an organization has used in the past.
+characteristic matches to return only ATTAINS.ParameterNames that an
+organization has used in previous assessments.
 
 ```{r auto_assign-Org}
 # create TADA parameter reference table for specified organization
@@ -355,7 +354,7 @@ TADA_TableExport(MT.ParamRef.Org)
 ### Manual Parameter Crosswalk
 
 The code chunk below demonstrates how the parameter reference table can
-be modified in R.
+be modified in R using dplyr functions.
 
 ```{r Manually-Create-ParamRef}
 # only run the code chunks below if you make edits to the excel file. Please note you must open and save the excel file at least once to reflect all Excel formula based values.
@@ -382,12 +381,12 @@ TADA_TableExport(MT.ParamRef.manual)
 
 ### Provide a User Supplied paramRef
 
-Once modifications are complete, we can re-run
-TADA_ParametersForAnalysis using the modified parameter reference table
-as the input for "paramRef". This will update the
-ATTAINS.FlagParameterName column in the parameter reference table (see
-example below). This column provides information about whether or not
-the organization specified in the "ATTAINS.OrganizationIdentifier"
+After manually editing the reference table (MT.PramRef.manual in the
+code chunk above), we can re-run TADA_ParametersForAnalysis using the
+modified parameter reference table as paramRef input. This will update
+the ATTAINS.FlagParameterName column in the parameter reference table
+(see example below). This column provides information about whether or
+not the organization specified in the "ATTAINS.OrganizationIdentifier"
 column has listed this parameter as a cause in prior assessment cycles.
 It also flags rows where the TADA.ComparableDataIdentifier as not been
 assigned an ATTAINS parameter name.
@@ -408,17 +407,15 @@ TADA_TableExport(MT.ParamRef.user.supplied)
 ### Review, Save and Re-Use paramRef
 
 Once the parameter reference table has been reviewed and modified, it
-can be saved and reused for analysis of future TADA data frames. This
-process is useful to help identify if new WQP characteristics (or new
-fraction/speciations) are being queried in your most up to date WQP
-query and to allow you to review how to handle these new additions.
+can be saved and reused for future analyses. Reusing the paramRef means
+that only new WQP characteristics (or new fraction/speciations) must be
+matched with ATTAINS parameter names.
 
 If new WQP characteristics (or new fraction/speciations) do show up,
 your user supplied 'paramRef' is prioritized over the 'auto_assign'
-argument inputs. The auto_assign option will allow you to fill in any
-remaining blank ATTAINS.ParameterName that you have not filled in but
-will not replace any cross walk that you have defined in your user
-supplied crosswalk. In our case, since each unique
+argument inputs. No user assigned mataches will be replaced. The
+auto_assign option will allow you to fill in any remaining blank
+ATTAINS.ParameterNames. In our case, since each unique
 TADA.ComparableDataIdentifier was cross walked to an
 ATTAINS.ParameterName in the user supplied 'MT.ParamRef_user_supplied,
 this table will be the same.
@@ -440,8 +437,9 @@ identical(MT.ParamRef.Final[1:4], MT.ParamRef.user.supplied[1:4])
 TADA_TableExport(MT.ParamRef.Final)
 ```
 
-Remove intermediate variable, we will keep only the crosswalk tables
-that are relevant for the remaining workflow.
+The code chunk below removes all intermediate variables generated so
+far. We will keep only the crosswalk tables that are relevant for the
+remaining workflow.
 
 ```{r remove-intermediate-variables}
 rm(MT.ParamRef.All, MT.ParamRef.manual, MT.ParamRef.None, MT.ParamRef.Org, MT.ParamRef.user.supplied)
@@ -450,24 +448,22 @@ rm(MT.ParamRef.All, MT.ParamRef.manual, MT.ParamRef.None, MT.ParamRef.Org, MT.Pa
 # TADA_UsesForAnalysis() Basics
 
 Users will review the output of this function and select which
-ATTAINS.UseName(s) and associated ATTAINS.ParameterName(s), for your
-specified ATTAINS organization(s), are applicable for analysis. Later in
-the analysis process, users will define the criteria and methodologies
-that are applicable to each ATTAINS use name and parameter name marked
-as “Include.” If an ATTAINS.UseName is not applicable for that given
+ATTAINS.UseName(s) and associated ATTAINS.ParameterName(s) are
+applicable for analysis by selecting "Include" in the COLUMNNAME column.
+If an ATTAINS.UseName is not applicable for that given
 ATTAINS.ParameterName, select “Exclude.” Deleting the row is allowed,
 but we recommend labeling it as “Exclude” to document that it has been
 reviewed. If an ATTAINS.UseName needs to be added for an
-ATTAINS.ParameterName, append an additional row to capture this.
+ATTAINS.ParameterName, append an additional row.
 
-For any remaining ATTAINS parameter name(s) that are not included by an
-organization in prior assessment cycles, they will not have any
-associated prior use names. In this case, users must manually assign the
-appropriate ATTAINS.UseName under the column 'ATTAINS.UseName'. They may
-need to add additional rows if the parameter applies to multiples uses.
-Alternatively, users can choose to use the 'auto_assign' to assign all
-unique ATTAINS.UseName by ATTAINS.OrganizationName to any
-ATTAINS.ParameterName missing a use name associated with it.
+Any ATTAINS parameter name(s) not associated with an assessment in prior
+cycles, will not have any associated prior use names. In this case,
+users must manually assign the appropriate ATTAINS.UseName under the
+column 'ATTAINS.UseName'. Multiple row may need to be added if the
+parameter applies to multiples uses. Alternatively, users can choose to
+use the 'auto_assign' to assign all unique ATTAINS.UseName by
+ATTAINS.OrganizationName to any ATTAINS.ParameterName missing a use name
+associated with it.
 
 We will start off with the simple use case in which TADA users can run
 this function with just the TADA dataframe, paramRef input and org_id
