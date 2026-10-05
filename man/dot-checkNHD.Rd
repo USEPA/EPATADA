@@ -4,7 +4,7 @@
 \alias{.checkNHD}
 \title{.checkNHD}
 \usage{
-.checkNHD(resolution = "Hi", timeout_sec = 10)
+.checkNHD(resolution = c("Hi", "Med"), timeout_sec = 10)
 }
 \arguments{
 \item{resolution}{Character argument. Options are "Hi" or "Med" resolution. Default is resolution = "Hi".}
