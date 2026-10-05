@@ -457,7 +457,6 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
 })
 
 testthat::test_that("TADA_FindNearbySites returns no nearby sites when points are far apart", {
-
   TADA_fake <- tibble::tibble(
     TADA.MonitoringLocationIdentifier = c("site1", "site2"),
     TADA.MonitoringLocationName = c("Site 1", "Site 2"),
@@ -482,14 +481,19 @@ testthat::test_that("TADA_FindNearbySites returns no nearby sites when points ar
     .package = "EPATADA"
   )
 
-  result <- EPATADA::TADA_FindNearbySites(TADA_fake, catchment = TRUE, dist_buffer = 100)
+  result <- EPATADA::TADA_FindNearbySites(
+    TADA_fake,
+    catchment = TRUE,
+    dist_buffer = 100
+  )
 
   testthat::expect_true(all(is.na(result$TADA.NearbySiteGroup)))
-  testthat::expect_true(all(result$TADA.NearbySites.Flag == "No nearby sites detected."))
+  testthat::expect_true(all(
+    result$TADA.NearbySites.Flag == "No nearby sites detected."
+  ))
 })
 
 testthat::test_that("TADA_FindNearbySites groups nearby sites across organizations when by_org = FALSE", {
-
   TADA_fake <- tibble::tibble(
     TADA.MonitoringLocationIdentifier = c("site1", "site2", "site3"),
     TADA.MonitoringLocationName = c("Site 1", "Site 2", "Site 3"),
@@ -532,14 +536,16 @@ testthat::test_that("TADA_FindNearbySites groups nearby sites across organizatio
     sf::st_drop_geometry() |>
     dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
     dplyr::group_by(TADA.NearbySiteGroup) |>
-    dplyr::summarise(n_orgs = dplyr::n_distinct(OrganizationIdentifier), .groups = "drop")
+    dplyr::summarise(
+      n_orgs = dplyr::n_distinct(OrganizationIdentifier),
+      .groups = "drop"
+    )
 
   testthat::expect_true(any(grouped$n_orgs > 1))
 })
 
 
 testthat::test_that("TADA_FindNearbySites separates nearby sites by organization when by_org = TRUE", {
-
   TADA_fake <- tibble::tibble(
     TADA.MonitoringLocationIdentifier = c("site1", "site2", "site3"),
     TADA.MonitoringLocationName = c("Site 1", "Site 2", "Site 3"),
@@ -580,23 +586,35 @@ testthat::test_that("TADA_FindNearbySites separates nearby sites by organization
     sf::st_drop_geometry() |>
     dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
     dplyr::group_by(TADA.NearbySiteGroup) |>
-    dplyr::summarise(n_orgs = dplyr::n_distinct(OrganizationIdentifier), .groups = "drop")
+    dplyr::summarise(
+      n_orgs = dplyr::n_distinct(OrganizationIdentifier),
+      .groups = "drop"
+    )
 
   testthat::expect_true(nrow(grouped) == 1)
   testthat::expect_true(all(grouped$n_orgs == 1))
 })
 
 testthat::test_that("TADA_FindNearbySites selects metadata by count", {
-
   TADA_fake <- tibble::tibble(
     TADA.MonitoringLocationIdentifier = c("site1", "site1", "site1", "site2"),
     TADA.MonitoringLocationName = c("Site 1", "Site 1", "Site 1", "Site 2"),
-    TADA.LongitudeMeasure = c(-90.0000, -90.0000,-90.0000, -90.0003),
+    TADA.LongitudeMeasure = c(-90.0000, -90.0000, -90.0000, -90.0003),
     TADA.LatitudeMeasure = c(40.0000, 40.0000, 40.0000, 40.0003),
-    HorizontalCoordinateReferenceSystemDatumName = c("WGS84", "WGS84", "WGS84", "WGS84"),
+    HorizontalCoordinateReferenceSystemDatumName = c(
+      "WGS84",
+      "WGS84",
+      "WGS84",
+      "WGS84"
+    ),
     OrganizationIdentifier = c("org1", "org1", "org1", "org2"),
     TADA.MonitoringLocationTypeName = c("STREAM", "STREAM", "STREAM", "WELL"),
-    ActivityStartDate = as.Date(c("2020-01-01", "2021-01-01", "2021-01-02", "2020-01-03")),
+    ActivityStartDate = as.Date(c(
+      "2020-01-01",
+      "2021-01-01",
+      "2021-01-02",
+      "2020-01-03"
+    )),
     TADA.ResultMeasureValue = c(1, 2, 3, 4)
   )
 
@@ -625,15 +643,13 @@ testthat::test_that("TADA_FindNearbySites selects metadata by count", {
     dist_buffer = 1000
   )
 
-  result.watertype <- result |>
-    dplyr::filter(OrganizationIdentifier == "org2")
+  result.watertype <- result |> dplyr::filter(OrganizationIdentifier == "org2")
 
   testthat::expect_true(result$TADA.MonitoringLocationTypeName[1] == "STREAM")
   testthat::expect_true(result$TADA.MonitoringLocationName[1] == "Site 1")
 })
 
 testthat::test_that("TADA_FindNearbySites groups nearby sites by distance", {
-
   fake_nhd <- sf::st_sf(
     NHD.nhdplusid = c("1001", "1001", "1001"),
     NHD.resolution = c("HR", "HR", "HR"),
@@ -646,7 +662,7 @@ testthat::test_that("TADA_FindNearbySites groups nearby sites by distance", {
     )
   )
 
-  fake_tada <-tibble::tibble(
+  fake_tada <- tibble::tibble(
     TADA.MonitoringLocationIdentifier = c("site_a", "site_b", "site_c"),
     TADA.MonitoringLocationName = c("Site A", "Site B", "Site C"),
     TADA.LongitudeMeasure = c(-90.0000, -90.0001, -90.0002),
