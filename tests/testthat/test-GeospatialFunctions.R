@@ -96,6 +96,11 @@ testthat::test_that("TADA_MakeSpatial fails with appropriate errors", {
 
 
 testthat::test_that("fetchATTAINS fails with appropriate errors", {
+
+  if (!.checkATTAINS()) {
+    testthat::skip("ATTAINS web service not available, skipping test.")
+  }
+
   # Test with NULL data
   testthat::expect_error(
     EPATADA:::fetchATTAINS(.data = NULL),
@@ -104,6 +109,11 @@ testthat::test_that("fetchATTAINS fails with appropriate errors", {
 })
 
 testthat::test_that("fetchATTAINS handles small areas", {
+
+  if (!.checkATTAINS()) {
+    testthat::skip("ATTAINS web service not available, skipping test.")
+  }
+
   # small_bbox_data is subset of large_bbox_data fixture (testdata/Hill_MT_pH.Rd)
   testthat::expect_no_error(
     result_all_features <- EPATADA:::fetchATTAINS(.data = small_bbox_data)
@@ -118,6 +128,11 @@ testthat::test_that("fetchATTAINS handles small areas", {
 })
 
 testthat::test_that("fetchATTAINS handles large areas", {
+
+  if (!.checkATTAINS()) {
+    testthat::skip("ATTAINS web service not available, skipping test.")
+  }
+
   # large_bbox_data from fixtures (testdata/Hill_MT_pH.Rd)
   testthat::expect_no_error(
     result_all_features <- EPATADA:::fetchATTAINS(.data = large_bbox_data)
@@ -129,6 +144,11 @@ testthat::test_that("fetchATTAINS handles large areas", {
 })
 
 testthat::test_that("fetchATTAINS catchments_only parameter", {
+
+  if (!.checkATTAINS()) {
+    testthat::skip("ATTAINS web service not available, skipping test.")
+  }
+
   testthat::expect_no_error(
     result_catchments_only <- EPATADA:::fetchATTAINS(
       .data = small_bbox_data,
@@ -146,6 +166,11 @@ testthat::test_that("fetchATTAINS catchments_only parameter", {
 })
 
 testthat::test_that("fetchATTAINS org_id parameter", {
+
+  if (!.checkATTAINS()) {
+    testthat::skip("ATTAINS web service not available, skipping test.")
+  }
+
   # Test when non-default (default is 'all')
   org <- "RIDEM"
   testthat::expect_no_error(
