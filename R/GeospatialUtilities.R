@@ -1966,8 +1966,8 @@ fetchWaterType <- function(au_list, api_key = NULL) {
 #' Helper function for fetchNHD to get a layer from the opened map service for
 #' NHD hi res.
 #'
-#' @nhd The opened map service object returned by .nhd_arc_open(url).
-#' @id Integer argument. The layer ID inside the HR map server.
+#' @param nhd The opened map service object returned by .nhd_arc_open(url).
+#' @param id Integer argument. The layer ID inside the HR map server.
 #'
 .nhd_get_layer <- function(nhd, id) {
   arcgislayers::get_layer(nhd, id)
@@ -1977,9 +1977,9 @@ fetchWaterType <- function(au_list, api_key = NULL) {
 #'
 #' Select features from a layer using geometry for NHD hi res.
 #'
-#' @layer The already-selected map layer object.
-#' @filter_geom The geometry used to spatially filter features, usually an sf geometry or sfc object.
-#' @crs The coordinate reference system for the geometry used in the query, usually from sf::st_crs(...).
+#' @param layer The already-selected map layer object.
+#' @param filter_geom The geometry used to spatially filter features, usually an sf geometry or sfc object.
+#' @param crs The coordinate reference system for the geometry used in the query, usually from sf::st_crs(...).
 #'
 .nhd_arc_select <- function(layer, filter_geom, crs) {
   arcgislayers::arc_select(
@@ -1994,9 +1994,9 @@ fetchWaterType <- function(au_list, api_key = NULL) {
 #' Sends an area of interest (AOI) to hydrogeofetch and asks for a specific
 #' NHDPlus V2 feature type using realization. For NHD Med resolution.
 #'
-#' @AOI Area of interest. This is usually an sf object representing the site or
+#' @param AOI Area of interest. This is usually an sf object representing the site or
 #' catchment used as input to hydrogeofetch.
-#' @realization Character argument. What kind of NHD feature to retrieve with
+#' @param realization Character argument. What kind of NHD feature to retrieve with
 #' hydrogeofetch, such as: "catchment" or "flowline".
 #'
 .nhd_get_nhdplus <- function(AOI, realization) {
@@ -2011,7 +2011,7 @@ fetchWaterType <- function(au_list, api_key = NULL) {
 #' Sends an area of interest (AOI) and returns nearby waterbody features. For NHD
 #' Med resolution.
 #'
-#' @AIU Area of interest. This is usually an sf object representing the site or
+#' @param AIU Area of interest. This is usually an sf object representing the site or
 #' catchment used as input to hydrogeofetch.
 .nhd_get_waterbodies <- function(AOI) {
   hydrogeofetch::get_waterbodies(
