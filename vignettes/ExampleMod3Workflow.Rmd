@@ -114,8 +114,8 @@ define and capture organization specific water quality analysis criteria
 and methodologies. This is a continuation of an example TADA workflow
 which began with ExampleMod2Workflow.Rmd.
 
-This vignette provides an overview of three functions that
-can assist users with:
+This vignette provides an overview of three functions that can assist
+users with:
 
 -   Creating a crosswalk (reference table) between ATTAINS parameter
     names, WQP/TADA characteristic names, and TADA comparable data
@@ -128,12 +128,23 @@ can assist users with:
     parameters to locations (monitoring locations or assessment units)
     and capture any unique site-specific WQS criteria.
 
-These functions are designed to be flexible so users from states, tribes, or territories can access organization-specific information from ATTAINS. While TADA functions can help generate these crosswalks and fill in some values, users must review and modify the tables generated in each step to ensure accuracy. The TADA team has also inlucded the option to incorporate nationally recommended Clean Water Act (CWA) EPA 304(a) numeric criteria as part of the analysis. This allows users to analyze their data against the EPA 304(a) criteria and easily compare those results vs. results from using their own criteria.
+These functions are designed to be flexible so users from states,
+tribes, or territories can access organization-specific information from
+ATTAINS. While TADA functions can help generate these crosswalks and
+fill in some values, users must review and modify the tables generated
+in each step to ensure accuracy. The TADA team has also included the
+option to incorporate nationally recommended Clean Water Act (CWA) EPA
+304(a) numeric criteria as part of the analysis. This allows users to
+analyze their data against the EPA 304(a) criteria and easily compare
+those results to results from using their own criteria.
 
 # Getting Started
 
 First, we will load example reference tables (crosswalks) created for
-TADA workflow example purposes. These are (1) a WQP Monitoring Locations to ATTAINS Assessment Unit (ML to AU) crosswalk and (2) an ATTAINS Uses to ATTAINS Assessment Unit (Uses to AU) crosswalk. To learn how these reference tables were created, see the ExampleMod2Workflow vignette.
+TADA workflow example purposes. These are (1) a WQP Monitoring Locations
+to ATTAINS Assessment Unit (ML to AU) crosswalk and (2) an ATTAINS Uses
+to ATTAINS Assessment Unit (Uses to AU) crosswalk. To learn how these
+reference tables were created, see the ExampleMod2Workflow vignette.
 
 ```{r load-data}
 # import example data set, example AUML crosswalk and example uses to AU crosswalk.
@@ -146,9 +157,14 @@ MT_AU_UsesRef <- Data_MT_AU_UsesRef
 
 ## Get WQP Monitoring Data in Montana Using TADA_DataRetrieval()
 
-Let's start with an example data frame that has already been through the TADA Module 1 workflow including data cleaning, wrangling, harmonization, handling of censored data, removal of suspect results, etc. LINK TO APPROPRIATE VIGNETTE.
-This process must be completed by users before utilizing Module 2 or 3
-function. In this example, we will go through some minimal cleaning with an example data set from Montana. The first step is to retreivew WQP bacteria and pH data from Missoula County, Montana from 2020-2022.
+Let's start with an example data frame that has already been through the
+TADA Module 1 workflow including data cleaning, wrangling,
+harmonization, handling of censored data, removal of suspect results,
+etc. LINK TO APPROPRIATE VIGNETTE. This process must be completed by
+users before utilizing Module 2 or 3 function. In this example, we will
+go through some minimal cleaning with an example data set from Montana.
+The first step is to retreive WQP bacteria and pH data from Missoula
+County, Montana from 2020-2022.
 
 ```{r tada-data, eval = F}
 # get MT data
@@ -183,17 +199,20 @@ utils::data("Data_MT_MissoulaCounty", package = "EPATADA")
 tada.MT.clean <- Data_MT_MissoulaCounty
 ```
 
-The remainder of this vignette will walk through how to fill out two crosswalk tables (TADA_ParametersForAnalysis and TADA_UsesForAnalysis) that are needed before we can start assigning applicable criteria and methodologies information for this specific ATTAINS organization (MTDEQ).
+The remainder of this vignette will walk through how to fill out the two
+crosswalk tables (TADA_ParametersForAnalysis and TADA_UsesForAnalysis)
+that are required before assigning applicable criteria and
+methodologies.
 
 # ATTAINS Domains and Allowable Values
 
-A crosswalk between TADA characteristics and ATTAINS parameters is
-needed before we can integrate information from these two data sets.
-Before creating the TADA/WQP CharacteristicName and ATTAINS parameter
-crosswalk table (TADA_ParametersForAnalysis), let's review all the
-unique TADA.ComparableDataIdentifiers (characteristic, fraction and
-speciation combinations) in the example data. How many results are
-available for each within the example data set?
+We need a crosswalk between TADA characteristics and ATTAINS parameters
+to integrate information from WQP and ATTAINS. Before creating the
+TADA/WQP CharacteristicName and ATTAINS parameter crosswalk table
+(TADA_ParametersForAnalysis), let's review all the unique
+TADA.ComparableDataIdentifiers (characteristic, fraction and speciation
+combinations) in the example data. How many results are available for
+each within the example data set?
 
 ```{r comparabledataID-counts}
 # create table with counts of TADA.ComparableDataIdentifiers
@@ -201,12 +220,12 @@ TADA_FieldValuesTable(tada.MT.clean, field = "TADA.ComparableDataIdentifier")
 ```
 
 In this vignette, we will crosswalk each of these
-TADA.ComparableDataIdentifiers to ATTAINS parameter names. ATTAINS has
-multiple domains, including the parameter names domain, that have
-allowable values. Using the R package rExpertQuery, which provides
-functions for downloading tidy data from the ATTAINS public web services
-(<https://github.com/USEPA/rExpertQuery>), we can review all ATTAINS
-domains (see example below).
+TADA.ComparableDataIdentifiers to ATTAINS parameter names. Using the R
+package rExpertQuery, which provides functions for downloading tidy
+ATTAINS data via Expert Query web services
+(<https://github.com/USEPA/rExpertQuery>), we can review allowable
+ATTAINS domain values. The code chunk below demonstrates how to retrieve
+all domain values for ATTAINS parameter names.
 
 ```{r ATTAINS-params}
 # set API key for rExpertQuery
@@ -215,11 +234,12 @@ rEQ_api <- EPATADA:::.setEQKey()
 TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name", api_key = rEQ_api))
 ```
 
-In the next section, we will review which parameters have been listed in
-ATTAINS in the past for a specific organization. In order to select a
-specific organization in the TADA_ParametersForAnalysis() function, we
-need to identify the organization id used in ATTAINS. The organization
-id for Montana is "MTDEQ".
+In the next section, we will review which parameters have been included
+in previous assessments in ATTAINS for a single organization. In order
+to select an organization in the TADA_ParametersForAnalysis() function,
+we need to identify the organization id used in ATTAINS. The code chunk
+below retrieves all domain values for ATTAINS organization ids. The
+organization id for Montana is "MTDEQ".
 
 ```{r ATTAINS-orgs}
 # return ATTAINS organization domain values
@@ -228,33 +248,29 @@ TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id", api_key = rEQ_api))
 
 # TADA_ParametersForAnalysis() Basics
 
-ATTAINS Parameter Names are more general than the TADA Comparable Data
+ATTAINS Parameter Names are more general TADA Comparable Data
 Identifiers. Therefore, we recommend users provide a crosswalk between
-each TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
-TADA_ParametersForAnalysis() creates a template which includes all
-TADA.ComparableDataIdentifiers from the TADA data frame and contains a
-blank column, "ATTAINS.ParameterName" for users to input the
-corresponding ATTAINS parameter name.
+them. TADA_ParametersForAnalysis() creates a template which includes all
+TADA.ComparableDataIdentifiers from the TADA data frame and a blank
+column, "ATTAINS.ParameterName" for users to add the corresponding
+ATTAINS parameter name.
 
-TADA_ParametersForAnalysis() includes an argument input 'auto_assign' to
-assist users in finding an alias name between TADA Characteristic Names
-to ATTAINS Parameter Name, if one is found. It is important to note that
-even with these exact matches, there are additional complexities related
-to fraction, speciation and units that may be unique to your
-organization. For example, some organizations may consider Total
-Nitrogen, Nitrate/Nitrite, and Ammonia all to match the ATTAINS
-parameter "Nitrogen", while others may consider only some
-fraction/speciation combinations analogous to the ATTAINS parameter
+TADA_ParametersForAnalysis() includes the argument input 'auto_assign'.
+When auto_assign equals TRUE, the function assists users matching TADA
+Characteristic Names to ATTAINS Parameter Name. Even with these exact
+matches, there are additional complexities related to fraction,
+speciation and units that must be reviewed. For example, some
+organizations may consider Total Nitrogen, Nitrate/Nitrite, and Ammonia
+all matches to the ATTAINS parameter "Nitrogen". Others may different
+fraction/speciation combination(s) analogous to the ATTAINS parameter
 "Nitrogen".
 
 Setting "excel = TRUE" in TADA_ParametersForAnalysis tells the function
-to create an Excel spreadsheet of the reference table for review and
-editing. The excel output includes logic to help a user select ATTAINS
-parameter names that have been used in the past by the selected
-organization. If users do not want to work in Excel, they can use "excel
-= FALSE" to return a data frame. The data frame can be edited directly
-in R if desired, although there are no TADA-specific functions designed
-to facilitate this.
+to create an Excel spreadsheet of the reference table. The excel output
+includes logic to help a user select ATTAINS parameter names that have
+been used in past assessments by a single organization. If users do not
+want to work in Excel, setting "excel = FALSE" retuns a data frame. The
+data frame can be edited directly in R.
 
 When using TADA_ParametersForAnalysis(), users should specify the
 organization(s) of interest in the "org_id" argument. This ensures that
@@ -267,14 +283,15 @@ parameter names from prior assessments that their organizations(s) have
 used in the past, or to use other valid parameter names from the entire
 ATTAINS domain list.
 
-Keep in mind that only parameter names previously entered in ATTAINS by
-the selected organization(s) will be returned. Many organization only
-input parameters that are causes in ATTAINS. This means that
-TADA_ParametersForAnalysis() may not return all parameters required by
-an organization's assessment methodology if some parameters have never
-been listed as a cause. If there is not a suitable ATTAINS parameter
-name to match a TADA.ComparableDataIdentifier, users should contact the
-ATTAINS team (attains\@epa.gov) for assistance.
+Keep in mind that only parameter names previously associated with the
+selected organization's assessments in ATTAINS will be returned. Many
+organizations only input parameters that are (or have previously been)
+causes in ATTAINS. This means that TADA_ParametersForAnalysis() may not
+return all parameters required by an organization's assessment
+methodology. In this situation, users may need to review the complete
+list of all allowable ATTAINS parameter names in order to select a
+match. If there is not a suitable existing ATTAINS parameter name ,
+users should contact the ATTAINS team (attains\@epa.gov) for assistance.
 
 For our first example, we will specify Montana's organization identifier
 ("MTDEQ") as our ATTAINS organization identifier of interest. By
@@ -652,8 +669,8 @@ Coli that was unable to be retrieved from ATTAINS. We also see PH was
 not found in the user supplied UsesRef table. We will assume MTDEQ has
 forgotten to include PH in their table and showcase the importance of
 considering all readily available data from your WQP data retrieval that
-you may need to consider for analysis and how TADA handles these scenarios
-with warning messages.
+you may need to consider for analysis and how TADA handles these
+scenarios with warning messages.
 
 ```{r usesRef-User-Supplied}
 # Load the example MTDEQ criteria table
@@ -991,9 +1008,16 @@ nrow(MT.MLSummaryRef.ML)
 # TADA DefineCriteriaMethodology()
 
 Now, lets get to generating the criteria and methodology file for MTDEQ
-to fill out. We will demonstrate how this table is created for the first time using the recommended step-by-step workflow, and then show how a user can update and validate their criteria and methodology file as needed.
+to fill out. We will demonstrate how this table is created for the first
+time using the recommended step-by-step workflow, and then show how a
+user can update and validate their criteria and methodology file as
+needed.
 
-First, let’s look at how the step-by-step process comes together. Users will need to complete the generated template. It is highly recommended to export this template to an Excel spreadsheet, as this provides a user-friendly interface for entering values and displaying the allowable options for each table field.
+First, let’s look at how the step-by-step process comes together. Users
+will need to complete the generated template. It is highly recommended
+to export this template to an Excel spreadsheet, as this provides a
+user-friendly interface for entering values and displaying the allowable
+options for each table field.
 
 ```{r step-by-step-output}
 MT.CriteriaMethods <- TADA_DefineCriteriaMethodology(
@@ -1122,12 +1146,29 @@ TADA_TableExport(MT.CriteriaMethods.Final2[[1]])
 
 ## Join the Criteria Table to Your WQP Data
 
-Now that your criteria table is ready, the next step is to join it to your WQP data frame.  
-If you are only interested in performing a monitoring location–level analysis, you can provide just the WQP data and the criteria table.
+Now that your criteria table is ready, the next step is to join it to
+your WQP data frame.\
+If you are only interested in performing a monitoring location–level
+analysis, you can provide just the WQP data and the criteria table.
 
-First, join the criteria table to your WQP data frame. The criteria table will automatically be joined using the best match based on either `TADA.ComparableDataIdentifier` or the combination of `TADA.CharacteristicName`, `TADA.ResultSampleFractionText`, and `TADA.MethodSpeciationName`. In this example, the table includes all characteristics and/or parameters.
+First, join the criteria table to your WQP data frame. The criteria
+table will automatically be joined using the best match based on either
+`TADA.ComparableDataIdentifier` or the combination of
+`TADA.CharacteristicName`, `TADA.ResultSampleFractionText`, and
+`TADA.MethodSpeciationName`. In this example, the table includes all
+characteristics and/or parameters.
 
-Keep in mind that any spatial columns that are populated (`ATTAINS.WaterType`, `SaltFresh`, `UniqueSpatialCriteria`, or `DepthCategory`) cannot be differentiated if a spatial reference table (the MLSummaryRef) is not provided. In these cases, any monitoring location that contains a characteristic name found in the WQP data will be assigned the spatial criteria specified in the criteria table. For example, if you specify that *E. coli* should only be assessed for `ATTAINS.WaterType = "LAKE"`, then any site containing *E. coli* will be assessed using that criterion, because the water type of the site cannot be distinguished without a user-supplied crosswalk indicating which sites are truly representative of `"LAKE"`.
+Keep in mind that any spatial columns that are populated
+(`ATTAINS.WaterType`, `SaltFresh`, `UniqueSpatialCriteria`, or
+`DepthCategory`) cannot be differentiated if a spatial reference table
+(the MLSummaryRef) is not provided. In these cases, any monitoring
+location that contains a characteristic name found in the WQP data will
+be assigned the spatial criteria specified in the criteria table. For
+example, if you specify that *E. coli* should only be assessed for
+`ATTAINS.WaterType = "LAKE"`, then any site containing *E. coli* will be
+assessed using that criterion, because the water type of the site cannot
+be distinguished without a user-supplied crosswalk indicating which
+sites are truly representative of `"LAKE"`.
 
 ```{r data-with-criteria}
 MT_data_criteria_no_spatial <- TADA_Analysis_Join_WQP_Criteria(
@@ -1136,7 +1177,10 @@ MT_data_criteria_no_spatial <- TADA_Analysis_Join_WQP_Criteria(
 )
 ```
 
-Each uses in this criteria table will be assigned to each monitoring location for analysis, if that monitoring location contains that WQP characteristic name. Let's check to ensure all characteristic names have been matched to those found in the criteria table. 
+Each uses in this criteria table will be assigned to each monitoring
+location for analysis, if that monitoring location contains that WQP
+characteristic name. Let's check to ensure all characteristic names have
+been matched to those found in the criteria table.
 
 ```{r validate row joins}
 rows1 <- nrow(MT.CriteriaMethods.Final[MT.CriteriaMethods.Final$TADA.CharacteristicName == "ESCHERICHIA COLI", ])
@@ -1147,7 +1191,9 @@ rows4 <- nrow(tada.MT.clean[tada.MT.clean$TADA.CharacteristicName == "PH",])
 (rows1 * rows2 + rows3 * rows4) == nrow(MT_data_criteria_no_spatial)
 ```
 
-Let's now also join the MLSummaryRef crosswalk outputs from [TADAModule2.Rmd] to show how to work with assessment unit–level analysis.
+Let's now also join the MLSummaryRef crosswalk outputs from
+[TADAModule2.Rmd] to show how to work with assessment unit–level
+analysis.
 
 ```{r join criteria and spatial MLSummaryRef}
 MT_data_w_criteria <- TADA_Analysis_Join_WQP_Criteria(
@@ -1165,4 +1211,3 @@ ncol(MT.CriteriaMethods.Final)
 ncol(MT_data_w_criteria)
 # length(union(names(tada.MT.clean), names(MT.CriteriaMethods.Final)))
 ```
-
