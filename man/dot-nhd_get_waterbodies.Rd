@@ -7,7 +7,7 @@
 .nhd_get_waterbodies(AOI)
 }
 \arguments{
-\item{AIU}{Area of interest. This is usually an sf object representing the site or
+\item{AOI}{Area of interest. This is usually an sf object representing the site or
 catchment used as input to hydrogeofetch.}
 }
 \description{
