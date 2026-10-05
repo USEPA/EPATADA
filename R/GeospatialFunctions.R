@@ -270,10 +270,12 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #' nv_attains_features <- EPATADA:::fetchATTAINS(tada_data, catchments_only = FALSE)
 #' }
 #'
-fetchATTAINS <- function(.data,
-                         catchments_only = FALSE,
-                         org_id = "all",
-                         check_service = TRUE) {
+fetchATTAINS <- function(
+  .data,
+  catchments_only = FALSE,
+  org_id = "all",
+  check_service = TRUE
+) {
   original_s2 <- sf::sf_use_s2()
   suppressMessages(sf::sf_use_s2(FALSE))
   original_timeout <- getOption("timeout")
@@ -292,9 +294,7 @@ fetchATTAINS <- function(.data,
   if (isTRUE(check_service)) {
     ok <- .checkATTAINS()
     if (isFALSE(ok)) {
-      message(paste0(
-        "ATTAINS web service check failed."
-      ))
+      message(paste0("ATTAINS web service check failed."))
       return(NULL)
     }
   }
@@ -507,10 +507,10 @@ fetchATTAINS <- function(.data,
 #' )
 #' }
 fetchNHD <- function(
-    .data,
-    resolution = "Hi",
-    features = "catchments",
-    check_service = TRUE
+  .data,
+  resolution = "Hi",
+  features = "catchments",
+  check_service = TRUE
 ) {
   valid_features <- c("catchments", "flowlines", "waterbodies")
 
@@ -600,7 +600,9 @@ fetchNHD <- function(
       )
     }
 
-    if (nrow(fill_USGS_catchments_stored) == 0 && !("catchments" %in% features)) {
+    if (
+      nrow(fill_USGS_catchments_stored) == 0 && !("catchments" %in% features)
+    ) {
       stop("No NHD HR features associated with your WQP observations.")
     }
 
@@ -619,14 +621,20 @@ fetchNHD <- function(
       }))
 
       if (length(features) == 1 && features == "flowlines") {
-        if (length(nhd_flowlines_stored) == 0 || is.null(nhd_flowlines_stored)) {
-          message("There are no NHD flowlines associated with your WQP observations.")
+        if (
+          length(nhd_flowlines_stored) == 0 || is.null(nhd_flowlines_stored)
+        ) {
+          message(
+            "There are no NHD flowlines associated with your WQP observations."
+          )
         }
         return(nhd_flowlines_stored)
       }
 
       if (length(nhd_flowlines_stored) == 0 || is.null(nhd_flowlines_stored)) {
-        message("There are no NHD flowlines associated with your WQP observations.")
+        message(
+          "There are no NHD flowlines associated with your WQP observations."
+        )
       }
     }
 
@@ -644,7 +652,9 @@ fetchNHD <- function(
         if (
           length(nhd_waterbodies_stored) == 0 || is.null(nhd_waterbodies_stored)
         ) {
-          message("There are no NHD waterbodies associated with your WQP observations.")
+          message(
+            "There are no NHD waterbodies associated with your WQP observations."
+          )
         }
         return(nhd_waterbodies_stored)
       }
@@ -652,43 +662,39 @@ fetchNHD <- function(
       if (
         length(nhd_waterbodies_stored) == 0 || is.null(nhd_waterbodies_stored)
       ) {
-        message("There are no NHD waterbodies associated with your WQP observations.")
+        message(
+          "There are no NHD waterbodies associated with your WQP observations."
+        )
       }
     }
 
     if (
-      length(features) == 2 &&
-      all(c("catchments", "flowlines") %in% features)
+      length(features) == 2 && all(c("catchments", "flowlines") %in% features)
     ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments_stored,
         "NHD_flowlines" = nhd_flowlines_stored
       )
       return(nhd_list)
-
     } else if (
-      length(features) == 2 &&
-      all(c("catchments", "waterbodies") %in% features)
+      length(features) == 2 && all(c("catchments", "waterbodies") %in% features)
     ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments_stored,
         "NHD_waterbodies" = nhd_waterbodies_stored
       )
       return(nhd_list)
-
     } else if (
-      length(features) == 2 &&
-      all(c("flowlines", "waterbodies") %in% features)
+      length(features) == 2 && all(c("flowlines", "waterbodies") %in% features)
     ) {
       nhd_list <- list(
         "NHD_flowlines" = nhd_flowlines_stored,
         "NHD_waterbodies" = nhd_waterbodies_stored
       )
       return(nhd_list)
-
     } else if (
       length(features) == 3 &&
-      all(c("catchments", "flowlines", "waterbodies") %in% features)
+        all(c("catchments", "flowlines", "waterbodies") %in% features)
     ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments_stored,
@@ -696,13 +702,11 @@ fetchNHD <- function(
         "NHD_waterbodies" = nhd_waterbodies_stored
       )
       return(nhd_list)
-
     } else {
       stop(
         "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
       )
     }
-
   } else if (resolution %in% c("Med", "med")) {
     suppressMessages(suppressWarnings({
       fill_USGS_catchments <- .nhd_get_med_catchments(unique_sites)
@@ -732,7 +736,9 @@ fetchNHD <- function(
       }))
 
       if (nrow(nhd_flowlines) == 0 && "flowlines" %in% features) {
-        message("No NHDPlus V2 flowlines associated with your WQP observations.")
+        message(
+          "No NHDPlus V2 flowlines associated with your WQP observations."
+        )
       }
 
       if (length(features) == 1 && features == "flowlines") {
@@ -743,11 +749,16 @@ fetchNHD <- function(
     if ("waterbodies" %in% features && nrow(fill_USGS_catchments) > 0) {
       suppressMessages(suppressWarnings({
         unique_sites <- fill_USGS_catchments
-        nhd_waterbodies <- .nhd_get_med_waterbodies(unique_sites, geospatial_data)
+        nhd_waterbodies <- .nhd_get_med_waterbodies(
+          unique_sites,
+          geospatial_data
+        )
       }))
 
       if (nrow(nhd_waterbodies) == 0 && "waterbodies" %in% features) {
-        message("No NHDPlus V2 waterbodies associated with your WQP observations.")
+        message(
+          "No NHDPlus V2 waterbodies associated with your WQP observations."
+        )
       }
 
       if (length(features) == 1 && features == "waterbodies") {
@@ -756,38 +767,32 @@ fetchNHD <- function(
     }
 
     if (
-      length(features) == 2 &&
-      all(c("catchments", "flowlines") %in% features)
+      length(features) == 2 && all(c("catchments", "flowlines") %in% features)
     ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments,
         "NHD_flowlines" = nhd_flowlines
       )
       return(nhd_list)
-
     } else if (
-      length(features) == 2 &&
-      all(c("catchments", "waterbodies") %in% features)
+      length(features) == 2 && all(c("catchments", "waterbodies") %in% features)
     ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments,
         "NHD_waterbodies" = nhd_waterbodies
       )
       return(nhd_list)
-
     } else if (
-      length(features) == 2 &&
-      all(c("flowlines", "waterbodies") %in% features)
+      length(features) == 2 && all(c("flowlines", "waterbodies") %in% features)
     ) {
       nhd_list <- list(
         "NHD_flowlines" = nhd_flowlines,
         "NHD_waterbodies" = nhd_waterbodies
       )
       return(nhd_list)
-
     } else if (
       length(features) == 3 &&
-      all(c("catchments", "flowlines", "waterbodies") %in% features)
+        all(c("catchments", "flowlines", "waterbodies") %in% features)
     ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments,
@@ -795,7 +800,6 @@ fetchNHD <- function(
         "NHD_waterbodies" = nhd_waterbodies
       )
       return(nhd_list)
-
     } else {
       stop(
         "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."

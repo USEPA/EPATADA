@@ -1982,11 +1982,7 @@ fetchWaterType <- function(au_list, api_key = NULL) {
 #' @param crs The coordinate reference system for the geometry used in the query, usually from sf::st_crs(...).
 #'
 .nhd_arc_select <- function(layer, filter_geom, crs) {
-  arcgislayers::arc_select(
-    layer,
-    filter_geom = filter_geom,
-    crs = crs
-  )
+  arcgislayers::arc_select(layer, filter_geom = filter_geom, crs = crs)
 }
 
 #' .nhd_get_nhdplus
@@ -2000,10 +1996,7 @@ fetchWaterType <- function(au_list, api_key = NULL) {
 #' hydrogeofetch, such as: "catchment" or "flowline".
 #'
 .nhd_get_nhdplus <- function(AOI, realization) {
-  hydrogeofetch::get_nhdplus(
-    AOI = AOI,
-    realization = realization
-  )
+  hydrogeofetch::get_nhdplus(AOI = AOI, realization = realization)
 }
 
 #' nhd_get_waterbodies
@@ -2014,9 +2007,7 @@ fetchWaterType <- function(au_list, api_key = NULL) {
 #' @param AIU Area of interest. This is usually an sf object representing the site or
 #' catchment used as input to hydrogeofetch.
 .nhd_get_waterbodies <- function(AOI) {
-  hydrogeofetch::get_waterbodies(
-    AOI = AOI
-  )
+  hydrogeofetch::get_waterbodies(AOI = AOI)
 }
 
 .nhd_get_hr_catchments <- function(nhd_hr_catchments, wqp_bboxes) {
@@ -2145,10 +2136,7 @@ fetchWaterType <- function(au_list, api_key = NULL) {
       silent = TRUE
     )
 
-    try(
-      geometry_col <- sf::st_geometry(nhd_flowlines[[i]]),
-      silent = TRUE
-    )
+    try(geometry_col <- sf::st_geometry(nhd_flowlines[[i]]), silent = TRUE)
 
     try(
       nhd_flowlines[[i]] <- nhd_flowlines[[i]] |>
@@ -2173,17 +2161,12 @@ fetchWaterType <- function(au_list, api_key = NULL) {
 
   for (i in seq_len(nrow(unique_sites))) {
     try(
-      nhd_waterbodies[[i]] <- .nhd_get_waterbodies(
-        AOI = unique_sites[i, ]
-      ) |>
+      nhd_waterbodies[[i]] <- .nhd_get_waterbodies(AOI = unique_sites[i, ]) |>
         sf::st_make_valid(),
       silent = TRUE
     )
 
-    try(
-      geometry_col <- sf::st_geometry(nhd_waterbodies[[i]]),
-      silent = TRUE
-    )
+    try(geometry_col <- sf::st_geometry(nhd_waterbodies[[i]]), silent = TRUE)
 
     try(
       nhd_waterbodies[[i]] <- nhd_waterbodies[[i]] |>

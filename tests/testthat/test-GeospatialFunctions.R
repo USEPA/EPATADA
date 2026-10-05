@@ -329,7 +329,6 @@ make_fake_med_waterbodies <- function() {
 }
 
 testthat::test_that("fetchNHD handles small areas with defaults", {
-
   fake_hi <- sf::st_sf(
     NHD.nhdplusid = as.character(1:16),
     NHD.resolution = rep("HR", 16),
@@ -355,16 +354,12 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
     .package = "EPATADA"
   )
 
-  result <- EPATADA:::fetchNHD(
-    .data = small_bbox_data,
-    check_service = FALSE
-  )
+  result <- EPATADA:::fetchNHD(.data = small_bbox_data, check_service = FALSE)
 
   testthat::expect_equal(nrow(result), 16)
 })
 
 testthat::test_that("fetchNHD returns Hi flowlines and waterbodies", {
-
   fake_catchments <- make_fake_hr_catchments()
   fake_flowlines <- make_fake_hr_flowlines()
   fake_waterbodies <- make_fake_hr_waterbodies()
@@ -383,15 +378,13 @@ testthat::test_that("fetchNHD returns Hi flowlines and waterbodies", {
   )
 
   testthat::expect_true(is.list(result))
-  testthat::expect_true(all(c(
-    "fill_USGS_catchments",
-    "NHD_flowlines",
-    "NHD_waterbodies"
-  ) %in% names(result)))
+  testthat::expect_true(all(
+    c("fill_USGS_catchments", "NHD_flowlines", "NHD_waterbodies") %in%
+      names(result)
+  ))
 })
 
 testthat::test_that("fetchNHD returns Med catchments", {
-
   fake_med <- make_fake_med_catchments()
 
   testthat::local_mocked_bindings(
@@ -407,15 +400,12 @@ testthat::test_that("fetchNHD returns Med catchments", {
   )
 
   testthat::expect_equal(nrow(result), 2)
-  testthat::expect_true(all(c(
-    "NHD.comid",
-    "NHD.resolution",
-    "NHD.catchmentareasqkm"
-  ) %in% names(result)))
+  testthat::expect_true(all(
+    c("NHD.comid", "NHD.resolution", "NHD.catchmentareasqkm") %in% names(result)
+  ))
 })
 
 testthat::test_that("fetchNHD returns Med flowlines and waterbodies", {
-
   fake_med_catchments <- make_fake_med_catchments()
   fake_med_flowlines <- make_fake_med_flowlines()
   fake_med_waterbodies <- make_fake_med_waterbodies()
@@ -435,27 +425,20 @@ testthat::test_that("fetchNHD returns Med flowlines and waterbodies", {
   )
 
   testthat::expect_true(is.list(result))
-  testthat::expect_true(all(c(
-    "fill_USGS_catchments",
-    "NHD_flowlines",
-    "NHD_waterbodies"
-  ) %in% names(result)))
+  testthat::expect_true(all(
+    c("fill_USGS_catchments", "NHD_flowlines", "NHD_waterbodies") %in%
+      names(result)
+  ))
 })
 
 testthat::test_that("fetchNHD error when invalid features param", {
-
   testthat::expect_error(
-    EPATADA:::fetchNHD(
-      small_bbox_data,
-      features = "Hi",
-      check_service = FALSE
-    ),
+    EPATADA:::fetchNHD(small_bbox_data, features = "Hi", check_service = FALSE),
     "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
   )
 })
 
 testthat::test_that("fetchNHD error when invalid resolution param", {
-
   testthat::expect_error(
     EPATADA:::fetchNHD(
       small_bbox_data,
