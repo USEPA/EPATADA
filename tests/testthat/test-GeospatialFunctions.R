@@ -96,7 +96,6 @@ testthat::test_that("TADA_MakeSpatial fails with appropriate errors", {
 
 
 testthat::test_that("fetchATTAINS fails with appropriate errors", {
-
   if (!.checkATTAINS()) {
     testthat::skip("ATTAINS web service not available, skipping test.")
   }
@@ -109,7 +108,6 @@ testthat::test_that("fetchATTAINS fails with appropriate errors", {
 })
 
 testthat::test_that("fetchATTAINS handles small areas", {
-
   if (!.checkATTAINS()) {
     testthat::skip("ATTAINS web service not available, skipping test.")
   }
@@ -128,7 +126,6 @@ testthat::test_that("fetchATTAINS handles small areas", {
 })
 
 testthat::test_that("fetchATTAINS handles large areas", {
-
   if (!.checkATTAINS()) {
     testthat::skip("ATTAINS web service not available, skipping test.")
   }
@@ -144,7 +141,6 @@ testthat::test_that("fetchATTAINS handles large areas", {
 })
 
 testthat::test_that("fetchATTAINS catchments_only parameter", {
-
   if (!.checkATTAINS()) {
     testthat::skip("ATTAINS web service not available, skipping test.")
   }
@@ -166,7 +162,6 @@ testthat::test_that("fetchATTAINS catchments_only parameter", {
 })
 
 testthat::test_that("fetchATTAINS org_id parameter", {
-
   if (!.checkATTAINS()) {
     testthat::skip("ATTAINS web service not available, skipping test.")
   }
