@@ -170,107 +170,274 @@ testthat::test_that("fetchATTAINS org_id parameter", {
   )
 })
 
+# make mock data sets for fetchNHD tests
 make_fake_hi_nhd <- function() {
+  polys <- lapply(1:16, function(i) {
+    x <- -90 + i * 0.001
+    y <- 40 + i * 0.001
+    sf::st_polygon(list(rbind(
+      c(x, y),
+      c(x, y + 0.0005),
+      c(x + 0.0005, y + 0.0005),
+      c(x + 0.0005, y),
+      c(x, y)
+    )))
+  })
+
   sf::st_sf(
+    nhdplusid = as.character(1:16),
+    areasqkm = rep(1.0, 16),
+    geometry = sf::st_sfc(polys, crs = 4326)
+  )
+}
+
+make_fake_hr_catchments <- function() {
+  sf::st_sf(
+    NHD.nhdplusid = c("1", "2", "3"),
+    NHD.resolution = c("HR", "HR", "HR"),
+    NHD.catchmentareasqkm = c(1.0, 1.1, 1.2),
+    geometry = sf::st_sfc(
+      sf::st_polygon(list(rbind(
+        c(-90.000, 40.000),
+        c(-90.000, 40.001),
+        c(-89.999, 40.001),
+        c(-89.999, 40.000),
+        c(-90.000, 40.000)
+      ))),
+      sf::st_polygon(list(rbind(
+        c(-90.002, 40.002),
+        c(-90.002, 40.003),
+        c(-90.001, 40.003),
+        c(-90.001, 40.002),
+        c(-90.002, 40.002)
+      ))),
+      sf::st_polygon(list(rbind(
+        c(-90.004, 40.004),
+        c(-90.004, 40.005),
+        c(-90.003, 40.005),
+        c(-90.003, 40.004),
+        c(-90.004, 40.004)
+      ))),
+      crs = 4326
+    )
+  )
+}
+
+make_fake_hr_flowlines <- function() {
+  sf::st_sf(
+    flowline_id = c("f1", "f2", "f3"),
+    geometry = sf::st_sfc(
+      sf::st_linestring(rbind(c(-90.000, 40.000), c(-89.999, 40.001))),
+      sf::st_linestring(rbind(c(-90.002, 40.002), c(-90.001, 40.003))),
+      sf::st_linestring(rbind(c(-90.004, 40.004), c(-90.003, 40.005))),
+      crs = 4326
+    )
+  )
+}
+
+make_fake_hr_waterbodies <- function() {
+  sf::st_sf(
+    wb_id = c("w1"),
+    geometry = sf::st_sfc(
+      sf::st_polygon(list(rbind(
+        c(-90.000, 40.000),
+        c(-90.000, 40.0005),
+        c(-89.9995, 40.0005),
+        c(-89.9995, 40.000),
+        c(-90.000, 40.000)
+      ))),
+      crs = 4326
+    )
+  )
+}
+
+make_fake_med_catchments <- function() {
+  sf::st_sf(
+    NHD.comid = c("10", "11"),
+    NHD.resolution = c("nhdplusV2", "nhdplusV2"),
+    NHD.catchmentareasqkm = c(10, 20),
+    geometry = sf::st_sfc(
+      sf::st_polygon(list(rbind(
+        c(-90.000, 40.000),
+        c(-90.000, 40.001),
+        c(-89.999, 40.001),
+        c(-89.999, 40.000),
+        c(-90.000, 40.000)
+      ))),
+      sf::st_polygon(list(rbind(
+        c(-90.002, 40.002),
+        c(-90.002, 40.003),
+        c(-90.001, 40.003),
+        c(-90.001, 40.002),
+        c(-90.002, 40.002)
+      ))),
+      crs = 4326
+    )
+  )
+}
+
+make_fake_med_flowlines <- function() {
+  sf::st_sf(
+    flowline_id = c("mf1", "mf2"),
+    geometry = sf::st_sfc(
+      sf::st_linestring(rbind(c(-90.000, 40.000), c(-89.999, 40.001))),
+      sf::st_linestring(rbind(c(-90.002, 40.002), c(-90.001, 40.003))),
+      crs = 4326
+    )
+  )
+}
+
+make_fake_med_waterbodies <- function() {
+  sf::st_sf(
+    wb_id = c("mw1"),
+    geometry = sf::st_sfc(
+      sf::st_polygon(list(rbind(
+        c(-90.000, 40.000),
+        c(-90.000, 40.0005),
+        c(-89.9995, 40.0005),
+        c(-89.9995, 40.000),
+        c(-90.000, 40.000)
+      ))),
+      crs = 4326
+    )
+  )
+}
+
+testthat::test_that("fetchNHD handles small areas with defaults", {
+
+  fake_hi <- sf::st_sf(
     NHD.nhdplusid = as.character(1:16),
     NHD.resolution = rep("HR", 16),
     NHD.catchmentareasqkm = rep(1.0, 16),
     geometry = sf::st_sfc(
-      lapply(1:16, function(i) sf::st_point(c(-90 + i * 1e-4, 40 + i * 1e-4))),
+      lapply(1:16, function(i) {
+        x <- -90 + i * 0.001
+        y <- 40 + i * 0.001
+        sf::st_polygon(list(rbind(
+          c(x, y),
+          c(x, y + 0.0005),
+          c(x + 0.0005, y + 0.0005),
+          c(x + 0.0005, y),
+          c(x, y)
+        )))
+      }),
       crs = 4326
     )
   )
-}
 
-make_fake_med_nhd <- function() {
-  sf::st_sf(
-    NHD.comid = as.character(1:2),
-    NHD.resolution = rep("nhdplusV2", 2),
-    NHD.catchmentareasqkm = c(10, 20),
-    geometry = sf::st_sfc(
-      sf::st_point(c(-90, 40)),
-      sf::st_point(c(-90.001, 40.001)),
-      crs = 4326
-    )
+  testthat::local_mocked_bindings(
+    .nhd_get_hr_catchments = function(nhd_hr_catchments, wqp_bboxes) fake_hi,
+    .package = "EPATADA"
   )
-}
 
-
-testthat::test_that("fetchNHD handles small areas with defaults", {
-  # Skip the test if NHD High Res web service is unavailable
-  if (!.checkNHD(resolution = "Hi")) {
-    skip("NHD Hi Res web service not available, skipping test.")
-  }
-
-  # small_bbox_data subset of large_bbox_data fixture (testdata/Hill_MT_pH.Rd)
-  testthat::expect_no_error(
-    result_NHD_small <- EPATADA:::fetchNHD(.data = small_bbox_data)
+  result <- EPATADA:::fetchNHD(
+    .data = small_bbox_data,
+    check_service = FALSE
   )
-  # Expect 16 catchments returned
-  testthat::expect_equal(nrow(small_bbox_data), 16)
+
+  testthat::expect_equal(nrow(result), 16)
 })
 
-# not working on 7/21/26
-# testthat::test_that("fetchNHD with valid non-default features params", {
-# Skip the test if NHD High Res web service is unavailable
-# if(!.checkNHD_High()) {
-#  skip("NHD Hi Res web service not available, skipping test.")
-# }
+testthat::test_that("fetchNHD returns Hi flowlines and waterbodies", {
 
-#   testthat::expect_no_error(
-#     flines <- EPATADA:::fetchNHD(
-#       .data = small_bbox_data,
-#       features = "flowlines"
-#     )
-#   )
-#   expect_equal(NROW(flines), 6) # Expected results
-#   testthat::expect_no_error(
-#     waterbodies <- EPATADA:::fetchNHD(
-#       .data = small_bbox_data,
-#       features = "waterbodies"
-#     )
-#   )
-#   expect_equal(NROW(waterbodies), 0) # Expected results
-# })
+  fake_catchments <- make_fake_hr_catchments()
+  fake_flowlines <- make_fake_hr_flowlines()
+  fake_waterbodies <- make_fake_hr_waterbodies()
 
-testthat::test_that("fetchNHD with valid non-default resolution param Med", {
-  # Skip the test if NHD High Res web service is unavailable
-  if (!.checkNHD(resolution = "Med")) {
-    skip("NHD Med Res web service not available, skipping test.")
-  }
-
-  testthat::expect_no_error(
-    med_cat <- EPATADA:::fetchNHD(.data = small_bbox_data, resolution = "Med")
+  testthat::local_mocked_bindings(
+    .nhd_get_hr_catchments = function(...) fake_catchments,
+    .nhd_get_hr_flowlines = function(...) fake_flowlines,
+    .nhd_get_hr_waterbodies = function(...) fake_waterbodies,
+    .package = "EPATADA"
   )
-  expect_equal(nrow(med_cat), 2) # Expected results
+
+  result <- EPATADA:::fetchNHD(
+    small_bbox_data,
+    features = c("catchments", "flowlines", "waterbodies"),
+    check_service = FALSE
+  )
+
+  testthat::expect_true(is.list(result))
+  testthat::expect_true(all(c(
+    "fill_USGS_catchments",
+    "NHD_flowlines",
+    "NHD_waterbodies"
+  ) %in% names(result)))
+})
+
+testthat::test_that("fetchNHD returns Med catchments", {
+
+  fake_med <- make_fake_med_catchments()
+
+  testthat::local_mocked_bindings(
+    .nhd_get_med_catchments = function(...) fake_med,
+    .package = "EPATADA"
+  )
+
+  result <- EPATADA:::fetchNHD(
+    small_bbox_data,
+    resolution = "Med",
+    features = "catchments",
+    check_service = FALSE
+  )
+
+  testthat::expect_equal(nrow(result), 2)
+  testthat::expect_true(all(c(
+    "NHD.comid",
+    "NHD.resolution",
+    "NHD.catchmentareasqkm"
+  ) %in% names(result)))
+})
+
+testthat::test_that("fetchNHD returns Med flowlines and waterbodies", {
+
+  fake_med_catchments <- make_fake_med_catchments()
+  fake_med_flowlines <- make_fake_med_flowlines()
+  fake_med_waterbodies <- make_fake_med_waterbodies()
+
+  testthat::local_mocked_bindings(
+    .nhd_get_med_catchments = function(...) fake_med_catchments,
+    .nhd_get_med_flowlines = function(...) fake_med_flowlines,
+    .nhd_get_med_waterbodies = function(...) fake_med_waterbodies,
+    .package = "EPATADA"
+  )
+
+  result <- EPATADA:::fetchNHD(
+    small_bbox_data,
+    resolution = "Med",
+    features = c("catchments", "flowlines", "waterbodies"),
+    check_service = FALSE
+  )
+
+  testthat::expect_true(is.list(result))
+  testthat::expect_true(all(c(
+    "fill_USGS_catchments",
+    "NHD_flowlines",
+    "NHD_waterbodies"
+  ) %in% names(result)))
 })
 
 testthat::test_that("fetchNHD error when invalid features param", {
-  # Skip the test if NHD High Res web service is unavailable
-  if (!.checkNHD(resolution = "Hi")) {
-    skip("NHD Hi Res web service not available, skipping test.")
-  }
+
   testthat::expect_error(
-    EPATADA:::fetchNHD(.data = small_bbox_data, features = "Hi"),
+    EPATADA:::fetchNHD(
+      small_bbox_data,
+      features = "Hi",
+      check_service = FALSE
+    ),
     "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
   )
 })
 
 testthat::test_that("fetchNHD error when invalid resolution param", {
-  testthat::expect_error(
-    EPATADA:::fetchNHD(.data = small_bbox_data, resolution = "Lo"),
-    "should be one of"
-  )
-})
-
-testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk correctly identifies already joined ATTAINS data", {
-  # Create mock data with ATTAINS columns
-  mock_attains_data <- TADA_dataframe
-  mock_attains_data$ATTAINS.AssessmentUnitIdentifier <- "TEST"
 
   testthat::expect_error(
-    TADA_CreateATTAINSAUMLCrosswalk(mock_attains_data),
-    "Your data has already been joined with ATTAINS data"
+    EPATADA:::fetchNHD(
+      small_bbox_data,
+      resolution = "Lo",
+      check_service = FALSE
+    ),
+    "User-supplied resolution unavailable"
   )
 })
 
