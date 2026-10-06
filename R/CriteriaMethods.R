@@ -1157,9 +1157,8 @@ TADA_DefineCriteriaMethodology <- function(
             collapse = ", "
           ),
           "\n\n",
-          "  without criteria information filled out.\n",
-          "  Please review if these entries are applicable to your analysis,\n",
-          "  or ignore this message if they are not relevant.\n"
+          "without criteria information filled out. Please review if these entries are applicable to your analysis,\n",
+          "or ignore this message if they are not relevant.\n"
         ))
       }
 
