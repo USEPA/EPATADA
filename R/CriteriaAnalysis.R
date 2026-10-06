@@ -121,7 +121,6 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     MLSummaryRef <- upperize(MLSummaryRef)
   }
 
-  
   # ------------------------------------------------------------
   # Warn if spatial columns are present in criteria table but MLSummaryRef is missing
   # ------------------------------------------------------------
@@ -131,16 +130,20 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     "UniqueSpatialCriteria",
     "DepthCategory"
   )
-  
+
   spatial_in_criteria <- intersect(spatial_cols, names(criteria))
-  spatial_filled <- spatial_in_criteria[
-    vapply(spatial_in_criteria, function(nm) {
+  spatial_filled <- spatial_in_criteria[vapply(
+    spatial_in_criteria,
+    function(nm) {
       x <- criteria[[nm]]
-      if (is.factor(x)) x <- as.character(x)
+      if (is.factor(x)) {
+        x <- as.character(x)
+      }
       any(!is.na(x) & nzchar(trimws(as.character(x))))
-    }, logical(1))
-  ]
-  
+    },
+    logical(1)
+  )]
+
   if (is.null(MLSummaryRef) && length(spatial_filled) > 0) {
     warning(
       paste0(
@@ -152,7 +155,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
       call. = FALSE
     )
   }
-  
+
   # ------------------------------------------------------------
   # Join MLSummaryRef first (if provided)
   # ------------------------------------------------------------
