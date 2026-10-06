@@ -121,6 +121,38 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     MLSummaryRef <- upperize(MLSummaryRef)
   }
 
+  
+  # ------------------------------------------------------------
+  # Warn if spatial columns are present in criteria table but MLSummaryRef is missing
+  # ------------------------------------------------------------
+  spatial_cols <- c(
+    "ATTAINS.WaterType",
+    "SaltFresh",
+    "UniqueSpatialCriteria",
+    "DepthCategory"
+  )
+  
+  spatial_in_criteria <- intersect(spatial_cols, names(criteria))
+  spatial_filled <- spatial_in_criteria[
+    vapply(spatial_in_criteria, function(nm) {
+      x <- criteria[[nm]]
+      if (is.factor(x)) x <- as.character(x)
+      any(!is.na(x) & nzchar(trimws(as.character(x))))
+    }, logical(1))
+  ]
+  
+  if (is.null(MLSummaryRef) && length(spatial_filled) > 0) {
+    warning(
+      paste0(
+        "No MLSummaryRef was provided, but spatial columns contain values in the criteria table: ",
+        paste(spatial_filled, collapse = ", "),
+        ". Cannot differentiate which monitoring location sites belong to any of these spatial columns. ",
+        "Please create the MLSummaryRef to define the sites that are applicable to these spatial columns."
+      ),
+      call. = FALSE
+    )
+  }
+  
   # ------------------------------------------------------------
   # Join MLSummaryRef first (if provided)
   # ------------------------------------------------------------
@@ -135,7 +167,9 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         "MonitoringLocationIdentifier",
         "SaltFresh",
         "UniqueSpatialCriteria",
-        "DepthCategory"
+        "DepthCategory",
+        "LongitudeMeasure",
+        "LatitudeMeasure"
       ),
       intersect(names(MLSummaryRef), names(.data))
     )
@@ -425,7 +459,11 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     }
 
     paste0(
-      "Row(s) for these TADA.CharacteristicName from your criteria table input could not be matched to your WQP data or MLSummaryRef due to a mismatch. Please correct these values found within each defined column in your criteria table or MLSummaryRef if you would like to perform analysis for them:\n\n",
+      "Row(s) for these TADA.CharacteristicName or TADA.ComparableDataIdentifier from your criteria table input could not be matched ",
+      "to your WQP data or MLSummaryRef due to a mismatch. To help ensure the tables can be joined, ",
+      "please correct the values in each defined column by adding any missing values to your MLSummaryRef ",
+      "or by making sure values are spelled correctly and match exactly between your criteria table and MLSummaryRef. ",
+      "Only matching values can be analyzed:\n\n",
       paste0("- ", msgs, collapse = "\n")
     )
   }

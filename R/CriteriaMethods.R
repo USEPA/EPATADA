@@ -1149,8 +1149,7 @@ TADA_DefineCriteriaMethodology <- function(
 
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == TRUE) {
         message(paste0(
-          "displayUniqueId = TRUE, displaying all unique TADA.ComparableDataIdentifiers in your WQP data.\n\n",
-          "  Your *user supplied* criteriaMethods data is missing ",
+          "Your *user supplied* criteriaMethods data is missing ",
           length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
           " unique TADA.ComparableDataIdentifier(s):\n\n  ",
           paste0(
@@ -1166,7 +1165,7 @@ TADA_DefineCriteriaMethodology <- function(
 
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == FALSE) {
         message(paste0(
-          "  Your *user supplied* criteriaMethods data is missing ",
+          "Your *user supplied* criteriaMethods data is missing ",
           length(unique(non_definedCriteria$TADA.CharacteristicName)),
           " unique TADA.CharacteristicName(s) :\n\n  ",
           paste0(
