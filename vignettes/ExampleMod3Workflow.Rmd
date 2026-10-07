@@ -415,7 +415,7 @@ If new WQP characteristics (or new fraction/speciations) do show up,
 your user supplied 'paramRef' is prioritized over the 'auto_assign'
 argument inputs. No user assigned mataches will be replaced. The
 auto_assign option will allow you to fill in any remaining blank
-ATTAINS.ParameterNames. In our case, since each unique
+ATTAINS.ParameterNames. In this example, since each unique
 TADA.ComparableDataIdentifier was cross walked to an
 ATTAINS.ParameterName in the user supplied 'MT.ParamRef_user_supplied,
 this table will be the same.
@@ -459,11 +459,11 @@ ATTAINS.ParameterName, append an additional row.
 Any ATTAINS parameter name(s) not associated with an assessment in prior
 cycles, will not have any associated prior use names. In this case,
 users must manually assign the appropriate ATTAINS.UseName under the
-column 'ATTAINS.UseName'. Multiple row may need to be added if the
-parameter applies to multiples uses. Alternatively, users can choose to
-use the 'auto_assign' to assign all unique ATTAINS.UseName by
-ATTAINS.OrganizationName to any ATTAINS.ParameterName missing a use name
-associated with it.
+column 'ATTAINS.UseName'. Multiple rows may need to be added if the
+parameter applies to multiples uses. If users do not want to enter uses
+manually, they can use 'auto_assign' to assign all unique
+ATTAINS.UseName for a selected organization to any ATTAINS.ParameterName
+that has not been associated with any use in previous assessment cycles.
 
 We will start off with the simple use case in which TADA users can run
 this function with just the TADA dataframe, paramRef input and org_id
@@ -518,8 +518,8 @@ UsesRef <- MT.UsesRef.manual |>
 ```
 
 The output of UsesRef will not reflect changes to the
-ATTAINS.FlagUseName column. To do so, we need to re run
-TADA_UsesForAnalysis() with usesRef = add_data as an argument input.
+ATTAINS.FlagUseName column. We need to re run TADA_UsesForAnalysis()
+with usesRef = add_data as an argument input.
 
 ```{r usesRef-Manual-Update2}
 # PH will now reflect the changes
@@ -541,13 +541,13 @@ TADA_TableExport(MT.UsesRef.manual.Update)
 
 #### Auto_assign assignment of new ATTAINS parameter names to ATTAINS use names
 
-Alternatively, we can choose to assign all unique use names that was
-submitted in prior ATTAINS assessment cycles, by your organization to
-those ATTAINS.ParameterName without any associated ATTAINS.UseName.
-Users will need to review this assignment carefully, choose include or
-exclude appropriately, and include additional rows as needed if there
-are more ATTAINS.UseName applicable for that ATTAINS.ParameterName that
-was not captured by the auto_assign method.
+Another option is to assign all unique use names submitted in prior
+ATTAINS assessment cycles, by your organization to those
+ATTAINS.ParameterName without any associated ATTAINS.UseName. Users will
+need to review this assignment carefully, choose include or exclude
+appropriately, and include additional rows as needed if there are more
+ATTAINS.UseName applicable for any ATTAINS.ParameterName that was not
+captured by the auto_assign method.
 
 ```{r usesRef-auto}
 MT.UsesRef.auto <- TADA_UsesForAnalysis(
