@@ -60,8 +60,8 @@ analysis to be done for it.}
 
 \item{auto_assign}{Boolean argument with two possible values: TRUE and FALSE.
 The default value is FALSE. If TRUE, a draft criteria and methods table is
-generated using default function inputs for \code{\link[=TADA_ParametersForAnalysis]{TADA_ParametersForAnalysis()}},
-\code{\link[=TADA_UsesForAnalysis]{TADA_UsesForAnalysis()}}, \code{\link[=TADA_CreateParamUseRef]{TADA_CreateParamUseRef()}} and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}.
+generated using default function inputs for \code{\link[=TADA_CrosswalkATTAINSParameterName]{TADA_CrosswalkATTAINSParameterName()}},
+\code{\link[=TADA_CrosswalkCSTATTAINSUses]{TADA_CrosswalkCSTATTAINSUses()}}, \code{\link[=TADA_CreateParamUseRef]{TADA_CreateParamUseRef()}} and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}.
 .data and org_id are required inputs for this function if auto_assign = TRUE.
 It is also recommended to set excel = TRUE when auto_assign = TRUE. The
 criteria and methodology template should be reviewed carefully and edits can be
@@ -119,8 +119,8 @@ criteria and methodologies for each parameter and use combination they are
 interested in analyzing. This table can be filled out manually, auto-populated
 with uses and parameters from ATTAINS and the input WQP dataframe, or
 developed with TADA helper functions (recommended). It is recommended to run
-these four TADA helper functions, \code{\link[=TADA_ParametersForAnalysis]{TADA_ParametersForAnalysis()}},
-\code{\link[=TADA_UsesForAnalysis]{TADA_UsesForAnalysis()}}, \code{\link[=TADA_CreateParamUseRef]{TADA_CreateParamUseRef()}} and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}, in that
+these four TADA helper functions, \code{\link[=TADA_CrosswalkATTAINSParameterName]{TADA_CrosswalkATTAINSParameterName()}},
+\code{\link[=TADA_CrosswalkCSTATTAINSUses]{TADA_CrosswalkCSTATTAINSUses()}}, \code{\link[=TADA_CreateParamUseRef]{TADA_CreateParamUseRef()}} and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}, in that
 order to generate the Criteria and Methodology table specific for your organization.
 }
 \details{
@@ -142,8 +142,8 @@ ATTAINS.organizations <- rExpertQuery::EQ_DomainValues("org_id", api_key = .setE
 }
 \examples{
 # Example 1
-# First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
-paramRef_UT <- TADA_ParametersForAnalysis(
+# First, generate and fill out a parameter crosswalk (see TADA_CrosswalkATTAINSParameterName()):
+paramRef_UT <- TADA_CrosswalkATTAINSParameterName(
   Data_Nutrients_UT,
   auto_assign = "All",
   org_id = "UTAHDWQ",
@@ -155,13 +155,13 @@ modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr
   grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 ))
 
-paramRef_UT2 <- TADA_ParametersForAnalysis(
+paramRef_UT2 <- TADA_CrosswalkATTAINSParameterName(
   Data_Nutrients_UT, auto_assign = "None",
   paramRef = modified.paramRef_UT, org_id = "UTAHDWQ", excel = FALSE
 )
 
 # Optional step: Modify the ATTAINS.UseName to CST.UseName crosswalk
-usesRef_UT <- TADA_UsesForAnalysis(org_id = "UTAHDWQ", paramRef = paramRef_UT2)
+usesRef_UT <- TADA_CrosswalkCSTATTAINSUses(org_id = "UTAHDWQ", paramRef = paramRef_UT2)
 
 modified.useRef_UT <- dplyr::filter(
   usesRef_UT,
@@ -172,7 +172,7 @@ modified.useRef_UT <- dplyr::filter(
       ATTAINS.UseName == "DOMESTIC SOURCE"))
 
 # Next, enter the crosswalk generated above as the paramRef function input
-# for TADA_UsesForAnalysis():
+# for TADA_CrosswalkCSTATTAINSUses():
 paramUsesRef_UT <- TADA_CreateParamUseRef(
   Data_Nutrients_UT, usesRef = modified.useRef_UT,
   paramRef = paramRef_UT2, org_id = c("UTAHDWQ"), excel = FALSE

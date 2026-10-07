@@ -87,7 +87,13 @@ paramRef_UT_none <- TADA_CrosswalkCSTPollutantName(
   org_id = "UTAHDWQ", auto_assign = "None", excel = FALSE
 )
 
-paramRef_UT <- TADA_CrosswalkCSTPollutantName(
+paramRef_UT_org <- TADA_CrosswalkCSTPollutantName(
+ Data_Nutrients_UT,
+ auto_assign = "Org",
+ org_id = "UTAHDWQ", 
+ excel = FALSE)
+
+paramRef_UT_all <- TADA_CrosswalkCSTPollutantName(
  Data_Nutrients_UT,
  auto_assign = "All",
  org_id = "UTAHDWQ", 

@@ -57,6 +57,6 @@ if (requireNamespace("openxlsx", quietly = TRUE)) {
 
 }
 \seealso{
-\code{\link[=TADA_DefineCriteriaMethodology]{TADA_DefineCriteriaMethodology()}} \code{\link[=TADA_ParametersForAnalysis]{TADA_ParametersForAnalysis()}}
+\code{\link[=TADA_DefineCriteriaMethodology]{TADA_DefineCriteriaMethodology()}} \code{\link[=TADA_CrosswalkATTAINSParameterName]{TADA_CrosswalkATTAINSParameterName()}}
 }
 \keyword{internal}

@@ -154,7 +154,7 @@ paramRef_UT2 <- TADA_CrosswalkATTAINSParameterName(
 )
 
 # Recommended step: Modify the ATTAINS.UseName to CST.UseName crosswalk.
-usesRef_UT <- TADA_UsesForAnalysis(org_id = "UTAHDWQ", paramRef = paramRef_UT2)
+usesRef_UT <- TADA_CrosswalkCSTATTAINSUses(org_id = "UTAHDWQ", paramRef = paramRef_UT2)
 
 modified.useRef_UT <- dplyr::filter(
   usesRef_UT,
@@ -165,7 +165,7 @@ modified.useRef_UT <- dplyr::filter(
       ATTAINS.UseName == "DOMESTIC SOURCE"))
 
 # Next, enter the crosswalk generated above as the paramRef function input
-# for TADA_UsesForAnalysis():
+# for TADA_CrosswalkCSTATTAINSUses():
 paramUsesRef_UT <- TADA_CreateParamUseRef(
   org_id = "UTAHDWQ",
   Data_Nutrients_UT,
