@@ -116,14 +116,14 @@ site specific criteria as needed.
 }
 \examples{
 \dontrun{
-# First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
-paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+# First, generate and fill out a parameter crosswalk (see TADA_CrosswalkATTAINSParameterName()):
+paramRef_UT <- TADA_CrosswalkATTAINSParameterName(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
   grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 ))
-paramRef_UT3 <- TADA_ParametersForAnalysis(
+paramRef_UT3 <- TADA_CrosswalkATTAINSParameterName(
   Data_Nutrients_UT,
   paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
 )

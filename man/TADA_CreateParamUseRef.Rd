@@ -40,11 +40,9 @@ Organization identifiers are listed in the "code" column of the "OrgName" tab.}
 
 \item{paramRef}{A data frame which contains a completed crosswalk between
 TADA_ComparableDataIdentifier(s) and ATTAINS.ParameterName(s).
-This data frame must contain at least these two column names:
-TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
-Users who are interested in performing analyses for more than
-one organization (multiple states and/or tribes) also need to include an
-additional column name: 'ATTAINS.OrganizationIdentifier'.}
+This data frame must contain at least these three column names:
+TADA.ComparableDataIdentifier, ATTAINS.ParameterName and
+ATTAINS.OrganizationIdentifier.}
 
 \item{paramUseRef}{A data frame which contains a completed crosswalk of
 ATTAINS.ParameterName(s) that will be analyzed for each ATTAINS.UseName.
@@ -102,7 +100,7 @@ run after creating your parameter (ATTAINS.ParameterName and
 TADA.ComparableDataIdentifier) crosswalk.
 }
 \details{
-Before running this function, users must run TADA_ParametersForAnalysis() to
+Before running this function, users must run TADA_CrosswalkATTAINSParameterName() to
 create the crosswalk that defines the ATTAINS.ParameterName(s) needing validation.
 All unique ATTAINS.UseNames from prior ATTAINS assessment cycles are pulled
 in using ATTAINS Expert Query in this function. If a user has
@@ -137,8 +135,8 @@ include an ATTAINS use name that was not listed in prior ATTAINS assessment cycl
 'Use name has been assessed in prior cycles by this organization, but not for this parameter name'.
 }
 \examples{
-# First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
-paramRef_UT <- TADA_ParametersForAnalysis(
+# First, generate and fill out a parameter crosswalk (see TADA_CrosswalkATTAINSParameterName()):
+paramRef_UT <- TADA_CrosswalkATTAINSParameterName(
  Data_Nutrients_UT,
  auto_assign = "All",
  org_id = "UTAHDWQ", 
@@ -150,7 +148,7 @@ modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr
   grepl("NITRATE_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 ))
 
-paramRef_UT2 <- TADA_ParametersForAnalysis(
+paramRef_UT2 <- TADA_CrosswalkATTAINSParameterName(
   Data_Nutrients_UT, auto_assign = "None",
   paramRef = modified.paramRef_UT, org_id = "UTAHDWQ", excel = FALSE
 )
@@ -199,5 +197,5 @@ paramUsesRef_UT3 <- TADA_CreateParamUseRef(
 
 }
 \seealso{
-\code{\link[=TADA_ParametersForAnalysis]{TADA_ParametersForAnalysis()}}
+\code{\link[=TADA_CrosswalkATTAINSParameterName]{TADA_CrosswalkATTAINSParameterName()}}
 }
