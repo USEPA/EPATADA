@@ -101,20 +101,16 @@ by reference - in this case where there are beta names, rename to legacy names, 
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">DeWitt_wqx3</span> <span class="op">&lt;-</span> <span class="fu">dataRetrieval</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dataRetrieval/man/readWQPdata.html" class="external-link">readWQPdata</a></span><span class="op">(</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="va">DeWitt_wqx3</span> <span class="op">&lt;-</span> <span class="fu">dataRetrieval</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dataRetrieval/man/readWQPdata.html" class="external-link">readWQPdata</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  statecode <span class="op">=</span> <span class="st">"Illinois"</span>,</span></span>
 <span class="r-in"><span>  countycode <span class="op">=</span> <span class="st">"DeWitt"</span>, characteristicName <span class="op">=</span> <span class="st">"Nitrogen"</span>,</span></span>
 <span class="r-in"><span>  service <span class="op">=</span> <span class="st">"ResultWQX3"</span>, dataProfile <span class="op">=</span> <span class="st">"fullPhysChem"</span>,</span></span>
 <span class="r-in"><span>  ignore_attributes <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> GET: https://api.waterdata.usgs.gov/samples-data/codeservice/states?mimeType=application%2Fjson</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> GET: https://api.waterdata.usgs.gov/samples-data/codeservice/counties?mimeType=application%2Fjson</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> GET: https://api.waterdata.usgs.gov/samples-data/codeservice/states?mimeType=application%2Fjson</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> GET: https://api.waterdata.usgs.gov/samples-data/codeservice/states?mimeType=application%2Fjson</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> GET: https://www.waterqualitydata.us/wqx3/Result/search?countycode=US%3A17%3A039&amp;characteristicName=Nitrogen&amp;dataProfile=fullPhysChem&amp;mimeType=csv</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> WQX3 services are in-development, use with caution.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">DeWitt_wqx3_withlegacynames</span> <span class="op">&lt;-</span> <span class="fu">EPATADA</span><span class="fu">::</span><span class="fu">TADA_RenametoLegacy</span><span class="op">(</span><span class="va">DeWitt_wqx3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

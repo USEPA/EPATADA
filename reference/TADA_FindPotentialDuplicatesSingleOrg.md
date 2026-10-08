@@ -69,7 +69,7 @@ Data_TribalNations_dups <- TADA_FindPotentialDuplicatesSingleOrg(Data_TribalNati
 table(Data_TribalNations_dups$TADA.SingleOrgDup.Flag)
 #> 
 #> Duplicate Not Selected     Duplicate Selected        Not a Duplicate 
-#>                   1565                    905                 140649 
+#>                   1565                    905                 151957 
 
 # Review duplicate rows
 Data_TribalNations_review <- Data_TribalNations_dups |>

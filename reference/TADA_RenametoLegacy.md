@@ -36,18 +36,14 @@ rename to legacy names, and skip where there are no matches.
 ## Examples
 
 ``` r
+if (FALSE) { # \dontrun{
 DeWitt_wqx3 <- dataRetrieval::readWQPdata(
   statecode = "Illinois",
   countycode = "DeWitt", characteristicName = "Nitrogen",
   service = "ResultWQX3", dataProfile = "fullPhysChem",
   ignore_attributes = TRUE
 )
-#> GET: https://api.waterdata.usgs.gov/samples-data/codeservice/states?mimeType=application%2Fjson
-#> GET: https://api.waterdata.usgs.gov/samples-data/codeservice/counties?mimeType=application%2Fjson
-#> GET: https://api.waterdata.usgs.gov/samples-data/codeservice/states?mimeType=application%2Fjson
-#> GET: https://api.waterdata.usgs.gov/samples-data/codeservice/states?mimeType=application%2Fjson
-#> GET: https://www.waterqualitydata.us/wqx3/Result/search?countycode=US%3A17%3A039&characteristicName=Nitrogen&dataProfile=fullPhysChem&mimeType=csv
-#> WQX3 services are in-development, use with caution.
 
 DeWitt_wqx3_withlegacynames <- EPATADA::TADA_RenametoLegacy(DeWitt_wqx3)
+} # }
 ```

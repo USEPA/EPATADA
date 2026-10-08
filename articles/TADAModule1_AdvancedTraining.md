@@ -328,7 +328,7 @@ First, always good to take a look at the dataframe dimensions.
 dim(dataset_0) # returns x and of x (as the numbers of rows and columns respectively)
 ```
 
-    ## [1] 143119    152
+    ## [1] 154427    152
 
 Before we start filtering and flagging our data, let’s create a function
 (`dimCheck`) that performs dimension checks between the results that
@@ -398,20 +398,20 @@ all_counts
 ```
 
     ##                                                                Fields  Count
-    ## 1                                                    ResultIdentifier 143119
-    ## 2                                             TADA.ResultMeasureValue  44218
-    ## 3                                                  ResultMeasureValue  42595
-    ## 4                                                  ActivityIdentifier  17547
+    ## 1                                                    ResultIdentifier 154427
+    ## 2                                             TADA.ResultMeasureValue  55358
+    ## 3                                                  ResultMeasureValue  53788
+    ## 4                                                  ActivityIdentifier  18301
     ## 5                                 ResultDetectionQuantitationLimitUrl  12228
-    ## 6                                               ActivityStartDateTime  10733
-    ## 7                                                         LastUpdated   3502
+    ## 6                                               ActivityStartDateTime  11138
+    ## 7                                                         LastUpdated   3528
     ## 8                               ResultDepthHeightMeasure.MeasureValue   3006
     ## 9                          TADA.ResultDepthHeightMeasure.MeasureValue   3006
     ## 10                                                ActivityCommentText   1922
-    ## 11                                             ActivityStartTime.Time   1350
-    ## 12                            ActivityDepthHeightMeasure.MeasureValue   1155
-    ## 13                       TADA.ActivityDepthHeightMeasure.MeasureValue   1155
-    ## 14                                                  ActivityStartDate    670
+    ## 11                            ActivityDepthHeightMeasure.MeasureValue   1908
+    ## 12                       TADA.ActivityDepthHeightMeasure.MeasureValue   1908
+    ## 13                                             ActivityStartTime.Time   1350
+    ## 14                                                  ActivityStartDate    685
     ## 15                                                  AnalysisStartDate    568
     ## 16                                  ActivityLocation.LongitudeMeasure    465
     ## 17                                   ActivityLocation.LatitudeMeasure    460
@@ -594,12 +594,12 @@ org_counts <- TADA_FieldValuesTable(dataset, field = "OrganizationFormalName")
 org_counts
 ```
 
-    ##                                        Value Count
-    ## 1                               Red Lake DNR 84965
-    ## 2 Fond du Lac Band of Chippewa (MN) (Tribal) 27928
-    ## 3                 Blackfeet Nation (Montana) 20126
-    ## 4         Ute Mountain Utes Tribe (Colorado)  4257
-    ## 5                 Pueblo Of Tesuque (Tribal)   793
+    ##                                Value Count
+    ## 1                       Red Lake DNR 84965
+    ## 2  Fond du Lac Band of Chippewa (MN) 39236
+    ## 3         Blackfeet Nation (Montana) 20126
+    ## 4 Ute Mountain Utes Tribe (Colorado)  4257
+    ## 5         Pueblo Of Tesuque (Tribal)   793
 
 **Question 4: When might a user choose to view a column’s unique values
 as a table rather than in a pie chart?**
@@ -853,7 +853,7 @@ removal
     ## 3                                                            Activity media is not water.
     ## 4                     Detection limit information contains errors or missing information.
     ##   Count
-    ## 1 35812
+    ## 1 40336
     ## 2 13418
     ## 3  5050
     ## 4    18
@@ -931,7 +931,7 @@ TADA_FieldValuesTable(dataset_flags, field = "TADA.ResultMeasureValueDataTypes.F
 ```
 
     ##                      Value Count
-    ## 1                  Numeric 87529
+    ## 1                  Numeric 94313
     ## 2               Percentage   992
     ## 3 Numeric Range - Averaged   266
     ## 4                Less Than    18
@@ -948,7 +948,7 @@ TADA_FieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTypes.Fl
 ```
 
     ##                                              Value Count
-    ## 1                                          Numeric 87524
+    ## 1                                          Numeric 94308
     ## 2                                       Percentage   992
     ## 3                         Numeric Range - Averaged   266
     ## 4                                        Less Than    18
