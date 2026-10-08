@@ -416,7 +416,7 @@ testthat::test_that("TADA_DataRetrieval", {
   ))
 })
 
-# testing that NWIS USGS only domain value "meters" is successfully 
+# testing that NWIS USGS only domain value "meters" is successfully
 # replaced with "m". This feature is part of the TADA_AutoClean function
 # which runs automatically when TADA_DataRetrieval runs
 # real WQP call with issue

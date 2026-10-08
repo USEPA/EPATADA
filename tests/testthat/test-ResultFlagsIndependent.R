@@ -134,15 +134,15 @@ test_that("No NAs in independent flag columns", {
 # # failing as of 10/8/26
 # test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 #   testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
-# 
+#
 #   # Skip the test if the test dataframe is empty
 #   if (dim(testdat)[1] == 0) {
 #     skip("Test dataframe is empty, skipping test.")
 #   }
-# 
+#
 #   testdat1 <- TADA_FindPotentialDuplicatesSingleOrg(testdat)
 #   testdat2 <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
-# 
+#
 #   expect_true(dim(testdat)[1] == dim(testdat1)[1])
 #   expect_true(dim(testdat)[1] == dim(testdat2)[1])
 # })
