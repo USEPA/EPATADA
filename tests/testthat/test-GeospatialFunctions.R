@@ -356,7 +356,7 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
 
 testthat::test_that("fetchNHD returns Hi flowlines and waterbodies", {
   fake_catchments <- make_fake_hr_catchments()
-  fake_flowlines   <- make_fake_hr_flowlines()
+  fake_flowlines <- make_fake_hr_flowlines()
   fake_waterbodies <- make_fake_hr_waterbodies()
 
   fake_nhd <- list(fake = "nhd_hr")
