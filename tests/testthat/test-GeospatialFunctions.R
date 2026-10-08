@@ -356,10 +356,16 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
 
 testthat::test_that("fetchNHD returns Hi flowlines and waterbodies", {
   fake_catchments <- make_fake_hr_catchments()
-  fake_flowlines <- make_fake_hr_flowlines()
+  fake_flowlines   <- make_fake_hr_flowlines()
   fake_waterbodies <- make_fake_hr_waterbodies()
 
+  fake_nhd <- list(fake = "nhd_hr")
+
   testthat::local_mocked_bindings(
+    .nhd_arc_open = function(...) fake_nhd,
+    .nhd_get_layer = function(nhd, id) {
+      list(nhd = nhd, id = id)
+    },
     .nhd_get_hr_catchments = function(...) fake_catchments,
     .nhd_get_hr_flowlines = function(...) fake_flowlines,
     .nhd_get_hr_waterbodies = function(...) fake_waterbodies,
@@ -368,15 +374,19 @@ testthat::test_that("fetchNHD returns Hi flowlines and waterbodies", {
 
   result <- EPATADA:::fetchNHD(
     small_bbox_data,
+    resolution = "Hi",
     features = c("catchments", "flowlines", "waterbodies"),
     check_service = FALSE
   )
 
   testthat::expect_true(is.list(result))
-  testthat::expect_true(all(
-    c("fill_USGS_catchments", "NHD_flowlines", "NHD_waterbodies") %in%
-      names(result)
-  ))
+  testthat::expect_equal(
+    names(result),
+    c("fill_USGS_catchments", "NHD_flowlines", "NHD_waterbodies")
+  )
+  testthat::expect_equal(result[["fill_USGS_catchments"]], fake_catchments)
+  testthat::expect_equal(result[["NHD_flowlines"]], fake_flowlines)
+  testthat::expect_equal(result[["NHD_waterbodies"]], fake_waterbodies)
 })
 
 testthat::test_that("fetchNHD returns Med catchments", {
