@@ -131,102 +131,179 @@ test_that("No NAs in independent flag columns", {
   expect_false(any(is.na(testdat$TADA_FindQAPPDoc)))
 })
 
-# failing as of 10/1/26
-# test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
-#   # Skip the test if NHD High Res web service is unavailable
-#   if (!.checkNHD(resolution = "Hi")) {
-#     skip("NHD Hi Res web service not available, skipping test.")
-#   }
-#
-#   testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
-#
-#   # Skip the test if the test dataframe is empty
-#   if (dim(testdat)[1] == 0) {
-#     skip("Test dataframe is empty, skipping test.")
-#   }
-#
-#   testdat1 <- TADA_FindPotentialDuplicatesSingleOrg(testdat)
-#   testdat2 <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
-#
-#   expect_true(dim(testdat)[1] == dim(testdat1)[1])
-#   expect_true(dim(testdat)[1] == dim(testdat2)[1])
-# })
+testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs does not grow dataset - no duplicates", {
+  testdat <- Data_R5_TADAPackageDemo |>
+    dplyr::filter(StateCode == "17")
 
-# # 7/27/26 failing
-# ══ Failed tests ════════════════════════════════════════════════════════════════
-# ── Error ('test-ResultFlagsIndependent.R:189:3'): TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found ──
-# Error in `r[i1] - `length<-`(r, max(length(r) - lag, 0L))`: non-numeric argument to binary operator
-# Backtrace:
-#   ▆
-# 1. ├─testthat::expect_true(...) at test-ResultFlagsIndependent.R:189:3
-# 2. │ └─testthat::quasi_label(enquo(object), label)
-# 3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
-# 4. ├─base::unique(diff(testdat2))
-# 5. ├─base::diff(testdat2)
-# 6. └─base::diff.default(testdat2)
-# test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
-#   testthat::skip_on_cran()
-#   testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
-#
-#   testthat::skip_if(
-#     is.null(testdat) || NROW(testdat) == 0,
-#     "Empty test data; skipping test."
-#   )
-#
-#   testdat <- tryCatch(
-#     TADA_FindPotentialDuplicatesMultipleOrgs(testdat),
-#     error = function(e) {
-#       if (
-#         grepl(
-#           "HTTP 502|Bad Gateway|NHD",
-#           conditionMessage(e),
-#           ignore.case = TRUE
-#         )
-#       ) {
-#         testthat::skip("NHD service unavailable; skipping test.")
-#       }
-#       stop(e)
-#     }
-#   )
-#
-#   testdat1 <- testdat |>
-#     dplyr::distinct(TADA.NearbySiteGroup) |>
-#     dplyr::filter(
-#       !is.na(TADA.NearbySiteGroup),
-#       grepl("^[0-9]+$", TADA.NearbySiteGroup)
-#     ) |>
-#     dplyr::pull(TADA.NearbySiteGroup)
-#
-#   testdat2 <- testdat |>
-#     dplyr::select(TADA.MultipleOrgDupGroupID) |>
-#     dplyr::filter(TADA.MultipleOrgDupGroupID != "Not a duplicate") |>
-#     unique()
-#
-#   expect_true(length(testdat1) == 0 || length(unique(diff(testdat1))) < 2)
-#   expect_true(length(testdat2) == 0 || length(unique(diff(testdat2))) < 2)
-# })
+  if (nrow(testdat) == 0) {
+    testthat::skip("Test dataframe is empty, skipping test.")
+  }
 
-# this test is failing and needs additional troubleshooting as of 10/1/26
-# test_that("TADA_FindPotentialDuplicatesMultipleOrgs has non-NA values for each row in columns added in function", {
-#
-#   # Skip the test if NHD High Res web service is unavailable
-#   if(!.checkNHD(resolution = "Hi")) {
-#     skip("NHD Hi Res web service not available, skipping test.")
-#   }
-#
-#    testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
-#
-#   testthat::skip_if(
-#     is.null(testdat) || NROW(testdat) == 0,
-#     "Empty test data; skipping test."
-#   )
-#
-#   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
-#   expect_false(any(is.na(testdat$TADA.MultipleOrgDupGroupID)))
-#   expect_false(any(is.na(testdat$TADA.MultipleOrgDuplicate)))
-#   expect_false(any(is.na(testdat$TADA.MonitoringLocationIdentifier)))
-#   expect_false(any(is.na(testdat$TADA.ResultSelectedMultipleOrgs)))
-# })
+  # Use a small subset for a stable unit test
+  testdat <- testdat |>
+    dplyr::slice_head(n = 10)
+
+  # Mock nearby-sites detection so no rows are grouped as duplicates
+  testthat::local_mocked_bindings(
+    TADA_FindNearbySites = function(.data, dist_buffer = 100, org_hierarchy = "none") {
+      .data |>
+        dplyr::mutate(
+          TADA.NearbySites.Flag = "Nearby",
+          TADA.NearbySiteGroup = dplyr::row_number(),
+          TADA.MonitoringLocationIdentifier = MonitoringLocationIdentifier
+        )
+    },
+    .package = "EPATADA"
+  )
+
+  result <- EPATADA:::TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
+
+  testthat::expect_equal(nrow(result), nrow(testdat))
+  testthat::expect_true(all(c(
+    "TADA.MultipleOrgDup.Flag",
+    "TADA.MultipleOrgDupGroupID"
+  ) %in% names(result)))
+  testthat::expect_true(all(result$TADA.MultipleOrgDup.Flag == "Not a Duplicate"))
+})
+
+testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs does not grow dataset - forced duplicate group", {
+  testdat <- Data_R5_TADAPackageDemo |>
+    dplyr::filter(StateCode == "17")
+
+  if (nrow(testdat) < 6) {
+    testthat::skip("Not enough rows in test dataframe, skipping test.")
+  }
+
+  # Use a small subset for a stable unit test
+  testdat <- testdat |>
+    dplyr::slice_head(n = 6)
+
+  # Force the rows into one nearby-site group and make 3 orgs share the same
+  # comparable result values so the duplicate logic is exercised.
+  testdat$TADA.NearbySites.Flag <- "Nearby"
+  testdat$TADA.NearbySiteGroup <- c(1, 1, 1, 2, 3, 4)
+  testdat$TADA.MonitoringLocationIdentifier <- testdat$MonitoringLocationIdentifier
+
+  # Ensure first three rows satisfy the duplicate grouping conditions
+  testdat$ActivityStartDate[1:3] <- testdat$ActivityStartDate[1]
+  testdat$ActivityStartTime.Time[1:3] <- testdat$ActivityStartTime.Time[1]
+  testdat$TADA.ComparableDataIdentifier[1:3] <- testdat$TADA.ComparableDataIdentifier[1]
+  testdat$ActivityTypeCode[1:3] <- testdat$ActivityTypeCode[1]
+  testdat$TADA.ResultMeasureValue[1:3] <- testdat$TADA.ResultMeasureValue[1]
+  testdat$OrganizationIdentifier[1:3] <- c("ORG_A", "ORG_B", "ORG_C")
+  testdat$ResultIdentifier[1:3] <- c("R1", "R2", "R3")
+
+  # Since the nearby columns already exist, TADA_FindNearbySites won't be called
+  result <- EPATADA:::TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
+
+  testthat::expect_equal(nrow(result), nrow(testdat))
+  testthat::expect_true(all(c(
+    "TADA.MultipleOrgDup.Flag",
+    "TADA.MultipleOrgDupGroupID"
+  ) %in% names(result)))
+  testthat::expect_true(any(result$TADA.MultipleOrgDup.Flag == "Duplicate Selected"))
+  testthat::expect_true(any(result$TADA.MultipleOrgDup.Flag == "Duplicate Not Selected"))
+})
+
+testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs clean=TRUE removes not selected rows", {
+  testdat <- Data_R5_TADAPackageDemo |>
+    dplyr::filter(StateCode == "17")
+
+  if (nrow(testdat) < 6) {
+    testthat::skip("Not enough rows in test dataframe, skipping test.")
+  }
+
+  testdat <- testdat |>
+    dplyr::slice_head(n = 6)
+
+  testdat$TADA.NearbySites.Flag <- "Nearby"
+  testdat$TADA.NearbySiteGroup <- c(1, 1, 1, 2, 3, 4)
+  testdat$TADA.MonitoringLocationIdentifier <- testdat$MonitoringLocationIdentifier
+
+  testdat$ActivityStartDate[1:3] <- testdat$ActivityStartDate[1]
+  testdat$ActivityStartTime.Time[1:3] <- testdat$ActivityStartTime.Time[1]
+  testdat$TADA.ComparableDataIdentifier[1:3] <- testdat$TADA.ComparableDataIdentifier[1]
+  testdat$ActivityTypeCode[1:3] <- testdat$ActivityTypeCode[1]
+  testdat$TADA.ResultMeasureValue[1:3] <- testdat$TADA.ResultMeasureValue[1]
+  testdat$OrganizationIdentifier[1:3] <- c("ORG_A", "ORG_B", "ORG_C")
+  testdat$ResultIdentifier[1:3] <- c("R1", "R2", "R3")
+
+  result <- EPATADA:::TADA_FindPotentialDuplicatesMultipleOrgs(testdat, clean = TRUE)
+
+  testthat::expect_true(nrow(result) == 4)
+  testthat::expect_true(all(result$TADA.MultipleOrgDup.Flag != "Duplicate Not Selected"))
+})
+
+
+
+testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels duplicate groups when multiple org duplicates are present", {
+  testdat <- Data_R5_TADAPackageDemo |>
+    dplyr::filter(StateCode == "17")
+
+  testthat::skip_if(
+    is.null(testdat) || NROW(testdat) == 0,
+    "Empty test data; skipping test."
+  )
+
+  testdat <- testdat |>
+    dplyr::slice_head(n = 6)
+
+  # Create a known multi-org duplicate pattern in the first 3 rows
+  testdat$ActivityStartDate[1:3] <- testdat$ActivityStartDate[1]
+  testdat$ActivityStartTime.Time[1:3] <- testdat$ActivityStartTime.Time[1]
+  testdat$TADA.ComparableDataIdentifier[1:3] <- testdat$TADA.ComparableDataIdentifier[1]
+  testdat$ActivityTypeCode[1:3] <- testdat$ActivityTypeCode[1]
+  testdat$TADA.ResultMeasureValue[1:3] <- testdat$TADA.ResultMeasureValue[1]
+  testdat$OrganizationIdentifier[1:3] <- c("ORG_A", "ORG_B", "ORG_C")
+  testdat$ResultIdentifier[1:3] <- c("R1", "R2", "R3")
+
+  testdat <- testdat |>
+    dplyr::mutate(
+      TADA.NearbySites.Flag = "Nearby",
+      TADA.NearbySiteGroup = dplyr::if_else(dplyr::row_number() <= 3, 1L, dplyr::row_number()),
+      TADA.MonitoringLocationIdentifier = MonitoringLocationIdentifier
+    )
+
+  testdat2 <- EPATADA:::TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
+
+  testthat::expect_equal(nrow(testdat), nrow(testdat2))
+  testthat::expect_true(any(testdat2$TADA.MultipleOrgDup.Flag == "Duplicate Selected"))
+  testthat::expect_true(any(testdat2$TADA.MultipleOrgDup.Flag == "Duplicate Not Selected"))
+  testthat::expect_true(any(testdat2$TADA.MultipleOrgDupGroupID != "Not a Duplicate"))
+})
+
+
+testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs adds non-NA values in expected output columns", {
+  testdat <- Data_R5_TADAPackageDemo |>
+    dplyr::filter(StateCode == "17")
+
+  testthat::skip_if(
+    is.null(testdat) || NROW(testdat) == 0,
+    "Empty test data; skipping test."
+  )
+
+  testdat <- testdat |>
+    dplyr::slice_head(n = 6) |>
+    dplyr::mutate(
+      TADA.NearbySites.Flag = "Nearby",
+      TADA.NearbySiteGroup = dplyr::if_else(dplyr::row_number() <= 3, 1L, dplyr::row_number()),
+      TADA.MonitoringLocationIdentifier = MonitoringLocationIdentifier
+    )
+
+  testdat$ActivityStartDate[1:3] <- testdat$ActivityStartDate[1]
+  testdat$ActivityStartTime.Time[1:3] <- testdat$ActivityStartTime.Time[1]
+  testdat$TADA.ComparableDataIdentifier[1:3] <- testdat$TADA.ComparableDataIdentifier[1]
+  testdat$ActivityTypeCode[1:3] <- testdat$ActivityTypeCode[1]
+  testdat$TADA.ResultMeasureValue[1:3] <- testdat$TADA.ResultMeasureValue[1]
+  testdat$OrganizationIdentifier[1:3] <- c("ORG_A", "ORG_B", "ORG_C")
+  testdat$ResultIdentifier[1:3] <- c("R1", "R2", "R3")
+
+  testdat2 <- EPATADA:::TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
+
+  testthat::expect_false(any(is.na(testdat2$TADA.MultipleOrgDupGroupID)))
+  testthat::expect_false(any(is.na(testdat2$TADA.MultipleOrgDup.Flag)))
+  testthat::expect_false(any(is.na(testdat2$TADA.MonitoringLocationIdentifier)))
+})
 
 test_that("WQXcharValRef.rda contains only one row for each unique characteristic/source/unit combination for threshold functions", {
   file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
