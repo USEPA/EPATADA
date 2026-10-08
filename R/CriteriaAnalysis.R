@@ -48,7 +48,7 @@
 #' # join the table by best match from what is filled out from the criteria table
 #' MT_data_criteria <- TADA_Analysis_Join_WQP_Criteria(MT_data, criteria_MT)
 #'
-#' # create the MLSummaryRef (ML only - no AU or other spatial columns)
+#' # create the MLSummaryRef
 #' params <- TADA_ParametersForAnalysis(
 #'   Data_MT_MissoulaCounty, org_id = "MTDEQ", auto_assign = "Org")
 #'
@@ -58,6 +58,8 @@
 #' mlsummary <- TADA_MLSummary(
 #'   Data_MT_MissoulaCounty,
 #'   org_id = "MTDEQ",
+#'   AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
+#'   AU_UsesRef = Data_MT_AU_UsesRef_Water,
 #'   usesRef = uses)
 #'
 #' # join the table by best match, along with the MLSummaryRef
@@ -106,29 +108,86 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   }
 
   .data <- upperize(.data)
-  criteria <- upperize(criteria)
+  criteria_out <- TADA_DefineCriteriaMethodology(
+    .data = .data,
+    org_id = unique(criteria$ATTAINS.OrganizationIdentifier),
+    criteriaMethods = criteria,
+    displayUniqueId = TRUE
+  )
+
+  criteria <- upperize(criteria_out[[1]])
 
   if (!is.null(MLSummaryRef) && is.data.frame(MLSummaryRef)) {
     MLSummaryRef <- upperize(MLSummaryRef)
   }
 
   # ------------------------------------------------------------
+  # Warn if spatial columns are present in criteria table but MLSummaryRef is missing
+  # ------------------------------------------------------------
+  spatial_cols <- c(
+    "ATTAINS.WaterType",
+    "SaltFresh",
+    "UniqueSpatialCriteria",
+    "DepthCategory"
+  )
+
+  spatial_in_criteria <- intersect(spatial_cols, names(criteria))
+  spatial_filled <- spatial_in_criteria[vapply(
+    spatial_in_criteria,
+    function(nm) {
+      x <- criteria[[nm]]
+      if (is.factor(x)) {
+        x <- as.character(x)
+      }
+      any(!is.na(x) & nzchar(trimws(as.character(x))))
+    },
+    logical(1)
+  )]
+
+  if (is.null(MLSummaryRef) && length(spatial_filled) > 0) {
+    warning(
+      paste0(
+        "No MLSummaryRef was provided, but spatial columns contain values in the criteria table: ",
+        paste(spatial_filled, collapse = ", "),
+        ". Cannot differentiate which monitoring location sites belong to any of these spatial columns. ",
+        "Please create the MLSummaryRef to define the sites that are applicable to these spatial columns."
+      ),
+      call. = FALSE
+    )
+  }
+
+  # ------------------------------------------------------------
   # Join MLSummaryRef first (if provided)
   # ------------------------------------------------------------
   if (!is.null(MLSummaryRef) && nrow(MLSummaryRef) > 0) {
-    needed <- c("MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier")
+    compare_keys <- intersect(
+      c(
+        "TADA.ComparableDataIdentifier",
+        "ATTAINS.ParameterName",
+        "ATTAINS.UseName",
+        "ATTAINS.AssessmentUnitIdentifier",
+        "ATTAINS.WaterType",
+        "MonitoringLocationIdentifier",
+        "SaltFresh",
+        "UniqueSpatialCriteria",
+        "DepthCategory",
+        "LongitudeMeasure",
+        "LatitudeMeasure"
+      ),
+      intersect(names(MLSummaryRef), names(.data))
+    )
 
-    if (all(needed %in% names(.data)) && all(needed %in% names(MLSummaryRef))) {
-      .data <- dplyr::left_join(
-        .data,
-        MLSummaryRef,
-        by = needed,
-        relationship = "many-to-many"
-      )
-    } else {
+    if (length(compare_keys) == 0) {
       warning(
         "MLSummaryRef could not be joined because required columns are missing.",
         call. = FALSE
+      )
+    } else {
+      .data <- dplyr::left_join(
+        .data,
+        MLSummaryRef,
+        by = compare_keys,
+        relationship = "many-to-many"
       )
     }
   }
@@ -291,283 +350,176 @@ TADA_Analysis_Join_WQP_Criteria <- function(
 
   wqp_criteria <- TADA_CorrectColType(wqp_criteria)
 
+  # ------------------------------------------------------------
+  # Identify all mismatching criteria table rows that could not be matched to .data
+  # ------------------------------------------------------------
+
+  do_anti_join <- function(crit, df, keys) {
+    if (is.null(crit) || is.null(df)) {
+      return(NULL)
+    }
+    if (!is.data.frame(crit) || !is.data.frame(df)) {
+      return(NULL)
+    }
+
+    crit <- TADA_CorrectColType(crit)
+    df <- TADA_CorrectColType(df)
+
+    if (is.null(crit) || is.null(df)) {
+      return(NULL)
+    }
+    if (nrow(crit) == 0 || nrow(df) == 0) {
+      return(NULL)
+    }
+    if (length(keys) == 0) {
+      return(NULL)
+    }
+    if (!all(keys %in% names(crit)) || !all(keys %in% names(df))) {
+      return(NULL)
+    }
+
+    dplyr::anti_join(crit, df, by = keys)
+  }
+
+  summarize_missing_causes <- function(unmatched_df, ref_df, join_cols) {
+    if (
+      is.null(unmatched_df) ||
+        !is.data.frame(unmatched_df) ||
+        nrow(unmatched_df) == 0
+    ) {
+      return(NULL)
+    }
+    if (is.null(ref_df) || !is.data.frame(ref_df) || nrow(ref_df) == 0) {
+      return(NULL)
+    }
+
+    join_cols <- intersect(
+      join_cols,
+      intersect(names(unmatched_df), names(ref_df))
+    )
+    if (!length(join_cols)) {
+      return(NULL)
+    }
+
+    main_col <- join_cols[1]
+    other_cols <- setdiff(join_cols, main_col)
+
+    main_vals <- unique(unmatched_df[[main_col]])
+    main_vals <- main_vals[!is.na(main_vals)]
+    if (!length(main_vals)) {
+      return(NULL)
+    }
+
+    msgs <- lapply(main_vals, function(main_val) {
+      row_match <- unmatched_df[
+        unmatched_df[[main_col]] == main_val,
+        ,
+        drop = FALSE
+      ]
+
+      cause_msgs <- lapply(other_cols, function(col) {
+        vals <- unique(row_match[[col]])
+        vals <- vals[!is.na(vals)]
+
+        if (!length(vals)) {
+          return(NULL)
+        }
+
+        ref_vals <- unique(ref_df[[col]])
+        ref_vals <- ref_vals[!is.na(ref_vals)]
+
+        bad_vals <- setdiff(vals, ref_vals)
+
+        if (!length(bad_vals)) {
+          return(NULL)
+        }
+
+        paste0(
+          "\n",
+          paste0(
+            "  * ",
+            bad_vals,
+            " not found in column: '",
+            col,
+            "'",
+            collapse = "\n"
+          )
+        )
+      })
+
+      cause_msgs <- unlist(cause_msgs)
+      if (!length(cause_msgs)) {
+        return(NULL)
+      }
+
+      paste0(main_val, " for ", paste(cause_msgs, collapse = ""))
+    })
+
+    msgs <- Filter(Negate(is.null), msgs)
+
+    if (!length(msgs)) {
+      return(NULL)
+    }
+
+    paste0(
+      "Row(s) for these TADA.CharacteristicName or TADA.ComparableDataIdentifier from your criteria table input could not be matched ",
+      "to your WQP data or MLSummaryRef due to a mismatch. To help ensure the tables can be joined, ",
+      "please correct the values in each defined column by adding any missing values to your MLSummaryRef ",
+      "or by making sure values are spelled correctly and match exactly between your criteria table and MLSummaryRef. ",
+      "Only matching values can be analyzed:\n\n",
+      paste0("- ", msgs, collapse = "\n")
+    )
+  }
+
+  # Run anti-joins and preserve the join columns used for each set
+  unmatched_sets <- list(
+    list(
+      df = do_anti_join(criteria1, .data, id_col1),
+      keys = id_col1,
+      name = "criteria1"
+    ),
+    list(
+      df = do_anti_join(criteria2, .data, id_col2),
+      keys = id_col2,
+      name = "criteria2"
+    ),
+    list(
+      df = do_anti_join(criteria3, .data, id_col3),
+      keys = id_col3,
+      name = "criteria3"
+    ),
+    list(
+      df = do_anti_join(criteria4, .data, id_col4),
+      keys = id_col4,
+      name = "criteria4"
+    ),
+    list(
+      df = do_anti_join(criteria5, .data, id_col5),
+      keys = id_col5,
+      name = "criteria5"
+    )
+  )
+
+  # Remove NULL results
+  unmatched_sets <- Filter(function(x) !is.null(x$df), unmatched_sets)
+
+  # Print warnings for each unmatched set
+  if (length(unmatched_sets) > 0) {
+    mismatch_msgs <- lapply(unmatched_sets, function(x) {
+      summarize_missing_causes(x$df, .data, x$keys)
+    })
+
+    mismatch_msgs <- Filter(Negate(is.null), mismatch_msgs)
+
+    if (length(mismatch_msgs) > 0) {
+      message(paste0("- ", unlist(mismatch_msgs), collapse = "\n"))
+    }
+  }
+
   cols <- spsUtil::quiet(names(TADA_DefineCriteriaMethodology()[[1]])[
     -seq_len(8)
   ])
   existing_cols <- intersect(cols, names(wqp_criteria))
 
   return(wqp_criteria)
-}
-
-#' Validate Reference Tables Against WQP Data and Criteria
-#'
-#' Checks for mismatching combinations between a WQP data frame, a criteria
-#' table, and optional spatial reference tables. When reference tables are
-#' supplied, the function compares key identifying fields and issues warnings
-#' if values present in one table are not found in another.
-#'
-#' This function is primarily used as a pre-check before joining criteria and
-#' reference tables to WQP data for analysis.
-#'
-#' @param .data A data frame containing WQP data. Must include
-#'   `TADA.CharacteristicName` and, if applicable, spatial columns such as
-#'   `ATTAINS.WaterType`, `SaltFresh`, `UniqueSpatialCriteria`, and/or
-#'   `DepthCategory`.
-#' @param criteria A data frame containing the final criteria table. Must include
-#'   `TADA.CharacteristicName` and any other fields needed for matching and
-#'   validation.
-#' @param AUMLRef Optional. A reference table for assessment unit–level water
-#'   type mappings. If provided, the function checks for mismatches in
-#'   `ATTAINS.WaterType`.
-#' @param AU_UsesRef Optional. A reference table for assessment unit use
-#'   mappings. If provided, the function checks for mismatches in
-#'   `ATTAINS.UseName`.
-#'
-#' @return Invisibly returns `NULL`. The function is called for its side effect
-#'   of issuing warnings when mismatches are detected.
-#'
-#' @details
-#' The function performs the following checks:
-#' \enumerate{
-#'   \item Compares `criteria` and `AU_UsesRef` on
-#'   `TADA.CharacteristicName` and `ATTAINS.UseName` when `AU_UsesRef` is
-#'   provided.
-#'   \item Compares `criteria` and `AUMLRef` on `ATTAINS.WaterType` when
-#'   `AUMLRef` is provided.
-#'   \item Checks whether spatial combinations present in `criteria` also exist
-#'   in `.data` for the overlapping characteristic names.
-#' }
-#'
-#' Character columns used in comparison are converted to uppercase and trimmed
-#' before matching to reduce false mismatches due to case differences or extra
-#' whitespace.
-#'
-#' @note This function does not modify the input objects. It only validates
-#' them and generates warnings when inconsistencies are found.
-#'
-#' @examples
-#' \dontrun{
-#' # load example data.frame
-#' utils::data("Data_MT_MissoulaCounty", package = "EPATADA")
-#' MT_data <- Data_MT_MissoulaCounty
-#'
-#' # load example criteria table from community hub
-#' criteria_MT <- EPATADA::TADA_GetCriteriaFile(org_id = "MTDEQ")
-#'
-#' TADA_Analysis_Validate_Ref(
-#'  Data_MT_MissoulaCounty,
-#'  criteria = criteria_MT,
-#'  AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
-#'  AU_UsesRef = Data_MT_AU_UsesRef_Water)
-#' }
-#'
-#' @export
-TADA_Analysis_Validate_Ref <- function(
-  .data,
-  criteria,
-  AUMLRef = NULL,
-  AU_UsesRef = NULL
-) {
-  if (!is.null(AUMLRef) || !is.null(AU_UsesRef)) {
-    upperize <- function(df) {
-      cols <- intersect(
-        names(df),
-        c(
-          "TADA.ComparableDataIdentifier",
-          "TADA.CharacteristicName",
-          "TADA.ResultSampleFractionText",
-          "TADA.MethodSpeciationName",
-          "ATTAINS.UseName",
-          "ATTAINS.WaterType",
-          "ATTAINS.ParameterName"
-        )
-      )
-
-      for (nm in cols) {
-        df[[nm]] <- toupper(as.character(df[[nm]]))
-      }
-      df
-    }
-
-    wrap_vals <- function(x) {
-      vals <- unique(stats::na.omit(trimws(as.character(x))))
-      if (!length(vals)) {
-        return("")
-      }
-      paste0("\n\n  ", paste(vals, collapse = "\n  "))
-    }
-
-    .data <- upperize(.data)
-    criteria <- upperize(criteria)
-    if (!is.null(AUMLRef)) {
-      AUMLRef <- upperize(AUMLRef)
-    }
-    if (!is.null(AU_UsesRef)) {
-      AU_UsesRef <- upperize(AU_UsesRef)
-    }
-
-    cmp_vals <- function(
-      x,
-      y,
-      cols,
-      value_col,
-      direction = c("x_not_in_y", "y_not_in_x")
-    ) {
-      direction <- match.arg(direction)
-      cols <- intersect(cols, intersect(names(x), names(y)))
-      if (!length(cols)) {
-        return(NULL)
-      }
-
-      if (direction == "x_not_in_y") {
-        out <- dplyr::anti_join(
-          dplyr::distinct(dplyr::select(x, dplyr::all_of(cols))),
-          dplyr::distinct(dplyr::select(y, dplyr::all_of(cols))),
-          by = cols
-        )
-      } else {
-        out <- dplyr::anti_join(
-          dplyr::distinct(dplyr::select(y, dplyr::all_of(cols))),
-          dplyr::distinct(dplyr::select(x, dplyr::all_of(cols))),
-          by = cols
-        )
-      }
-
-      vals <- unique(stats::na.omit(trimws(as.character(out[[value_col]]))))
-      if (!length(vals)) {
-        return(NULL)
-      }
-      vals
-    }
-
-    # AU_UsesRef checks
-    if (!is.null(AU_UsesRef)) {
-      vals1 <- cmp_vals(
-        criteria,
-        AU_UsesRef,
-        c("TADA.CharacteristicName", "ATTAINS.UseName"),
-        "ATTAINS.UseName",
-        direction = "x_not_in_y"
-      )
-
-      vals2 <- cmp_vals(
-        criteria,
-        AU_UsesRef,
-        c("TADA.CharacteristicName", "ATTAINS.UseName"),
-        "ATTAINS.UseName",
-        direction = "y_not_in_x"
-      )
-
-      if (!is.null(vals1) || !is.null(vals2)) {
-        msg <- character()
-        if (!is.null(vals1)) {
-          msg <- c(
-            msg,
-            paste0(
-              "1: Your final criteria table output contains values not found in your AU_UsesRef for these ATTAINS.UseName(s):",
-              "\n\n  ",
-              paste(vals1, collapse = "\n  ")
-            )
-          )
-        }
-        if (!is.null(vals2)) {
-          msg <- c(
-            msg,
-            paste0(
-              "2: Your AU_UsesRef contains values not found in criteria for these ATTAINS.UseName(s):",
-              "\n\n  ",
-              paste(vals2, collapse = "\n  ")
-            )
-          )
-        }
-        warning(paste(msg, collapse = "\n\n"), call. = FALSE)
-      }
-    }
-
-    # AUMLRef checks
-    if (!is.null(AUMLRef)) {
-      vals1 <- cmp_vals(
-        criteria,
-        AUMLRef,
-        c("ATTAINS.WaterType"),
-        "ATTAINS.WaterType",
-        direction = "x_not_in_y"
-      )
-
-      vals2 <- cmp_vals(
-        criteria,
-        AUMLRef,
-        c("ATTAINS.WaterType"),
-        "ATTAINS.WaterType",
-        direction = "y_not_in_x"
-      )
-
-      if (!is.null(vals1) || !is.null(vals2)) {
-        msg <- character()
-        if (!is.null(vals1)) {
-          msg <- c(
-            msg,
-            paste0(
-              "1: Your final criteria table output contains values not found in your AUMLRef for these ATTAINS.WaterType(s):",
-              "\n\n  ",
-              paste(vals1, collapse = "\n  ")
-            )
-          )
-        }
-        if (!is.null(vals2)) {
-          msg <- c(
-            msg,
-            paste0(
-              "2: Your AUMLRef contains values not found in criteria for these ATTAINS.WaterType(s):",
-              "\n\n  ",
-              paste(vals2, collapse = "\n  ")
-            )
-          )
-        }
-        warning(paste(msg, collapse = "\n\n"), call. = FALSE)
-      }
-    }
-
-    spatial_cols <- c(
-      "ATTAINS.WaterType",
-      "SaltFresh",
-      "UniqueSpatialCriteria",
-      "DepthCategory"
-    )
-    spatial_cols <- intersect(spatial_cols, names(.data))
-
-    if (length(spatial_cols) > 0) {
-      df_combo <- TADA_CorrectColType(
-        .data |> dplyr::select(dplyr::all_of(spatial_cols)) |> dplyr::distinct()
-      )
-
-      crit_combo <- TADA_CorrectColType(
-        criteria |>
-          dplyr::filter(
-            TADA.CharacteristicName %in% .data$TADA.CharacteristicName
-          ) |>
-          dplyr::select(dplyr::all_of(spatial_cols)) |>
-          dplyr::distinct()
-      )
-
-      missing_combos <- dplyr::anti_join(
-        crit_combo,
-        df_combo,
-        by = spatial_cols
-      )
-
-      if (nrow(missing_combos) > 0) {
-        warning(
-          paste0(
-            "These spatial combinations exist in criteria but not in your WQP .data for your TADA.CharacteristicName(s):\n",
-            "Please ensure these entries are correct or these values cannot be joined due to a mismatch.\n",
-            paste(capture.output(print(missing_combos)), collapse = "\n")
-          ),
-          call. = FALSE
-        )
-      }
-    }
-  }
-
-  invisible(NULL)
 }

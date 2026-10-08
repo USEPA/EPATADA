@@ -1148,9 +1148,8 @@ TADA_DefineCriteriaMethodology <- function(
         as.data.frame()
 
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == TRUE) {
-        warning(paste0(
-          "displayUniqueId = TRUE, displaying all unique TADA.ComparableDataIdentifiers in your WQP data.\n",
-          "  Your *user supplied* criteriaMethods data is missing ",
+        message(paste0(
+          "Your *user supplied* criteriaMethods data is missing ",
           length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
           " unique TADA.ComparableDataIdentifier(s):\n\n  ",
           paste0(
@@ -1158,13 +1157,14 @@ TADA_DefineCriteriaMethodology <- function(
             collapse = ", "
           ),
           "\n\n",
-          "  without criteria information filled out.\n"
+          "without criteria information filled out. Please review if these entries are applicable to your analysis,\n",
+          "or ignore this message if they are not relevant.\n"
         ))
       }
 
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == FALSE) {
-        warning(paste0(
-          "  Your *user supplied* criteriaMethods data is missing ",
+        message(paste0(
+          "Your *user supplied* criteriaMethods data is missing ",
           length(unique(non_definedCriteria$TADA.CharacteristicName)),
           " unique TADA.CharacteristicName(s) :\n\n  ",
           paste0(
@@ -1360,14 +1360,6 @@ TADA_DefineCriteriaMethodology <- function(
   DefineCriteriaMethodology <- dplyr::relocate(
     DefineCriteriaMethodology,
     dplyr::any_of(desired_cols) # NOTE: 12/16/25 changed from dplyr::select to relocate. Allow additional columns from user supplied table.
-  )
-
-  # validations - does criteria table inputs match the AUMLRef and AU_UsesRef if provided?
-  TADA_Analysis_Validate_Ref(
-    .data,
-    criteria = DefineCriteriaMethodology,
-    AUMLRef = AUMLRef,
-    AU_UsesRef = AU_UsesRef
   )
 
   # Generates the excel function (HIGHLY Recommended for users to export)
