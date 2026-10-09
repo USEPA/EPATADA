@@ -76,8 +76,8 @@ proceed with analysis in Module 3.
 # returns full list of ATTAINS.UseName and uses from the CST
 usesRef_All <- TADA_CrosswalkCSTATTAINSUses()
 
-# First, generate and fill out a parameter crosswalk (see TADA_CrosswalkATTAINSParameterName()):
-paramRef_UT <- TADA_CrosswalkATTAINSParameterName(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+# First, generate and fill out a parameter crosswalk (see TADA_CrosswalkWQPATTAINSParamName()):
+paramRef_UT <- TADA_CrosswalkWQPATTAINSParamName(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 
 usesRef_UT <- TADA_CrosswalkCSTATTAINSUses( org_id = "UTAHDWQ", paramRef = paramRef_UT)
 

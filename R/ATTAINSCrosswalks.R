@@ -957,12 +957,12 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #' @examples
 #' \dontrun{
 #' # This creates a blank paramRef template of UT Nutrients data.
-#' paramRef_UT_none <- TADA_CrosswalkATTAINSParameterName(
+#' paramRef_UT_none <- TADA_CrosswalkWQPATTAINSParamName(
 #'   Data_Nutrients_UT,
 #'   org_id = "UTAHDWQ", auto_assign = "None", excel = FALSE
 #' )
 #' 
-#' paramRef_UT <- TADA_CrosswalkATTAINSParameterName(
+#' paramRef_UT <- TADA_CrosswalkWQPATTAINSParamName(
 #'  Data_Nutrients_UT,
 #'  auto_assign = "All",
 #'  org_id = "UTAHDWQ", 
@@ -974,13 +974,13 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #'   grepl("NITRATE_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 #' ))
 #' 
-#' paramRef_UT2 <- TADA_CrosswalkATTAINSParameterName(
+#' paramRef_UT2 <- TADA_CrosswalkWQPATTAINSParamName(
 #'   Data_Nutrients_UT, auto_assign = "None",
 #'   paramRef = modified.paramRef_UT, org_id = "UTAHDWQ", excel = FALSE
 #' )
 #' }
 #'
-TADA_CrosswalkATTAINSParameterName <- function(
+TADA_CrosswalkWQPATTAINSParamName <- function(
     .data,
     org_id = NULL,
     paramRef = NULL,
@@ -1005,7 +1005,7 @@ TADA_CrosswalkATTAINSParameterName <- function(
   } else {
     if (excel == FALSE && overwrite == TRUE) {
       stop(paste0(
-        "TADA_CrosswalkATTAINSParameterName: ",
+        "TADA_CrosswalkWQPATTAINSParamName: ",
         "argument input excel = FALSE and overwrite = TRUE is an invalid combination.",
         "Cannot overwrite the excel generated spreadsheet if a user specifies excel = FALSE"
       ))
@@ -1013,7 +1013,7 @@ TADA_CrosswalkATTAINSParameterName <- function(
     
     if (!auto_assign %in% c("None", "All", "Org")) {
       stop(paste0(
-        "TADA_CrosswalkATTAINSParameterName: ",
+        "TADA_CrosswalkWQPATTAINSParamName: ",
         "argument input ",
         auto_assign,
         " is not a valid entry. Please type one of 'None', 'All', 'Org' as a value."
@@ -1051,7 +1051,7 @@ TADA_CrosswalkATTAINSParameterName <- function(
     
     if (length(org_id) > 1) {
       message(paste0(
-        "TADA_CrosswalkATTAINSParameterName: More than one org_name was defined in your dataframe. ",
+        "TADA_CrosswalkWQPATTAINSParamName: More than one org_name was defined in your dataframe. ",
         "Generating duplicate rows of TADA.ComparableDataIdentifier for each org."
       ))
     }
@@ -1059,7 +1059,7 @@ TADA_CrosswalkATTAINSParameterName <- function(
     if (!is.null(paramRef) & !is.character(paramRef)) {
       if (!is.data.frame(paramRef)) {
         stop(paste0(
-          "TADA_CrosswalkATTAINSParameterName: 'paramRef' must be a data frame with these 3 columns:",
+          "TADA_CrosswalkWQPATTAINSParamName: 'paramRef' must be a data frame with these 3 columns:",
           "TADA.ComparableDataIdentifier, ATTAINS.ParameterName and ATTAINS.OrganizationIdentifier"
         ))
       }
@@ -1073,7 +1073,7 @@ TADA_CrosswalkATTAINSParameterName <- function(
           !("TADA.ComparableDataIdentifier" %in% names(paramRef))
         ) {
           stop(paste0(
-            "TADA_CrosswalkATTAINSParameterName: 'paramRef' must be a data frame with these 3 columns:",
+            "TADA_CrosswalkWQPATTAINSParamName: 'paramRef' must be a data frame with these 3 columns:",
             "TADA.ComparableDataIdentifier, ATTAINS.ParameterName and ATTAINS.OrganizationIdentifier"
           ))
         }
@@ -1140,7 +1140,7 @@ TADA_CrosswalkATTAINSParameterName <- function(
         TADA_GetATTAINSOrgIDsRef()[, "code"]
       ) > 0
     ) {
-      warning("TADA_CrosswalkATTAINSParameterName: One or more organization identifiers entered by user is not found in ATTAINS.")
+      warning("TADA_CrosswalkWQPATTAINSParamName: One or more organization identifiers entered by user is not found in ATTAINS.")
     }
     
     # ATTAINS.ParameterName returned as NA, user will manually fill out the crosswalk
@@ -1166,7 +1166,7 @@ TADA_CrosswalkATTAINSParameterName <- function(
     # any ATTAINS.ParameterName alias will be returned as a match, regardless of what organization has used that parameter name as a domain value
     if (tolower(auto_assign) == tolower("All")) {
       message(paste0(
-        "TADA_CrosswalkATTAINSParameterName: auto_assign == 'All' was selected, ",
+        "TADA_CrosswalkWQPATTAINSParamName: auto_assign == 'All' was selected, ",
         "finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
       
@@ -1229,7 +1229,7 @@ TADA_CrosswalkATTAINSParameterName <- function(
     # only ATTAINS.ParameterName alias for the specified ATTAINS org_id will be returned as a match
     if (tolower(auto_assign) == tolower("Org")) {
       message(paste0(
-        "TADA_CrosswalkATTAINSParameterName: auto_assign == 'Org' was selected, finding an alias ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+        "TADA_CrosswalkWQPATTAINSParamName: auto_assign == 'Org' was selected, finding an alias ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
       
       TADACharAliasRef <- utils::read.csv(system.file(
@@ -1380,7 +1380,7 @@ TADA_CrosswalkATTAINSParameterName <- function(
 #' Users can choose to optionally crosswalk ATTAINS.ParameterName using one
 #' of the auto_assign methods.
 #'
-#' This function will automatically run `TADA_CrosswalkATTAINSParameterName`
+#' This function will automatically run `TADA_CrosswalkWQPATTAINSParamName`
 #'
 #' @param .data A TADA dataframe after all desired data cleaning,
 #' processing, harmonization, filtering, and censored data handling functions
@@ -1442,18 +1442,18 @@ TADA_CrosswalkATTAINSParameterName <- function(
 #' @examples
 #' \dontrun{
 #' # This creates a blank paramRef template of UT Nutrients data.
-#' paramRef_UT_none <- TADA_CrosswalkCSTPollutantName(
+#' paramRef_UT_none <- TADA_CrosswalkCSTWQPATTAINSParamName(
 #'   Data_Nutrients_UT,
 #'   org_id = "UTAHDWQ", auto_assign = "None", excel = FALSE
 #' )
 #' 
-#' paramRef_UT_org <- TADA_CrosswalkCSTPollutantName(
+#' paramRef_UT_org <- TADA_CrosswalkCSTWQPATTAINSParamName(
 #'  Data_Nutrients_UT,
 #'  auto_assign = "Org",
 #'  org_id = "UTAHDWQ", 
 #'  excel = FALSE)
 #' 
-#' paramRef_UT_all <- TADA_CrosswalkCSTPollutantName(
+#' paramRef_UT_all <- TADA_CrosswalkCSTWQPATTAINSParamName(
 #'  Data_Nutrients_UT,
 #'  auto_assign = "All",
 #'  org_id = "UTAHDWQ", 
@@ -1465,13 +1465,13 @@ TADA_CrosswalkATTAINSParameterName <- function(
 #'   grepl("NITRATE_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 #' ))
 #' 
-#' paramRef_UT2 <- TADA_CrosswalkCSTPollutantName(
+#' paramRef_UT2 <- TADA_CrosswalkCSTWQPATTAINSParamName(
 #'   Data_Nutrients_UT, auto_assign = "None",
 #'   paramRef = modified.paramRef_UT, org_id = "UTAHDWQ", excel = FALSE
 #' )
 #' }
 #'
-TADA_CrosswalkCSTPollutantName <- function(
+TADA_CrosswalkCSTWQPATTAINSParamName <- function(
     .data,
     org_id = NULL,
     paramRef = NULL,
@@ -1479,7 +1479,7 @@ TADA_CrosswalkCSTPollutantName <- function(
     excel = FALSE,
     overwrite = FALSE
 ) {
-  attains_crosswalk <- TADA_CrosswalkATTAINSParameterName(
+  attains_crosswalk <- TADA_CrosswalkWQPATTAINSParamName(
     .data = .data,
     org_id = org_id,
     paramRef = paramRef,
@@ -1673,9 +1673,9 @@ TADA_CrosswalkCSTPollutantName <- function(
     dplyr::arrange(ATTAINS.ParameterName)
   
   # CST allowable values
-  CST_Pollutant <- sort(unique(stats::na.omit(as.character(
+  CST_Pollutant <- sort(toupper(unique(stats::na.omit(as.character(
     TADA_CST_GetCriteria()$POLLUTANT_NAME
-  ))))
+  )))))
   
   no_match_df <- data.frame(
     ATTAINS.OrganizationIdentifier = "NA",
@@ -1692,7 +1692,7 @@ TADA_CrosswalkCSTPollutantName <- function(
         "ATTAINS.OrganizationIdentifier",
         "ATTAINS.ParameterName",
         "ATTAINS.UseName"
-      )]
+      )] |> dplyr::arrange(ATTAINS.ParameterName)
     )
   )
   
@@ -1905,8 +1905,8 @@ TADA_CrosswalkCSTPollutantName <- function(
 #' # returns full list of ATTAINS.UseName and uses from the CST
 #' usesRef_All <- TADA_CrosswalkCSTATTAINSUses()
 #' 
-#' # First, generate and fill out a parameter crosswalk (see TADA_CrosswalkATTAINSParameterName()):
-#' paramRef_UT <- TADA_CrosswalkATTAINSParameterName(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+#' # First, generate and fill out a parameter crosswalk (see TADA_CrosswalkWQPATTAINSParamName()):
+#' paramRef_UT <- TADA_CrosswalkWQPATTAINSParamName(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 #' 
 #' usesRef_UT <- TADA_CrosswalkCSTATTAINSUses( org_id = "UTAHDWQ", paramRef = paramRef_UT)
 #'
@@ -2009,7 +2009,7 @@ TADA_CrosswalkCSTATTAINSUses <- function(
 #' run after creating your parameter (ATTAINS.ParameterName and
 #' TADA.ComparableDataIdentifier) crosswalk.
 #'
-#' Before running this function, users must run TADA_CrosswalkATTAINSParameterName() to
+#' Before running this function, users must run TADA_CrosswalkWQPATTAINSParamName() to
 #' create the crosswalk that defines the ATTAINS.ParameterName(s) needing validation.
 #' All unique ATTAINS.UseNames from prior ATTAINS assessment cycles are pulled
 #' in using ATTAINS Expert Query in this function. If a user has
@@ -2112,13 +2112,13 @@ TADA_CrosswalkCSTATTAINSUses <- function(
 #' and ATTAINS.FlagUseName. Users will need to review the crosswalk between
 #' ATTAINS.ParameterName, ATTAINS.UseName and TADA.ComparableDataIdentifier.
 #'
-#' @seealso [TADA_CrosswalkATTAINSParameterName()]
+#' @seealso [TADA_CrosswalkWQPATTAINSParamName()]
 #'
 #' @export
 #'
 #' @examples
-#' # First, generate and fill out a parameter crosswalk (see TADA_CrosswalkATTAINSParameterName()):
-#' paramRef_UT <- TADA_CrosswalkCSTPollutantName(
+#' # First, generate and fill out a parameter crosswalk (see TADA_CrosswalkWQPATTAINSParamName()):
+#' paramRef_UT <- TADA_CrosswalkCSTWQPATTAINSParamName(
 #'  Data_Nutrients_UT,
 #'  auto_assign = "All",
 #'  org_id = "UTAHDWQ", 
@@ -2130,7 +2130,7 @@ TADA_CrosswalkCSTATTAINSUses <- function(
 #'   grepl("NITRATE_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 #' ))
 #' 
-#' paramRef_UT2 <- TADA_CrosswalkCSTPollutantName(
+#' paramRef_UT2 <- TADA_CrosswalkCSTWQPATTAINSParamName(
 #'   Data_Nutrients_UT, auto_assign = "None",
 #'   paramRef = modified.paramRef_UT, org_id = "UTAHDWQ", excel = FALSE
 #' )
@@ -2232,7 +2232,7 @@ TADA_CreateParamUseRef <- function(
     warning(
       "TADA_CreateParamUseRef: No values were found in ATTAINS.ParameterName. ",
       "Please ensure that you have inputted all field values of interest in the ",
-      "ATTAINS.ParameterName column generated from TADA_CrosswalkATTAINSParameterName()."
+      "ATTAINS.ParameterName column generated from TADA_CrosswalkWQPATTAINSParamName()."
     )
   }
   
@@ -2241,7 +2241,7 @@ TADA_CreateParamUseRef <- function(
       "TADA_CreateParamUseRef: \n",
       "  NAs were found in ATTAINS.ParameterName. \n",
       "  Please ensure that you have inputted all field values of interest in \n",
-      "  the ATTAINS.ParameterName column generated from TADA_CrosswalkATTAINSParameterName()."
+      "  the ATTAINS.ParameterName column generated from TADA_CrosswalkWQPATTAINSParamName()."
     )
   }
   
@@ -2654,9 +2654,9 @@ TADA_CreateParamUseRef <- function(
       }
       
       if (missing(paramRef)) {
-        TADA_CrosswalkATTAINSParameterName(excel = TRUE, overwrite = TRUE)
+        TADA_CrosswalkWQPATTAINSParamName(excel = TRUE, overwrite = TRUE)
       } else {
-        TADA_CrosswalkATTAINSParameterName(
+        TADA_CrosswalkWQPATTAINSParamName(
           .data = .data,
           org_id = org_id,
           paramRef = paramRef,
@@ -3648,14 +3648,14 @@ TADA_AssignUsesToWaterType <- function(
 #'
 #' @examples
 #' \dontrun{
-#' # First, generate and fill out a parameter crosswalk (see TADA_CrosswalkCSTPollutantName()):
-#' paramRef_UT <- TADA_CrosswalkCSTPollutantName(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+#' # First, generate and fill out a parameter crosswalk (see TADA_CrosswalkCSTWQPATTAINSParamName()):
+#' paramRef_UT <- TADA_CrosswalkCSTWQPATTAINSParamName(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 #' paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
 #'   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
 #'   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
 #'   grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 #' ))
-#' paramRef_UT3 <- TADA_CrosswalkCSTPollutantName(
+#' paramRef_UT3 <- TADA_CrosswalkCSTWQPATTAINSParamName(
 #'   Data_Nutrients_UT,
 #'   paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
 #' )
@@ -4007,7 +4007,7 @@ TADA_MLSummary <- function(
       # if no file exists yet, use the paramUseRef as the input from this function to generate the paramUseRef tabs from TADA_CreateParamUseRef
       # but if generating a blank file, run TADA_CreateParamUseRef with no inputs
       if (missing(paramUseRef)) {
-        # TADA_CreateParamUseRef will run TADA_CrosswalkATTAINSParameterName too if the ParamUseMLCrosswalks.xlsx does not exist yet
+        # TADA_CreateParamUseRef will run TADA_CrosswalkWQPATTAINSParamName too if the ParamUseMLCrosswalks.xlsx does not exist yet
         TADA_CreateParamUseRef(
           excel = excel,
           overwrite = T # to avoid creating two duplicate timestamp files.
