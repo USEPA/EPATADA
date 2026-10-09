@@ -403,7 +403,6 @@ Wikimedia
 YYYY
 addATTAINS
 addAllATTAINS
-addFlaggedSitesMarkers
 addLayerControl
 addLegendToggle
 addMapReset
@@ -441,6 +440,7 @@ characteristicType
 checkColNames
 checkForATTAINSGeo
 checkForWQPData
+checkNHD
 checkTADAColsForMap
 classB
 cleanNA
@@ -481,7 +481,6 @@ epa
 expertquery
 extdata
 fabec
-fallbacks
 fetchATTAINS
 fetchNHD
 fetchWaterType
@@ -519,7 +518,6 @@ hydroloom
 importWQP
 io
 lessthan
-lowres
 mL
 manys
 mapviewer
@@ -540,7 +538,6 @@ od
 offsetLibrary
 orgs
 outsideUSA
-outsideusa
 overallstatus
 overdetects
 owapps
@@ -571,6 +568,7 @@ sd
 secchi
 setEQKey
 setnames
+sfc
 showMissingATTAINSAUs
 siteType
 siteid
