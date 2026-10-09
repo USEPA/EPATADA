@@ -1544,7 +1544,7 @@ TADA_CrosswalkCSTPollutantName <- function(
   
   if (isTRUE(excel)) {
     save_path <- .TADA_ExcelParameterCrosswalk(
-      ParametersCrosswalk = ParametersCrosswalk,
+      ParametersCrosswalk = out,
       org_id = org_id,
       overwrite = overwrite
     )
@@ -1554,7 +1554,76 @@ TADA_CrosswalkCSTPollutantName <- function(
 }
 
 
-
+#' Generate WQP to ATTAINS Parameter and Optional CST Crosswalk Excel File
+#'
+#' Create or refresh an Excel workbook to manage parameter crosswalks between
+#' user-provided values and EPA ATTAINS domain values. The workbook contains
+#' three sheets:
+#'
+#' - `ATTAINS.PriorOrgParamUseRef`: a reference table of previously used
+#'   ATTAINS parameter names by organization.
+#' - `ParametersCrosswalk`: the editable crosswalk table for the current
+#'   organization, including data validation and status/helper formulas.
+#' - `Index`: a hidden support sheet used to store lookup values for dropdowns
+#'   and formula-driven validation messages.
+#'
+#' The function loads a packaged reference dataset of ATTAINS parameter use
+#' history, filters it to the supplied `org_id`, and writes it to the workbook.
+#' It then populates the `ParametersCrosswalk` sheet, adds a dropdown list of
+#' allowable ATTAINS parameter names, and inserts formulas that help users
+#' identify whether a selected parameter is:
+#' - missing or marked not applicable,
+#' - absent from the ATTAINS domain list,
+#' - previously used by another organization, or
+#' - previously used by the same organization.
+#'
+#' If the target Excel file already exists and `overwrite = FALSE`, a timestamped
+#' filename will be generated instead of replacing the existing file.
+#'
+#' @param ParametersCrosswalk A data frame containing the parameter crosswalk
+#'   template to write to the `ParametersCrosswalk` worksheet. It must include a
+#'   column named `ATTAINS.ParameterName`, and may include additional columns
+#'   that will be written as-is.
+#' @param org_id Character or vector of character values identifying the
+#'   organization(s) whose prior ATTAINS parameter use history should be
+#'   included in the workbook.
+#' @param overwrite Logical; if `TRUE`, overwrite an existing file at the
+#'   destination path. If `FALSE` and the file already exists, a new file name
+#'   with a timestamp is created. Defaults to `FALSE`.
+#' @param filename Character string giving the output Excel filename.
+#'   Defaults to `"ParamUseMLCrosswalks.xlsx"`.
+#'
+#' @return The path to the saved workbook, invisibly. The function is called for
+#'   its side effects of creating and saving an Excel file.
+#'
+#' @details
+#' The workbook is written with the following behaviors:
+#' \itemize{
+#'   \item The `ParametersCrosswalk` sheet is visible and editable.
+#'   \item The `Index` sheet is hidden.
+#'   \item A dropdown validation list is applied to column 3 of
+#'     `ParametersCrosswalk` for rows 2 through 1000.
+#'   \item Status and modification message formulas are written for up to the
+#'     first 100 data rows.
+#'   \item Conditional formatting highlights blank, populated, and
+#'     `"Not Applicable for Analysis."` entries in the parameter-name column.
+#' }
+#'
+#' @seealso
+#' [TADA_ColorPalette()] for workbook styling.
+#'
+#' @keywords internal
+#'
+#' @examples
+#' \dontrun{
+#' # Build a workbook using an existing crosswalk template
+#' out_file <- EPATADA:::.TADA_ExcelParameterCrosswalk(
+#'   ParametersCrosswalk = my_crosswalk_df,
+#'   org_id = c("ORG123"),
+#'   overwrite = FALSE,
+#'   filename = "ParamUseMLCrosswalks.xlsx"
+#' )
+#' }
 .TADA_ExcelParameterCrosswalk <- function(
     ParametersCrosswalk,
     org_id,
@@ -1563,6 +1632,24 @@ TADA_CrosswalkCSTPollutantName <- function(
 ) {
   downloads_path <- .get_downloads_path(filename)
   wb <- openxlsx::createWorkbook()
+  
+  # Required columns / optional columns
+  required_cols <- c(
+    "TADA.ComparableDataIdentifier",
+    "ATTAINS.OrganizationIdentifier",
+    "ATTAINS.ParameterName",
+    "ATTAINS.FlagParameterName",
+    "Flag.ParameterInput"
+  )
+  optional_cst_col <- "CST.PollutantName"
+  
+  missing_required <- setdiff(required_cols, names(ParametersCrosswalk))
+  if (length(missing_required) > 0) {
+    stop("ParametersCrosswalk is missing required columns: ",
+         paste(missing_required, collapse = ", "))
+  }
+  
+  has_cst <- optional_cst_col %in% names(ParametersCrosswalk)
   
   # sheets
   for (sh in c("ATTAINS.PriorOrgParamUseRef", "ParametersCrosswalk", "Index")) {
@@ -1579,10 +1666,16 @@ TADA_CrosswalkCSTPollutantName <- function(
   
   header_st <- openxlsx::createStyle(textDecoration = "Bold")
   
+  # Load ATTAINS prior-use reference
   load(system.file("extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"))
   ATTAINS_param <- ATTAINSParamUseOrgRef |>
     dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
     dplyr::arrange(ATTAINS.ParameterName)
+  
+  # CST allowable values
+  CST_Pollutant <- sort(unique(stats::na.omit(as.character(
+    TADA_CST_GetCriteria()$POLLUTANT_NAME
+  ))))
   
   no_match_df <- data.frame(
     ATTAINS.OrganizationIdentifier = "NA",
@@ -1590,42 +1683,146 @@ TADA_CrosswalkCSTPollutantName <- function(
     ATTAINS.UseName = "Not Applicable for Analysis."
   )
   
-  openxlsx::writeData(wb, "Index", startCol = 4, x = rbind(
-    no_match_df,
-    ATTAINSParamUseOrgRef[, c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName")]
-  ))
-  openxlsx::writeData(wb, "Index", startCol = 2, x = ParametersCrosswalk[, c("ATTAINS.ParameterName", "Flag.ParameterInput")])
-  openxlsx::writeData(wb, "Index", startCol = 1, x = data.frame(ATTAINS.ParameterName = unique(ATTAINS_param$ATTAINS.ParameterName)))
+  # Index sheet values for ATTAINS dropdown/reference
+  openxlsx::writeData(
+    wb, "Index", startCol = 4,
+    x = rbind(
+      no_match_df,
+      ATTAINSParamUseOrgRef[, c(
+        "ATTAINS.OrganizationIdentifier",
+        "ATTAINS.ParameterName",
+        "ATTAINS.UseName"
+      )]
+    )
+  )
   
+  # Preserve user-supplied order by writing as-is
   openxlsx::writeData(wb, "ParametersCrosswalk", x = ParametersCrosswalk, headerStyle = header_st)
   openxlsx::writeData(wb, "ATTAINS.PriorOrgParamUseRef", x = ATTAINS_param, headerStyle = header_st)
   
+  # Put parameter names / values in Index for validation
+  openxlsx::writeData(
+    wb, "Index", startCol = 1,
+    x = data.frame(ATTAINS.ParameterName = unique(ATTAINS_param$ATTAINS.ParameterName))
+  )
+  
+  if (has_cst) {
+    openxlsx::writeData(
+      wb, "Index", startCol = 7,
+      x = data.frame(CST.PollutantName = CST_Pollutant)
+    )
+  }
+  
+  # Dynamic column positions
+  attains_col <- which(names(ParametersCrosswalk) == "ATTAINS.ParameterName")
+  org_col <- which(names(ParametersCrosswalk) == "ATTAINS.OrganizationIdentifier")
+  flag_input_col <- which(names(ParametersCrosswalk) == "Flag.ParameterInput")
+  flag_param_col <- which(names(ParametersCrosswalk) == "ATTAINS.FlagParameterName")
+  cst_col <- if (has_cst) which(names(ParametersCrosswalk) == "CST.PollutantName") else integer(0)
+  
+  attains_letter <- openxlsx::int2col(attains_col)
+  org_letter <- openxlsx::int2col(org_col)
+  flag_input_letter <- openxlsx::int2col(flag_input_col)
+  
+  # Data validation for ATTAINS.ParameterName
   suppressWarnings(openxlsx::dataValidation(
-    wb, "ParametersCrosswalk", cols = 3, rows = 2:1000, type = "list",
-    value = sprintf("'Index'!$E$2:$E$30000"), allowBlank = TRUE
+    wb, "ParametersCrosswalk",
+    cols = attains_col, rows = 2:1000,
+    type = "list",
+    value = "'Index'!$E$2:$E$30000",
+    allowBlank = TRUE
   ))
+  
+  # Data validation for CST.PollutantName if present
+  if (has_cst) {
+    suppressWarnings(openxlsx::dataValidation(
+      wb, "ParametersCrosswalk",
+      cols = cst_col, rows = 2:1000,
+      type = "list",
+      value = sprintf("'Index'!$G$2:$G$%d", length(CST_Pollutant) + 1),
+      allowBlank = TRUE
+    ))
+  }
   
   if (nrow(ParametersCrosswalk) > 100) {
     message("More than 100 rows; formulas only generated for first 100 rows.")
   }
   
+  # Helper formulas
   for (i in seq_len(min(nrow(ParametersCrosswalk), 100))) {
+    row <- i + 1
+    
+    # Message based on ATTAINS.ParameterName
     openxlsx::writeFormula(
-      wb, "ParametersCrosswalk", startCol = 4, startRow = i + 1, array = TRUE,
-      x = paste0('=IF(OR(C', i + 1, '="",C', i + 1, '="Not Applicable for Analysis."),"No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",IF(ISNA(MATCH(C', i + 1, ',Index!E:E,0)),"Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",IF(ISNA(MATCH(1,(C', i + 1, '=ATTAINS.PriorOrgParamUseRef!D:D)*(B', i + 1, '=ATTAINS.PriorOrgParamUseRef!A:A),0)),"This ATTAINS parameter name was included in past ATTAINS assessment cycles, but not for this organization.","This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization.")))')
+      wb, "ParametersCrosswalk",
+      startCol = flag_param_col, startRow = row, array = TRUE,
+      x = paste0(
+        '=IF(OR(', attains_letter, row, '="",', attains_letter, row, '="Not Applicable for Analysis."),',
+        '"No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",',
+        'IF(ISNA(MATCH(', attains_letter, row, ',Index!E:E,0)),',
+        '"Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",',
+        'IF(ISNA(MATCH(1,(', attains_letter, row, '=ATTAINS.PriorOrgParamUseRef!D:D)*(',
+        org_letter, row, '=ATTAINS.PriorOrgParamUseRef!A:A),0)),',
+        '"This ATTAINS parameter name was included in past ATTAINS assessment cycles, but not for this organization.",',
+        '"This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization.")))'
+      )
     )
+    
+    # Message for input modification flag
     openxlsx::writeFormula(
-      wb, "ParametersCrosswalk", startCol = 5, startRow = i + 1, array = TRUE,
-      x = paste0('=IF(C', i + 1, '=Index!B$', i + 1, ',Index!C$', i + 1, ',"This ATTAINS.ParameterName crosswalk was MODIFIED by your input(s) for this TADA.ComparableDataIdentifier.")')
+      wb, "ParametersCrosswalk",
+      startCol = flag_input_col, startRow = row, array = TRUE,
+      x = paste0(
+        '=IF(', attains_letter, row, '=Index!B$', row, ',Index!C$', row,
+        ',"This ATTAINS.ParameterName crosswalk was MODIFIED by your input(s) for this TADA.ComparableDataIdentifier.")'
+      )
     )
   }
   
-  openxlsx::conditionalFormatting(wb, "ParametersCrosswalk", cols = 3, rows = 2:(nrow(ParametersCrosswalk) + 1), type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13]))
-  openxlsx::conditionalFormatting(wb, "ParametersCrosswalk", cols = 3, rows = 2:(nrow(ParametersCrosswalk) + 1), type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8]))
-  openxlsx::conditionalFormatting(wb, "ParametersCrosswalk", cols = 3, rows = 2:(nrow(ParametersCrosswalk) + 1), type = "contains", rule = "Not Applicable for Analysis.", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13]))
+  # Conditional formatting on ATTAINS.ParameterName
+  openxlsx::conditionalFormatting(
+    wb, "ParametersCrosswalk",
+    cols = attains_col, rows = 2:(nrow(ParametersCrosswalk) + 1),
+    type = "blanks",
+    style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
+  )
+  openxlsx::conditionalFormatting(
+    wb, "ParametersCrosswalk",
+    cols = attains_col, rows = 2:(nrow(ParametersCrosswalk) + 1),
+    type = "notBlanks",
+    style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+  )
+  openxlsx::conditionalFormatting(
+    wb, "ParametersCrosswalk",
+    cols = attains_col, rows = 2:(nrow(ParametersCrosswalk) + 1),
+    type = "contains", rule = "Not Applicable for Analysis.",
+    style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
+  )
   
-  openxlsx::setColWidths(wb, "ParametersCrosswalk", cols = 1:(ncol(ParametersCrosswalk) + 2), widths = "auto")
+  # Optional CST column formatting
+  if (has_cst) {
+    openxlsx::conditionalFormatting(
+      wb, "ParametersCrosswalk",
+      cols = cst_col, rows = 2:(nrow(ParametersCrosswalk) + 1),
+      type = "blanks",
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
+    )
+    openxlsx::conditionalFormatting(
+      wb, "ParametersCrosswalk",
+      cols = cst_col, rows = 2:(nrow(ParametersCrosswalk) + 1),
+      type = "notBlanks",
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+    )
+  }
   
+  # Auto-fit all columns
+  openxlsx::setColWidths(
+    wb, "ParametersCrosswalk",
+    cols = 1:ncol(ParametersCrosswalk),
+    widths = "auto"
+  )
+  
+  # Save path logic
   save_path <- downloads_path
   if (!isTRUE(overwrite) && file.exists(downloads_path)) {
     save_path <- sprintf(
@@ -1921,7 +2118,7 @@ TADA_CrosswalkCSTATTAINSUses <- function(
 #'
 #' @examples
 #' # First, generate and fill out a parameter crosswalk (see TADA_CrosswalkATTAINSParameterName()):
-#' paramRef_UT <- TADA_CrosswalkATTAINSParameterName(
+#' paramRef_UT <- TADA_CrosswalkCSTPollutantName(
 #'  Data_Nutrients_UT,
 #'  auto_assign = "All",
 #'  org_id = "UTAHDWQ", 
@@ -1933,7 +2130,7 @@ TADA_CrosswalkCSTATTAINSUses <- function(
 #'   grepl("NITRATE_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 #' ))
 #' 
-#' paramRef_UT2 <- TADA_CrosswalkATTAINSParameterName(
+#' paramRef_UT2 <- TADA_CrosswalkCSTPollutantName(
 #'   Data_Nutrients_UT, auto_assign = "None",
 #'   paramRef = modified.paramRef_UT, org_id = "UTAHDWQ", excel = FALSE
 #' )
@@ -2022,6 +2219,13 @@ TADA_CreateParamUseRef <- function(
   
   if (!is.data.frame(paramRef)) {
     stop("TADA_CreateParamUseRef: 'paramRef' must be a data frame with at least TADA.ComparableDataIdentifier and ATTAINS.ParameterName.")
+  }
+
+  if (!is.null(usesRef) && !("CST.PollutantName" %in% names(paramRef))) {
+    stop(
+      "TADA_CreateParamUseRef: when 'usesRef' is supplied, 'paramRef' must include ",
+      "'CST.PollutantName'."
+    )
   }
   
   if (sum(!is.na(paramRef$ATTAINS.ParameterName)) == 0) {
@@ -3444,14 +3648,14 @@ TADA_AssignUsesToWaterType <- function(
 #'
 #' @examples
 #' \dontrun{
-#' # First, generate and fill out a parameter crosswalk (see TADA_CrosswalkATTAINSParameterName()):
-#' paramRef_UT <- TADA_CrosswalkATTAINSParameterName(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+#' # First, generate and fill out a parameter crosswalk (see TADA_CrosswalkCSTPollutantName()):
+#' paramRef_UT <- TADA_CrosswalkCSTPollutantName(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 #' paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
 #'   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
 #'   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
 #'   grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 #' ))
-#' paramRef_UT3 <- TADA_CrosswalkATTAINSParameterName(
+#' paramRef_UT3 <- TADA_CrosswalkCSTPollutantName(
 #'   Data_Nutrients_UT,
 #'   paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
 #' )

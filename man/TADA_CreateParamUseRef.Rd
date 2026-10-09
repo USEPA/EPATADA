@@ -136,7 +136,7 @@ include an ATTAINS use name that was not listed in prior ATTAINS assessment cycl
 }
 \examples{
 # First, generate and fill out a parameter crosswalk (see TADA_CrosswalkATTAINSParameterName()):
-paramRef_UT <- TADA_CrosswalkATTAINSParameterName(
+paramRef_UT <- TADA_CrosswalkCSTPollutantName(
  Data_Nutrients_UT,
  auto_assign = "All",
  org_id = "UTAHDWQ", 
@@ -148,7 +148,7 @@ modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr
   grepl("NITRATE_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 ))
 
-paramRef_UT2 <- TADA_CrosswalkATTAINSParameterName(
+paramRef_UT2 <- TADA_CrosswalkCSTPollutantName(
   Data_Nutrients_UT, auto_assign = "None",
   paramRef = modified.paramRef_UT, org_id = "UTAHDWQ", excel = FALSE
 )
