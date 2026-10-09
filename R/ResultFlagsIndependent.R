@@ -485,24 +485,24 @@ TADA_FlagContinuousData <- function(
 #'
 #' @examples
 #' # Load example dataset:
-#' utils::data(Data_R5_TADAPackageDemo)
-#'
+#' utils::data(Data_Participatory_Scientists)
+#' 
 #' # Remove data that is above the upper WQX threshold from dataframe:
 #' WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(
-#'   Data_R5_TADAPackageDemo,
+#'   Data_Participatory_Scientists,
 #'   clean = TRUE
 #' )
-#'
+#' 
 #' # Flag, but do not remove, data that is above the upper WQX threshold in
 #' # new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
 #' WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(
-#'   Data_R5_TADAPackageDemo,
+#'   Data_Participatory_Scientists,
 #'   clean = FALSE
 #' )
-#'
+#' 
 #' # Show only data flagged as above the upper WQX threshold:
 #' WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(
-#'   Data_R5_TADAPackageDemo,
+#'   Data_Participatory_Scientists,
 #'   clean = FALSE, flaggedonly = TRUE
 #' )
 #'
