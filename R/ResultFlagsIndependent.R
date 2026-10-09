@@ -771,24 +771,24 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' utils::data(Data_R5_TADAPackageDemo)
+#' utils::data(Data_Participatory_Scientists)
 #'
 #' # Remove data that is below the lower WQX threshold from the dataframe:
 #' WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(
-#'   Data_R5_TADAPackageDemo,
+#'   Data_Participatory_Scientists,
 #'   clean = TRUE
 #' )
 #'
 #' # Flag, but do not remove, data that is below the lower WQX threshold in
 #' # new column titled "TADA.ResultValueBelowLowerThreshold.Flag":
 #' WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(
-#'   Data_R5_TADAPackageDemo,
+#'   Data_Participatory_Scientists,
 #'   clean = FALSE
 #' )
 #'
 #' # Show only data that is below the lower WQX threshold:
 #' WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(
-#'   Data_R5_TADAPackageDemo,
+#'   Data_Participatory_Scientists,
 #'   clean = FALSE, flaggedonly = TRUE
 #' )
 #'
