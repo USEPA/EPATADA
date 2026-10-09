@@ -40,9 +40,17 @@ data contained within the column of interest, including "Numeric",
 \description{
 This function will screen a column of the user's choice for special
 characters. It creates a NEW column that describes the content of the column
-prior to conversion to numeric (named "TADA.COLUMN NAME DataTypes.Flag"). It
-also creates a NEW column to hold the new, numeric format (named "TADA.COLUMN
-NAME"). This function will successfully convert some special character
+prior to conversion to numeric (named \code{"TADA.COLUMN NAME DataTypes.Flag"}).
+It also creates a NEW column to hold the new, numeric format (named
+\code{"TADA.COLUMN NAME"}). If a column name is supplied when the
+\code{"TADA.COLUMN NAME"} prefix already exists, the function will not run.
+To re-run the function, users should supply the newly created
+\code{"TADA.COLUMN NAME"} column. In that case, no additional columns are created,
+and the existing \code{"TADA.COLUMN NAME"} and \code{"TADA.COLUMN NAME DataTypes.Flag"}
+columns are updated with the new conversion.
+}
+\details{
+This function will successfully convert some special character
 formats to numeric: whitespace, >, <, ~, \%, and commas are removed before
 converting a result value to numeric. Result values in the format # - # are
 converted to an average of the two numbers. Result values
@@ -55,14 +63,14 @@ rows with non-numeric result values. Default is flaggedonly = FALSE.
 }
 \examples{
 HandleSpecialChars_ResultMeasureValue <-
-  TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
+  TADA_ConvertSpecialChars(Data_R5_TADAPackageDemo, "ResultMeasureValue")
 unique(HandleSpecialChars_ResultMeasureValue$
   TADA.ResultMeasureValueDataTypes.Flag)
 
 HandleSpecialChars_DetLimMeasureValue <-
   TADA_ConvertSpecialChars(
-    Data_Nutrients_UT,
-    "TADA.DetectionQuantitationLimitMeasure.MeasureValue"
+    Data_R5_TADAPackageDemo,
+    "DetectionQuantitationLimitMeasure.MeasureValue"
   )
 unique(HandleSpecialChars_DetLimMeasureValue$
   TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
