@@ -32,28 +32,6 @@
   monitoring location crosswalk to ATTAINS, and D) assigning uses to
   assessment units.
 
-- [Example Module 3
-  Workflow](https://usepa.github.io/EPATADA/articles/ExampleMod3Workflow.md):
-
-  Recommended TADA module 3 Criteria and Methodology Table generation
-  (under development) showcasing water quality data analysis functions
-  and example workflows.
-
-- [TADA Module 3A: Associating WQP Characteristic Names with Applicable
-  ATTAINS or EPA 304(a) Criteria Search Tool (CST) Parameter and Use
-  Names](https://usepa.github.io/EPATADA/articles/TADAModule3a.md):
-
-  The first of multiple Module 3 vignettes (under development)
-  showcasing water quality data analysis functions and example
-  workflows.
-
-- [TADA Module 3: Alternative Options to Generate the Criteria and
-  Methodology template for User
-  Input](https://usepa.github.io/EPATADA/articles/ExampleMod3CriteriaMethodsAltOptions.md):
-
-  A vignette (under development) showcasing alternative ways to generate
-  the criteria and methodology file.
-
 ### Workshops and Demos
 
 - [An Example TADA Workflow Using Penobscot Nation

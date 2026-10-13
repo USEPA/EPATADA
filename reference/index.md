@@ -262,7 +262,8 @@
   Reference Table
 
 - [`TADA_GetTADAUsesAliasRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetTADAUsesAliasRef.md)
-  : Generate a candidate crosswalk of ATTAINS and CST use aliases
+  : TADA Alias Methodology for ATTAINS and CST Uses Alias Table for
+  Review
 
 - [`TADA_GetTemplate()`](https://usepa.github.io/EPATADA/reference/TADA_GetTemplate.md)
   : Get TADA Template
