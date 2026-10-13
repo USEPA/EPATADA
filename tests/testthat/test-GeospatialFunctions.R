@@ -295,11 +295,11 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk handles empty datasets appr
 # Failing on 10/13/26
 # testthat::test_that("Get ATTAINS by Assessment Unit ID", {
 #   # au_id_list <- test_au_ref_MTDEQ$ATTAINS.AssessmentUnitIdentifier
-# 
+#
 #   # When run with defaults (no ExpertQuery fields)
 #   testthat::skip_on_cran()
 #   testthat::skip_if_offline("gispub.epa.gov")
-# 
+#
 #   actual_default <- tryCatch(
 #     TADA_GetATTAINSByAUID(Data_MT_MissoulaCounty, test_au_ref_MTDEQ),
 #     error = function(e) {
@@ -309,7 +309,7 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk handles empty datasets appr
 #       ))
 #     }
 #   )
-# 
+#
 #   # Check .data was updated by adding 83 cols (163+83=246)
 #   testthat::expect_equal(ncol(actual_default$TADA_with_ATTAINS), 246)
 #   # Check results based on number of rows
@@ -322,7 +322,7 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk handles empty datasets appr
 #   )
 #   # When default fill_ATTAINS_catch = FALSE, catchments are NULL
 #   testthat::expect_null(actual_default$ATTAINS_catchments)
-# 
+#
 #   # Run with catchments
 #   actual_catchments <- tryCatch(
 #     TADA_GetATTAINSByAUID(
@@ -337,12 +337,12 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk handles empty datasets appr
 #       ))
 #     }
 #   )
-# 
+#
 #   # Skip if the service returns no spatial features (avoid false failures)
 #   n_catchments <- NROW(actual_catchments$ATTAINS_catchments)
 #   n_lines <- NROW(actual_catchments$ATTAINS_lines)
 #   n_polygons <- NROW(actual_catchments$ATTAINS_polygons)
-# 
+#
 #   if ((n_catchments + n_lines + n_polygons) == 0) {
 #     testthat::skip(sprintf(
 #       "ATTAINS returned no spatial features (catchments = %d, lines = %d, polygons = %d); skipping to avoid false failure.",
@@ -351,7 +351,7 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk handles empty datasets appr
 #       n_polygons
 #     ))
 #   }
-# 
+#
 #   # Check results based on number of rows (only catchments change from default)
 #   expected_rows <- c(11, expected_rows)
 #   testthat::expect_equal(
