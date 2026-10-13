@@ -1,20 +1,47 @@
-# Testing the Geospatial Functions ----
-# Tests for the functions in GeoSpatialFunctions.R using sample data
+# Testing the Geospatial Functions
 
-TADA_dataframe <- Data_HUC8_02070004_Mod1Output |>
-  dplyr::filter(TADA.CharacteristicName == "PH")
+############################# Load test fixtures data #########################
 
-TADA_spatial <- TADA_MakeSpatial(TADA_dataframe)
-
-# Test fixtures
+# # # Uncomment to update test fixtures
 # Hill_MT_pH <- EPATADA::TADA_DataRetrieval(
 #   characteristicName = "pH",
 #   statecode = "MT",
 #   countycode = "041",
-#   applyautoclean = TRUE
+#   applyautoclean = TRUE,
+#   ask = FALSE
 # )
-# large_bbox_data
+# large_bbox_data <- Hill_MT_pH
+# 
+# # Query specific to sites along state border
+# sites <- c(
+#   "NALMS-F1217605",
+#   "EMAP_CS_WQX-RI03-0338-B",
+#   "EMAP_CS_WQX-RI05-0016-A",
+#   "NARS_WQX-NCCA10-1634",
+#   "NARS_WQX-NCA_RI-10129"
+# )
+# RI_CT_secchi <- EPATADA::TADA_DataRetrieval(
+#   characteristicName = "Depth, Secchi disk depth",
+#   siteid = sites,
+#   applyautoclean = TRUE,
+#   ask = FALSE
+# )
+# 
+# # test_au_ref_MTDEQ.rda is static, but was generated using:
+# MT_AU_MLRef <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
+# test_au_ref_MTDEQ <- TADA_UpdateATTAINSAUMLCrosswalk(
+#   org_id = "MTDEQ",
+#   crosswalk = MT_AU_MLRef
+# )
+# 
+# # Save refreshed fixtures
+# save(large_bbox_data, file = testthat::test_path("testdata", "Hill_MT_pH.rda"))
+# save(RI_CT_secchi, file = testthat::test_path("testdata", "RI_CT_secchi.rda"))
+# save(test_au_ref_MTDEQ, file = testthat::test_path("testdata", "test_au_ref_MTDEQ.rda"))
+
+# Load test fixtures
 load(testthat::test_path("testdata", "Hill_MT_pH.rda"))
+
 # small area test as subset of large area
 small_bbox_data <- large_bbox_data[125:140, ]
 expect_cat_n_small <- 2
@@ -23,26 +50,16 @@ expect_cat_n_small <- 2
 nearby_data <- large_bbox_data |>
   dplyr::filter(OrganizationIdentifier %in% c("CHIPCREE_WQX", "USGS-MT"))
 
-# Query specific to sites along state border
-# sites = c("NALMS-F1217605",
-#           "EMAP_CS_WQX-RI03-0338-B",
-#           "EMAP_CS_WQX-RI05-0016-A",
-#           "NARS_WQX-NCCA10-1634",
-#           "NARS_WQX-NCA_RI-10129"
-#           )
-# RI_CT_secchi <- EPATADA::TADA_DataRetrieval(
-#  characteristicName = "Depth, Secchi disk depth",
-#  siteid = sites,
-#  applyautoclean = TRUE
-#  )
-# RI_CT_secchi
 load(testthat::test_path("testdata", "RI_CT_secchi.rda"))
-
-# test_au_ref_MTDEQ.rda is static, but was generated using:
-# MT_AU_MLRef <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
-# test_au_ref_MTDEQ <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ",
-#                                                     crosswalk = MT_AU_MLRef)
 load(testthat::test_path("testdata", "test_au_ref_MTDEQ.rda"))
+
+############################# Load example data ###############################
+
+TADA_dataframe <- Data_HUC8_02070004_Mod1Output |>
+  dplyr::filter(TADA.CharacteristicName == "PH")
+TADA_spatial <- TADA_MakeSpatial(TADA_dataframe)
+
+############################# Begin Tests #####################################
 
 # TADA_MakeSpatial Tests ----
 testthat::test_that("TADA_MakeSpatial converts non-spatial data to sf object", {
