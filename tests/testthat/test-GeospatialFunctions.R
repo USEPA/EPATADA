@@ -323,35 +323,25 @@ make_fake_med_waterbodies <- function() {
   )
 }
 
-testthat::test_that("fetchNHD handles small areas with defaults", {
-  fake_hi <- sf::st_sf(
-    NHD.nhdplusid = as.character(1:16),
-    NHD.resolution = rep("HR", 16),
-    NHD.catchmentareasqkm = rep(1.0, 16),
-    geometry = sf::st_sfc(
-      lapply(1:16, function(i) {
-        x <- -90 + i * 0.001
-        y <- 40 + i * 0.001
-        sf::st_polygon(list(rbind(
-          c(x, y),
-          c(x, y + 0.0005),
-          c(x + 0.0005, y + 0.0005),
-          c(x + 0.0005, y),
-          c(x, y)
-        )))
-      }),
-      crs = 4326
-    )
-  )
-
+testthat::test_that("fetchNHD returns Hi catchments for small areas", {
   testthat::local_mocked_bindings(
-    .nhd_get_hr_catchments = function(nhd_hr_catchments, wqp_bboxes) fake_hi,
+    .nhd_arc_open = function(...) list(fake = "nhd_hr"),
+    .nhd_get_layer = function(nhd, id) list(nhd = nhd, id = id),
+    .nhd_get_hr_catchments = function(...) {
+      make_fake_hr_catchments()
+    },
     .package = "EPATADA"
   )
 
-  result <- EPATADA:::fetchNHD(.data = small_bbox_data, check_service = FALSE)
+  result <- EPATADA:::fetchNHD(
+    small_bbox_data,
+    resolution = "Hi",
+    features = "catchments",
+    check_service = FALSE
+  )
 
-  testthat::expect_equal(nrow(result), 16)
+  testthat::expect_s3_class(result, "sf")
+  testthat::expect_equal(nrow(result), nrow(make_fake_hr_catchments()))
 })
 
 testthat::test_that("fetchNHD returns Hi flowlines and waterbodies", {
