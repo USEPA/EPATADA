@@ -2,7 +2,7 @@
 % Please edit documentation in R/TADARefTables.R
 \name{TADA_GetTADAUsesAliasRef}
 \alias{TADA_GetTADAUsesAliasRef}
-\title{Generate a candidate crosswalk of ATTAINS and CST use aliases}
+\title{TADA Alias Methodology for ATTAINS and CST Uses Alias Table for Review}
 \usage{
 TADA_GetTADAUsesAliasRef(
   ATTAINS.CST.tolerance = 0.15,
@@ -13,84 +13,64 @@ TADA_GetTADAUsesAliasRef(
 )
 }
 \arguments{
-\item{ATTAINS.CST.tolerance}{Numeric value between 0 and 1. Default is \code{0.15}.
-This is the minimum proportion of words that must match from an ATTAINS use
-name to a CST use name for a candidate alias to be returned.}
+\item{ATTAINS.CST.tolerance}{a numeric value ranging from 0 to 1 (0\% to 100\%).
+Default is 100\%. This value is an OR condition with CST.ATTAINS.tolerance which
+defines the minimum percentage of the number of words that must be found in an
+ATTAINS parameter to a CST pollutant name for it to be considered an alias match.}
 
-\item{CST.ATTAINS.tolerance}{Numeric value between 0 and 1. Default is \code{0.15}.
-This is the minimum proportion of words that must match from a CST use name
-to an ATTAINS use name for a candidate alias to be returned.}
+\item{CST.ATTAINS.tolerance}{a numeric value ranging from 0 to 1 (0\% to 100\%).
+Default is 100\%. This value is an OR condition with ATTAINS.CST.tolerance which
+defines the minimum percentage of the number of words that must be found in a
+CST pollutant name to an ATTAINS parameter to for it to be considered an alias match.}
 
-\item{set.all.tolerance}{Optional numeric value between 0 and 1. If supplied,
-this value is applied to both \code{ATTAINS.CST.tolerance} and
-\code{CST.ATTAINS.tolerance}.}
+\item{set.all.tolerance}{optional: default is NA, if a user specifies a numeric
+value ranging from 0 to 1 (0\% to 100\%), this will populate all tolerances to
+this value.}
 
-\item{download_only}{Logical. If TRUE, bypasses the cache and rebuilds the
-table directly from live sources, returning it without updating the cache.
-If FALSE (default), uses a cached copy when available and updates the cache.}
+\item{download_only}{Logical. If TRUE, bypasses the cache and package fallback and
+attempts to download the latest Characteristic Validation reference table directly from WQX,
+returning it without updating the cache. Errors if the download fails. If FALSE
+(default), uses a cached copy when available and updates the cache; on download
+failure, falls back to the package’s internal file.}
 
-\item{refresh}{Logical. Only used when \code{download_only = FALSE}. If TRUE, ignore
-any cached copy and rebuild a fresh table, then update the cache. If FALSE
-(default), return the cached table when available. Ignored when
-\code{download_only = TRUE}.}
+\item{refresh}{Logical. Only used when download_only = FALSE. If TRUE, ignore any
+cached copy and attempt to retrieve a fresh table (download, falling back to the
+package’s internal file on failure), then update the cache. If FALSE (default),
+return the cached table when available. Ignored when download_only = TRUE.}
 }
 \value{
-A data frame containing candidate ATTAINS-CST use alias matches for
-review. Returned columns include CST entity and use information, ATTAINS
-organization and use name information, review status, and supporting match
-metadata.
+a data frame consisting of potential additional ATTAINS.ParameterName
+to WQX.CharacteristicName alias for review. TADA team will review and
+decide if these are appropriate aliases.
 }
 \description{
-Creates a review table of potential alias matches between ATTAINS use names
-and Criteria Search Tool (CST) uses.
+This function prioritizes matching the use name's type for the ATTAINS use_name
+domain with the Criteria Search Tool (CST) uses. It achieves this by aligning the
+context2 field from the ATTAINS use_name domain, which acts as a uses category,
+with the Human Health and Aquatic Life column indicators from the CST.
 }
 \details{
-The function uses two matching strategies:
-\enumerate{
-\item \strong{Domain/context matching}: ATTAINS \code{use_name} values are aligned to CST
-use categories using the ATTAINS \code{context2} field and the CST
-human-health/aquatic-life indicator and water/water and organism indicator.
-\item \strong{Token-based matching}: ATTAINS and CST use names are split into words
-and compared by shared terms. The proportion of matching words is used to
-determine whether a pair is returned.
-}
+Next, this function then compares ATTAINS.UseName and CST uses by extracting
+individual words from each use domain string and calculating the percentage
+of words that match between each ATTAINS use and CST use. Users are advised
+to review this uses alias table and adjust their tolerance levels as desired
+to determine the accuracy of the crosswalk.
 
-If no direct use match is found, but an ATTAINS parameter matches a CST
-pollutant name, all CST uses for the matching organization are returned so the
-user can review and select the appropriate CST magnitude values.
+Lastly, if no use matches are found between ATTAINS and the CST, but an ATTAINS
+parameter matches a CST standard pollutant name for the organization, return
+all CST uses for each distinct ATTAINS use name. Users must then select the
+appropriate CST magnitude value(s) to populate for each ATTAINS parameter and use
+combination.
 
-The output is intended for manual review. Many-to-many matches are expected,
-and a CST use may appear multiple times for a single ATTAINS use name.
+Many-to-many matches are likely and will require thorough review. Users should
+be aware that a CST use may be duplicated for each ATTAINS.UseName. It is the
+user's responsibility to ensure that CST uses are appropriately matched to
+ATTAINS.UseName.
 
-Rows marked \code{APPROVED} or \code{REJECTED} in
-\code{inst/extdata/TADAUsesAliasRef.csv} are retained in the output when that file
-is available. New candidate matches are appended with
-\code{review = "New row: Needs Review"}.
-
-To document a review decision, update the \code{review} column in the CSV file:
-\code{APPROVED} means the alias match is accepted, and \code{REJECTED} means the alias
-match is not accepted. If desired, update \code{Last.Change.Date} to record the
-date of the decision.
-}
-\examples{
-\dontrun{
-# Default tolerances
-TADA_GetTADAUsesAliasRef()
-
-# Use the same tolerance in both directions
-TADA_GetTADAUsesAliasRef(set.all.tolerance = 0.2)
-
-# More selective matching
-TADA_GetTADAUsesAliasRef(
-  ATTAINS.CST.tolerance = 0.30,
-  CST.ATTAINS.tolerance = 0.30
-)
-
-# Less selective matching
-TADA_GetTADAUsesAliasRef(
-  ATTAINS.CST.tolerance = 0.10,
-  CST.ATTAINS.tolerance = 0.10
-)
-}
-
+Note for Development: We should keep a reference file to indicate
+which rows have already been reviewed during this process.In addition,
+we can modify the 'strictness' of percent matches. Being more strict
+can result in less potential match (false negatives) findings while
+less strict may result in greater number of matches that shouldn't
+be matched (false positives). Default for now is to be more strict.
 }
