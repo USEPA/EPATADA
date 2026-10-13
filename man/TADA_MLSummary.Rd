@@ -11,7 +11,6 @@ TADA_MLSummary(
   AUMLRef = NULL,
   AU_UsesRef = NULL,
   MLSummaryRef = NULL,
-  displayNA = FALSE,
   excel = FALSE,
   overwrite = FALSE
 )
@@ -67,12 +66,6 @@ these columns:
 "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
 "LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".}
 
-\item{displayNA}{A boolean value. If TRUE, this allows user to view MLSummaryRef
-for all uses and parameter assigned to a ML or AU regardless if that site contains
-WQP data for that parameter. This is useful if a user is interested in an explicit
-list of parameters and uses for assessment and show NAs for sites without data.
-Default is FALSE.}
-
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 If you have any trouble locating the file, please type the following into
@@ -84,6 +77,12 @@ the cells in which users should input information.}
 replaced (overwritten) by the new file you create if you re-run this function.
 Users should only specify overwrite = TRUE once they are ready to re-run this
 function if they have already ran it once.}
+
+\item{displayNA}{A boolean value. If TRUE, this allows user to view MLSummaryRef
+for all uses and parameter assigned to a ML or AU regardless if that site contains
+WQP data for that parameter. This is useful if a user is interested in an explicit
+list of parameters and uses for assessment and show NAs for sites without data.
+Default is FALSE.}
 }
 \value{
 A data frame with any unique spatial descriptions defined with columns:
@@ -116,14 +115,14 @@ site specific criteria as needed.
 }
 \examples{
 \dontrun{
-# First, generate and fill out a parameter crosswalk (see TADA_CrosswalkCSTWQPATTAINSParamName()):
-paramRef_UT <- TADA_CrosswalkCSTWQPATTAINSParamName(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+# First, generate and fill out a parameter crosswalk (see TADA_CrosswalkCSTWQPATTAINSParam()):
+paramRef_UT <- TADA_CrosswalkCSTWQPATTAINSParam(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
   grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 ))
-paramRef_UT3 <- TADA_CrosswalkCSTWQPATTAINSParamName(
+paramRef_UT3 <- TADA_CrosswalkCSTWQPATTAINSParam(
   Data_Nutrients_UT,
   paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
 )
