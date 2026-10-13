@@ -11,7 +11,7 @@
 #   ask = FALSE
 # )
 # large_bbox_data <- Hill_MT_pH
-# 
+#
 # # Query specific to sites along state border
 # sites <- c(
 #   "NALMS-F1217605",
@@ -26,14 +26,14 @@
 #   applyautoclean = TRUE,
 #   ask = FALSE
 # )
-# 
+#
 # # test_au_ref_MTDEQ.rda is static, but was generated using:
 # MT_AU_MLRef <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 # test_au_ref_MTDEQ <- TADA_UpdateATTAINSAUMLCrosswalk(
 #   org_id = "MTDEQ",
 #   crosswalk = MT_AU_MLRef
 # )
-# 
+#
 # # Save refreshed fixtures
 # save(large_bbox_data, file = testthat::test_path("testdata", "Hill_MT_pH.rda"))
 # save(RI_CT_secchi, file = testthat::test_path("testdata", "RI_CT_secchi.rda"))
