@@ -3109,7 +3109,6 @@ TADA_UsesForAnalysis <- function(
 #'   excel = FALSE
 #' )
 #' }
-#'
 TADA_AssignUsesToAU <- function(
   .data,
   org_id = NULL,
@@ -3584,8 +3583,9 @@ TADA_AssignUsesToAU <- function(
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' TADA_AssignUsesToWaterType(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
-#'
+#' }
 TADA_AssignUsesToWaterType <- function(
   .data,
   org_id = NULL,
@@ -4963,7 +4963,6 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #' @examples
 #'
 #' \dontrun{
-#'
 #' # Get test data with both freshwater and saltwater results
 #' testdat <- TADA_DataRetrieval(statecode = "OR",
 #'                               startDate = "2023-06-01",

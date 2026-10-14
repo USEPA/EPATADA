@@ -64,8 +64,9 @@ prior assessment cycles are being done for an organization's assessment.
 Users are expected to modify this ref file as needed.
 }
 \examples{
+\dontrun{
 TADA_AssignUsesToWaterType(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
-
+}
 }
 \seealso{
 \code{\link[=TADA_AssignUsesToAU]{TADA_AssignUsesToAU()}}
