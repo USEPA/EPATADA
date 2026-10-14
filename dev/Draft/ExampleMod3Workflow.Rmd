@@ -106,6 +106,10 @@ functions do not constitute current EPA policy or regulatory
 requirements. Organizations may choose to use EPATADA as a a tool in
 their decision making processes. Use of EPATADA is not required.
 
+This example workflow is for demonstration purposes only. It uses data collected
+within the state of Montana, but does not reflect MTDEQ's criteria and assessment 
+process.
+
 # Introduction to TADA Module 3
 
 This [RMarkdown](https://yihui.org/rmarkdown/) document walks users
@@ -160,11 +164,10 @@ MT_AU_UsesRef <- Data_MT_AU_UsesRef
 Let's start with an example data frame that has already been through the
 TADA Module 1 workflow including data cleaning, wrangling,
 harmonization, handling of censored data, removal of suspect results,
-etc. LINK TO APPROPRIATE VIGNETTE. This process must be completed by
-users before utilizing Module 2 or 3 function. In this example, we will
-go through some minimal cleaning with an example data set from Montana.
-The first step is to retreive WQP bacteria and pH data from Missoula
-County, Montana from 2020-2022.
+etc. LINK TO APPROPRIATE VIGNETTE. This process must be completed before utilizing
+Module 2 or 3 function. In this example, we will do minimal cleaning with an 
+example data set from Montana. The first step is to retrieve WQP bacteria and pH 
+data from Missoula County, Montana from 2020-2022.
 
 ```{r tada-data, eval = F}
 # get MT data
@@ -248,8 +251,8 @@ TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id", api_key = rEQ_api))
 
 # TADA_ParametersForAnalysis() Basics
 
-ATTAINS Parameter Names are more general TADA Comparable Data
-Identifiers. Therefore, we recommend users provide a crosswalk between
+ATTAINS Parameter Names are more general than TADA Comparable Data
+Identifiers. We recommend users provide a crosswalk between
 them. TADA_ParametersForAnalysis() creates a template which includes all
 TADA.ComparableDataIdentifiers from the TADA data frame and a blank
 column, "ATTAINS.ParameterName" for users to add the corresponding
@@ -261,7 +264,7 @@ Characteristic Names to ATTAINS Parameter Name. Even with these exact
 matches, there are additional complexities related to fraction,
 speciation and units that must be reviewed. For example, some
 organizations may consider Total Nitrogen, Nitrate/Nitrite, and Ammonia
-all matches to the ATTAINS parameter "Nitrogen". Others may different
+all matches to the ATTAINS parameter "Nitrogen". Others may consider different
 fraction/speciation combination(s) analogous to the ATTAINS parameter
 "Nitrogen".
 
@@ -387,8 +390,8 @@ modified parameter reference table as paramRef input. This will update
 the ATTAINS.FlagParameterName column in the parameter reference table
 (see example below). This column provides information about whether or
 not the organization specified in the "ATTAINS.OrganizationIdentifier"
-column has listed this parameter as a cause in prior assessment cycles.
-It also flags rows where the TADA.ComparableDataIdentifier as not been
+column associated the parameter with assessment(s) in a previous cycle.
+It also flags rows where the TADA.ComparableDataIdentifier has not been
 assigned an ATTAINS parameter name.
 
 ```{r User-Supplied-ParamRef}
@@ -447,7 +450,7 @@ rm(MT.ParamRef.All, MT.ParamRef.manual, MT.ParamRef.None, MT.ParamRef.Org, MT.Pa
 
 # TADA_UsesForAnalysis() Basics
 
-Users will review the output of this function and select which
+Users must review the output of TADA_UsesForAnalysis() and select which
 ATTAINS.UseName(s) and associated ATTAINS.ParameterName(s) are
 applicable for analysis by selecting "Include" in the COLUMNNAME column.
 If an ATTAINS.UseName is not applicable for that given
@@ -457,7 +460,7 @@ reviewed. If an ATTAINS.UseName needs to be added for an
 ATTAINS.ParameterName, append an additional row.
 
 Any ATTAINS parameter name(s) not associated with an assessment in prior
-cycles, will not have any associated prior use names. In this case,
+cycles, will not be assigned associated prior use names. In this case,
 users must manually assign the appropriate ATTAINS.UseName under the
 column 'ATTAINS.UseName'. Multiple rows may need to be added if the
 parameter applies to multiples uses. If users do not want to enter uses
@@ -472,12 +475,10 @@ input.
 #### Manual assignment of new ATTAINS parameter names to ATTAINS use names
 
 In the example below, we can see "PH" and "ESCHERICHIA COLI (E. COLI)"
-as the ATTAINS.ParameterNames that were assessed in prior assessment
-cycles for MTDEQ (see ATTAINS.FlagUseName column in NCTC_usesRef). "PH,
-HIGH" was not listed in ATTAINS for MTDEQ in the prior assessment cycle,
-but was included as a parameter name MTDEQ would like to assess for in
-this current assessment cycle. Thus, the ATTAINS.UseName is left blank
-for "PH, HIGH".
+are the ATTAINS.ParameterNames that were used in prior assessment
+cycles for MTDEQ (see ATTAINS.FlagUseName column in NCTC_usesRef IS THIS REF WRONG?). 
+MTDEQ has not used "PH, HIGH" in previous assessment cycles, but was included as a parameter name MTDEQ would like to assess for in the current assessment cycle. 
+Thus, the ATTAINS.UseName is left blank for "PH, HIGH".
 
 ```{r usesRef-Manual}
 MT.UsesRef.manual <- TADA_UsesForAnalysis(
@@ -496,9 +497,7 @@ MT.UsesRef.manual <- TADA_UsesForAnalysis(
 TADA_TableExport(MT.UsesRef.manual)
 ```
 
-If desired, a user can manually assign "PH, HIGH" to any applicable uses
-(disclaimer: this is for demonstration purposes only and does not
-reflect MTDEQ's criteria and assessment process).
+A user can manually assign "PH, HIGH" to any applicable uses.
 
 ```{r usesRef-Manual-Update}
 add.data <- data.frame(
@@ -568,10 +567,9 @@ TADA_TableExport(MT.UsesRef.auto)
 # **Advanced: Deep Dive into `TADA_UsesForAnalysis()`**
 
 Users may have their own set of use names to associate with parameter
-names or may have completed an AU to uses crosswalk in prior TADA
-workflow. We will go through an in-depth use case and go through four
-options to help users with associating use names with parameter names
-which are prioritized as follows:
+names or may already have a completed AU to uses crosswalk. We will go through 
+an in-depth use case and go through four options to help users with associating 
+use names with parameter names which are prioritized as follows:
 
 1.  **User supplied usesRef** An optional crosswalk. This will contain
     the completed crosswalk for ATTAINS.UseName(s) that are associated
