@@ -7,7 +7,12 @@ intersect catchments containing TADA Water Quality Portal observations.
 ## Usage
 
 ``` r
-fetchNHD(.data, resolution = "Hi", features = "catchments")
+fetchNHD(
+  .data,
+  resolution = "Hi",
+  features = "catchments",
+  check_service = TRUE
+)
 ```
 
 ## Arguments
@@ -29,6 +34,12 @@ fetchNHD(.data, resolution = "Hi", features = "catchments")
 
   Which NHD features to return: "catchments", "flowlines",
   "waterbodies", or any combination.
+
+- check_service:
+
+  Boolean argument. When check_service equals TRUE, the selected NHD
+  service (High or Medium resolution) will be inspected before
+  attempting to run this function. Default is check_service equals TRUE.
 
 ## Value
 

@@ -181,7 +181,14 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateTADAUsesAliasRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateWQPOrganizationRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateWQXCharValRef.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/dot-checkNHD.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-get_downloads_path.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/dot-nhd_arc_open.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/dot-nhd_arc_select.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/dot-nhd_get_layer.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/dot-nhd_get_nhdplus.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/dot-nhd_get_waterbodies.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/dot-safe_fetchNHD.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-setEQKey.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-sf_layer_equal.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/fetchATTAINS.html</loc></url>

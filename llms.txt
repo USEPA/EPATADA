@@ -336,8 +336,7 @@ mywaterway@epa.gov.
   : Field Values Summary Table
 
 - [`TADA_FindNearbySites()`](https://usepa.github.io/EPATADA/reference/TADA_FindNearbySites.md)
-  : Identify and group nearby monitoring locations (UNDER ACTIVE
-  DEVELOPMENT)
+  : Identify and group nearby monitoring locations
 
 - [`TADA_FindPotentialDuplicatesMultipleOrgs()`](https://usepa.github.io/EPATADA/reference/TADA_FindPotentialDuplicatesMultipleOrgs.md)
   : Identify Potentially Duplicated Data by Multiple Organizations
@@ -654,6 +653,27 @@ mywaterway@epa.gov.
 
 - [`.TADA_UpdateRefFiles()`](https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateRefFiles.md)
   : Update All TADA Reference Files (Internal)
+
+- [`.checkNHD()`](https://usepa.github.io/EPATADA/reference/dot-checkNHD.md)
+  : .checkNHD
+
+- [`.nhd_arc_open()`](https://usepa.github.io/EPATADA/reference/dot-nhd_arc_open.md)
+  : .nhd_arc_open
+
+- [`.nhd_arc_select()`](https://usepa.github.io/EPATADA/reference/dot-nhd_arc_select.md)
+  : .nhd_arc_select
+
+- [`.nhd_get_layer()`](https://usepa.github.io/EPATADA/reference/dot-nhd_get_layer.md)
+  : .nhd_get_layer
+
+- [`.nhd_get_nhdplus()`](https://usepa.github.io/EPATADA/reference/dot-nhd_get_nhdplus.md)
+  : .nhd_get_nhdplus
+
+- [`.nhd_get_waterbodies()`](https://usepa.github.io/EPATADA/reference/dot-nhd_get_waterbodies.md)
+  : nhd_get_waterbodies
+
+- [`.safe_fetchNHD()`](https://usepa.github.io/EPATADA/reference/dot-safe_fetchNHD.md)
+  : .safe_fetchNHD
 
 - [`.setEQKey()`](https://usepa.github.io/EPATADA/reference/dot-setEQKey.md)
   : .setEQKey Resolve the rExpertQuery API key, preferring env/options

@@ -9,7 +9,12 @@ bounding box produced from a set of TADA spatial features.
 ## Usage
 
 ``` r
-fetchATTAINS(.data, catchments_only = FALSE, org_id = "all")
+fetchATTAINS(
+  .data,
+  catchments_only = FALSE,
+  org_id = "all",
+  check_service = TRUE
+)
 ```
 
 ## Arguments
@@ -37,6 +42,13 @@ fetchATTAINS(.data, catchments_only = FALSE, org_id = "all")
   column contains the organization identifiers that should be used for
   this param. When org_id = "all", Assessment Units from all
   organizations will be considered. The default is "all".
+
+- check_service:
+
+  Boolean argument. If check_service equals TRUE, a check will run to
+  test if the web service is available before attempting the rest of the
+  function. If check_service equals FALSE, the web service is not
+  tested. Default is check_service equals TRUE.
 
 ## Value
 
