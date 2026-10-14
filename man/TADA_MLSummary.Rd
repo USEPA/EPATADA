@@ -77,12 +77,6 @@ the cells in which users should input information.}
 replaced (overwritten) by the new file you create if you re-run this function.
 Users should only specify overwrite = TRUE once they are ready to re-run this
 function if they have already ran it once.}
-
-\item{displayNA}{A boolean value. If TRUE, this allows user to view MLSummaryRef
-for all uses and parameter assigned to a ML or AU regardless if that site contains
-WQP data for that parameter. This is useful if a user is interested in an explicit
-list of parameters and uses for assessment and show NAs for sites without data.
-Default is FALSE.}
 }
 \value{
 A data frame with any unique spatial descriptions defined with columns:

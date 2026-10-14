@@ -2966,6 +2966,7 @@ TADA_CreateParamUseRef <- function(
 #'   excel = FALSE
 #' )
 #' }
+#'
 TADA_AssignUsesToAU <- function(
   .data,
   org_id = NULL,
@@ -3440,9 +3441,8 @@ TADA_AssignUsesToAU <- function(
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' TADA_AssignUsesToWaterType(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
-#' }
+#'
 TADA_AssignUsesToWaterType <- function(
   .data,
   org_id = NULL,
@@ -3634,12 +3634,6 @@ TADA_AssignUsesToWaterType <- function(
 #' "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
 #' "LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".
 #'
-#' @param displayNA A boolean value. If TRUE, this allows user to view MLSummaryRef
-#' for all uses and parameter assigned to a ML or AU regardless if that site contains
-#' WQP data for that parameter. This is useful if a user is interested in an explicit
-#' list of parameters and uses for assessment and show NAs for sites without data.
-#' Default is FALSE.
-#'
 #' @param excel A Boolean value that returns an excel spreadsheet if
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 #' If you have any trouble locating the file, please type the following into
@@ -3708,19 +3702,19 @@ TADA_MLSummary <- function(
 ) {
   empty_ref <- function() {
     data.frame(
+      TADA.MonitoringLocationIdentifier = character(0),
+      TADA.MonitoringLocationTypeName = character(0),
+      TADA.LongitudeMeasure = character(0),
+      TADA.LatitudeMeasure = character(0),
+      TADA.ComparableDataIdentifier = character(0),
       ATTAINS.OrganizationIdentifier = character(0),
       ATTAINS.AssessmentUnitIdentifier = character(0),
-      MonitoringLocationIdentifier = character(0),
-      MonitoringLocationTypeName = character(0),
-      LongitudeMeasure = character(0),
-      LatitudeMeasure = character(0),
-      TADA.ComparableDataIdentifier = character(0),
       ATTAINS.ParameterName = character(0),
       ATTAINS.UseName = character(0),
       ATTAINS.WaterType = character(0),
       IncludeOrExclude = character(0),
+      SaltFresh = character(0),
       UniqueSpatialCriteria = character(0),
-      Flag.UseInput = character(0),
       stringsAsFactors = FALSE
     )
   }
@@ -3858,20 +3852,19 @@ TADA_MLSummary <- function(
   
   out <- out |>
     dplyr::select(dplyr::any_of(c(
+      "TADA.MonitoringLocationIdentifier",
+      "TADA.MonitoringLocationTypeName",
+      "TADA.LongitudeMeasure",
+      "TADA.LatitudeMeasure",
+      "TADA.ComparableDataIdentifier",
       "ATTAINS.OrganizationIdentifier",
       "ATTAINS.AssessmentUnitIdentifier",
-      "MonitoringLocationIdentifier",
-      "MonitoringLocationTypeName",
-      "LongitudeMeasure",
-      "LatitudeMeasure",
-      "TADA.ComparableDataIdentifier",
       "ATTAINS.ParameterName",
       "ATTAINS.UseName",
       "ATTAINS.WaterType",
       "IncludeOrExclude",
+      "TADA.SaltFreshIndicator" = "SaltFresh", # optional
       "UniqueSpatialCriteria", # optional
-      "SaltFresh", # optional
-      "DepthCategory", # optional
       "Flag.UseInput",
       "CST.PollutantName", # optional
       "CST.UseName" # optional
@@ -3894,20 +3887,19 @@ TADA_MLSummary <- function(
     
     key_cols <- intersect(
       c(
+        "TADA.MonitoringLocationIdentifier",
+        "TADA.MonitoringLocationTypeName",
+        "TADA.LongitudeMeasure",
+        "TADA.LatitudeMeasure",
+        "TADA.ComparableDataIdentifier",
         "ATTAINS.OrganizationIdentifier",
         "ATTAINS.AssessmentUnitIdentifier",
-        "MonitoringLocationIdentifier",
-        "MonitoringLocationTypeName",
-        "LongitudeMeasure",
-        "LatitudeMeasure",
-        "TADA.ComparableDataIdentifier",
         "ATTAINS.ParameterName",
         "ATTAINS.UseName",
         "ATTAINS.WaterType",
         "IncludeOrExclude",
+        "TADA.SaltFreshIndicator" = "SaltFresh", # optional
         "UniqueSpatialCriteria", # optional
-        "SaltFresh", # optional
-        "DepthCategory", # optional
         "Flag.UseInput",
         "CST.PollutantName", # optional
         "CST.UseName" # optional
@@ -4564,6 +4556,7 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #' @examples
 #'
 #' \dontrun{
+#'
 #' # Get test data with both freshwater and saltwater results
 #' testdat <- TADA_DataRetrieval(statecode = "OR",
 #'                               startDate = "2023-06-01",
