@@ -1847,3 +1847,397 @@ fetchWaterType <- function(au_list, api_key = NULL) {
 
   return(results)
 }
+
+#' .checkNHD
+#'
+#' Check NHD web services. For use in functions that rely on fetchNHD. This
+#' helper function will stop the function if web service is not available.
+#'
+#' @param resolution Character argument. Options are "Hi" or "Med" resolution. Default is resolution = "Hi".
+#' @param timeout_sec Numeric argument. The number of seconds allowed before timeout.
+
+.checkNHD <- function(resolution = c("Hi", "Med"), timeout_sec = 10) {
+  resolution <- match.arg(resolution)
+
+  old_timeout <- getOption("timeout")
+  options(timeout = timeout_sec)
+  on.exit(options(timeout = old_timeout), add = TRUE)
+
+  if (resolution == "Hi") {
+    nhd_plus_hr_url <- "https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer"
+
+    tryCatch(
+      {
+        arcgislayers::arc_open(nhd_plus_hr_url)
+        TRUE
+      },
+      error = function(e) {
+        message(
+          "The NHD High Resolution web service is currently unavailable. ",
+          "Please try again later."
+        )
+        FALSE
+      }
+    )
+  } else if (resolution == "Med") {
+    dummy_aoi <- sf::st_as_sf(
+      data.frame(x = -90, y = 40),
+      coords = c("x", "y"),
+      crs = 4326
+    )
+
+    tryCatch(
+      {
+        suppressMessages(hydrogeofetch::get_nhdplus(
+          AOI = dummy_aoi,
+          realization = "catchment"
+        ))
+        TRUE
+      },
+      error = function(e) {
+        message(
+          "The NHDPlus V2 service is currently unavailable. ",
+          "Please try again later.\n",
+          "Reason: ",
+          conditionMessage(e)
+        )
+        FALSE
+      }
+    )
+  }
+}
+
+#' .safe_fetchNHD
+#'
+#' Helper for use with `purrr::map()` when calling `fetchNHD()`. Adds a pause
+#' between requests, retries on server-side failures, and stops after the
+#' maximum number of retries is reached.
+#'
+#' @param .data Object passed to `fetchNHD()`.
+#' @param nhd_res Character. NHD resolution to use, either `"Hi"` or `"Med"`.
+#' @param pause_sec Numeric. Number of seconds to pause between queries.
+#' @param max_tries Integer. Number of attempts to make before stopping.
+#'
+#' @return The result of `fetchNHD()` if successful.
+#'
+#' @examples
+#' \dontrun{
+#' .safe_fetchNHD(.data, nhd_res = "Hi")
+#' }
+.safe_fetchNHD <- function(.data, nhd_res, pause_sec = 1, max_tries = 3) {
+  for (i in seq_len(max_tries)) {
+    result <- tryCatch(
+      fetchNHD(.data, resolution = nhd_res),
+      error = function(e) e
+    )
+
+    if (!inherits(result, "error")) {
+      Sys.sleep(pause_sec)
+      return(result)
+    }
+
+    msg <- conditionMessage(result)
+
+    # Retry only for server-side errors
+    if (
+      !grepl("500|internal server|server", msg, ignore.case = TRUE) ||
+        i == max_tries
+    ) {
+      stop("fetchNHD failed after ", i, " attempt(s): ", msg, call. = FALSE)
+    }
+
+    message("fetchNHD failed (attempt ", i, "), retrying after delay: ", msg)
+    Sys.sleep(pause_sec * i)
+  }
+}
+
+#' .nhd_arc_open
+#'
+#' Helper function for fetchNHD to facilitate test mocks for NHD hi res.
+#'
+#' @param url Character argument. Web service url for the map sever,
+#'
+.nhd_arc_open <- function(url) {
+  arcgislayers::arc_open(url)
+}
+
+#' .nhd_get_layer
+#'
+#' Helper function for fetchNHD to get a layer from the opened map service for
+#' NHD hi res.
+#'
+#' @param nhd The opened map service object returned by .nhd_arc_open(url).
+#' @param id Integer argument. The layer ID inside the HR map server.
+#'
+.nhd_get_layer <- function(nhd, id) {
+  arcgislayers::get_layer(nhd, id)
+}
+
+#' .nhd_arc_select
+#'
+#' Select features from a layer using geometry for NHD hi res.
+#'
+#' @param layer The already-selected map layer object.
+#' @param filter_geom The geometry used to spatially filter features, usually an sf geometry or sfc object.
+#' @param crs The coordinate reference system for the geometry used in the query, usually from sf::st_crs(...).
+#'
+.nhd_arc_select <- function(layer, filter_geom, crs) {
+  arcgislayers::arc_select(layer, filter_geom = filter_geom, crs = crs)
+}
+
+#' .nhd_get_nhdplus
+#'
+#' Sends an area of interest (AOI) to hydrogeofetch and asks for a specific
+#' NHDPlus V2 feature type using realization. For NHD Med resolution.
+#'
+#' @param AOI Area of interest. This is usually an sf object representing the site or
+#' catchment used as input to hydrogeofetch.
+#' @param realization Character argument. What kind of NHD feature to retrieve with
+#' hydrogeofetch, such as: "catchment" or "flowline".
+#'
+.nhd_get_nhdplus <- function(AOI, realization) {
+  hydrogeofetch::get_nhdplus(AOI = AOI, realization = realization)
+}
+
+#' nhd_get_waterbodies
+#'
+#' Sends an area of interest (AOI) and returns nearby waterbody features. For NHD
+#' Med resolution.
+#'
+#' @param AOI Area of interest. This is usually an sf object representing the site or
+#' catchment used as input to hydrogeofetch.
+.nhd_get_waterbodies <- function(AOI) {
+  hydrogeofetch::get_waterbodies(AOI = AOI)
+}
+
+.nhd_get_hr_catchments <- function(nhd_hr_catchments, wqp_bboxes) {
+  fill_USGS_catchments_stored <- vector("list", length = length(wqp_bboxes))
+
+  for (i in 1:length(wqp_bboxes)) {
+    try(
+      fill_USGS_catchments_stored[[i]] <- .nhd_arc_select(
+        layer = nhd_hr_catchments,
+        filter_geom = wqp_bboxes[i],
+        crs = sf::st_crs(wqp_bboxes[i])
+      ) |>
+        sf::st_make_valid(),
+      silent = TRUE
+    )
+  }
+
+  fill_USGS_catchments_stored <- fill_USGS_catchments_stored |>
+    purrr::keep(~ !is.null(.)) |>
+    dplyr::bind_rows() |>
+    dplyr::distinct()
+
+  fill_USGS_catchments_stored <- fill_USGS_catchments_stored |>
+    dplyr::select(nhdplusid, catchmentareasqkm = areasqkm) |>
+    dplyr::mutate(
+      NHD.nhdplusid = as.character(nhdplusid),
+      NHD.resolution = "HR",
+      NHD.catchmentareasqkm = as.numeric(catchmentareasqkm)
+    ) |>
+    dplyr::select(
+      NHD.nhdplusid,
+      NHD.resolution,
+      NHD.catchmentareasqkm,
+      geometry
+    )
+
+  fill_USGS_catchments_stored
+}
+
+.nhd_get_hr_flowlines <- function(nhd_hr_flowlines, geospatial_aoi) {
+  nhd_flowlines_stored <- vector("list", length = length(geospatial_aoi))
+
+  for (i in seq_along(geospatial_aoi)) {
+    try(
+      nhd_flowlines_stored[[i]] <- .nhd_arc_select(
+        layer = nhd_hr_flowlines,
+        filter_geom = geospatial_aoi[i],
+        crs = sf::st_crs(geospatial_aoi[i])
+      ) |>
+        sf::st_make_valid(),
+      silent = TRUE
+    )
+
+    try(
+      geometry_col <- sf::st_geometry(nhd_flowlines_stored[[i]]),
+      silent = TRUE
+    )
+
+    try(
+      nhd_flowlines_stored[[i]] <- nhd_flowlines_stored[[i]] |>
+        dplyr::mutate(dplyr::across(
+          dplyr::where(~ !identical(., geometry_col)),
+          ~ as.character(.)
+        )),
+      silent = TRUE
+    )
+  }
+
+  nhd_flowlines_stored <- nhd_flowlines_stored |>
+    purrr::keep(~ !is.null(.)) |>
+    purrr::keep(~ !is.character(.)) |>
+    dplyr::bind_rows() |>
+    dplyr::distinct()
+
+  nhd_flowlines_stored
+}
+
+.nhd_get_hr_waterbodies <- function(nhd_hr_waterbodies, geospatial_aoi) {
+  nhd_waterbodies_stored <- vector("list", length = length(geospatial_aoi))
+
+  for (i in seq_along(geospatial_aoi)) {
+    try(
+      nhd_waterbodies_stored[[i]] <- .nhd_arc_select(
+        layer = nhd_hr_waterbodies,
+        filter_geom = geospatial_aoi[i],
+        crs = sf::st_crs(geospatial_aoi[i])
+      ) |>
+        sf::st_make_valid(),
+      silent = TRUE
+    )
+
+    try(
+      geometry_col <- sf::st_geometry(nhd_waterbodies_stored[[i]]),
+      silent = TRUE
+    )
+
+    try(
+      nhd_waterbodies_stored[[i]] <- nhd_waterbodies_stored[[i]] |>
+        dplyr::mutate(dplyr::across(
+          dplyr::where(~ !identical(., geometry_col)),
+          ~ as.character(.)
+        )),
+      silent = TRUE
+    )
+  }
+
+  nhd_waterbodies_stored <- nhd_waterbodies_stored |>
+    purrr::keep(~ !is.null(.)) |>
+    purrr::keep(~ !is.character(.)) |>
+    dplyr::bind_rows() |>
+    dplyr::distinct()
+
+  nhd_waterbodies_stored
+}
+
+.nhd_get_med_flowlines <- function(unique_sites, geospatial_data) {
+  nhd_flowlines <- vector("list", length = nrow(unique_sites))
+
+  for (i in seq_len(nrow(unique_sites))) {
+    try(
+      nhd_flowlines[[i]] <- .nhd_get_nhdplus(
+        AOI = unique_sites[i, ],
+        realization = "flowline"
+      ) |>
+        sf::st_make_valid(),
+      silent = TRUE
+    )
+
+    try(geometry_col <- sf::st_geometry(nhd_flowlines[[i]]), silent = TRUE)
+
+    try(
+      nhd_flowlines[[i]] <- nhd_flowlines[[i]] |>
+        dplyr::mutate(dplyr::across(
+          dplyr::where(~ !identical(., geometry_col)),
+          ~ as.character(.)
+        )),
+      silent = TRUE
+    )
+  }
+
+  nhd_flowlines <- nhd_flowlines |>
+    purrr::keep(~ !is.null(.)) |>
+    dplyr::bind_rows() |>
+    dplyr::distinct()
+
+  nhd_flowlines
+}
+
+.nhd_get_med_waterbodies <- function(unique_sites, geospatial_data) {
+  nhd_waterbodies <- vector("list", length = nrow(unique_sites))
+
+  for (i in seq_len(nrow(unique_sites))) {
+    try(
+      nhd_waterbodies[[i]] <- .nhd_get_waterbodies(AOI = unique_sites[i, ]) |>
+        sf::st_make_valid(),
+      silent = TRUE
+    )
+
+    try(geometry_col <- sf::st_geometry(nhd_waterbodies[[i]]), silent = TRUE)
+
+    try(
+      nhd_waterbodies[[i]] <- nhd_waterbodies[[i]] |>
+        dplyr::mutate(dplyr::across(
+          dplyr::where(~ !identical(., geometry_col)),
+          ~ as.character(.)
+        )),
+      silent = TRUE
+    )
+  }
+
+  nhd_waterbodies <- nhd_waterbodies |>
+    purrr::keep(~ !is.null(.)) |>
+    dplyr::bind_rows() |>
+    dplyr::distinct()
+
+  nhd_waterbodies
+}
+
+.nhd_get_med_catchments <- function(unique_sites) {
+  fill_USGS_catchments <- vector("list", length = nrow(unique_sites))
+
+  for (i in seq_len(nrow(unique_sites))) {
+    try(
+      fill_USGS_catchments[[i]] <- .nhd_get_nhdplus(
+        AOI = unique_sites[i, ],
+        realization = "catchment"
+      ) |>
+        sf::st_make_valid() |>
+        dplyr::select(comid = featureid, catchmentareasqkm = areasqkm) |>
+        dplyr::mutate(
+          NHD.comid = as.character(comid),
+          NHD.resolution = "nhdplusV2",
+          NHD.catchmentareasqkm = as.numeric(catchmentareasqkm)
+        ) |>
+        dplyr::select(
+          NHD.comid,
+          NHD.resolution,
+          NHD.catchmentareasqkm,
+          geometry
+        ),
+      silent = TRUE
+    )
+  }
+
+  fill_USGS_catchments <- fill_USGS_catchments |>
+    purrr::keep(~ !is.null(.)) |>
+    dplyr::bind_rows() |>
+    dplyr::distinct()
+
+  fill_USGS_catchments
+}
+
+.checkATTAINS <- function(timeout_sec = 10) {
+  old_timeout <- getOption("timeout")
+  options(timeout = timeout_sec)
+  on.exit(options(timeout = old_timeout), add = TRUE)
+
+  url <- "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer"
+
+  tryCatch(
+    {
+      arcgislayers::arc_open(url)
+      TRUE
+    },
+    error = function(e) {
+      message(
+        "The ATTAINS web service is currently unavailable. ",
+        "Please try again later."
+      )
+      FALSE
+    }
+  )
+}
