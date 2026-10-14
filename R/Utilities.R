@@ -605,11 +605,13 @@ TADA_CheckColumns <- function(.data, expected_cols) {
   missing_cols <- setdiff(expected_cols, colnames(.data))
 
   if (length(missing_cols) > 0) {
-    stop(paste(
-      "The dataframe does not contain the required field(s):",
+    stop(
+      "The dataframe does not contain the required field(s): ",
       paste(missing_cols, collapse = ", "),
-      ". Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
-    ))
+      ". This function expects the full WQP physical/chemical results profile or ",
+      "a TADA-prepared dataframe. If TADA-prefixed fields are required, run ",
+      "TADA_AutoClean() before calling this function."
+    )
   }
 
   invisible(NULL)
