@@ -25,23 +25,23 @@ And at least one of:
 \item \code{TADA.MonitoringLocationIdentifier}
 }}
 
-\item{target_crs}{Numeric. Target CRS EPSG code. Default is 4269.}
+\item{target_crs}{Numeric. Target EPSG code for the output CRS. Default is 4269.}
 
 \item{download_geo}{Logical. If \code{TRUE}, write a shapefile to the user's
-downloads folder.}
+Downloads folder.}
 
 \item{auid_prefix}{Character or \code{NULL}. If provided and non-empty, this
 prefix is applied only to newly created
-\code{ATTAINS.AssessmentUnitIdentifier} values.}
+\code{ATTAINS.AssessmentUnitIdentifier} values when missing or blank.}
 }
 \value{
-An \code{sf} object with:
+An \code{sf} object with one feature per unique identifier, containing:
 \itemize{
 \item \code{AU_ID}
 \item \code{geometry}
 }
 
-If \code{download_geo = TRUE}, a shapefile is written to the downloads folder.
+If \code{download_geo = TRUE}, a shapefile is written to the Downloads folder.
 }
 \description{
 Creates point or multipoint geometry for ATTAINS Assessment Units using
@@ -52,28 +52,37 @@ Creates point or multipoint geometry for ATTAINS Assessment Units using
 \itemize{
 \item Missing or blank \code{ATTAINS.AssessmentUnitIdentifier} values are replaced
 with \code{TADA.MonitoringLocationIdentifier}.
+\item Duplicate coordinate rows are removed before geometry creation.
+\item Input coordinates are assumed to be in EPSG:4269 before transformation.
 \item Single-location groups retain \code{POINT} geometry.
 \item Multi-location groups are written as \code{MULTIPOINT}.
 }
 }
 \examples{
 \dontrun{
-# Example with all POINT geometry
+# Example 1: Build point geometry from package data
+# The input must include longitude, latitude, datum, and at least one ID field.
+# Coordinates are assumed to be in EPSG:4269 before transformation.
 df <- Data_TribalNations_Harmonized |>
-dplyr::filter(OrganizationFormalName == "Blackfeet Nation (Montana)")
+  dplyr::filter(OrganizationFormalName == "Blackfeet Nation (Montana)")
 
-result <- TADA_CreatePointAUGeometry(df)
+au_points <- TADA_CreatePointAUGeometry(df)
+unique(sf::st_geometry_type(au_points))
 
-# Example with POINT and MULTIPOINT geometry
-df <- data.frame(
-ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU1", "AU2"),
-TADA.MonitoringLocationIdentifier = c("ML1", "ML1", "ML2"),
-TADA.LongitudeMeasure = c(-90, -90, -91),
-TADA.LatitudeMeasure = c(40, 41, 41),
- HorizontalCoordinateReferenceSystemDatumName = c("NAD83", "NAD83", "NAD83"),
- stringsAsFactors = FALSE)
+# Example 2: Demonstrate POINT vs MULTIPOINT output
+# AU1 has two locations, so it becomes MULTIPOINT.
+# AU2 has one location, so it remains POINT.
+df2 <- data.frame(
+  ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU1", "AU2"),
+  TADA.MonitoringLocationIdentifier = c("ML1", "ML1", "ML2"),
+  TADA.LongitudeMeasure = c(-90, -90, -91),
+  TADA.LatitudeMeasure = c(40, 41, 41),
+  HorizontalCoordinateReferenceSystemDatumName = c("NAD83", "NAD83", "NAD83"),
+  stringsAsFactors = FALSE
+)
 
- result <- TADA_CreatePointAUGeometry(df)
+au_geoms <- TADA_CreatePointAUGeometry(df2)
+unique(sf::st_geometry_type(au_geoms))
 }
 
 }
