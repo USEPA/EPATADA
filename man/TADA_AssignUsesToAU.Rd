@@ -189,7 +189,6 @@ AK_CreateAU_UsesRef2 <- TADA_AssignUsesToAU(
   excel = FALSE
 )
 }
-
 }
 \seealso{
 \code{\link[=TADA_DataRetrieval]{TADA_DataRetrieval()}} for the required format of .data
