@@ -5082,6 +5082,11 @@ TADA_ReviewATTAINSWaterTypes <- function(
   ) |>
     append(c("", NA))
 
+  # Set flag values
+  invalid_flag <- "ATTAINS.WaterType value does not match any allowable ATTAINS.WaterType."
+
+  valid_flag <- "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value."
+
   # Identify invalid values
   invalid_lookup <- .data |>
     dplyr::filter(!ATTAINS.WaterType %in% attains.types) |>
@@ -5093,7 +5098,7 @@ TADA_ReviewATTAINSWaterTypes <- function(
   if (nrow(invalid_lookup) == 0) {
     .data <- .data |>
       dplyr::mutate(
-        TADA.ATTAINSWaterType.Flag = "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value."
+        TADA.ATTAINSWaterType.Flag = valid_flag
       )
     return(.data |> TADA_OrderCols())
   }
@@ -5101,7 +5106,7 @@ TADA_ReviewATTAINSWaterTypes <- function(
   if (review_action == "flag") {
     flag_lookup <- invalid_lookup |>
       dplyr::mutate(
-        TADA.ATTAINSWaterType.Flag = "ATTAINS.WaterType value does not match any allowable ATTAINS.WaterType."
+        TADA.ATTAINSWaterType.Flag = invalid_flag
       )
 
     .data <- .data |>
@@ -5116,7 +5121,7 @@ TADA_ReviewATTAINSWaterTypes <- function(
       dplyr::mutate(
         TADA.ATTAINSWaterType.Flag = dplyr::if_else(
           is.na(TADA.ATTAINSWaterType.Flag),
-          "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value.",
+          valid_flag,
           TADA.ATTAINSWaterType.Flag
         )
       )
@@ -5160,13 +5165,15 @@ TADA_ReviewATTAINSWaterTypes <- function(
         ),
         TADA.ATTAINSWaterType.Flag = dplyr::if_else(
           is.na(TADA.ATTAINSWaterType.Flag),
-          "ATTAINS.WaterType matches an allowable ATTAINS.WaterType value.",
+          valid_flag,
           TADA.ATTAINSWaterType.Flag
         )
       ) |>
       dplyr::select(-New.ATTAINS.WaterType)
 
     .data |> TADA_OrderCols()
+
+    rm(valid_flag, invalid_flag)
 
     return(.data)
   }
