@@ -3329,7 +3329,10 @@ TADA_CreateAUMLCrosswalk <- function(
 #'   - `ATTAINS.AssessmentUnitIdentifier`
 #'   - `TADA.MonitoringLocationIdentifier`
 #'
-#' @param target_crs Numeric. Target EPSG code for the output CRS. Default is 4269.
+#' @param target_crs Numeric. Target EPSG code for the output CRS. If the input
+#' geometry is not the same as the target_crs, it is transformed to the target_crs.
+#' Default is 4269. If the input CRS and target_crs match, no CRS transformation
+#' occurs.
 #' @param download_geo Logical. If `TRUE`, write a shapefile to the user's
 #'   Downloads folder.
 #' @param auid_prefix Character or `NULL`. If provided and non-empty, this
@@ -3431,32 +3434,11 @@ TADA_CreatePointAUGeometry <- function(
   crs_target <- sf::st_crs(target_crs)
 
   # Create geospatial df
-  sf_out <- .data |>
+  sf_test <- .data |>
     dplyr::select(rlang::sym(id.col), dplyr::all_of(coord_req)) |>
     dplyr::distinct() |>
-    dplyr::filter(
-      !is.na(TADA.LongitudeMeasure),
-      !is.na(TADA.LatitudeMeasure)
-    ) |>
-    sf::st_as_sf(
-      coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
-      crs = 4269,
-      remove = TRUE
-    ) |>
-    sf::st_transform(crs = target_crs) |>
-    dplyr::group_by(!!rlang::sym(id.col)) |>
-    dplyr::summarise(
-      geometry = {
-        coords <- sf::st_coordinates(geometry)[, 1:2, drop = FALSE]
-        if (dplyr::n() == 1) {
-          sf::st_sfc(geometry[[1]], crs = crs_target)
-        } else {
-          sf::st_sfc(sf::st_multipoint(coords), crs = crs_target)
-        }
-      },
-      .groups = "drop"
-    ) |>
-    dplyr::rename(AU_ID = !!rlang::sym(id.col))
+    TADA_MakeSpatial(crs = target_crs) |>
+    dplyr::select(-TADA.LatitudeMeasure, -TADA.LongitudeMeasure)
 
   # Save as shp file if required
   if (isTRUE(download_geo)) {
