@@ -18,8 +18,7 @@ test_that("TADA_FlaggedSitesMap return leaflet map", {
 })
 
 testthat::test_that("TADA_NearbySitesMap returns a leaflet map with expected marker layers", {
-  fake_nearby <- Data_Nutrients_UT |>
-    dplyr::mutate(TADA.NearbySiteGroup = 1L)
+  fake_nearby <- Data_Nutrients_UT |> dplyr::mutate(TADA.NearbySiteGroup = 1L)
 
   testmap <- TADA_NearbySitesMap(fake_nearby)
 
@@ -42,4 +41,3 @@ testthat::test_that("TADA_NearbySitesMap returns a leaflet map with expected mar
 
   testthat::expect_equal(length(marker_data), expected_n)
 })
-
