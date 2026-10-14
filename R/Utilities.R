@@ -531,7 +531,10 @@ utils::globalVariables(c(
   "percent_match_ATTAINS_use_class_in_CST",
   "percent_match_CST_in_ATTAINS",
   "percent_match_CST_in_ATTAINS_use_class",
-  "use_class_words"
+  "use_class_words",
+  "ATTAINS.UseGroup",
+  "temp_tag_attains",
+  "temp_tag_cst"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -2263,6 +2266,7 @@ TADA_CreateCSV <- function(.data) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' DeWitt_wqx3 <- dataRetrieval::readWQPdata(
 #'   statecode = "Illinois",
 #'   countycode = "DeWitt", characteristicName = "Nitrogen",
@@ -2271,6 +2275,7 @@ TADA_CreateCSV <- function(.data) {
 #' )
 #'
 #' DeWitt_wqx3_withlegacynames <- EPATADA::TADA_RenametoLegacy(DeWitt_wqx3)
+#' }
 #'
 TADA_RenametoLegacy <- function(.data) {
   ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide
