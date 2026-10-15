@@ -247,10 +247,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   }
 
   # Split criteria into disjoint sets (NO de-duplication)
-  criteria1 <- dplyr::filter(
-    criteria,
-    !is.na(TADA.ComparableDataIdentifier)
-  ) |>
+  criteria1 <- dplyr::filter(criteria, !is.na(TADA.ComparableDataIdentifier)) |>
     dplyr::select(
       -dplyr::any_of(c(
         "TADA.CharacteristicName",
@@ -258,7 +255,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         "TADA.MethodSpeciationName"
       ))
     )
-  
+
   criteria2 <- dplyr::filter(
     criteria,
     is.na(TADA.ComparableDataIdentifier),
@@ -266,7 +263,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     !is.na(TADA.MethodSpeciationName)
   ) |>
     dplyr::select(-dplyr::any_of("TADA.ComparableDataIdentifier"))
-  
+
   criteria3 <- dplyr::filter(
     criteria,
     is.na(TADA.ComparableDataIdentifier),
@@ -279,7 +276,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         "TADA.MethodSpeciationName"
       ))
     )
-  
+
   criteria4 <- dplyr::filter(
     criteria,
     is.na(TADA.ComparableDataIdentifier),
@@ -292,7 +289,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         "TADA.ResultSampleFractionText"
       ))
     )
-  
+
   criteria5 <- dplyr::filter(
     criteria,
     is.na(TADA.ComparableDataIdentifier),
