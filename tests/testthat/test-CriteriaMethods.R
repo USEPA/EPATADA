@@ -215,7 +215,7 @@ test_that("criteriaMethods path fills missing columns and handles missing TADA.C
     criteriaMethods = cm,
     excel = FALSE
   )
-  
+
   res <- res$DefineCriteriaMethodology
   # Expect desired columns present
   expected_cols <- c(
