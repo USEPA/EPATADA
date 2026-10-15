@@ -38,9 +38,11 @@ prefix is applied only to newly created
 \code{ATTAINS.AssessmentUnitIdentifier} values when missing or blank.}
 }
 \value{
-An \code{sf} object with one feature per unique identifier, containing:
+An \code{sf} containing:
 \itemize{
-\item \code{AU_ID}
+\item \code{ATTAINS.AssessmentUnitIdentifier}
+\item \code{HorizontalCoordinateReferenceSystemDatumName}
+\item \code{epsg}
 \item \code{geometry}
 }
 

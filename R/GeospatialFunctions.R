@@ -3339,9 +3339,11 @@ TADA_CreateAUMLCrosswalk <- function(
 #'   prefix is applied only to newly created
 #'   `ATTAINS.AssessmentUnitIdentifier` values when missing or blank.
 #'
-#' @return An `sf` object with one feature per unique identifier, containing:
-#'   - `AU_ID`
-#'   - `geometry`
+#' @return An `sf` containing:
+#'    - `ATTAINS.AssessmentUnitIdentifier`
+#'    - `HorizontalCoordinateReferenceSystemDatumName`
+#'    - `epsg`
+#'    - `geometry`
 #'
 #'   If `download_geo = TRUE`, a shapefile is written to the Downloads folder.
 #'
