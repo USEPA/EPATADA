@@ -108,9 +108,18 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   }
 
   .data <- upperize(.data)
+  criteria <- upperize(criteria)
+
+  # check if ATTAINS Organization identifier is provided.
+  org_vec <- if ("ATTAINS.OrganizationIdentifier" %in% names(criteria)) {
+    unique(criteria$ATTAINS.OrganizationIdentifier)
+  } else {
+    NULL
+  }
+
   criteria_out <- TADA_DefineCriteriaMethodology(
     .data = .data,
-    org_id = unique(criteria$ATTAINS.OrganizationIdentifier),
+    org_id = org_vec,
     criteriaMethods = criteria,
     displayUniqueId = TRUE
   )
@@ -240,7 +249,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
   # Split criteria into disjoint sets (NO de-duplication)
   criteria1 <- dplyr::filter(
     criteria,
-    !is.na(.data$`TADA.ComparableDataIdentifier`)
+    !is.na(TADA.ComparableDataIdentifier)
   ) |>
     dplyr::select(
       -dplyr::any_of(c(
@@ -249,20 +258,20 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         "TADA.MethodSpeciationName"
       ))
     )
-
+  
   criteria2 <- dplyr::filter(
     criteria,
-    is.na(.data$`TADA.ComparableDataIdentifier`),
-    !is.na(.data$`TADA.ResultSampleFractionText`),
-    !is.na(.data$`TADA.MethodSpeciationName`)
+    is.na(TADA.ComparableDataIdentifier),
+    !is.na(TADA.ResultSampleFractionText),
+    !is.na(TADA.MethodSpeciationName)
   ) |>
     dplyr::select(-dplyr::any_of("TADA.ComparableDataIdentifier"))
-
+  
   criteria3 <- dplyr::filter(
     criteria,
-    is.na(.data$`TADA.ComparableDataIdentifier`),
-    !is.na(.data$`TADA.ResultSampleFractionText`),
-    is.na(.data$`TADA.MethodSpeciationName`)
+    is.na(TADA.ComparableDataIdentifier),
+    !is.na(TADA.ResultSampleFractionText),
+    is.na(TADA.MethodSpeciationName)
   ) |>
     dplyr::select(
       -dplyr::any_of(c(
@@ -270,12 +279,12 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         "TADA.MethodSpeciationName"
       ))
     )
-
+  
   criteria4 <- dplyr::filter(
     criteria,
-    is.na(.data$`TADA.ComparableDataIdentifier`),
-    is.na(.data$`TADA.ResultSampleFractionText`),
-    !is.na(.data$`TADA.MethodSpeciationName`)
+    is.na(TADA.ComparableDataIdentifier),
+    is.na(TADA.ResultSampleFractionText),
+    !is.na(TADA.MethodSpeciationName)
   ) |>
     dplyr::select(
       -dplyr::any_of(c(
@@ -283,12 +292,12 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         "TADA.ResultSampleFractionText"
       ))
     )
-
+  
   criteria5 <- dplyr::filter(
     criteria,
-    is.na(.data$`TADA.ComparableDataIdentifier`),
-    is.na(.data$`TADA.ResultSampleFractionText`),
-    is.na(.data$`TADA.MethodSpeciationName`)
+    is.na(TADA.ComparableDataIdentifier),
+    is.na(TADA.ResultSampleFractionText),
+    is.na(TADA.MethodSpeciationName)
   ) |>
     dplyr::select(
       -dplyr::any_of(c(

@@ -1091,9 +1091,11 @@ TADA_DefineCriteriaMethodology <- function(
         criteriaMethods$ATTAINS.OrganizationIdentifier <- "" # KW: replaced NA with ""for consistency? Other wise change back to NA_character_
       }
 
-      criteriaMethods$ATTAINS.ParameterName <- toupper(
-        criteriaMethods$ATTAINS.ParameterName
-      )
+      if ("ATTAINS.ParameterName" %in% criteriaMethods) {
+        criteriaMethods$ATTAINS.ParameterName <- toupper(
+          criteriaMethods$ATTAINS.ParameterName
+        )
+      }
 
       # Build a param frame from .data; choose join keys based on org_id presence
       TADA_param <- dplyr::distinct(.data[, c(
