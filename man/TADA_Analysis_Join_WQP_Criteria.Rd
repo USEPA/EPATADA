@@ -67,7 +67,7 @@ criteria_MT <- EPATADA::TADA_GetCriteriaFile(org_id = "MTDEQ")
 # join the table by best match from what is filled out from the criteria table
 MT_data_criteria <- TADA_Analysis_Join_WQP_Criteria(MT_data, criteria_MT)
 
-# create the MLSummaryRef (ML only - no AU or other spatial columns)
+# create the MLSummaryRef
 params <- TADA_ParametersForAnalysis(
   Data_MT_MissoulaCounty, org_id = "MTDEQ", auto_assign = "Org")
 
@@ -77,6 +77,8 @@ uses <- TADA_UsesForAnalysis(Data_MT_MissoulaCounty,
 mlsummary <- TADA_MLSummary(
   Data_MT_MissoulaCounty,
   org_id = "MTDEQ",
+  AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
+  AU_UsesRef = Data_MT_AU_UsesRef_Water,
   usesRef = uses)
 
 # join the table by best match, along with the MLSummaryRef
