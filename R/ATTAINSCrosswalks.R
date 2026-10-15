@@ -1951,7 +1951,6 @@ TADA_CrosswalkCSTATTAINSUses <- function(
     )
   }
   
-  # Build reference table
   ATTAINS.uses <- rExpertQuery::EQ_DomainValues(
     domain = "use_name",
     api_key = .setEQKey()
@@ -2003,12 +2002,16 @@ TADA_CrosswalkCSTATTAINSUses <- function(
     ) |>
     dplyr::distinct()
   
-  if( !is.null(source)) {
-    if (!source %in% c("percent_word", "column_indicator", "both")) {
-      stop('TADA_CrosswalkCSTATTAINSUses: invalid source argument input provided. Please supply one of "percent_word", "column_indicator", "both" or leave as NULL')
-    } else if (source == "percent_word") {
-      uses <- uses |> dplyr::filter(Flag.MatchSource == "percent_word")
-    }
+  if (is.null(source) || length(source) == 0) {
+    source <- "both"
+  }
+  
+  if (length(source) > 1) {
+    stop("TADA_CrosswalkCSTATTAINSUses: source must be a single value.")
+  }
+  
+  if (!source %in% c("percent_word", "column_indicator", "both")) {
+    stop('TADA_CrosswalkCSTATTAINSUses: invalid source argument input provided. Please supply one of "percent_word", "column_indicator", "both" or leave as NULL')
   }
   
   return(uses)

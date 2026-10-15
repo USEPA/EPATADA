@@ -6,7 +6,7 @@
 #' interested in analyzing. This table can be filled out manually, auto-populated
 #' with uses and parameters from ATTAINS and the input WQP dataframe, or
 #' developed with TADA helper functions (recommended). It is recommended to run
-#' these four TADA helper functions, [TADA_CrosswalkATTAINSParam()],
+#' these four TADA helper functions, [TADA_CrosswalkWQPATTAINSParam()],
 #' [TADA_CrosswalkCSTATTAINSUses()], [TADA_CreateParamUseRef()] and [TADA_MLSummary()], in that
 #' order to generate the Criteria and Methodology table specific for your organization.
 #'
@@ -85,7 +85,7 @@
 #'
 #' @param auto_assign Boolean argument with two possible values: TRUE and FALSE.
 #' The default value is FALSE. If TRUE, a draft criteria and methods table is
-#' generated using default function inputs for [TADA_CrosswalkATTAINSParam()],
+#' generated using default function inputs for [TADA_CrosswalkWQPATTAINSParam()],
 #' [TADA_CrosswalkCSTATTAINSUses()], [TADA_CreateParamUseRef()] and [TADA_MLSummary()]. 
 #' .data and org_id are required inputs for this function if auto_assign = TRUE.
 #' It is also recommended to set excel = TRUE when auto_assign = TRUE. The
@@ -123,8 +123,8 @@
 #'
 #' @examples
 #' # Example 1
-#' # First, generate and fill out a parameter crosswalk (see TADA_CrosswalkATTAINSParam()):
-#' paramRef_UT <- TADA_CrosswalkATTAINSParam(
+#' # First, generate and fill out a parameter crosswalk (see TADA_CrosswalkWQPATTAINSParam()):
+#' paramRef_UT <- TADA_CrosswalkWQPATTAINSParam(
 #'   Data_Nutrients_UT,
 #'   auto_assign = "All",
 #'   org_id = "UTAHDWQ",
@@ -136,7 +136,7 @@
 #'   grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 #' ))
 #' 
-#' paramRef_UT2 <- TADA_CrosswalkATTAINSParam(
+#' paramRef_UT2 <- TADA_CrosswalkWQPATTAINSParam(
 #'   Data_Nutrients_UT, auto_assign = "None",
 #'   paramRef = modified.paramRef_UT, org_id = "UTAHDWQ", excel = FALSE
 #' )
@@ -351,7 +351,7 @@ TADA_DefineCriteriaMethodology <- function(
       auto_assign == FALSE && is.null(MLSummaryRef) && is.null(criteriaMethods)
     ) {
       suppressMessages(
-        TADA_ParamRef <- TADA_CrosswalkATTAINSParam(
+        TADA_ParamRef <- TADA_CrosswalkWQPATTAINSParam(
           .data = .data,
           org_id = org_id,
           excel = excel,
@@ -385,6 +385,10 @@ TADA_DefineCriteriaMethodology <- function(
     # If user wants to create a pre-populated CriteriaMethods table, it will run all crosswalk tables and use the default.
     # Users can edit one or more of the ref files which will update all accordingly.
     if (auto_assign == TRUE) {
+      message("auto_assign = TRUE, generating the parameter crosswalk and uses crosswalk. If you are interested in summarizing
+              your analysis results on an Assessment Unit level or to define any unique spatial criteria applicable,
+              please run through the Module 2 workflow.")
+      
       if (is.null(MLSummaryRef)) {
         message(paste0(
           "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected but no MLSummaryRef. Generating TADA_MLSummary with default assignment."
@@ -404,10 +408,10 @@ TADA_DefineCriteriaMethodology <- function(
 
         # default, runs all reference tables with no user edits
         message(paste0(
-          "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_CrosswalkATTAINSParam with default assignment."
+          "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_CrosswalkWQPATTAINSParam with default assignment."
         ))
         suppressMessages(
-          TADA_ParamRef <- TADA_CrosswalkATTAINSParam(
+          TADA_ParamRef <- TADA_CrosswalkCSTWQPATTAINSParam(
             .data,
             org_id = org_id,
             auto_assign = "Org", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
@@ -421,12 +425,8 @@ TADA_DefineCriteriaMethodology <- function(
         ))
         suppressWarnings(
           TADA_usesRef <- TADA_CrosswalkCSTATTAINSUses(
-            .data,
             org_id = org_id,
             paramRef = TADA_ParamRef,
-            AU_UsesRef = AU_UsesRef,
-            AUMLRef = AUMLRef,
-            auto_assign = TRUE,
             excel = excel,
             overwrite = overwrite # Changed to FALSE when auto_assign = T KW 4/17/26
           )
@@ -455,14 +455,14 @@ TADA_DefineCriteriaMethodology <- function(
       # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
       # # user only updates paramRef. This will update paramRef, usesRef, and MLSummaryRef based on these modifications.
       # if (updateRef == "paramRef") {
-      #   message(paste0("auto_assign = TRUE and updateRef = paramRef selected. Running TADA_CrosswalkATTAINSParam with use supplied paramRef assignment. Please review this paramRef table output."))
+      #   message(paste0("auto_assign = TRUE and updateRef = paramRef selected. Running TADA_CrosswalkWQPATTAINSParam with use supplied paramRef assignment. Please review this paramRef table output."))
       #   myfile_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
       #
-      #   TADA_ParamRef <- TADA_CrosswalkATTAINSParam(
+      #   TADA_ParamRef <- TADA_CrosswalkWQPATTAINSParam(
       #     .data,
       #     org_id = org_id,
       #     paramRef = myfile_ParamRef,
-      #     auto_assign = "None", # User has now edited the table, turn the auto_assign of in TADA_CrosswalkATTAINSParam
+      #     auto_assign = "None", # User has now edited the table, turn the auto_assign of in TADA_CrosswalkWQPATTAINSParam
       #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       #   )
       #
@@ -485,10 +485,10 @@ TADA_DefineCriteriaMethodology <- function(
       #
       # # user only updates usesRef. This will update usesRef, MLSummaryRef based on this modifications.
       # if (updateRef == "usesRef") {
-      #   message(paste0("auto_assign = TRUE and updateRef = usesRef selected. Running TADA_CrosswalkATTAINSParam with use supplied paramRef assignment. Please review this paramRef table output."))
+      #   message(paste0("auto_assign = TRUE and updateRef = usesRef selected. Running TADA_CrosswalkWQPATTAINSParam with use supplied paramRef assignment. Please review this paramRef table output."))
       #   myfile_usesRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateusesRef")
       #
-      #   TADA_ParamRef <- TADA_CrosswalkATTAINSParam(
+      #   TADA_ParamRef <- TADA_CrosswalkWQPATTAINSParam(
       #     .data,
       #     org_id = org_id,
       #     paramRef = myfile_usesRef, # will update paramRef based on usesRef
@@ -519,7 +519,7 @@ TADA_DefineCriteriaMethodology <- function(
       #   message(paste0("auto_assign = TRUE and updateRef = MLSummaryRef selected. Running TADA_MLSummary with use supplied paramRef assignment. Please review this paramRef table output."))
       #   myfile_MLSummaryRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateMLSummaryRef")
       #
-      #   TADA_ParamRef <- TADA_CrosswalkATTAINSParam(
+      #   TADA_ParamRef <- TADA_CrosswalkWQPATTAINSParam(
       #     .data,
       #     org_id = org_id,
       #     paramRef = myfile_MLSummaryRef, # will update paramRef based on usesRef
@@ -2149,7 +2149,7 @@ TADA_DefineCriteriaMethodology <- function(
 #'   - "AllowableValues" worksheet with columns:
 #'     ColumnName, ColumnType, AllowableValues, ExampleValues.
 #'
-#' @seealso [TADA_DefineCriteriaMethodology()] [TADA_CrosswalkATTAINSParam()]
+#' @seealso [TADA_DefineCriteriaMethodology()] [TADA_CrosswalkWQPATTAINSParam()]
 #' @keywords internal
 #'
 #' @examples
@@ -2426,7 +2426,7 @@ TADA_DefineCriteriaMethodology <- function(
           "To populate this field, specify displayUniqueId = TRUE as an input into TADA_DefineCriteriaMethodology function. ",
           "Concatenates the WQP Characteristic, Fraction and speciation into one string. ",
           "If provided, this will crosswalk an ATTAINS.ParameterName to this TADA.ComparableDataIdentifier. ",
-          "It is recommended to have performed this crosswalk in TADA_CrosswalkATTAINSParam to avoid any duplicated ",
+          "It is recommended to have performed this crosswalk in TADA_CrosswalkWQPATTAINSParam to avoid any duplicated ",
           "definition of your organization's criteria if they are the same for multiple TADA.ComparableDataIdentifiers."
         ),
         collapse = " "
