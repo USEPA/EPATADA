@@ -67,7 +67,6 @@ with \code{TADA.MonitoringLocationIdentifier}.
 \dontrun{
 # Example 1: Build point geometry from package data
 # The input must include longitude, latitude, datum, and at least one ID field.
-# Coordinates are assumed to be in EPSG:4269 before transformation.
 df <- Data_TribalNations_Harmonized |>
   dplyr::filter(OrganizationFormalName == "Blackfeet Nation (Montana)")
 
