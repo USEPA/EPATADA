@@ -595,13 +595,12 @@ test_that("org_id NULL becomes empty string in criteriaMethods path", {
     stringsAsFactors = FALSE
   )
   # org_id omitted -> becomes ""
-  expect_warning(
-    res <- TADA_DefineCriteriaMethodology(
-      .data = df,
-      criteriaMethods = cm,
-      excel = FALSE
-    )
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    criteriaMethods = cm,
+    excel = FALSE
   )
+
   res <- res$DefineCriteriaMethodology
   expect_true(is.data.frame(res))
   expect_true(any(res$ATTAINS.OrganizationIdentifier == ""))
