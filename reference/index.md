@@ -123,14 +123,15 @@
   : Create Reference Data Frame to Pair Characteristic Results For Use
   in Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)
 
+- [`TADA_CreatePointAUGeometry()`](https://usepa.github.io/EPATADA/reference/TADA_CreatePointAUGeometry.md)
+  : Create point geometry for ATTAINS Assessment Units
+
 - [`TADA_CreatePointAUs()`](https://usepa.github.io/EPATADA/reference/TADA_CreatePointAUs.md)
   : Create an ATTAINS AU–ML Crosswalk from WQP Monitoring Location IDs
+  for New Point AUs
 
 - [`TADA_CreateUnitRef()`](https://usepa.github.io/EPATADA/reference/TADA_CreateUnitRef.md)
   : Generate A DataFrame of Units and Target by Characteristic Name
-
-- [`TADA_CrosswalkATTAINSWaterTypes()`](https://usepa.github.io/EPATADA/reference/TADA_CrosswalkATTAINSWaterTypes.md)
-  : Crosswalk WQP Monitoring Location Type to ATTAINS Water Type
 
 - [`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
   : Generate TADA-compatible dataframe from WQP Data
@@ -395,6 +396,9 @@
 - [`TADA_UpdateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSAUMLCrosswalk.md)
   : Update Monitoring Location Identifier and Assessment Unit Identifier
   Crosswalk in ATTAINS
+
+- [`TADA_UpdateATTAINSWaterTypes()`](https://usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSWaterTypes.md)
+  : Crosswalk WQP Monitoring Location Type to ATTAINS Water Type
 
 - [`TADA_UpdateTribalLayers()`](https://usepa.github.io/EPATADA/reference/TADA_UpdateTribalLayers.md)
   : Function to update tribal layer shapefiles. Tribal geopackage is

@@ -58,9 +58,9 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CreateComparableID.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CreateDateTime.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CreatePairRef.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_CreatePointAUGeometry.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CreatePointAUs.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CreateUnitRef.html</loc></url>
-<url><loc>https://usepa.github.io/EPATADA/reference/TADA_CrosswalkATTAINSWaterTypes.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_DayOfYearPlot.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_DecimalPlaces.html</loc></url>
@@ -144,6 +144,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_TwoCharacteristicScatterplot.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_UniqueCharUnitSpeciation.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSAUMLCrosswalk.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSWaterTypes.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_UpdateTribalLayers.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_UsesForAnalysis.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_ViewATTAINS.html</loc></url>
