@@ -3437,8 +3437,10 @@ TADA_CreatePointAUGeometry <- function(
   # Create geospatial df
   sf_out <- .data |>
     dplyr::select(rlang::sym(id.col), dplyr::all_of(coord_req)) |>
-    dplyr::filter(!is.na(TADA.LatitudeMeasure),
-                  !is.na(TADA.LongitudeMeasure)) |>
+    dplyr::filter(
+      !is.na(TADA.LatitudeMeasure),
+      !is.na(TADA.LongitudeMeasure)
+    ) |>
     dplyr::distinct() |>
     TADA_MakeSpatial(crs = target_crs) |>
     dplyr::select(-TADA.LatitudeMeasure, -TADA.LongitudeMeasure)
