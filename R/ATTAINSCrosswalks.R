@@ -5096,18 +5096,13 @@ TADA_ReviewATTAINSWaterTypes <- function(
     )
 
   if (nrow(invalid_lookup) == 0) {
-    .data <- .data |>
-      dplyr::mutate(
-        TADA.ATTAINSWaterType.Flag = valid_flag
-      )
+    .data <- .data |> dplyr::mutate(TADA.ATTAINSWaterType.Flag = valid_flag)
     return(.data |> TADA_OrderCols())
   }
 
   if (review_action == "flag") {
     flag_lookup <- invalid_lookup |>
-      dplyr::mutate(
-        TADA.ATTAINSWaterType.Flag = invalid_flag
-      )
+      dplyr::mutate(TADA.ATTAINSWaterType.Flag = invalid_flag)
 
     .data <- .data |>
       dplyr::left_join(
