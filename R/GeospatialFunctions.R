@@ -3363,7 +3363,6 @@ TADA_CreateAUMLCrosswalk <- function(
 #' \dontrun{
 #' # Example 1: Build point geometry from package data
 #' # The input must include longitude, latitude, datum, and at least one ID field.
-#' # Coordinates are assumed to be in EPSG:4269 before transformation.
 #' df <- Data_TribalNations_Harmonized |>
 #'   dplyr::filter(OrganizationFormalName == "Blackfeet Nation (Montana)")
 #'
@@ -3438,6 +3437,8 @@ TADA_CreatePointAUGeometry <- function(
   # Create geospatial df
   sf_out <- .data |>
     dplyr::select(rlang::sym(id.col), dplyr::all_of(coord_req)) |>
+    dplyr::filter(!is.na(TADA.LatitudeMeasure),
+                  !is.na(TADA.LongitudeMeasure)) |>
     dplyr::distinct() |>
     TADA_MakeSpatial(crs = target_crs) |>
     dplyr::select(-TADA.LatitudeMeasure, -TADA.LongitudeMeasure)

@@ -924,7 +924,7 @@ testthat::test_that("TADA_CreateAUPointGeometry returns sf geometry for valid in
 
   testthat::expect_s3_class(result, "sf")
   testthat::expect_true("geometry" %in% names(result))
-  testthat::expect_true("AU_ID" %in% names(result))
+  testthat::expect_true("ATTAINS.AssessmentUnitIdentifier" %in% names(result))
 })
 
 testthat::test_that("TADA_CreatePointAUGeometry creates POINT for one location and MULTIPOINT for multiple locations", {
