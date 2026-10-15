@@ -3434,7 +3434,7 @@ TADA_CreatePointAUGeometry <- function(
   crs_target <- sf::st_crs(target_crs)
 
   # Create geospatial df
-  sf_test <- .data |>
+  sf_out <- .data |>
     dplyr::select(rlang::sym(id.col), dplyr::all_of(coord_req)) |>
     dplyr::distinct() |>
     TADA_MakeSpatial(crs = target_crs) |>

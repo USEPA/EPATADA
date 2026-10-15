@@ -25,7 +25,10 @@ And at least one of:
 \item \code{TADA.MonitoringLocationIdentifier}
 }}
 
-\item{target_crs}{Numeric. Target EPSG code for the output CRS. Default is 4269.}
+\item{target_crs}{Numeric. Target EPSG code for the output CRS. If the input
+geometry is not the same as the target_crs, it is transformed to the target_crs.
+Default is 4269. If the input CRS and target_crs match, no CRS transformation
+occurs.}
 
 \item{download_geo}{Logical. If \code{TRUE}, write a shapefile to the user's
 Downloads folder.}
