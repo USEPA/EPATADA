@@ -1201,9 +1201,9 @@ TADA_DepthProfilePlot <- function(
       TADA.ComparableDataIdentifier,
       ActivityStartDate
     ) |>
-    dplyr::mutate(N = length(TADA.ResultMeasureValue)) |>
-    dplyr::filter(N > 2 | TADA.CharacteristicName %in% depth.params) |>
+    dplyr::mutate(N = dplyr::n()) |>
     dplyr::ungroup() |>
+    dplyr::filter(N >= 2 | TADA.CharacteristicName %in% depth.params) |>
     dplyr::select(-N)
 
   if (nrow(depthprofile.avail) == 0) {
