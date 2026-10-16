@@ -97,6 +97,7 @@ DurationMethod
 DurationUnit
 DurationValue
 EMEF
+EPSG
 EQ
 ExampleMod
 ExampleValues
@@ -519,6 +520,7 @@ maxrecs
 mimeType
 mlid
 mlt
+multipoint
 nd
 nhd
 nhdplus
@@ -564,6 +566,7 @@ setEQKey
 setnames
 sfc
 showMissingATTAINSAUs
+shp
 siteType
 siteid
 sitetype

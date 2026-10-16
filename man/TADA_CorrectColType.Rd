@@ -13,7 +13,7 @@ TADA_CorrectColType(.data)
 A data.frame with corrected column classes.
 }
 \description{
-Correct column data types for TADA, ATTAINS, and user reference data using the
+Correct column data types for TADA, ATTAINS, WQP, and user reference data using the
 TADA column-type reference file bundled with EPATADA. This ensures downstream
 TADA functions operate with expected classes.
 }
