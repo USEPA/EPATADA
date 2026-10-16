@@ -695,9 +695,12 @@ TADA_IDDepthProfiles <- function(
   }
 
   # filter out results equal to NA or blank if remove_na equals TRUE
-  if(isTRUE(remove_na)) {
-  .data <- .data |> dplyr::filter(!is.na(TADA.ResultMeasureValue),
-                                  TADA.ResultMeasureValue != "")
+  if (isTRUE(remove_na)) {
+    .data <- .data |>
+      dplyr::filter(
+        !is.na(TADA.ResultMeasureValue),
+        TADA.ResultMeasureValue != ""
+      )
   }
 
   depth.params <- c(
