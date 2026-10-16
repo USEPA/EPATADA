@@ -739,15 +739,6 @@ TADA_DefineCriteriaMethodology <- function(
                 DefineCriteriaMethodology$TADA.CharacteristicName
             )
 
-          message(paste(
-            "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.",
-            "  Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.",
-            "  Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.",
-            "  If an ATTAINS.ParameterName and ATTAINS.UseName alias was found, populating these rows with the CST magnitude values.",
-            "  A many-to-many match is likely. User review is needed to ensure accuracy in crosswalk method.",
-            sep = "\r\n"
-          ))
-
           uses <- utils::read.csv(system.file(
             "extdata",
             "TADAUsesAliasRef.csv",
@@ -811,8 +802,8 @@ TADA_DefineCriteriaMethodology <- function(
 
           CriteriaSearchToolRef_filtered <- CriteriaSearchToolRef |>
             dplyr::right_join(
-              CST_ATTAINS_Param,
-              by = c("POLLUTANT_NAME", "STD_POLLUTANT_NAME"),
+              MLSummaryRef,
+              by = c("POLLUTANT_NAME" = "CST.PollutantName", "STD_POLLUTANT_NAME"),
               relationship = "many-to-many"
             ) |>
             dplyr::right_join(

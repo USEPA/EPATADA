@@ -1936,7 +1936,7 @@ TADA_CrosswalkCSTATTAINSUses <- function(
     excel = FALSE,
     overwrite = FALSE
 ) {
-  
+  # validations
   if (is.null(paramRef)) {
     message(paste0(
       "TADA_CrosswalkCSTATTAINSUses: paramRef = NULL",
@@ -2467,17 +2467,13 @@ TADA_CreateParamUseRef <- function(
     dplyr::filter(ATTAINS.ParameterName != "Not Applicable for Analysis.") |>
     dplyr::distinct() |>
     dplyr::mutate(
-      IncludeOrExclude = dplyr::if_else(is.na(ATTAINS.UseName), "Exclude", "Include"),
-      ATTAINS.FlagUseName = dplyr::if_else(
-        is.na(ATTAINS.UseName),
-        "No use name is provided. Consider choosing an appropriate ATTAINS.UseName.",
-        "Use name has been assessed in prior cycles by this organization."
-      ),
       Flag.UseInput = "Default"
     )
   
   # first, joins CST alias if CST.PollutantName was included. Next check if a user supplied table was supplied.
   if (has_cst) {
+    # Standardize text values to uppercase so joins and comparisons are case-insensitive
+    # and consistent across ATTAINS/CST data sources.
     UsesCrosswalk <- UsesCrosswalk |>
       dplyr::mutate(
         CST.PollutantName = toupper(CST.PollutantName),
@@ -2485,6 +2481,9 @@ TADA_CreateParamUseRef <- function(
         ATTAINS.UseName = toupper(ATTAINS.UseName)
       )
     
+    # Keep rows where no CST pollutant was supplied.
+    # These rows cannot be matched to CST alias/reference data, so we preserve them
+    # and create placeholder CST columns for downstream binding/selection consistency.
     UsesCrosswalk_na_CST_pollutant <- UsesCrosswalk |>
       dplyr::filter(is.na(CST.PollutantName)) |>
       dplyr::mutate(
@@ -2492,6 +2491,9 @@ TADA_CreateParamUseRef <- function(
         USE_CLASS_NAME_LOCATION_ETC = NA_character_
       )
     
+    # For rows that do have a CST pollutant, but no ATTAINS use name,
+    # join to the CST-to-ATTAINS reference using pollutant + organization only.
+    # This allows CST use-name candidates to be found even when ATTAINS.UseName is missing.
     UsesCrosswalk_na_ATTAINS_Use <- UsesCrosswalk |>
       dplyr::filter(!is.na(CST.PollutantName)) |>
       dplyr::select(-ATTAINS.UseName) |>
@@ -2503,6 +2505,9 @@ TADA_CreateParamUseRef <- function(
         )
       )
     
+    # For rows that have both a CST pollutant and an ATTAINS use name,
+    # join on pollutant + organization + ATTAINS use name so the closest alias match
+    # can be identified directly.
     UsesCrosswalk_w_ATTAINS_use <- UsesCrosswalk |>
       dplyr::filter(
         !is.na(CST.PollutantName),
@@ -2517,6 +2522,11 @@ TADA_CreateParamUseRef <- function(
         )
       )
     
+    # Recombine the rows from the three pathways:
+    # 1) no CST pollutant
+    # 2) CST pollutant present, no ATTAINS use name
+    # 3) CST pollutant present, ATTAINS use name present
+    # Then keep the output columns needed for the crosswalk.
     UsesCrosswalk <- dplyr::bind_rows(
       UsesCrosswalk_na_ATTAINS_Use,
       UsesCrosswalk_w_ATTAINS_use,
@@ -2529,10 +2539,10 @@ TADA_CreateParamUseRef <- function(
         CST.PollutantName,
         ATTAINS.UseName,
         CST.UseName = USE_CLASS_NAME_LOCATION_ETC,
-        IncludeOrExclude,
-        ATTAINS.FlagUseName,
         Flag.UseInput
       ) |>
+      # Group by the key fields so we can apply row-level filtering logic that depends
+      # on the number of records per TADA/org/pollutant/CST use combination.
       dplyr::group_by(
         TADA.ComparableDataIdentifier,
         ATTAINS.OrganizationIdentifier,
@@ -2540,17 +2550,35 @@ TADA_CreateParamUseRef <- function(
         CST.UseName
       ) |>
       dplyr::filter(
+        # Keep rows with no ATTAINS.UseName, or rows whose use name is recognized in the
+        # prior ATTAINS org/use reference.
         is.na(ATTAINS.UseName) | ATTAINS.UseName %in% unique(ATTAINSParamUseOrgRef$ATTAINS.UseName),
+        
+        # If a row has no ATTAINS.UseName, allow only one record for the grouped combo.
+        # If ATTAINS.UseName exists, keep the row regardless.
         dplyr::n() == 1 | !is.na(ATTAINS.UseName),
+        
+        # Exclude rows for the placeholder parameter name used to indicate
+        # that the parameter should not be analyzed.
         toupper(ATTAINS.ParameterName) != "NOT APPLICABLE FOR ANALYSIS"
       ) |>
       dplyr::ungroup() |>
+      # After all filtering, normalize ATTAINS.UseName again by keeping only use names
+      # that are known aliases in the CST/ATTAINS alias reference.
+      # Any non-matching use names are turned into NA.
       dplyr::mutate(
-        ATTAINS.UseName = dplyr::if_else(ATTAINS.UseName %in% TADAUsesAliasRef$ATTAINS.UseName, ATTAINS.UseName, NA)
+        ATTAINS.UseName = dplyr::if_else(
+          ATTAINS.UseName %in% TADAUsesAliasRef$ATTAINS.UseName,
+          ATTAINS.UseName,
+          NA_character_
+        )
       ) |>
+      # Remove duplicate rows that may have been created by the joins.
       dplyr::distinct()
+  }
     
-    if (isTRUE(auto_assign)) {
+  # for any ATTAINS.UseName that could not be populated for an ATTAINS.ParameterName, decide if assign all unique ATTAINS.UseName to that parameter.
+  if (isTRUE(auto_assign)) {
       all_uses <- UsesCrosswalk |>
         dplyr::filter(!is.na(ATTAINS.UseName)) |>
         dplyr::distinct(ATTAINS.OrganizationIdentifier, ATTAINS.UseName)
@@ -2576,7 +2604,6 @@ TADA_CreateParamUseRef <- function(
           CST.PollutantName,
           CST.UseName,
           IncludeOrExclude,
-          ATTAINS.FlagUseName,
           Flag.UseInput
         ) |>
         dplyr::semi_join(
@@ -2608,7 +2635,6 @@ TADA_CreateParamUseRef <- function(
           CST.PollutantName,
           CST.UseName,
           IncludeOrExclude,
-          ATTAINS.FlagUseName,
           Flag.UseInput
         )
       
@@ -2618,14 +2644,10 @@ TADA_CreateParamUseRef <- function(
         dplyr::distinct()
     }
     
-    if (!is.null(paramUseRef)) {
+  # user supplied paramUsesRef - prioritize this list.
+  if (!is.null(paramUseRef)) {
       UsesCrosswalk_User_supplied <- paramUseRef |>
         dplyr::mutate(
-          ATTAINS.FlagUseName = dplyr::if_else(
-            is.na(ATTAINS.UseName),
-            "No use name is provided. Consider choosing an appropriate ATTAINS.UseName.",
-            "Use name has been assessed in prior cycles by this organization."
-          ),
           Flag.UseInput = "User Supplied"
         )
       
@@ -2635,36 +2657,45 @@ TADA_CreateParamUseRef <- function(
       ) |>
         dplyr::distinct()
     }
-  } else {
+  else {
     UsesCrosswalk <- UsesCrosswalk |>
-      dplyr::select(
-        TADA.ComparableDataIdentifier,
-        ATTAINS.OrganizationIdentifier,
-        ATTAINS.ParameterName,
-        ATTAINS.UseName,
-        IncludeOrExclude,
-        ATTAINS.FlagUseName,
-        Flag.UseInput
-      )
-    
-    if (!is.null(paramUseRef)) {
-      UsesCrosswalk_User_supplied <- paramUseRef |>
-        dplyr::mutate(
-          ATTAINS.FlagUseName = dplyr::if_else(
-            is.na(ATTAINS.UseName),
-            "No use name is provided. Consider choosing an appropriate ATTAINS.UseName.",
-            "Use name has been assessed in prior cycles by this organization."
-          ),
-          Flag.UseInput = "User Supplied"
-        )
-      
-      UsesCrosswalk <- dplyr::bind_rows(
-        UsesCrosswalk_User_supplied,
-        UsesCrosswalk
-      ) |>
-        dplyr::distinct()
-    }
+      dplyr::select(dplyr::any_of(c(
+        "TADA.ComparableDataIdentifier",
+        "ATTAINS.OrganizationIdentifier",
+        "ATTAINS.ParameterName",
+        "ATTAINS.UseName",
+        "CST.PollutantName",
+        "CST.UseName",
+        "Flag.UseInput"
+      ))) |>
+      dplyr::mutate(IncludeOrExclude = "Include")
   }
+  
+  # create ATTAINS.FlagUseName
+  UsesCrosswalk <- UsesCrosswalk |>
+    dplyr::mutate(
+      ATTAINS.FlagUseName = dplyr::case_when(
+        IncludeOrExclude == "Exclude" ~ 
+          "Use name does not apply for this ATTAINS.ParameterName. Excluding this use name from analysis.",
+        
+        is.na(ATTAINS.UseName) | ATTAINS.UseName == "" ~ 
+          "No use name is provided. Consider choosing an appropriate ATTAINS.UseName.",
+        
+        !paste(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) %in%
+          paste(ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.UseName) ~
+          "Use name has not been assessed in prior cycles.",
+        
+        !paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, ATTAINS.UseName) %in%
+          paste(ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier,
+                ATTAINSParamUseOrgRef$ATTAINS.ParameterName,
+                ATTAINSParamUseOrgRef$ATTAINS.UseName) ~
+          "Use name has been assessed in prior cycles by this organization, but not for this parameter name.",
+        
+        TRUE ~ 
+          "Use name has been assessed in prior cycles by this organization."
+      )
+    )
   
   if (isTRUE(excel)) {
     downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
