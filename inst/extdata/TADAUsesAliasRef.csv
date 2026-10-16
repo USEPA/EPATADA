@@ -3614,17 +3614,29 @@ CLASS VI: NATURAL TROUT WATERS","WILDLIFE","VI","OTHER_USE","Rank 2: by column i
 "21KAN001","KS","KANSAS","H",NA,NA,NA,"AQUATIC LIFE","CONTACT RECREATION",NA,"RECREATION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "21KAN001","KS","KANSAS","H",NA,NA,NA,"AQUATIC LIFE","SECONDARY CONTACT RECREATION",NA,"RECREATION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "21KAN001","KS","KANSAS","H",NA,NA,NA,"AQUATIC LIFE","RECREATION",NA,"RECREATION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F","A",NA,"AQUATIC LIFE","COLD WATER GAME FISH",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A","F","A",NA,"AQUATIC LIFE","LIMITED AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 1 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A","F","A",NA,"AQUATIC LIFE","MODIFIED AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 1 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F","A",NA,"AQUATIC LIFE","WARM WATER GAME FISH",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A","F","A",NA,"AQUATIC LIFE","EFFLUENT-DEPENDENT AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 1 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F","A",NA,"AQUATIC LIFE","WARM WATER FISHERY",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A","F","A",NA,"AQUATIC LIFE","WARMWATER AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 1 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F","A",NA,"AQUATIC LIFE","AQUATIC LIFE OTHER THAN FISH",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 1 or ATTAINS words in CST text = 0.4",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F","A",NA,"AQUATIC LIFE","NON-GAME FISH",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A","F","A",NA,"AQUATIC LIFE","COLDWATER AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F","A",NA,"AQUATIC LIFE","COLD WATER FISHERY",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","H","F",NA,"W","HUMAN HEALTH","DRINKING WATER",NA,"DRINKINGWATER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F","C",NA,"AQUATIC LIFE","COLD WATER GAME FISH",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A","F","C",NA,"AQUATIC LIFE","LIMITED AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 1 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A","F","C",NA,"AQUATIC LIFE","MODIFIED AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 1 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F","C",NA,"AQUATIC LIFE","WARM WATER GAME FISH",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A","F","C",NA,"AQUATIC LIFE","EFFLUENT-DEPENDENT AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 1 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F","C",NA,"AQUATIC LIFE","WARM WATER FISHERY",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A","F","C",NA,"AQUATIC LIFE","WARMWATER AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 1 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F","C",NA,"AQUATIC LIFE","AQUATIC LIFE OTHER THAN FISH",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 1 or ATTAINS words in CST text = 0.4",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F","C",NA,"AQUATIC LIFE","NON-GAME FISH",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A","F","C",NA,"AQUATIC LIFE","COLDWATER AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F","C",NA,"AQUATIC LIFE","COLD WATER FISHERY",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "MTDEQ","MT","MONTANA","H",NA,NA,NA,"SURFACE WATERS","PRIMARY CONTACT RECREATION",NA,"RECREATION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "MTDEQ","MT","MONTANA","H",NA,NA,NA,"SURFACE WATERS","PRIMARY CONTACT (RECR)",NA,"RECREATION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "MTDEQ","MT","MONTANA","A",NA,"C",NA,"SURFACE WATERS","COLD WATER FISHERY",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
@@ -3648,16 +3660,24 @@ CLASS VI: NATURAL TROUT WATERS","WILDLIFE","VI","OTHER_USE","Rank 2: by column i
 "MTDEQ","MT","MONTANA","A","F","C",NA,"SURFACE WATERS","COLD WATER FISHERY - TROUT",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "MTDEQ","MT","MONTANA","A","F","C",NA,"SURFACE WATERS","COLD WATER FISHES",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "MTDEQ","MT","MONTANA","A","F","C",NA,"SURFACE WATERS","AQUATIC LIFE SUPPORT",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F",NA,NA,"AQUATIC LIFE","COLD WATER GAME FISH",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A","F",NA,NA,"AQUATIC LIFE","LIMITED AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 1 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A","F",NA,NA,"AQUATIC LIFE","MODIFIED AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 1 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F",NA,NA,"AQUATIC LIFE","WARM WATER GAME FISH",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A","F",NA,NA,"AQUATIC LIFE","EFFLUENT-DEPENDENT AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 1 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F",NA,NA,"AQUATIC LIFE","WARM WATER FISHERY",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A","F",NA,NA,"AQUATIC LIFE","WARMWATER AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 1 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F",NA,NA,"AQUATIC LIFE","AQUATIC LIFE OTHER THAN FISH",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 1 or ATTAINS words in CST text = 0.4",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F",NA,NA,"AQUATIC LIFE","NON-GAME FISH",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A","F",NA,NA,"AQUATIC LIFE","COLDWATER AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A","F",NA,NA,"AQUATIC LIFE","COLD WATER FISHERY",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"CLASS  2B, 2C, 2D, 3 AND 4 WATERS","TERRESTRIAL WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"CLASS  2B, 2C, 2D, 3 AND 4 WATERS","IRRIGATION",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"CLASS  2B, 2C, 2D, 3 AND 4 WATERS","INDUSTRY",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"CLASS  2B, 2C, 2D, 3 AND 4 WATERS","WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"CLASS  2B, 2C, 2D, 3 AND 4 WATERS","SCENIC VALUE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"CLASS  2B, 2C, 2D, 3 AND 4 WATERS","LIVESTOCK",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"CLASS  2B, 2C, 2D, 3 AND 4 WATERS","AGRICULTURE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "UTAHDWQ","UT","UTAH","A","F","C",NA,"AQUATIC WILDLIFE; CLASS 3B","AQUATIC WILDLIFE (WATERFOWL, SHOREBIRDS, AND OTHER)",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.5 or ATTAINS words in CST text = 0.333333333333333",NA,"New row: Needs Review",NA
 "UTAHDWQ","UT","UTAH","A","F","C",NA,"AQUATIC WILDLIFE; CLASS 3B","AQUATIC WILDLIFE (WARM WATER)",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "UTAHDWQ","UT","UTAH","A","F","C",NA,"AQUATIC WILDLIFE; CLASS 3B","AQUATIC WILDLIFE (NON-GAME FISH AND OTHER)",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.5 or ATTAINS words in CST text = 0.333333333333333",NA,"New row: Needs Review",NA
@@ -4646,14 +4666,18 @@ CLASS VI: NATURAL TROUT WATERS","WILDLIFE","VI","OTHER_USE","Rank 2: by column i
 "UTAHDWQ","UT","UTAH","A",NA,NA,NA,"3A AND 3B WATERS","AQUATIC WILDLIFE (NON-GAME FISH AND OTHER)",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "UTAHDWQ","UT","UTAH","A",NA,NA,NA,"3A AND 3B WATERS","AQUATIC WILDLIFE (COLD WATER)",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","H","F",NA,"O","HUMAN HEALTH","LIMITED BODY CONTACT WATER RECREATION",NA,"RECREATION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","H","F",NA,"O","HUMAN HEALTH","FISH CONSUMPTION",NA,"FISHCONSUMPTION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","H","F",NA,"O","HUMAN HEALTH","FULL BODY CONTACT WATER RECREATION",NA,"RECREATION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","H","F",NA,"O","HUMAN HEALTH","RECREATION",NA,"RECREATION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","H","F",NA,"O","HUMAN HEALTH","HUMAN CONSUMPTION OF EFFLUENT-DEPENDENT FISH",NA,"FISHCONSUMPTION_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.5 or ATTAINS words in CST text = 0.2",NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","H","F",NA,"O","HUMAN HEALTH","HUMAN CONSUMPTION OF FISH",NA,"FISHCONSUMPTION_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.5 or ATTAINS words in CST text = 0.25",NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"COLD WATER CRITERIA","TERRESTRIAL WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"COLD WATER CRITERIA","IRRIGATION",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"COLD WATER CRITERIA","INDUSTRY",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,NA,NA,NA,"COLD WATER CRITERIA","WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"COLD WATER CRITERIA","SCENIC VALUE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"COLD WATER CRITERIA","LIVESTOCK",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,NA,NA,NA,"COLD WATER CRITERIA","AGRICULTURE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "21COL001","CO","COLORADO","H",NA,"A",NA,"DOMESTIC WATER SUPPLY","RECREATION",NA,"RECREATION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "21COL001","CO","COLORADO","H",NA,"A",NA,"DOMESTIC WATER SUPPLY","RECREATION PRIMARY CONTACT",NA,"RECREATION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "21COL001","CO","COLORADO","H",NA,"A",NA,"DOMESTIC WATER SUPPLY","RECREATION SECONDARY CONTACT",NA,"RECREATION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
@@ -5203,33 +5227,45 @@ NA,"GA","GEORGIA",NA,NA,NA,NA,"FISHING - WATERS SUPPORTING WARM WATER SPECIES OF
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"HIGH USE SWIMMING AREAS","TERRESTRIAL WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"HIGH USE SWIMMING AREAS","IRRIGATION",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"HIGH USE SWIMMING AREAS","INDUSTRY",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"HIGH USE SWIMMING AREAS","WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"HIGH USE SWIMMING AREAS","SCENIC VALUE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"HIGH USE SWIMMING AREAS","LIVESTOCK",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"HIGH USE SWIMMING AREAS","AGRICULTURE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"MODERATE FULL BODY CONTACT","TERRESTRIAL WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"MODERATE FULL BODY CONTACT","IRRIGATION",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"MODERATE FULL BODY CONTACT","INDUSTRY",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"MODERATE FULL BODY CONTACT","WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"MODERATE FULL BODY CONTACT","SCENIC VALUE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"MODERATE FULL BODY CONTACT","LIVESTOCK",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"MODERATE FULL BODY CONTACT","AGRICULTURE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"LIGHTLY USED FULL BODY CONTACT","TERRESTRIAL WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"LIGHTLY USED FULL BODY CONTACT","IRRIGATION",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"LIGHTLY USED FULL BODY CONTACT","INDUSTRY",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"LIGHTLY USED FULL BODY CONTACT","WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"LIGHTLY USED FULL BODY CONTACT","SCENIC VALUE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"LIGHTLY USED FULL BODY CONTACT","LIVESTOCK",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"LIGHTLY USED FULL BODY CONTACT","AGRICULTURE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"INFREQENTLY USED FULL BODY CONTACT","TERRESTRIAL WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"INFREQENTLY USED FULL BODY CONTACT","IRRIGATION",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"INFREQENTLY USED FULL BODY CONTACT","INDUSTRY",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"INFREQENTLY USED FULL BODY CONTACT","WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"INFREQENTLY USED FULL BODY CONTACT","SCENIC VALUE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"INFREQENTLY USED FULL BODY CONTACT","LIVESTOCK",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"INFREQENTLY USED FULL BODY CONTACT","AGRICULTURE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"ALL SURFACE WATERS","TERRESTRIAL WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"ALL SURFACE WATERS","IRRIGATION",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"ALL SURFACE WATERS","INDUSTRY",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,NA,NA,NA,"ALL SURFACE WATERS","WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"ALL SURFACE WATERS","SCENIC VALUE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"ALL SURFACE WATERS","LIVESTOCK",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,NA,NA,NA,"ALL SURFACE WATERS","AGRICULTURE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 1, 2AB AND 2A","TERRESTRIAL WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 1, 2AB AND 2A","IRRIGATION",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 1, 2AB AND 2A","INDUSTRY",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 1, 2AB AND 2A","WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 1, 2AB AND 2A","SCENIC VALUE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 1, 2AB AND 2A","LIVESTOCK",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 1, 2AB AND 2A","AGRICULTURE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "21COL001","CO","COLORADO",NA,NA,NA,NA,"GUNNISON AND LOWER DOLORES RIVER BASINS","NOT APPLICABLE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "21COL001","CO","COLORADO",NA,NA,NA,NA,"GUNNISON AND LOWER DOLORES RIVER BASINS","AGRICULTURE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "21COL001","CO","COLORADO",NA,NA,NA,NA,"RIO GRANDE BASIN","NOT APPLICABLE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
@@ -5544,13 +5580,17 @@ NA,"CA3","CALIFORNIA REGION 3 - CENTRAL COAST","A","F",NA,NA,"FRESHWATER HABITAT
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"PRIMARY CONTACT WATERS","TERRESTRIAL WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"PRIMARY CONTACT WATERS","IRRIGATION",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"PRIMARY CONTACT WATERS","INDUSTRY",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"PRIMARY CONTACT WATERS","WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"PRIMARY CONTACT WATERS","SCENIC VALUE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"PRIMARY CONTACT WATERS","LIVESTOCK",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"PRIMARY CONTACT WATERS","AGRICULTURE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"SECONDARY CONTACT WATERS","TERRESTRIAL WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"SECONDARY CONTACT WATERS","IRRIGATION",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"SECONDARY CONTACT WATERS","INDUSTRY",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"SECONDARY CONTACT WATERS","WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"SECONDARY CONTACT WATERS","SCENIC VALUE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"SECONDARY CONTACT WATERS","LIVESTOCK",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"SECONDARY CONTACT WATERS","AGRICULTURE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "21COL001","CO","COLORADO","A",NA,NA,NA,"CLASS 1 WARM WATER BIOTA, SPAWNING","AQUATIC LIFE WARM WATER-CLASS 1",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.333333333333333 or ATTAINS words in CST text = 0.4",NA,"New row: Needs Review",NA
 "21COL001","CO","COLORADO","A",NA,NA,NA,"CLASS 1 WARM WATER BIOTA, SPAWNING","AQUATIC LIFE COLD WATER-CLASS 1",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "21COL001","CO","COLORADO","A",NA,NA,NA,"CLASS 1 WARM WATER BIOTA, SPAWNING","AQUATIC LIFE SUPPORT",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
@@ -6298,8 +6338,10 @@ NA,"CA6","CALIFORNIA REGION 6 - LAHONTAN","A",NA,NA,NA,"SURFACE WATERS - COLD AN
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"ALL SURFACE WATERS","TERRESTRIAL WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"ALL SURFACE WATERS","IRRIGATION",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"ALL SURFACE WATERS","INDUSTRY",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"ALL SURFACE WATERS","WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"ALL SURFACE WATERS","SCENIC VALUE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,"F",NA,NA,"ALL SURFACE WATERS","LIVESTOCK",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,"F",NA,NA,"ALL SURFACE WATERS","AGRICULTURE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "MNPCA","MN","MINNESOTA","H",NA,"C","O","CLASS 2A - CS","AQUATIC RECREATION",NA,"RECREATION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "MNPCA","MN","MINNESOTA","H",NA,"C","O","CLASS 2A - CS","WILD RICE PRODUCTION",NA,"CULTURAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "MNPCA","MN","MINNESOTA","H",NA,"C","O","CLASS 2A - CS","AQUATIC CONSUMPTION",NA,"FISHCONSUMPTION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
@@ -8034,8 +8076,10 @@ NA,"CA1","CALIFORNIA REGION 1 - NORTH COAST",NA,NA,NA,NA,"COLD WATERS",NA,NA,NA,
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 2C AND WARM WATER CRITERIA","TERRESTRIAL WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 2C AND WARM WATER CRITERIA","IRRIGATION",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 2C AND WARM WATER CRITERIA","INDUSTRY",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 2C AND WARM WATER CRITERIA","WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 2C AND WARM WATER CRITERIA","SCENIC VALUE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 2C AND WARM WATER CRITERIA","LIVESTOCK",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 2C AND WARM WATER CRITERIA","AGRICULTURE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "21NEV1","NV","NEVADA","A","F","A",NA,"COLD-WATER FISHERIES","WATERS OF EXTRAORDINARY ECOLOGICAL OR AESTHETIC VALUE",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "21NEV1","NV","NEVADA","A","F","A",NA,"COLD-WATER FISHERIES","AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "21NEV1","NV","NEVADA","A","F","A",NA,"COLD-WATER FISHERIES","WATER AND ORGANISMS",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
@@ -8882,11 +8926,17 @@ CLASS VI: NATURAL TROUT WATERS","AQUATIC LIFE SUPPORT",NA,"ECOLOGICAL_USE","Rank
 "MNPCA","MN","MINNESOTA",NA,"F",NA,NA,"SITE-SPECIFIC EUTROPHICATION STANDARDS FOR LAKE ZUMBRO, SEGMENT 3","AGRICULTURE AND WILDLIFE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "MNPCA","MN","MINNESOTA",NA,"F",NA,NA,"SITE-SPECIFIC EUTROPHICATION STANDARDS FOR LAKE ZUMBRO, SEGMENT 3","LIMITED RESOURCE VALUE",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "MNPCA","MN","MINNESOTA",NA,"F",NA,NA,"SITE-SPECIFIC EUTROPHICATION STANDARDS FOR LAKE ZUMBRO, SEGMENT 3","AESTHETIC AND NAVIGATION",NA,"OTHER_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A",NA,NA,NA,"ALL SURFACE WATERS","COLD WATER GAME FISH",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A",NA,NA,NA,"ALL SURFACE WATERS","LIMITED AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A",NA,NA,NA,"ALL SURFACE WATERS","MODIFIED AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A",NA,NA,NA,"ALL SURFACE WATERS","WARM WATER GAME FISH",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A",NA,NA,NA,"ALL SURFACE WATERS","EFFLUENT-DEPENDENT AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A",NA,NA,NA,"ALL SURFACE WATERS","WARM WATER FISHERY",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A",NA,NA,NA,"ALL SURFACE WATERS","WARMWATER AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A",NA,NA,NA,"ALL SURFACE WATERS","AQUATIC LIFE OTHER THAN FISH",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A",NA,NA,NA,"ALL SURFACE WATERS","NON-GAME FISH",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","A",NA,NA,NA,"ALL SURFACE WATERS","COLDWATER AQUATIC LIFE",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING","A",NA,NA,NA,"ALL SURFACE WATERS","COLD WATER FISHERY",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "MA_DEP","MA","MASSACHUSETTS","A","F",NA,NA,"CLASS A","FISH, OTHER AQUATIC LIFE AND WILDLIFE",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "MA_DEP","MA","MASSACHUSETTS","A","F",NA,NA,"CLASS A","ALUS",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "MA_DEP","MA","MASSACHUSETTS","A","F",NA,NA,"CLASS B","FISH, OTHER AQUATIC LIFE AND WILDLIFE","CLASS B","ECOLOGICAL_USE","Rank 2: by column indicator and use_class percent match",NA,"Matched","New row: Needs Review",NA
@@ -11391,6 +11441,7 @@ NA,"FDL","FOND DU LAC BAND OF MINNESOTA CHIPPEWA",NA,NA,NA,NA,"SITE-SPECIFIC PRI
 "21FL303D",NA,NA,"A",NA,NA,NA,NA,"SHELLFISH PROPAGATION",NA,"ECOLOGICAL_USE","No alias match found",NA,NA,"New row: Needs Review",NA
 "TEST_ORG_A",NA,NA,NA,NA,NA,NA,NA,"WARMWATER PERMANENT FISH LIFE PROPAGATION WATERS",NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA
 "21KY",NA,NA,NA,NA,NA,NA,NA,"OUTSTANDING STATE RESOURCE WATER",NA,"OTHER_USE","No alias match found",NA,NA,"New row: Needs Review",NA
+"WYDEQ",NA,NA,"H",NA,NA,NA,NA,"RECREATION",NA,"RECREATION_USE","No alias match found",NA,NA,"New row: Needs Review",NA
 "FSAWQP",NA,NA,"H",NA,NA,NA,NA,"SECONDARY CONTACT RECREATION",NA,"RECREATION_USE","No alias match found",NA,NA,"New row: Needs Review",NA
 "FSAWQP",NA,NA,"H",NA,NA,"O",NA,"SECONDARY CONTACT RECREATION",NA,"RECREATION_USE","No alias match found",NA,NA,"New row: Needs Review",NA
 "FONDULAC",NA,NA,"H",NA,NA,"O",NA,"CULTURAL: AESTHETIC WATERS",NA,"CULTURAL_USE","No alias match found",NA,NA,"New row: Needs Review",NA
@@ -13215,6 +13266,10 @@ CLASS VI: NATURAL TROUT WATERS","TROUT WATERS","VI","ECOLOGICAL_USE","Rank 2: by
 "WVDEP","WV","WEST VIRGINIA","H",NA,NA,NA,"OHIO RIVER MAIN STEM; CATEGORY A WATERS","TROUT WATERS",NA,"ECOLOGICAL_USE","Rank 4: by use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.142857142857143 or ATTAINS words in CST text = 0.5",NA,"New row: Needs Review",NA
 "WVDEP","WV","WEST VIRGINIA","H",NA,NA,NA,"OHIO RIVER MAIN STEM; CATEGORY C WATERS","TROUT WATERS",NA,"ECOLOGICAL_USE","Rank 4: by use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.142857142857143 or ATTAINS words in CST text = 0.5",NA,"New row: Needs Review",NA
 "WVDEP","WV","WEST VIRGINIA",NA,NA,NA,NA,"WARM WATER LAKES","WARM WATER FISHERY",NA,"ECOLOGICAL_USE","Rank 4: by use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.666666666666667 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 2C AND WARM WATER CRITERIA","WARM WATER FISHERY",NA,"ECOLOGICAL_USE","Rank 4: by use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.333333333333333 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 2C AND WARM WATER CRITERIA","WARM WATER GAME FISH",NA,"ECOLOGICAL_USE","Rank 4: by use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.333333333333333 or ATTAINS words in CST text = 0.5",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,NA,NA,NA,"COLD WATER CRITERIA","COLD WATER FISHERY",NA,"ECOLOGICAL_USE","Rank 4: by use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.666666666666667 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
+"WYDEQ","WY","WYOMING",NA,NA,NA,NA,"COLD WATER CRITERIA","COLD WATER GAME FISH",NA,"ECOLOGICAL_USE","Rank 4: by use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.666666666666667 or ATTAINS words in CST text = 0.5",NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","H","F",NA,"W","HUMAN HEALTH","HUMAN CONSUMPTION OF EFFLUENT-DEPENDENT FISH",NA,"FISHCONSUMPTION_USE","Rank 4: by use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.5 or ATTAINS words in CST text = 0.2",NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","H",NA,NA,"W","HUMAN HEALTH","HUMAN CONSUMPTION OF EFFLUENT-DEPENDENT FISH",NA,"FISHCONSUMPTION_USE","Rank 4: by use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.5 or ATTAINS words in CST text = 0.2",NA,"New row: Needs Review",NA
 "WYDEQ","WY","WYOMING","H","F",NA,"W","HUMAN HEALTH","HUMAN CONSUMPTION OF FISH",NA,"FISHCONSUMPTION_USE","Rank 4: by use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.5 or ATTAINS words in CST text = 0.25",NA,"New row: Needs Review",NA
@@ -13246,7 +13301,6 @@ CLASS VI: NATURAL TROUT WATERS","TROUT WATERS","VI","ECOLOGICAL_USE","Rank 2: by
 "21IOWA","IA","IOWA","A",NA,NA,NA,"CLASS B(WW-3) - WARM WATER AQUATIC LIFE - TYPE 3",NA,NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA
 "21NEB001","NE","NEBRASKA","A",NA,NA,NA,"CLASS B - COLDWATER",NA,NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA
 "21MICH","MI","MICHIGAN",NA,NA,NA,NA,"SURFACE WATERS FOR COLDWATER FISH EXCEPT FOR INLAND LAKES",NA,NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA
-"WYDEQ","WY","WYOMING",NA,NA,NA,NA,"COLD WATER CRITERIA",NA,NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA
 "21NEB001","NE","NEBRASKA","A",NA,"A",NA,"CLASS A - COLDWATER",NA,NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA
 "21NEB001","NE","NEBRASKA","A",NA,"C",NA,"CLASS A - COLDWATER",NA,NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA
 "21NEB001","NE","NEBRASKA","A",NA,"A",NA,"CLASS B - COLDWATER",NA,NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA
@@ -13297,7 +13351,6 @@ CLASS VI: NATURAL TROUT WATERS","TROUT WATERS","VI","ECOLOGICAL_USE","Rank 2: by
 "1VTDECWQ","VT","VERMONT","A",NA,NA,NA,"WARM WATER FISH HABITAT: LAKES, PONDS, AND RESERVOIRS NOT INCLUDING RIVERINE IMPOUNDMENTS",NA,NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA
 "1VTDECWQ","VT","VERMONT","A",NA,NA,NA,"WARM WATER FISH HABITAT: RIVERS, STREAMS, BROOKS, CREEKS, AND RIVER IMPOUNDMENTS",NA,NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA
 "1VTDECWQ","VT","VERMONT",NA,NA,NA,NA,"CLASS B(1) WARM-WATER, MEDIUM GRADIENT STREAMS",NA,NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA
-"WYDEQ","WY","WYOMING",NA,NA,NA,NA,"CLASS 2C AND WARM WATER CRITERIA",NA,NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA
 "21NEV1","NV","NEVADA","A","F","A",NA,"COLD-WATER FISHERIES",NA,NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA
 "OREGONDEQ","OR","OREGON",NA,NA,NA,NA,"COLD-WATER AQUATIC LIFE",NA,NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA
 "OREGONDEQ","OR","OREGON",NA,NA,NA,NA,"WARM-WATER AQUATIC LIFE",NA,NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA

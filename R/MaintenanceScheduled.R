@@ -262,6 +262,7 @@
         startDate = "2019-05-01",
         endDate = "2019-05-07",
         statecode = c("IL", "IN", "MI", "MN", "OH", "WI"),
+        applyautoclean = FALSE,
         ask = FALSE
       )
       message("Data_R5_TADAPackageDemo")
