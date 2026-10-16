@@ -194,7 +194,7 @@ testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs does not grow data
     1:3
   ] <- testdat$TADA.ComparableDataIdentifier[1]
   testdat$ActivityTypeCode[1:3] <- testdat$ActivityTypeCode[1]
-  testdat$TADA.ResultMeasureValue[1:3] <- testdat$TADA.ResultMeasureValue[1]
+  testdat$TADA.ResultMeasureValue[1:3] <- 5
   testdat$OrganizationIdentifier[1:3] <- c("ORG_A", "ORG_B", "ORG_C")
   testdat$ResultIdentifier[1:3] <- c("R1", "R2", "R3")
 
@@ -233,7 +233,7 @@ testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs clean=TRUE removes
     1:3
   ] <- testdat$TADA.ComparableDataIdentifier[1]
   testdat$ActivityTypeCode[1:3] <- testdat$ActivityTypeCode[1]
-  testdat$TADA.ResultMeasureValue[1:3] <- testdat$TADA.ResultMeasureValue[1]
+  testdat$TADA.ResultMeasureValue[1:3] <- 5
   testdat$OrganizationIdentifier[1:3] <- c("ORG_A", "ORG_B", "ORG_C")
   testdat$ResultIdentifier[1:3] <- c("R1", "R2", "R3")
 
@@ -266,7 +266,7 @@ testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels duplicate g
     1:3
   ] <- testdat$TADA.ComparableDataIdentifier[1]
   testdat$ActivityTypeCode[1:3] <- testdat$ActivityTypeCode[1]
-  testdat$TADA.ResultMeasureValue[1:3] <- testdat$TADA.ResultMeasureValue[1]
+  testdat$TADA.ResultMeasureValue[1:3] <- 5
   testdat$OrganizationIdentifier[1:3] <- c("ORG_A", "ORG_B", "ORG_C")
   testdat$ResultIdentifier[1:3] <- c("R1", "R2", "R3")
 
@@ -322,7 +322,7 @@ testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs adds non-NA values
     1:3
   ] <- testdat$TADA.ComparableDataIdentifier[1]
   testdat$ActivityTypeCode[1:3] <- testdat$ActivityTypeCode[1]
-  testdat$TADA.ResultMeasureValue[1:3] <- testdat$TADA.ResultMeasureValue[1]
+  testdat$TADA.ResultMeasureValue[1:3] <- 5
   testdat$OrganizationIdentifier[1:3] <- c("ORG_A", "ORG_B", "ORG_C")
   testdat$ResultIdentifier[1:3] <- c("R1", "R2", "R3")
 
