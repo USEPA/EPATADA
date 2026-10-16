@@ -637,6 +637,11 @@ TADA_FlagDepthCategory <- function(
 #' FALSE. When aggregates = TRUE, all aggregate values are included when identifying
 #' depth profile data.
 #'
+#' @param remove_na Boolean argument with options "TRUE" or "FALSE". The default is
+#' remove_na = TRUE, which means that any results with a value of NA are excluded
+#' from the summary counts by TADA.ComparableDataIdentifier. When remove_na = FALSE,
+#' NA results are included in the summary counts.
+#'
 #' @return A dataframe with the columns TADA.MonitoringLocationIdentifier,
 #' TADA.MonitoringLocationName, OrganizationIdentifier, ActivityStartDate,
 #' TADA.CharacteristicsForDepthProfile. Based on the user input for the nresults
@@ -660,7 +665,8 @@ TADA_IDDepthProfiles <- function(
   .data,
   nresults = TRUE,
   nvalue = 2,
-  aggregates = FALSE
+  aggregates = FALSE,
+  remove_na = TRUE
 ) {
   # check for columns created in TADA_FlagDepthCategory and run the function if they are missing
   # add check that depth category flag function has been run, run it if it has not
@@ -688,8 +694,11 @@ TADA_IDDepthProfiles <- function(
     .data <- TADA_FlagDepthCategory(.data)
   }
 
-  # filter out results equal to NA
-  .data <- .data |> dplyr::filter(!is.na(TADA.ResultMeasureValue))
+  # filter out results equal to NA or blank if remove_na equals TRUE
+  if(isTRUE(remove_na)) {
+  .data <- .data |> dplyr::filter(!is.na(TADA.ResultMeasureValue),
+                                  TADA.ResultMeasureValue != "")
+  }
 
   depth.params <- c(
     "DEPTH, SECCHI DISK DEPTH",
