@@ -431,13 +431,22 @@ TADA_DefineCriteriaMethodology <- function(
             overwrite = overwrite # Changed to FALSE when auto_assign = T KW 4/17/26
           )
         )
+        
+        suppressWarnings(
+          TADA_usesParamRef <- TADA_CreateParamUseRef(
+            .data,
+            org_id = org_id,
+            paramRef = TADA_ParamRef,
+            excel = excel,
+            overwrite = overwrite # Changed to FALSE when auto_assign = T KW 4/17/26
+          )
+        )
 
         suppressMessages(
           MLSummaryRef <- TADA_MLSummary(
             .data,
-            displayNA = TRUE,
             org_id = org_id,
-            usesRef = TADA_usesRef,
+            paramUseRef = TADA_usesParamRef,
             AUMLRef = AUMLRef,
             AU_UsesRef = AU_UsesRef,
             excel = excel,
@@ -561,11 +570,10 @@ TADA_DefineCriteriaMethodology <- function(
           "ATTAINS.UseName",
           "ATTAINS.OrganizationIdentifier",
           "UniqueSpatialCriteria",
-          "ATTAINS.WaterType",
-          "ATTAINS.AssessmentUnitIdentifier",
-          "TADA.ComparableDataIdentifier",
-          "SaltFresh",
-          "DepthCategory"
+          #"ATTAINS.WaterType",
+          #"ATTAINS.AssessmentUnitIdentifier",
+          "TADA.ComparableDataIdentifier"
+          #"SaltFresh"
         )
         missing_cols <- setdiff(required_cols, names(MLSummaryRef))
         if (length(missing_cols) > 0) {
@@ -607,6 +615,14 @@ TADA_DefineCriteriaMethodology <- function(
       }
 
       # Creates the DefineCriteriaMethodology table from the MLSummaryRef.
+      optional_cols <- c("ATTAINS.WaterType", "SaltFresh", "DepthCategory")
+      
+      for (col in optional_cols) {
+        if (!col %in% names(MLSummaryRef)) {
+          MLSummaryRef[[col]] <- NA_character_
+        }
+      }
+      
       DefineCriteriaMethodology <- MLSummaryRef |>
         dplyr::select(
           "ATTAINS.OrganizationIdentifier",
@@ -614,34 +630,17 @@ TADA_DefineCriteriaMethodology <- function(
           "ATTAINS.UseName",
           "TADA.ComparableDataIdentifier",
           "TADA.CharacteristicName",
-          "SaltFresh",
-          "DepthCategory",
           "UniqueSpatialCriteria",
-          "ATTAINS.WaterType"
-        ) |>
-        # Spatial Columns - only pre-populates if a unique spatial criteria is applied.
-        dplyr::mutate(
-          ATTAINS.WaterType = dplyr::if_else(
-            # Only pre-populates if a unique spatial criteria is applied
-            is.na(UniqueSpatialCriteria),
-            as.character(NA),
-            as.character(ATTAINS.WaterType)
-          )
+          dplyr::any_of(optional_cols)
         ) |>
         dplyr::mutate(
-          SaltFresh = dplyr::if_else(
-            # Only pre-populates if a unique spatial criteria is applied
-            is.na(UniqueSpatialCriteria),
-            as.character(NA),
-            as.character(SaltFresh)
-          )
-        ) |>
-        dplyr::mutate(
-          DepthCategory = dplyr::if_else(
-            # Only pre-populates if a unique spatial criteria is applied
-            is.na(UniqueSpatialCriteria),
-            as.character(NA),
-            as.character(DepthCategory)
+          dplyr::across(
+            dplyr::any_of(optional_cols),
+            ~ dplyr::if_else(
+              is.na(UniqueSpatialCriteria),
+              as.character(NA),
+              as.character(.x)
+            )
           )
         ) |>
         # dplyr::filter(!dplyr::if_all(c(UniqueSpatialCriteria, ATTAINS.WaterType), is.na)) |>

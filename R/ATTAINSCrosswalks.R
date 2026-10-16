@@ -3791,7 +3791,7 @@ TADA_MLSummary <- function(
   AU_UsesRef <- if (!is.null(AU_UsesRef)) toupper_join_keys(AU_UsesRef) else NULL
   MLSummaryRef <- if (!is.null(MLSummaryRef)) toupper_join_keys(MLSummaryRef) else NULL
   
-  # join paramUseRef
+  # join paramUseRef if provided (should always be provided)
   if (!is.null(paramUseRef)) {
     out <- .data |>
       dplyr::left_join(
@@ -3800,7 +3800,7 @@ TADA_MLSummary <- function(
         relationship = "many-to-many"
       )
   }
-  # join AUMLRef if provided
+  # join AUMLRef if provided (should always be provided)
   if (!is.null(AUMLRef)) {
     au_ml_keys <- intersect(
       c(
@@ -3826,8 +3826,7 @@ TADA_MLSummary <- function(
         suffix = c("", ".AUML")
       )
   }
-  
-  # join AU_UsesRef
+  # join AU_UsesRef if provided (should always be provided)
   if (!is.null(AU_UsesRef)) {
     au_use_keys <- intersect(
       c(
@@ -3854,6 +3853,7 @@ TADA_MLSummary <- function(
   }
   
   out <- out |>
+    dplyr::mutate(UniqueSpatialCriteria = NA_character_) |>
     dplyr::select(dplyr::any_of(c(
       "TADA.MonitoringLocationIdentifier",
       "TADA.MonitoringLocationTypeName",
