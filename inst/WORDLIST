@@ -75,7 +75,6 @@ CreateComparableID
 CreatePairRef
 CreateUnitRef
 CriteriaMethodology
-CriteriaMethods
 Cybertown
 DEV
 DataDictionary
@@ -97,13 +96,10 @@ Dumelle
 DurationMethod
 DurationUnit
 DurationValue
-EASP
-EASP's
 EMEF
 EQ
 ExampleMod
 ExampleValues
-ExpertQuery
 FONDULAC
 Farmington
 FieldCounts
@@ -144,6 +140,7 @@ GetSynonymRef
 GetUSGSSynonymRef
 HMW
 HRM
+HTF
 HUC
 HUCS
 HUCs
@@ -155,6 +152,9 @@ Hydrography
 Hydrologic
 HydrologicCondition
 HydrologicEvent
+Hypoxia
+ICIS
+IDCensored
 IDCensoredData
 IDDepthProfiles
 IncludeOrExclude
@@ -169,14 +169,12 @@ ListCriteriaFiles
 LongitudeMeasure
 LowerFence
 Lvls
-MDE
 MEDEP
 MLSummary
 MLSummaryRef
 MLs
 MPN
 MTDEQ
-MTDEQ's
 MTWTRSHD
 MakeSpatial
 MapServer
@@ -208,13 +206,14 @@ MonitoringLocations
 Msr
 MultipleOrgDup
 MultipleOrgDupGroupID
-NCTC
 NDs
 NHD
 NHDPlus
 NLCD
 NLDI
+NNI
 NONEs
+NPS
 NWIS
 NationalExtract
 NearbySiteGroup
@@ -246,12 +245,10 @@ PairReplicates
 PairingGroup
 PairingGroupRank
 Param
-ParamRef
 ParamUseMLCrosswalks
 ParameterName
 ParameterNames
 ParametersForAnalysis
-PartB
 Penobscot
 PenobscotNationWorkflow
 PhysChem
@@ -379,7 +376,6 @@ UpdateATTAINSAUMLCrosswalk
 UpdateTribalLayers
 UpperFence
 UseName
-UseName's
 UseNames
 UsesForAnalysis
 UsesRef
@@ -421,11 +417,8 @@ asNO
 au
 auid
 aus
-autoassign
 autoclean
 autocleaned
-autofill
-autopopulate
 bBox
 basemap
 batchupload
@@ -435,7 +428,9 @@ bottomvalue
 byChar
 bycategory
 cdx
+characteristicGroup
 characteristicName
+characteristicNames
 characteristicType
 checkColNames
 checkForATTAINSGeo
@@ -466,7 +461,6 @@ depthcat
 devtools
 df
 dfs
-displayNA
 displayUniqueId
 dplyr
 du
@@ -533,7 +527,6 @@ nondetects
 nonstandardized
 np
 nresults
-nrow
 od
 offsetLibrary
 orgs
@@ -562,6 +555,7 @@ readWQPdata
 recomputation
 renameATTAINSCols
 reportingCycle
+reproducibly
 resultCount
 sampleMedia
 sd
@@ -581,6 +575,7 @@ startDate
 startDateHi
 startDateLo
 statecode
+submitters
 sumdat
 surfacevalue
 sysdata
@@ -594,7 +589,6 @@ tmap
 un
 uncomment
 uncommenting
-uniqueDataId
 unprefixed
 useR
 usepa

@@ -179,7 +179,7 @@ to apply the default TADA data cleaning procedures in
 
 Tips:
 
-1.  All the **TADA_DataRetrieva**l query params for WQP data work as
+1.  All the **TADA_DataRetrieval** query params for WQP data work as
     "AND" between fields and "OR" within fields. For example:
 
     -   characteristicName: If you choose NITROGEN and PHOSPHORUS, both
@@ -195,7 +195,7 @@ Tips:
     -   characteristicName and characteristicType work together as an
         AND. This means that the selected characteristicName must fall
         within the selected characteristicGroup if both filters are
-        being used, Conflicting characteristicNamesand
+        being used, Conflicting characteristicNames and
         characteristicType will cause an error. If you would like all
         available nutrient data, it is recommended to query by
         characteristicGroup = "Nutrient" and leave characteristicName
@@ -309,7 +309,7 @@ There were
 `r formatC(nrow(MS_WQP_PrioritySites) - nrow(MS_WQP_PrioritySites2), big.mark = ",")`
 non-surface water results removed from the data set.
 
-Nowe, we can take a look at the sites remaining in the data set by using
+Now, we can take a look at the sites remaining in the data set by using
 **TADA_OverviewMap** which displays the sites on a map, using symbology
 and pop-ups to describe result counts, number of characteristics per
 site and other site details.
@@ -518,7 +518,7 @@ sort(unique(MS_WQP_PrioritySites_keyflags$TADA.ResultDepthHeightMeasure.MeasureV
 # "TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag" 
 ```
 
-identify potential dup sites
+Identify potential duplicate sites.
 
 ```{r}
 MS_WQP_PrioritySites8 <- MS_WQP_PrioritySites7 |>
