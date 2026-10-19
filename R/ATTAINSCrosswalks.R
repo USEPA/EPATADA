@@ -3772,7 +3772,7 @@ TADA_MLSummary <- function(
   }
   
   if (!is.null(MLSummaryRef)) {
-    req <- c("ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier", "MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName")
+    req <- c("ATTAINS.OrganizationIdentifier", "TADA.MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName")
     miss <- setdiff(req, names(MLSummaryRef))
     if (length(miss) > 0) stop("TADA_MLSummary: MLSummaryRef is missing: ", paste(miss, collapse = ", "))
   }
