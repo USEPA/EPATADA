@@ -2587,7 +2587,6 @@ TADA_CreateParamUseRef <- function(
           ATTAINS.ParameterName,
           CST.PollutantName,
           CST.UseName,
-          IncludeOrExclude,
           Flag.UseInput
         ) |>
         dplyr::semi_join(
