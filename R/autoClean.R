@@ -293,7 +293,7 @@ TADA_AutoClean <- function(.data) {
 
   # run TADA_ConvertSpecialChars function
   message(
-    "TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."
+    "TADA_Autoclean: handling special characters and converting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."
   )
   .data <- TADA_ConvertSpecialChars(.data, "ResultMeasureValue")
   .data <- TADA_ConvertSpecialChars(
