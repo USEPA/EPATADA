@@ -270,7 +270,7 @@ TADA_DefineCriteriaMethodology <- function(
     is.null(AU_UsesRef)
   ) {
     message("All arguments are blank, returning an empty dataframe with column names only.")
-    return(list(blank_criteria))
+    return(blank_criteria)
   }
   
   if (!is.logical(auto_assign)) {
@@ -288,7 +288,7 @@ TADA_DefineCriteriaMethodology <- function(
     dplyr::distinct()
   
   criteria_TADA <- blank_criteria |>
-    dplyr::right_join(unique_comparable, by = "TADA.ComparableDataIdentifier")
+    dplyr::bind_rows(unique_comparable)
   
   # ------------------------------------------------------------
   # 2) If auto_assign = TRUE, build CST-based summary
@@ -334,7 +334,7 @@ TADA_DefineCriteriaMethodology <- function(
           org_id = org_id,
           paramRef = TADA_ParamRef,
           excel = excel,
-          overwrite = overwrite # Changed to FALSE when auto_assign = T KW 4/17/26
+          overwrite = FALSE # Changed to FALSE when auto_assign = T KW 4/17/26
         )
       )
       
@@ -344,7 +344,7 @@ TADA_DefineCriteriaMethodology <- function(
           org_id = org_id,
           paramRef = TADA_ParamRef,
           excel = excel,
-          overwrite = overwrite # Changed to FALSE when auto_assign = T KW 4/17/26
+          overwrite = FALSE # Changed to FALSE when auto_assign = T KW 4/17/26
         )
       )
       
@@ -366,7 +366,11 @@ TADA_DefineCriteriaMethodology <- function(
       MLSummaryRef <- TADA_param |>
         dplyr::full_join(MLSummaryRef, by = names(TADA_param))
     }
-    
+  }
+  # ------------------------------------------------------------
+  # 3) If MLSummaryRef contains CST.PollutantName (from user supplied table or auto_assign)
+  # ------------------------------------------------------------    
+  if (!is.null(MLSummaryRef) && "CST.PollutantName" %in% names(MLSummaryRef)) {
     ATTAINSOrgToCSTEntityRef <- utils::read.csv(
       system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"),
       stringsAsFactors = FALSE
@@ -405,38 +409,58 @@ TADA_DefineCriteriaMethodology <- function(
         by = c("CRIT_SOURCE_ID"),
         relationship = "many-to-many"
       ) |>
-      dplyr::mutate(CST.SourceLink = paste0(SOURCE, "#page=", as.character(PDFPGNO)))
+      dplyr::mutate(CST.SourceLink = paste0(SOURCE, "#page=", as.character(PDFPGNO)))|>
+      tidyr::separate(
+        col = CRITERION_VALUE,
+        into = c("MagnitudeValueLower", "MagnitudeValueUpper"),
+        sep = "\\s*-\\s*",
+        fill = "left",
+        convert = TRUE,
+        extra = "drop"
+      ) |>
+      dplyr::mutate(
+        SaltFresh = CRITERIATYPEFRESHSALTWATER,
+        AcuteChronic = CRITERIATYPE_ACUTECHRONIC,
+        MagnitudeUnit = UNIT_NAME,
+        CST.PollutantName = toupper(POLLUTANT_NAME),
+        CST.UseName = toupper(USE_CLASS_NAME_LOCATION_ETC)
+      )
     
     # This is the updated summary used downstream
-    cst_mlsummary <- MLSummaryRef |>
+    MLSummaryRef <- MLSummaryRef |>
       dplyr::left_join(
         cst_updated,
         by = c(
-          "CST.PollutantName" = "POLLUTANT_NAME",
-          "CST.UseName" = "USE_CLASS_NAME_LOCATION_ETC",
+          "CST.PollutantName",
+          "CST.UseName",
           "ATTAINS.OrganizationIdentifier"
         )
       )
   }
   
   # ------------------------------------------------------------
-  # 3) If MLSummaryRef is supplied, use it;
+  # 4) If MLSummaryRef is supplied, use it;
   #    if auto_assign = TRUE, replace/update with cst_mlsummary
   # ------------------------------------------------------------
   if (!is.null(MLSummaryRef)) {
-    if (isTRUE(auto_assign) && !is.null(cst_mlsummary)) {
-      MLSummaryRef <- cst_mlsummary
-    }
+    criteria_TADA <- dplyr::filter(MLSummaryRef, toupper(IncludeOrExclude) == "INCLUDE")
     
     if (!is.data.frame(MLSummaryRef)) {
       stop("TADA_DefineCriteriaMethodology: MLSummaryRef must be a data frame.")
     }
     
     required_cols <- c(
-      "ATTAINS.OrganizationIdentifier",
+      "TADA.MonitoringLocationIdentifier",
+      "TADA.MonitoringLocationTypeName",  
+      "TADA.LongitudeMeasure",
+      "TADA.LatitudeMeasure",             
+      "TADA.ComparableDataIdentifier",
+      "ATTAINS.OrganizationIdentifier",   
       "ATTAINS.ParameterName",
-      "ATTAINS.UseName",
-      "TADA.ComparableDataIdentifier"
+      "ATTAINS.UseName",                  
+      "IncludeOrExclude",
+      "UniqueSpatialCriteria",            
+      "Flag.UseInput" 
     )
     missing_cols <- setdiff(required_cols, names(MLSummaryRef))
     if (length(missing_cols) > 0) {
@@ -445,16 +469,6 @@ TADA_DefineCriteriaMethodology <- function(
         paste(missing_cols, collapse = ", ")
       )
     }
-    
-    MLSummaryRef <- TADA_CorrectColType(MLSummaryRef)
-    
-    # keep only comparable IDs present in .data
-    MLSummaryRef <- MLSummaryRef |>
-      dplyr::right_join(
-        .data[, c("TADA.ComparableDataIdentifier", "TADA.CharacteristicName")] |>
-          dplyr::distinct(),
-        by = "TADA.ComparableDataIdentifier"
-      )
     
     # ensure optional spatial columns exist
     optional_cols <- c("ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria")
@@ -465,72 +479,12 @@ TADA_DefineCriteriaMethodology <- function(
     }
     
     DefineCriteriaMethodology <- MLSummaryRef |>
-      dplyr::select(
-        dplyr::any_of(c(
-          "ATTAINS.OrganizationIdentifier",
-          "ATTAINS.ParameterName",
-          "ATTAINS.UseName",
-          "TADA.ComparableDataIdentifier",
-          "TADA.CharacteristicName",
-          "TADA.ResultSampleFractionText",
-          "TADA.MethodSpeciationName",
-          "ATTAINS.WaterType",
-          "SaltFresh",
-          "DepthCategory",
-          "UniqueSpatialCriteria"
-        ))
-      ) |>
-      dplyr::mutate(
-        dplyr::across(
-          dplyr::any_of(c("ATTAINS.WaterType", "SaltFresh", "DepthCategory")),
-          ~ as.character(.x)
-        )
-      ) |>
-      dplyr::bind_cols(data.frame(
-        AcuteChronic = as.character(NA),
-        EquationBased = as.character(NA),
-        MagnitudeValueLower = as.numeric(NA),
-        MagnitudeValueUpper = as.numeric(NA),
-        MagnitudeUnit = as.character(NA),
-        DurationValue = as.numeric(NA),
-        DurationUnit = as.character(NA),
-        DurationMethod = as.character(NA),
-        FreqValue = as.numeric(NA),
-        FreqMethod = as.character(NA),
-        AssessPeriodStartDate = as.Date(NA),
-        AssessPeriodEndDate = as.Date(NA),
-        SeasonStartDate = as.Date(NA),
-        SeasonEndDate = as.Date(NA),
-        DistrCount = as.numeric(NA),
-        DistrPeriod = as.character(NA),
-        DistrMinSample = as.numeric(NA),
-        Notes = as.character(NA),
-        Links = as.character(NA),
-        EquationType = as.character(NA),
-        EquationFormula = as.character(NA),
-        pHThreshold = as.numeric(NA),
-        pHDirection = as.character(NA),
-        hardness_param_1 = as.numeric(NA),
-        hardness_param_2 = as.numeric(NA),
-        hardness_param_3 = as.numeric(NA),
-        hardness_param_4 = as.numeric(NA),
-        AmmoniaEqType = as.character(NA),
-        pH_param_1 = as.numeric(NA),
-        pH_param_2 = as.numeric(NA),
-        pH_param_3 = as.numeric(NA),
-        pH_param_4 = as.numeric(NA),
-        pH_param_5 = as.numeric(NA),
-        pH_param_6 = as.numeric(NA),
-        pH_param_7 = as.numeric(NA),
-        pH_param_8 = as.numeric(NA),
-        pH_param_9 = as.numeric(NA),
-        pH_param_10 = as.numeric(NA),
-        pH_param_11 = as.numeric(NA),
-        pH_param_12 = as.numeric(NA),
-        MinEqMagnitude = as.numeric(NA),
-        MaxEqMagnitude = as.numeric(NA)
-      )) |>
-      dplyr::select(dplyr::all_of(desired_cols)) |>
+      TADA_CorrectColType() |>
+      dplyr::bind_rows(blank_criteria) |>
+      #dplyr::left_join(criteria_TADA) |>
+      dplyr::select(dplyr::any_of(c(
+        desired_cols, "CST.PollutantName", "CST.UseName", "CST.SourceLink"))
+        ) |>
       dplyr::distinct()
     
   } else {
@@ -538,9 +492,13 @@ TADA_DefineCriteriaMethodology <- function(
   }
   
   # ------------------------------------------------------------
-  # 4) If criteriaMethods is supplied, merge it in
+  # 5) If criteriaMethods is supplied, merge it in
   # ------------------------------------------------------------
   if (!is.null(criteriaMethods)) {
+    if(!is.null(MLSummaryRef)) {
+      stop("only one of MLSummaryRef or criteriaMethods is allowed as an input.")
+    }
+    
     if (!"TADA.ComparableDataIdentifier" %in% names(criteriaMethods)) {
       criteriaMethods$TADA.ComparableDataIdentifier <- NA_character_
     }
@@ -554,7 +512,9 @@ TADA_DefineCriteriaMethodology <- function(
     
     criteriaMethods <- criteriaMethods |>
       TADA_CorrectColType() |>
-      dplyr::select(dplyr::any_of(desired_cols)) |>
+      dplyr::select(dplyr::any_of(c(
+        desired_cols, "CST.PollutantName", "CST.UseName", "CST.SourceLink"))
+      ) |>
       dplyr::distinct()
     
     DefineCriteriaMethodology <- DefineCriteriaMethodology |>
@@ -563,19 +523,13 @@ TADA_DefineCriteriaMethodology <- function(
   }
   
   # ------------------------------------------------------------
-  # 5) Final cleanup
+  # 6) Final cleanup
   # ------------------------------------------------------------
   DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-    dplyr::relocate(dplyr::any_of(desired_cols)) |>
+    dplyr::select(dplyr::any_of(c(
+      desired_cols, "CST.PollutantName", "CST.UseName", "CST.SourceLink"))
+    ) |>
     TADA_CorrectColType()
-  
-  # Optional validation hook
-  TADA_Analysis_Validate_Ref(
-    .data,
-    criteria = DefineCriteriaMethodology,
-    AUMLRef = AUMLRef,
-    AU_UsesRef = AU_UsesRef
-  )
   
   # ------------------------------------------------------------
   # 6) Excel export

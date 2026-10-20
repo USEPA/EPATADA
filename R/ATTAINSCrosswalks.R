@@ -3753,6 +3753,10 @@ TADA_MLSummary <- function(
     stop("TADA_MLSummary: .data is missing: ", paste(miss_data, collapse = ", "))
   }
   
+  if (is.null(paramUseRef)) {
+    stop("TADA_MLSummaryRef: paramUseRef is missing and is a required input.")
+  }
+  
   if (!is.null(paramUseRef)) {
     req <- c("TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName")
     miss <- setdiff(req, names(paramUseRef))
@@ -3866,25 +3870,29 @@ TADA_MLSummary <- function(
       )
   }
   
+  key_cols <- c(
+    "TADA.MonitoringLocationIdentifier",
+    "TADA.MonitoringLocationTypeName",
+    "TADA.LongitudeMeasure",
+    "TADA.LatitudeMeasure",
+    "TADA.ComparableDataIdentifier",
+    "ATTAINS.OrganizationIdentifier",
+    "ATTAINS.AssessmentUnitIdentifier",
+    "ATTAINS.ParameterName",
+    "ATTAINS.UseName",
+    "ATTAINS.WaterType",
+    "IncludeOrExclude",
+    "TADA.SaltFreshIndicator" = "SaltFresh", # optional
+    "UniqueSpatialCriteria", # optional
+    "Flag.UseInput",
+    "CST.PollutantName", # optional
+    "CST.UseName" # optional
+  )
+  
   out <- out |>
     dplyr::mutate(UniqueSpatialCriteria = NA_character_) |>
     dplyr::select(dplyr::any_of(c(
-      "TADA.MonitoringLocationIdentifier",
-      "TADA.MonitoringLocationTypeName",
-      "TADA.LongitudeMeasure",
-      "TADA.LatitudeMeasure",
-      "TADA.ComparableDataIdentifier",
-      "ATTAINS.OrganizationIdentifier",
-      "ATTAINS.AssessmentUnitIdentifier",
-      "ATTAINS.ParameterName",
-      "ATTAINS.UseName",
-      "ATTAINS.WaterType",
-      "IncludeOrExclude",
-      "TADA.SaltFreshIndicator" = "SaltFresh", # optional
-      "UniqueSpatialCriteria", # optional
-      "Flag.UseInput",
-      "CST.PollutantName", # optional
-      "CST.UseName" # optional
+      key_cols
     ))) |>
     dplyr::distinct()
   
@@ -3902,7 +3910,7 @@ TADA_MLSummary <- function(
         Flag.UseInput = "Derived from joins; not present in user-supplied MLSummaryRef"
       )
     
-    key_cols <- intersect(
+    join_cols <- intersect(
       c(
         "TADA.MonitoringLocationIdentifier",
         "TADA.MonitoringLocationTypeName",
@@ -3917,7 +3925,7 @@ TADA_MLSummary <- function(
         "IncludeOrExclude",
         "TADA.SaltFreshIndicator" = "SaltFresh", # optional
         "UniqueSpatialCriteria", # optional
-        "Flag.UseInput",
+        #"Flag.UseInput", # don't join on thei Flag.UseInput column with MLSummaryRef
         "CST.PollutantName", # optional
         "CST.UseName" # optional
       ),
@@ -3927,11 +3935,11 @@ TADA_MLSummary <- function(
     extra_rows <- join_rows |>
       dplyr::anti_join(
         user_rows,
-        by = key_cols,
-        relationship = "many-to-many"
+        by = join_cols
       )
     
     out <- dplyr::bind_rows(user_rows, extra_rows) |>
+      dplyr::select(dplyr::any_of(key_cols)) |>
       dplyr::distinct()
   }
   
@@ -3981,7 +3989,9 @@ TADA_MLSummary <- function(
     message("Saved as: ", normalizePath(downloads_path))
   }
   
-  out
+  out <- out |>
+    dplyr::select(dplyr::any_of(key_cols)) |>
+    dplyr::distinct()
 }
 
 
