@@ -70,14 +70,29 @@ DT::datatable(MT.testdat)
 # Tab 2: Flag and Review Sites
 
 Runs two functions on the TADA df:
-1) TADA_FindNearbySites
-2) TADA_FlagCoordinates
+1) TADA_FlagCoordinates
+2) TADA_FindNearbySites
 
 Displays a map showing the results of each with the functions:
-1) TADA_NearbySitesMap
-2)TADA_FlaggedSitesMap
+3)TADA_FlaggedSitesMap
+4) TADA_NearbySitesMap
 
-Displays editable tables where users can review and edit nearby site groupings and choose to include/exclude monitoring locations based on coordinate flags.
+These are two seperate functions. I am not sure whether it is better to display
+two seperate maps or figure out a way to modify these functions so they can be
+shown as layers that can be toggled on/off within the same map. This might be
+most efficient in the Shiny app, but will require some work on the package side
+to faciliate.
+
+Displays an editable tables where users can review and edit nearby site groupings and choose to include/exclude monitoring locations based on coordinate flags. The editable tables should
+at a minimum include TADA.MonitoringLocationIdentifier, MonitoringLocationIdentifier,
+LatitudeMeasure, LongitudeMeasure, OrganizationIdentifier, TADA.SuspectCoordinates.Flag,
+and TADA.NearbySitesGroup. I am not sure the best way to accomplish this, but
+ideally we could prompt users to review/address any suspect flags from TADA_FlagCoordinates 
+before grouping nearby sites with TADA_NearbySites.
+
+The reason for including both the TADA and WQP columns for monitoring location identifier
+and the coordinates is that TADA_FindNearbySites may suggest new metadata for some
+results if any monitoring locations are grouped.
 
 ```{r flag.review.sites}
 
@@ -92,10 +107,47 @@ TADA_FlaggedSitesMap(MT.testdat2)
 # nearby sites map
 TADA_NearbySitesMap(MT.testdat2)
 
+# nearby sites table
+DT::datatable(M)
+
 ```
 
 
 # Tab 3: Join and Review AUs
+
+User selects organization from a drop down menu. This specifies the organization's
+geospatial data that will be used to match WQP monitoring locations with ATTAINS
+assessment units.
+
+Users have the option to import their own crosswalk of monitoring locations to
+assessment units. This can be a complete crosswalk (contains all monitoring locations)
+in the TADA df or a partial crosswalk (contains some of the monitoring locations).
+The user's crosswalk is the "au_ref" for TADA_CreateAUMLCrosswalk
+
+Runs: 
+1) TADA_CreateAUMLCrosswalk
+2) TADA_ViewATTAINS
+
+TADA_CreateAUMLCrosswalk must be run first before its results can be visualized on 
+a map using TADA_ViewATTAINS. In the app UI, the TADA_ViewATTAINS map should be 
+displayed above an editable table showing the df resulting from TADA_CreateAUMLCrosswalk.
+In this table, users can edit the "ATTAINS.AssessmentUnitIdentifier" column.
+
+There should be a way for users to update the TADA_ViewATTAINS map to reflect any
+changes they make to the TADA_CreateAUMLCrosswalk table. Automatically updating
+is likely no practical (the map function can be a bit slow and users may make 
+multiple changes). A simple option like an "Update" button that would need to be 
+clickked by the user might work, especially if a message could be displayed when
+there are differences between the data in the table and the data underlying the map.
+
+```{r join.aus}
+
+# find AU/ML matches
+
+
+```
+
+
 
 # Tab 4: Create New AUs (optional)
 
