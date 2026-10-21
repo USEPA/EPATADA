@@ -592,7 +592,9 @@
       # =======================================
       # Generate wqx3_fullPhysChem for use in WQX3-Migration.Rmd
       # =======================================
-      # not working as of 7/20/2026
+      # not working as of 7/20/2026 (before cutover)
+      # not working as of 9/14/2026 (after cutover)
+      # worked second time trying on 9/14/26...
       wqx3_fullPhysChem <- dataRetrieval::readWQPdata(
         statecode = "Illinois",
         countycode = "DeWitt",

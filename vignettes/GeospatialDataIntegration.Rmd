@@ -85,7 +85,7 @@ federal agencies.
 
 -   EPA: EPATADA, StreamCatTools, spsurvey, spmodel, SSN2
 
--   USGS: dataRetrieval, nhdplusTools, hydroloom
+-   USGS: dataRetrieval, hydrogeofetch, hydroloom
 
 -   Fundamental geospatial packages: sf, prism, terra, leaflet and tmap
 
@@ -395,40 +395,40 @@ GreenBay_FoxRiver_sf_locs <- GreenBay_FoxRiver_sf |>
 
 ## Access NHDPlus COMIDs for sites
 
-We use `StreamCatTools` function `sc_get_comid` (which uses an
-`nhdplusTools` web service client) to get the comid for each location.
+We use `StreamCatTools` function `sc_get_comid` (which uses a
+`hydrogeofetch` web service client) to get the comid for each location.
 
 ```{r, eval = F}
 GreenBay_FoxRiver_sf_locs$COMID <- as.integer(strsplit(StreamCatTools::sc_get_comid(GreenBay_FoxRiver_sf_locs), split = ",")[[1]])
 
-nhdplus_data <- nhdplusTools::subset_nhdplus(GreenBay_FoxRiver_sf_locs$COMID, nhdplus_data = "download")
+nhdplus_data <- hydrogeofetch::subset_nhdplus(GreenBay_FoxRiver_sf_locs$COMID, nhdplus_data = "download")
 
 outlet <- dplyr::filter(nhdplus_data$NHDFlowline_Network, hydroseq == min(hydroseq))
 
-nhdplusTools::plot_nhdplus(bbox = sf::st_bbox(outlet))
+hydrogeofetch::plot_nhdplus(bbox = sf::st_bbox(outlet))
 plot(sf::st_transform(sf::st_geometry(GreenBay_FoxRiver_sf_locs), 3857), add = TRUE)
 ```
 
-## dataRetrieval/NLDI, nhdplusTools, hydroloom
+## dataRetrieval/NLDI, hydrogeofetch, hydroloom
 
 Do a network navigation and get NHDPlus for our data. Note that the
-network navigation only includes flowline geometry. `nhdplusTools`
+network navigation only includes flowline geometry. `hydrogeofetch`
 subsets all of the NHDPlus.
 
 ```{r, eval = F}
 all_network <- dataRetrieval::findNLDI(comid = outlet$comid, nav = "UT", distance_km = 500)
 
 # we could select only comids on network
-nhdplus_data <- nhdplusTools::subset_nhdplus(comids = as.integer(all_network$UT_flowlines$nhdplus_comid), nhdplus_data = "download", flowline_only = FALSE)
+nhdplus_data <- hydrogeofetch::subset_nhdplus(comids = as.integer(all_network$UT_flowlines$nhdplus_comid), nhdplus_data = "download", flowline_only = FALSE)
 
 # or we could just get everything in the bbox to be sure we get non-network stuff too!
-nhdplus_data <- nhdplusTools::subset_nhdplus(
+nhdplus_data <- hydrogeofetch::subset_nhdplus(
   bbox = sf::st_bbox(all_network$UT_flowlines),
   nhdplus_data = "download",
   flowline_only = FALSE
 )
 
-# see ?nhdplusTools::subset_nhdplus for lots more options!
+# see ?hydrogeofetch::subset_nhdplus for lots more options!
 
 sapply(nhdplus_data, nrow)
 
@@ -487,7 +487,7 @@ all_wb <- dplyr::bind_rows(
 
 ```{r, eval = F}
 par(mar = c(0, 0, 0, 0))
-nhdplusTools::plot_nhdplus(
+hydrogeofetch::plot_nhdplus(
   bbox = sf::st_bbox(GreenBay_FoxRiver_sf),
   cache_data = tempfile(fileext = ".rds")
 )
@@ -503,7 +503,7 @@ plot(sf::st_transform(sf::st_geometry(GreenBay_FoxRiver_sf_locs), 3857), add = T
 ```
 
 There's much much more where that came from. See the pkgdown sites for
-[nhdplusTools](https://doi-usgs.github.io/nhdplusTools/) and
+[hydrogeofetch](https://doi-usgs.github.io/hydrogeofetch/) and
 [hydroloom](https://doi-usgs.github.io/hydroloom/index.html) for more!
 
 ## [StreamCatTools](https://usepa.github.io/StreamCatTools/index.html)
@@ -664,7 +664,7 @@ TADA_ViewATTAINS(WQP_with_ATTAINSonly)
 
 #### Analyzing areas outside of ATTAINS assessment unit areas
 
-*See: nhdplusTools, TADA::fetchNHD(), TADA_CreateATTAINSAUMLCrosswalk(),
+*See: hydrogeofetch, TADA::fetchNHD(), TADA_CreateATTAINSAUMLCrosswalk(),
 TADA_ViewATTAINS()*
 
 Some waterbodies have data available in the WQP or from other sources,
@@ -673,7 +673,7 @@ are interested in analyzing WQP data available in areas that fall
 outside of the ATTAINS assessment unit areas (using all available data
 from the WQP), TADA has included a way to explore this using
 TADA_CreateATTAINSAUMLCrosswalk() fill_USGS_catch function input
-(leveraging USGS's nhdplusTools and TADA geospatial functions). This is
+(leveraging USGS's hydrogeofetch and TADA geospatial functions). This is
 included for exploratory purposes only. In theory, states and tribal
 nations could use the high res catchments as new assessment unit
 polygons to assess additional areas where there is WQP data but no
@@ -684,7 +684,7 @@ For WQP monitoring sites that DO NOT overlap an existing ATTAINS feature
 points/lines/polys), there is nothing to use from ATTAINS because these
 are areas where there is WQP data but no ATTAINS Assessment Unit yet.
 
-For these, we implemented a solution using NHDPlusTools to pull in
+For these, we implemented a solution using hydrogeofetch to pull in
 either NHDPlus high res or med res catchments (user can choose, but high
 res is the default) and match those with the WQP sites & create new IDs
 (essentially creating new AUs that are the catchments that intersect

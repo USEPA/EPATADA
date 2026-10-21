@@ -1,0 +1,55 @@
+﻿ATTAINS.WaterType,TADA.SaltFreshIndicator
+CHANNEL,Freshwater
+"STREAM, COASTAL",Freshwater
+STREAM,Freshwater
+STREAM/CREEK/RIVER,Freshwater
+ESTUARY,Saltwater
+"ESTUARY, FRESHWATER",Freshwater
+GREAT LAKES BEACH,Freshwater
+BEACH,Saltwater
+GREAT LAKES SHORELINE,Freshwater
+COASTAL,Saltwater
+COASTAL & BAY SHORELINE,Saltwater
+LAKE,Freshwater
+"LAKE, FRESHWATER",Freshwater
+"LAKE, NATURAL",Freshwater
+LAKE/RESERVOIR/POND,Freshwater
+"LAKE, SPRINGS",Freshwater
+"LAKE, WILD RICE",Freshwater
+"LAKE, PLAYA",Freshwater
+"LAKE, SALINE",Saltwater
+POND,Freshwater
+RESERVOIR,Freshwater
+INLAND LAKE SHORELINE,Freshwater
+OCEAN,Saltwater
+OCEAN/NEAR COASTAL,Saltwater
+RIVER,Freshwater
+"STREAM, TIDAL",
+"RIVER, TIDAL",
+DITCH OR CANAL,Freshwater
+CONNECTING CHANNEL,Freshwater
+CREEK,Freshwater
+WETLAND,Freshwater
+"WETLANDS, FRESHWATER",Freshwater
+"WETLANDS, RIVERINE",Freshwater
+"WETLANDS, SLOPE",Freshwater
+"WETLANDS, TIDAL",
+"WETLANDS, DEPRESSIONAL",Freshwater
+MARSH,Freshwater
+"ESTUARY,  FRESHWATER",Freshwater
+GREAT LAKES OPEN WATER,Freshwater
+GREAT LAKES BAYS & HARBORS,Freshwater
+GREAT LAKES CONNECTING CHANNEL,Freshwater
+IMPOUNDMENT,Freshwater
+"STREAM, INTERMITTENT",Freshwater
+"STREAM, EPHEMERAL",Freshwater
+"STREAM, PERRENIAL",Freshwater
+"RIVER, WILD RICE",Freshwater
+WASH,Freshwater
+SPRING,Freshwater
+RIVERINE BACKWATER,Freshwater
+"CREEK, INTERMITTENT",Freshwater
+"STREAM, PERENNIAL",Freshwater
+"LAKE, SPRING",Freshwater
+SPRINGSHED,Freshwater
+"WETLAND, TIDAL",

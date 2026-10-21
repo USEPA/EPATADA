@@ -504,6 +504,10 @@ utils::globalVariables(c(
   "CoordinateStateCode",
   "STATEFP",
   "StateCode",
+  ".has_cst",
+  ".has_param",
+  "capture.output",
+  "setNames",
   "DayOfYear",
   "FirstResultMeasurement",
   "LastResultMeasurement",
@@ -512,7 +516,26 @@ utils::globalVariables(c(
   "ATTAINSWaterTypeByOrgName",
   "TADA.ATTAINS.WaterType",
   "TADA.Rank",
-  "TADA.ResultValueAggregation.Flag"
+  "TADA.ResultValueAggregation.Flag",
+  "n_pts",
+  "ATTAINS.UseClass",
+  "Flag.MatchByColumnIndicator",
+  "Flag.MatchByPercentMatchUseClass",
+  "Flag.MatchByPercentMatchUseName",
+  "Flag.MatchSource",
+  "Flag.PercentMatchToleranceTextUseClass",
+  "Flag.PercentMatchToleranceTextUseName",
+  "capture.output",
+  "n_attains_words",
+  "n_cst_words",
+  "percent_match_ATTAINS_in_CST",
+  "percent_match_ATTAINS_use_class_in_CST",
+  "percent_match_CST_in_ATTAINS",
+  "percent_match_CST_in_ATTAINS_use_class",
+  "use_class_words",
+  "ATTAINS.UseGroup",
+  "temp_tag_attains",
+  "temp_tag_cst"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -1422,7 +1445,7 @@ pchIcons <- function(
 }
 
 #' Retrieve feature layer from ArcGIS REST service
-#' getFeatureLayer is used by writeLayer to write feature layers to local files
+#' getFeatureLayer is used by writeLayerIfChanged to write feature layers to local files
 #'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -1462,9 +1485,8 @@ getFeatureLayer <- function(url, bbox = NULL) {
   return(layer)
 }
 
-
 #' Download a spatial file from an API and save it to a local folder, overwriting existing file if it exists
-#' writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
+#' and has changed. writeLayerIfChanged is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
 #'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
 #' @param layerfilepath Local path to save the .gpkg file
@@ -1475,17 +1497,52 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' # Get the Oklahoma Tribal Statistical Areas feature layer and write
 #' # local file to inst/extdata/Tribal.gpkg/OKTribe
 #' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
-#' writeLayer(OKTribeUrl, "inst/extdata/Tribal.gpkg","OKTribe")
+#' tribal_gpkg <- "inst/extdata/Tribal.gpkg"
+#' writeLayerIfChanged(OKTribeUrl, tribal_gpkg,"OKTribe")
 #' }
-writeLayer <- function(url, layerfilepath, layername) {
-  feature <- getFeatureLayer(url)
-  sf::st_write(feature, layerfilepath, layer = layername, delete_layer = TRUE)
+writeLayerIfChanged <- function(url, layerfilepath, layername) {
+  # Build the new feature layer in memory
+  new_feature <- getFeatureLayer(url)
+
+  # If the gpkg or layer doesn't exist yet, write it
+  layer_exists <- FALSE
+  if (file.exists(layerfilepath)) {
+    layer_exists <- layername %in% sf::st_layers(layerfilepath)$name
+  }
+
+  if (!layer_exists) {
+    sf::st_write(
+      new_feature,
+      layerfilepath,
+      layer = layername,
+      delete_layer = TRUE,
+      quiet = TRUE
+    )
+    return(invisible(TRUE))
+  }
+
+  # Read the existing layer
+  old_feature <- sf::st_read(layerfilepath, layer = layername, quiet = TRUE)
+
+  # Compare conservatively
+  if (.sf_layer_equal(old_feature, new_feature)) {
+    return(invisible(FALSE))
+  }
+
+  # Rewrite only if changed
+  sf::st_write(
+    new_feature,
+    layerfilepath,
+    layer = layername,
+    delete_layer = TRUE,
+    quiet = TRUE
+  )
+
+  invisible(TRUE)
 }
 
 #' Read a spatial file from a local folder, optionally crop it by a bounding box, and return it as a sf object
 #' readLayer is used within TADA_addPolys and TADA_addPoints
-#'
-#' @param layerfilepath Local path to the data folder containing the .gpkg file
 #' @param gpkg name of the .gpkg file
 #' @param layer name of the layer within the .gpkg file
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -1510,14 +1567,12 @@ writeLayer <- function(url, layerfilepath, layername) {
 #' # Read the American Indian Reservations feature layer,
 #' # filtered by the bounding box for the Data_TribalNations_Harmonized
 #' # example dataset
-#' layerfilepath <- "extdata"
-#' gpkg <- "Tribal.gpkg"
+#' gpkg <- "inst/extdata/Tribal.gpkg"
 #' layer <- "AmericanIndian"
-#' readLayer(layerfilepath, gpkg, layer)
+#' readLayer(tribal_gpkg, layer)
 #' }
-readLayer <- function(layerfilepath, gpkg, layer, bbox = NULL) {
-  gpkg_path <- system.file(layerfilepath, gpkg, package = "EPATADA")
-  layer <- sf::read_sf(dsn = gpkg_path, layer, quiet = TRUE)
+readLayer <- function(gpkg, layer, bbox = NULL) {
+  layer <- sf::read_sf(dsn = gpkg, layer, quiet = TRUE)
   if (!(is.null(bbox))) {
     sf::sf_use_s2(FALSE)
     layer <- sf::st_make_valid(layer)
@@ -1536,7 +1591,8 @@ readLayer <- function(layerfilepath, gpkg, layer, bbox = NULL) {
 #' @examples
 #' \dontrun{
 #' # Read in the Oklahoma Tribal Statistical Areas layer
-#' layer <- readLayer("extdata", "Tribal.gpkg", "OKTribe")
+#' tribal_gpkg <- "inst/extdata/Tribal.gpkg"
+#' layer <- readLayer(tribal_gpkg, "OKTribe")
 #' # Get popup text for individual markers
 #' getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
 #' }
@@ -1598,7 +1654,6 @@ getTribalPopup <- function(layer, layername) {
 #' Add polygons from a spatial layer to a leaflet map
 #'
 #' @param map A leaflet map
-#' @param layerfilepath Local path to the data folder containing the .gpkg file
 #' @param gpkg name of the .gpkg file
 #' @param layer name of the layer within the .gpkg file
 #' @param layergroup Name of the layer group
@@ -1615,20 +1670,20 @@ getTribalPopup <- function(layer, layername) {
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the American Indian Reservations feature layer to the map
-#' lmap <- TADA_addPolys(lmap, "extdata", "Tribal.gpkg","AmericanIndian",
+#' tribal_gpkg <- "inst/extdata/Tribal.gpkg"
+#' lmap <- TADA_addPolys(lmap, tribal_gpkg,"AmericanIndian",
 #' "Tribes", "American Indian Reservations")
 #' lmap
 #' }
 TADA_addPolys <- function(
   map,
-  layerfilepath,
   gpkg,
   layer,
   layergroup,
   layername,
   bbox = NULL
 ) {
-  layer <- readLayer(layerfilepath, gpkg, layer, bbox)
+  layer <- readLayer(gpkg, layer, bbox)
   if (is.null(layer)) {
     return(map)
   }
@@ -1667,7 +1722,6 @@ TADA_addPolys <- function(
 #' Add points from a spatial layer to a leaflet map
 #'
 #' @param map A leaflet map
-#' @param layerfilepath Local path to the data folder containing the .gpkg file
 #' @param gpkg name of the .gpkg file
 #' @param layer name of the layer within the .gpkg file
 #' @param layergroup Name of the layer group
@@ -1684,20 +1738,20 @@ TADA_addPolys <- function(
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
-#' lmap <- TADA_addPoints(lmap, "extdata", "Tribal.gpkg","VATribe",
+#' tribal_gpkg <- "inst/extdata/Tribal.gpkg"
+#' lmap <- TADA_addPoints(lmap, tribal_gpkg,"VATribe",
 #'     "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap
 #' }
 TADA_addPoints <- function(
   map,
-  layerfilepath,
   gpkg,
   layer,
   layergroup,
   layername,
   bbox = NULL
 ) {
-  layer <- readLayer(layerfilepath, gpkg, layer, bbox)
+  layer <- readLayer(gpkg, layer, bbox)
   if (is.null(layer)) {
     return(map)
   }
@@ -2126,7 +2180,7 @@ TADA_CharStringRemoveNANone <- function(char_string) {
 #' @examples
 #' \dontrun{
 #' # return ATTAINS parameter domain values
-#' TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
+#' TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name", api_key = .setEQKey()))
 #' }
 TADA_TableExport <- function(.data = NULL) {
   if (is.null(.data)) {
@@ -2213,6 +2267,7 @@ TADA_CreateCSV <- function(.data) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' DeWitt_wqx3 <- dataRetrieval::readWQPdata(
 #'   statecode = "Illinois",
 #'   countycode = "DeWitt", characteristicName = "Nitrogen",
@@ -2221,6 +2276,7 @@ TADA_CreateCSV <- function(.data) {
 #' )
 #'
 #' DeWitt_wqx3_withlegacynames <- EPATADA::TADA_RenametoLegacy(DeWitt_wqx3)
+#' }
 #'
 TADA_RenametoLegacy <- function(.data) {
   ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide
@@ -2583,7 +2639,7 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
 
 #' TADA_CorrectColType
 #'
-#' Correct column data types for TADA, ATTAINS, and user reference data using the
+#' Correct column data types for TADA, ATTAINS, WQP, and user reference data using the
 #' TADA column-type reference file bundled with EPATADA. This ensures downstream
 #' TADA functions operate with expected classes.
 #'
@@ -2692,6 +2748,36 @@ TADA_CorrectColType <- function(.data) {
           return(out)
         }
         suppressWarnings(as.Date(x))
+      },
+      date_special = {
+        if (length(x) == 0L) {
+          return(character())
+        }
+
+        if (inherits(x, "Date")) {
+          return(format(x, "%b-%d"))
+        }
+
+        x <- as.character(x)
+        x <- ifelse(is.na(x) | trimws(x) == "", NA_character_, trimws(x))
+
+        out <- x
+
+        # "Jun 15" -> "Jun-15"
+        idx1 <- grepl("^[A-Za-z]{3}\\s+\\d{1,2}$", out)
+        out[idx1] <- gsub("^([A-Za-z]{3})\\s+(\\d{1,2})$", "\\1-\\2", out[idx1])
+
+        # "06-30" -> "Jun-30"
+        idx2 <- grepl("^\\d{2}-\\d{2}$", out)
+        if (any(idx2)) {
+          dt <- suppressWarnings(as.Date(
+            paste0("2000-", out[idx2]),
+            format = "%Y-%m-%d"
+          ))
+          out[idx2] <- format(dt, "%b-%d")
+        }
+
+        out
       },
       # Default: unknown type -> leave unchanged
       x
@@ -2892,6 +2978,63 @@ TADA_CorrectColType <- function(.data) {
   ))
 
   return <- file.path(base_dir, filename)
+}
+
+#' Compare two sf layers for equality
+#'
+#' Compares two `sf` objects by checking attribute names, attribute values,
+#' and geometry text representation after normalizing column order and row order.
+#' This is intended for maintenance workflows where unchanged layers should not
+#' be rewritten.
+#'
+#' @param old_feature an existing `sf` object read from a layer
+#' @param new_feature a new `sf` object to compare against the existing layer
+#'
+#' @return `TRUE` if the layers are considered equal, otherwise `FALSE`
+#'
+#' @keywords internal
+#'
+#' @examples
+#' \dontrun{
+#' same <- .sf_layer_equal(old_feature, new_feature)
+#' }
+.sf_layer_equal <- function(old_feature, new_feature) {
+  # Drop geometry and compare only attributes
+  old_attrs <- sf::st_drop_geometry(old_feature)
+  new_attrs <- sf::st_drop_geometry(new_feature)
+
+  # Compare attribute names
+  if (!identical(sort(names(old_attrs)), sort(names(new_attrs)))) {
+    return(FALSE)
+  }
+
+  # Reorder attributes consistently
+  common_names <- sort(names(old_attrs))
+  old_attrs <- old_attrs[, common_names, drop = FALSE]
+  new_attrs <- new_attrs[, common_names, drop = FALSE]
+
+  # Convert factors to character
+  old_attrs[] <- lapply(old_attrs, function(x) {
+    if (is.factor(x)) as.character(x) else x
+  })
+  new_attrs[] <- lapply(new_attrs, function(x) {
+    if (is.factor(x)) as.character(x) else x
+  })
+
+  # Compare geometry separately, ignoring the geometry column name
+  old_geom <- sf::st_as_text(sf::st_geometry(old_feature))
+  new_geom <- sf::st_as_text(sf::st_geometry(new_feature))
+
+  # Add geometry as a regular comparison field
+  old_attrs$..geometry.. <- old_geom
+  new_attrs$..geometry.. <- new_geom
+
+  # Sort rows deterministically
+  old_attrs <- old_attrs[do.call(order, old_attrs), , drop = FALSE]
+  new_attrs <- new_attrs[do.call(order, new_attrs), , drop = FALSE]
+
+  # Final comparison
+  isTRUE(all.equal(old_attrs, new_attrs, check.attributes = FALSE))
 }
 
 #' TADA_SummarizeResultFrequency

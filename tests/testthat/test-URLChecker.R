@@ -101,6 +101,8 @@ testthat::test_that("URLs are not broken", {
   )
   files <- c(other_files, vignettes, articles, r_files)
   files <- normalizePath(files, winslash = "/", mustWork = FALSE)
+  # Filter to only existing files to avoid errors during check
+  files <- files[file.exists(files)]
 
   # collect and clean URLs, then remove exclusions
   urls <- purrr::map(files, ~ readr::read_file(.x)) |>
