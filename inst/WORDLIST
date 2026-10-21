@@ -140,6 +140,7 @@ GetSynonymRef
 GetUSGSSynonymRef
 HMW
 HRM
+HTF
 HUC
 HUCS
 HUCs
@@ -151,6 +152,9 @@ Hydrography
 Hydrologic
 HydrologicCondition
 HydrologicEvent
+Hypoxia
+ICIS
+IDCensored
 IDCensoredData
 IDDepthProfiles
 IncludeOrExclude
@@ -207,7 +211,9 @@ NHD
 NHDPlus
 NLCD
 NLDI
+NNI
 NONEs
+NPS
 NWIS
 NationalExtract
 NearbySiteGroup
@@ -422,7 +428,9 @@ bottomvalue
 byChar
 bycategory
 cdx
+characteristicGroup
 characteristicName
+characteristicNames
 characteristicType
 checkColNames
 checkForATTAINSGeo
@@ -549,6 +557,7 @@ readWQPdata
 recomputation
 renameATTAINSCols
 reportingCycle
+reproducibly
 resultCount
 sampleMedia
 sd
@@ -569,6 +578,7 @@ startDate
 startDateHi
 startDateLo
 statecode
+submitters
 sumdat
 surfacevalue
 sysdata
