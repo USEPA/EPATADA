@@ -107,8 +107,8 @@ TADA_FlaggedSitesMap(MT.testdat2)
 # nearby sites map
 TADA_NearbySitesMap(MT.testdat2)
 
-# nearby sites table
-DT::datatable(M)
+# table for review of sites
+DT::datatable(MT.testdat2)
 
 ```
 
@@ -143,13 +143,47 @@ there are differences between the data in the table and the data underlying the 
 ```{r join.aus}
 
 # find AU/ML matches
+MT.testdat3 <- TADA_CreateAUMLCrosswalk(MT.testdat2)
 
+# map AUs and MLs
+TADA_ViewATTAINS(MT.testdat3)
+
+# table of AU/ML matches
+DT::datatable(MT.testdat3)
 
 ```
 
 
-
 # Tab 4: Create New AUs (optional)
+
+This option currently exists for creating new point AUs. This feature was developed
+with ATTAINS tribes in mind as many of them use the monitoring location coordinates
+as point geometry to create assessment units.
+
+This tab should include a TADA_ViewATTAINS map at the top and below it an editable
+data table which contains any monitoring locations that have not been assigned an
+assesment unit match in the previous tab. 
+
+Runs:
+1) TADA_CreatePointAUs(create_geo = TRUE) on filtered df
+2) TADA_ViewATTAINS
+
+Should the TADA_ViewATTAINS map only show the new AUs? Or should it show or have
+the option to show all assigned AUs?
+
+The map should be able to be updated if the user edits any fields in the table.
+
+```{r point.aus}
+
+MT.testdat4 <- TADA_CreatePointAUs(MT.testdat3,
+                                   create_geo = TRUE)
+
+TADA_ViewATTAINS(MT.testdat4)
+
+DT::datatable(MT.testdat4)
+
+```
+
 
 # Tab 5: Join and Review Existing Uses
 
