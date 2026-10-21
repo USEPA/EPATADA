@@ -1,7 +1,6 @@
 ANDs
 AOI
 AUIDs
-AUML
 AUMLRef
 AURefSource
 AUs
@@ -75,7 +74,6 @@ CreateComparableID
 CreatePairRef
 CreateUnitRef
 CriteriaMethodology
-CriteriaMethods
 Cybertown
 DEV
 DataDictionary
@@ -97,13 +95,11 @@ Dumelle
 DurationMethod
 DurationUnit
 DurationValue
-EASP
-EASP's
 EMEF
+EPSG
 EQ
 ExampleMod
 ExampleValues
-ExpertQuery
 FONDULAC
 Farmington
 FieldCounts
@@ -169,14 +165,12 @@ ListCriteriaFiles
 LongitudeMeasure
 LowerFence
 Lvls
-MDE
 MEDEP
 MLSummary
 MLSummaryRef
 MLs
 MPN
 MTDEQ
-MTDEQ's
 MTWTRSHD
 MakeSpatial
 MapServer
@@ -208,7 +202,6 @@ MonitoringLocations
 Msr
 MultipleOrgDup
 MultipleOrgDupGroupID
-NCTC
 NDs
 NHD
 NHDPlus
@@ -246,12 +239,10 @@ PairReplicates
 PairingGroup
 PairingGroupRank
 Param
-ParamRef
 ParamUseMLCrosswalks
 ParameterName
 ParameterNames
 ParametersForAnalysis
-PartB
 Penobscot
 PenobscotNationWorkflow
 PhysChem
@@ -379,7 +370,6 @@ UpdateATTAINSAUMLCrosswalk
 UpdateTribalLayers
 UpperFence
 UseName
-UseName's
 UseNames
 UsesForAnalysis
 UsesRef
@@ -403,7 +393,6 @@ Wikimedia
 YYYY
 addATTAINS
 addAllATTAINS
-addFlaggedSitesMarkers
 addLayerControl
 addLegendToggle
 addMapReset
@@ -422,11 +411,8 @@ asNO
 au
 auid
 aus
-autoassign
 autoclean
 autocleaned
-autofill
-autopopulate
 bBox
 basemap
 batchupload
@@ -441,6 +427,7 @@ characteristicType
 checkColNames
 checkForATTAINSGeo
 checkForWQPData
+checkNHD
 checkTADAColsForMap
 classB
 cleanNA
@@ -466,7 +453,6 @@ depthcat
 devtools
 df
 dfs
-displayNA
 displayUniqueId
 dplyr
 du
@@ -481,7 +467,6 @@ epa
 expertquery
 extdata
 fabec
-fallbacks
 fetchATTAINS
 fetchNHD
 fetchWaterType
@@ -519,7 +504,6 @@ hydroloom
 importWQP
 io
 lessthan
-lowres
 mL
 manys
 mapviewer
@@ -527,6 +511,8 @@ maxrecs
 mimeType
 mlid
 mlt
+multipoint
+na
 nd
 nhd
 nhdplus
@@ -535,12 +521,10 @@ nondetects
 nonstandardized
 np
 nresults
-nrow
 od
 offsetLibrary
 orgs
 outsideUSA
-outsideusa
 overallstatus
 overdetects
 owapps
@@ -571,7 +555,9 @@ sd
 secchi
 setEQKey
 setnames
+sfc
 showMissingATTAINSAUs
+shp
 siteType
 siteid
 sitetype
@@ -596,7 +582,6 @@ tmap
 un
 uncomment
 uncommenting
-uniqueDataId
 unprefixed
 useR
 usepa
