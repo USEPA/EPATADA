@@ -291,7 +291,7 @@ TADA_DefineCriteriaMethodology <- function(
     dplyr::bind_rows(unique_comparable)
   
   # ------------------------------------------------------------
-  # 2) If auto_assign = TRUE, build CST-based summary
+  # 2) If auto_assign = TRUE, build MLSummaryRef with CST-based summary
   # ------------------------------------------------------------
   if (isTRUE(auto_assign)) {
     # if no MLSummaryRef is provided, create it with defaults
@@ -439,8 +439,7 @@ TADA_DefineCriteriaMethodology <- function(
   }
   
   # ------------------------------------------------------------
-  # 4) If MLSummaryRef is supplied, use it;
-  #    if auto_assign = TRUE, replace/update with cst_mlsummary
+  # 4) If MLSummaryRef is supplied, use it
   # ------------------------------------------------------------
   if (!is.null(MLSummaryRef)) {
     criteria_TADA <- dplyr::filter(MLSummaryRef, toupper(IncludeOrExclude) == "INCLUDE")
@@ -492,7 +491,7 @@ TADA_DefineCriteriaMethodology <- function(
   }
   
   # ------------------------------------------------------------
-  # 5) If criteriaMethods is supplied, merge it in
+  # 5) If criteriaMethods is supplied, merge it in and prioritize
   # ------------------------------------------------------------
   if (!is.null(criteriaMethods)) {
     if(!is.null(MLSummaryRef)) {
@@ -532,7 +531,7 @@ TADA_DefineCriteriaMethodology <- function(
     TADA_CorrectColType()
   
   # ------------------------------------------------------------
-  # 6) Excel export
+  # 7) Excel export
   # ------------------------------------------------------------
   if (isTRUE(excel)) {
     downloads_path <- invisible(.get_downloads_path("CriteriaMethodology.xlsx"))
