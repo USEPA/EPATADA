@@ -2,11 +2,11 @@
 % Please edit documentation in R/WQPWQXATTAINSCSTRefs.R
 \name{.TADA_UpdateWQP3SchemaRef}
 \alias{.TADA_UpdateWQP3SchemaRef}
-\title{Update WQP 3 Schema Reference Table (DEV-TIME ONLY)}
+\title{Update WQP 3.0 Schema Reference Table (DEV-TIME ONLY)}
 \usage{
 .TADA_UpdateWQP3SchemaRef()
 }
 \description{
-Update WQP 3 Schema Reference Table (DEV-TIME ONLY)
+Update WQP 3.0 Schema Reference Table (DEV-TIME ONLY)
 }
 \keyword{internal}
