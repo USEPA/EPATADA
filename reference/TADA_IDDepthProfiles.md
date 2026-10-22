@@ -10,7 +10,13 @@ and ActivityStartDate.
 ## Usage
 
 ``` r
-TADA_IDDepthProfiles(.data, nresults = TRUE, nvalue = 2, aggregates = FALSE)
+TADA_IDDepthProfiles(
+  .data,
+  nresults = TRUE,
+  nvalue = 2,
+  aggregates = FALSE,
+  remove_na = TRUE
+)
 ```
 
 ## Arguments
@@ -52,6 +58,13 @@ TADA_IDDepthProfiles(.data, nresults = TRUE, nvalue = 2, aggregates = FALSE)
   TADA_FlagDepthCategory are removed when aggregates = FALSE. When
   aggregates = TRUE, all aggregate values are included when identifying
   depth profile data.
+
+- remove_na:
+
+  Boolean argument with options "TRUE" or "FALSE". The default is
+  remove_na = TRUE, which means that any results with a value of NA are
+  excluded from the summary counts by TADA.ComparableDataIdentifier.
+  When remove_na = FALSE, NA results are included in the summary counts.
 
 ## Value
 
