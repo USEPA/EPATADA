@@ -2471,7 +2471,7 @@ TADA_GetWQP3SchemaRef <- function(download_only = FALSE, refresh = FALSE) {
       return(cached)
     }
   }
-  
+
   if (download_only) {
     # warning message using .tada_read_csv_url
     # df <- .tada_read_csv_url(
@@ -2483,11 +2483,11 @@ TADA_GetWQP3SchemaRef <- function(download_only = FALSE, refresh = FALSE) {
       show_col_types = FALSE,
       progress = FALSE
     )
-    
+
     if (is.null(df)) {
       stop("TADA_GetWQP3SchemaRef(download_only=TRUE): download failed.")
     }
-    
+
     df <- as.data.frame(df, stringsAsFactors = FALSE)
   } else {
     df <- .tada_download_or_extdata_rda(
@@ -2499,7 +2499,7 @@ TADA_GetWQP3SchemaRef <- function(download_only = FALSE, refresh = FALSE) {
       on_fail_message = "Downloading latest WQP 3.0 schema reference table failed! Falling back to internal file."
     )
   }
-  
+
   if (!download_only) {
     .tada_cache_set(.WQP3SchemaRef_cache_key, df)
   }
