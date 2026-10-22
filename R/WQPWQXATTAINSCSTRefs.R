@@ -2473,18 +2473,21 @@ TADA_GetWQP3SchemaRef <- function(download_only = FALSE, refresh = FALSE) {
   }
   
   if (download_only) {
-    df <- tryCatch(
-      readr::read_csv(
-        .WQP_URLS$wqxnames,
-        show_col_types = FALSE,
-        progress = FALSE,
-        locale = readr::locale(encoding = "UTF-8")
-      ),
-      error = function(e) NULL
+    # warning message using .tada_read_csv_url
+    # df <- .tada_read_csv_url(
+    #   .WQX_URLS$ResultMeasureQualifier,
+    #   stringsAsFactors = FALSE
+    # )
+    df <- readr::read_csv(
+      .WQP_URLS$wqxnames,
+      show_col_types = FALSE,
+      progress = FALSE
     )
+    
     if (is.null(df)) {
       stop("TADA_GetWQP3SchemaRef(download_only=TRUE): download failed.")
     }
+    
     df <- as.data.frame(df, stringsAsFactors = FALSE)
   } else {
     df <- .tada_download_or_extdata_rda(
@@ -2493,12 +2496,9 @@ TADA_GetWQP3SchemaRef <- function(download_only = FALSE, refresh = FALSE) {
       object_name = "WQP3SchemaRef",
       pkg = "EPATADA",
       required_cols = NULL,
-      on_fail_message = "Downloading latest WQP 3 schema reference table failed! Falling back to internal file."
+      on_fail_message = "Downloading latest WQP 3.0 schema reference table failed! Falling back to internal file."
     )
   }
-  
-  #df <- .tada_trim_char_cols(df) causing issues?
-  df <- .tada_norm_colnames(df)
   
   if (!download_only) {
     .tada_cache_set(.WQP3SchemaRef_cache_key, df)
@@ -2506,7 +2506,7 @@ TADA_GetWQP3SchemaRef <- function(download_only = FALSE, refresh = FALSE) {
   df
 }
 
-#' Update WQP 3 Schema Reference Table (DEV-TIME ONLY)
+#' Update WQP 3.0 Schema Reference Table (DEV-TIME ONLY)
 #' @keywords internal
 .TADA_UpdateWQP3SchemaRef <- function() {
   df <- TADA_GetWQP3SchemaRef(download_only = TRUE)
