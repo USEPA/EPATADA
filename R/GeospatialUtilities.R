@@ -63,6 +63,9 @@ getMapIconLabels <- function(icons = TRUE, labels = TRUE) {
   #   na.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
   #                                 color = tada.pal[7],
   #                                 name = "na.point.circle")
+  #   new.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
+  #                                 color = tada.pal[7],
+  #                                 name = "new.point.circle")
 
   # if only icons = TRUE, return list of paths to icon images
   if (icons == TRUE) {
@@ -100,7 +103,8 @@ getMapIconLabels <- function(icons = TRUE, labels = TRUE) {
       system.file("extdata/icons", "square-catchment.png", package = "EPATADA"), # 10
       system.file("extdata/icons", "ns.point.circle.png", package = "EPATADA"), # 11
       system.file("extdata/icons", "s.point.circle.png", package = "EPATADA"), # 12
-      system.file("extdata/icons", "na.point.circle.png", package = "EPATADA") # 13
+      system.file("extdata/icons", "na.point.circle.png", package = "EPATADA"), # 13
+      system.file("extdata/icons", "new.point.circle.png", package = "EPATADA") # 14
     )
 
     # return only images if labels are not required
@@ -124,7 +128,8 @@ getMapIconLabels <- function(icons = TRUE, labels = TRUE) {
       "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines.", # 10
       "ATTAINS: Not Supporting Point", # 11
       "ATTAINS: Supporting Point", # 12
-      "ATTAINS: Not Assessed Point" # 13
+      "ATTAINS: Not Assessed Point", # 13
+      "New Assessment Unit (not yet in ATTAINS)" #14
     )
 
     # return only labels if images are not required
