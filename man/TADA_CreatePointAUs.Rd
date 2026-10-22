@@ -8,7 +8,8 @@ TADA_CreatePointAUs(
   .data,
   auid_prefix = NULL,
   create_geo = FALSE,
-  download_geo = FALSE
+  download_geo = FALSE,
+  tada_df = FALSE
 )
 }
 \arguments{
@@ -45,6 +46,11 @@ prefix is added only to newly created
 
 \item{download_geo}{Logical. If \code{TRUE}, write the geometry shapefile to the
 user's downloads folder.}
+
+\item{tada_df}{Logical. If \code{TRUE}, append the geometry,
+ATTAINS.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, and
+ATTAINS.WaterType columns to the existing TADA df (.data) for mapping purposes.
+create_geo must equal \code{TRUE} in order to use tada_df equals \code{TRUE}.}
 }
 \value{
 If \code{create_geo = FALSE}, a distinct crosswalk data frame containing:
@@ -58,6 +64,19 @@ If \code{create_geo = TRUE}, a named list with:
 \itemize{
 \item \code{crosswalk}
 \item \code{geometry}
+}
+
+If \code{tada_df = TRUE}, a named list with:
+-\code{crosswalk}
+\itemize{
+\item \code{TADA_with_newAUs}
+}
+
+If both \code{create_geo = TRUE} and \code{tada_df = TRUE}, a named list with:
+\itemize{
+\item \code{crosswalk}
+\item \code{geometry}
+\item \code{TADA_with_newAUs}
 }
 }
 \description{
