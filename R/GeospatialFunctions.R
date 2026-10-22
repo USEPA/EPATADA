@@ -340,12 +340,20 @@ fetchATTAINS <- function(
       "There is no data in your `data` object to use as a bounding box for selecting ATTAINS features."
     )
   }
+  #
+  # baseurls <- c(
+  #   "https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/ATTAINS_Assessment/FeatureServer/3",
+  #   "https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/ATTAINS_Assessment/FeatureServer/0",
+  #   "https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/ATTAINS_Assessment/FeatureServer/1",
+  #   "https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/ATTAINS_Assessment/FeatureServer/2"
+  # )
 
-  baseurls <- c(
-    "https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/ATTAINS_Assessment/FeatureServer/3",
-    "https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/ATTAINS_Assessment/FeatureServer/0",
-    "https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/ATTAINS_Assessment/FeatureServer/1",
-    "https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/ATTAINS_Assessment/FeatureServer/2"
+ # temporary switch back to old endpoints for dev purposes
+   baseurls <- c(
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
   )
 
   points_sf <- .data
