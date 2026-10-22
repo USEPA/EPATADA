@@ -432,7 +432,7 @@ TADA_DefineCriteriaMethodology <- function(
         MLSummaryRef <- TADA_CorrectColType(MLSummaryRef)
         # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
         MLSummaryRef <- TADA_param |>
-          dplyr::full_join(MLSummaryRef, by = names(TADA_param))
+          dplyr::full_join(MLSummaryRef, by = names(TADA_param), relationship = "many-to-many")
       }
 
       # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
@@ -1121,7 +1121,7 @@ TADA_DefineCriteriaMethodology <- function(
       criteriaMethods <- criteriaMethods |>
         TADA_CorrectColType() |>
         dplyr::select(-dplyr::any_of("TADA.ComparableDataIdentifier")) |>
-        dplyr::full_join(TADA_param, by = join_by_cols)
+        dplyr::full_join(TADA_param, by = join_by_cols, relationship = "many-to-many")
 
       # Only filter to org_id when org_id is not the empty-string placeholder
       if (!("" %in% org_id)) {
