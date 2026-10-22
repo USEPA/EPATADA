@@ -2323,7 +2323,7 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   options(timeout = timeout_sec)
   on.exit(options(timeout = old_timeout), add = TRUE)
 
-  url <- "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer"
+  url <- "https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/ATTAINS_Assessment/FeatureServer"
 
   tryCatch(
     {

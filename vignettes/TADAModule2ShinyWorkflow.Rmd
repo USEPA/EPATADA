@@ -98,12 +98,13 @@ results if any monitoring locations are grouped.
 
 ```{r flag.review.sites}
 
-# run site flagging functions
+# run site flagging function
 testdat2 <- testdat |>
   TADA_FlagCoordinates() 
 
-testdat3 <- testdat |>
-  TADA_FindNearbySites()
+# run nearby sites function (temporarily by distance only due to nhd issues)
+testdat3 <- testdat2 |>
+  TADA_FindNearbySites(catchment = FALSE)
 
 # flagged coordinates map
 TADA_FlaggedSitesMap(testdat3)
@@ -119,7 +120,8 @@ testdat3_subset <- testdat3 |>
                 LongitudeMeasure, 
                 OrganizationIdentifier, 
                 TADA.SuspectCoordinates.Flag,
-                TADA.NearbySitesGroup) |>
+                TADA.NearbySiteGroup,
+                TADA.NearbySites.Flag) |>
   dplyr::distinct()
 
 # table for review of sites
@@ -158,13 +160,27 @@ there are differences between the data in the table and the data underlying the 
 ```{r join.aus}
 
 # find AU/ML matches
-testdat3 <- TADA_CreateAUMLCrosswalk(testdat2)
+testdat4 <- TADA_CreateAUMLCrosswalk(testdat3)
 
 # map AUs and MLs
-TADA_ViewATTAINS(testdat3)
+TADA_ViewATTAINS(testdat4)
+
+# subset of AU/ML data for table
+testdat4_subset <- testdat4$TADA_with_ATTAINS |>
+  dplyr::select(TADA.MonitoringLocationIdentifier,
+                TADA.MonitoringLocationName,
+                TADA.MonitoringLocationTypeName,
+                ATTAINS.AssessmentUnitIdentifier,
+                ATTAINS.AssessmentUnitName,
+                ATTAINS.WaterType,
+                ATTAINS.WaterbodyReportLink) |>
+  sf::st_drop_geometry()
 
 # table of AU/ML matches
-DT::datatable(testdat3)
+DT::datatable(testdat4_subset)
+
+# going forward use testdat4's TADA_with_ATTAINS df
+testdat5 <- testdat4$TADA_with_ATTAINS
 
 ```
 
@@ -190,12 +206,14 @@ The map should be able to be updated if the user edits any fields in the table.
 
 ```{r point.aus}
 
-testdat4 <- testdat3 |>
-  dplyr::filter(is.na(ATTAINS.AssessmentUnitIdentifier))
+testdat5_noau <- testdat5 |>
+  dplyr::filter(is.na(ATTAINS.AssessmentUnitIdentifier)) |>
+  sf::st_drop_geometry()
   
-testdat5 <- TADA_CreatePointAUs(create_geo = TRUE)
+testdat5_pointau <- TADA_CreatePointAUs(testdat5_noau, create_geo = TRUE)
 
-TADA_ViewATTAINS(testdat5)
+# need to wrk on TADA_ViewATTAINS so that it will display output from creating point AUs
+TADA_ViewATTAINS(testdat5_pointau$geometry)
 
 DT::datatable(testdat5)
 
