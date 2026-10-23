@@ -2490,13 +2490,11 @@ TADA_GetWQP3SchemaRef <- function(download_only = FALSE, refresh = FALSE) {
 
     df <- as.data.frame(df, stringsAsFactors = FALSE)
   } else {
-    df <- .tada_download_or_extdata_rda(
-      url = .WQP_URLS$wqxnames,
-      fallback_filename = "WQP3SchemaRef.rda",
-      object_name = "WQP3SchemaRef",
+    df <- .tada_load_extdata_rda(
       pkg = "EPATADA",
-      required_cols = NULL,
-      on_fail_message = "Downloading latest WQP 3.0 schema reference table failed! Falling back to internal file."
+      filename = "WQP3SchemaRef.rda",
+      object_name = "WQP3SchemaRef",
+      trim = FALSE # had to set equal to FALSE
     )
   }
 
