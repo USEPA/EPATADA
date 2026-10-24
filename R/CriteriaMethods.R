@@ -284,11 +284,21 @@ TADA_DefineCriteriaMethodology <- function(
   # ------------------------------------------------------------
   # 1) Build blank criteria from unique comparable identifiers
   # ------------------------------------------------------------
-  unique_comparable <- dplyr::select(.data, TADA.ComparableDataIdentifier) |>
-    dplyr::distinct()
+  unique_chars <- .data |>
+    dplyr::select(
+      TADA.ComparableDataIdentifier,
+      TADA.CharacteristicName,
+      TADA.ResultSampleFractionText,
+      TADA.MethodSpeciationName,
+      TADA.ResultMeasure.MeasureUnitCode
+    ) |>
+    dplyr::distinct() 
   
-  criteria_TADA <- blank_criteria |>
-    dplyr::bind_rows(unique_comparable)
+  unique_chars <- unique_chars |>
+    tidyr::crossing(ATTAINS.OrganizationIdentifier = org_id)
+  
+  DefineCriteriaMethodology <- blank_criteria |>
+    dplyr::bind_rows(unique_chars)
   
   # ------------------------------------------------------------
   # 2) If auto_assign = TRUE, build MLSummaryRef with CST-based summary
