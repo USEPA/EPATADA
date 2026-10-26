@@ -2333,10 +2333,7 @@ TADA_CreateCSV <- function(.data) {
 TADA_RenametoLegacy <- function(.data) {
   ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide
   # https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide
-  wqxnames <- readr::read_csv(
-    "https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv",
-    show_col_types = FALSE
-  )
+  wqxnames <- TADA_GetWQP3SchemaRef()
 
   # Process schema crosswalk table to better suit TADA elements and reduce duplicate legacy elements
   wqxnames_mod <- wqxnames |>
