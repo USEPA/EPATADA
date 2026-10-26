@@ -453,6 +453,9 @@ mywaterway@epa.gov.
 - [`TADA_GetUniqueNearbySites()`](https://usepa.github.io/EPATADA/reference/TADA_GetUniqueNearbySites.md)
   : Get grouped monitoring stations that are near each other
 
+- [`TADA_GetWQP3SchemaRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetWQP3SchemaRef.md)
+  : Get WQP 3.0 Schema Reference Table
+
 - [`TADA_GetWQPOrganizationRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetWQPOrganizationRef.md)
   : Get WQP Organization and Provider Reference Table
 

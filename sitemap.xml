@@ -106,6 +106,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetTemplate.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetUSGSSynonymRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetUniqueNearbySites.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetWQP3SchemaRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetWQPOrganizationRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetWQXCharAliasRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetWQXCharValRef.html</loc></url>
@@ -180,6 +181,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateMonLocTypeRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateRefFiles.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateTADAUsesAliasRef.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateWQP3SchemaRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateWQPOrganizationRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateWQXCharValRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-checkNHD.html</loc></url>
