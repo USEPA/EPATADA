@@ -198,6 +198,7 @@ TADA_DefineCriteriaMethodology <- function(
     AUMLRef = NULL,
     AU_UsesRef = NULL,
     displayUniqueId = FALSE,
+    harmonizeSynonyms = FALSE,
     excel = FALSE,
     overwrite = FALSE
 ) {
@@ -452,7 +453,6 @@ TADA_DefineCriteriaMethodology <- function(
   # 4) If MLSummaryRef is supplied, use it
   # ------------------------------------------------------------
   if (!is.null(MLSummaryRef)) {
-    criteria_TADA <- dplyr::filter(MLSummaryRef, toupper(IncludeOrExclude) == "INCLUDE")
     
     if (!is.data.frame(MLSummaryRef)) {
       stop("TADA_DefineCriteriaMethodology: MLSummaryRef must be a data frame.")
@@ -497,7 +497,7 @@ TADA_DefineCriteriaMethodology <- function(
       dplyr::distinct()
     
   } else {
-    DefineCriteriaMethodology <- criteria_TADA
+    DefineCriteriaMethodology
   }
   
   # ------------------------------------------------------------
@@ -526,8 +526,39 @@ TADA_DefineCriteriaMethodology <- function(
       ) |>
       dplyr::distinct()
     
+    if (harmonizeSynonyms) {
+      message("harmonizeSynonyms = TRUE: harmonizing your user supplied criteria table with characteristic, fraction and speciation name",
+      "to match those from your WQP data.")
+      # create the synonym table with values from the WQP .data (these should all have the correct targets)
+      criteria_synonym <- TADA_GetSynonymRef(.data)
+      
+      # extract unique char, frac, speciation and units from WQP data
+      unique_combos <- dplyr::select(
+        .data,
+        "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode"
+        ) |> 
+        dplyr::mutate(TADA.ResultMeasureValue =NA) |> dplyr::distinct()
+      
+      # join criteria table with unique combos, identifying the target char, frac and speciation
+      criteria_harmonized_w_units <- criteriaMethods |>
+        TADA_CorrectColType()|>
+        dplyr::left_join(
+          unique_combos,
+          by = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName")
+        )
+      
+      # harmonize the criteria table with the desired target char, frac and speciation
+      criteria_harmonized <- TADA_HarmonizeSynonyms(.data = criteria_harmonized_w_units, ref = criteria_synonym)
+      
+      # reformat, filter by only chars found in .data
+      criteriaMethods <- criteria_harmonized |>
+        dplyr::filter(TADA.CharacteristicName %in% .data$TADA.CharacteristicName)|>
+        dplyr::select(dplyr::any_of(c(desired_cols))) |>
+        dplyr::distinct()
+    }
+    
     DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-      dplyr::full_join(criteriaMethods, by = desired_cols) |>
+      dplyr::left_join(criteriaMethods, by = desired_cols) |>
       dplyr::distinct()
   }
   
