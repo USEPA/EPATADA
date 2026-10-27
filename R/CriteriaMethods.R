@@ -261,7 +261,8 @@ TADA_DefineCriteriaMethodology <- function(
   blank_criteria <- TADA_CorrectColType(setNames(
     data.frame(matrix(ncol = length(desired_cols), nrow = 0)),
     desired_cols
-  ))
+  )) |>
+    TADA_CorrectColType()
   
   if (
     missing(.data) &&
@@ -358,7 +359,7 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::right_join(
           unique_chars,
           by = c("ATTAINS.OrganizationIdentifier", "TADA.ComparableDataIdentifier")
-          )
+        )
     }
   }
   # ------------------------------------------------------------
@@ -503,8 +504,9 @@ TADA_DefineCriteriaMethodology <- function(
         criteriaMethods[[col]] <- NA
       }
     }
-    
-    criteriaMethods <- criteriaMethods |>
+
+    # drop "Flag.UserSuppliedCriteriaMatch" if it exists
+    criteriaMethods2 <- criteriaMethods |>
       TADA_CorrectColType() |>
       dplyr::select(dplyr::any_of(c(
         desired_cols, "CST.PollutantName", "CST.UseName", "CST.SourceLink"))
@@ -542,20 +544,64 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::distinct()
     }
     
-    DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-      dplyr::left_join(criteriaMethods, by = desired_cols) |>
+    criteriaMethods2 <- criteriaMethods |>
+      dplyr::right_join(
+        .data,
+        by = c("TADA.CharacteristicName"),
+        suffix = c(".crit", ".data")
+      ) |>
+      dplyr::mutate(
+        Flag.UserSuppliedCriteriaMatch = dplyr::case_when(
+          
+          !TADA.CharacteristicName %in% unique(criteriaMethods$TADA.CharacteristicName) ~ "Suspect: Characteristic not found in criteria table.",
+          
+          !is.na(TADA.ResultSampleFractionText.crit) &
+            !is.na(TADA.MethodSpeciationName.crit) &
+            (TADA.ResultSampleFractionText.data != TADA.ResultSampleFractionText.crit |
+               TADA.MethodSpeciationName.data != TADA.MethodSpeciationName.crit) ~
+            "Suspect: Your Criteria Table's fraction and speciation does not match your WQP data for this characteristic name",
+          
+          !is.na(TADA.ResultSampleFractionText.crit) &
+            is.na(TADA.MethodSpeciationName.crit) &
+            TADA.ResultSampleFractionText.data != TADA.ResultSampleFractionText.crit ~
+            "Suspect: Your Criteria Table's fraction does not match your WQP data for this characteristic name",
+          
+          is.na(TADA.ResultSampleFractionText.crit) &
+            !is.na(TADA.MethodSpeciationName.crit) &
+            TADA.MethodSpeciationName.data != TADA.MethodSpeciationName.crit ~
+            "Suspect: Your Criteria Table's speciation does not match your WQP data for this characteristic name",
+          
+          TRUE ~ "Pass: Matched criteria combination"
+        ),
+        TADA.ResultSampleFractionText = TADA.ResultSampleFractionText.crit,
+        TADA.MethodSpeciationName = TADA.MethodSpeciationName.crit,
+        TADA.ComparableDataIdentifier = TADA.ComparableDataIdentifier.data
+      ) |>
+      dplyr::select(
+        dplyr::any_of(c(
+          desired_cols,
+          "CST.PollutantName",
+          "CST.UseName",
+          "CST.SourceLink",
+          "Flag.UserSuppliedCriteriaMatch"
+        ))
+      ) |>
+      dplyr::distinct()
+    
+    DefineCriteriaMethodology <- criteriaMethods2 |>
+      TADA_CorrectColType() |>
+      dplyr::bind_rows(blank_criteria) |>
+      dplyr::select(-ATTAINS.OrganizationIdentifier) |> # drop ATTAINS.OrganizationIdentifier and re-add from unique_chars
+      dplyr::right_join(unique_chars, by = c("TADA.ComparableDataIdentifier", "TADA.CharacteristicName")) |>
+      dplyr::select(dplyr::any_of(c(
+        desired_cols, "CST.PollutantName", "CST.UseName", "CST.SourceLink", "Flag.UserSuppliedCriteriaMatch"))
+      ) |>
       dplyr::distinct()
   }
   
   # ------------------------------------------------------------
   # 6) Final cleanup
   # ------------------------------------------------------------
-  DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-    dplyr::select(dplyr::any_of(c(
-      desired_cols, "CST.PollutantName", "CST.UseName", "CST.SourceLink"))
-    ) |>
-    TADA_CorrectColType()
-
   # if CST crosswalk provided, filter out those that cannot be analyzed with TADA
   if (
     any(
@@ -576,7 +622,14 @@ TADA_DefineCriteriaMethodology <- function(
   }
   
   # convert units to match WQP data
-  DefineCriteriaMethodology <- .TADA_Criteria_Convert_Unit(.data, DefineCriteriaMethodology = DefineCriteriaMethodology)
+  DefineCriteriaMethodology <- .TADA_Criteria_Convert_Unit(
+    .data,
+    DefineCriteriaMethodology = DefineCriteriaMethodology
+    ) |> 
+    dplyr::select(dplyr::any_of(c(
+      desired_cols, "CST.PollutantName", "CST.UseName", "CST.SourceLink", "Flag.UserSuppliedCriteriaMatch"))
+    ) |>
+    TADA_CorrectColType()
   
   # ------------------------------------------------------------
   # 7) Excel export

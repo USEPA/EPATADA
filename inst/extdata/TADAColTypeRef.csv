@@ -244,6 +244,7 @@ DepthCategory,character
 UniqueSpatialCriteria,character
 AcuteChronic,character
 EquationBased,character
+EquationType,character
 MagnitudeValueLower,numeric
 MagnitudeValueUpper,numeric
 MagnitudeUnit,character
@@ -288,3 +289,4 @@ Flag.PercentMatchToleranceTextUseName,character
 Flag.PercentMatchToleranceTextUseClass,character
 review,character
 Last.Change.Date,character
+AmmoniaEqType,character
