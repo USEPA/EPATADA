@@ -606,11 +606,13 @@ TADA_CheckColumns <- function(.data, expected_cols) {
   missing_cols <- setdiff(expected_cols, colnames(.data))
 
   if (length(missing_cols) > 0) {
-    stop(paste(
-      "The dataframe does not contain the required field(s):",
+    stop(
+      "The dataframe does not contain the required field(s): ",
       paste(missing_cols, collapse = ", "),
-      ". Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
-    ))
+      ". This function expects the full WQP physical/chemical results profile or ",
+      "a TADA-prepared dataframe. If TADA-prefixed fields are required, run ",
+      "TADA_AutoClean() before calling this function."
+    )
   }
 
   invisible(NULL)
@@ -621,9 +623,16 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #'
 #' This function will screen a column of the user's choice for special
 #' characters. It creates a NEW column that describes the content of the column
-#' prior to conversion to numeric (named "TADA.COLUMN NAME DataTypes.Flag"). It
-#' also creates a NEW column to hold the new, numeric format (named "TADA.COLUMN
-#' NAME"). This function will successfully convert some special character
+#' prior to conversion to numeric (named `"TADA.COLUMN NAME DataTypes.Flag"`).
+#' It also creates a NEW column to hold the new, numeric format (named
+#' `"TADA.COLUMN NAME"`). If a column name is supplied when the
+#' `"TADA.COLUMN NAME"` prefix already exists, the function will not run.
+#' To re-run the function, users should supply the newly created
+#' `"TADA.COLUMN NAME"` column. In that case, no additional columns are created,
+#' and the existing `"TADA.COLUMN NAME"` and `"TADA.COLUMN NAME DataTypes.Flag"`
+#' columns are updated with the new conversion.
+#'
+#' This function will successfully convert some special character
 #' formats to numeric: whitespace, >, <, ~, %, and commas are removed before
 #' converting a result value to numeric. Result values in the format # - # are
 #' converted to an average of the two numbers. Result values
@@ -658,14 +667,14 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #'
 #' @examples
 #' HandleSpecialChars_ResultMeasureValue <-
-#'   TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
+#'   TADA_ConvertSpecialChars(Data_R5_TADAPackageDemo, "ResultMeasureValue")
 #' unique(HandleSpecialChars_ResultMeasureValue$
 #'   TADA.ResultMeasureValueDataTypes.Flag)
 #'
 #' HandleSpecialChars_DetLimMeasureValue <-
 #'   TADA_ConvertSpecialChars(
-#'     Data_Nutrients_UT,
-#'     "TADA.DetectionQuantitationLimitMeasure.MeasureValue"
+#'     Data_R5_TADAPackageDemo,
+#'     "DetectionQuantitationLimitMeasure.MeasureValue"
 #'   )
 #' unique(HandleSpecialChars_DetLimMeasureValue$
 #'   TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
@@ -683,6 +692,16 @@ TADA_ConvertSpecialChars <- function(
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
+  }
+
+  # Stop if any TADA. prefixed columns already exist
+  if (paste0("TADA.", col) %in% names(.data)) {
+    stop(paste0(
+      "Column TADA.",
+      col,
+      " already exists.",
+      " Please remove or rename these columns before running TADA_ConvertSpecialChars()."
+    ))
   }
 
   if (!col %in% names(.data)) {
@@ -727,7 +746,6 @@ TADA_ConvertSpecialChars <- function(
         chars.data$ResultMeasure.MeasureUnitCode
       )
 
-      # TADA.ResultMeasure.MeasureUnitCode to uppercase
       chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(
         chars.data$TADA.ResultMeasure.MeasureUnitCode
       )
@@ -895,6 +913,29 @@ TADA_ConvertSpecialChars <- function(
     clean.data <- TADA_OrderCols(clean.data)
   }
 
+  # Determine the associated unit column, if applicable
+  unitcol <- dplyr::case_when(
+    col == "ResultMeasureValue" ~ "TADA.ResultMeasure.MeasureUnitCode",
+    col ==
+      "DetectionQuantitationLimitMeasureValue" ~ "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    col == "TADA.ResultMeasureValue" ~ "TADA.ResultMeasure.MeasureUnitCode",
+    col ==
+      "TADA.DetectionQuantitationLimitMeasureValue" ~ "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    TRUE ~ NA_character_
+  )
+
+  # Flag result values that do not have an associated result unit
+  if (!is.na(unitcol) && unitcol %in% names(clean.data)) {
+    clean.data[[flagcol]] <- ifelse(
+      !is.na(clean.data[[numcol]]) &
+        (is.na(clean.data[[unitcol]]) |
+          trimws(clean.data[[unitcol]]) == "" |
+          toupper(trimws(clean.data[[unitcol]])) == "NONE"),
+      "No unit associated with numeric measure value",
+      clean.data[[flagcol]]
+    )
+  }
+
   if (flaggedonly == FALSE) {
     if (clean == TRUE) {
       clean.data <- clean.data |>
@@ -908,6 +949,15 @@ TADA_ConvertSpecialChars <- function(
               "Coerced to NA"
             )
         )
+
+      # Remove records with missing result units when cleaning result values
+      if (!is.na(unitcol) && unitcol %in% names(clean.data)) {
+        clean.data <- clean.data |>
+          dplyr::filter(
+            !is.na(.data[[unitcol]]),
+            trimws(.data[[unitcol]]) != ""
+          )
+      }
 
       return(clean.data)
     }
@@ -926,9 +976,11 @@ TADA_ConvertSpecialChars <- function(
             "Text",
             "Non-ASCII Character(s)",
             "Result Value/Unit Cannot Be Estimated From Detection Limit",
+            # "No unit associated with numeric measure value", # KW 9/30/26 determined this to be an allowed numeric option
             "Coerced to NA"
           )
       )
+    return(clean.data)
   }
 }
 
