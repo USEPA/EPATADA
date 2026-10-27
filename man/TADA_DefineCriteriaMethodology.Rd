@@ -13,6 +13,7 @@ TADA_DefineCriteriaMethodology(
   AUMLRef = NULL,
   AU_UsesRef = NULL,
   displayUniqueId = FALSE,
+  harmonizeSynonyms = FALSE,
   excel = FALSE,
   overwrite = FALSE
 )
