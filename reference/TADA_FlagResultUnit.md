@@ -55,15 +55,15 @@ yet reviewed the combination for validity.
 
 ``` r
 # Load example dataset:
-utils::data(Data_R5_TADAPackageDemo)
+utils::data(Data_Participatory_Scientists)
 
 # Flag, but do not remove, data with 'Suspect' or 'NonStandardized'
 # characteristic and unit combinations in a new column titled
 # 'TADA.ResultUnit.Flag':
-SuspectUnit_flags <- TADA_FlagResultUnit(Data_R5_TADAPackageDemo)
+SuspectUnit_flags <- TADA_FlagResultUnit(Data_Participatory_Scientists)
 
 # Show only 'Suspect' or 'NonStandardized' characteristic and unit combinations:
-SuspectUnit_flaggedonly <- TADA_FlagResultUnit(Data_R5_TADAPackageDemo,
+SuspectUnit_flaggedonly <- TADA_FlagResultUnit(Data_Participatory_Scientists,
   clean = "none", flaggedonly = TRUE
 )
 SuspectUnit_flaggedonly_selectcols <- dplyr::select(
@@ -73,5 +73,5 @@ SuspectUnit_flaggedonly_selectcols <- dplyr::select(
 
 # Remove both 'Suspect' and 'NonStandardized' characteristic and result
 # combinations, and exclude the flag column:
-ResultUnit_clean <- TADA_FlagResultUnit(Data_R5_TADAPackageDemo, clean = "both")
+ResultUnit_clean <- TADA_FlagResultUnit(Data_Participatory_Scientists, clean = "both")
 ```

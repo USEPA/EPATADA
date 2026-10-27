@@ -2,19 +2,15 @@
 
 This function will screen a column of the user's choice for special
 characters. It creates a NEW column that describes the content of the
-column prior to conversion to numeric (named "TADA.COLUMN NAME
-DataTypes.Flag"). It also creates a NEW column to hold the new, numeric
-format (named "TADA.COLUMN NAME"). This function will successfully
-convert some special character formats to numeric: whitespace, \>, \<,
-~, %, and commas are removed before converting a result value to
-numeric. Result values in the format \# - \# are converted to an average
-of the two numbers. Result values containing any other text or
-non-numeric characters become NA in the newly created "TADA.COLUMN NAME"
-and labeled accordingly in "TADA.COLUMN NAME DataTypes.Flag". When clean
-= TRUE, rows that cannot be converted to numeric are removed. When clean
-= FALSE, no rows are removed. Default is clean = FALSE. When flaggedonly
-= TRUE, data frame is filtered to show only rows with non-numeric result
-values. Default is flaggedonly = FALSE.
+column prior to conversion to numeric (named
+`"TADA.COLUMN NAME DataTypes.Flag"`). It also creates a NEW column to
+hold the new, numeric format (named `"TADA.COLUMN NAME"`). If a column
+name is supplied when the `"TADA.COLUMN NAME"` prefix already exists,
+the function will not run. To re-run the function, users should supply
+the newly created `"TADA.COLUMN NAME"` column. In that case, no
+additional columns are created, and the existing `"TADA.COLUMN NAME"`
+and `"TADA.COLUMN NAME DataTypes.Flag"` columns are updated with the new
+conversion.
 
 ## Usage
 
@@ -64,22 +60,39 @@ the type of data contained within the column of interest, including
 (~), "Text" (A-z), "Percentage" (%), "Comma-Separated Numeric" (#,###),
 and "Numeric Range - Averaged" (# - \#).
 
+## Details
+
+This function will successfully convert some special character formats
+to numeric: whitespace, \>, \<, ~, %, and commas are removed before
+converting a result value to numeric. Result values in the format \# -
+\# are converted to an average of the two numbers. Result values
+containing any other text or non-numeric characters become NA in the
+newly created "TADA.COLUMN NAME" and labeled accordingly in "TADA.COLUMN
+NAME DataTypes.Flag". When clean = TRUE, rows that cannot be converted
+to numeric are removed. When clean = FALSE, no rows are removed. Default
+is clean = FALSE. When flaggedonly = TRUE, data frame is filtered to
+show only rows with non-numeric result values. Default is flaggedonly =
+FALSE.
+
 ## Examples
 
 ``` r
 HandleSpecialChars_ResultMeasureValue <-
-  TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
+  TADA_ConvertSpecialChars(Data_R5_TADAPackageDemo, "ResultMeasureValue")
 unique(HandleSpecialChars_ResultMeasureValue$
   TADA.ResultMeasureValueDataTypes.Flag)
-#> [1] "Coerced to NA"      "Numeric"            "NA - Not Available"
-#> [4] "Text"              
+#> [1] "Numeric"                                      
+#> [2] "Coerced to NA"                                
+#> [3] "No unit associated with numeric measure value"
+#> [4] "Text"                                         
 
 HandleSpecialChars_DetLimMeasureValue <-
   TADA_ConvertSpecialChars(
-    Data_Nutrients_UT,
-    "TADA.DetectionQuantitationLimitMeasure.MeasureValue"
+    Data_R5_TADAPackageDemo,
+    "DetectionQuantitationLimitMeasure.MeasureValue"
   )
 unique(HandleSpecialChars_DetLimMeasureValue$
   TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
-#> [1] "Numeric"            "NA - Not Available"
+#> [1] "Coerced to NA"      "Numeric"            "NA - Not Available"
+#> [4] "Text"              
 ```

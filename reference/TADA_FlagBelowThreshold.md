@@ -71,27 +71,27 @@ column will be deleted and regenerated.
 
 ``` r
 # Load example dataset:
-utils::data(Data_R5_TADAPackageDemo)
+utils::data(Data_Participatory_Scientists)
 
 # Remove data that is below the lower WQX threshold from the dataframe:
 WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(
-  Data_R5_TADAPackageDemo,
+  Data_Participatory_Scientists,
   clean = TRUE
 )
-#> TADA_FlagBelowThreshold: Returning cleaned dataframe with 'Suspect' rows removed. Counts:  NA - Not Available: 17582, Pass: 154972, Suspect: 819
+#> TADA_FlagBelowThreshold: Returning cleaned dataframe with 'Suspect' rows removed. Counts:  NA - Not Available: 3589, Pass: 156850, Suspect: 1105
 
 # Flag, but do not remove, data that is below the lower WQX threshold in
 # new column titled "TADA.ResultValueBelowLowerThreshold.Flag":
 WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(
-  Data_R5_TADAPackageDemo,
+  Data_Participatory_Scientists,
   clean = FALSE
 )
-#> TADA_FlagBelowThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 17582, Pass: 154972, Suspect: 819
+#> TADA_FlagBelowThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3589, Pass: 156850, Suspect: 1105
 
 # Show only data that is below the lower WQX threshold:
 WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(
-  Data_R5_TADAPackageDemo,
+  Data_Participatory_Scientists,
   clean = FALSE, flaggedonly = TRUE
 )
-#> TADA_FlagBelowThreshold: Returning dataframe with only 'Suspect' rows. Counts:  NA - Not Available: 17582, Pass: 154972, Suspect: 819
+#> TADA_FlagBelowThreshold: Returning dataframe with only 'Suspect' rows. Counts:  NA - Not Available: 3589, Pass: 156850, Suspect: 1105
 ```

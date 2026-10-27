@@ -196,7 +196,7 @@ df_flag <- EPATADA::TADA_FlagAboveThreshold(df_flag,
 )
 ```
 
-    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  Pass: 1932, Suspect: 25
+    ## TADA_FlagAboveThreshold: No data above the WQX Upper Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultValueAboveUpperThreshold.Flag column for tracking. Counts:  Pass: 1957
 
 ``` r
 

@@ -1097,7 +1097,7 @@ TADA_FieldValuesTable(TADAProfileClean3, field = "ActivityTypeCode")
 
     ##                                    Value Count
     ## 1                          Field Msr/Obs 14457
-    ## 2                         Sample-Routine  3127
+    ## 2                         Sample-Routine  3153
     ## 3 Quality Control Sample-Field Replicate   143
     ## 4 Quality Control Sample-Equipment Blank    29
 
@@ -1335,7 +1335,7 @@ TADA_FieldValuesTable(TADAProfileClean4, "ActivityTypeCode")
 
     ##            Value Count
     ## 1  Field Msr/Obs 14457
-    ## 2 Sample-Routine  3127
+    ## 2 Sample-Routine  3153
 
 ``` r
 
@@ -1509,8 +1509,9 @@ unique(TADAProfileClean4$TADA.ResultMeasureValueDataTypes.Flag)
 
     ## [1] "Coerced to NA"                                   
     ## [2] "Numeric"                                         
-    ## [3] "Result Value/Unit Estimated from Detection Limit"
-    ## [4] "Text"
+    ## [3] "No unit associated with numeric measure value"   
+    ## [4] "Result Value/Unit Estimated from Detection Limit"
+    ## [5] "Text"
 
 Count how many NAs remain in the TADA.ResultMeasureValue.
 
@@ -1538,7 +1539,8 @@ unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
     ## [1] "Numeric"                                         
-    ## [2] "Result Value/Unit Estimated from Detection Limit"
+    ## [2] "No unit associated with numeric measure value"   
+    ## [3] "Result Value/Unit Estimated from Detection Limit"
 
 ``` r
 
@@ -1668,47 +1670,46 @@ TADA_FieldValuesTable(TADAProfileClean6, field = "TADA.CharacteristicName")
 
     ##                                             Value Count
     ## 1                           DISSOLVED OXYGEN (DO)  3575
-    ## 2                                              PH  3572
-    ## 3                                     TEMPERATURE  3564
-    ## 4                                       TURBIDITY  1229
-    ## 5                   TOTAL PHOSPHORUS, MIXED FORMS   771
-    ## 6                     DISSOLVED OXYGEN SATURATION   727
-    ## 7                                           DEPTH   481
-    ## 8                                        SALINITY   379
-    ## 9                        DEPTH, SECCHI DISK DEPTH   331
-    ## 10                                        NITRATE   242
-    ## 11      TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)   242
-    ## 12        CHLOROPHYLL A, CORRECTED FOR PHEOPHYTIN   231
-    ## 13            TRANSPARENCY, SECCHI TUBE WITH DISK   212
-    ## 14                    TOTAL NITROGEN, MIXED FORMS   203
-    ## 15                               ESCHERICHIA COLI   160
-    ## 16        CONDITION CLASS (DISSOLVED OXYGEN (DO))   129
-    ## 17                                        NITRITE   111
-    ## 18                         TOTAL SUSPENDED SOLIDS   111
-    ## 19                                       AMMONIUM    93
-    ## 20                        DISSOLVED OXYGEN UPTAKE    82
-    ## 21                                 ORTHOPHOSPHATE    82
-    ## 22                              NITRATE + NITRITE    71
-    ## 23                                 APPARENT COLOR    49
-    ## 24                                  CHLOROPHYLL A    48
-    ## 25                                         COPPER    36
-    ## 26                                        MERCURY    35
-    ## 27                              DEPTH, SNOW COVER    33
-    ## 28                      VOLATILE SUSPENDED SOLIDS    31
-    ## 29                            HARDNESS, CARBONATE    29
-    ## 30                                           ZINC    28
-    ## 31                                         NICKEL    26
-    ## 32                                           IRON    24
-    ## 33                                          COUNT    20
-    ## 34                                           LEAD    19
-    ## 35 BIOCHEMICAL OXYGEN DEMAND, STANDARD CONDITIONS    15
-    ## 36                                       CHROMIUM    11
-    ## 37                                     PERIPHYTON     7
-    ## 38                                      MAGNESIUM     6
-    ## 39                                     RADIUM-226     5
-    ## 40                                     RADIUM-228     5
-    ## 41                                        TRITIUM     5
-    ## 42                                 ORGANIC CARBON     4
+    ## 2                                     TEMPERATURE  3564
+    ## 3                                       TURBIDITY  1229
+    ## 4                   TOTAL PHOSPHORUS, MIXED FORMS   771
+    ## 5                     DISSOLVED OXYGEN SATURATION   727
+    ## 6                                           DEPTH   481
+    ## 7                                        SALINITY   379
+    ## 8                        DEPTH, SECCHI DISK DEPTH   331
+    ## 9                                         NITRATE   242
+    ## 10      TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)   242
+    ## 11        CHLOROPHYLL A, CORRECTED FOR PHEOPHYTIN   231
+    ## 12            TRANSPARENCY, SECCHI TUBE WITH DISK   212
+    ## 13                    TOTAL NITROGEN, MIXED FORMS   203
+    ## 14                               ESCHERICHIA COLI   186
+    ## 15        CONDITION CLASS (DISSOLVED OXYGEN (DO))   129
+    ## 16                                        NITRITE   111
+    ## 17                         TOTAL SUSPENDED SOLIDS   111
+    ## 18                                       AMMONIUM    93
+    ## 19                        DISSOLVED OXYGEN UPTAKE    82
+    ## 20                                 ORTHOPHOSPHATE    82
+    ## 21                              NITRATE + NITRITE    71
+    ## 22                                 APPARENT COLOR    49
+    ## 23                                  CHLOROPHYLL A    48
+    ## 24                                         COPPER    36
+    ## 25                                        MERCURY    35
+    ## 26                              DEPTH, SNOW COVER    33
+    ## 27                      VOLATILE SUSPENDED SOLIDS    31
+    ## 28                            HARDNESS, CARBONATE    29
+    ## 29                                           ZINC    28
+    ## 30                                         NICKEL    26
+    ## 31                                           IRON    24
+    ## 32                                          COUNT    20
+    ## 33                                           LEAD    19
+    ## 34 BIOCHEMICAL OXYGEN DEMAND, STANDARD CONDITIONS    15
+    ## 35                                       CHROMIUM    11
+    ## 36                                     PERIPHYTON     7
+    ## 37                                      MAGNESIUM     6
+    ## 38                                     RADIUM-226     5
+    ## 39                                     RADIUM-228     5
+    ## 40                                        TRITIUM     5
+    ## 41                                 ORGANIC CARBON     4
 
 Next, we can revisit the **TADA_FieldCounts** function at the
 characteristic level to review how many unique allowable values are
@@ -1875,56 +1876,55 @@ unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
 ```
 
     ##  [1] "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"                          
-    ##  [2] "PH_NONE_NONE_NONE"                                             
-    ##  [3] "TEMPERATURE_NONE_NONE_DEG C"                                   
-    ##  [4] "TURBIDITY_NONE_NONE_NTU"                                       
-    ##  [5] "AMMONIUM_UNFILTERED_AS N_MG/L"                                 
-    ##  [6] "NITRATE_UNFILTERED_AS N_MG/L"                                  
-    ##  [7] "ESCHERICHIA COLI_NONE_NONE_CFU/100ML"                          
-    ##  [8] "ESCHERICHIA COLI_UNFILTERED_NONE_CFU/100ML"                    
-    ##  [9] "NITRITE_UNFILTERED_AS N_MG/L"                                  
-    ## [10] "DEPTH_NONE_NONE_M"                                             
-    ## [11] "DISSOLVED OXYGEN SATURATION_NONE_NONE_%"                       
-    ## [12] "SALINITY_NONE_NONE_PSS"                                        
-    ## [13] "BIOCHEMICAL OXYGEN DEMAND, STANDARD CONDITIONS_TOTAL_NONE_UG/L"
-    ## [14] "CHROMIUM_TOTAL_NONE_UG/L"                                      
-    ## [15] "COPPER_TOTAL_NONE_UG/L"                                        
-    ## [16] "IRON_TOTAL_NONE_UG/L"                                          
-    ## [17] "HARDNESS, CARBONATE_TOTAL_NONE_UG/L"                           
-    ## [18] "TURBIDITY_UNFILTERED_NONE_NTU"                                 
-    ## [19] "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"            
-    ## [20] "CHLOROPHYLL A, CORRECTED FOR PHEOPHYTIN_SUSPENDED_NONE_UG/L"   
-    ## [21] "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"                          
-    ## [22] "TRANSPARENCY, SECCHI TUBE WITH DISK_NONE_NONE_IN"              
-    ## [23] "DEPTH, SNOW COVER_NONE_NONE_IN"                                
-    ## [24] "ORTHOPHOSPHATE_FILTERED_AS P_UG/L"                             
-    ## [25] "CHLOROPHYLL A_FILTERED_AS CHLOROPHYLL A_UG/L"                  
-    ## [26] "COUNT_NONE_NONE_COUNT"                                         
-    ## [27] "MAGNESIUM_DISSOLVED_NONE_UG/L"                                 
-    ## [28] "HARDNESS, CARBONATE_NONE_AS CACO3_UG/L"                        
-    ## [29] "RADIUM-228_NONE_NONE_PCI/L"                                    
-    ## [30] "RADIUM-226_NONE_NONE_PCI/L"                                    
-    ## [31] "TRITIUM_NONE_NONE_PCI/L"                                       
-    ## [32] "IRON_DISSOLVED_NONE_UG/L"                                      
-    ## [33] "ZINC_DISSOLVED_NONE_UG/L"                                      
-    ## [34] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        
-    ## [35] "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L"
-    ## [36] "NITRATE + NITRITE_FILTERED_AS N_MG/L"                          
-    ## [37] "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"              
-    ## [38] "TOTAL SUSPENDED SOLIDS_NON-FILTERABLE (PARTICLE)_NONE_UG/L"    
-    ## [39] "ORGANIC CARBON_DISSOLVED_NONE_UG/L"                            
-    ## [40] "VOLATILE SUSPENDED SOLIDS_TOTAL_NONE_UG/L"                     
-    ## [41] "CONDITION CLASS (DISSOLVED OXYGEN (DO))_NONE_NONE_%"           
-    ## [42] "DISSOLVED OXYGEN UPTAKE_NONE_NONE_UG/L"                        
-    ## [43] "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"                           
-    ## [44] "NICKEL_TOTAL_NONE_UG/L"                                        
-    ## [45] "LEAD_TOTAL_NONE_UG/L"                                          
-    ## [46] "CHLOROPHYLL A_UNFILTERED_AS CHLOROPHYLL A_UG/L"                
-    ## [47] "ZINC_TOTAL_NONE_UG/L"                                          
-    ## [48] "APPARENT COLOR_TOTAL_NONE_PCU"                                 
-    ## [49] "MERCURY_TOTAL_NONE_UG/L"                                       
-    ## [50] "MERCURY_DISSOLVED_NONE_UG/L"                                   
-    ## [51] "PERIPHYTON_NONE_NONE_G/M2"
+    ##  [2] "TEMPERATURE_NONE_NONE_DEG C"                                   
+    ##  [3] "TURBIDITY_NONE_NONE_NTU"                                       
+    ##  [4] "AMMONIUM_UNFILTERED_AS N_MG/L"                                 
+    ##  [5] "NITRATE_UNFILTERED_AS N_MG/L"                                  
+    ##  [6] "ESCHERICHIA COLI_NONE_NONE_CFU/100ML"                          
+    ##  [7] "ESCHERICHIA COLI_UNFILTERED_NONE_CFU/100ML"                    
+    ##  [8] "NITRITE_UNFILTERED_AS N_MG/L"                                  
+    ##  [9] "DEPTH_NONE_NONE_M"                                             
+    ## [10] "DISSOLVED OXYGEN SATURATION_NONE_NONE_%"                       
+    ## [11] "SALINITY_NONE_NONE_PSS"                                        
+    ## [12] "BIOCHEMICAL OXYGEN DEMAND, STANDARD CONDITIONS_TOTAL_NONE_UG/L"
+    ## [13] "CHROMIUM_TOTAL_NONE_UG/L"                                      
+    ## [14] "COPPER_TOTAL_NONE_UG/L"                                        
+    ## [15] "IRON_TOTAL_NONE_UG/L"                                          
+    ## [16] "HARDNESS, CARBONATE_TOTAL_NONE_UG/L"                           
+    ## [17] "TURBIDITY_UNFILTERED_NONE_NTU"                                 
+    ## [18] "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"            
+    ## [19] "CHLOROPHYLL A, CORRECTED FOR PHEOPHYTIN_SUSPENDED_NONE_UG/L"   
+    ## [20] "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"                          
+    ## [21] "TRANSPARENCY, SECCHI TUBE WITH DISK_NONE_NONE_IN"              
+    ## [22] "DEPTH, SNOW COVER_NONE_NONE_IN"                                
+    ## [23] "ORTHOPHOSPHATE_FILTERED_AS P_UG/L"                             
+    ## [24] "CHLOROPHYLL A_FILTERED_AS CHLOROPHYLL A_UG/L"                  
+    ## [25] "COUNT_NONE_NONE_COUNT"                                         
+    ## [26] "MAGNESIUM_DISSOLVED_NONE_UG/L"                                 
+    ## [27] "HARDNESS, CARBONATE_NONE_AS CACO3_UG/L"                        
+    ## [28] "RADIUM-228_NONE_NONE_PCI/L"                                    
+    ## [29] "RADIUM-226_NONE_NONE_PCI/L"                                    
+    ## [30] "TRITIUM_NONE_NONE_PCI/L"                                       
+    ## [31] "IRON_DISSOLVED_NONE_UG/L"                                      
+    ## [32] "ZINC_DISSOLVED_NONE_UG/L"                                      
+    ## [33] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        
+    ## [34] "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L"
+    ## [35] "NITRATE + NITRITE_FILTERED_AS N_MG/L"                          
+    ## [36] "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"              
+    ## [37] "TOTAL SUSPENDED SOLIDS_NON-FILTERABLE (PARTICLE)_NONE_UG/L"    
+    ## [38] "ORGANIC CARBON_DISSOLVED_NONE_UG/L"                            
+    ## [39] "VOLATILE SUSPENDED SOLIDS_TOTAL_NONE_UG/L"                     
+    ## [40] "CONDITION CLASS (DISSOLVED OXYGEN (DO))_NONE_NONE_%"           
+    ## [41] "DISSOLVED OXYGEN UPTAKE_NONE_NONE_UG/L"                        
+    ## [42] "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"                           
+    ## [43] "NICKEL_TOTAL_NONE_UG/L"                                        
+    ## [44] "LEAD_TOTAL_NONE_UG/L"                                          
+    ## [45] "CHLOROPHYLL A_UNFILTERED_AS CHLOROPHYLL A_UG/L"                
+    ## [46] "ZINC_TOTAL_NONE_UG/L"                                          
+    ## [47] "APPARENT COLOR_TOTAL_NONE_PCU"                                 
+    ## [48] "MERCURY_TOTAL_NONE_UG/L"                                       
+    ## [49] "MERCURY_DISSOLVED_NONE_UG/L"                                   
+    ## [50] "PERIPHYTON_NONE_NONE_G/M2"
 
 Filter dataframe and generate scatterplots for each selected
 TADA.ComparableDataIdentifier:
@@ -1978,56 +1978,55 @@ unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
 ```
 
     ##  [1] "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"                          
-    ##  [2] "PH_NONE_NONE_NONE"                                             
-    ##  [3] "TEMPERATURE_NONE_NONE_DEG C"                                   
-    ##  [4] "TURBIDITY_NONE_NONE_NTU"                                       
-    ##  [5] "AMMONIUM_UNFILTERED_AS N_MG/L"                                 
-    ##  [6] "NITRATE_UNFILTERED_AS N_MG/L"                                  
-    ##  [7] "ESCHERICHIA COLI_NONE_NONE_CFU/100ML"                          
-    ##  [8] "ESCHERICHIA COLI_UNFILTERED_NONE_CFU/100ML"                    
-    ##  [9] "NITRITE_UNFILTERED_AS N_MG/L"                                  
-    ## [10] "DEPTH_NONE_NONE_M"                                             
-    ## [11] "DISSOLVED OXYGEN SATURATION_NONE_NONE_%"                       
-    ## [12] "SALINITY_NONE_NONE_PSS"                                        
-    ## [13] "BIOCHEMICAL OXYGEN DEMAND, STANDARD CONDITIONS_TOTAL_NONE_UG/L"
-    ## [14] "CHROMIUM_TOTAL_NONE_UG/L"                                      
-    ## [15] "COPPER_TOTAL_NONE_UG/L"                                        
-    ## [16] "IRON_TOTAL_NONE_UG/L"                                          
-    ## [17] "HARDNESS, CARBONATE_TOTAL_NONE_UG/L"                           
-    ## [18] "TURBIDITY_UNFILTERED_NONE_NTU"                                 
-    ## [19] "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"            
-    ## [20] "CHLOROPHYLL A, CORRECTED FOR PHEOPHYTIN_SUSPENDED_NONE_UG/L"   
-    ## [21] "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"                          
-    ## [22] "TRANSPARENCY, SECCHI TUBE WITH DISK_NONE_NONE_IN"              
-    ## [23] "DEPTH, SNOW COVER_NONE_NONE_IN"                                
-    ## [24] "ORTHOPHOSPHATE_FILTERED_AS P_UG/L"                             
-    ## [25] "CHLOROPHYLL A_FILTERED_AS CHLOROPHYLL A_UG/L"                  
-    ## [26] "COUNT_NONE_NONE_COUNT"                                         
-    ## [27] "MAGNESIUM_DISSOLVED_NONE_UG/L"                                 
-    ## [28] "HARDNESS, CARBONATE_NONE_AS CACO3_UG/L"                        
-    ## [29] "RADIUM-228_NONE_NONE_PCI/L"                                    
-    ## [30] "RADIUM-226_NONE_NONE_PCI/L"                                    
-    ## [31] "TRITIUM_NONE_NONE_PCI/L"                                       
-    ## [32] "IRON_DISSOLVED_NONE_UG/L"                                      
-    ## [33] "ZINC_DISSOLVED_NONE_UG/L"                                      
-    ## [34] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        
-    ## [35] "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L"
-    ## [36] "NITRATE + NITRITE_FILTERED_AS N_MG/L"                          
-    ## [37] "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"              
-    ## [38] "TOTAL SUSPENDED SOLIDS_NON-FILTERABLE (PARTICLE)_NONE_UG/L"    
-    ## [39] "ORGANIC CARBON_DISSOLVED_NONE_UG/L"                            
-    ## [40] "VOLATILE SUSPENDED SOLIDS_TOTAL_NONE_UG/L"                     
-    ## [41] "CONDITION CLASS (DISSOLVED OXYGEN (DO))_NONE_NONE_%"           
-    ## [42] "DISSOLVED OXYGEN UPTAKE_NONE_NONE_UG/L"                        
-    ## [43] "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"                           
-    ## [44] "NICKEL_TOTAL_NONE_UG/L"                                        
-    ## [45] "LEAD_TOTAL_NONE_UG/L"                                          
-    ## [46] "CHLOROPHYLL A_UNFILTERED_AS CHLOROPHYLL A_UG/L"                
-    ## [47] "ZINC_TOTAL_NONE_UG/L"                                          
-    ## [48] "APPARENT COLOR_TOTAL_NONE_PCU"                                 
-    ## [49] "MERCURY_TOTAL_NONE_UG/L"                                       
-    ## [50] "MERCURY_DISSOLVED_NONE_UG/L"                                   
-    ## [51] "PERIPHYTON_NONE_NONE_G/M2"
+    ##  [2] "TEMPERATURE_NONE_NONE_DEG C"                                   
+    ##  [3] "TURBIDITY_NONE_NONE_NTU"                                       
+    ##  [4] "AMMONIUM_UNFILTERED_AS N_MG/L"                                 
+    ##  [5] "NITRATE_UNFILTERED_AS N_MG/L"                                  
+    ##  [6] "ESCHERICHIA COLI_NONE_NONE_CFU/100ML"                          
+    ##  [7] "ESCHERICHIA COLI_UNFILTERED_NONE_CFU/100ML"                    
+    ##  [8] "NITRITE_UNFILTERED_AS N_MG/L"                                  
+    ##  [9] "DEPTH_NONE_NONE_M"                                             
+    ## [10] "DISSOLVED OXYGEN SATURATION_NONE_NONE_%"                       
+    ## [11] "SALINITY_NONE_NONE_PSS"                                        
+    ## [12] "BIOCHEMICAL OXYGEN DEMAND, STANDARD CONDITIONS_TOTAL_NONE_UG/L"
+    ## [13] "CHROMIUM_TOTAL_NONE_UG/L"                                      
+    ## [14] "COPPER_TOTAL_NONE_UG/L"                                        
+    ## [15] "IRON_TOTAL_NONE_UG/L"                                          
+    ## [16] "HARDNESS, CARBONATE_TOTAL_NONE_UG/L"                           
+    ## [17] "TURBIDITY_UNFILTERED_NONE_NTU"                                 
+    ## [18] "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"            
+    ## [19] "CHLOROPHYLL A, CORRECTED FOR PHEOPHYTIN_SUSPENDED_NONE_UG/L"   
+    ## [20] "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"                          
+    ## [21] "TRANSPARENCY, SECCHI TUBE WITH DISK_NONE_NONE_IN"              
+    ## [22] "DEPTH, SNOW COVER_NONE_NONE_IN"                                
+    ## [23] "ORTHOPHOSPHATE_FILTERED_AS P_UG/L"                             
+    ## [24] "CHLOROPHYLL A_FILTERED_AS CHLOROPHYLL A_UG/L"                  
+    ## [25] "COUNT_NONE_NONE_COUNT"                                         
+    ## [26] "MAGNESIUM_DISSOLVED_NONE_UG/L"                                 
+    ## [27] "HARDNESS, CARBONATE_NONE_AS CACO3_UG/L"                        
+    ## [28] "RADIUM-228_NONE_NONE_PCI/L"                                    
+    ## [29] "RADIUM-226_NONE_NONE_PCI/L"                                    
+    ## [30] "TRITIUM_NONE_NONE_PCI/L"                                       
+    ## [31] "IRON_DISSOLVED_NONE_UG/L"                                      
+    ## [32] "ZINC_DISSOLVED_NONE_UG/L"                                      
+    ## [33] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        
+    ## [34] "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L"
+    ## [35] "NITRATE + NITRITE_FILTERED_AS N_MG/L"                          
+    ## [36] "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"              
+    ## [37] "TOTAL SUSPENDED SOLIDS_NON-FILTERABLE (PARTICLE)_NONE_UG/L"    
+    ## [38] "ORGANIC CARBON_DISSOLVED_NONE_UG/L"                            
+    ## [39] "VOLATILE SUSPENDED SOLIDS_TOTAL_NONE_UG/L"                     
+    ## [40] "CONDITION CLASS (DISSOLVED OXYGEN (DO))_NONE_NONE_%"           
+    ## [41] "DISSOLVED OXYGEN UPTAKE_NONE_NONE_UG/L"                        
+    ## [42] "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"                           
+    ## [43] "NICKEL_TOTAL_NONE_UG/L"                                        
+    ## [44] "LEAD_TOTAL_NONE_UG/L"                                          
+    ## [45] "CHLOROPHYLL A_UNFILTERED_AS CHLOROPHYLL A_UG/L"                
+    ## [46] "ZINC_TOTAL_NONE_UG/L"                                          
+    ## [47] "APPARENT COLOR_TOTAL_NONE_PCU"                                 
+    ## [48] "MERCURY_TOTAL_NONE_UG/L"                                       
+    ## [49] "MERCURY_DISSOLVED_NONE_UG/L"                                   
+    ## [50] "PERIPHYTON_NONE_NONE_G/M2"
 
 ``` r
 

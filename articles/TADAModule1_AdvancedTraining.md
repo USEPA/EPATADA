@@ -452,9 +452,9 @@ all_counts
     ## 52                                                     LaboratoryName     14
     ## 53                                             ProjectDescriptionText     13
     ## 54                  DetectionQuantitationLimitMeasure.MeasureUnitCode     11
-    ## 55             TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode     10
-    ## 56                                                   ActivityTypeCode      9
-    ## 57                              TADA.ResultMeasureValueDataTypes.Flag      9
+    ## 55                              TADA.ResultMeasureValueDataTypes.Flag     10
+    ## 56             TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode     10
+    ## 57                                                   ActivityTypeCode      9
     ## 58                                      SampleCollectionEquipmentName      9
     ## 59                                               MeasureQualifierCode      9
     ## 60                                         MonitoringLocationTypeName      8
@@ -853,8 +853,8 @@ removal
     ## 3                                                            Activity media is not water.
     ## 4                     Detection limit information contains errors or missing information.
     ##   Count
-    ## 1 40336
-    ## 2 13418
+    ## 1 40286
+    ## 2 32014
     ## 3  5050
     ## 4    18
 
@@ -931,7 +931,7 @@ TADA_FieldValuesTable(dataset_flags, field = "TADA.ResultMeasureValueDataTypes.F
 ```
 
     ##                      Value Count
-    ## 1                  Numeric 94313
+    ## 1                  Numeric 75767
     ## 2               Percentage   992
     ## 3 Numeric Range - Averaged   266
     ## 4                Less Than    18
@@ -948,7 +948,7 @@ TADA_FieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTypes.Fl
 ```
 
     ##                                              Value Count
-    ## 1                                          Numeric 94308
+    ## 1                                          Numeric 75762
     ## 2                                       Percentage   992
     ## 3                         Numeric Range - Averaged   266
     ## 4                                        Less Than    18

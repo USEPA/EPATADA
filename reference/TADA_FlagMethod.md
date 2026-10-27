@@ -56,23 +56,23 @@ quarterly.
 
 ``` r
 # Load example dataset
-utils::data(Data_R5_TADAPackageDemo)
+utils::data(Data_Participatory_Scientists)
 
 # Remove Suspect characteristic-analytical method combinations from
 # data frame:
-SuspectMethod_clean <- TADA_FlagMethod(Data_R5_TADAPackageDemo,
+SuspectMethod_clean <- TADA_FlagMethod(Data_Participatory_Scientists,
   clean = TRUE
 )
 
 # Flag, but do not remove, Suspect characteristic-analytical method
 # combinations
 # in new column titled "TADA.AnalyticalMethod.Flag":
-SuspectMethod_flags <- TADA_FlagMethod(Data_R5_TADAPackageDemo,
+SuspectMethod_flags <- TADA_FlagMethod(Data_Participatory_Scientists,
   clean = FALSE
 )
 
 # Show only Suspect characteristic-analytical method combinations:
-SuspectMethod_flaggedonly <- TADA_FlagMethod(Data_R5_TADAPackageDemo,
+SuspectMethod_flaggedonly <- TADA_FlagMethod(Data_Participatory_Scientists,
   clean = FALSE, flaggedonly = TRUE
 )
 ```

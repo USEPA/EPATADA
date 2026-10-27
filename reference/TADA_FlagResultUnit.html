@@ -119,15 +119,15 @@ EPA WQX team has not yet reviewed the combination for validity.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset:</span></span></span>
-<span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_R5_TADAPackageDemo</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_Participatory_Scientists</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Flag, but do not remove, data with 'Suspect' or 'NonStandardized'</span></span></span>
 <span class="r-in"><span><span class="co"># characteristic and unit combinations in a new column titled</span></span></span>
 <span class="r-in"><span><span class="co"># 'TADA.ResultUnit.Flag':</span></span></span>
-<span class="r-in"><span><span class="va">SuspectUnit_flags</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_R5_TADAPackageDemo</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">SuspectUnit_flags</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_Participatory_Scientists</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show only 'Suspect' or 'NonStandardized' characteristic and unit combinations:</span></span></span>
-<span class="r-in"><span><span class="va">SuspectUnit_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_R5_TADAPackageDemo</span>,</span></span>
+<span class="r-in"><span><span class="va">SuspectUnit_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_Participatory_Scientists</span>,</span></span>
 <span class="r-in"><span>  clean <span class="op">=</span> <span class="st">"none"</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">SuspectUnit_flaggedonly_selectcols</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span></span>
@@ -137,7 +137,7 @@ EPA WQX team has not yet reviewed the combination for validity.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove both 'Suspect' and 'NonStandardized' characteristic and result</span></span></span>
 <span class="r-in"><span><span class="co"># combinations, and exclude the flag column:</span></span></span>
-<span class="r-in"><span><span class="va">ResultUnit_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_R5_TADAPackageDemo</span>, clean <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ResultUnit_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_Participatory_Scientists</span>, clean <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
