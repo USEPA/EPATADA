@@ -12,52 +12,13 @@ testdat_newAUs <- TADA_CreatePointAUs(testdat,
 # requires the output of TADA_CreatePointAUs where create_geo = TRUE and tada_df = TRUE
 TADA_ViewNewAUs <- function(.data, ref_icons = TRUE) {
 
-  # Expecting a list with two data frames:
-  # 1) a simple mapping df with monitoring location identifier, AU id, and geometry
-  # 2) a lookup df with monitoring location info for popups
-  if (!all(c("geometry", "tada_df", "crosswalk") %in% names(.data))) {
-    stop(
-      "Your input must be a list with elements 'crosswalk', 'geometry', and 'tada_df'."
-    )
-  }
-
-  # Basic geometry / column checks
-  if (!inherits(.data[["geometry"]], "sf")) {
-    stop(".data must be a list containing `geometry` which is an sf object with point geometry.")
-  }
-
-  if (!inherits(tada_df, "data.frame")) {
-    stop(".data must be a list containing `tada_df` which is df with expected TADA prefixed columns.")
-  }
-
-
-  AU_map_table <- .data[["geometry"]] |>
-    dplyr::left_join(.data[["crosswalk"]],
-                     dplyr::join_by(ATTAINS.AssessmentUnitIdentifier)) |>
-    dplyr::select(ATTAINS.AssessmentUnitIdentifier,
-                  ATTAINS.MonitoringLocationIdentifier,
-                  geometry) |>
-    dplyr::distinct()
-
-  ML_popup_table <- .data[["tada_df"]]
-
-
   # Check required columns in AU_map_table
   required_map_cols <- c(
     "ATTAINS.AssessmentUnitIdentifier",
-    "ATTAINS.MonitoringLocationIdentifier",
-    "geometry"
+    "TADA.MonitoringLocationIdentifier",
+    "TADA.LatitudeMeasure",
+    "TADA.LongitudeMeasure"
   )
-
-  # if (!all(required_map_cols %in% names(AU_map_table))) {
-  #   stop(
-  #     paste0(
-  #       "`AU_map_table` must contain: ",
-  #       paste(required_map_cols, collapse = ", ")
-  #     )
-  #   )
-  # }
-
   # Use internal function to get paths to images and labels
   list.images <- getMapIconLabels()
   images <- unlist(list.images[1])
@@ -74,8 +35,8 @@ TADA_ViewNewAUs <- function(.data, ref_icons = TRUE) {
 
   suppressMessages(suppressWarnings({
 
-    if (!"TADA.AURefSource" %in% names(ML_popup_table)) {
-      ML_popup_table$TADA.AURefSource <- "TADA_CreatePointAUs"
+    if (!"TADA.AURefSource" %in% names(.data)) {
+      .data$TADA.AURefSource <- "TADA_CreatePointAUs"
     }
 
     # Create basemap
