@@ -348,6 +348,14 @@ fetchATTAINS <- function(
     "https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/ATTAINS_Assessment/FeatureServer/2"
   )
 
+  # # temporary switch back to old endpoints for dev purposes
+  #   baseurls <- c(
+  #    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
+  #    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
+  #    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
+  #    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
+  #  )
+
   points_sf <- .data
 
   catchment_features <- fetch_bbox(baseurls[1], points_sf) |>
