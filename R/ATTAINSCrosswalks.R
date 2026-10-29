@@ -4713,6 +4713,12 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #'
 #' @seealso [TADA_UpdateATTAINSWaterTypes()], [TADA_CreatePointAUGeometry()]
 #'
+#'  @examples
+#' \dontrun{
+#'
+#' }
+#'
+#'
 #' @export
 TADA_CreatePointAUs <- function(
   .data,
@@ -4809,12 +4815,25 @@ TADA_CreatePointAUs <- function(
     PointAUs$tada_df <- .data |>
       dplyr::left_join(
         PointAU.Crosswalk,
-        dplyr::join_by(
-          TADA.MonitoringLocationIdentifier == ATTAINS.MonitoringLocationIdentifier
+        by = c("TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier"),
+        suffix = c("", ".cw")
+      ) |>
+      dplyr::mutate(
+        ATTAINS.AssessmentUnitIdentifier = dplyr::coalesce(
+          ATTAINS.AssessmentUnitIdentifier,
+          ATTAINS.AssessmentUnitIdentifier.cw
+        ),
+        ATTAINS.WaterType = dplyr::coalesce(
+          ATTAINS.WaterType,
+          ATTAINS.WaterType.cw
+        ),
+        ATTAINS.MonitoringLocationIdentifier = dplyr::coalesce(
+          ATTAINS.MonitoringLocationIdentifier,
+          TADA.MonitoringLocationIdentifier
         )
-      )
+      ) |>
+      dplyr::select(-dplyr::ends_with(".cw"))
   }
-
   # remove NULL elements if you don't want them returned
   PointAUs <- PointAUs[!vapply(PointAUs, is.null, logical(1))]
 
