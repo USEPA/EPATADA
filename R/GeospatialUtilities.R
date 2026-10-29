@@ -1345,13 +1345,14 @@ addWQPSites <- function(
 
     wqp.urls <- images[8]
   } else {
-    wqp.imgs <- images[5:7]
-    wqp.labels <- img.labels[5:7]
+    wqp.imgs <- images[5:8]
+    wqp.labels <- img.labels[5:8]
 
     wqp.urls <- dplyr::case_when(
       .data$TADA.AURefSource == "ATTAINS Crosswalk" ~ images[6],
       .data$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ images[7],
-      .data$TADA.AURefSource == "User-supplied Ref" ~ images[5]
+      .data$TADA.AURefSource == "User-supplied Ref" ~ images[5],
+      .data$TADA.AURefSource == "TADA_CreatePointAUs" ~ images[8]
     )
   }
 
