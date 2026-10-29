@@ -1,125 +1,67 @@
 #' Criteria and Methodology Template
 #'
-#' Assessment criteria and methodologies used to evaluate water quality vary
-#' across the country. TADA users can fill out this template to define the specific
-#' criteria and methodologies for each parameter and use combination they are
-#' interested in analyzing for their organization. This table can be filled out
-#' manually, auto-populated with uses and parameters from ATTAINS and the Criteria
-#' Search Tool (CST) and the input WQP dataframe, retrieved from a prefilled user
-#' supplied criteria table template, or from the MLSummaryRef which is generated
-#' through the recommended workflow in Module 2 with [TADA_CrosswalkWQPATTAINSParam()],
-#' [TADA_CrosswalkCSTATTAINSUses()], [TADA_CreateParamUseRef()] and [TADA_MLSummary()],
-#' in that order to generate the Criteria and Methodology table specific for your
-#' organization.
+#' Assessment criteria and methodologies used to evaluate water quality vary across the nation.
+#' TADA users can use this template to define the criteria and methodologies for each
+#' parameter-use combination of interest for their organization.
 #'
-#' This criteria and methodology table will be in a TADA compatible format and
-#' contain a list of allowable values within each column. For each ATTAINS parameter
-#' name and use name, users may choose to define the full criteria and methodologies
-#' information or magnitude values only. For example, if there are separate criteria
-#' and methods for acute versus chronic, rivers versus estuaries, different seasons,
-#' etc., then a user will need to create additional rows to reflect this.
-#' Additional columns are included in this output
-#' to capture data sufficiency information such as minimum sample sizes,
-#' assessment period dates, and seasonality.
+#' The table can be created manually, auto-populated from ATTAINS and the Criteria Search Tool (CST)
+#' using the input WQP data frame, or built from a prefilled user-supplied criteria table template
+#' or MLSummaryRef generated through the recommended Module 2 workflow using, in order:
+#' [TADA_CrosswalkWQPATTAINSParam()], [TADA_CrosswalkCSTATTAINSUses()],
+#' [TADA_CreateParamUseRef()], and [TADA_MLSummary()].
 #'
-#' Allowable values for ATTAINS.UseName, ATTAINS.ParameterName, and
-#' ATTAINS.OrganizationIdentifier:
-#' ATTAINS.uses = rExpertQuery::EQ_DomainValues("use_name", api_key = .setEQKey())
+#' The output is in a TADA compatible format and includes allowable values for each column.
+#' Users may provide full criteria/methodology information or only magnitude values.
+#' If criteria differ by acute vs. chronic condition, waterbody type, season, or other factors,
+#' additional rows should be created for each unique case. Additional columns capture data
+#' sufficiency information such as minimum sample size, assessment period dates, and seasonality.
+#'
+#' Allowable values for `ATTAINS.UseName`, `ATTAINS.ParameterName`, and
+#' `ATTAINS.OrganizationIdentifier` can be retrieved with:
+#' \preformatted{
+#' ATTAINS.uses <- rExpertQuery::EQ_DomainValues("use_name", api_key = .setEQKey())
 #' ATTAINS.parameters <- rExpertQuery::EQ_DomainValues("param_name", api_key = .setEQKey())
 #' ATTAINS.organizations <- rExpertQuery::EQ_DomainValues("org_id", api_key = .setEQKey())
+#' }
 #'
-#' @param .data A TADA data frame. The user should run all desired data cleaning,
-#' processing, harmonization, filtering, and handling of censored data functions
-#' prior to running this function.
+#' @param .data A TADA data frame. Run all desired cleaning, processing, harmonization,
+#' filtering, and censored-data handling before using this function.
 #'
-#' @param org_id The ATTAINS organization identifier must be supplied by the
-#' user. "USEPA" may be included as an org_id which will populate the EPA 304(a)
-#' recommended criteria for any TADA.CharacteristicName if one is found. "All" or
-#' "NULL" are also allowable values and may be helpful for new ATTAINS users or
-#' those performing assessments for multiple states and tribes. If "All" is
-#' selected, this will return all prior ATTAINS information from all ATTAINS
-#' organizations in prior ATTAINS assessment cycles as individual rows for each
-#' organization. If "NULL" is selected all unique prior ATTAINS information from
-#' any ATTAINS organizations are returned but are not labeled and can be manually
-#' edited. Enter `rExpertQuery::EQ_DomainValues("org_id", api_key = .setEQKey())`
-#' into the console to get a list of valid organization identifiers. A list of
-#' organization identifiers can also be found by downloading the ATTAINS Domains
-#' Excel file:
-#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' Organization identifiers are listed in the "code" column of the "OrgName" tab.
+#' @param org_id ATTAINS organization identifier. `"USEPA"` may be used to populate EPA 304(a)
+#' recommended criteria for matching `TADA.CharacteristicName` values. `"All"` returns all
+#' prior ATTAINS information across organizations as separate rows. `"NULL"` returns all unique
+#' prior ATTAINS information without organization labels for manual editing.
 #'
-#' @param criteriaMethods An optional data frame which contains the completed
-#' criteria and methodology table. This will be a user supplied table and any
-#' inputs in this table will be prioritized. Additional rows for any parameter(s)
-#' that are not found in the user supplied table will be included in the output.
-#' These rows will need to have the ATTAINS.ParameterName, ATTAINS.UseName,
-#' and the criteria and methodology inputs filled out manually if you would like
-#' analysis to be done for it.
+#' @param criteriaMethods Optional user-supplied criteria and methodology table. Supplied values
+#' take priority. Any missing parameter/use combinations from the input data will be added and
+#' must be completed manually if analysis is desired.
 #'
-#' @param MLSummaryRef An optional data frame which contains the completed spatial
-#' crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
-#' or monitoring site/assessment unit. If provided the data frame must contain
-#' these columns:
-#' "ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier",
-#' "MonitoringLocationIdentifier", "MonitoringLocationTypeName",
-#' "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
-#' "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
-#' "LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".
-#' When MLSummaryRef is provided and displayUniqueId is not specified, IDs are
-#' retained by default to support MLSummary-based filtering.
+#' @param MLSummaryRef Optional spatial crosswalk used to assign unique spatial criteria to a
+#' parameter, use, waterbody, or monitoring site/assessment unit. If supplied, it must contain:
+#' `"ATTAINS.OrganizationIdentifier"`, `"ATTAINS.AssessmentUnitIdentifier"`,
+#' `"MonitoringLocationIdentifier"`, `"MonitoringLocationTypeName"`,
+#' `"TADA.ComparableDataIdentifier"`, `"ATTAINS.ParameterName"`, `"ATTAINS.UseName"`,
+#' `"ATTAINS.WaterType"`, `"SaltFresh"`, `"DepthCategory"`, `"LongitudeMeasure"`,
+#' `"LatitudeMeasure"`, `"IncludeOrExclude"`, and `"UniqueSpatialCriteria"`.
+#' When supplied and `displayUniqueId` is not specified, IDs are retained by default.
 #'
-#' @param AU_UsesRef An optional data frame input. If provided, the ATTAINS.UseName
-#' will be filtered by the ATTAINS.UseName found in this data frame. It will also
-#' assign the uses to each assessment unit defined in this table if an AUMLRef
-#' is also provided. This data frame must contain the following column names
-#' which can be generated from the output of TADA_AssignUsesToAU:
-#' ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
-#' and ATTAINS.WaterType.
+#' @param auto_assign Logical; default `FALSE`. If `TRUE`, a draft criteria/methods table is
+#' generated using default assignment through
+#' [TADA_CrosswalkWQPATTAINSParam()], [TADA_CrosswalkCSTATTAINSUses()],
+#' [TADA_CreateParamUseRef()], and [TADA_MLSummary()]. Requires `.data` and `org_id`.
 #'
-#' @param AUMLRef An optional data frame input containing a completed crosswalk
-#' of monitoring location sites associated with an assessment unit. If provided,
-#' each Monitoring location site will get assigned to an ATTAINS.AssessmentUnitIdentifier
-#' to allow users to analyze by either assessment units or by monitoring location.
-#' This data frame must contain the following column names which can be generated
-#' from the output of TADA_CreateAUMLCrosswalk:
-#' ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
-#' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.
+#' @param displayUniqueId Logical. If `TRUE`, unique `TADA.ComparableDataIdentifier` values
+#' are shown in the output to define criteria and methodology.
 #'
-#' @param auto_assign Boolean argument with two possible values: TRUE and FALSE.
-#' The default value is FALSE. If TRUE, a draft criteria and methods table is
-#' generated using default function inputs for [TADA_CrosswalkWQPATTAINSParam()],
-#' [TADA_CrosswalkCSTATTAINSUses()], [TADA_CreateParamUseRef()] and [TADA_MLSummary()]. 
-#' .data and org_id are required inputs for this function if auto_assign = TRUE.
-#' It is also recommended to set excel = TRUE when auto_assign = TRUE. The
-#' criteria and methodology template should be reviewed carefully and edits can be
-#' made manually in Excel. When your review is complete, read the file back into
-#' R and re-run this function, TADA_DefineCriteriaMethodology, again. This time,
-#' use the criteriaMethods function input to specify the criteria and methodology
-#' table that has already been filled out.
+#' @param excel Logical; if `TRUE`, writes an Excel workbook to the user's Downloads folder.
+#' The file is named `CriteriaMethodology.xlsx` unless `overwrite = FALSE`, in which case a
+#' timestamped copy is created. The workbook includes highlighted input cells.
 #'
-#' @param displayUniqueId A Boolean value. If TRUE, this will print all unique
-#' TADA.ComparableDataIdentifier in the criteria and methods table output. If your
-#' analysis needs are dependent on differing fractions or speciations, displaying
-#' the unique TADA.ComparableDataIdentifier will ensure you specify the correct
-#' crosswalk between ATTAINS.ParameterName that each individual
-#' TADA.ComparableDataIdentifier groups to in your TADA data frame. This is
-#' useful in the alternative options to generate the criteria and methods table
-#' without the reference tables.
+#' @param overwrite Logical. If `TRUE`, overwrite the Excel file if it already exists.
 #'
-#' @param excel A Boolean value that returns an excel spreadsheet if
-#' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
-#' If you have any trouble locating the file, please type the following into
-#' your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-#' The file will be named "CriteriaMethodology.xlsx". The excel spreadsheet will highlight
-#' the cells in which users should input information.
-#'
-#' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
-#' replaced (overwritten) by the new file you create if you re-run this function.
-#' Users should only specify overwrite = TRUE once they are ready to re-run this
-#' function if they have already ran it once.
-#'
-#' @return A list containing three data frames with the (1) criteria and methodology table in TADA format,
+#' @return A list containing: (1) the criteria and methodology table in TADA format,
 #' (2) the Data Dictionary table, and (3) the Allowable Values table.
+#'
 #' @importFrom rlang :=
 #' @export
 #'
@@ -130,7 +72,7 @@
 #' # criteria table with all unique TADA.ComparableDataIdentifier from WQP data
 #' UT_criteria_comparables <- TADA_DefineCriteriaMethodology(
 #'   Data_Nutrients_UT, 
-#'   org_id = "UTAHDWQ"
+#'   org_id = "UTAHDWQ", excel = TRUE
 #'  )[[1]]
 #'
 #' # auto assign param and uses crosswalk method
@@ -587,6 +529,13 @@ TADA_DefineCriteriaMethodology <- function(
       desired_cols, "CST.PollutantName", "CST.UseName", "CST.SourceLink", "Flag.UserSuppliedCriteriaMatch"))
     ) |>
     TADA_CorrectColType()
+  
+  # if displayUniqueID = FALSE, convert TADA.ComparableDataIdentifier to NA. Only TADA.CharacteristicName is shown now
+  if (isFALSE(displayUniqueId)) {
+    DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+      dplyr::mutate(TADA.ComparableDataIdentifier = NA_character_) |>
+      dplyr::distinct()
+  }
   
   # ------------------------------------------------------------
   # 7) Excel export
