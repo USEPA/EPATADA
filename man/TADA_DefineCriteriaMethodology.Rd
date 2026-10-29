@@ -142,59 +142,16 @@ ATTAINS.parameters <- rExpertQuery::EQ_DomainValues("param_name", api_key = .set
 ATTAINS.organizations <- rExpertQuery::EQ_DomainValues("org_id", api_key = .setEQKey())
 }
 \examples{
-# Example 1
-# First, generate and fill out a parameter crosswalk (see TADA_CrosswalkWQPATTAINSParam()):
-paramRef_UT <- TADA_CrosswalkWQPATTAINSParam(
-  Data_Nutrients_UT,
-  auto_assign = "All",
-  org_id = "UTAHDWQ",
-  excel = FALSE)
+# empty dataframe with colnames
+blank_criteria <- TADA_DefineCriteriaMethodology()
 
-modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
-  grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
-  grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
-  grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
-))
+# criteria table with all unique TADA.ComparableDataIdentifier from WQP data
+UT_criteria_comparables <- TADA_DefineCriteriaMethodology(
+  Data_Nutrients_UT, 
+  org_id = "UTAHDWQ"
+ )[[1]]
 
-paramRef_UT2 <- TADA_CrosswalkWQPATTAINSParam(
-  Data_Nutrients_UT, auto_assign = "None",
-  paramRef = modified.paramRef_UT, org_id = "UTAHDWQ", excel = FALSE
-)
-
-# Optional step: Modify the ATTAINS.UseName to CST.UseName crosswalk
-usesRef_UT <- TADA_CrosswalkCSTATTAINSUses(org_id = "UTAHDWQ", paramRef = paramRef_UT2)
-
-modified.useRef_UT <- dplyr::filter(
-  usesRef_UT,
-    USE_CLASS_NAME_LOCATION_ETC == "AQUATIC WILDLIFE; CLASSES 3A, 3B, 3C, 3D" &
-      (ATTAINS.UseName == "AQUATIC WILDLIFE (COLD WATER)" |
-      ATTAINS.UseName == "AQUATIC WILDLIFE (WARM WATER)") |
-    (USE_CLASS_NAME_LOCATION_ETC == "DOMESTIC SOURCE, CLASS 1C" &
-      ATTAINS.UseName == "DOMESTIC SOURCE"))
-
-# Next, enter the crosswalk generated above as the paramRef function input
-# for TADA_CrosswalkCSTATTAINSUses():
-paramUsesRef_UT <- TADA_CreateParamUseRef(
-  Data_Nutrients_UT, usesRef = modified.useRef_UT,
-  paramRef = paramRef_UT2, org_id = c("UTAHDWQ"), excel = FALSE
-)
-
-# Now, run TADA_MLSummary()
-MLSummaryRef_UT <- TADA_MLSummary(
-  Data_Nutrients_UT,
-  org_id = c("UTAHDWQ"),
-  AU_UsesRef = NULL, AUMLRef = NULL,
-  usesRef = usesRef_UT,
-  excel = FALSE
-)
-
-DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
-  Data_Nutrients_UT,
-  MLSummaryRef = MLSummaryRef_UT,
-  org_id = "UTAHDWQ",
-  displayUniqueId = TRUE,
-  excel = FALSE
-)
+# auto assign param and uses crosswalk method
 
 # Example 2: fill template with EPA304(a) criteria
 epa_only <- TADA_DefineCriteriaMethodology(
