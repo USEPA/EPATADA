@@ -117,12 +117,14 @@ A list containing three data frames with the (1) criteria and methodology table 
 Assessment criteria and methodologies used to evaluate water quality vary
 across the country. TADA users can fill out this template to define the specific
 criteria and methodologies for each parameter and use combination they are
-interested in analyzing. This table can be filled out manually, auto-populated
-with uses and parameters from ATTAINS and the input WQP dataframe, or
-developed with TADA helper functions (recommended). It is recommended to run
-these four TADA helper functions, \code{\link[=TADA_CrosswalkWQPATTAINSParam]{TADA_CrosswalkWQPATTAINSParam()}},
-\code{\link[=TADA_CrosswalkCSTATTAINSUses]{TADA_CrosswalkCSTATTAINSUses()}}, \code{\link[=TADA_CreateParamUseRef]{TADA_CreateParamUseRef()}} and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}, in that
-order to generate the Criteria and Methodology table specific for your organization.
+interested in analyzing for their organization. This table can be filled out
+manually, auto-populated with uses and parameters from ATTAINS and the Criteria
+Search Tool (CST) and the input WQP dataframe, retrieved from a prefilled user
+supplied criteria table template, or from the MLSummaryRef which is generated
+through the recommended workflow in Module 2 with \code{\link[=TADA_CrosswalkWQPATTAINSParam]{TADA_CrosswalkWQPATTAINSParam()}},
+\code{\link[=TADA_CrosswalkCSTATTAINSUses]{TADA_CrosswalkCSTATTAINSUses()}}, \code{\link[=TADA_CreateParamUseRef]{TADA_CreateParamUseRef()}} and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}},
+in that order to generate the Criteria and Methodology table specific for your
+organization.
 }
 \details{
 This criteria and methodology table will be in a TADA compatible format and
@@ -152,18 +154,21 @@ UT_criteria_comparables <- TADA_DefineCriteriaMethodology(
  )[[1]]
 
 # auto assign param and uses crosswalk method
-
-# Example 2: fill template with EPA304(a) criteria
-epa_only <- TADA_DefineCriteriaMethodology(
+UT_criteria_auto <- TADA_DefineCriteriaMethodology(
   Data_MT_MissoulaCounty,
-  org_id = "USEPA",
+  org_id = "MTDEQ",
   auto_assign = TRUE
-)
+ )[[1]]
 
-# Example 3: fill template with EPA304(a)
-# and ATTAINS parameters and uses for MTDEQ:
-epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty,
-  org_id = c("USEPA", "MTDEQ"), auto_assign = TRUE
-)
+# retrieve criteria table from the TADACommunityHub
+UT_criteria_CommunityHub <- TADA_GetCriteriaFile(org_id = "UTAHDWQ")
+
+# provide and filters a user supplied criteria table using TADACommunityHub file
+# to only relevant param/characteristics in their dataframe
+UT_criteria_user <- TADA_DefineCriteriaMethodology(
+  Data_MT_MissoulaCounty,  
+  org_id = "UTAHDWQ", 
+  criteriaMethods = UT_criteria_CommunityHub
+ )[[1]]
 
 }

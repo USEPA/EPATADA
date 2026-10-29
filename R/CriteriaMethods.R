@@ -3,12 +3,14 @@
 #' Assessment criteria and methodologies used to evaluate water quality vary
 #' across the country. TADA users can fill out this template to define the specific
 #' criteria and methodologies for each parameter and use combination they are
-#' interested in analyzing. This table can be filled out manually, auto-populated
-#' with uses and parameters from ATTAINS and the input WQP dataframe, or
-#' developed with TADA helper functions (recommended). It is recommended to run
-#' these four TADA helper functions, [TADA_CrosswalkWQPATTAINSParam()],
-#' [TADA_CrosswalkCSTATTAINSUses()], [TADA_CreateParamUseRef()] and [TADA_MLSummary()], in that
-#' order to generate the Criteria and Methodology table specific for your organization.
+#' interested in analyzing for their organization. This table can be filled out
+#' manually, auto-populated with uses and parameters from ATTAINS and the Criteria
+#' Search Tool (CST) and the input WQP dataframe, retrieved from a prefilled user
+#' supplied criteria table template, or from the MLSummaryRef which is generated
+#' through the recommended workflow in Module 2 with [TADA_CrosswalkWQPATTAINSParam()],
+#' [TADA_CrosswalkCSTATTAINSUses()], [TADA_CreateParamUseRef()] and [TADA_MLSummary()],
+#' in that order to generate the Criteria and Methodology table specific for your
+#' organization.
 #'
 #' This criteria and methodology table will be in a TADA compatible format and
 #' contain a list of allowable values within each column. For each ATTAINS parameter
@@ -132,19 +134,22 @@
 #'  )[[1]]
 #'
 #' # auto assign param and uses crosswalk method
-#'
-#' # Example 2: fill template with EPA304(a) criteria
-#' epa_only <- TADA_DefineCriteriaMethodology(
+#' UT_criteria_auto <- TADA_DefineCriteriaMethodology(
 #'   Data_MT_MissoulaCounty,
-#'   org_id = "USEPA",
+#'   org_id = "MTDEQ",
 #'   auto_assign = TRUE
-#' )
-#'
-#' # Example 3: fill template with EPA304(a)
-#' # and ATTAINS parameters and uses for MTDEQ:
-#' epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty,
-#'   org_id = c("USEPA", "MTDEQ"), auto_assign = TRUE
-#' )
+#'  )[[1]]
+#' 
+#' # retrieve criteria table from the TADACommunityHub
+#' UT_criteria_CommunityHub <- TADA_GetCriteriaFile(org_id = "UTAHDWQ")
+#' 
+#' # provide and filters a user supplied criteria table using TADACommunityHub file
+#' # to only relevant param/characteristics in their dataframe
+#' UT_criteria_user <- TADA_DefineCriteriaMethodology(
+#'   Data_MT_MissoulaCounty,  
+#'   org_id = "UTAHDWQ", 
+#'   criteriaMethods = UT_criteria_CommunityHub
+#'  )[[1]]
 #'
 TADA_DefineCriteriaMethodology <- function(
     .data,
@@ -218,8 +223,7 @@ TADA_DefineCriteriaMethodology <- function(
   blank_criteria <- TADA_CorrectColType(setNames(
     data.frame(matrix(ncol = length(desired_cols), nrow = 0)),
     desired_cols
-  )) |>
-    TADA_CorrectColType()
+  ))
   
   if (
     missing(.data) &&
@@ -392,7 +396,7 @@ TADA_DefineCriteriaMethodology <- function(
   }
   
   # ------------------------------------------------------------
-  # 4) If MLSummaryRef is supplied, use it. Else, return criteria table
+  # 4) If MLSummaryRef is supplied, use it. Else, return empty criteria table
   # ------------------------------------------------------------
   if (!is.null(MLSummaryRef)) {
     
@@ -587,61 +591,149 @@ TADA_DefineCriteriaMethodology <- function(
   # ------------------------------------------------------------
   # 7) Excel export
   # ------------------------------------------------------------
+  # Generates the Excel file (recommended)
   if (isTRUE(excel)) {
     downloads_path <- invisible(.get_downloads_path("CriteriaMethodology.xlsx"))
     wb <- openxlsx::createWorkbook()
     
-    openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
-    openxlsx::addWorksheet(wb, "Index-Criteria")
-    
-    header_st <- openxlsx::createStyle(textDecoration = "Bold")
-    
-    openxlsx::writeData(
-      wb,
-      "DefineCriteriaMethodology",
-      x = DefineCriteriaMethodology,
-      startCol = 1,
-      headerStyle = header_st
-    )
-    
-    openxlsx::setColWidths(
-      wb,
-      sheet = "DefineCriteriaMethodology",
-      cols = 1:ncol(DefineCriteriaMethodology),
-      widths = "auto"
-    )
-    
-    openxlsx::freezePane(wb, "DefineCriteriaMethodology", firstActiveRow = 2, firstActiveCol = 4)
-    
-    # Save workbook
-    save_path <- downloads_path
-    if (!isTRUE(overwrite) && file.exists(downloads_path)) {
-      base <- tools::file_path_sans_ext(downloads_path)
-      ext <- tools::file_ext(downloads_path)
-      ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
-      save_path <- sprintf("%s_%s.%s", base, ts, ext)
+    for (sh in c("DefineCriteriaMethodology", "Index-Criteria")) {
+      if (sh %in% names(wb)) openxlsx::removeWorksheet(wb, sh)
+      openxlsx::addWorksheet(wb, sh)
     }
     
-    openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
-    .TADA_CriteriaDataDictionary(save_path)
-    message("Saved as: ", normalizePath(save_path))
+    sv <- openxlsx::sheetVisibility(wb)
+    sv[names(wb) == "DefineCriteriaMethodology"] <- "visible"
+    sv[names(wb) == "Index-Criteria"] <- "hidden"
+    openxlsx::sheetVisibility(wb) <- sv
+    
+    header_st <- openxlsx::createStyle(textDecoration = "bold")
+    openxlsx::writeData(wb, "DefineCriteriaMethodology", DefineCriteriaMethodology, headerStyle = header_st)
+    
+    openxlsx::setColWidths(wb, "DefineCriteriaMethodology", cols = 1:ncol(DefineCriteriaMethodology), widths = "auto")
+    openxlsx::setColWidths(wb, "DefineCriteriaMethodology", cols = 1:5, widths = 20)
+    
+    date_cols <- which(names(DefineCriteriaMethodology) %in% c("SeasonStartDate", "SeasonEndDate"))
+    if (length(date_cols)) {
+      openxlsx::addStyle(
+        wb, "DefineCriteriaMethodology",
+        openxlsx::createStyle(numFmt = "mmm dd"),
+        rows = 2:(nrow(DefineCriteriaMethodology) + 1),
+        cols = date_cols,
+        gridExpand = TRUE
+      )
+    }
+    
+    # --- Index-Criteria sheet ---
+    if (missing(.data)) {
+      .data <- data.frame(
+        TADA.ComparableDataIdentifier = NA_character_,
+        TADA.CharacteristicName = NA_character_,
+        TADA.ResultSampleFractionText = NA_character_,
+        TADA.MethodSpeciationName = NA_character_,
+        TADA.ResultMeasure.MeasureUnitCode = NA_character_
+      )
+    }
+    
+    required_idx_cols <- c(
+      "TADA.ComparableDataIdentifier",
+      "TADA.CharacteristicName",
+      "TADA.ResultSampleFractionText",
+      "TADA.MethodSpeciationName"
+    )
+    
+    idx_df <- if (missing(.data)) {
+      .data
+    } else {
+      tmp <- .data |> dplyr::select(dplyr::any_of(required_idx_cols))
+      miss <- setdiff(required_idx_cols, names(tmp))
+      if (length(miss)) tmp[miss] <- NA_character_
+      tmp[required_idx_cols]
+    }
+    
+    openxlsx::writeData(wb, "Index-Criteria", x = unique(idx_df), startCol = 6, startRow = 1)
+    openxlsx::writeData(wb, "Index-Criteria", x = data.frame(AcuteChronic = c("A", "C", "NA")), startCol = 14, startRow = 1)
+    
+    load(system.file("extdata", "ATTAINSParamUseOrgRef.rda", package = "EPATADA"))
+    wt <- unique(ATTAINSParamUseOrgRef$ATTAINS.WaterType[ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier %in% org_id])
+    if (!length(wt)) wt <- NA_character_
+    openxlsx::writeData(wb, "Index-Criteria", x = data.frame(ATTAINS.WaterType = wt), startCol = 10, startRow = 1)
+    
+    openxlsx::writeData(wb, "Index-Criteria", x = data.frame(SaltFresh = c("S", "F", "NA")), startCol = 11, startRow = 1)
+    openxlsx::writeData(wb, "Index-Criteria", x = data.frame(DepthCategory = c("No depth info","Epilimnion-surface","Surface","Bottom","Middle")), startCol = 12, startRow = 1)
+    
+    if (is.null(MLSummaryRef)) MLSummaryRef <- data.frame(UniqueSpatialCriteria = NA_character_)
+    openxlsx::writeData(wb, "Index-Criteria", x = data.frame(UniqueSpatialCriteria = c(unique(MLSummaryRef$UniqueSpatialCriteria), "NA")), startCol = 13, startRow = 1)
+    
+    openxlsx::writeData(wb, "Index-Criteria", x = data.frame(EquationBased = c("Yes", "No", "NA")), startCol = 15, startRow = 1)
+    openxlsx::writeData(wb, "Index-Criteria", x = data.frame(MagnitudeUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode)), startCol = 18, startRow = 1)
+    openxlsx::writeData(wb, "Index-Criteria", x = data.frame(DurationUnit = c("n-hour","n-day","n-week","n-month","n-quarter")), startCol = 20, startRow = 1)
+    openxlsx::writeData(wb, "Index-Criteria", x = data.frame(DurationMethod = c("arithmetic mean","arithmetic median","arithmetic max","arithmetic min","arithmetic extremes","geometric mean","rolling geometric mean","rolling arithmetic mean","mean of daily minima","mean of daily maxima")), startCol = 21, startRow = 1)
+    openxlsx::writeData(wb, "Index-Criteria", x = data.frame(FreqMethod = c("Percent of samples not meeting","percentile","n-samples in 3 years","n-samples in 4 years","n-samples in 5 years","binomial test","NumberNotMeeting")), startCol = 23, startRow = 1)
+    openxlsx::writeData(wb, "Index-Criteria", x = data.frame(DistrPeriod = c("Seasonal","Annual","Semi-Annual","Quarterly","Monthly","Bi-weekly","Weekly","10 days","NA")), startCol = 31, startRow = 1)
+    openxlsx::writeData(wb, "Index-Criteria", x = data.frame(EquationType = c("Hardness","pH","pH and Temperature","pH and Hardness")), startCol = 32, startRow = 1)
+    openxlsx::writeData(wb, "Index-Criteria", x = data.frame(pHDirection = c("Above","Below","NA")), startCol = 33, startRow = 1)
+    openxlsx::writeData(wb, "Index-Criteria", x = data.frame(AmmoniaEqType = c("Min Multiplier","Max Exponent","Overall")), startCol = 34, startRow = 1)
+    
+    use_list <- sort(unique(stats::na.omit(DefineCriteriaMethodology$ATTAINS.UseName)))
+    if (length(use_list) == 0 && exists("ATTAINSParamUseOrgRef")) {
+      use_list <- sort(unique(ATTAINSParamUseOrgRef$ATTAINS.UseName[ATTAINSParamUseOrgRef$ATTAINS.OrganizationIdentifier %in% org_id]))
+    }
+    if (length(use_list)) {
+      openxlsx::writeData(wb, "Index-Criteria", x = data.frame(ATTAINS.UseName = use_list), startCol = 17, startRow = 1)
+    }
+    
+    param_list <- sort(unique(stats::na.omit(DefineCriteriaMethodology$ATTAINS.ParameterName)))
+    openxlsx::writeData(wb, "Index-Criteria", x = data.frame(ATTAINS.ParameterName = param_list), startCol = 16, startRow = 1)
+    
+    # validations
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 2, rows = 2:1000, type = "list", value = "'Index-Criteria'!$P$2:$P$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 3, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$Q$2:$Q$%d", length(use_list) + 1L))
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 4, rows = 2:1000, type = "list", value = "'Index-Criteria'!$F$2:$F$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 6, rows = 2:1000, type = "list", value = "'Index-Criteria'!$H$2:$H$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 7, rows = 2:1000, type = "list", value = "'Index-Criteria'!$I$2:$I$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 8, rows = 2:1000, type = "list", value = "'Index-Criteria'!$J$2:$J$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 9, rows = 2:1000, type = "list", value = "'Index-Criteria'!$K$2:$K$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 10, rows = 2:1000, type = "list", value = "'Index-Criteria'!$L$2:$L$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = "'Index-Criteria'!$M$2:$M$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 12, rows = 2:1000, type = "list", value = "'Index-Criteria'!$N$2:$N$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 13, rows = 2:1000, type = "list", value = "'Index-Criteria'!$O$2:$O$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 16, rows = 2:1000, type = "list", value = "'Index-Criteria'!$R$2:$R$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 18, rows = 2:1000, type = "list", value = "'Index-Criteria'!$T$2:$T$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 19, rows = 2:1000, type = "list", value = "'Index-Criteria'!$U$2:$U$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 21, rows = 2:1000, type = "list", value = "'Index-Criteria'!$W$2:$W$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 22, rows = 2:1000, type = "list", value = "'Index-Criteria'!$X$2:$X$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 25, rows = 2:1000, type = "list", value = "'Index-Criteria'!$AA$2:$AA$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 29, rows = 2:1000, type = "list", value = "'Index-Criteria'!$AE$2:$AE$1000")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 32, rows = 2:1000, type = "list", value = "'Index-Criteria'!$AF$2:$AF$5")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 35, rows = 2:1000, type = "list", value = "'Index-Criteria'!$AG$2:$AG$4")
+    openxlsx::dataValidation(wb, "DefineCriteriaMethodology", cols = 40, rows = 2:1000, type = "list", value = "'Index-Criteria'!$AH$2:$AH$4")
+    
+    openxlsx::freezePane(wb, "DefineCriteriaMethodology", firstActiveRow = 2, firstActiveCol = 4)
+    openxlsx::conditionalFormatting(wb, "DefineCriteriaMethodology", cols = 1:ncol(DefineCriteriaMethodology), rows = 2:(nrow(DefineCriteriaMethodology) + 1), type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8]))
+    openxlsx::conditionalFormatting(wb, "DefineCriteriaMethodology", cols = 1:ncol(DefineCriteriaMethodology), rows = 2:(nrow(DefineCriteriaMethodology) + 1), type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13]))
+    
+    openxlsx::groupColumns(wb, "DefineCriteriaMethodology", cols = 22:ncol(DefineCriteriaMethodology), hidden = FALSE, level = -1)
+    openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
   }
   
-  # Return supporting tables too
+  DefineCriteriaMethodology <- suppressWarnings(TADA_CorrectColType(DefineCriteriaMethodology))
+  
+  # Return data only if requested
+  if (isFALSE(excel)) {
+    return(DefineCriteriaMethodology)
+  }
+  
+  # Otherwise return all supporting tables
   tmp_xlsx <- tempfile(fileext = ".xlsx")
   on.exit(unlink(tmp_xlsx), add = TRUE)
   .TADA_CriteriaDataDictionary(tmp_xlsx)
   
-  DataDictionary <- openxlsx::read.xlsx(tmp_xlsx, sheet = "DataDictionary", startRow = 2)
-  AllowableValues <- openxlsx::read.xlsx(tmp_xlsx, sheet = "AllowableValues", startRow = 2)
-  
   list(
     DefineCriteriaMethodology = DefineCriteriaMethodology,
-    DataDictionary = DataDictionary,
-    AllowableValues = AllowableValues
+    DataDictionary = openxlsx::read.xlsx(tmp_xlsx, sheet = "DataDictionary", startRow = 2),
+    AllowableValues = openxlsx::read.xlsx(tmp_xlsx, sheet = "AllowableValues", startRow = 2)
   )
 }
-
 
 # internal function to convert criteria table units to ones to match WQP data
 .TADA_Criteria_Convert_Unit <- function(.data, DefineCriteriaMethodology) {
