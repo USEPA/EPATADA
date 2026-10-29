@@ -46,7 +46,7 @@ generated using default assignment through
 \code{\link[=TADA_CreateParamUseRef]{TADA_CreateParamUseRef()}}, and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}. Requires \code{.data} and \code{org_id}.}
 
 \item{displayUniqueId}{Logical. If \code{TRUE}, unique \code{TADA.ComparableDataIdentifier} values
-are shown in the output to support crosswalking when differing fractions/speciations exist.}
+are shown in the output to define criteria and methodology.}
 
 \item{excel}{Logical; if \code{TRUE}, writes an Excel workbook to the user's Downloads folder.
 The file is named \code{CriteriaMethodology.xlsx} unless \code{overwrite = FALSE}, in which case a
@@ -70,7 +70,7 @@ or MLSummaryRef generated through the recommended Module 2 workflow using, in or
 \code{\link[=TADA_CrosswalkWQPATTAINSParam]{TADA_CrosswalkWQPATTAINSParam()}}, \code{\link[=TADA_CrosswalkCSTATTAINSUses]{TADA_CrosswalkCSTATTAINSUses()}},
 \code{\link[=TADA_CreateParamUseRef]{TADA_CreateParamUseRef()}}, and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}.
 
-The output is TADA-compatible and includes allowable values for each column.
+The output is in a TADA compatible format and includes allowable values for each column.
 Users may provide full criteria/methodology information or only magnitude values.
 If criteria differ by acute vs. chronic condition, waterbody type, season, or other factors,
 additional rows should be created for each unique case. Additional columns capture data
