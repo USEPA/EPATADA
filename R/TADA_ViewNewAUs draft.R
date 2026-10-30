@@ -9,7 +9,7 @@ testdat_newAUs <- TADA_CreatePointAUs(testdat,
                                       auid_prefix = "TEST-")
 
 
-# requires the output of TADA_CreatePointAUs where create_geo = TRUE and tada_df = TRUE
+# requires the tada_df output of TADA_CreatePointAUs where tada_df = TRUE
 TADA_ViewNewAUs <- function(.data, ref_icons = TRUE) {
 
   # Check required columns in AU_map_table
@@ -40,29 +40,29 @@ TADA_ViewNewAUs <- function(.data, ref_icons = TRUE) {
     }
 
     # Create basemap
-    map <- createTADABasemap(ML_popup_table)
+    map <- createTADABasemap(.data)
 
     overlay_groups <- character(0)
 
     # popup for AU markers
     au_popup <- paste0(
       "Assessment Unit ID: ",
-      ML_popup_table$ATTAINS.AssessmentUnitIdentifier,
+      .data$ATTAINS.AssessmentUnitIdentifier,
       "<br> Monitoring Location ID: ",
-     ML_popup_table$ATTAINS.MonitoringLocationIdentifier
+     .data$TADA.MonitoringLocationIdentifier
     )
 
     # add AU markers using icon #14
     au_icon <- leaflet::icons(
       iconUrl = dplyr::case_when(
-        is.na(ML_popup_table$TADA.AURefSource) |
-          ML_popup_table$TADA.AURefSource == "Not assigned to AU" | is.na(ML_popup_table$TADA.AURefSource) ~
+        is.na(.data$TADA.AURefSource) |
+          .data$TADA.AURefSource == "Not assigned to AU" | is.na(.data$TADA.AURefSource) ~
           system.file(
             "extdata/icons",
             "circle-dashed.png",
             package = "EPATADA"
           ),
-        ML_popup_table$TADA.AURefSource == "TADA_CreatePointAUs" ~ images[14],
+        .data$TADA.AURefSource == "TADA_CreatePointAUs" ~ images[14],
         TRUE ~ images[14]
       ),
       iconWidth = 48,
@@ -71,7 +71,7 @@ TADA_ViewNewAUs <- function(.data, ref_icons = TRUE) {
 
     map <- map |>
       leaflet::addMarkers(
-        data = ML_popup_table,
+        data = .data,
         group = "Assessment Units",
         lng = ~TADA.LongitudeMeasure,
         lat = ~TADA.LatitudeMeasure,
@@ -83,7 +83,7 @@ TADA_ViewNewAUs <- function(.data, ref_icons = TRUE) {
 
     # Add monitoring locations using addWQPSites()
     wqp_sites <- addWQPSites(
-      .data = ML_popup_table,
+      .data = .data,
       map = map,
       icons = images,
       icon_labels = img.labels,
@@ -96,7 +96,7 @@ TADA_ViewNewAUs <- function(.data, ref_icons = TRUE) {
 
     # Add legend and controls
     map <- addTADAMapLegend(
-      map_df,
+     .data,
       map = map,
       icons = images,
       icon_labels = img.labels,
