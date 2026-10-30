@@ -1609,12 +1609,12 @@ TADA_CrosswalkCSTWQPATTAINSParam <- function(
 #'   ATTAINS parameter names by organization.
 #' - `ParametersCrosswalk`: the editable crosswalk table for the current
 #'   organization, including data validation and status/helper formulas.
-#' - `Index`: a hidden support sheet used to store lookup values for dropdowns
+#' - `Index`: a hidden support sheet used to store lookup values for drop downs
 #'   and formula-driven validation messages.
 #'
 #' The function loads a packaged reference dataset of ATTAINS parameter use
 #' history, filters it to the supplied `org_id`, and writes it to the workbook.
-#' It then populates the `ParametersCrosswalk` sheet, adds a dropdown list of
+#' It then populates the `ParametersCrosswalk` sheet, adds a drop down list of
 #' allowable ATTAINS parameter names, and inserts formulas that help users
 #' identify whether a selected parameter is:
 #' - missing or marked not applicable,
@@ -1646,7 +1646,7 @@ TADA_CrosswalkCSTWQPATTAINSParam <- function(
 #' \itemize{
 #'   \item The `ParametersCrosswalk` sheet is visible and editable.
 #'   \item The `Index` sheet is hidden.
-#'   \item A dropdown validation list is applied to column 3 of
+#'   \item A drop down validation list is applied to column 3 of
 #'     `ParametersCrosswalk` for rows 2 through 1000.
 #'   \item Status and modification message formulas are written for up to the
 #'     first 100 data rows.
@@ -1751,7 +1751,7 @@ TADA_CrosswalkCSTWQPATTAINSParam <- function(
     ATTAINS.UseName = "Not Applicable for Analysis."
   )
 
-  # Index sheet values for ATTAINS dropdown/reference
+  # Index sheet values for ATTAINS drop down/reference
   openxlsx::writeData(
     wb,
     "Index",

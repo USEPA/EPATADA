@@ -5,7 +5,7 @@
 #' parameter-use combination of interest for their organization.
 #'
 #' The table can be created manually, auto-populated from ATTAINS and the Criteria Search Tool (CST)
-#' using the input WQP data frame, or built from a prefilled user-supplied criteria table template
+#' using the input WQP data frame, or built from a pre-filled user-supplied criteria table template
 #' or MLSummaryRef generated through the recommended Module 2 workflow using, in order:
 #' [TADA_CrosswalkWQPATTAINSParam()], [TADA_CrosswalkCSTATTAINSUses()],
 #' [TADA_CreateParamUseRef()], and [TADA_MLSummary()].
