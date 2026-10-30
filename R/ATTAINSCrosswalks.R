@@ -963,14 +963,21 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #' )
 #' 
 #' # This auto assigns a crosswalk, which is NOT specific to the org_id
-#' paramRef_UT <- TADA_CrosswalkWQPATTAINSParam(
+#' paramRef_UT_org <- TADA_CrosswalkWQPATTAINSParam(
 #'  Data_Nutrients_UT,
 #'  auto_assign = "All",
 #'  org_id = "UTAHDWQ", 
 #'  excel = FALSE)
 #' 
+#' # This auto assigns a crosswalk, with parameters that ARE specific to the org_id
+#' paramRef_UT_all <- TADA_CrosswalkWQPATTAINSParam(
+#'  Data_Nutrients_UT,
+#'  auto_assign = "Org",
+#'  org_id = "UTAHDWQ", 
+#'  excel = FALSE)
+#' 
 #' # user modifies the table
-#' modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
+#' modified.paramRef_UT <- dplyr::mutate(paramRef_UT_all, ATTAINS.ParameterName = dplyr::case_when(
 #'   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
 #'   grepl("NITROGEN_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITROGEN",
 #'   grepl("NITRATE_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
@@ -1450,24 +1457,28 @@ TADA_CrosswalkWQPATTAINSParam <- function(
 #'   org_id = "UTAHDWQ", auto_assign = "None", excel = FALSE
 #' )
 #' 
+#' # This auto assigns a crosswalk, which is NOT specific to the org_id
 #' paramRef_UT_org <- TADA_CrosswalkCSTWQPATTAINSParam(
-#'  Data_Nutrients_UT,
-#'  auto_assign = "Org",
-#'  org_id = "UTAHDWQ", 
-#'  excel = FALSE)
-#' 
-#' paramRef_UT_all <- TADA_CrosswalkCSTWQPATTAINSParam(
 #'  Data_Nutrients_UT,
 #'  auto_assign = "All",
 #'  org_id = "UTAHDWQ", 
 #'  excel = FALSE)
 #' 
-#' modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
+#' # This auto assigns a crosswalk, with parameters that ARE specific to the org_id
+#' paramRef_UT_all <- TADA_CrosswalkCSTWQPATTAINSParam(
+#'  Data_Nutrients_UT,
+#'  auto_assign = "Org",
+#'  org_id = "UTAHDWQ", 
+#'  excel = FALSE)
+#' 
+#' # user modifies the table
+#' modified.paramRef_UT <- dplyr::mutate(paramRef_UT_all, ATTAINS.ParameterName = dplyr::case_when(
 #'   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
 #'   grepl("NITROGEN_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITROGEN",
 #'   grepl("NITRATE_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 #' ))
 #' 
+#' # user supplies the modified crosswalk
 #' paramRef_UT2 <- TADA_CrosswalkCSTWQPATTAINSParam(
 #'   Data_Nutrients_UT, auto_assign = "None",
 #'   paramRef = modified.paramRef_UT, org_id = "UTAHDWQ", excel = FALSE
@@ -3682,22 +3693,46 @@ TADA_AssignUsesToWaterType <- function(
 #' @examples
 #' \dontrun{
 #' # First, generate and fill out a parameter crosswalk (see TADA_CrosswalkCSTWQPATTAINSParam()):
-#' paramRef_UT <- TADA_CrosswalkCSTWQPATTAINSParam(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+#' paramRef_UT <- TADA_CrosswalkCSTWQPATTAINSParam(
+#'   Data_Nutrients_UT,
+#'   org_id = "UTAHDWQ",
+#'   auto_assign = "All",
+#'   excel = FALSE)
+#'
+#' # modify the parameter crosswalk
 #' paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
 #'   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
 #'   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
 #'   grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 #' ))
+#' 
+#' # provide the modified/saved parameter crosswalk as a user supplied one
 #' paramRef_UT3 <- TADA_CrosswalkCSTWQPATTAINSParam(
 #'   Data_Nutrients_UT,
-#'   paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
+#'   paramRef = paramRef_UT2,
+#'   org_id = "UTAHDWQ",
+#'   excel = FALSE
 #' )
 #'
+#' # Recommended step: Modify the ATTAINS.UseName to CST.UseName crosswalk.
+#' usesRef_UT <- TADA_CrosswalkCSTATTAINSUses(org_id = "UTAHDWQ", paramRef = paramRef_UT2)
+#' 
+#' modified.useRef_UT <- dplyr::filter(
+#'   usesRef_UT,
+#'     USE_CLASS_NAME_LOCATION_ETC == "AQUATIC WILDLIFE; CLASSES 3A, 3B, 3C, 3D" &
+#'       (ATTAINS.UseName == "AQUATIC WILDLIFE (COLD WATER)" |
+#'       ATTAINS.UseName == "AQUATIC WILDLIFE (WARM WATER)") |
+#'     (USE_CLASS_NAME_LOCATION_ETC == "DOMESTIC SOURCE, CLASS 1C" &
+#'       ATTAINS.UseName == "DOMESTIC SOURCE"))
+#' 
 #' # Next, enter the crosswalk generated above as the paramRef function input
-#' # for TADA_CreateParamUseRef():
-#' paramUseRef_UT <- TADA_CreateParamUseRef(
+#' # for TADA_CrosswalkCSTATTAINSUses():
+#' paramUsesRef_UT <- TADA_CreateParamUseRef(
+#'   org_id = "UTAHDWQ",
 #'   Data_Nutrients_UT,
-#'   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
+#'   usesRef = modified.useRef_UT,
+#'   paramRef = paramRef_UT2,
+#'   excel = FALSE
 #' )
 #'
 #' # Now, run TADA_MLSummary()
@@ -3705,7 +3740,7 @@ TADA_AssignUsesToWaterType <- function(
 #'   Data_Nutrients_UT,
 #'   org_id = c("UTAHDWQ"),
 #'   AU_UsesRef = NULL, AUMLRef = NULL,
-#'   paramUseRef = paramUseRef_UT,
+#'   paramUseRef = paramUsesRef_UT,
 #'   excel = FALSE
 #' )
 #' }
