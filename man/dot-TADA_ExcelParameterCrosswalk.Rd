@@ -43,13 +43,13 @@ three sheets:
 ATTAINS parameter names by organization.
 \item \code{ParametersCrosswalk}: the editable crosswalk table for the current
 organization, including data validation and status/helper formulas.
-\item \code{Index}: a hidden support sheet used to store lookup values for dropdowns
+\item \code{Index}: a hidden support sheet used to store lookup values for drop downs
 and formula-driven validation messages.
 }
 
 The function loads a packaged reference dataset of ATTAINS parameter use
 history, filters it to the supplied \code{org_id}, and writes it to the workbook.
-It then populates the \code{ParametersCrosswalk} sheet, adds a dropdown list of
+It then populates the \code{ParametersCrosswalk} sheet, adds a drop down list of
 allowable ATTAINS parameter names, and inserts formulas that help users
 identify whether a selected parameter is:
 \itemize{
@@ -66,7 +66,7 @@ The workbook is written with the following behaviors:
 \itemize{
 \item The \code{ParametersCrosswalk} sheet is visible and editable.
 \item The \code{Index} sheet is hidden.
-\item A dropdown validation list is applied to column 3 of
+\item A drop down validation list is applied to column 3 of
 \code{ParametersCrosswalk} for rows 2 through 1000.
 \item Status and modification message formulas are written for up to the
 first 100 data rows.

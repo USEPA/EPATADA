@@ -102,21 +102,14 @@ paramRef_UT_none <- TADA_CrosswalkWQPATTAINSParam(
 )
 
 # This auto assigns a crosswalk, which is NOT specific to the org_id
-paramRef_UT_org <- TADA_CrosswalkWQPATTAINSParam(
+paramRef_UT <- TADA_CrosswalkWQPATTAINSParam(
  Data_Nutrients_UT,
  auto_assign = "All",
- org_id = "UTAHDWQ", 
- excel = FALSE)
-
-# This auto assigns a crosswalk, with parameters that ARE specific to the org_id
-paramRef_UT_all <- TADA_CrosswalkWQPATTAINSParam(
- Data_Nutrients_UT,
- auto_assign = "Org",
- org_id = "UTAHDWQ", 
+ org_id = "UTAHDWQ",
  excel = FALSE)
 
 # user modifies the table
-modified.paramRef_UT <- dplyr::mutate(paramRef_UT_all, ATTAINS.ParameterName = dplyr::case_when(
+modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
   grepl("NITROGEN_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITROGEN",
   grepl("NITRATE_TOTAL_AS N_MG/L", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"

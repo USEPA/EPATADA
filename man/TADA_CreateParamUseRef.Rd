@@ -123,7 +123,7 @@ prior ATTAINS assessment cycles for the given organization and parameter.
 paramRef_UT <- TADA_CrosswalkCSTWQPATTAINSParam(
  Data_Nutrients_UT,
  auto_assign = "All",
- org_id = "UTAHDWQ", 
+ org_id = "UTAHDWQ",
  excel = FALSE)
 
 modified.paramRef_UT <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(

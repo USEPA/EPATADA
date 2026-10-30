@@ -65,7 +65,7 @@ parameter-use combination of interest for their organization.
 }
 \details{
 The table can be created manually, auto-populated from ATTAINS and the Criteria Search Tool (CST)
-using the input WQP data frame, or built from a prefilled user-supplied criteria table template
+using the input WQP data frame, or built from a pre-filled user-supplied criteria table template
 or MLSummaryRef generated through the recommended Module 2 workflow using, in order:
 \code{\link[=TADA_CrosswalkWQPATTAINSParam]{TADA_CrosswalkWQPATTAINSParam()}}, \code{\link[=TADA_CrosswalkCSTATTAINSUses]{TADA_CrosswalkCSTATTAINSUses()}},
 \code{\link[=TADA_CreateParamUseRef]{TADA_CreateParamUseRef()}}, and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}.
@@ -90,7 +90,7 @@ blank_criteria <- TADA_DefineCriteriaMethodology()
 
 # criteria table with all unique TADA.ComparableDataIdentifier from WQP data
 UT_criteria_comparables <- TADA_DefineCriteriaMethodology(
-  Data_Nutrients_UT, 
+  Data_Nutrients_UT,
   org_id = "UTAHDWQ", excel = TRUE
  )[[1]]
 
@@ -107,8 +107,8 @@ UT_criteria_CommunityHub <- TADA_GetCriteriaFile(org_id = "UTAHDWQ")
 # provide and filters a user supplied criteria table using TADACommunityHub file
 # to only relevant param/characteristics in their dataframe
 UT_criteria_user <- TADA_DefineCriteriaMethodology(
-  Data_MT_MissoulaCounty,  
-  org_id = "UTAHDWQ", 
+  Data_MT_MissoulaCounty,
+  org_id = "UTAHDWQ",
   criteriaMethods = UT_criteria_CommunityHub
  )[[1]]
 
