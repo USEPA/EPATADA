@@ -67,10 +67,12 @@ criteria_MT <- EPATADA::TADA_GetCriteriaFile(org_id = "MTDEQ")
 # join the table by best match from what is filled out from the criteria table
 MT_data_criteria <- TADA_Analysis_Join_WQP_Criteria(MT_data, criteria_MT)
 
-# create the MLSummaryRef
+# create the MLSummaryRef from params and uses
+# first define param crosswalk
 params <- TADA_ParametersForAnalysis(
   Data_MT_MissoulaCounty, org_id = "MTDEQ", auto_assign = "Org")
 
+# define uses crosswalk
 uses <- TADA_UsesForAnalysis(Data_MT_MissoulaCounty,
  org_id = "MTDEQ", paramRef = params, auto_assign = TRUE)
 

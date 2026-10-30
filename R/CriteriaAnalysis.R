@@ -48,10 +48,12 @@
 #' # join the table by best match from what is filled out from the criteria table
 #' MT_data_criteria <- TADA_Analysis_Join_WQP_Criteria(MT_data, criteria_MT)
 #'
-#' # create the MLSummaryRef
+#' # create the MLSummaryRef from params and uses
+#' # first define param crosswalk
 #' params <- TADA_ParametersForAnalysis(
 #'   Data_MT_MissoulaCounty, org_id = "MTDEQ", auto_assign = "Org")
 #'
+#' # define uses crosswalk
 #' uses <- TADA_UsesForAnalysis(Data_MT_MissoulaCounty,
 #'  org_id = "MTDEQ", paramRef = params, auto_assign = TRUE)
 #'
@@ -458,7 +460,7 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         return(NULL)
       }
 
-      paste0(main_val, " for ", paste(cause_msgs, collapse = ""))
+      paste0(main_col, " = ", main_val, " for ", paste(cause_msgs, collapse = ""))
     })
 
     msgs <- Filter(Negate(is.null), msgs)
@@ -468,10 +470,8 @@ TADA_Analysis_Join_WQP_Criteria <- function(
     }
 
     paste0(
-      "Row(s) for these TADA.CharacteristicName or TADA.ComparableDataIdentifier from your criteria table input could not be matched ",
-      "to your WQP data or MLSummaryRef due to a mismatch. To help ensure the tables can be joined, ",
-      "please correct the values in each defined column by adding any missing values to your MLSummaryRef ",
-      "or by making sure values are spelled correctly and match exactly between your criteria table and MLSummaryRef. ",
+      "Unmatched row(s) for these TADA.CharacteristicName or TADA.ComparableDataIdentifier values in the criteria table could not be joined to WQP data or MLSummaryRef. ",
+      "Correct any missing spatial definitions in MLSummaryRef or correct for any mismatched characteristic, fraction, speciation, or unit values in the criteria table, MLSummaryRef, or WQP data. ",
       "Only matching values can be analyzed:\n\n",
       paste0("- ", msgs, collapse = "\n")
     )
