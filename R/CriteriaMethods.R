@@ -667,21 +667,16 @@ TADA_DefineCriteriaMethodology <- function(
   
   DefineCriteriaMethodology <- suppressWarnings(TADA_CorrectColType(DefineCriteriaMethodology))
   
-  # Return data only if requested
-  if (isFALSE(excel)) {
-    return(DefineCriteriaMethodology)
-  }
-  
   # Otherwise return all supporting tables
   tmp_xlsx <- tempfile(fileext = ".xlsx")
   on.exit(unlink(tmp_xlsx), add = TRUE)
   .TADA_CriteriaDataDictionary(tmp_xlsx)
   
-  list(
+  return(list(
     DefineCriteriaMethodology = DefineCriteriaMethodology,
     DataDictionary = openxlsx::read.xlsx(tmp_xlsx, sheet = "DataDictionary", startRow = 2),
     AllowableValues = openxlsx::read.xlsx(tmp_xlsx, sheet = "AllowableValues", startRow = 2)
-  )
+  ))
 }
 
 # internal function to convert criteria table units to ones to match WQP data
