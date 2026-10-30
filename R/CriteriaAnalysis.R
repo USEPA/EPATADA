@@ -52,13 +52,13 @@
 #' params <- TADA_ParametersForAnalysis(
 #'   Data_MT_MissoulaCounty, org_id = "MTDEQ", auto_assign = "Org")
 #'
-#' uses <- TADA_UsesForAnalysis(Data_MT_MissoulaCounty,
-#'  org_id = "MTDEQ", paramRef = params, auto_assign = TRUE)
+#' uses_paramRef2 <- TADA_ParamUseRef(Data_MT_MissoulaCounty,
+#'   org_id = "MTDEQ", paramRef = params, auto_assign = TRUE)
 #'
 #' mlsummary <- TADA_MLSummary(
 #'   Data_MT_MissoulaCounty,
 #'   org_id = "MTDEQ",
-#'   usesRef = uses)
+#'   paramUseRef = uses_paramRef2)
 #'
 #' # join the table by best match, along with the MLSummaryRef
 #' MT_data_criteria2 <- TADA_Analysis_Join_WQP_Criteria(

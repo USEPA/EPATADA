@@ -72,8 +72,11 @@ CreateATTAINSAUMLCrosswalk
 CreateAUMLCrosswalk
 CreateComparableID
 CreatePairRef
+CreateParamUseRef
 CreateUnitRef
 CriteriaMethodology
+CrosswalkCSTWQPATTAINSParam
+CrosswalkWQPATTAINSParam
 Cybertown
 DEV
 DataDictionary
@@ -531,6 +534,7 @@ owapps
 param
 paramRef
 params
+paramUseRef
 pch
 pchIcons
 pcodes

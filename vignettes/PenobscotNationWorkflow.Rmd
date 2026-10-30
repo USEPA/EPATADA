@@ -401,7 +401,7 @@ Filter output to include only Class B waters:
 ```{r}
 ME_criteria_ecoli_classB <- unique(subset(
   ME_criteria_ecoli[[1]],
-  ATTAINS.UseName == "FRESH SURFACE WATERS - CLASS B"
+  CST.UseName == "FRESH SURFACE WATERS - CLASS B"
 ))
 
 # Export the criteria methodology table from the list of data frames
