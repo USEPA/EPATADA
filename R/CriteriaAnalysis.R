@@ -460,7 +460,13 @@ TADA_Analysis_Join_WQP_Criteria <- function(
         return(NULL)
       }
 
-      paste0(main_col, " = ", main_val, " for ", paste(cause_msgs, collapse = ""))
+      paste0(
+        main_col,
+        " = ",
+        main_val,
+        " for ",
+        paste(cause_msgs, collapse = "")
+      )
     })
 
     msgs <- Filter(Negate(is.null), msgs)
