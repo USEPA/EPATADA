@@ -42,9 +42,6 @@
   : Join WQP data to criteria and spatial MLSummaryRef (UNDER ACTIVE
   DEVELOPMENT)
 
-- [`TADA_Analysis_Validate_Ref()`](https://usepa.github.io/EPATADA/reference/TADA_Analysis_Validate_Ref.md)
-  : Validate Reference Tables Against WQP Data and Criteria
-
 - [`TADA_AssignUsesToAU()`](https://usepa.github.io/EPATADA/reference/TADA_AssignUsesToAU.md)
   : ATTAINS Assessment Unit and Use Name Crosswalk
 

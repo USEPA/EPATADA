@@ -238,7 +238,9 @@ epa_only <- TADA_DefineCriteriaMethodology(
 #>   Please ensure that you have inputted all field values of interest in 
 #>   the ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function.
 #> TADA_UsesForAnalysis: auto_assign == TRUE was selected, 
+
 #>   assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an 
+
 #>   organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.
 #> TADA_DefineCriteriaMethodology: displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis.
 #> TADA_DefineCriteriaMethodology: USEPA was included in 'org_id'.EPA section 304(a) recommended criteria were included for parameters that could be matched to the available data.
@@ -256,12 +258,18 @@ epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty,
 #>   Please ensure that you have inputted all field values of interest in 
 #>   the ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function.
 #> TADA_UsesForAnalysis: auto_assign == TRUE was selected, 
+
 #>   assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an 
+
 #>   organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.
 #> TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.
+
 #>   Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.
+
 #>   Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.
+
 #>   If an ATTAINS.ParameterName and ATTAINS.UseName alias was found, populating these rows with the CST magnitude values.
+
 #>   A many-to-many match is likely. User review is needed to ensure accuracy in crosswalk method.
 #> TADA_DefineCriteriaMethodology: removing any instances where CST Pollutant names are 'PH VARIATION', 'TEMPERATURE RISE ABOVE AMBIENT'. TADA functions cannot currently handle analysis for these instances.
 #> Warning in TADA_DefineCriteriaMethodology:  There are 2 TADA.CharacteristicName units that do not match with the CST autoassign MagnitudeUnit values. Converting these MagnitudeUnit Values from the CST to match the TADA.ResultMeasure.MeasureUnitCode in your dataframe. Please review these conversions.

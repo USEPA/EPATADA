@@ -218,6 +218,8 @@ usesRef_UT3 <- TADA_UsesForAnalysis(
   paramRef = paramRef_UT4, auto_assign = TRUE, org_id = c("UTAHDWQ"), excel = FALSE
 )
 #> TADA_UsesForAnalysis: auto_assign == TRUE was selected, 
+
 #>   assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an 
+
 #>   organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.
 ```

@@ -85,26 +85,54 @@ criteria_MT <- EPATADA::TADA_GetCriteriaFile(org_id = "MTDEQ")
 
 # join the table by best match from what is filled out from the criteria table
 MT_data_criteria <- TADA_Analysis_Join_WQP_Criteria(MT_data, criteria_MT)
+#> Your *user supplied* criteriaMethods data is missing 1 unique TADA.ComparableDataIdentifier(s):
+#> 
+#>   PH_NONE_NONE_NONE
+#> 
+#> without criteria information filled out. Please review if these entries are applicable to your analysis,
+#> or ignore this message if they are not relevant.
+#> Warning: No MLSummaryRef was provided, but spatial columns contain values in the criteria table: SaltFresh, UniqueSpatialCriteria. Cannot differentiate which monitoring location sites belong to any of these spatial columns. Please create the MLSummaryRef to define the sites that are applicable to these spatial columns.
 
-# create the MLSummaryRef (ML only - no AU or other spatial columns)
+# create the MLSummaryRef from params and uses
+# first define param crosswalk
 params <- TADA_ParametersForAnalysis(
   Data_MT_MissoulaCounty, org_id = "MTDEQ", auto_assign = "Org")
 #> TADA_ParametersForAnalysis: auto_assign == 'Org' was selected, finding an alias ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found.
 
+# define uses crosswalk
 uses <- TADA_UsesForAnalysis(Data_MT_MissoulaCounty,
  org_id = "MTDEQ", paramRef = params, auto_assign = TRUE)
 #> TADA_UsesForAnalysis: auto_assign == TRUE was selected, 
+
 #>   assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an 
+
 #>   organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed.
 
 mlsummary <- TADA_MLSummary(
   Data_MT_MissoulaCounty,
   org_id = "MTDEQ",
+  AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
+  AU_UsesRef = Data_MT_AU_UsesRef_Water,
   usesRef = uses)
+#> TADA_MLSummary: displayNA = FALSE was selected.
 
 # join the table by best match, along with the MLSummaryRef
 MT_data_criteria2 <- TADA_Analysis_Join_WQP_Criteria(
   MT_data,
   criteria_MT,
   MLSummaryRef = mlsummary)
+#> Your *user supplied* criteriaMethods data is missing 1 unique TADA.ComparableDataIdentifier(s):
+#> 
+#>   PH_NONE_NONE_NONE
+#> 
+#> without criteria information filled out. Please review if these entries are applicable to your analysis,
+#> or ignore this message if they are not relevant.
+#> - Unmatched row(s) for these TADA.CharacteristicName or TADA.ComparableDataIdentifier values in the criteria table could not be joined to WQP data or MLSummaryRef. Correct any missing spatial definitions in MLSummaryRef or correct for any mismatched characteristic, fraction, speciation, or unit values in the criteria table, MLSummaryRef, or WQP data. Only matching values can be analyzed:
+#> 
+#> - TADA.ComparableDataIdentifier = ESCHERICHIA COLI_NONE_NONE_CFU/100ML for 
+#>   * SECONDARY CONTACT RECREATION not found in column: 'ATTAINS.UseName'
+#>   * FRESH not found in column: 'SaltFresh'
+#>   * CLASSES A-1 AND A-CLOSED not found in column: 'UniqueSpatialCriteria'
+#>   * CLASSES B AND C not found in column: 'UniqueSpatialCriteria'
+#>   * CLASSES D, E AND F not found in column: 'UniqueSpatialCriteria'
 ```
