@@ -1452,6 +1452,7 @@ addTADAMapLegend <- function(
   wqp = TRUE,
   ref_icons = TRUE,
   attains_au = TRUE,
+  attains_new = FALSE,
   attains_missing = TRUE,
   nhd_attains = TRUE
 ) {
@@ -1489,6 +1490,13 @@ addTADAMapLegend <- function(
     images.ref <- append(images.ref, images[1:3])
 
     leg.labels <- append(leg.labels, img.labels[1:3])
+  }
+
+  # ATTAINS new point geometry
+  if(attains_new == TRUE) {
+    images.ref <- append(images.ref, images[14])
+
+    leg.labels <- append(leg.labels, img.labels[14])
   }
 
   # ATTAINS missing geometry

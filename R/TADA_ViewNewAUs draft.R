@@ -8,9 +8,13 @@ testdat_newAUs <- TADA_CreatePointAUs(testdat,
                                       tada_df = TRUE,
                                       auid_prefix = "TEST-")
 
+testdf <- testdat_newAUs$tada_df
+
+TADA_ViewNewAUs(testdf)
+
 
 # requires the tada_df output of TADA_CreatePointAUs where tada_df = TRUE
-TADA_ViewNewAUs <- function(.data, ref_icons = TRUE) {
+TADA_ViewNewAUs <- function(.data) {
 
   # Check required columns in AU_map_table
   required_map_cols <- c(
@@ -46,10 +50,10 @@ TADA_ViewNewAUs <- function(.data, ref_icons = TRUE) {
 
     # popup for AU markers
     au_popup <- paste0(
-      "Assessment Unit ID: ",
+      "Assessment Unit Identifier: ",
       .data$ATTAINS.AssessmentUnitIdentifier,
-      "<br> Monitoring Location ID: ",
-     .data$TADA.MonitoringLocationIdentifier
+      "<br> Status: New",
+      "<br> Assessment Unit Type: Point Feature"
     )
 
     # add AU markers using icon #14
@@ -102,7 +106,8 @@ TADA_ViewNewAUs <- function(.data, ref_icons = TRUE) {
       icon_labels = img.labels,
       wqp = TRUE,
       ref_icons = ref_icons,
-      attains_au = TRUE,
+      attains_au = FALSE,
+      attains_new = TRUE,
       attains_missing = FALSE,
       nhd_attains = FALSE
     )
@@ -113,3 +118,7 @@ TADA_ViewNewAUs <- function(.data, ref_icons = TRUE) {
     return(map)
   }))
 }
+
+TADA_ViewATTAINS(Data_MT_AUMLRef)
+
+
