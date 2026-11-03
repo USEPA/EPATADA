@@ -225,6 +225,27 @@ testthat::test_that("Is TADA_GetWQXCharAliasRef more than 1 month old?", {
   )
 })
 
+testthat::test_that("Is TADA_GetWQP3SchemaRef up to date?", {
+  skip_on_cran()
+
+  file_path <- system.file("extdata", "WQP3SchemaRef.rda", package = "EPATADA")
+  e <- new.env(parent = emptyenv())
+  load(file_path, envir = e)
+  old <- e$WQP3SchemaRef
+
+  ref <- EPATADA::TADA_GetWQP3SchemaRef(download_only = TRUE, refresh = TRUE)
+
+  # Basic sanity checks
+  testthat::expect_true(is.data.frame(old))
+  testthat::expect_true(is.data.frame(ref))
+  testthat::expect_gt(nrow(old), 0)
+  testthat::expect_gt(nrow(ref), 0)
+
+  # Compare schema/header consistency
+  testthat::expect_equal(names(old), names(ref))
+  testthat::expect_equal(ncol(old), ncol(ref))
+})
+
 testthat::test_that("MeasureUnitRef falls back when live fails, and errors if fallback invalid", {
   ns <- asNamespace("EPATADA")
 

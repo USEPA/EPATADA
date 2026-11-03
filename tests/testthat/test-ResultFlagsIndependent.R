@@ -132,7 +132,7 @@ test_that("No NAs in independent flag columns", {
 })
 
 testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs does not grow dataset - no duplicates", {
-  testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
+  testdat <- Data_Nutrients_UT
 
   if (nrow(testdat) == 0) {
     testthat::skip("Test dataframe is empty, skipping test.")
@@ -172,7 +172,7 @@ testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs does not grow data
 
 
 testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs does not grow dataset - forced duplicate group", {
-  testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
+  testdat <- Data_Nutrients_UT
 
   if (nrow(testdat) < 6) {
     testthat::skip("Not enough rows in test dataframe, skipping test.")
@@ -194,7 +194,7 @@ testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs does not grow data
     1:3
   ] <- testdat$TADA.ComparableDataIdentifier[1]
   testdat$ActivityTypeCode[1:3] <- testdat$ActivityTypeCode[1]
-  testdat$TADA.ResultMeasureValue[1:3] <- testdat$TADA.ResultMeasureValue[1]
+  testdat$TADA.ResultMeasureValue[1:3] <- 5
   testdat$OrganizationIdentifier[1:3] <- c("ORG_A", "ORG_B", "ORG_C")
   testdat$ResultIdentifier[1:3] <- c("R1", "R2", "R3")
 
@@ -215,7 +215,7 @@ testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs does not grow data
 })
 
 testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs clean=TRUE removes not selected rows", {
-  testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
+  testdat <- Data_Nutrients_UT
 
   if (nrow(testdat) < 6) {
     testthat::skip("Not enough rows in test dataframe, skipping test.")
@@ -233,7 +233,7 @@ testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs clean=TRUE removes
     1:3
   ] <- testdat$TADA.ComparableDataIdentifier[1]
   testdat$ActivityTypeCode[1:3] <- testdat$ActivityTypeCode[1]
-  testdat$TADA.ResultMeasureValue[1:3] <- testdat$TADA.ResultMeasureValue[1]
+  testdat$TADA.ResultMeasureValue[1:3] <- 5
   testdat$OrganizationIdentifier[1:3] <- c("ORG_A", "ORG_B", "ORG_C")
   testdat$ResultIdentifier[1:3] <- c("R1", "R2", "R3")
 
@@ -250,7 +250,7 @@ testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs clean=TRUE removes
 
 
 testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels duplicate groups when multiple org duplicates are present", {
-  testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
+  testdat <- Data_Nutrients_UT
 
   testthat::skip_if(
     is.null(testdat) || NROW(testdat) == 0,
@@ -266,7 +266,7 @@ testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels duplicate g
     1:3
   ] <- testdat$TADA.ComparableDataIdentifier[1]
   testdat$ActivityTypeCode[1:3] <- testdat$ActivityTypeCode[1]
-  testdat$TADA.ResultMeasureValue[1:3] <- testdat$TADA.ResultMeasureValue[1]
+  testdat$TADA.ResultMeasureValue[1:3] <- 5
   testdat$OrganizationIdentifier[1:3] <- c("ORG_A", "ORG_B", "ORG_C")
   testdat$ResultIdentifier[1:3] <- c("R1", "R2", "R3")
 
@@ -297,7 +297,7 @@ testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels duplicate g
 
 
 testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs adds non-NA values in expected output columns", {
-  testdat <- Data_R5_TADAPackageDemo |> dplyr::filter(StateCode == "17")
+  testdat <- Data_Nutrients_UT
 
   testthat::skip_if(
     is.null(testdat) || NROW(testdat) == 0,
@@ -322,7 +322,7 @@ testthat::test_that("TADA_FindPotentialDuplicatesMultipleOrgs adds non-NA values
     1:3
   ] <- testdat$TADA.ComparableDataIdentifier[1]
   testdat$ActivityTypeCode[1:3] <- testdat$ActivityTypeCode[1]
-  testdat$TADA.ResultMeasureValue[1:3] <- testdat$TADA.ResultMeasureValue[1]
+  testdat$TADA.ResultMeasureValue[1:3] <- 5
   testdat$OrganizationIdentifier[1:3] <- c("ORG_A", "ORG_B", "ORG_C")
   testdat$ResultIdentifier[1:3] <- c("R1", "R2", "R3")
 

@@ -4147,6 +4147,26 @@ TADA_MLSummary <- function(
       )
     }
 
+    # ------------------------------------------------------------
+    # Final sanity check: keep only rows supported by .data
+    # ------------------------------------------------------------
+    compare_keys <- intersect(
+      c(
+        "TADA.ComparableDataIdentifier",
+        "ATTAINS.ParameterName",
+        "ATTAINS.UseName",
+        "ATTAINS.AssessmentUnitIdentifier",
+        "ATTAINS.WaterType",
+        "MonitoringLocationIdentifier",
+        "SaltFresh",
+        "UniqueSpatialCriteria",
+        "DepthCategory"
+      ),
+      intersect(names(MLSummaryRef), names(.data))
+    )
+
+    MLSummaryRef <- dplyr::semi_join(MLSummaryRef, .data, by = compare_keys)
+
     MLSummaryRef
   }
   # Only run if user wants to create an excel guided spreadsheet.
