@@ -11,7 +11,7 @@ TADA_ViewNewAUs(.data)
 }
 \value{
 A leaflet map that shows all newly created point AUs with popups for
-the monitoring locaiton and new point assessment unit.
+the monitoring location and new point assessment unit.
 }
 \description{
 Create Map for New Point AU Review

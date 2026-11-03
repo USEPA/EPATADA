@@ -837,7 +837,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 #' @param .data The tada_df output of TADA_CreatePointAUs.
 #'
 #' @return A leaflet map that shows all newly created point AUs with popups for
-#' the monitoring locaiton and new point assessment unit.
+#' the monitoring location and new point assessment unit.
 #'
 #' @export
 #'
