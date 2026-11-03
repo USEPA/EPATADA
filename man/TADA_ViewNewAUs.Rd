@@ -18,16 +18,16 @@ Create Map for New Point AU Review
 }
 \examples{
 \dontrun{
-
 testdat <- Data_TribalNations_Harmonized |>
-dplyr::filter(OrganizationIdentifier == "BLCKFEET") |>
-dplyr::slice_sample(n=25)
+  dplyr::filter(OrganizationIdentifier == "BLCKFEET") |>
+  dplyr::slice_sample(n = 25)
 
-testdat_newAUs <- TADA_CreatePointAUs(testdat,
-                                     create_geo = TRUE,
-                                     tada_df = TRUE)
+testdat_newAUs <- TADA_CreatePointAUs(
+  testdat,
+  create_geo = TRUE,
+  tada_df = TRUE
+)
 
 TADA_ViewNewAUs(testdat_newAUs$tada_df)
 }
-
 }

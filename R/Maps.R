@@ -839,32 +839,39 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 #' @return A leaflet map that shows all newly created point AUs with popups for
 #' the monitoring location and new point assessment unit.
 #'
-#' @export
-#'
 #' @examples
 #' \dontrun{
-#'
 #' testdat <- Data_TribalNations_Harmonized |>
-#' dplyr::filter(OrganizationIdentifier == "BLCKFEET") |>
-#' dplyr::slice_sample(n=25)
+#'   dplyr::filter(OrganizationIdentifier == "BLCKFEET") |>
+#'   dplyr::slice_sample(n = 25)
 #'
-#' testdat_newAUs <- TADA_CreatePointAUs(testdat,
-#'                                      create_geo = TRUE,
-#'                                      tada_df = TRUE)
+#' testdat_newAUs <- TADA_CreatePointAUs(
+#'   testdat,
+#'   create_geo = TRUE,
+#'   tada_df = TRUE
+#' )
 #'
 #' TADA_ViewNewAUs(testdat_newAUs$tada_df)
 #' }
-#'
 
 # requires the tada_df output of TADA_CreatePointAUs where tada_df = TRUE
 TADA_ViewNewAUs <- function(.data) {
-  # Check required columns in AU_map_table
+  # Check required columns in input data
   required_map_cols <- c(
     "ATTAINS.AssessmentUnitIdentifier",
     "TADA.MonitoringLocationIdentifier",
     "TADA.LatitudeMeasure",
     "TADA.LongitudeMeasure"
   )
+
+  missing_cols <- setdiff(required_map_cols, names(.data))
+  if (length(missing_cols) > 0) {
+    stop(
+      "TADA_ViewNewAUs: Missing required columns: ",
+      paste(missing_cols, collapse = ", "),
+      call. = FALSE
+    )
+  }
   # Use internal function to get paths to images and labels
   list.images <- getMapIconLabels()
   images <- unlist(list.images[1])
