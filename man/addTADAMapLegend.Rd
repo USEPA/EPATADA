@@ -52,6 +52,10 @@ aus colors are shown in the legend. When attains_au = TRUE, the colors indicatin
 ATTAINS assessment unit overall status are shown in the legend. Default is
 attains_au = TRUE.}
 
+\item{attains_new}{Boolean argument. Determines whether the color for new AUs
+is shown in the legend. When attains_new = TRUE, the color indicating
+new AUs is shown in the legend. Default is attains_new = FALSE.}
+
 \item{attains_missing}{Boolean argument. Determines whether the dashed circle
 indicating whether WQP sites with assessment units assigned by the user are
 missing corresponding geometry in ATTAINS is shown in the legend. The dashed
