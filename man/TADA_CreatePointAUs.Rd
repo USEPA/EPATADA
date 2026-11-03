@@ -107,5 +107,14 @@ created AUIDs.
 @examples
 \dontrun{
 
+ testdat <- Data_TribalNations_Harmonized |>
+    dplyr::filter(OrganizationIdentifier == "BLCKFEET") |>
+    dplyr::slice_sample(n = 25)
+
+  testdat_newAUs <- TADA_CreatePointAUs(
+    testdat,
+    create_geo = TRUE,
+    tada_df = TRUE
+  )
 }
 }
