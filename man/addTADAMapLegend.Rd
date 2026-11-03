@@ -12,6 +12,7 @@ addTADAMapLegend(
   wqp = TRUE,
   ref_icons = TRUE,
   attains_au = TRUE,
+  attains_new = FALSE,
   attains_missing = TRUE,
   nhd_attains = TRUE
 )

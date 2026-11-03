@@ -103,4 +103,9 @@ created AUIDs.
 }
 \seealso{
 \code{\link[=TADA_UpdateATTAINSWaterTypes]{TADA_UpdateATTAINSWaterTypes()}}, \code{\link[=TADA_CreatePointAUGeometry]{TADA_CreatePointAUGeometry()}}
+
+@examples
+\dontrun{
+
+}
 }

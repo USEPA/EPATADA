@@ -832,6 +832,30 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   }))
 }
 
+#' Create Map for New Point AU Review
+#'
+#' @param .data The tada_df output of TADA_CreatePointAUs.
+#'
+#' @return A leaflet map that shows all newly created point AUs with popups for
+#' the monitoring locaiton and new point assessment unit.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' testdat <- Data_TribalNations_Harmonized |>
+#' dplyr::filter(OrganizationIdentifier == "BLCKFEET") |>
+#' dplyr::slice_sample(n=25)
+#'
+#' testdat_newAUs <- TADA_CreatePointAUs(testdat,
+#'                                      create_geo = TRUE,
+#'                                      tada_df = TRUE)
+#'
+#' TADA_ViewNewAUs(testdat_newAUs$tada_df)
+#' }
+#'
+
 # requires the tada_df output of TADA_CreatePointAUs where tada_df = TRUE
 TADA_ViewNewAUs <- function(.data) {
 
