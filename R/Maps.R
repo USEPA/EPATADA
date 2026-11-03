@@ -858,7 +858,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
 # requires the tada_df output of TADA_CreatePointAUs where tada_df = TRUE
 TADA_ViewNewAUs <- function(.data) {
-
   # Check required columns in AU_map_table
   required_map_cols <- c(
     "ATTAINS.AssessmentUnitIdentifier",
@@ -879,9 +878,7 @@ TADA_ViewNewAUs <- function(.data) {
     }
   }
 
-
   suppressMessages(suppressWarnings({
-
     if (!"TADA.AURefSource" %in% names(.data)) {
       .data$TADA.AURefSource <- "TADA_CreatePointAUs"
     }
@@ -903,12 +900,12 @@ TADA_ViewNewAUs <- function(.data) {
     au_icon <- leaflet::icons(
       iconUrl = dplyr::case_when(
         is.na(.data$TADA.AURefSource) |
-          .data$TADA.AURefSource == "Not assigned to AU" | is.na(.data$TADA.AURefSource) ~
-          system.file(
-            "extdata/icons",
-            "circle-dashed.png",
-            package = "EPATADA"
-          ),
+          .data$TADA.AURefSource == "Not assigned to AU" |
+          is.na(.data$TADA.AURefSource) ~ system.file(
+          "extdata/icons",
+          "circle-dashed.png",
+          package = "EPATADA"
+        ),
         .data$TADA.AURefSource == "TADA_CreatePointAUs" ~ images[14],
         TRUE ~ images[14]
       ),
@@ -961,4 +958,3 @@ TADA_ViewNewAUs <- function(.data) {
     return(map)
   }))
 }
-

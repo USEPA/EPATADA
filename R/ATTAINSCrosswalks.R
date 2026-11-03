@@ -4747,13 +4747,13 @@ TADA_CreatePointAUs <- function(
   download_geo = FALSE,
   tada_df = FALSE
 ) {
-
   # check for conflicting params
-  if(isFALSE(create_geo) & isTRUE(tada_df)) {
-
-    stop(paste0("TADA_CreatePointAUs: If the user would like new AU geometry ",
-    "and other AU information appended to the original TADA df, both 'create_geo' ",
-    "and 'tada_df' must equal TRUE"))
+  if (isFALSE(create_geo) & isTRUE(tada_df)) {
+    stop(paste0(
+      "TADA_CreatePointAUs: If the user would like new AU geometry ",
+      "and other AU information appended to the original TADA df, both 'create_geo' ",
+      "and 'tada_df' must equal TRUE"
+    ))
   }
 
   req <- c("TADA.MonitoringLocationIdentifier")
@@ -4835,7 +4835,9 @@ TADA_CreatePointAUs <- function(
     PointAUs$tada_df <- .data |>
       dplyr::left_join(
         PointAU.Crosswalk,
-        by = c("TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier"),
+        by = c(
+          "TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier"
+        ),
         suffix = c("", ".cw")
       ) |>
       dplyr::mutate(

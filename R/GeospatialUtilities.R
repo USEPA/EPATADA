@@ -1493,7 +1493,7 @@ addTADAMapLegend <- function(
   }
 
   # ATTAINS new point geometry
-  if(attains_new == TRUE) {
+  if (attains_new == TRUE) {
     images.ref <- append(images.ref, images[14])
 
     leg.labels <- append(leg.labels, img.labels[14])
