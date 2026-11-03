@@ -54,7 +54,10 @@ testthat::test_that("TADA_ViewNewAUs errors when an image path is missing", {
 
   fake_images <- c(
     "/this/path/does/not/exist.png",
-    rep(system.file("extdata/icons", "circle-dashed.png", package = "EPATADA"), 13)
+    rep(
+      system.file("extdata/icons", "circle-dashed.png", package = "EPATADA"),
+      13
+    )
   )
   fake_labels <- paste0("label", 1:14)
 
@@ -63,10 +66,7 @@ testthat::test_that("TADA_ViewNewAUs errors when an image path is missing", {
     .package = "EPATADA"
   )
 
-  testthat::expect_error(
-    TADA_ViewNewAUs(testdat),
-    "Image file not found"
-  )
+  testthat::expect_error(TADA_ViewNewAUs(testdat), "Image file not found")
 })
 
 
@@ -78,7 +78,11 @@ testthat::test_that("TADA_ViewNewAUs adds TADA.AURefSource if missing", {
     TADA.LongitudeMeasure = c(-110, -111)
   )
 
-  fake_img <- system.file("extdata/icons", "circle-dashed.png", package = "EPATADA")
+  fake_img <- system.file(
+    "extdata/icons",
+    "circle-dashed.png",
+    package = "EPATADA"
+  )
   fake_images <- rep(fake_img, 14)
   fake_labels <- paste0("label", 1:14)
 
@@ -86,10 +90,19 @@ testthat::test_that("TADA_ViewNewAUs adds TADA.AURefSource if missing", {
     getMapIconLabels = function() list(fake_images, fake_labels),
     createTADABasemap = function(.data) {
       testthat::expect_true("TADA.AURefSource" %in% names(.data))
-      testthat::expect_true(all(.data$TADA.AURefSource == "TADA_CreatePointAUs"))
+      testthat::expect_true(all(
+        .data$TADA.AURefSource == "TADA_CreatePointAUs"
+      ))
       leaflet::leaflet()
     },
-    addWQPSites = function(.data, map, icons, icon_labels, ref_icons, overlay_groups) {
+    addWQPSites = function(
+      .data,
+      map,
+      icons,
+      icon_labels,
+      ref_icons,
+      overlay_groups
+    ) {
       testthat::expect_true("Assessment Units" %in% overlay_groups)
       list(map = map, overlay_groups = overlay_groups)
     },
@@ -112,7 +125,11 @@ testthat::test_that("TADA_ViewNewAUs preserves existing TADA.AURefSource", {
     TADA.AURefSource = "SomeOtherSource"
   )
 
-  fake_img <- system.file("extdata/icons", "circle-dashed.png", package = "EPATADA")
+  fake_img <- system.file(
+    "extdata/icons",
+    "circle-dashed.png",
+    package = "EPATADA"
+  )
   fake_images <- rep(fake_img, 14)
   fake_labels <- paste0("label", 1:14)
 
@@ -122,7 +139,14 @@ testthat::test_that("TADA_ViewNewAUs preserves existing TADA.AURefSource", {
       testthat::expect_equal(.data$TADA.AURefSource, "SomeOtherSource")
       leaflet::leaflet()
     },
-    addWQPSites = function(.data, map, icons, icon_labels, ref_icons, overlay_groups) {
+    addWQPSites = function(
+      .data,
+      map,
+      icons,
+      icon_labels,
+      ref_icons,
+      overlay_groups
+    ) {
       list(map = map, overlay_groups = overlay_groups)
     },
     addTADAMapLegend = function(...) leaflet::leaflet(),
@@ -143,14 +167,25 @@ testthat::test_that("TADA_ViewNewAUs passes Assessment Units overlay group to do
     TADA.LongitudeMeasure = -110
   )
 
-  fake_img <- system.file("extdata/icons", "circle-dashed.png", package = "EPATADA")
+  fake_img <- system.file(
+    "extdata/icons",
+    "circle-dashed.png",
+    package = "EPATADA"
+  )
   fake_images <- rep(fake_img, 14)
   fake_labels <- paste0("label", 1:14)
 
   testthat::local_mocked_bindings(
     getMapIconLabels = function() list(fake_images, fake_labels),
     createTADABasemap = function(.data) leaflet::leaflet(),
-    addWQPSites = function(.data, map, icons, icon_labels, ref_icons, overlay_groups) {
+    addWQPSites = function(
+      .data,
+      map,
+      icons,
+      icon_labels,
+      ref_icons,
+      overlay_groups
+    ) {
       expect_true("Assessment Units" %in% overlay_groups)
       list(map = map, overlay_groups = overlay_groups)
     },
@@ -175,14 +210,25 @@ testthat::test_that("TADA_ViewNewAUs returns a leaflet map object", {
     TADA.LongitudeMeasure = -110
   )
 
-  fake_img <- system.file("extdata/icons", "circle-dashed.png", package = "EPATADA")
+  fake_img <- system.file(
+    "extdata/icons",
+    "circle-dashed.png",
+    package = "EPATADA"
+  )
   fake_images <- rep(fake_img, 14)
   fake_labels <- paste0("label", 1:14)
 
   testthat::local_mocked_bindings(
     getMapIconLabels = function() list(fake_images, fake_labels),
     createTADABasemap = function(.data) leaflet::leaflet(),
-    addWQPSites = function(.data, map, icons, icon_labels, ref_icons, overlay_groups) {
+    addWQPSites = function(
+      .data,
+      map,
+      icons,
+      icon_labels,
+      ref_icons,
+      overlay_groups
+    ) {
       list(map = map, overlay_groups = overlay_groups)
     },
     addTADAMapLegend = function(...) leaflet::leaflet(),
