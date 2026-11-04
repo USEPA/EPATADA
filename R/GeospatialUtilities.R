@@ -2402,3 +2402,69 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
     }
   )
 }
+
+#' .TADA_prepareNearbySites
+#'
+#' Prepares a TADA df for nearby sites mapping by checking for TADA.NearbySiteGroup
+#' column and running TADA_FindNearbySites if it is not found, filtering the df
+#' to retain only grouped nearby sites, and converting the LatitudeMeasure and
+#' LongitudeMeasure to numeric.
+#'
+#' @param .data The TADA df to prepare for nearby site mapping
+#'
+#' @param dist_buffer The distance buffer in meters to be applied to the TADA
+#' df to find nearby sites if the user has not already run TADA_FindNearbySites.
+#'
+.TADA_prepareNearbySites <- function(.data, dist_buffer = 100) {
+  TADA_table <- .data
+
+  if (!"TADA.NearbySiteGroup" %in% colnames(TADA_table)) {
+    TADA_table <- TADA_FindNearbySites(TADA_table, dist_buffer = dist_buffer)
+  }
+
+  TADA_nearby <- TADA_table |>
+    dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
+    dplyr::mutate(
+      LatitudeMeasure = as.numeric(LatitudeMeasure),
+      LongitudeMeasure = as.numeric(LongitudeMeasure)
+    ) |>
+    dplyr::distinct()
+
+  if (nrow(TADA_nearby) == 0) {
+    stop("There are no grouped nearby sites in the data frame.")
+  }
+
+  TADA_nearby
+}
+
+
+#' .TADA_prepareFlaggedSites
+#'
+#' Prepares a TADA df by running TADA_FlaggedSites filtering the df to retain
+#' to retain only flagged sites, and assigning each site a color for the map
+#' based on its suspect coordinates flag.
+#'
+#' @param .data The TADA df to prepare for flagged sites mapping
+#'
+.TADA_prepareFlaggedSites <- function(.data) {
+
+  invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
+
+
+  if (nrow(invalid) == 0) {
+    stop("There are no flagged sites in the data frame.")
+  }
+
+  tada.pal <- TADA_ColorPalette()
+
+  invalid |>
+    dplyr::mutate(
+      FlaggedColor = dplyr::case_when(
+        TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits" ~ tada.pal[13],
+        TADA.SuspectCoordinates.Flag == "Coordinate_StateMismatch" ~ tada.pal[7],
+        TADA.SuspectCoordinates.Flag == "Coordinate_CountyMismatch" ~ tada.pal[8],
+        grepl("^((LAT_OutsideUSA|LONG_OutsideUSA)(;\\s*)?)+$", TADA.SuspectCoordinates.Flag) ~ tada.pal[12],
+        TRUE ~ tada.pal[3]
+      )
+    )
+}
