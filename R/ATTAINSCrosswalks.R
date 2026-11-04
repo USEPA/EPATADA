@@ -4733,22 +4733,22 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #'
 #' @seealso [TADA_UpdateATTAINSWaterTypes()], [TADA_CreatePointAUGeometry()]
 #'
-#'  @examples
+#' @examples
 #' \dontrun{
+#' testdat <- Data_TribalNations_Harmonized |>
+#'   dplyr::filter(OrganizationIdentifier == "BLCKFEET") |>
+#'   dplyr::slice_sample(n = 25)
 #'
-#'  testdat <- Data_TribalNations_Harmonized |>
-#'     dplyr::filter(OrganizationIdentifier == "BLCKFEET") |>
-#'     dplyr::slice_sample(n = 25)
+#' testdat_newAUs <- TADA_CreatePointAUs(
+#'   testdat,
+#'   create_geo = TRUE,
+#'   tada_df = TRUE
+#' )
 #'
-#'   testdat_newAUs <- TADA_CreatePointAUs(
-#'     testdat,
-#'     create_geo = TRUE,
-#'     tada_df = TRUE
-#'   )
+#' TADA_ViewNewAUs(testdat_newAUs$tada_df)
 #' }
-#'
-#'
 #' @export
+#'
 TADA_CreatePointAUs <- function(
   .data,
   auid_prefix = NULL,

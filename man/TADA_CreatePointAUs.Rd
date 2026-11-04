@@ -101,20 +101,21 @@ created AUIDs.
 \item \code{ATTAINS.WaterType} is not overwritten unless it is missing or blank.
 }
 }
+\examples{
+\dontrun{
+testdat <- Data_TribalNations_Harmonized |>
+  dplyr::filter(OrganizationIdentifier == "BLCKFEET") |>
+  dplyr::slice_sample(n = 25)
+
+testdat_newAUs <- TADA_CreatePointAUs(
+  testdat,
+  create_geo = TRUE,
+  tada_df = TRUE
+)
+
+TADA_ViewNewAUs(testdat_newAUs$tada_df)
+}
+}
 \seealso{
 \code{\link[=TADA_UpdateATTAINSWaterTypes]{TADA_UpdateATTAINSWaterTypes()}}, \code{\link[=TADA_CreatePointAUGeometry]{TADA_CreatePointAUGeometry()}}
-
-@examples
-\dontrun{
-
- testdat <- Data_TribalNations_Harmonized |>
-    dplyr::filter(OrganizationIdentifier == "BLCKFEET") |>
-    dplyr::slice_sample(n = 25)
-
-  testdat_newAUs <- TADA_CreatePointAUs(
-    testdat,
-    create_geo = TRUE,
-    tada_df = TRUE
-  )
-}
 }
