@@ -2108,6 +2108,16 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   hydrogeofetch::get_waterbodies(AOI = AOI)
 }
 
+#' nhd_get_hr_catchments
+#'
+#' Sends a set of bounding boxes or AOIs to the NHD HR catchment service and
+#' returns matching high-resolution catchment features.
+#'
+#' @param nhd_hr_catchments An ArcGIS layer or object representing the NHD HR
+#' catchments dataset.
+#' @param wqp_bboxes A list or vector of spatial features representing bounding
+#' boxes or AOIs to query.
+#'
 .nhd_get_hr_catchments <- function(nhd_hr_catchments, wqp_bboxes) {
   fill_USGS_catchments_stored <- vector("list", length = length(wqp_bboxes))
 
@@ -2145,6 +2155,16 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   fill_USGS_catchments_stored
 }
 
+#' nhd_get_hr_flowlines
+#'
+#' Sends a set of AOIs to the NHD HR flowline service and returns matching
+#' high-resolution flowline features.
+#'
+#' @param nhd_hr_flowlines An ArcGIS layer or object representing the NHD HR
+#' flowlines dataset.
+#' @param geospatial_aoi A list or vector of spatial features representing AOIs
+#' to query.
+#'
 .nhd_get_hr_flowlines <- function(nhd_hr_flowlines, geospatial_aoi) {
   nhd_flowlines_stored <- vector("list", length = length(geospatial_aoi))
 
@@ -2183,6 +2203,16 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   nhd_flowlines_stored
 }
 
+#' nhd_get_hr_waterbodies
+#'
+#' Sends a set of AOIs to the NHD HR waterbody service and returns matching
+#' high-resolution waterbody features.
+#'
+#' @param nhd_hr_waterbodies An ArcGIS layer or object representing the NHD HR
+#' waterbodies dataset.
+#' @param geospatial_aoi A list or vector of spatial features representing AOIs
+#' to query.
+#'
 .nhd_get_hr_waterbodies <- function(nhd_hr_waterbodies, geospatial_aoi) {
   nhd_waterbodies_stored <- vector("list", length = length(geospatial_aoi))
 
@@ -2221,6 +2251,15 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   nhd_waterbodies_stored
 }
 
+#' nhd_get_med_flowlines
+#'
+#' Sends a set of sites to the NHD Medium resolution flowline service and
+#' returns matching flowline features.
+#'
+#' @param unique_sites A spatial data frame or sf object containing unique site
+#' geometries used as query inputs.
+#' @param geospatial_data Optional geospatial data used in the query pipeline.
+#'
 .nhd_get_med_flowlines <- function(unique_sites, geospatial_data) {
   nhd_flowlines <- vector("list", length = nrow(unique_sites))
 
@@ -2254,6 +2293,15 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   nhd_flowlines
 }
 
+#' nhd_get_med_waterbodies
+#'
+#' Sends a set of sites to the NHD Medium resolution waterbody service and
+#' returns matching waterbody features.
+#'
+#' @param unique_sites A spatial data frame or sf object containing unique site
+#' geometries used as query inputs.
+#' @param geospatial_data Optional geospatial data used in the query pipeline.
+#'
 .nhd_get_med_waterbodies <- function(unique_sites, geospatial_data) {
   nhd_waterbodies <- vector("list", length = nrow(unique_sites))
 
@@ -2284,6 +2332,14 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   nhd_waterbodies
 }
 
+#' nhd_get_med_catchments
+#'
+#' Sends a set of sites to the NHD Medium resolution catchment service and
+#' returns matching catchment features.
+#'
+#' @param unique_sites A spatial data frame or sf object containing unique site
+#' geometries used as query inputs.
+#'
 .nhd_get_med_catchments <- function(unique_sites) {
   fill_USGS_catchments <- vector("list", length = nrow(unique_sites))
 
@@ -2318,6 +2374,13 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   fill_USGS_catchments
 }
 
+#' checkATTAINS
+#'
+#' Checks whether the ATTAINS web service is currently available.
+#'
+#' @param timeout_sec Number of seconds to use as the temporary timeout while
+#' attempting to connect to the service.
+#'
 .checkATTAINS <- function(timeout_sec = 10) {
   old_timeout <- getOption("timeout")
   options(timeout = timeout_sec)
