@@ -4942,19 +4942,19 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #'                               characteristicType = "Physical",
 #'                               ask = FALSE)
 #'
-#' # Assign saltfresh indicator based on TADA.MonitoringLocationTypeName,
+#' # Retrieve saltfresh ref table based on testdat by TADA.MonitoringLocationTypeName,
 #' # using TADA.MonitoringLocationIdentifier as location grouping
-#'  TADA.example <- TADA_SaltFreshIndicator(testdat,
+#'  TADA.example <- TADA_GetSaltFreshRef(testdat,
 #'                                          location_col = "ML",
 #'                                          type_col = "TADA")
 #'
 #' # Assign ATTAINS water types to test data
 #' testdat.ATTAINSwattypes <- testdat |>
-#'   TADA_CrosswalkATTAINSWaterTypes()
+#'   TADA_UpdateATTAINSWaterTypes()
 #'
 #' # Assign saltfresh indicator based on ATTAINS.WaterType,
 #' # using ATTAINS.AssessmentUnitIdentifier as location grouping
-#' ATTAINS.example <- TADA_SaltFreshIndicator(testdat.ATTAINSwattypes,
+#' ATTAINS.example <- TADA_AssignSaltFreshIndicator(testdat.ATTAINSwattypes,
 #'                                            location_col = "AU",
 #'                                            type_col = "ATTAINS")
 #' }
@@ -5078,6 +5078,20 @@ TADA_GetSaltFreshRef <- function(
     dplyr::select(dplyr::all_of(cw.cols)) |>
     dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
     dplyr::distinct()
+  
+  # Remove intermediate objects
+  rm(
+    unique.pairs,
+    cw.cols,
+    cw.name,
+    location_col,
+    missing,
+    select.cols,
+    type_col,
+    reqs
+  )
+  
+  return(crosswalk)
 }
 
 #' Assign Salt or Freshwater Indicator
@@ -5115,44 +5129,101 @@ TADA_GetSaltFreshRef <- function(
 #'
 #' # Assign saltfresh indicator based on TADA.MonitoringLocationTypeName,
 #' # using TADA.MonitoringLocationIdentifier as location grouping
-#'  TADA.example <- TADA_SaltFreshIndicator(testdat,
+#'  TADA.SaltFreshRef <- TADA_GetSaltFreshRef(testdat,
 #'                                          location_col = "ML",
 #'                                          type_col = "TADA")
+#'                                          
+#' # Assign saltfresh indicator to WQP data based on TADA.MonitoringLocationTypeName
+#'  testdat.SaltFresh <- TADA_AssignSaltFreshIndicator(testdat,
+#'                                          location_col = "ML",
+#'                                          type_col = "TADA",
+#'                                          ref = TADA.SaltFreshRef)                                        
 #'
 #' # Assign ATTAINS water types to test data
 #' testdat.ATTAINSwattypes <- testdat |>
-#'   TADA_CrosswalkATTAINSWaterTypes()
+#'   TADA_UpdateATTAINSWaterTypes()
 #'
 #' # Assign saltfresh indicator based on ATTAINS.WaterType,
 #' # using ATTAINS.AssessmentUnitIdentifier as location grouping
-#' ATTAINS.example <- TADA_SaltFreshIndicator(testdat.ATTAINSwattypes,
+#' ATTAINS.example <- TADA_AssignSaltFreshIndicator(testdat.ATTAINSwattypes,
 #'                                            location_col = "AU",
 #'                                            type_col = "ATTAINS")
 #' }
 #'
-TADA_UpdateSaltFreshIndicator <- function(
+TADA_AssignSaltFreshIndicator <- function(
   .data,
   location_col = "AU",
-  type_col = "ATTAINS"
+  type_col = "ATTAINS",
+  ref = NULL
 ) {
 
+  # check arg input spelling
+  if (location_col != "AU" & location_col != "ML") {
+    stop("TADA_AssignSaltFreshIndicator: location_col must equal 'AU' or 'ML'.")
+  }
+  
+  if (type_col != "ATTAINS" & type_col != "TADA") {
+    stop("TADA_AssignSaltFreshIndicator: type_col must equal 'ATTAINS' or 'TADA'.")
+  }
+  
+  # Determine expected input and crosswalk columns
+  if (location_col == "AU") {
+    loc_col <- "ATTAINS.AssessmentUnitIdentifier"
+  } else {
+    loc_col <- "TADA.MonitoringLocationIdentifier"
+  }
+  
+  if (type_col == "ATTAINS") {
+    type_in_col <- "ATTAINS.WaterType"
+  } else {
+    type_in_col <- "TADA.MonitoringLocationTypeName"
+  }
+  
+  # Validate .data columns
+  req_data_cols <- c(loc_col, type_in_col)
+  missing_data_cols <- setdiff(req_data_cols, names(.data))
+  if (length(missing_data_cols) > 0) {
+    stop(
+      paste0(
+        "TADA_AssignSaltFreshIndicator: missing required column(s) in .data: ",
+        paste(missing_data_cols, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+  
+  # Get reference table if not supplied
+  if (is.null(ref)) {
+    message("TADA_AssignSaltFreshIndicator: No custom ref supplied. Using default crosswalk.")
+    ref <- TADA_GetSaltFreshRef(
+      .data,
+      location_col = location_col,
+      type_col = type_col
+    )
+  }
+  
+  # Validate reference columns
+  req_ref_cols <- c(type_in_col, "TADA.SaltFreshIndicator")
+  missing_ref_cols <- setdiff(req_ref_cols, names(ref))
+  if (length(missing_ref_cols) > 0) {
+    stop(
+      paste0(
+        "TADA_AssignSaltFreshIndicator: missing required column(s) in ref: ",
+        paste(missing_ref_cols, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+  
   # Join crosswalk to .data
   .data <- .data |>
-    dplyr::left_join(crosswalk, by = dplyr::join_by(!!rlang::sym(reqs$col[2])))
+    dplyr::left_join(ref, by = type_in_col)
 
-  # Remove intermediate objects
+  # Remove intermediate variable
   rm(
-    unique.pairs,
-    cw.cols,
-    cw.name,
-    location_col,
-    missing,
-    select.cols,
-    type_col,
-    #crosswalk,
-    reqs
-  )
-
+    req_ref_cols,
+    missing_data_cols
+    )
   # Return data with salt fresh indicator
-  return(crosswalk)
+  return(.data)
 }

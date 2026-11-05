@@ -37,6 +37,6 @@ By default, only missing ATTAINS.WaterType values are populated.
 # example for MT data
 testdat <- Data_MT_MissoulaCounty
 
-crosswalk <- TADA_UpdateATTAINSWaterTypes(testat, org_Id = "MTDEQ")
+crosswalk <- TADA_UpdateATTAINSWaterTypes(testdat, org_id = "MTDEQ")
 }
 }

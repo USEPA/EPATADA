@@ -41,19 +41,19 @@ testdat <- TADA_DataRetrieval(statecode = "OR",
                               characteristicType = "Physical",
                               ask = FALSE)
 
-# Assign saltfresh indicator based on TADA.MonitoringLocationTypeName,
+# Retrieve saltfresh ref table based on testdat by TADA.MonitoringLocationTypeName,
 # using TADA.MonitoringLocationIdentifier as location grouping
- TADA.example <- TADA_SaltFreshIndicator(testdat,
+ TADA.example <- TADA_GetSaltFreshRef(testdat,
                                          location_col = "ML",
                                          type_col = "TADA")
 
 # Assign ATTAINS water types to test data
 testdat.ATTAINSwattypes <- testdat |>
-  TADA_CrosswalkATTAINSWaterTypes()
+  TADA_UpdateATTAINSWaterTypes()
 
 # Assign saltfresh indicator based on ATTAINS.WaterType,
 # using ATTAINS.AssessmentUnitIdentifier as location grouping
-ATTAINS.example <- TADA_SaltFreshIndicator(testdat.ATTAINSwattypes,
+ATTAINS.example <- TADA_AssignSaltFreshIndicator(testdat.ATTAINSwattypes,
                                            location_col = "AU",
                                            type_col = "ATTAINS")
 }
