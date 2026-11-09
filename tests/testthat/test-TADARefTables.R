@@ -426,3 +426,147 @@ test_that("TADA_ClearCache empties cache", {
   keys2 <- TADA_ListCacheKeys()
   expect_identical(length(keys2), 0L)
 })
+
+# tests for TADA_GetSaltFreshRef
+
+testthat::test_that("TADA_GetSaltFreshRef errors when location_col is invalid", {
+  df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    ATTAINS.WaterType = "STREAM/CREEK/RIVER",
+    stringsAsFactors = FALSE
+  )
+  
+  testthat::expect_error(
+    TADA_GetSaltFreshRef(df, location_col = "ML1", type_col = "ATTAINS"),
+    "location_col must equal 'AU' or 'ML'"
+  )
+})
+
+testthat::test_that("TADA_GetSaltFreshRef errors when type_col is invalid", {
+  df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    ATTAINS.WaterType = "STREAM/CREEK/RIVER",
+    stringsAsFactors = FALSE
+  )
+  
+  testthat::expect_error(
+    TADA_GetSaltFreshRef(df, location_col = "AU", type_col = "ML1"),
+    "type_col must equal 'ATTAINS' or 'TADA'"
+  )
+})
+
+testthat::test_that("TADA_GetSaltFreshRef errors when required columns are missing for AU/ATTAINS", {
+  df <- data.frame(
+    ATTAINS.WaterType = "STREAM/CREEK/RIVER",
+    stringsAsFactors = FALSE
+  )
+  
+  err <- testthat::expect_error(
+    TADA_GetSaltFreshRef(df, location_col = "AU", type_col = "ATTAINS"),
+    class = "error"
+  )
+  
+  testthat::expect_match(err$message, "missing required column\\(s\\)")
+  testthat::expect_match(err$message, "ATTAINS\\.AssessmentUnitIdentifier")
+  testthat::expect_match(err$message, "needed because location_col equals 'AU'")
+})
+
+testthat::test_that("TADA_GetSaltFreshRef errors when required columns are missing for ML/TADA", {
+  df <- data.frame(
+    TADA.MonitoringLocationTypeName = "Stream",
+    stringsAsFactors = FALSE
+  )
+  
+  err <- testthat::expect_error(
+    TADA_GetSaltFreshRef(df, location_col = "ML", type_col = "TADA"),
+    class = "error"
+  )
+  
+  testthat::expect_match(err$message, "missing required column\\(s\\)")
+  testthat::expect_match(err$message, "TADA\\.MonitoringLocationIdentifier")
+  testthat::expect_match(err$message, "needed because location_col equals 'ML'")
+})
+
+testthat::test_that("TADA_GetSaltFreshRef returns a crosswalk for AU/ATTAINS", {
+  df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU2"),
+    ATTAINS.WaterType = c("STREAM/CREEK/RIVER", "BEACH"),
+    stringsAsFactors = FALSE
+  )
+  
+  ref <- TADA_GetSaltFreshRef(df, location_col = "AU", type_col = "ATTAINS")
+  
+  testthat::expect_true(is.data.frame(ref))
+  testthat::expect_true(all(c("ATTAINS.WaterType", "TADA.SaltFreshIndicator") %in% names(ref)))
+  testthat::expect_true(nrow(ref) > 0)
+})
+
+testthat::test_that("TADA_GetSaltFreshRef returns a crosswalk for ML/TADA", {
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = c("ML1", "ML2"),
+    TADA.MonitoringLocationTypeName = c(
+      "RIVER/STREAM EPHEMERAL",
+      "BEACH PROGRAM SITE-OCEAN"
+    ),
+    stringsAsFactors = FALSE
+  )
+  
+  ref <- TADA_GetSaltFreshRef(df, location_col = "ML", type_col = "TADA")
+  
+  testthat::expect_true(is.data.frame(ref))
+  testthat::expect_true(all(c("TADA.MonitoringLocationTypeName", "TADA.SaltFreshIndicator") %in% names(ref)))
+  testthat::expect_true(nrow(ref) > 0)
+})
+
+testthat::test_that("TADA_GetSaltFreshRef returns distinct crosswalk rows", {
+  df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU1", "AU2"),
+    ATTAINS.WaterType = c("STREAM/CREEK/RIVER", "STREAM/CREEK/RIVER", "BEACH"),
+    stringsAsFactors = FALSE
+  )
+  
+  ref <- TADA_GetSaltFreshRef(df, location_col = "AU", type_col = "ATTAINS")
+  
+  testthat::expect_true(is.data.frame(ref))
+  testthat::expect_true(nrow(ref) <= nrow(unique(df["ATTAINS.WaterType"])))
+})
+
+testthat::test_that("TADA_GetSaltFreshRef does not require duplicate input rows", {
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = c("ML1", "ML1", "ML2"),
+    TADA.MonitoringLocationTypeName = c(
+      "RIVER/STREAM EPHEMERAL",
+      "RIVER/STREAM EPHEMERAL",
+      "BEACH PROGRAM SITE-OCEAN"
+    ),
+    stringsAsFactors = FALSE
+  )
+  
+  ref <- TADA_GetSaltFreshRef(df, location_col = "ML", type_col = "TADA")
+  
+  testthat::expect_true(is.data.frame(ref))
+  testthat::expect_equal(
+    nrow(ref),
+    nrow(unique(ref))
+  )
+})
+
+testthat::test_that("TADA_GetSaltFreshRef does not assign a salt/fresh indicator if it is not found in the TADA ref", {
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = c("ML1", "ML2", "ML3"),
+    TADA.MonitoringLocationTypeName = c(
+      "UNKNOWN",
+      "RIVER/STREAM EPHEMERAL",
+      "BEACH PROGRAM SITE-OCEAN"
+    ),
+    stringsAsFactors = FALSE
+  )
+  
+  ref <- TADA_GetSaltFreshRef(df, location_col = "ML", type_col = "TADA")
+  
+  testthat::expect_true(is.data.frame(ref))
+  testthat::expect_equal(
+    nrow(ref),
+    nrow(unique(ref))
+  )
+})

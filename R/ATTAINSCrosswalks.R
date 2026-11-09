@@ -4952,9 +4952,9 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #'                                          
 #' # Assign saltfresh indicator to WQP data based on TADA.MonitoringLocationTypeName
 #'  testdat.SaltFresh <- TADA_AssignSaltFreshIndicator(testdat,
-#'                                          location_col = "ML",
-#'                                          type_col = "TADA",
-#'                                          ref = TADA.SaltFreshRef)                                        
+#'                                                     location_col = "ML",
+#'                                                     type_col = "TADA",
+#'                                                     ref = TADA.SaltFreshRef)                                        
 #'
 #' # Assign saltfresh indicator based on ATTAINS.WaterType,
 #' # using ATTAINS.AssessmentUnitIdentifier as location grouping

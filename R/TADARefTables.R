@@ -1714,22 +1714,17 @@ TADA_GetSaltFreshRef <- function(
     stop(msg, call. = FALSE)
   }
   
-  # Get unique combinations of location_col and type_col in .data
-  select.cols <- c(reqs$col[1], reqs$col[2])
-  
-  unique.pairs <- .data |>
-    dplyr::select(dplyr::all_of(select.cols)) |>
+  # unique types from .data only
+  unique.types <- .data |>
+    dplyr::select(dplyr::all_of(reqs$col[2])) |>
     dplyr::distinct()
   
   # Select which crosswalk is needed
   if (reqs$col[1] == "ATTAINS.AssessmentUnitIdentifier") {
     cw.name <- "ATTAINSWaterTypeToSaltFresh.csv"
-    
     cw.cols <- c("ATTAINS.WaterType", "TADA.SaltFreshIndicator")
   } else {
     cw.name <- "WQPMonLocTypeToSaltFresh.csv"
-    
-    # will need to rename "Name" col
     cw.cols <- c("TADA.MonitoringLocationTypeName", "TADA.SaltFreshIndicator")
   }
   
@@ -1748,23 +1743,27 @@ TADA_GetSaltFreshRef <- function(
     )
   }
   
-  # Retain required columns, keep only distinct rows, and join to unique pairs
   crosswalk <- crosswalk |>
     dplyr::select(dplyr::all_of(cw.cols)) |>
     dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
     dplyr::distinct()
   
-  # Remove intermediate objects
+  # Make .data values uppercase for matching
+  unique.types[[reqs$col[2]]] <- toupper(unique.types[[reqs$col[2]]])
+  
+  # Join crosswalk to unique .data types
+  ref <- unique.types |>
+    dplyr::left_join(crosswalk, by = setNames(cw.cols[1], reqs$col[2]))
+  
   rm(
-    unique.pairs,
+    unique.types,
     cw.cols,
     cw.name,
     location_col,
     missing,
-    select.cols,
-    type_col,
-    reqs
+    reqs,
+    type_col
   )
   
-  return(crosswalk)
+  return(ref)
 }
