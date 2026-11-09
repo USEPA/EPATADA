@@ -648,7 +648,10 @@ TADA_SitesToggleMap <- function(.data, dist_buffer = 100, catchment = FALSE) {
   map <- map |>
     leaflet::addLayersControl(
       overlayGroups = c("Nearby sites", "Flagged sites"),
-      options = leaflet::layersControlOptions(collapsed = FALSE)
+      options = leaflet::layersControlOptions(
+        collapsed = FALSE,
+        position = "bottomleft"
+      )
     )
 
   # Optional: start with one hidden
