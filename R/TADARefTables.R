@@ -1587,12 +1587,11 @@ TADA_GetTADAUsesAliasRef <- function(
 }
 
 
-
 #' Get Salt or Freshwater Reference Table
 #'
 #' Retrieves the Salt or Freshwater reference at the monitoring location or assessment
 #' unit level by either ATTAINS.WaterType or TADA.MonitoringLocationTypeName,
-#' filtered by the type found in your WQP dataframe. 
+#' filtered by the type found in your WQP dataframe.
 #'
 #' @param .data A data frame containing at least one location column
 #' (TADA.MonitoringLocationIdentifier or ATTAINS.AssessmentUnitIdentifier) and
@@ -1635,24 +1634,24 @@ TADA_GetTADAUsesAliasRef <- function(
 #' }
 #'
 TADA_GetSaltFreshRef <- function(
-    .data,
-    location_col = "AU",
-    type_col = "ATTAINS"
-){
+  .data,
+  location_col = "AU",
+  type_col = "ATTAINS"
+) {
   if (location_col != "AU" & location_col != "ML") {
     stop("TADA_SaltFreshIndicator: location_col must equal 'AU' or 'ML'.")
   }
-  
+
   if (type_col != "ATTAINS" & type_col != "TADA") {
     stop("TADA_SaltFreshIndicator: type_col must equal 'ATTAINS' or 'TADA'.")
   }
-  
+
   reqs <- data.frame(
     col = character(),
     reason = character(),
     stringsAsFactors = FALSE
   )
-  
+
   if (location_col == "AU") {
     reqs <- rbind(
       reqs,
@@ -1672,7 +1671,7 @@ TADA_GetSaltFreshRef <- function(
       )
     )
   }
-  
+
   if (type_col == "ATTAINS") {
     reqs <- rbind(
       reqs,
@@ -1692,13 +1691,13 @@ TADA_GetSaltFreshRef <- function(
       )
     )
   }
-  
+
   missing <- unique(reqs$col[!reqs$col %in% names(.data)])
-  
+
   if (length(missing) > 0) {
     missing_info <- reqs[reqs$col %in% missing, ]
     missing_info <- missing_info[!duplicated(missing_info$col), ]
-    
+
     msg <- paste0(
       "TADA_SaltFreshIndicator: missing required column(s):\n",
       paste0(
@@ -1710,15 +1709,15 @@ TADA_GetSaltFreshRef <- function(
         collapse = "\n"
       )
     )
-    
+
     stop(msg, call. = FALSE)
   }
-  
+
   # unique types from .data only
   unique.types <- .data |>
     dplyr::select(dplyr::all_of(reqs$col[2])) |>
     dplyr::distinct()
-  
+
   # Select which crosswalk is needed
   if (reqs$col[1] == "ATTAINS.AssessmentUnitIdentifier") {
     cw.name <- "ATTAINSWaterTypeToSaltFresh.csv"
@@ -1727,14 +1726,14 @@ TADA_GetSaltFreshRef <- function(
     cw.name <- "WQPMonLocTypeToSaltFresh.csv"
     cw.cols <- c("TADA.MonitoringLocationTypeName", "TADA.SaltFreshIndicator")
   }
-  
+
   # Load crosswalk
   crosswalk <- utils::read.csv(system.file(
     "extdata",
     cw.name,
     package = "EPATADA"
   ))
-  
+
   # Rename col if required
   if ("Name" %in% names(crosswalk)) {
     crosswalk <- dplyr::rename(
@@ -1742,28 +1741,20 @@ TADA_GetSaltFreshRef <- function(
       TADA.MonitoringLocationTypeName = Name
     )
   }
-  
+
   crosswalk <- crosswalk |>
     dplyr::select(dplyr::all_of(cw.cols)) |>
     dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
     dplyr::distinct()
-  
+
   # Make .data values uppercase for matching
   unique.types[[reqs$col[2]]] <- toupper(unique.types[[reqs$col[2]]])
-  
+
   # Join crosswalk to unique .data types
   ref <- unique.types |>
     dplyr::left_join(crosswalk, by = setNames(cw.cols[1], reqs$col[2]))
-  
-  rm(
-    unique.types,
-    cw.cols,
-    cw.name,
-    location_col,
-    missing,
-    reqs,
-    type_col
-  )
-  
+
+  rm(unique.types, cw.cols, cw.name, location_col, missing, reqs, type_col)
+
   return(ref)
 }
