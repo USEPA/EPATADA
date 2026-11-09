@@ -4376,7 +4376,6 @@ TADA_MLSummary <- function(
 }
 
 
-
 #' Create an ATTAINS AU–ML Crosswalk from WQP Monitoring Location IDs for New Point AUs
 #'
 #' Build a distinct crosswalk between WQP Monitoring Locations and ATTAINS
@@ -4910,7 +4909,6 @@ TADA_ReviewATTAINSWaterTypes <- function(
 }
 
 
-
 #' Assign Salt or Freshwater Indicator
 #'
 #' Assigns A Salt or Freshwater Indicator at the monitoring location or assessment
@@ -4949,12 +4947,12 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #'  TADA.SaltFreshRef <- TADA_GetSaltFreshRef(testdat,
 #'                                          location_col = "ML",
 #'                                          type_col = "TADA")
-#'                                          
+#'
 #' # Assign saltfresh indicator to WQP data based on TADA.MonitoringLocationTypeName
 #'  testdat.SaltFresh <- TADA_AssignSaltFreshIndicator(testdat,
 #'                                                     location_col = "ML",
 #'                                                     type_col = "TADA",
-#'                                                     ref = TADA.SaltFreshRef)                                        
+#'                                                     ref = TADA.SaltFreshRef)
 #'
 #' # Assign saltfresh indicator based on ATTAINS.WaterType,
 #' # using ATTAINS.AssessmentUnitIdentifier as location grouping
@@ -4973,33 +4971,37 @@ TADA_AssignSaltFreshIndicator <- function(
   if (inherits(.data, "sf")) {
     .data <- sf::st_drop_geometry(.data)
   }
-  
+
   # check arg input spelling
   if (location_col != "AU" & location_col != "ML") {
     stop("TADA_AssignSaltFreshIndicator: location_col must equal 'AU' or 'ML'.")
   }
-  
+
   if (type_col != "ATTAINS" & type_col != "TADA") {
-    stop("TADA_AssignSaltFreshIndicator: type_col must equal 'ATTAINS' or 'TADA'.")
+    stop(
+      "TADA_AssignSaltFreshIndicator: type_col must equal 'ATTAINS' or 'TADA'."
+    )
   }
-  
+
   if ("TADA.SaltFreshIndicator" %in% colnames(.data)) {
-    stop('TADA_AssignSaltFreshIndicator: Your .data already contains the column - "TADA.SaltFreshIndicator".')
+    stop(
+      'TADA_AssignSaltFreshIndicator: Your .data already contains the column - "TADA.SaltFreshIndicator".'
+    )
   }
-  
+
   # Determine expected input and crosswalk columns
   if (location_col == "AU") {
     loc_col <- "ATTAINS.AssessmentUnitIdentifier"
   } else {
     loc_col <- "TADA.MonitoringLocationIdentifier"
   }
-  
+
   if (type_col == "ATTAINS") {
     type_in_col <- "ATTAINS.WaterType"
   } else {
     type_in_col <- "TADA.MonitoringLocationTypeName"
   }
-  
+
   # Validate .data columns
   req_data_cols <- c(loc_col, type_in_col)
   missing_data_cols <- setdiff(req_data_cols, names(.data))
@@ -5012,17 +5014,19 @@ TADA_AssignSaltFreshIndicator <- function(
       call. = FALSE
     )
   }
-  
+
   # Get reference table if not supplied
   if (is.null(ref)) {
-    message("TADA_AssignSaltFreshIndicator: No custom ref supplied. Using default crosswalk.")
+    message(
+      "TADA_AssignSaltFreshIndicator: No custom ref supplied. Using default crosswalk."
+    )
     ref <- TADA_GetSaltFreshRef(
       .data,
       location_col = location_col,
       type_col = type_col
     )
   }
-  
+
   # Validate reference columns
   req_ref_cols <- c(type_in_col, "TADA.SaltFreshIndicator")
   missing_ref_cols <- setdiff(req_ref_cols, names(ref))
@@ -5035,24 +5039,22 @@ TADA_AssignSaltFreshIndicator <- function(
       call. = FALSE
     )
   }
-  
+
   # Join crosswalk to .data
-  .data <- .data |>
-    dplyr::left_join(ref, by = type_in_col)
+  .data <- .data |> dplyr::left_join(ref, by = type_in_col)
 
   # Message row counts
   total_rows <- nrow(.data)
   unassigned_rows <- sum(is.na(.data$TADA.SaltFreshIndicator))
   message(
-    "TADA_AssignSaltFreshIndicator: total rows = ", total_rows,
-    "; rows without assigned TADA.SaltFreshIndicator = ", unassigned_rows
+    "TADA_AssignSaltFreshIndicator: total rows = ",
+    total_rows,
+    "; rows without assigned TADA.SaltFreshIndicator = ",
+    unassigned_rows
   )
-  
+
   # Remove intermediate variable
-  rm(
-    req_ref_cols,
-    missing_data_cols
-    )
+  rm(req_ref_cols, missing_data_cols)
   # Return data with salt fresh indicator
   return(.data)
 }
