@@ -4969,7 +4969,11 @@ TADA_AssignSaltFreshIndicator <- function(
   type_col = "ATTAINS",
   ref = NULL
 ) {
-
+  # convert sf to regular data frame if needed
+  if (inherits(.data, "sf")) {
+    .data <- sf::st_drop_geometry(.data)
+  }
+  
   # check arg input spelling
   if (location_col != "AU" & location_col != "ML") {
     stop("TADA_AssignSaltFreshIndicator: location_col must equal 'AU' or 'ML'.")
