@@ -4956,15 +4956,11 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #'                                          type_col = "TADA",
 #'                                          ref = TADA.SaltFreshRef)                                        
 #'
-#' # Assign ATTAINS water types to test data
-#' testdat.ATTAINSwattypes <- testdat |>
-#'   TADA_UpdateATTAINSWaterTypes()
-#'
 #' # Assign saltfresh indicator based on ATTAINS.WaterType,
 #' # using ATTAINS.AssessmentUnitIdentifier as location grouping
-#' ATTAINS.example <- TADA_AssignSaltFreshIndicator(testdat.ATTAINSwattypes,
-#'                                            location_col = "AU",
-#'                                            type_col = "ATTAINS")
+#' ATTAINS.example <- TADA_AssignSaltFreshIndicator(Data_MT_AUMLRef$TADA_with_ATTAINS,
+#'                                                  location_col = "AU",
+#'                                                  type_col = "ATTAINS")
 #' }
 #'
 TADA_AssignSaltFreshIndicator <- function(
@@ -5040,6 +5036,14 @@ TADA_AssignSaltFreshIndicator <- function(
   .data <- .data |>
     dplyr::left_join(ref, by = type_in_col)
 
+  # Message row counts
+  total_rows <- nrow(.data)
+  unassigned_rows <- sum(is.na(.data$TADA.SaltFreshIndicator))
+  message(
+    "TADA_AssignSaltFreshIndicator: total rows = ", total_rows,
+    "; rows without assigned TADA.SaltFreshIndicator = ", unassigned_rows
+  )
+  
   # Remove intermediate variable
   rm(
     req_ref_cols,
