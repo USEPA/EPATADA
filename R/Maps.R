@@ -301,85 +301,13 @@ TADA_OverviewMap <- function(.data) {
 #' }
 #'
 TADA_FlaggedSitesMap <- function(.data) {
-  invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
+  invalid <- .TADA_prepareFlaggedSites(.data)
 
-  # get TADA color palette
-  tada.pal <- TADA_ColorPalette()
+  map <- createTADABasemap(invalid)
 
-  # assign colors by flag
-  invalid <- invalid |>
-    dplyr::mutate(
-      FlaggedColor = dplyr::case_when(
-        TADA.SuspectCoordinates.Flag ==
-          "Imprecise_lessthan3decimaldigits" ~ tada.pal[13],
-        TADA.SuspectCoordinates.Flag == "Coordinate_StateMismatch" ~ tada.pal[
-          7
-        ],
-        TADA.SuspectCoordinates.Flag == "Coordinate_CountyMismatch" ~ tada.pal[
-          8
-        ],
+  map <- .TADA_addFlaggedLayer(map, invalid)
+  map <- .TADA_addFlaggedLegend(map)
 
-        grepl(
-          "^((LAT_OutsideUSA|LONG_OutsideUSA)(;\\s*)?)+$",
-          TADA.SuspectCoordinates.Flag
-        ) ~ tada.pal[12],
-
-        TRUE ~ tada.pal[3]
-      )
-    )
-
-  # create TADA basemap
-  map <- createTADABasemap(invalid) |>
-    leaflet::addCircleMarkers(
-      data = invalid,
-      lng = ~TADA.LongitudeMeasure,
-      lat = ~TADA.LatitudeMeasure,
-      color = ~FlaggedColor,
-      fillColor = ~FlaggedColor,
-      fillOpacity = 0.7,
-      stroke = TRUE,
-      weight = 1.5,
-      radius = 10,
-      popup = ~ paste0(
-        "Site ID: ",
-        TADA.MonitoringLocationIdentifier,
-        "<br> Site Name: ",
-        TADA.MonitoringLocationName,
-        "<br> Organization Name: ",
-        OrganizationFormalName,
-        "<br> Latitude: ",
-        TADA.LatitudeMeasure,
-        "<br> Longitude: ",
-        TADA.LongitudeMeasure,
-        "<br> Reason Flagged: ",
-        TADA.SuspectCoordinates.Flag
-      )
-    ) |>
-    leaflet::addLegend(
-      position = "bottomright",
-      colors = c(
-        tada.pal[13],
-        tada.pal[12],
-        tada.pal[7],
-        tada.pal[8],
-        tada.pal[3]
-      ),
-      opacity = 1,
-      labels = c(
-        "Imprecise coordinates",
-        "Outside of US",
-        "Coordinate State Mismatch",
-        "Coordinate County Mismatch",
-        "Multiple Flags"
-      ),
-      title = "Coordinate Flag Category"
-    ) |>
-    addLegendToggle()
-
-  # remove intermediate object
-  rm(invalid)
-
-  # return flagged sites map
   return(map)
 }
 
@@ -416,150 +344,17 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' }
 #'
 TADA_NearbySitesMap <- function(.data, dist_buffer = 100, catchment = FALSE) {
-  # columns to select for nearby site
-  nearby.cols <- c(
-    "LongitudeMeasure",
-    "LatitudeMeasure",
-    "TADA.MonitoringLocationIdentifier",
-    "MonitoringLocationIdentifier",
-    "MonitoringLocationName",
-    "TADA.LatitudeMeasure",
-    "LatitudeMeasure",
-    "TADA.LongitudeMeasure",
-    "LongitudeMeasure",
-    "OrganizationIdentifier",
-    "OrganizationFormalName",
-    "TADA.NearbySiteGroup"
+  nearby_data <- .TADA_prepareNearbySites(
+    .data,
+    catchment = catchment,
+    dist_buffer = dist_buffer
   )
 
-  # check to see if input is a single df
-  if (inherits(.data, "data.frame")) {
-    TADA_table <- .data
-  }
-
-  # if not previously run, run TADA_FindNearbySites
-  if ("TADA.NearbySiteGroup" %in% colnames(TADA_table) == FALSE) {
-    # find nearby sites in the TADA df
-    TADA_table <- TADA_FindNearbySites(TADA_table, dist_buffer = dist_buffer)
-  }
-
-  # create df of nearby sites
-  TADA_nearby <- TADA_table |>
-    dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
-    dplyr::mutate(
-      LatitudeMeasure = as.numeric(LatitudeMeasure),
-      LongitudeMeasure = as.numeric(LongitudeMeasure)
-    ) |>
-    dplyr::select(dplyr::all_of(nearby.cols)) |>
-    dplyr::distinct()
-
-  # check to see if any nearby site groups were found
-  if (nrow(TADA_nearby) == 0) {
-    stop(
-      "TADA_NearbySitesMap: There are no grouped nearby sites in the data frame."
-    )
-  }
-
-  # find number of colors needed for nearby site groups
-  n.colors <- length(unique(TADA_nearby$TADA.NearbySiteGroup))
-
-  # get TADA color palette
-  tada.pal <- TADA_ColorPalette()
-
-  # create nearby site groups color palette
-  # if needed can incorporate functions from package "farver" to force pal colors
-  # away from tada.pal colors (HRM 12/23/25)
-  nearby.pal <- Polychrome::createPalette(
-    n.colors,
-    seedcolors = c(
-      tada.pal[1],
-      tada.pal[3],
-      tada.pal[4],
-      tada.pal[7],
-      tada.pal[15]
-    ),
-    M = 5000
-  )
-
-  # assign colors to nearby groups
-  pal <- leaflet::colorFactor(
-    palette = nearby.pal,
-    domain = TADA_table$TADA.NearbySiteGroup
-  )
-
-  # if data was spatial, remove for downstream leaflet dev:
-  try(TADA_table <- TADA_table |> sf::st_drop_geometry(), silent = TRUE)
-
-  # required cols for map popup
-  required_columns <- c(
-    "TADA.LongitudeMeasure",
-    "TADA.LatitudeMeasure",
-    "HorizontalCoordinateReferenceSystemDatumName",
-    "TADA.CharacteristicName",
-    "TADA.MonitoringLocationIdentifier",
-    "TADA.MonitoringLocationName",
-    "ResultIdentifier",
-    "ActivityStartDate",
-    "TADA.OrganizationIdentifier"
-  )
-
-  # create nearby sites map
-  map <- createTADABasemap(TADA_nearby)
-
-  if (!any(required_columns %in% colnames(TADA_table))) {
-    stop(
-      "Your dataframe does not contain the necessary WQP-style column names."
-    )
-  }
-
-  # add nearby sites to map
-  if (nrow(TADA_nearby) > 0) {
-    map <- map |>
-      leaflet::addCircleMarkers(
-        ~LongitudeMeasure,
-        ~LatitudeMeasure,
-        color = ~ pal(TADA.NearbySiteGroup),
-        opacity = 1,
-        fillColor = ~ pal(TADA.NearbySiteGroup),
-        fillOpacity = 1,
-        radius = ifelse(dist_buffer > 200, dist_buffer / 10, 20),
-        weight = 1,
-        # label = ~as.character(TADA.MonitoringLocationIdentifier),
-        popup = ~ paste0(
-          "Nearby Group Name: ",
-          TADA.MonitoringLocationIdentifier,
-          "<br> Nearby Site Group: ",
-          TADA.NearbySiteGroup,
-          "<br> Site ID: ",
-          MonitoringLocationIdentifier,
-          "<br> Site Name: ",
-          MonitoringLocationName,
-          "<br> Organization Name: ",
-          OrganizationFormalName,
-          "<br> Latitude: ",
-          LatitudeMeasure,
-          "<br> Longitude: ",
-          LongitudeMeasure
-        ),
-        data = TADA_nearby,
-        clusterOptions = leaflet::markerClusterOptions(),
-      ) |>
-      leaflet::addCircles(
-        ~LongitudeMeasure,
-        ~LatitudeMeasure,
-        color = ~ pal(TADA.NearbySiteGroup),
-        opacity = 0.1,
-        fillColor = ~ pal(TADA.NearbySiteGroup),
-        fillOpacity = 0.1,
-        radius = dist_buffer,
-        weight = 1,
-        data = TADA_nearby
-      )
-  }
+  map <- createTADABasemap(nearby_data)
+  map <- .TADA_addNearbyLayer(map, nearby_data, dist_buffer = dist_buffer)
 
   return(map)
 }
-
 
 #' TADA_ViewATTAINS
 #'
@@ -830,4 +625,34 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # return leaflet map of TADA WQ and its associated ATTAINS data
     return(map)
   }))
+}
+
+TADA_SitesToggleMap <- function(.data, dist_buffer = 100, catchment = FALSE) {
+
+  nearby_data <- .TADA_prepareNearbySites(.data, dist_buffer = dist_buffer) |>
+    TADA_CorrectColType()
+
+  invalid <- .TADA_prepareFlaggedSites(.data) |>
+    TADA_CorrectColType()
+
+  # Optional: use combined coordinates for basemap extent
+  map_extent <- nearby_data |>
+    dplyr::bind_rows(invalid)
+
+  map <- createTADABasemap(map_extent)
+
+  map <- .TADA_addNearbyLayer(map, nearby_data, dist_buffer = dist_buffer)
+  map <- .TADA_addFlaggedLayer(map, invalid)
+  map <- .TADA_addFlaggedLegend(map)
+
+  map <- map |>
+    leaflet::addLayersControl(
+      overlayGroups = c("Nearby sites", "Flagged sites"),
+      options = leaflet::layersControlOptions(collapsed = FALSE)
+    )
+
+  # Optional: start with one hidden
+  # map <- leaflet::hideGroup(map, "Nearby sites")
+
+  return(map)
 }
