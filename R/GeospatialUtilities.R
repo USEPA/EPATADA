@@ -2403,19 +2403,34 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   )
 }
 
-#' .TADA_prepareNearbySites
+#' Prepare Nearby Sites Data for Mapping
 #'
-#' Prepares a TADA df for nearby sites mapping by checking for TADA.NearbySiteGroup
-#' column and running TADA_FindNearbySites if it is not found, filtering the df
-#' to retain only grouped nearby sites, and converting the LatitudeMeasure and
-#' LongitudeMeasure to numeric.
+#' @description
+#' Internal helper that prepares a TADA data frame for nearby-sites mapping.
+#' If `TADA.NearbySiteGroup` is not already present, it calls
+#' `TADA_FindNearbySites()` to generate nearby site groups. It then filters to
+#' grouped nearby sites, converts coordinate columns to numeric, selects the
+#' columns needed for mapping, and removes duplicate rows.
 #'
-#' @param .data The TADA df to prepare for nearby site mapping
+#' @param .data A TADA data frame to prepare for nearby sites mapping.
 #'
-#' @param dist_buffer The distance buffer in meters to be applied to the TADA
-#' df to find nearby sites if the user has not already run TADA_FindNearbySites.
+#' @param catchment Logical. Passed to `TADA_FindNearbySites()` to determine
+#' whether nearby sites must also be in the same catchment. Default is `TRUE`.
 #'
-.TADA_prepareNearbySites <- function(.data, catchment = FALSE, dist_buffer = 100, nhd_res = "Hi") {
+#' @param dist_buffer Numeric. Distance buffer in meters used to identify nearby
+#' sites if `TADA.FindNearbySites()` has not already been run. Default is `100`.
+#'
+#' @param nhd_res Character. NHD resolution passed to `TADA_FindNearbySites()`
+#' when catchment-based nearby site grouping is requested. Default is `"Hi"`.
+#'
+#' @return A filtered TADA data frame containing only grouped nearby sites and
+#' columns required for nearby site mapping.
+#'
+#' @keywords internal
+.TADA_prepareNearbySites <- function(.data,
+                                     catchment = TRUE,
+                                     dist_buffer = 100,
+                                     nhd_res = "Hi") {
   TADA_table <- .data
 
   if (!"TADA.NearbySiteGroup" %in% colnames(TADA_table)) {
@@ -2433,6 +2448,10 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
       LatitudeMeasure = as.numeric(LatitudeMeasure),
       LongitudeMeasure = as.numeric(LongitudeMeasure)
     ) |>
+    dplyr::select(TADA.MonitoringLocationIdentifier, MonitoringLocationIdentifier,
+                  TADA.NearbySiteGroup, TADA.MonitoringLocationName, MonitoringLocationName,
+                  OrganizationIdentifier, OrganizationFormalName, TADA.LongitudeMeasure,
+                  TADA.LatitudeMeasure, LongitudeMeasure, LatitudeMeasure) |>
     dplyr::distinct()
 
   if (nrow(TADA_nearby) == 0) {
@@ -2442,14 +2461,19 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   TADA_nearby
 }
 
-#' .TADA_prepareFlaggedSites
+#' Prepare Flagged Sites Data for Mapping
 #'
-#' Prepares a TADA df by running TADA_FlaggedSites filtering the df to retain
-#' to retain only flagged sites, and assigning each site a color for the map
-#' based on its suspect coordinates flag.
+#' @description
+#' Internal helper that prepares a TADA data frame for flagged-sites mapping.
+#' It calls `TADA_FlagCoordinates(flaggedonly = TRUE)` to retain only flagged
+#' sites and assigns a map color to each site based on its suspect coordinates
+#' flag.
 #'
-#' @param .data The TADA df to prepare for flagged sites mapping
+#' @param .data A TADA data frame to prepare for flagged sites mapping.
 #'
+#' @return A flagged-site TADA data frame with an added `FlaggedColor` column.
+#'
+#' @keywords internal
 .TADA_prepareFlaggedSites <- function(.data) {
 
   invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
@@ -2473,6 +2497,17 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
     )
 }
 
+#' Create Nearby Sites Color Palette
+#'
+#' @description
+#' Internal helper that creates a leaflet color factor palette for nearby site
+#' groups.
+#'
+#' @param nearby_data A data frame containing `TADA.NearbySiteGroup`.
+#'
+#' @return A leaflet `colorFactor` palette function.
+#'
+#' @keywords internal
 .TADA_makeNearbyPalette <- function(nearby_data) {
   tada.pal <- TADA_ColorPalette()
 
@@ -2496,6 +2531,23 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   )
 }
 
+#' Add Nearby Sites Layer to Leaflet Map
+#'
+#' @description
+#' Internal helper that adds the nearby sites layer to an existing leaflet map.
+#' It draws nearby site markers and radius circles using a group-based color
+#' palette.
+#'
+#' @param map A leaflet map object.
+#'
+#' @param nearby_data A data frame of prepared nearby sites.
+#'
+#' @param dist_buffer Numeric. Radius in meters used for the nearby-site
+#' circles. Default is `100`.
+#'
+#' @return A leaflet map with the nearby sites layer added.
+#'
+#' @keywords internal
 .TADA_addNearbyLayer <- function(map, nearby_data, dist_buffer = 100) {
   pal <- .TADA_makeNearbyPalette(nearby_data)
 
@@ -2536,6 +2588,19 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
     )
 }
 
+#' Add Flagged Sites Layer to Leaflet Map
+#'
+#' @description
+#' Internal helper that adds the flagged sites layer to an existing leaflet map.
+#' Points are colored according to their suspect coordinates flag.
+#'
+#' @param map A leaflet map object.
+#'
+#' @param invalid A data frame of prepared flagged sites.
+#'
+#' @return A leaflet map with the flagged sites layer added.
+#'
+#' @keywords internal
 .TADA_addFlaggedLayer <- function(map, invalid) {
   map |>
     leaflet::addCircleMarkers(
@@ -2560,6 +2625,17 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
     )
 }
 
+#' Add Flagged Sites Legend to Leaflet Map
+#'
+#' @description
+#' Internal helper that adds the legend for flagged sites to an existing leaflet
+#' map.
+#'
+#' @param map A leaflet map object.
+#'
+#' @return A leaflet map with the flagged-sites legend added.
+#'
+#' @keywords internal
 .TADA_addFlaggedLegend <- function(map) {
   tada.pal <- TADA_ColorPalette()
 

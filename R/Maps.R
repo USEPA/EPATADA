@@ -627,9 +627,59 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   }))
 }
 
-TADA_SitesToggleMap <- function(.data, dist_buffer = 100, catchment = FALSE) {
+#' Create Toggleable Nearby and Flagged Sites Map
+#'
+#' @description
+#' Create a leaflet map that allows users to toggle between two overlay layers:
+#' nearby sites grouped by spatial proximity, and flagged sites with suspect
+#' coordinates.
+#'
+#' @param .data A TADA dataframe containing WQP-style columns used by both
+#' nearby-site and flagged-site mapping functions.
+#'
+#' @param dist_buffer Numeric. Distance in meters used to define nearby site
+#' groupings. Default is `100`.
+#'
+#' @param nhd_res Character. NHD resolution used when nearby-site grouping is
+#' performed with catchment constraints. Options are "Hi" or "Med". Passed to
+#' `TADA_FindNearbySites()` through the internal helper `.TADA_prepareNearbySites()`.
+#' Default is `"Hi"`.
+#'
+#' @param catchment Logical. If `TRUE`, nearby sites are grouped only when they
+#' are within `dist_buffer` and in the same catchment. If `FALSE`, only
+#' `dist_buffer` is used. Default is `TRUE`.
+#'
+#' @return A leaflet map with two toggleable overlay layers:
+#' * `Nearby sites`
+#' * `Flagged sites`
+#'
+#' @details
+#' This function combines the logic from nearby-site and flagged-site mapping
+#' functions into a single interactive leaflet map. The layer control is placed
+#' in the bottom-left corner of the map and allows users to switch between the
+#' two overlays.
+#'
+#' Nearby site groups are created using \code{TADA_FindNearbySites()} through the
+#' internal helper \code{.TADA_prepareNearbySites()}. Flagged sites are created
+#' using \code{TADA_FlagCoordinates()} through the internal helper
+#' \code{.TADA_prepareFlaggedSites()}.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Load example dataframe:
+#' utils::data(Data_TribalNations_Harmonized)
+#'
+#' # Create toggleable map:
+#' TADA_SitesToggleMap(Data_TribalNations_Harmonized, catchment = FALSE)
+#' }
+TADA_SitesToggleMap <- function(.data,
+                                dist_buffer = 100,
+                                catchment = TRUE,
+                                nhd_res = "Hi") {
 
-  nearby_data <- .TADA_prepareNearbySites(.data, dist_buffer = dist_buffer) |>
+  nearby_data <- .TADA_prepareNearbySites(.data, dist_buffer = dist_buffer, catchment = catchment) |>
     TADA_CorrectColType()
 
   invalid <- .TADA_prepareFlaggedSites(.data) |>
