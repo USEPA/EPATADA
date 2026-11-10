@@ -674,20 +674,23 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 #' # Create toggleable map:
 #' TADA_SitesToggleMap(Data_TribalNations_Harmonized, catchment = FALSE)
 #' }
-TADA_SitesToggleMap <- function(.data,
-                                dist_buffer = 100,
-                                catchment = TRUE,
-                                nhd_res = "Hi") {
-
-  nearby_data <- .TADA_prepareNearbySites(.data, dist_buffer = dist_buffer, catchment = catchment) |>
+TADA_SitesToggleMap <- function(
+  .data,
+  dist_buffer = 100,
+  catchment = TRUE,
+  nhd_res = "Hi"
+) {
+  nearby_data <- .TADA_prepareNearbySites(
+    .data,
+    dist_buffer = dist_buffer,
+    catchment = catchment
+  ) |>
     TADA_CorrectColType()
 
-  invalid <- .TADA_prepareFlaggedSites(.data) |>
-    TADA_CorrectColType()
+  invalid <- .TADA_prepareFlaggedSites(.data) |> TADA_CorrectColType()
 
   # Optional: use combined coordinates for basemap extent
-  map_extent <- nearby_data |>
-    dplyr::bind_rows(invalid)
+  map_extent <- nearby_data |> dplyr::bind_rows(invalid)
 
   map <- createTADABasemap(map_extent)
 

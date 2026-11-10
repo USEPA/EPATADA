@@ -2427,10 +2427,12 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
 #' columns required for nearby site mapping.
 #'
 #' @keywords internal
-.TADA_prepareNearbySites <- function(.data,
-                                     catchment = TRUE,
-                                     dist_buffer = 100,
-                                     nhd_res = "Hi") {
+.TADA_prepareNearbySites <- function(
+  .data,
+  catchment = TRUE,
+  dist_buffer = 100,
+  nhd_res = "Hi"
+) {
   TADA_table <- .data
 
   if (!"TADA.NearbySiteGroup" %in% colnames(TADA_table)) {
@@ -2448,10 +2450,19 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
       LatitudeMeasure = as.numeric(LatitudeMeasure),
       LongitudeMeasure = as.numeric(LongitudeMeasure)
     ) |>
-    dplyr::select(TADA.MonitoringLocationIdentifier, MonitoringLocationIdentifier,
-                  TADA.NearbySiteGroup, TADA.MonitoringLocationName, MonitoringLocationName,
-                  OrganizationIdentifier, OrganizationFormalName, TADA.LongitudeMeasure,
-                  TADA.LatitudeMeasure, LongitudeMeasure, LatitudeMeasure) |>
+    dplyr::select(
+      TADA.MonitoringLocationIdentifier,
+      MonitoringLocationIdentifier,
+      TADA.NearbySiteGroup,
+      TADA.MonitoringLocationName,
+      MonitoringLocationName,
+      OrganizationIdentifier,
+      OrganizationFormalName,
+      TADA.LongitudeMeasure,
+      TADA.LatitudeMeasure,
+      LongitudeMeasure,
+      LatitudeMeasure
+    ) |>
     dplyr::distinct()
 
   if (nrow(TADA_nearby) == 0) {
@@ -2475,9 +2486,7 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
 #'
 #' @keywords internal
 .TADA_prepareFlaggedSites <- function(.data) {
-
   invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
-
 
   if (nrow(invalid) == 0) {
     stop("There are no flagged sites in the data frame.")
@@ -2488,10 +2497,18 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   invalid |>
     dplyr::mutate(
       FlaggedColor = dplyr::case_when(
-        TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits" ~ tada.pal[13],
-        TADA.SuspectCoordinates.Flag == "Coordinate_StateMismatch" ~ tada.pal[7],
-        TADA.SuspectCoordinates.Flag == "Coordinate_CountyMismatch" ~ tada.pal[8],
-        grepl("^((LAT_OutsideUSA|LONG_OutsideUSA)(;\\s*)?)+$", TADA.SuspectCoordinates.Flag) ~ tada.pal[12],
+        TADA.SuspectCoordinates.Flag ==
+          "Imprecise_lessthan3decimaldigits" ~ tada.pal[13],
+        TADA.SuspectCoordinates.Flag == "Coordinate_StateMismatch" ~ tada.pal[
+          7
+        ],
+        TADA.SuspectCoordinates.Flag == "Coordinate_CountyMismatch" ~ tada.pal[
+          8
+        ],
+        grepl(
+          "^((LAT_OutsideUSA|LONG_OutsideUSA)(;\\s*)?)+$",
+          TADA.SuspectCoordinates.Flag
+        ) ~ tada.pal[12],
         TRUE ~ tada.pal[3]
       )
     )
@@ -2564,13 +2581,20 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
       radius = ifelse(dist_buffer > 200, dist_buffer / 10, 20),
       weight = 1,
       popup = ~ paste0(
-        "Nearby Group Name: ", TADA.MonitoringLocationIdentifier,
-        "<br> Nearby Site Group: ", TADA.NearbySiteGroup,
-        "<br> Site ID: ", MonitoringLocationIdentifier,
-        "<br> Site Name: ", MonitoringLocationName,
-        "<br> Organization Name: ", OrganizationFormalName,
-        "<br> Latitude: ", LatitudeMeasure,
-        "<br> Longitude: ", LongitudeMeasure
+        "Nearby Group Name: ",
+        TADA.MonitoringLocationIdentifier,
+        "<br> Nearby Site Group: ",
+        TADA.NearbySiteGroup,
+        "<br> Site ID: ",
+        MonitoringLocationIdentifier,
+        "<br> Site Name: ",
+        MonitoringLocationName,
+        "<br> Organization Name: ",
+        OrganizationFormalName,
+        "<br> Latitude: ",
+        LatitudeMeasure,
+        "<br> Longitude: ",
+        LongitudeMeasure
       ),
       clusterOptions = leaflet::markerClusterOptions()
     ) |>
@@ -2615,12 +2639,18 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
       weight = 1.5,
       radius = 10,
       popup = ~ paste0(
-        "Site ID: ", TADA.MonitoringLocationIdentifier,
-        "<br> Site Name: ", TADA.MonitoringLocationName,
-        "<br> Organization Name: ", OrganizationFormalName,
-        "<br> Latitude: ", TADA.LatitudeMeasure,
-        "<br> Longitude: ", TADA.LongitudeMeasure,
-        "<br> Reason Flagged: ", TADA.SuspectCoordinates.Flag
+        "Site ID: ",
+        TADA.MonitoringLocationIdentifier,
+        "<br> Site Name: ",
+        TADA.MonitoringLocationName,
+        "<br> Organization Name: ",
+        OrganizationFormalName,
+        "<br> Latitude: ",
+        TADA.LatitudeMeasure,
+        "<br> Longitude: ",
+        TADA.LongitudeMeasure,
+        "<br> Reason Flagged: ",
+        TADA.SuspectCoordinates.Flag
       )
     )
 }
