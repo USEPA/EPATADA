@@ -4930,7 +4930,7 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #' indicator. Default is type_col equals "ATTAINS".
 #' @param ref An optional data frame containing the crosswalk of salt/fresh to either
 #' ATTAINS.WaterType or TADA.MonitoringLocationTypeName. Users can choose to
-#' modify this table or use the default NULL table generated from TADA_GetSaltFreshRef
+#' modify this table or use the default NULL table generated from `TADA_GetSaltFreshRef()`
 #'
 #' @return The input data frame with an added TADA.SaltFreshIndicator column.
 #' @export
