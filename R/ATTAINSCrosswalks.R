@@ -4698,6 +4698,10 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #'   `TADA_CreatePointAUGeometry()`.
 #' @param download_geo Logical. If `TRUE`, write the geometry shapefile to the
 #'   user's downloads folder.
+#' @param tada_df Logical. If `TRUE`, append the geometry,
+#'  ATTAINS.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, and
+#'  ATTAINS.WaterType columns to the existing TADA df (.data) for mapping purposes.
+#'  create_geo must equal `TRUE` in order to use tada_df equals `TRUE`.
 #'
 #' @return If `create_geo = FALSE`, a distinct crosswalk data frame containing:
 #'   - `ATTAINS.MonitoringLocationIdentifier`
@@ -4707,6 +4711,16 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #'   If `create_geo = TRUE`, a named list with:
 #'   - `crosswalk`
 #'   - `geometry`
+#'
+#'   If `tada_df = TRUE`, a named list with:
+#'   -`crosswalk`
+#'   - `TADA_with_newAUs`
+#'
+#'   If both `create_geo = TRUE` and `tada_df = TRUE`, a named list with:
+#'   - `crosswalk`
+#'   - `geometry`
+#'   - `TADA_with_newAUs`
+#'
 #'
 #' @details
 #' - Missing or blank `ATTAINS.AssessmentUnitIdentifier` values are replaced
@@ -4719,13 +4733,38 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #'
 #' @seealso [TADA_UpdateATTAINSWaterTypes()], [TADA_CreatePointAUGeometry()]
 #'
+#' @examples
+#' \dontrun{
+#' testdat <- Data_TribalNations_Harmonized |>
+#'   dplyr::filter(OrganizationIdentifier == "BLCKFEET") |>
+#'   dplyr::slice_sample(n = 25)
+#'
+#' testdat_newAUs <- TADA_CreatePointAUs(
+#'   testdat,
+#'   create_geo = TRUE,
+#'   tada_df = TRUE
+#' )
+#'
+#' TADA_ViewNewAUs(testdat_newAUs$tada_df)
+#' }
 #' @export
+#'
 TADA_CreatePointAUs <- function(
   .data,
   auid_prefix = NULL,
   create_geo = FALSE,
-  download_geo = FALSE
+  download_geo = FALSE,
+  tada_df = FALSE
 ) {
+  # check for conflicting params
+  if (isFALSE(create_geo) & isTRUE(tada_df)) {
+    stop(paste0(
+      "TADA_CreatePointAUs: If the user would like new AU geometry ",
+      "and other AU information appended to the original TADA df, both 'create_geo' ",
+      "and 'tada_df' must equal TRUE"
+    ))
+  }
+
   req <- c("TADA.MonitoringLocationIdentifier")
   geo_req <- c(
     "TADA.LatitudeMeasure",
@@ -4783,18 +4822,51 @@ TADA_CreatePointAUs <- function(
     dplyr::select(dplyr::any_of(retain)) |>
     dplyr::distinct()
 
+  # return crosswalk when create_geo equals FALSE
   if (!isTRUE(create_geo)) {
     return(PointAU.Crosswalk)
   }
 
-  PointAU.Geometry <- TADA_CreatePointAUGeometry(
+  PointAUs <- list(
+    crosswalk = PointAU.Crosswalk,
+    geometry = NULL,
+    tada_df = NULL
+  )
+
+  PointAUs$geometry <- TADA_CreatePointAUGeometry(
     .data = .data,
     target_crs = 4269,
     download_geo = download_geo,
     auid_prefix = auid_prefix
   )
 
-  PointAUs <- list(crosswalk = PointAU.Crosswalk, geometry = PointAU.Geometry)
+  if (isTRUE(tada_df)) {
+    PointAUs$tada_df <- .data |>
+      dplyr::left_join(
+        PointAU.Crosswalk,
+        by = c(
+          "TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier"
+        ),
+        suffix = c("", ".cw")
+      ) |>
+      dplyr::mutate(
+        ATTAINS.AssessmentUnitIdentifier = dplyr::coalesce(
+          ATTAINS.AssessmentUnitIdentifier,
+          ATTAINS.AssessmentUnitIdentifier.cw
+        ),
+        ATTAINS.WaterType = dplyr::coalesce(
+          ATTAINS.WaterType,
+          ATTAINS.WaterType.cw
+        ),
+        ATTAINS.MonitoringLocationIdentifier = dplyr::coalesce(
+          ATTAINS.MonitoringLocationIdentifier,
+          TADA.MonitoringLocationIdentifier
+        )
+      ) |>
+      dplyr::select(-dplyr::ends_with(".cw"))
+  }
+  # remove NULL elements if you don't want them returned
+  PointAUs <- PointAUs[!vapply(PointAUs, is.null, logical(1))]
 
   return(PointAUs)
 }
@@ -4940,7 +5012,7 @@ build_attains_water_type_crosswalk <- function(
 #' # example for MT data
 #' testdat <- Data_MT_MissoulaCounty
 #'
-#' crosswalk <- TADA_UpdateATTAINSWaterTypes(testat, org_Id = "MTDEQ")
+#' crosswalk <- TADA_UpdateATTAINSWaterTypes(testdat, org_Id = "MTDEQ")
 #' }
 TADA_UpdateATTAINSWaterTypes <- function(
   .data,
