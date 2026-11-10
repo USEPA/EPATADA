@@ -980,15 +980,15 @@ testthat::test_that("does not duplicate output rows when input has duplicate pai
 
 testthat::test_that("produces a useful error message listing each missing column once", {
   df <- data.frame(x = 1:3)
-
-  err <- expect_error(
+  
+  err <- testthat::expect_error(
     TADA_AssignSaltFreshIndicator(df, location_col = "ML", type_col = "TADA"),
     class = "error"
   )
-
+  
   testthat::expect_match(
     err$message,
-    "TADA_AssignSaltFreshIndicator: missing required column\\(s\\):"
+    "TADA_AssignSaltFreshIndicator: missing required column\\(s\\) in \\.data:"
   )
   testthat::expect_match(err$message, "TADA\\.MonitoringLocationIdentifier")
   testthat::expect_match(err$message, "TADA\\.MonitoringLocationTypeName")

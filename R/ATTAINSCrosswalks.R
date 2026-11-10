@@ -4928,6 +4928,9 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #' each location with a salt/freshwater indicator. When type_col equals "ATTAINS",
 #' ATTAINS.WaterType is used to crosswalk each location with a salt/freshwater
 #' indicator. Default is type_col equals "ATTAINS".
+#' @param ref An optional data frame containing the crosswalk of salt/fresh to either
+#' ATTAINS.WaterType or TADA.MonitoringLocationTypeName. Users can choose to
+#' modify this table or use the default NULL table generated from TADA_GetSaltFreshRef
 #'
 #' @return The input data frame with an added TADA.SaltFreshIndicator column.
 #' @export
@@ -4942,11 +4945,11 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #'                               characteristicType = "Physical",
 #'                               ask = FALSE)
 #'
-#' # Assign saltfresh indicator based on TADA.MonitoringLocationTypeName,
+#' # Get saltfresh indicator based on TADA.MonitoringLocationTypeName,
 #' # using TADA.MonitoringLocationIdentifier as location grouping
 #'  TADA.SaltFreshRef <- TADA_GetSaltFreshRef(testdat,
-#'                                          location_col = "ML",
-#'                                          type_col = "TADA")
+#'                                            location_col = "ML",
+#'                                            type_col = "TADA")
 #'
 #' # Assign saltfresh indicator to WQP data based on TADA.MonitoringLocationTypeName
 #'  testdat.SaltFresh <- TADA_AssignSaltFreshIndicator(testdat,
@@ -4954,7 +4957,7 @@ TADA_ReviewATTAINSWaterTypes <- function(
 #'                                                     type_col = "TADA",
 #'                                                     ref = TADA.SaltFreshRef)
 #'
-#' # Assign saltfresh indicator based on ATTAINS.WaterType,
+#' # Assign saltfresh indicator based on ATTAINS.WaterType with default ref values,
 #' # using ATTAINS.AssessmentUnitIdentifier as location grouping
 #' ATTAINS.example <- TADA_AssignSaltFreshIndicator(Data_MT_AUMLRef$TADA_with_ATTAINS,
 #'                                                  location_col = "AU",
