@@ -414,6 +414,9 @@
 - [`TADA_ViewColorPalette()`](https://usepa.github.io/EPATADA/reference/TADA_ViewColorPalette.md)
   : View TADA Color Palette
 
+- [`TADA_ViewNewAUs()`](https://usepa.github.io/EPATADA/reference/TADA_ViewNewAUs.md)
+  : Create Map for New Point AU Review
+
 - [`TADA_addPoints()`](https://usepa.github.io/EPATADA/reference/TADA_addPoints.md)
   : Add points from a spatial layer to a leaflet map
 

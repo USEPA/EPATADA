@@ -15,7 +15,8 @@ TADA_CreatePointAUs(
   .data,
   auid_prefix = NULL,
   create_geo = FALSE,
-  download_geo = FALSE
+  download_geo = FALSE,
+  tada_df = FALSE
 )
 ```
 
@@ -61,6 +62,14 @@ TADA_CreatePointAUs(
   Logical. If `TRUE`, write the geometry shapefile to the user's
   downloads folder.
 
+- tada_df:
+
+  Logical. If `TRUE`, append the geometry,
+  ATTAINS.MonitoringLocationIdentifier,
+  ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType columns to the
+  existing TADA df (.data) for mapping purposes. create_geo must equal
+  `TRUE` in order to use tada_df equals `TRUE`.
+
 ## Value
 
 If `create_geo = FALSE`, a distinct crosswalk data frame containing:
@@ -76,6 +85,18 @@ If `create_geo = TRUE`, a named list with:
 - `crosswalk`
 
 - `geometry`
+
+If `tada_df = TRUE`, a named list with: -`crosswalk`
+
+- `TADA_with_newAUs`
+
+If both `create_geo = TRUE` and `tada_df = TRUE`, a named list with:
+
+- `crosswalk`
+
+- `geometry`
+
+- `TADA_with_newAUs`
 
 ## Details
 
@@ -99,3 +120,21 @@ internally with `overwrite_existing = FALSE` and `validation = "none"`.
 
 [`TADA_UpdateATTAINSWaterTypes()`](https://usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSWaterTypes.md),
 [`TADA_CreatePointAUGeometry()`](https://usepa.github.io/EPATADA/reference/TADA_CreatePointAUGeometry.md)
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+testdat <- Data_TribalNations_Harmonized |>
+  dplyr::filter(OrganizationIdentifier == "BLCKFEET") |>
+  dplyr::slice_sample(n = 25)
+
+testdat_newAUs <- TADA_CreatePointAUs(
+  testdat,
+  create_geo = TRUE,
+  tada_df = TRUE
+)
+
+TADA_ViewNewAUs(testdat_newAUs$tada_df)
+} # }
+```
