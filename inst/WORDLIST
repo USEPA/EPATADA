@@ -1,5 +1,6 @@
 ANDs
 AOI
+AOIs
 AUIDs
 AUMLRef
 AURefSource
@@ -354,6 +355,7 @@ TargetUnit
 Tesuque
 Thawley
 TimePeriodForSummary
+Toggleable
 TribalNations
 TribalOptions
 UG
@@ -424,6 +426,7 @@ bycategory
 cdx
 characteristicName
 characteristicType
+checkATTAINS
 checkColNames
 checkForATTAINSGeo
 checkForWQPData
@@ -579,6 +582,7 @@ th
 tibble
 tigris
 tmap
+toggleable
 un
 uncomment
 uncommenting
