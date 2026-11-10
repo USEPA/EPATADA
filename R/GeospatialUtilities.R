@@ -2415,14 +2415,15 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
 #' @param dist_buffer The distance buffer in meters to be applied to the TADA
 #' df to find nearby sites if the user has not already run TADA_FindNearbySites.
 #'
-.TADA_prepareNearbySites <- function(.data, catchment = FALSE, dist_buffer = 100) {
+.TADA_prepareNearbySites <- function(.data, catchment = FALSE, dist_buffer = 100, nhd_res = "Hi") {
   TADA_table <- .data
 
   if (!"TADA.NearbySiteGroup" %in% colnames(TADA_table)) {
     TADA_table <- TADA_FindNearbySites(
       TADA_table,
       dist_buffer = dist_buffer,
-      catchment = catchment
+      catchment = catchment,
+      nhd_res = nhd_res
     )
   }
 
