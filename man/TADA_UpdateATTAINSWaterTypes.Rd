@@ -57,6 +57,6 @@ crosswalk <- TADA_UpdateATTAINSWaterTypes(testat, org_Id = "MTDEQ")
 # example for MT data
 testdat <- Data_MT_MissoulaCounty
 
-crosswalk <- TADA_UpdateATTAINSWaterTypes(testat, org_Id = "MTDEQ")
+crosswalk <- TADA_UpdateATTAINSWaterTypes(testdat, org_Id = "MTDEQ")
 }
 }
