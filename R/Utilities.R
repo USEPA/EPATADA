@@ -2456,7 +2456,7 @@ checkColName <- function(.data, partial.string = NULL) {
   return(col.lab)
 }
 
-#' renameATTAINSCols
+#' .renameATTAINSCols
 #'
 #' This function adds the ATTAINS prefix and changes column name capitalization to
 #' match the TADA format.
@@ -2477,7 +2477,7 @@ checkColName <- function(.data, partial.string = NULL) {
 #' to match the TADA format. Or when return_list = TRUE, a list of all TADA
 #' formatted ATTAINS column names.
 #'
-renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
+.renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
   # List of TADA formatted column names
   attains.tada <- c(
     "ATTAINS.OrganizationIdentifier",
