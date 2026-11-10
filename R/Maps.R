@@ -942,7 +942,7 @@ TADA_ViewNewAUs <- function(.data) {
       map = map,
       icons = images,
       icon_labels = img.labels,
-      ref_icons = ref_icons,
+      ref_icons = FALSE,
       overlay_groups = overlay_groups
     )
 
@@ -956,7 +956,7 @@ TADA_ViewNewAUs <- function(.data) {
       icons = images,
       icon_labels = img.labels,
       wqp = TRUE,
-      ref_icons = ref_icons,
+      ref_icons = FALSE,
       attains_au = FALSE,
       attains_new = TRUE,
       attains_missing = FALSE,
