@@ -28,80 +28,6 @@ test_that("TADA_SimpleCensoredMethods doesn't drop data", {
   expect_equal(nrow(testdat), nrow(cens.check))
 })
 
-test_that("TADA_IDCensoredData copies limits for BPQL/BDL/ND when present (dummy)", {
-  # Dummy data exercising early copy rule for BPQL/BDL/ND
-  df <- data.frame(
-    ResultIdentifier = c("b1", "b2", "b3", "b4"),
-    ResultMeasureValue = c("BPQL", "BDL", "ND", "ND"),
-    ResultDetectionConditionText = NA_character_,
-    DetectionQuantitationLimitTypeName = NA_character_,
-    TADA.ResultMeasureValueDataTypes.Flag = NA_character_,
-    TADA.ResultMeasureValue = NA_real_,
-    TADA.ResultMeasure.MeasureUnitCode = NA_character_,
-    TADA.DetectionQuantitationLimitMeasure.MeasureValue = c(
-      0.11,
-      0.22,
-      0.33,
-      0.44
-    ),
-    TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = c(
-      "mg/L",
-      "mg/L",
-      "mg/L",
-      NA_character_
-    ), # b4 unit missing
-    TADA.MeasureQualifierCode.Flag = NA_character_,
-    stringsAsFactors = FALSE
-  )
-
-  out <- TADA_IDCensoredData(df)
-
-  # Rows with both limit value and unit present should be copied and flagged
-  expect_identical(
-    out$TADA.ResultMeasureValue[out$ResultIdentifier == "b1"],
-    0.11
-  )
-  expect_identical(
-    out$TADA.ResultMeasure.MeasureUnitCode[out$ResultIdentifier == "b1"],
-    "mg/L"
-  )
-  expect_identical(
-    out$TADA.ResultMeasureValueDataTypes.Flag[out$ResultIdentifier == "b1"],
-    "Result Value/Unit Copied from Detection Limit"
-  )
-
-  expect_identical(
-    out$TADA.ResultMeasureValue[out$ResultIdentifier == "b2"],
-    0.22
-  )
-  expect_identical(
-    out$TADA.ResultMeasure.MeasureUnitCode[out$ResultIdentifier == "b2"],
-    "mg/L"
-  )
-  expect_identical(
-    out$TADA.ResultMeasureValueDataTypes.Flag[out$ResultIdentifier == "b2"],
-    "Result Value/Unit Copied from Detection Limit"
-  )
-
-  expect_identical(
-    out$TADA.ResultMeasureValue[out$ResultIdentifier == "b3"],
-    0.33
-  )
-  expect_identical(
-    out$TADA.ResultMeasure.MeasureUnitCode[out$ResultIdentifier == "b3"],
-    "mg/L"
-  )
-  expect_identical(
-    out$TADA.ResultMeasureValueDataTypes.Flag[out$ResultIdentifier == "b3"],
-    "Result Value/Unit Copied from Detection Limit"
-  )
-
-  # b4: unit missing -> early copy should not fire; NA-flag copy may populate value-only
-  # Our suite checks per-field NA-flag behavior elsewhere; here just confirm unit is still NA
-  expect_true(is.na(out$TADA.ResultMeasure.MeasureUnitCode[
-    out$ResultIdentifier == "b4"
-  ]))
-})
 
 test_that("TADA_IDCensoredData does not introduce NAs in TADA.ResultMeasureValueDataTypes.Flag", {
   testdat <- TADA_RandomTestingData(
@@ -192,21 +118,18 @@ test_that("TADA_IDCensoredData handles NA/blanks and classifies censored data co
   cond_od <- cond_od[[1]]
   lim_od <- lim_od[[1]]
 
-  # Use an ND token recognized by early copy logic
-  nd_copy_token <- "ND"
-
   test_df <- data.frame(
     ResultIdentifier = paste0("r", 1:9),
     ResultMeasureValue = c(
-      nd_copy_token, # r1 -> copy from limit
-      nd_copy_token, # r2 -> cannot estimate (both limit pieces missing)
-      nd_copy_token, # r3 -> unit blank -> treated as NA, NA-flag copy of value only
-      NA, # r4 -> over-detect via qualifier flag; ensure no overwrite
-      nd_copy_token, # r5 -> conflict (ND cond vs Over-Detect limit type)
-      nd_copy_token, # r6 -> missing detection condition (blank -> NA), ND overrides
-      nd_copy_token, # r7 -> unknown detection condition, ND override => conflict with OD limit
-      2, # r8 -> uncensored
-      NA # r9 -> NA-flag copy from limit
+      "ND",  # r1 -> censored text
+      "ND",  # r2 -> censored text but missing limit info
+      "ND",  # r3 -> censored text with blank unit in detection limit fields
+      NA,    # r4 -> over-detect via qualifier flag
+      "ND",  # r5 -> conflict (ND cond vs Over-Detect limit type)
+      "ND",  # r6 -> missing detection condition (blank -> NA)
+      "ND",  # r7 -> unknown detection condition, ND override => conflict with OD limit
+      2,     # r8 -> uncensored
+      NA     # r9 -> NA result, but qualifier flag indicates Non-Detect
     ),
     ResultDetectionConditionText = c(
       cond_nd,
@@ -243,15 +166,7 @@ test_that("TADA_IDCensoredData handles NA/blanks and classifies censored data co
     ),
     TADA.ResultMeasureValue = c(NA, NA, NA, 10, NA, NA, NA, 2, NA),
     TADA.ResultMeasure.MeasureUnitCode = c(
-      NA,
-      NA,
-      NA,
-      "mg/L",
-      NA,
-      NA,
-      NA,
-      "mg/L",
-      NA
+      NA, NA, NA, "mg/L", NA, NA, NA, "mg/L", NA
     ),
     TADA.DetectionQuantitationLimitMeasure.MeasureValue = c(
       0.5,
@@ -290,42 +205,30 @@ test_that("TADA_IDCensoredData handles NA/blanks and classifies censored data co
   )
 
   res <- TADA_IDCensoredData(test_df)
+
   get <- function(id, col) res[res$ResultIdentifier == id, col, drop = TRUE]
 
-  # r1: Copy from limit for ND text; classify Non-Detect
-  expect_identical(get("r1", "TADA.ResultMeasureValue"), 0.5)
-  expect_identical(get("r1", "TADA.ResultMeasure.MeasureUnitCode"), "mg/L")
-  expect_identical(
-    get("r1", "TADA.ResultMeasureValueDataTypes.Flag"),
-    "Result Value/Unit Copied from Detection Limit"
-  )
+  # r1: ND text should be identified as Non-Detect; result value should be NA
+  expect_true(is.na(get("r1", "ResultMeasureValue")))
   expect_identical(get("r1", "TADA.CensoredData.Flag"), "Non-Detect")
 
-  # r2: ND text but no limit info -> cannot estimate; categorized as not documented
-  expect_identical(
-    get("r2", "TADA.ResultMeasureValueDataTypes.Flag"),
-    "Result Value/Unit Cannot Be Estimated From Detection Limit"
-  )
+  # r2: ND text but missing detection limit info -> still censored, but not categorized cleanly
+  expect_true(is.na(get("r2", "ResultMeasureValue")))
   expect_identical(
     get("r2", "TADA.CensoredData.Flag"),
     "Detection condition or detection limit is not documented in TADA reference tables."
   )
 
-  # r3: NA-flag copy of value only; still Non-Detect
-  expect_equal(get("r3", "TADA.ResultMeasureValue"), 0.2, tolerance = 1e-12)
-  expect_true(is.na(get("r3", "TADA.ResultMeasure.MeasureUnitCode")))
-  expect_identical(
-    get("r3", "TADA.ResultMeasureValueDataTypes.Flag"),
-    "Result Value/Unit Copied from Detection Limit"
-  )
+  # r3: ND text with blank unit in detection limit fields -> censored text becomes NA
+  expect_true(is.na(get("r3", "ResultMeasureValue")))
   expect_identical(get("r3", "TADA.CensoredData.Flag"), "Non-Detect")
 
-  # r4: Over-Detect via qualifier flag and consistent domain types; ensure value/unit retained
+  # r4: Over-Detect via qualifier flag; keep uncensored result value as-is
   expect_identical(get("r4", "TADA.CensoredData.Flag"), "Over-Detect")
-  expect_identical(get("r4", "TADA.ResultMeasureValue"), 10)
-  expect_identical(get("r4", "TADA.ResultMeasure.MeasureUnitCode"), "mg/L")
+  expect_identical(get("r4", "ResultMeasureValue"), 10)
+  expect_identical(get("r4", "ResultMeasure.MeasureUnitCode"), "mg/L")
 
-  # r5: Conflict between ND and OD types -> value/unit nulled and flag updated
+  # r5: Conflict between ND condition and OD limit type -> result nulled
   expect_identical(
     get("r5", "TADA.CensoredData.Flag"),
     "Conflict between Condition and Limit"
@@ -337,10 +240,13 @@ test_that("TADA_IDCensoredData handles NA/blanks and classifies censored data co
     "Result Value/Unit Cannot Be Estimated From Detection Limit"
   )
 
-  # r6: Missing detection condition (blank -> NA) but ND override => Non-Detect
-  expect_identical(get("r6", "TADA.CensoredData.Flag"), "Non-Detect")
+  # r6: Missing detection condition (blank -> NA)
+  expect_identical(
+    get("r6", "TADA.CensoredData.Flag"),
+    "Detection condition is missing and required for censored data ID."
+  )
 
-  # r7: Unknown detection condition text with ND override + OD limit => Conflict and revert
+  # r7: Unknown detection condition text + ND flag + OD limit => conflict and revert
   expect_identical(
     get("r7", "TADA.CensoredData.Flag"),
     "Conflict between Condition and Limit"
@@ -355,14 +261,9 @@ test_that("TADA_IDCensoredData handles NA/blanks and classifies censored data co
   # r8: Uncensored
   expect_identical(get("r8", "TADA.CensoredData.Flag"), "Uncensored")
 
-  # r9: NA-flag copy; classify Non-Detect
-  expect_identical(get("r9", "TADA.ResultMeasureValue"), 0.1)
-  expect_identical(get("r9", "TADA.ResultMeasure.MeasureUnitCode"), "mg/L")
-  expect_identical(
-    get("r9", "TADA.ResultMeasureValueDataTypes.Flag"),
-    "Result Value/Unit Copied from Detection Limit"
-  )
+  # r9: NA result with Non-Detect qualifier flag should be classified as Non-Detect
   expect_identical(get("r9", "TADA.CensoredData.Flag"), "Non-Detect")
+  expect_true(is.na(get("r9", "ResultMeasureValue")))
 
   # No blank strings remain in key character fields
   no_blanks <- function(x) {
@@ -372,9 +273,7 @@ test_that("TADA_IDCensoredData handles NA/blanks and classifies censored data co
   expect_true(no_blanks(res$ResultDetectionConditionText))
   expect_true(no_blanks(res$DetectionQuantitationLimitTypeName))
   expect_true(no_blanks(res$TADA.ResultMeasure.MeasureUnitCode))
-  expect_true(no_blanks(
-    res$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
-  ))
+  expect_true(no_blanks(res$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode))
   expect_true(no_blanks(res$TADA.ResultMeasureValueDataTypes.Flag))
 })
 

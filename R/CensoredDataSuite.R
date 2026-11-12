@@ -102,7 +102,6 @@
 #' }
 #'
 TADA_IDCensoredData <- function(.data) {
-  # check .data is data.frame and has required columns
   expected_cols <- c(
     "ResultIdentifier",
     "ResultMeasureValue",
@@ -116,13 +115,12 @@ TADA_IDCensoredData <- function(.data) {
   )
   TADA_CheckColumns(.data, expected_cols)
 
-  # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL)
   }
 
-  # Normalize key character fields: trim and convert "" to NA
+  # Normalize character fields
   char_cols <- c(
     "ResultMeasureValue",
     "ResultDetectionConditionText",
@@ -132,11 +130,10 @@ TADA_IDCensoredData <- function(.data) {
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
     "TADA.MeasureQualifierCode.Flag"
   )
+
   for (nm in intersect(char_cols, names(.data))) {
     x <- .data[[nm]]
-    if (is.factor(x)) {
-      x <- as.character(x)
-    }
+    if (is.factor(x)) x <- as.character(x)
     if (is.character(x)) {
       x <- trimws(x)
       x[x == ""] <- NA_character_
@@ -144,25 +141,24 @@ TADA_IDCensoredData <- function(.data) {
     .data[[nm]] <- x
   }
 
-  # If user has not previously run TADA_FlagMeasureQualifierCode, run it here
+  # Add qualifier flags if needed
   if (!"TADA.MeasureQualifierCode.Flag" %in% names(.data)) {
     data_mq_flag <- TADA_FlagMeasureQualifierCode(.data, clean = FALSE)
   } else {
     data_mq_flag <- .data
   }
 
-  # Ensure blank/NA result values get a default flag
+  # Default missing-result flag
   data_mq_flag <- data_mq_flag |>
     dplyr::mutate(
       TADA.ResultMeasureValueDataTypes.Flag = ifelse(
-        is.na(TADA.ResultMeasureValueDataTypes.Flag) &
-          is.na(TADA.ResultMeasureValue),
+        is.na(TADA.ResultMeasureValueDataTypes.Flag) & is.na(TADA.ResultMeasureValue),
         "NA - Not Available",
         TADA.ResultMeasureValueDataTypes.Flag
       )
     )
 
-  # Build robust nondetect token list
+  # Censor text tokens
   nd_texts <- tryCatch(
     {
       c(
@@ -176,65 +172,108 @@ TADA_IDCensoredData <- function(.data) {
     },
     error = function(e) c("ND", "BDL", "BPQL")
   )
-
   nd_texts <- unique(toupper(trimws(as.character(nd_texts))))
   nd_texts <- nd_texts[nd_texts != ""]
 
-  # Directly identify censored rows from measure qualifier flag and result text
-  rv_chr <- if (is.factor(data_mq_flag$ResultMeasureValue)) {
-    as.character(data_mq_flag$ResultMeasureValue)
-  } else {
-    data_mq_flag$ResultMeasureValue
+  rv_chr <- toupper(trimws(as.character(data_mq_flag$ResultMeasureValue)))
+  idx_censor_text <- !is.na(rv_chr) & rv_chr %in% nd_texts
+
+  # Set censor-text result values to NA
+  if (any(idx_censor_text, na.rm = TRUE)) {
+    data_mq_flag$ResultMeasureValue[idx_censor_text] <- NA_character_
+    data_mq_flag$TADA.ResultMeasureValueDataTypes.Flag[idx_censor_text] <-
+      "Result Value/Unit Cannot Be Estimated From Detection Limit"
   }
-  rv_chr <- toupper(trimws(as.character(rv_chr)))
 
-  cens_by_mq <- data_mq_flag |>
-    dplyr::filter(TADA.MeasureQualifierCode.Flag %in% c("Non-Detect", "Over-Detect"))
+  # Identify censored rows from qualifier flags or censor text
+  idx_cens <- idx_censor_text |
+    data_mq_flag$TADA.MeasureQualifierCode.Flag %in% c("Non-Detect", "Over-Detect")
 
-  cens_by_text <- data_mq_flag |>
-    dplyr::filter(!is.na(rv_chr) & rv_chr %in% nd_texts)
+  cens <- data_mq_flag[idx_cens, , drop = FALSE]
+  not_cens <- data_mq_flag[!idx_cens, , drop = FALSE]
 
-  # Combine censored sources
-  cens <- dplyr::bind_rows(cens_by_mq, cens_by_text) |>
-    dplyr::distinct(ResultIdentifier, .keep_all = TRUE)
-
-  # Non-censored
-  not_cens <- data_mq_flag |>
-    dplyr::filter(!ResultIdentifier %in% cens$ResultIdentifier)
-
-  # Assign Uncensored flag
   if (nrow(not_cens) > 0) {
     not_cens$TADA.CensoredData.Flag <- "Uncensored"
   } else {
-    not_cens <- data_mq_flag[0, ]
+    not_cens <- data_mq_flag[0, , drop = FALSE]
     not_cens$TADA.CensoredData.Flag <- character(0)
   }
 
-  rm(cens_by_mq, cens_by_text, data_mq_flag, rv_chr)
-
   if (nrow(cens) > 0) {
-    ## Bring in det cond reference table
+    # Reference tables
     cond.ref <- TADA_GetDetCondRef() |>
       dplyr::rename(ResultDetectionConditionText = Name) |>
       dplyr::select(ResultDetectionConditionText, TADA.Detection_Type)
 
-    ## Join to censored data
-    cens <- dplyr::left_join(
-      cens,
-      cond.ref,
-      by = "ResultDetectionConditionText"
-    )
+    lim.ref <- TADA_GetDetLimitRef() |>
+      dplyr::rename(DetectionQuantitationLimitTypeName = Name) |>
+      dplyr::select(DetectionQuantitationLimitTypeName, TADA.Limit_Type)
 
-    ## Flag censored data that does not have det cond populated (after blank->NA normalization)
-    cens$TADA.Detection_Type <- ifelse(
-      is.na(cens$ResultDetectionConditionText),
-      "ResultDetectionConditionText missing",
-      cens$TADA.Detection_Type
-    )
+    cens <- dplyr::left_join(cens, cond.ref, by = "ResultDetectionConditionText")
+    cens <- dplyr::left_join(cens, lim.ref, by = "DetectionQuantitationLimitTypeName")
 
-    ## Warn if detection condition missing
-    if (any(cens$TADA.Detection_Type == "ResultDetectionConditionText missing", na.rm = TRUE)) {
-      missing_detcond <- sum(cens$TADA.Detection_Type == "ResultDetectionConditionText missing", na.rm = TRUE)
+    # Track missing / undocumented detection condition and limit values
+    cens$TADA.CensoredData.Flag <- NA_character_
+
+    # missing condition and missing limit
+    idx_missing_both <- is.na(cens$ResultDetectionConditionText) &
+      is.na(cens$DetectionQuantitationLimitTypeName)
+    cens$TADA.CensoredData.Flag[idx_missing_both] <-
+      "Detection condition or detection limit is not documented in TADA reference tables."
+
+    # missing condition only
+    idx_missing_cond <- is.na(cens$ResultDetectionConditionText) &
+      !is.na(cens$DetectionQuantitationLimitTypeName)
+    cens$TADA.CensoredData.Flag[idx_missing_cond] <-
+      "Detection condition is missing and required for censored data ID."
+
+    # missing/ref-mismatch condition or limit not in reference tables
+    idx_undoc <- (
+      (!is.na(cens$ResultDetectionConditionText) & is.na(cens$TADA.Detection_Type)) |
+        (!is.na(cens$DetectionQuantitationLimitTypeName) & is.na(cens$TADA.Limit_Type))
+    )
+    cens$TADA.CensoredData.Flag[idx_undoc] <-
+      "Detection condition or detection limit is not documented in TADA reference tables."
+
+    # valid matching types
+    idx_nd <- cens$TADA.Detection_Type == "Non-Detect" &
+      cens$TADA.Limit_Type == "Non-Detect"
+    cens$TADA.CensoredData.Flag[idx_nd] <- "Non-Detect"
+
+    idx_od <- cens$TADA.Detection_Type == "Over-Detect" &
+      cens$TADA.Limit_Type == "Over-Detect"
+    cens$TADA.CensoredData.Flag[idx_od] <- "Over-Detect"
+
+    idx_other <- cens$TADA.Detection_Type == "Other" &
+      cens$TADA.Limit_Type == "Other"
+    cens$TADA.CensoredData.Flag[idx_other] <- "Other Condition/Limit Populated"
+
+    # conflicts
+    idx_conf <- cens$TADA.Detection_Type %in% c("Non-Detect", "Over-Detect", "Other") &
+      cens$TADA.Limit_Type %in% c("Non-Detect", "Over-Detect", "Other") &
+      cens$TADA.Detection_Type != cens$TADA.Limit_Type
+    cens$TADA.CensoredData.Flag[idx_conf] <- "Conflict between Condition and Limit"
+
+    # If conflict, null out result value/unit and mark cannot estimate
+    if (any(idx_conf, na.rm = TRUE)) {
+      cens$TADA.ResultMeasureValue[idx_conf] <- NA
+      cens$TADA.ResultMeasure.MeasureUnitCode[idx_conf] <- NA
+      cens$TADA.ResultMeasureValueDataTypes.Flag[idx_conf] <-
+        "Result Value/Unit Cannot Be Estimated From Detection Limit"
+    }
+
+    # If censored text was present, keep result value NA
+    if (any(idx_censor_text[idx_cens], na.rm = TRUE)) {
+      cens$ResultMeasureValue[idx_censor_text[idx_cens]] <- NA
+    }
+
+    # Any remaining NA flags that are truly uncategorized
+    cens$TADA.CensoredData.Flag[is.na(cens$TADA.CensoredData.Flag)] <-
+      "Detection condition or detection limit is not documented in TADA reference tables."
+
+    # Messages
+    if (any(cens$TADA.CensoredData.Flag == "Detection condition is missing and required for censored data ID.", na.rm = TRUE)) {
+      missing_detcond <- sum(cens$TADA.CensoredData.Flag == "Detection condition is missing and required for censored data ID.", na.rm = TRUE)
       message(paste0(
         "TADA_IDCensoredData: There are ",
         missing_detcond,
@@ -242,11 +281,9 @@ TADA_IDCensoredData <- function(.data) {
       ))
     }
 
-    ## Warn when result detection conditions not in ref table (exclude NA)
     conds <- unique(cens$ResultDetectionConditionText[!is.na(cens$ResultDetectionConditionText)])
     if (length(conds) > 0 && any(!conds %in% cond.ref$ResultDetectionConditionText)) {
-      missing_conds <- conds[!conds %in% cond.ref$ResultDetectionConditionText]
-      missing_conds <- paste(missing_conds, collapse = ", ")
+      missing_conds <- paste(conds[!conds %in% cond.ref$ResultDetectionConditionText], collapse = ", ")
       message(paste0(
         "TADA_IDCensoredData: ResultDetectionConditionText column in dataframe contains value(s) ",
         missing_conds,
@@ -254,23 +291,9 @@ TADA_IDCensoredData <- function(.data) {
       ))
     }
 
-    ## Bring in det limit type reference table
-    limtype.ref <- TADA_GetDetLimitRef() |>
-      dplyr::rename(DetectionQuantitationLimitTypeName = Name) |>
-      dplyr::select(DetectionQuantitationLimitTypeName, TADA.Limit_Type)
-
-    ## Join to censored data
-    cens <- dplyr::left_join(
-      cens,
-      limtype.ref,
-      by = "DetectionQuantitationLimitTypeName"
-    )
-
-    # Warn when some limit type names not in ref table (exclude NA)
     limits <- unique(cens$DetectionQuantitationLimitTypeName[!is.na(cens$DetectionQuantitationLimitTypeName)])
-    if (length(limits) > 0 && any(!limits %in% limtype.ref$DetectionQuantitationLimitTypeName)) {
-      missing_lims <- limits[!limits %in% limtype.ref$DetectionQuantitationLimitTypeName]
-      missing_lims <- paste(missing_lims, collapse = ", ")
+    if (length(limits) > 0 && any(!limits %in% lim.ref$DetectionQuantitationLimitTypeName)) {
+      missing_lims <- paste(limits[!limits %in% lim.ref$DetectionQuantitationLimitTypeName], collapse = ", ")
       message(paste0(
         "TADA_IDCensoredData: DetectionQuantitationLimitTypeName column in dataframe contains value(s) ",
         missing_lims,
@@ -278,82 +301,18 @@ TADA_IDCensoredData <- function(.data) {
       ))
     }
 
-    ## Create flag for condition and limit type combinations
-    cens$TADA.CensoredData.Flag <- "Detection condition or detection limit is not documented in TADA reference tables."
-    cens$TADA.CensoredData.Flag <- ifelse(
-      cens$TADA.Detection_Type %in% c("ResultDetectionConditionText missing"),
-      "Detection condition is missing and required for censored data ID.",
-      cens$TADA.CensoredData.Flag
-    )
-
-    cens$TADA.CensoredData.Flag <- ifelse(
-      cens$TADA.Detection_Type %in% c("Non-Detect") &
-        cens$TADA.Limit_Type %in% c("Non-Detect"),
-      "Non-Detect",
-      cens$TADA.CensoredData.Flag
-    )
-    cens$TADA.CensoredData.Flag <- ifelse(
-      cens$TADA.Detection_Type %in% c("Over-Detect") &
-        cens$TADA.Limit_Type %in% c("Over-Detect"),
-      "Over-Detect",
-      cens$TADA.CensoredData.Flag
-    )
-    cens$TADA.CensoredData.Flag <- ifelse(
-      cens$TADA.Detection_Type %in% c("Other") &
-        cens$TADA.Limit_Type %in% c("Other"),
-      "Other Condition/Limit Populated",
-      cens$TADA.CensoredData.Flag
-    )
-
-    # Identify conflicts between detection condition and limit type
-    cens$TADA.CensoredData.Flag <- ifelse(
-      cens$TADA.Detection_Type %in% c("Non-Detect", "Over-Detect", "Other") &
-        cens$TADA.Limit_Type %in% c("Non-Detect", "Over-Detect", "Other") &
-        cens$TADA.Detection_Type != cens$TADA.Limit_Type,
-      "Conflict between Condition and Limit",
-      cens$TADA.CensoredData.Flag
-    )
-
-    ## Warn when conflicts
-    if ("Conflict between Condition and Limit" %in% cens$TADA.CensoredData.Flag) {
-      num <- sum(cens$TADA.CensoredData.Flag == "Conflict between Condition and Limit", na.rm = TRUE)
-      message(paste0(
-        "TADA_IDCensoredData: ",
-        num,
-        " records in supplied dataset have conflicting detection condition and detection limit type information. These records will not be included in detection limit handling calculations."
-      ))
-    }
-
-    if ("Detection condition or detection limit is not documented in TADA reference tables." %in%
-        cens$TADA.CensoredData.Flag) {
-      num <- sum(cens$TADA.CensoredData.Flag ==
-                   "Detection condition or detection limit is not documented in TADA reference tables.", na.rm = TRUE)
-      message(paste0(
-        "TADA_IDCensoredData: ",
-        num,
-        " records in the supplied dataframe have detection conditions and/or limit types that are missing from TADA reference tables. These records will not be included in detection limit handling calculations."
-      ))
-    }
-
     cens <- cens |>
-      dplyr::select(
-        -TADA.Detection_Type,
-        -TADA.Limit_Type,
-        -TADA.MeasureQualifierCode.Flag
-      )
+      dplyr::select(-TADA.Detection_Type, -TADA.Limit_Type, -TADA.MeasureQualifierCode.Flag)
 
     cens.check <- plyr::rbind.fill(cens, not_cens)
   } else {
     cens.check <- not_cens
-    message(
-      "TADA_IDCensoredData: No censored data detected in your dataframe. Returning input dataframe with new column TADA.CensoredData.Flag set to Uncensored"
-    )
+    message("TADA_IDCensoredData: No censored data detected in your dataframe. Returning input dataframe with new column TADA.CensoredData.Flag set to Uncensored")
   }
 
   cens.check <- TADA_OrderCols(cens.check)
   return(cens.check)
 }
-
 #' Simple Tools for Censored Data Handling
 #'
 #' Apply simple, non-frequency-based methods to populate values for censored
