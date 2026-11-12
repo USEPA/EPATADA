@@ -1005,3 +1005,100 @@ testthat::test_that("TADA_CreatePointAUGeometry works with only TADA.MonitoringL
 
   testthat::expect_s3_class(result, "sf")
 })
+
+# TADA_ViewNewAUs tests
+
+testthat::test_that("TADA_ViewNewAUs errors when required columns are missing", {
+  df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    TADA.MonitoringLocationIdentifier = "ML1",
+    TADA.LatitudeMeasure = 45
+    # missing Longitude
+  )
+
+  testthat::expect_error(
+    TADA_ViewNewAUs(df),
+    "Missing required columns: TADA.LongitudeMeasure",
+    fixed = TRUE
+  )
+})
+
+
+test_that("TADA_ViewNewAUs creates a leaflet object with map calls", {
+  df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    TADA.MonitoringLocationIdentifier = "ML1",
+    TADA.LatitudeMeasure = 45.1,
+    TADA.LongitudeMeasure = -110.2,
+    stringsAsFactors = FALSE
+  )
+
+  fake_dir <- withr::local_tempdir()
+  fake_images <- file.path(fake_dir, paste0("icon", 1:14, ".png"))
+  purrr::walk(fake_images, file.create)
+  fake_labels <- paste0("label", 1:14)
+
+  testthat::local_mocked_bindings(
+    getMapIconLabels = function() list(fake_images, fake_labels),
+    createTADABasemap = function(.data) leaflet::leaflet(),
+    addWQPSites = function(.data, map, icons, icon_labels, ref_icons, overlay_groups) {
+      list(map = map, overlay_groups = c(overlay_groups, "Monitoring Locations"))
+    },
+    addTADAMapLegend = function(.data, map, icons, icon_labels, wqp, ref_icons,
+                                attains_au, attains_new, attains_missing, nhd_attains) {
+      map
+    },
+    addLegendToggle = function(map) map,
+    addLayerControl = function(map, overlay_groups) map
+  )
+
+  res <- TADA_ViewNewAUs(df)
+
+  testthat::expect_s3_class(res, "leaflet")
+  testthat::expect_true("x" %in% names(res))
+  testthat::expect_true("calls" %in% names(res$x))
+})
+
+testthat::test_that("TADA_ViewNewAUs adds default TADA.AURefSource when missing", {
+  df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    TADA.MonitoringLocationIdentifier = "ML1",
+    TADA.LatitudeMeasure = 45.1,
+    TADA.LongitudeMeasure = -110.2,
+    stringsAsFactors = FALSE
+  )
+
+  fake_dir <- withr::local_tempdir()
+  fake_images <- file.path(fake_dir, paste0("icon", 1:14, ".png"))
+  for (i in fake_images) file.create(i)
+  fake_labels <- paste0("label", 1:14)
+
+  seen_data <- NULL
+
+  testthat::local_mocked_bindings(
+    getMapIconLabels = function() list(fake_images, fake_labels),
+
+    createTADABasemap = function(.data) {
+      seen_data <<- .data
+      leaflet::leaflet()
+    },
+
+    addWQPSites = function(.data, map, icons, icon_labels, ref_icons, overlay_groups) {
+      list(map = map, overlay_groups = overlay_groups)
+    },
+
+    addTADAMapLegend = function(.data, map, icons, icon_labels, wqp,
+                                ref_icons, attains_au, attains_new,
+                                attains_missing, nhd_attains) {
+      map
+    },
+
+    addLegendToggle = function(map) map,
+    addLayerControl = function(map, overlay_groups) map
+  )
+
+  TADA_ViewNewAUs(df)
+
+  testthat::expect_true("TADA.AURefSource" %in% names(seen_data))
+  testthat::expect_identical(seen_data$TADA.AURefSource, "TADA_CreatePointAUs")
+})
