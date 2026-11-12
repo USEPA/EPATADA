@@ -68,7 +68,7 @@ criteria_MT <- EPATADA::TADA_GetCriteriaFile(org_id = "MTDEQ")
 MT_data_criteria <- TADA_Analysis_Join_WQP_Criteria(MT_data, criteria_MT)
 
 # create the MLSummaryRef (ML only - no AU or other spatial columns)
-params <- TADA_ParametersForAnalysis(
+params <- TADA_CrosswalkWQPATTAINSParam(
   Data_MT_MissoulaCounty, org_id = "MTDEQ", auto_assign = "Org")
 
 uses_paramRef2 <- TADA_ParamUseRef(Data_MT_MissoulaCounty,

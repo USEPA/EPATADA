@@ -201,7 +201,7 @@ tada.MT.clean <- Data_MT_MissoulaCounty
 
 This example will focus only on Montana. The remainder of this vignette
 will walk through how to fill out two crosswalk tables
-(TADA_ParametersForAnalysis and TADA_UsesForAnalysis) that are needed
+(TADA_CrosswalkWQPATTAINSParam and TADA_CreateParamUseRef) that are needed
 before we can start assigning applicable criteria and methodologies
 information for this specific ATTAINS organization (MTDEQ).
 
@@ -210,7 +210,7 @@ information for this specific ATTAINS organization (MTDEQ).
 A crosswalk between TADA characteristics and ATTAINS parameters is
 needed before we can integrate information from these two data sets.
 Before creating the TADA/WQP CharacteristicName and ATTAINS parameter
-crosswalk table (TADA_ParametersForAnalysis), let's review all the
+crosswalk table (TADA_CrosswalkWQPATTAINSParam), let's review all the
 unique TADA.ComparableDataIdentifiers (characteristic, fraction and
 speciation combinations) in the example data. How many results are
 available for each within the example data set?
@@ -237,7 +237,7 @@ TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name", api_key = rEQ_api))
 
 In the next section, we will review which parameters have been listed in
 ATTAINS in the past for a specific organization. In order to select a
-specific organization in the TADA_ParametersForAnalysis() function, we
+specific organization in the TADA_CrosswalkWQPATTAINSParam() function, we
 need to identify the organization id used in ATTAINS. The organization
 id for Montana is "MTDEQ".
 
@@ -246,17 +246,17 @@ id for Montana is "MTDEQ".
 TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id", api_key = rEQ_api))
 ```
 
-# TADA_ParametersForAnalysis() Basics
+# TADA_CrosswalkWQPATTAINSParam() Basics
 
 ATTAINS Parameter Names are more general than the TADA Comparable Data
 Identifiers. Therefore, we recommend users provide a crosswalk between
 each TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
-TADA_ParametersForAnalysis() creates a template which includes all
+TADA_CrosswalkWQPATTAINSParam() creates a template which includes all
 TADA.ComparableDataIdentifiers from the TADA data frame and contains a
 blank column, "ATTAINS.ParameterName" for users to input the
 corresponding ATTAINS parameter name.
 
-TADA_ParametersForAnalysis() includes an argument input 'auto_assign' to
+TADA_CrosswalkWQPATTAINSParam() includes an argument input 'auto_assign' to
 assist users in finding an alias name between TADA Characteristic Names
 to ATTAINS Parameter Name, if one is found. It is important to note that
 even with these exact matches, there are additional complexities related
@@ -267,7 +267,7 @@ parameter "Nitrogen", while others may consider only some
 fraction/speciation combinations analogous to the ATTAINS parameter
 "Nitrogen".
 
-Setting "excel = TRUE" in TADA_ParametersForAnalysis tells the function
+Setting "excel = TRUE" in TADA_CrosswalkWQPATTAINSParam tells the function
 to create an Excel spreadsheet of the reference table for review and
 editing. The excel output includes logic to help a user select ATTAINS
 parameter names that have been used in the past by the selected
@@ -276,7 +276,7 @@ organization. If users do not want to work in Excel, they can use "excel
 in R if desired, although there are no TADA-specific functions designed
 to facilitate this.
 
-When using TADA_ParametersForAnalysis(), users should specify the
+When using TADA_CrosswalkWQPATTAINSParam(), users should specify the
 organization(s) of interest in the "org_id" argument. This ensures that
 the correct number of rows will be created in the reference table. When
 "excel = TRUE", specifying the organization(s) also creates a separate
@@ -290,7 +290,7 @@ ATTAINS domain list.
 Keep in mind that only parameter names previously entered in ATTAINS by
 the selected organization(s) will be returned. Many organization only
 input parameters that are causes in ATTAINS. This means that
-TADA_ParametersForAnalysis() may not return all parameters required by
+TADA_CrosswalkWQPATTAINSParam() may not return all parameters required by
 an organization's assessment methodology if some parameters have never
 been listed as a cause. If there is not a suitable ATTAINS parameter
 name to match a TADA.ComparableDataIdentifier, users should contact the
@@ -304,7 +304,7 @@ this crosswalk out.
 
 ```{r auto_assign-none}
 # create TADA parameter reference table for specified organization
-MT.ParamRef.None <- TADA_ParametersForAnalysis(
+MT.ParamRef.None <- TADA_CrosswalkWQPATTAINSParam(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   auto_assign = "None",
@@ -326,7 +326,7 @@ previously record in ATTAINS may be included in the assignments.
 
 ```{r auto_assign-All}
 # create TADA parameter reference table for specified organization
-MT.ParamRef.All <- TADA_ParametersForAnalysis(
+MT.ParamRef.All <- TADA_CrosswalkWQPATTAINSParam(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   auto_assign = "All",
@@ -343,7 +343,7 @@ an organization has used in the past.
 
 ```{r auto_assign-Org}
 # create TADA parameter reference table for specified organization
-MT.ParamRef.Org <- TADA_ParametersForAnalysis(
+MT.ParamRef.Org <- TADA_CrosswalkWQPATTAINSParam(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   auto_assign = "Org",
@@ -366,7 +366,7 @@ be modified in R.
 # downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 # ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
 
-# MT.ParamRef_Excel <- TADA_ParametersForAnalysis(
+# MT.ParamRef_Excel <- TADA_CrosswalkWQPATTAINSParam(
 #   Data_NCTC,
 #   org_id = c("MTDEQ"),
 #   paramRef = ParamRef,
@@ -386,7 +386,7 @@ TADA_TableExport(MT.ParamRef.manual)
 ### Provide a User Supplied paramRef
 
 Once modifications are complete, we can re-run
-TADA_ParametersForAnalysis using the modified parameter reference table
+TADA_CrosswalkWQPATTAINSParam using the modified parameter reference table
 as the input for "paramRef". This will update the
 ATTAINS.FlagParameterName column in the parameter reference table (see
 example below). This column provides information about whether or not
@@ -396,7 +396,7 @@ It also flags rows where the TADA.ComparableDataIdentifier as not been
 assigned an ATTAINS parameter name.
 
 ```{r User-Supplied-ParamRef}
-MT.ParamRef.user.supplied <- TADA_ParametersForAnalysis(
+MT.ParamRef.user.supplied <- TADA_CrosswalkWQPATTAINSParam(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.manual,
@@ -427,7 +427,7 @@ ATTAINS.ParameterName in the user supplied 'MT.ParamRef_user_supplied,
 this table will be the same.
 
 ```{r finalize-paramRef}
-MT.ParamRef.Final <- TADA_ParametersForAnalysis(
+MT.ParamRef.Final <- TADA_CrosswalkWQPATTAINSParam(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.user.supplied,
@@ -450,7 +450,7 @@ that are relevant for the remaining workflow.
 rm(MT.ParamRef.All, MT.ParamRef.manual, MT.ParamRef.None, MT.ParamRef.Org, MT.ParamRef.user.supplied)
 ```
 
-# TADA_UsesForAnalysis() Basics
+# TADA_CreateParamUseRef() Basics
 
 Users will review the output of this function and select which
 ATTAINS.UseName(s) and associated ATTAINS.ParameterName(s), for your
@@ -487,7 +487,7 @@ this current assessment cycle. Thus, the ATTAINS.UseName is left blank
 for "PH, HIGH".
 
 ```{r usesRef-Manual}
-MT.UsesRef.manual <- TADA_UsesForAnalysis(
+MT.UsesRef.manual <- TADA_CreateParamUseRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
@@ -526,11 +526,11 @@ UsesRef <- MT.UsesRef.manual |>
 
 The output of UsesRef will not reflect changes to the
 ATTAINS.FlagUseName column. To do so, we need to re run
-TADA_UsesForAnalysis() with usesRef = add_data as an argument input.
+TADA_CreateParamUseRef() with usesRef = add_data as an argument input.
 
 ```{r usesRef-Manual-Update2}
 # PH will now reflect the changes
-MT.UsesRef.manual.Update <- TADA_UsesForAnalysis(
+MT.UsesRef.manual.Update <- TADA_CreateParamUseRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
@@ -557,7 +557,7 @@ are more ATTAINS.UseName applicable for that ATTAINS.ParameterName that
 was not captured by the auto_assign method.
 
 ```{r usesRef-auto}
-MT.UsesRef.auto <- TADA_UsesForAnalysis(
+MT.UsesRef.auto <- TADA_CreateParamUseRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
@@ -572,7 +572,7 @@ MT.UsesRef.auto <- TADA_UsesForAnalysis(
 TADA_TableExport(MT.UsesRef.auto)
 ```
 
-# **Advanced: Deep Dive into `TADA_UsesForAnalysis()`**
+# **Advanced: Deep Dive into `TADA_CreateParamUseRef()`**
 
 Users may have their own set of use names to associate with parameter
 names or may have completed an AU to uses crosswalk in prior TADA
@@ -638,7 +638,7 @@ which are prioritized as follows:
     (ATTAINS.ParameterName) found in your paramRef crosswalk for the
     specified ATTAINS organization. Data is retrieved from prior ATTAINS
     assessment cycles via ATTAINS ExpertQuery web services. This is the
-    same as the basic use case under 'TADA_UsesForAnalysis() Basics'
+    same as the basic use case under 'TADA_CreateParamUseRef() Basics'
     section of this vignette.
 
 #### Option 1: User supplied usesRef
@@ -682,8 +682,8 @@ criteria_table <- TADA_GetCriteriaFile(org_id = "MTDEQ")
 # extract the parameter and uses from this table
 user.supplied.MT.data <- dplyr::select(criteria_table, ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier, TADA.CharacteristicName, ATTAINS.ParameterName, ATTAINS.UseName)
 
-# run TADA_UsesForAnalysis and filter the table to ATTAINS.ParameterName(s) found in your paramRef arg input.
-MT.UsesRef.manual.user.supplied <- TADA_UsesForAnalysis(
+# run TADA_CreateParamUseRef and filter the table to ATTAINS.ParameterName(s) found in your paramRef arg input.
+MT.UsesRef.manual.user.supplied <- TADA_CreateParamUseRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
@@ -723,7 +723,7 @@ to MT.UsesRef.with.AU_UsesRef.
 # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
 utils::data(Data_MT_AU_UsesRef)
 
-MT.UsesRef.manual.AU_UsesRef <- TADA_UsesForAnalysis(
+MT.UsesRef.manual.AU_UsesRef <- TADA_CreateParamUseRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
@@ -741,7 +741,7 @@ TADA_TableExport(MT.UsesRef.manual.AU_UsesRef)
 Now, lets show the output when we turn auto_assign = TRUE
 
 ```{r usesRef-auto-AU_UsesRef}
-MT.UsesRef.auto.AU_UsesRef <- TADA_UsesForAnalysis(
+MT.UsesRef.auto.AU_UsesRef <- TADA_CreateParamUseRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
@@ -766,7 +766,7 @@ those assessment units in your data frame of interest.
 
 Let's go ahead and pull in our AUMLRef crosswalk created in
 TADAModule2.Rmd vignette. We will compare the output of
-**`TADA_UsesForAnalysis`** for assessment units for MTDEQ for the case
+**`TADA_CreateParamUseRef`** for assessment units for MTDEQ for the case
 in which water type is 'LAKE, FRESHWATER' versus 'RIVER'.
 
 ```{r retrieve-AUMLRef}
@@ -789,7 +789,7 @@ Question: What differences do we see between the two outputs for 'LAKE,
 FRESHWATER' versus 'RIVER'?
 
 ```{r usesRef-with-AUMLRef-lake}
-MT.UsesRef.manual.MT76F007_010 <- TADA_UsesForAnalysis(
+MT.UsesRef.manual.MT76F007_010 <- TADA_CreateParamUseRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
@@ -805,7 +805,7 @@ TADA_TableExport(MT.UsesRef.manual.MT76F007_010)
 ```
 
 ```{r usesRef-with-AUMLRef-river}
-MT.UsesRef.manual.MT76M004_070 <- TADA_UsesForAnalysis(
+MT.UsesRef.manual.MT76M004_070 <- TADA_CreateParamUseRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
@@ -823,7 +823,7 @@ TADA_TableExport(MT.UsesRef.manual.MT76M004_070)
 What do we see with auto_assign for this lake assessment unit?
 
 ```{r usesRef-autoassign-AUMLRef-lake}
-MT.UsesRef.auto.MT76F007_010 <- TADA_UsesForAnalysis(
+MT.UsesRef.auto.MT76F007_010 <- TADA_CreateParamUseRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
@@ -845,7 +845,7 @@ filtered AUMLRef as our input along with the full AU_UsesRef defined
 earlier.
 
 ```{r usesRef-with-AUMLRef-and-AU_UsesRef-river}
-MT.UsesRef.manual.3B <- TADA_UsesForAnalysis(
+MT.UsesRef.manual.3B <- TADA_CreateParamUseRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
@@ -877,7 +877,7 @@ have not filled in but will not replace any cross walk that you have
 defined in your user supplied crosswalk.
 
 ```{r finalize-usesRef}
-MT.UsesRef.Final <- TADA_UsesForAnalysis(
+MT.UsesRef.Final <- TADA_CreateParamUseRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
