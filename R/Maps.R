@@ -683,7 +683,8 @@ TADA_SitesToggleMap <- function(
   nearby_data <- .TADA_prepareNearbySites(
     .data,
     dist_buffer = dist_buffer,
-    catchment = catchment
+    catchment = catchment,
+    nhd_res = nhd_res
   ) |>
     TADA_CorrectColType()
 
