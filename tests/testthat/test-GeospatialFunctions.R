@@ -1041,11 +1041,31 @@ test_that("TADA_ViewNewAUs creates a leaflet object with map calls", {
   testthat::local_mocked_bindings(
     getMapIconLabels = function() list(fake_images, fake_labels),
     createTADABasemap = function(.data) leaflet::leaflet(),
-    addWQPSites = function(.data, map, icons, icon_labels, ref_icons, overlay_groups) {
-      list(map = map, overlay_groups = c(overlay_groups, "Monitoring Locations"))
+    addWQPSites = function(
+      .data,
+      map,
+      icons,
+      icon_labels,
+      ref_icons,
+      overlay_groups
+    ) {
+      list(
+        map = map,
+        overlay_groups = c(overlay_groups, "Monitoring Locations")
+      )
     },
-    addTADAMapLegend = function(.data, map, icons, icon_labels, wqp, ref_icons,
-                                attains_au, attains_new, attains_missing, nhd_attains) {
+    addTADAMapLegend = function(
+      .data,
+      map,
+      icons,
+      icon_labels,
+      wqp,
+      ref_icons,
+      attains_au,
+      attains_new,
+      attains_missing,
+      nhd_attains
+    ) {
       map
     },
     addLegendToggle = function(map) map,
@@ -1070,7 +1090,9 @@ testthat::test_that("TADA_ViewNewAUs adds default TADA.AURefSource when missing"
 
   fake_dir <- withr::local_tempdir()
   fake_images <- file.path(fake_dir, paste0("icon", 1:14, ".png"))
-  for (i in fake_images) file.create(i)
+  for (i in fake_images) {
+    file.create(i)
+  }
   fake_labels <- paste0("label", 1:14)
 
   seen_data <- NULL
@@ -1083,13 +1105,29 @@ testthat::test_that("TADA_ViewNewAUs adds default TADA.AURefSource when missing"
       leaflet::leaflet()
     },
 
-    addWQPSites = function(.data, map, icons, icon_labels, ref_icons, overlay_groups) {
+    addWQPSites = function(
+      .data,
+      map,
+      icons,
+      icon_labels,
+      ref_icons,
+      overlay_groups
+    ) {
       list(map = map, overlay_groups = overlay_groups)
     },
 
-    addTADAMapLegend = function(.data, map, icons, icon_labels, wqp,
-                                ref_icons, attains_au, attains_new,
-                                attains_missing, nhd_attains) {
+    addTADAMapLegend = function(
+      .data,
+      map,
+      icons,
+      icon_labels,
+      wqp,
+      ref_icons,
+      attains_au,
+      attains_new,
+      attains_missing,
+      nhd_attains
+    ) {
       map
     },
 
