@@ -34,7 +34,6 @@ unit level by either ATTAINS.WaterType or TADA.MonitoringLocationTypeName.
 \examples{
 
 \dontrun{
-
 # Get test data with both freshwater and saltwater results
 testdat <- TADA_DataRetrieval(statecode = "OR",
                               startDate = "2023-06-01",
