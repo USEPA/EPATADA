@@ -11,7 +11,7 @@ testthat::test_that("TADA_CrosswalkWQPATTAINSParam ", {
   )
 
   suppressWarnings(
-    use_param_ref_none <- TADA_CreateParamUseRef (
+    use_param_ref_none <- TADA_CreateParamUseRef(
       test_dat,
       paramRef = param_ref_none,
       org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
@@ -33,7 +33,7 @@ testthat::test_that("TADA_CrosswalkWQPATTAINSParam ", {
   )
 
   suppressWarnings(
-    use_param_ref_none2 <- TADA_CreateParamUseRef (
+    use_param_ref_none2 <- TADA_CreateParamUseRef(
       test_dat,
       paramRef = param_ref_none,
       usesRef = user.supplied.uses.param,
@@ -60,7 +60,7 @@ testthat::test_that("TADA_CrosswalkWQPATTAINSParam ", {
   )
 
   suppressWarnings(
-    use_param_ref_all <- TADA_CreateParamUseRef (
+    use_param_ref_all <- TADA_CreateParamUseRef(
       test_dat,
       paramRef = param_ref_all,
       org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
@@ -83,7 +83,7 @@ testthat::test_that("TADA_CrosswalkWQPATTAINSParam ", {
   )
 
   suppressWarnings(
-    use_param_ref_all2 <- TADA_CreateParamUseRef (
+    use_param_ref_all2 <- TADA_CreateParamUseRef(
       test_dat,
       paramRef = param_ref_all,
       usesRef = user.supplied.uses.param,
@@ -170,7 +170,7 @@ testthat::test_that("Excel file generation works correctly with overwrite = F in
     org_id = "MTDEQ"
   )
   msg <- utils::capture.output(
-    usesTest <- TADA_CreateParamUseRef (
+    usesTest <- TADA_CreateParamUseRef(
       Data_MT_MissoulaCounty,
       org_id = "MTDEQ",
       paramRef = paramTest,
@@ -211,7 +211,7 @@ testthat::test_that("Excel file generation works correctly with overwrite = T in
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ"
   )
-  usesTest <- TADA_CreateParamUseRef (
+  usesTest <- TADA_CreateParamUseRef(
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ",
     paramRef = paramTest,
@@ -239,7 +239,7 @@ testthat::test_that("Excel file generation works correctly with overwrite = F in
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ"
   )
-  usesTest <- TADA_CreateParamUseRef (
+  usesTest <- TADA_CreateParamUseRef(
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ",
     paramRef = paramTest
@@ -286,7 +286,7 @@ testthat::test_that("Excel file generation works correctly with overwrite = T in
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ"
   )
-  usesTest <- TADA_CreateParamUseRef (
+  usesTest <- TADA_CreateParamUseRef(
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ",
     paramRef = paramTest
@@ -365,7 +365,7 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_Creat
   }
 
   # Run the function being tested
-  usesTest <- TADA_CreateParamUseRef (excel = T, overwrite = T)
+  usesTest <- TADA_CreateParamUseRef(excel = T, overwrite = T)
   # Reload the updated workbook so wb now includes those tabs
   wb <- openxlsx::loadWorkbook(downloads_path)
   nsheets <- length(names(wb))
@@ -381,7 +381,7 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_Creat
   }
   # Run the function with overwrite = F now
   msg <- utils::capture.output(
-    usesTest2 <- TADA_CreateParamUseRef (excel = T, overwrite = F),
+    usesTest2 <- TADA_CreateParamUseRef(excel = T, overwrite = F),
     type = "message"
   )
   # Reload the updated workbook so wb now includes those tabs
