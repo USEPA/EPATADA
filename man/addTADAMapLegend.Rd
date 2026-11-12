@@ -12,6 +12,7 @@ addTADAMapLegend(
   wqp = TRUE,
   ref_icons = TRUE,
   attains_au = TRUE,
+  attains_new = FALSE,
   attains_missing = TRUE,
   nhd_attains = TRUE
 )
@@ -50,6 +51,10 @@ the legend. Default is ref_icons = TRUE.}
 aus colors are shown in the legend. When attains_au = TRUE, the colors indicating
 ATTAINS assessment unit overall status are shown in the legend. Default is
 attains_au = TRUE.}
+
+\item{attains_new}{Boolean argument. Determines whether the color for new AUs
+is shown in the legend. When attains_new = TRUE, the color indicating
+new AUs is shown in the legend. Default is attains_new = FALSE.}
 
 \item{attains_missing}{Boolean argument. Determines whether the dashed circle
 indicating whether WQP sites with assessment units assigned by the user are

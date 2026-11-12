@@ -63,6 +63,9 @@ getMapIconLabels <- function(icons = TRUE, labels = TRUE) {
   #   na.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
   #                                 color = tada.pal[7],
   #                                 name = "na.point.circle")
+  #   new.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
+  #                                 color = tada.pal[7],
+  #                                 name = "new.point.circle")
 
   # if only icons = TRUE, return list of paths to icon images
   if (icons == TRUE) {
@@ -100,7 +103,8 @@ getMapIconLabels <- function(icons = TRUE, labels = TRUE) {
       system.file("extdata/icons", "square-catchment.png", package = "EPATADA"), # 10
       system.file("extdata/icons", "ns.point.circle.png", package = "EPATADA"), # 11
       system.file("extdata/icons", "s.point.circle.png", package = "EPATADA"), # 12
-      system.file("extdata/icons", "na.point.circle.png", package = "EPATADA") # 13
+      system.file("extdata/icons", "na.point.circle.png", package = "EPATADA"), # 13
+      system.file("extdata/icons", "new.point.circle.png", package = "EPATADA") # 14
     )
 
     # return only images if labels are not required
@@ -124,7 +128,8 @@ getMapIconLabels <- function(icons = TRUE, labels = TRUE) {
       "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines.", # 10
       "ATTAINS: Not Supporting Point", # 11
       "ATTAINS: Supporting Point", # 12
-      "ATTAINS: Not Assessed Point" # 13
+      "ATTAINS: Not Assessed Point", # 13
+      "New Assessment Unit (not yet in ATTAINS)" #14
     )
 
     # return only labels if images are not required
@@ -1340,13 +1345,14 @@ addWQPSites <- function(
 
     wqp.urls <- images[8]
   } else {
-    wqp.imgs <- images[5:7]
-    wqp.labels <- img.labels[5:7]
+    wqp.imgs <- images[5:8]
+    wqp.labels <- img.labels[5:8]
 
     wqp.urls <- dplyr::case_when(
       .data$TADA.AURefSource == "ATTAINS Crosswalk" ~ images[6],
       .data$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ images[7],
-      .data$TADA.AURefSource == "User-supplied Ref" ~ images[5]
+      .data$TADA.AURefSource == "User-supplied Ref" ~ images[5],
+      .data$TADA.AURefSource == "TADA_CreatePointAUs" ~ images[8]
     )
   }
 
@@ -1424,6 +1430,10 @@ addWQPSites <- function(
 #' ATTAINS assessment unit overall status are shown in the legend. Default is
 #' attains_au = TRUE.
 #'
+#' @param attains_new Boolean argument. Determines whether the color for new AUs
+#' is shown in the legend. When attains_new = TRUE, the color indicating
+#' new AUs is shown in the legend. Default is attains_new = FALSE.
+#'
 #' @param attains_missing Boolean argument. Determines whether the dashed circle
 #' indicating whether WQP sites with assessment units assigned by the user are
 #' missing corresponding geometry in ATTAINS is shown in the legend. The dashed
@@ -1446,6 +1456,7 @@ addTADAMapLegend <- function(
   wqp = TRUE,
   ref_icons = TRUE,
   attains_au = TRUE,
+  attains_new = FALSE,
   attains_missing = TRUE,
   nhd_attains = TRUE
 ) {
@@ -1483,6 +1494,13 @@ addTADAMapLegend <- function(
     images.ref <- append(images.ref, images[1:3])
 
     leg.labels <- append(leg.labels, img.labels[1:3])
+  }
+
+  # ATTAINS new point geometry
+  if (attains_new == TRUE) {
+    images.ref <- append(images.ref, images[14])
+
+    leg.labels <- append(leg.labels, img.labels[14])
   }
 
   # ATTAINS missing geometry

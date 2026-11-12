@@ -535,7 +535,10 @@ utils::globalVariables(c(
   "use_class_words",
   "ATTAINS.UseGroup",
   "temp_tag_attains",
-  "temp_tag_cst"
+  "temp_tag_cst",
+  "ATTAINS.AssessmentUnitIdentifier.cw",
+  "ATTAINS.WaterType.cw",
+  "ref_icons"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
