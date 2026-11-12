@@ -23,11 +23,9 @@ TADA_IDCensoredData(.data)
 \value{
 A TADA dataframe with:
 \itemize{
-\item Added column TADA.CensoredData.Flag describing censored data category, and
-\item Possible updates to TADA.ResultMeasureValue,
-TADA.ResultMeasure.MeasureUnitCode, and
-TADA.ResultMeasureValueDataTypes.Flag, when detection limits are copied
-or conflicts are detected.
+\item Added column \code{TADA.CensoredData.Flag} describing censored data category, and
+\item Possible updates to \code{ResultMeasureValue} and
+\code{TADA.ResultMeasureValueDataTypes.Flag} when censored-text values are found.
 }
 }
 \description{
@@ -45,40 +43,32 @@ Uncensored records are flagged as "Uncensored".
 }
 }
 \details{
-The function also copies detection limit values and units to
-TADA.ResultMeasureValue and TADA.ResultMeasure.MeasureUnitCode when:
-\itemize{
-\item ResultMeasureValue is the text "BPQL", "BDL", or "ND" and detection limit
-value/unit are present, or
-\item TADA.ResultMeasureValueDataTypes.Flag indicates "NA - Not Available" and
-detection limit value/unit are present (copy occurs only if the TADA
-result value/unit are actually NA).
-}
+The function also identifies rows where \code{ResultMeasureValue} contains the text
+"BPQL", "BDL", or "ND". These rows are treated as censored, the
+\code{ResultMeasureValue} is set to \code{NA}, and the row is categorized using the
+censoring reference logic. Detection limit value/unit are not copied into the
+result value/unit fields.
 
-When a conflict between detection condition and detection limit type is found,
-the function sets TADA.ResultMeasureValue and TADA.ResultMeasure.MeasureUnitCode to NA and
-updates TADA.ResultMeasureValueDataTypes.Flag to
-"Result Value/Unit Cannot Be Estimated From Detection Limit".
-
-If TADA.MeasureQualifierCode.Flag is not already present in the input,
-the function calls TADA_FlagMeasureQualifierCode(clean = FALSE) internally
-to help identify censored results via measure qualifier codes. Note that
-the internal flag column may be removed before returning the final result; if
-you need to retain qualifier flags for auditing, run TADA_FlagMeasureQualifierCode
-separately prior to calling this function.
+If \code{TADA.MeasureQualifierCode.Flag} is not already present in the input, the
+function calls \code{TADA_FlagMeasureQualifierCode(clean = FALSE)} internally to
+help identify censored results via measure qualifier codes. Note that the
+internal flag column may be removed before returning the final result; if you
+need to retain qualifier flags for auditing, run
+\code{TADA_FlagMeasureQualifierCode()} separately prior to calling this function.
 
 This function uses TADA reference tables from
-TADA_GetDetCondRef() (detection condition domain) and
-TADA_GetDetLimitRef() (detection limit type domain). If values found in the
+\code{TADA_GetDetCondRef()} (detection condition domain) and
+\code{TADA_GetDetLimitRef()} (detection limit type domain). If values found in the
 input dataframe are not present in the reference tables, the function flags
-those records as "Detection condition or detection limit is not documented
-in TADA reference tables." and prints an informational message. Such records
+those records as \code{"Detection condition or detection limit is not documented in TADA reference tables."} and prints an informational message. Such records
 are excluded from downstream censored data handling methods.
 
-When ResultMeasureValue is a special text indicating censored data
-("BPQL", "BDL", "ND"), and detection limit value/unit are present, the
-detection limit value and unit are copied to TADA result value/unit and
-TADA.ResultMeasureValueDataTypes.Flag is set to "Result Value/Unit Copied from Detection Limit".
+When \code{ResultMeasureValue} is a special text indicating censored data
+(\code{"BPQL"}, \code{"BDL"}, \code{"ND"}), the function treats the row as censored and sets
+\code{ResultMeasureValue} to \code{NA}. Detection limit value and unit are not copied to
+the result fields.
+
+NA and blank character values are normalized before processing.
 }
 \examples{
 \dontrun{
@@ -89,27 +79,25 @@ utils::data(Data_Nutrients_UT)
 dat_flagged <- TADA_IDCensoredData(Data_Nutrients_UT)
 
 # Count records per censored category
-table(dat_flagged$TADA.CensoredData.Flag)
+table(dat_flagged$TADA.CensoredData.Flag, useNA = "ifany")
 
-# Review Non-Detects and confirm the detection limit value was copied
+# Review Non-Detects
 nd <- subset(dat_flagged, TADA.CensoredData.Flag == "Non-Detect")
 head(nd[, c(
   "ResultIdentifier",
   "ResultDetectionConditionText",
   "DetectionQuantitationLimitTypeName",
-  "TADA.ResultMeasureValue",
-  "TADA.ResultMeasure.MeasureUnitCode",
+  "ResultMeasureValue",
   "TADA.ResultMeasureValueDataTypes.Flag"
 )])
 
-# Review conflicts (values/units set to NA)
+# Review conflicts
 conf <- subset(dat_flagged, TADA.CensoredData.Flag == "Conflict between Condition and Limit")
 head(conf[, c(
   "ResultIdentifier",
   "ResultDetectionConditionText",
   "DetectionQuantitationLimitTypeName",
-  "TADA.ResultMeasureValue",
-  "TADA.ResultMeasure.MeasureUnitCode",
+  "ResultMeasureValue",
   "TADA.ResultMeasureValueDataTypes.Flag"
 )])
 
@@ -117,14 +105,14 @@ head(conf[, c(
 # This can improve censored result identification via user-supplied codes.
 dat_mq <- TADA_FlagMeasureQualifierCode(Data_Nutrients_UT, clean = FALSE)
 dat_flagged2 <- TADA_IDCensoredData(dat_mq)
-table(dat_flagged2$TADA.CensoredData.Flag)
+table(dat_flagged2$TADA.CensoredData.Flag, useNA = "ifany")
 }
-# Prepare and Flag Censored Data (NA/blank safe)
+
 }
 \seealso{
 \itemize{
-\item TADA_SimpleCensoredMethods for simple censor handling
-\item TADA_FlagMeasureQualifierCode for measure qualifier flagging
-\item TADA_GetDetCondRef and TADA_GetDetLimitRef for domain reference tables
+\item \code{TADA_SimpleCensoredMethods} for simple censor handling
+\item \code{TADA_FlagMeasureQualifierCode} for measure qualifier flagging
+\item \code{TADA_GetDetCondRef} and \code{TADA_GetDetLimitRef} for domain reference tables
 }
 }
