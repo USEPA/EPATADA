@@ -886,50 +886,62 @@ testthat::test_that("TADA_CreatePointAUs returns list containing crosswalk and g
   testthat::expect_s3_class(result$geometry, "sf")
 })
 
-# tests for TADA_SaltFreshIndicator
+# tests for TADA_AssignSaltFreshIndicator
 testthat::test_that("TADA_SaltFresh Indicator errors when required columns are missing for AU/ATTAINS", {
   df <- data.frame(ATTAINS.WaterType = "Fresh", stringsAsFactors = FALSE)
 
   testthat::expect_error(
-    TADA_SaltFreshIndicator(df, location_col = "AU", type_col = "ATTAINS"),
+    TADA_AssignSaltFreshIndicator(
+      df,
+      location_col = "AU",
+      type_col = "ATTAINS"
+    ),
     "missing required column\\(s\\)"
   )
   testthat::expect_error(
-    TADA_SaltFreshIndicator(df, location_col = "AU", type_col = "ATTAINS"),
+    TADA_AssignSaltFreshIndicator(
+      df,
+      location_col = "AU",
+      type_col = "ATTAINS"
+    ),
     "ATTAINS\\.AssessmentUnitIdentifier"
   )
 })
 
-testthat::test_that("TADA_SaltFreshIndicator errors when required columns are missing for ML/TADA", {
+testthat::test_that("TADA_AssignSaltFreshIndicator errors when required columns are missing for ML/TADA", {
   df <- data.frame(
     TADA.MonitoringLocationTypeName = "Stream",
     stringsAsFactors = FALSE
   )
 
   testthat::expect_error(
-    TADA_SaltFreshIndicator(df, location_col = "ML", type_col = "TADA"),
+    TADA_AssignSaltFreshIndicator(df, location_col = "ML", type_col = "TADA"),
     "missing required column\\(s\\)"
   )
   testthat::expect_error(
-    TADA_SaltFreshIndicator(df, location_col = "ML", type_col = "TADA"),
+    TADA_AssignSaltFreshIndicator(df, location_col = "ML", type_col = "TADA"),
     "TADA\\.MonitoringLocationIdentifier"
   )
 })
 
-testthat::test_that("TADA_SaltFreshIndicator returns data with TADA.SaltFreshIndicator for AU/ATTAINS", {
+testthat::test_that("TADA_AssignSaltFreshIndicator returns data with TADA.SaltFreshIndicator for AU/ATTAINS", {
   df <- data.frame(
     ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU2"),
     ATTAINS.WaterType = c("STREAM/CREEK/RIVER", "BEACH"),
     stringsAsFactors = FALSE
   )
 
-  out <- TADA_SaltFreshIndicator(df, location_col = "AU", type_col = "ATTAINS")
+  out <- TADA_AssignSaltFreshIndicator(
+    df,
+    location_col = "AU",
+    type_col = "ATTAINS"
+  )
 
   testthat::expect_true("TADA.SaltFreshIndicator" %in% names(out))
   testthat::expect_equal(nrow(out), nrow(df))
 })
 
-testthat::test_that("TADA_SaltFreshIndicator returns data with TADA.SaltFreshIndicator for ML/TADA", {
+testthat::test_that("TADA_AssignSaltFreshIndicator returns data with TADA.SaltFreshIndicator for ML/TADA", {
   df <- data.frame(
     TADA.MonitoringLocationIdentifier = c("ML1", "ML2"),
     TADA.MonitoringLocationTypeName = c(
@@ -939,7 +951,11 @@ testthat::test_that("TADA_SaltFreshIndicator returns data with TADA.SaltFreshInd
     stringsAsFactors = FALSE
   )
 
-  out <- TADA_SaltFreshIndicator(df, location_col = "ML", type_col = "TADA")
+  out <- TADA_AssignSaltFreshIndicator(
+    df,
+    location_col = "ML",
+    type_col = "TADA"
+  )
 
   testthat::expect_true("TADA.SaltFreshIndicator" %in% names(out))
   testthat::expect_equal(nrow(out), nrow(df))
@@ -952,7 +968,11 @@ testthat::test_that("does not duplicate output rows when input has duplicate pai
     stringsAsFactors = FALSE
   )
 
-  out <- TADA_SaltFreshIndicator(df, location_col = "AU", type_col = "ATTAINS")
+  out <- TADA_AssignSaltFreshIndicator(
+    df,
+    location_col = "AU",
+    type_col = "ATTAINS"
+  )
 
   testthat::expect_equal(nrow(out), nrow(df))
   testthat::expect_true("TADA.SaltFreshIndicator" %in% names(out))
@@ -961,15 +981,138 @@ testthat::test_that("does not duplicate output rows when input has duplicate pai
 testthat::test_that("produces a useful error message listing each missing column once", {
   df <- data.frame(x = 1:3)
 
-  err <- expect_error(
-    TADA_SaltFreshIndicator(df, location_col = "ML", type_col = "TADA"),
+  err <- testthat::expect_error(
+    TADA_AssignSaltFreshIndicator(df, location_col = "ML", type_col = "TADA"),
     class = "error"
   )
 
   testthat::expect_match(
     err$message,
-    "TADA_SaltFreshIndicator: missing required column\\(s\\):"
+    "TADA_AssignSaltFreshIndicator: missing required column\\(s\\) in \\.data:"
   )
   testthat::expect_match(err$message, "TADA\\.MonitoringLocationIdentifier")
   testthat::expect_match(err$message, "TADA\\.MonitoringLocationTypeName")
+})
+
+testthat::test_that("TADA_AssignSaltFreshIndicator messages total rows and unassigned rows", {
+  df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU2", "AU3"),
+    ATTAINS.WaterType = c("STREAM/CREEK/RIVER", "BEACH", "UNKNOWN_TYPE"),
+    stringsAsFactors = FALSE
+  )
+
+  expect_message(
+    out <- TADA_AssignSaltFreshIndicator(
+      df,
+      location_col = "AU",
+      type_col = "ATTAINS"
+    ),
+    "total rows = 3"
+  )
+  expect_message(
+    TADA_AssignSaltFreshIndicator(
+      df,
+      location_col = "AU",
+      type_col = "ATTAINS"
+    ),
+    "rows without assigned TADA\\.SaltFreshIndicator = [0-9]+"
+  )
+
+  testthat::expect_true("TADA.SaltFreshIndicator" %in% names(out))
+  testthat::expect_equal(nrow(out), nrow(df))
+})
+
+testthat::test_that("TADA_AssignSaltFreshIndicator reports zero unassigned rows when all types match ref", {
+  df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU2"),
+    ATTAINS.WaterType = c("STREAM/CREEK/RIVER", "BEACH"),
+    stringsAsFactors = FALSE
+  )
+
+  out <- testthat::capture_messages(TADA_AssignSaltFreshIndicator(
+    df,
+    location_col = "AU",
+    type_col = "ATTAINS"
+  ))
+
+  testthat::expect_true(any(grepl("total rows = 2", out)))
+  testthat::expect_true(any(grepl(
+    "rows without assigned TADA\\.SaltFreshIndicator = 0",
+    out
+  )))
+})
+
+testthat::test_that("TADA_AssignSaltFreshIndicator reports unassigned rows when some types do not match ref", {
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = c("ML1", "ML2", "ML3"),
+    TADA.MonitoringLocationTypeName = c(
+      "RIVER/STREAM EPHEMERAL",
+      "BEACH PROGRAM SITE-OCEAN",
+      "UNKNOWN_TYPE"
+    ),
+    stringsAsFactors = FALSE
+  )
+
+  msgs <- testthat::capture_messages(
+    out <- TADA_AssignSaltFreshIndicator(
+      df,
+      location_col = "ML",
+      type_col = "TADA"
+    )
+  )
+
+  testthat::expect_true(any(grepl("total rows = 3", msgs)))
+  testthat::expect_true(any(grepl(
+    "rows without assigned TADA\\.SaltFreshIndicator = 1",
+    msgs
+  )))
+  testthat::expect_true("TADA.SaltFreshIndicator" %in% names(out))
+})
+
+testthat::test_that("TADA_AssignSaltFreshIndicator stops when TADA.SaltFreshIndicator already exists", {
+  df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    ATTAINS.WaterType = "STREAM/CREEK/RIVER",
+    TADA.SaltFreshIndicator = "Fresh",
+    stringsAsFactors = FALSE
+  )
+
+  testthat::expect_error(
+    TADA_AssignSaltFreshIndicator(
+      df,
+      location_col = "AU",
+      type_col = "ATTAINS"
+    ),
+    "already contains the column"
+  )
+})
+
+testthat::test_that("TADA_AssignSaltFreshIndicator errors when location_col is invalid", {
+  df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    ATTAINS.WaterType = "STREAM/CREEK/RIVER",
+    stringsAsFactors = FALSE
+  )
+
+  testthat::expect_error(
+    TADA_AssignSaltFreshIndicator(
+      df,
+      location_col = "ML1",
+      type_col = "ATTAINS"
+    ),
+    "location_col must equal 'AU' or 'ML'"
+  )
+})
+
+testthat::test_that("TADA_AssignSaltFreshIndicator errors when type_col is invalid", {
+  df <- data.frame(
+    ATTAINS.AssessmentUnitIdentifier = "AU1",
+    ATTAINS.WaterType = "STREAM/CREEK/RIVER",
+    stringsAsFactors = FALSE
+  )
+
+  testthat::expect_error(
+    TADA_AssignSaltFreshIndicator(df, location_col = "AU", type_col = "ML1"),
+    "type_col must equal 'ATTAINS' or 'TADA'"
+  )
 })

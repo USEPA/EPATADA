@@ -1585,3 +1585,176 @@ TADA_GetTADAUsesAliasRef <- function(
 
   invisible(df)
 }
+
+
+#' Get Salt or Freshwater Reference Table
+#'
+#' Retrieves the Salt or Freshwater reference at the monitoring location or assessment
+#' unit level by either ATTAINS.WaterType or TADA.MonitoringLocationTypeName,
+#' filtered by the type found in your WQP dataframe.
+#'
+#' @param .data A data frame containing at least one location column
+#' (TADA.MonitoringLocationIdentifier or ATTAINS.AssessmentUnitIdentifier) and
+#' at least one water type column (TADA.MonitoringLocationTypeName or
+#' ATTAINS.WaterType). Columns provided must match the columns selected for
+#' indicator assignment in the other function params.
+#' @param location_col Character string. Options are "AU" or "ML". When location_col
+#' equals "AU", ATTAINS.AssessmentUnitIdentifier is used as the location column.
+#' When location_col equals "ML", TADA.MonitoringLocationIdentifier is used as
+#' the location_col. Default is location_col equals "AU".
+#' @param type_col Character string. Options are "TADA" or "ATTAINS". When
+#' type_col equals "TADA", TADA.MonitoringLocationTypeName is used to crosswalk
+#' each location with a salt/freshwater indicator. When type_col equals "ATTAINS",
+#' ATTAINS.WaterType is used to crosswalk each location with a salt/freshwater
+#' indicator. Default is type_col equals "ATTAINS".
+#'
+#' @return The input data frame with an added TADA.SaltFreshIndicator column.
+#' @export
+#'
+#' @examples
+#'
+#' \dontrun{
+#' # Get test data with both freshwater and saltwater results
+#' testdat <- TADA_DataRetrieval(statecode = "OR",
+#'                               startDate = "2023-06-01",
+#'                               endDate = "2023-06-15",
+#'                               characteristicType = "Physical",
+#'                               ask = FALSE)
+#'
+#' # Retrieve saltfresh ref table based on testdat by TADA.MonitoringLocationTypeName,
+#' # using TADA.MonitoringLocationIdentifier as location grouping
+#'  TADA.SaltFreshRef <- TADA_GetSaltFreshRef(testdat,
+#'                                       location_col = "ML",
+#'                                       type_col = "TADA")
+#'
+#' # Get ATTAINS water types to test data
+#' ATTAINS.SaltFreshRef <- TADA_GetSaltFreshRef(Data_MT_AUMLRef$TADA_with_ATTAINS,
+#'                                            location_col = "AU",
+#'                                            type_col = "ATTAINS")
+#' }
+#'
+TADA_GetSaltFreshRef <- function(
+  .data,
+  location_col = "AU",
+  type_col = "ATTAINS"
+) {
+  if (location_col != "AU" & location_col != "ML") {
+    stop("TADA_SaltFreshIndicator: location_col must equal 'AU' or 'ML'.")
+  }
+
+  if (type_col != "ATTAINS" & type_col != "TADA") {
+    stop("TADA_SaltFreshIndicator: type_col must equal 'ATTAINS' or 'TADA'.")
+  }
+
+  reqs <- data.frame(
+    col = character(),
+    reason = character(),
+    stringsAsFactors = FALSE
+  )
+
+  if (location_col == "AU") {
+    reqs <- rbind(
+      reqs,
+      data.frame(
+        col = "ATTAINS.AssessmentUnitIdentifier",
+        reason = "location_col equals 'AU'",
+        stringsAsFactors = FALSE
+      )
+    )
+  } else {
+    reqs <- rbind(
+      reqs,
+      data.frame(
+        col = "TADA.MonitoringLocationIdentifier",
+        reason = "location_col equals 'ML'",
+        stringsAsFactors = FALSE
+      )
+    )
+  }
+
+  if (type_col == "ATTAINS") {
+    reqs <- rbind(
+      reqs,
+      data.frame(
+        col = "ATTAINS.WaterType",
+        reason = "type_col equals 'ATTAINS'",
+        stringsAsFactors = FALSE
+      )
+    )
+  } else {
+    reqs <- rbind(
+      reqs,
+      data.frame(
+        col = "TADA.MonitoringLocationTypeName",
+        reason = "type_col equals 'TADA'",
+        stringsAsFactors = FALSE
+      )
+    )
+  }
+
+  missing <- unique(reqs$col[!reqs$col %in% names(.data)])
+
+  if (length(missing) > 0) {
+    missing_info <- reqs[reqs$col %in% missing, ]
+    missing_info <- missing_info[!duplicated(missing_info$col), ]
+
+    msg <- paste0(
+      "TADA_SaltFreshIndicator: missing required column(s):\n",
+      paste0(
+        "  - ",
+        missing_info$col,
+        " (needed because ",
+        missing_info$reason,
+        ")",
+        collapse = "\n"
+      )
+    )
+
+    stop(msg, call. = FALSE)
+  }
+
+  # unique types from .data only
+  unique.types <- .data |>
+    dplyr::select(dplyr::all_of(reqs$col[2])) |>
+    dplyr::distinct()
+
+  # Select which crosswalk is needed
+  if (reqs$col[1] == "ATTAINS.AssessmentUnitIdentifier") {
+    cw.name <- "ATTAINSWaterTypeToSaltFresh.csv"
+    cw.cols <- c("ATTAINS.WaterType", "TADA.SaltFreshIndicator")
+  } else {
+    cw.name <- "WQPMonLocTypeToSaltFresh.csv"
+    cw.cols <- c("TADA.MonitoringLocationTypeName", "TADA.SaltFreshIndicator")
+  }
+
+  # Load crosswalk
+  crosswalk <- utils::read.csv(system.file(
+    "extdata",
+    cw.name,
+    package = "EPATADA"
+  ))
+
+  # Rename col if required
+  if ("Name" %in% names(crosswalk)) {
+    crosswalk <- dplyr::rename(
+      crosswalk,
+      TADA.MonitoringLocationTypeName = Name
+    )
+  }
+
+  crosswalk <- crosswalk |>
+    dplyr::select(dplyr::all_of(cw.cols)) |>
+    dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
+    dplyr::distinct()
+
+  # Make .data values uppercase for matching
+  unique.types[[reqs$col[2]]] <- toupper(unique.types[[reqs$col[2]]])
+
+  # Join crosswalk to unique .data types
+  ref <- unique.types |>
+    dplyr::left_join(crosswalk, by = setNames(cw.cols[1], reqs$col[2]))
+
+  rm(unique.types, cw.cols, cw.name, location_col, missing, reqs, type_col)
+
+  return(ref)
+}
