@@ -4013,7 +4013,10 @@ TADA_MLSummary <- function(
 
   .data <- as.data.frame(.data)
 
-  req_data <- c("TADA.ComparableDataIdentifier", "TADA.MonitoringLocationIdentifier")
+  req_data <- c(
+    "TADA.ComparableDataIdentifier",
+    "TADA.MonitoringLocationIdentifier"
+  )
   miss_data <- setdiff(req_data, names(.data))
   if (length(miss_data) > 0) {
     stop(

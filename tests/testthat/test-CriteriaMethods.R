@@ -164,7 +164,7 @@ testthat::test_that("returns rows from MLSummaryRef path and hides ComparableDat
     TADA.MethodSpeciationName = NA_character_,
     stringsAsFactors = FALSE
   )
-  
+
   ml <- data.frame(
     TADA.MonitoringLocationIdentifier = "ML1",
     TADA.MonitoringLocationTypeName = "River",
@@ -183,7 +183,7 @@ testthat::test_that("returns rows from MLSummaryRef path and hides ComparableDat
     DepthCategory = NA_character_,
     stringsAsFactors = FALSE
   )
-  
+
   res <- TADA_DefineCriteriaMethodology(
     .data = df,
     MLSummaryRef = ml,
@@ -191,7 +191,7 @@ testthat::test_that("returns rows from MLSummaryRef path and hides ComparableDat
     displayUniqueId = FALSE,
     excel = FALSE
   )
-  
+
   res <- res$DefineCriteriaMethodology
   expect_true(is.data.frame(res))
   expect_true("ATTAINS.OrganizationIdentifier" %in% names(res))
