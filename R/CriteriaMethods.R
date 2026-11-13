@@ -177,7 +177,25 @@ TADA_DefineCriteriaMethodology <- function(
     message(
       "All arguments are blank, returning an empty dataframe with column names only."
     )
-    return(blank_criteria)
+    
+    # create tempfile
+    tmp_xlsx <- tempfile(fileext = ".xlsx")
+    on.exit(unlink(tmp_xlsx), add = TRUE)
+    .TADA_CriteriaDataDictionary(tmp_xlsx)
+    
+    return(list(
+      DefineCriteriaMethodology = blank_criteria,
+      DataDictionary = openxlsx::read.xlsx(
+        tmp_xlsx,
+        sheet = "DataDictionary",
+        startRow = 2
+      ),
+      AllowableValues = openxlsx::read.xlsx(
+        tmp_xlsx,
+        sheet = "AllowableValues",
+        startRow = 2
+      )
+    ))
   }
 
   if (!is.logical(auto_assign)) {
@@ -186,6 +204,14 @@ TADA_DefineCriteriaMethodology <- function(
 
   if (is.null(org_id)) {
     org_id <- character(0)
+  }
+  
+  if (!is.null(criteriaMethods) && !is.null(MLSummaryRef)) {
+    stop("TADA_DefineCriteriaMethodology: only one of MLSummaryRef or criteriaMethods is allowed as an input.")
+  }
+  
+  if (!is.null(criteriaMethods) && isTRUE(auto_assign)) {
+    stop("TADA_DefineCriteriaMethodology: criteriaMethods and auto_assign = TRUE are not valid together.")
   }
 
   # ------------------------------------------------------------
@@ -383,7 +409,6 @@ TADA_DefineCriteriaMethodology <- function(
       "ATTAINS.ParameterName",
       "ATTAINS.UseName",
       "IncludeOrExclude",
-      "UniqueSpatialCriteria",
       "Flag.UseInput"
     )
     missing_cols <- setdiff(required_cols, names(MLSummaryRef))
@@ -406,24 +431,22 @@ TADA_DefineCriteriaMethodology <- function(
         MLSummaryRef[[col]] <- NA_character_
       }
     }
+    
+    # retrieve ML_SummaryRef col names
+    # ML_colnames <- names(suppressMessages(TADA_MLSummary()))
+    # 
+    # MLSummaryRef <- dplyr::select(MLSummaryRef, dplyr::all_of(ML_colnames))
 
     DefineCriteriaMethodology <- MLSummaryRef |>
       TADA_CorrectColType() |>
-      dplyr::bind_rows(blank_criteria) |>
       dplyr::right_join(
         unique_chars,
-        c(
+        by = c(
           "ATTAINS.OrganizationIdentifier",
-          "TADA.ComparableDataIdentifier",
-          "TADA.CharacteristicName"
+          "TADA.ComparableDataIdentifier"
         )
       ) |>
-      dplyr::select(dplyr::any_of(c(
-        desired_cols,
-        "CST.PollutantName",
-        "CST.UseName",
-        "CST.SourceLink"
-      ))) |>
+      dplyr::bind_rows(blank_criteria) |>
       dplyr::distinct()
   } else {
     DefineCriteriaMethodology <- unique_chars |>
@@ -434,12 +457,6 @@ TADA_DefineCriteriaMethodology <- function(
   # 5) If criteriaMethods is supplied, merge it in and prioritize
   # ------------------------------------------------------------
   if (!is.null(criteriaMethods)) {
-    if (!is.null(MLSummaryRef)) {
-      stop(
-        "only one of MLSummaryRef or criteriaMethods is allowed as an input."
-      )
-    }
-
     if (!"TADA.ComparableDataIdentifier" %in% names(criteriaMethods)) {
       criteriaMethods$TADA.ComparableDataIdentifier <- NA_character_
     }
@@ -1246,6 +1263,7 @@ TADA_DefineCriteriaMethodology <- function(
       -TADA.ResultMeasure.MeasureUnitCode
     ) |>
     dplyr::distinct()
+
   return(DefineCriteriaMethodology)
 }
 

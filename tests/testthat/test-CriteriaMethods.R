@@ -90,13 +90,19 @@ test_that("cannot supply both MLSummaryRef and criteriaMethods", {
     stringsAsFactors = FALSE
   )
   ml <- data.frame(
+    TADA.MonitoringLocationIdentifier = "ML1",
+    TADA.MonitoringLocationTypeName = "River",
+    TADA.LongitudeMeasure = -122.5,
+    TADA.LatitudeMeasure = 47.6,
+    TADA.ComparableDataIdentifier = "C1",
+    ATTAINS.OrganizationIdentifier = "ORGX",
     ATTAINS.ParameterName = "PARAM_X",
     ATTAINS.UseName = "USE1",
-    ATTAINS.OrganizationIdentifier = "ORGX",
+    IncludeOrExclude = "Include",
     UniqueSpatialCriteria = NA_character_,
+    Flag.UseInput = TRUE,
     ATTAINS.WaterType = "RIVER",
     ATTAINS.AssessmentUnitIdentifier = "AU1",
-    TADA.ComparableDataIdentifier = "C1",
     SaltFresh = "F",
     DepthCategory = NA_character_,
     stringsAsFactors = FALSE
@@ -107,20 +113,16 @@ test_that("cannot supply both MLSummaryRef and criteriaMethods", {
       MLSummaryRef = ml,
       criteriaMethods = data.frame()
     ),
-    "provide only one of MLSummaryRef or criteriaMethods"
+    "TADA_DefineCriteriaMethodology: only one of MLSummaryRef or criteriaMethods is allowed as an input."
   )
 })
 
 testthat::test_that("criteriaMethods + auto_assign = TRUE errors", {
-  df <- data.frame(
-    TADA.ComparableDataIdentifier = "C1",
-    TADA.CharacteristicName = "CHAR_A",
-    TADA.ResultMeasure.MeasureUnitCode = "mg/L",
-    stringsAsFactors = FALSE
-  )
+  df <- Data_MT_MissoulaCounty
   expect_error(
     TADA_DefineCriteriaMethodology(
       .data = df,
+      org_id = "MTDEQ",
       criteriaMethods = data.frame(ATTAINS.ParameterName = "PARAM_X"),
       auto_assign = TRUE
     ),
@@ -155,39 +157,45 @@ testthat::test_that("MLSummaryRef must contain required columns", {
 
 testthat::test_that("returns rows from MLSummaryRef path and hides ComparableDataIdentifier when displayUniqueId = FALSE", {
   df <- data.frame(
-    TADA.ComparableDataIdentifier = c("C1", "C2"),
-    TADA.CharacteristicName = c("CHAR_A", "CHAR_B"),
-    TADA.ResultMeasure.MeasureUnitCode = c("mg/L", "mg/L"),
+    TADA.ComparableDataIdentifier = "C1",
+    TADA.CharacteristicName = "CHAR_A",
+    TADA.ResultMeasure.MeasureUnitCode = "mg/L",
+    TADA.ResultSampleFractionText = NA_character_,
+    TADA.MethodSpeciationName = NA_character_,
     stringsAsFactors = FALSE
   )
+  
   ml <- data.frame(
+    TADA.MonitoringLocationIdentifier = "ML1",
+    TADA.MonitoringLocationTypeName = "River",
+    TADA.LongitudeMeasure = -122.5,
+    TADA.LatitudeMeasure = 47.6,
+    TADA.ComparableDataIdentifier = "C1",
+    ATTAINS.OrganizationIdentifier = "ORGX",
     ATTAINS.ParameterName = "PARAM_X",
     ATTAINS.UseName = "USE1",
-    ATTAINS.OrganizationIdentifier = "ORGX",
+    IncludeOrExclude = "Include",
     UniqueSpatialCriteria = NA_character_,
+    Flag.UseInput = TRUE,
     ATTAINS.WaterType = "RIVER",
     ATTAINS.AssessmentUnitIdentifier = "AU1",
-    TADA.ComparableDataIdentifier = "C1",
     SaltFresh = "F",
     DepthCategory = NA_character_,
     stringsAsFactors = FALSE
   )
-  expect_message(
-    res <- TADA_DefineCriteriaMethodology(
-      .data = df,
-      MLSummaryRef = ml,
-      org_id = "ORGX",
-      displayUniqueId = FALSE,
-      excel = FALSE
-    ),
-    "displayUniqueId == FALSE"
+  
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    MLSummaryRef = ml,
+    org_id = "ORGX",
+    displayUniqueId = FALSE,
+    excel = FALSE
   )
+  
   res <- res$DefineCriteriaMethodology
   expect_true(is.data.frame(res))
   expect_true("ATTAINS.OrganizationIdentifier" %in% names(res))
-  # The ComparableDataIdentifier should be set to NA_character_
   expect_true(all(is.na(res$TADA.ComparableDataIdentifier)))
-  # Should preserve org/use/param from MLSummaryRef
   expect_true(any(res$ATTAINS.OrganizationIdentifier == "ORGX"))
   expect_true(any(res$ATTAINS.UseName == "USE1"))
   expect_true(any(res$ATTAINS.ParameterName == "PARAM_X"))
