@@ -11005,6 +11005,7 @@ NA,"SUTE","SOUTHERN UTE INDIAN TRIBE","H",NA,NA,"W","SECONDARY CONTACT RECREATIO
 "WIDNR","WI","WISCONSIN","H",NA,NA,"O","ALL SURFACE WATERS","RECREATION",NA,"RECREATION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WIDNR","WI","WISCONSIN","H",NA,NA,"O","ALL SURFACE WATERS","SECONDARY CONTACT (RECR)",NA,"RECREATION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "WIDNR","WI","WISCONSIN","H",NA,NA,"O","ALL SURFACE WATERS","RECREATION USE",NA,"RECREATION_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
+NA,"MBMI","MORONGO BAND OF MISSION INDIANS","H",NA,NA,NA,"PRIMARY CONTACT RECREATION",NA,NA,NA,"No alias match found",NA,NA,"New row: Needs Review",NA
 "SRMTWRP","SRM","SAINT REGIS MOHAWK TRIBE","A",NA,NA,NA,"COLD WATER FISHERIES","COLD WATER FISHERY",NA,"ECOLOGICAL_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.666666666666667 or ATTAINS words in CST text = 0.666666666666667",NA,"New row: Needs Review",NA
 "SRMTWRP","SRM","SAINT REGIS MOHAWK TRIBE","A",NA,NA,NA,"COLD WATER FISHERIES","FISH AND AQUATIC LIFE USE",NA,"ECOLOGICAL_USE","Rank 5: by column indicator",NA,NA,"New row: Needs Review",NA
 "SRMTWRP","SRM","SAINT REGIS MOHAWK TRIBE",NA,NA,NA,NA,"D WATER CLASS","AGRICULTURAL OR FARM WATER SUPPLY",NA,"OTHER_USE","Rank 2: by column indicator and use_name percent match","use_name percent matches by CST words in ATTAINS text = 0.333333333333333 or ATTAINS words in CST text = 0.2",NA,"New row: Needs Review",NA
