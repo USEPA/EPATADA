@@ -1,0 +1,418 @@
+---
+title: "TADA Module 2: TADAShinyJoinToAU Workflow"
+always_allow_html: yes
+author: "TADA Team"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    self_contained: false
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{EPATADA}
+  %\VignetteIndexEntry{TADA Module 2: Geospatial Functions}
+  %\VignetteEngine{knitr::rmarkdown}
+description: An overview of TADA Module 2 functions and a recommended workflow focused on A) creating an ATTAINS assessment unit/WQP monitoring location crosswalk, B) reviewing assessment units and monitoring locations on a map, C) submitting an up to date assessment unit/WQP monitoring location crosswalk to ATTAINS, and D) assigning uses to assessment units.
+editor_options:
+  chunk_output_type: console
+  markdown:
+    wrap: 72
+---
+
+```{r setup, include = F}
+library(knitr)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  eval = T,
+  dev.args = list(bg = "transparent")
+)
+```
+
+# App Workflow
+
+Load TADA File
+Flag and Review Sites
+Join and Review AUs
+Create New AUs (optional)
+Join and Review Existing Uses
+Assign New Uses
+Assign Unique Spatial Criteria (including salt/fresh)
+Select Parameters
+Assign Parameters to Uses
+Create and Review ML Summary Ref
+
+# Tab 1: Load TADA File
+
+Load the TADA water quality data file (output from TADAShiny/Module 1).
+
+This functionality exists in the current draft of TADAShinyJoinToAU but can be simplified. The new version should include only:
+- upload/import for water quality TADA file
+- button to select file type for upload
+- preview of data imported
+
+```{r tada.df}
+
+# load TADA df (mod 1 output)
+testdat <- Data_MT_MissoulaCounty
+# commented out for if I switch back to tribal data example
+# |> dplyr::filter(OrganizationIdentifier == "REDLAKE_WQX")
+
+# preview table
+DT::datatable(testdat)
+
+```
+
+
+# Tab 2: Flag and Review Sites
+
+Runs two functions on the TADA df:
+1) TADA_FlagCoordinates
+2) TADA_FindNearbySites
+
+Displays a map showing the results of each with the functions:
+3)TADA_FlaggedSitesMap
+4) TADA_NearbySitesMap
+
+These are two seperate functions. I am not sure whether it is better to display
+two seperate maps or figure out a way to modify these functions so they can be
+shown as layers that can be toggled on/off within the same map. This might be
+most efficient in the Shiny app, but will require some work on the package side
+to faciliate.
+
+Displays an editable tables where users can review and edit nearby site groupings and choose to include/exclude monitoring locations based on coordinate flags. The editable tables should
+at a minimum include TADA.MonitoringLocationIdentifier, MonitoringLocationIdentifier,
+LatitudeMeasure, LongitudeMeasure, OrganizationIdentifier, TADA.SuspectCoordinates.Flag,
+and TADA.NearbySitesGroup. I am not sure the best way to accomplish this, but
+ideally we could prompt users to review/address any suspect flags from TADA_FlagCoordinates 
+before grouping nearby sites with TADA_NearbySites.
+
+The reason for including both the TADA and WQP columns for monitoring location identifier
+and the coordinates is that TADA_FindNearbySites may suggest new metadata for some
+results if any monitoring locations are grouped.
+
+```{r flag.review.sites}
+
+# run site flagging function
+testdat2 <- testdat |>
+  TADA_FlagCoordinates() 
+
+# run nearby sites function (temporarily by distance only due to nhd issues)
+testdat3 <- testdat2 |>
+  TADA_FindNearbySites(catchment = FALSE)
+
+# flagged coordinates map
+TADA_FlaggedSitesMap(testdat3)
+
+# nearby sites map
+TADA_NearbySitesMap(testdat3)
+
+# subset of data for review table
+testdat3_subset <- testdat3 |>
+  dplyr::select(TADA.MonitoringLocationIdentifier, 
+                MonitoringLocationIdentifier,
+                LatitudeMeasure, 
+                LongitudeMeasure, 
+                OrganizationIdentifier, 
+                TADA.SuspectCoordinates.Flag,
+                TADA.NearbySiteGroup,
+                TADA.NearbySites.Flag) |>
+  dplyr::distinct()
+
+# table for review of sites
+DT::datatable(testdat3_subset)
+
+```
+
+
+# Tab 3: Join and Review AUs
+
+User selects organization from a drop down menu. This specifies the organization's
+geospatial data that will be used to match WQP monitoring locations with ATTAINS
+assessment units.
+
+Users have the option to import their own crosswalk of monitoring locations to
+assessment units. This can be a complete crosswalk (contains all monitoring locations)
+in the TADA df or a partial crosswalk (contains some of the monitoring locations).
+The user's crosswalk is the "au_ref" for TADA_CreateAUMLCrosswalk
+
+Runs: 
+1) TADA_CreateAUMLCrosswalk
+2) TADA_ViewATTAINS
+
+TADA_CreateAUMLCrosswalk must be run first before its results can be visualized on 
+a map using TADA_ViewATTAINS. In the app UI, the TADA_ViewATTAINS map should be 
+displayed above an editable table showing the df resulting from TADA_CreateAUMLCrosswalk.
+In this table, users can edit the "ATTAINS.AssessmentUnitIdentifier" column.
+
+There should be a way for users to update the TADA_ViewATTAINS map to reflect any
+changes they make to the TADA_CreateAUMLCrosswalk table. Automatically updating
+is likely no practical (the map function can be a bit slow and users may make 
+multiple changes). A simple option like an "Update" button that would need to be 
+clickked by the user might work, especially if a message could be displayed when
+there are differences between the data in the table and the data underlying the map.
+
+```{r join.aus}
+
+# find AU/ML matches
+testdat4 <- TADA_CreateAUMLCrosswalk(testdat3)
+
+# map AUs and MLs
+TADA_ViewATTAINS(testdat4)
+
+# subset of AU/ML data for table
+testdat4_subset <- testdat4$TADA_with_ATTAINS |>
+  dplyr::select(TADA.MonitoringLocationIdentifier,
+                TADA.MonitoringLocationName,
+                TADA.MonitoringLocationTypeName,
+                ATTAINS.AssessmentUnitIdentifier,
+                ATTAINS.AssessmentUnitName,
+                ATTAINS.WaterType,
+                ATTAINS.WaterbodyReportLink) |>
+  sf::st_drop_geometry()
+
+# table of AU/ML matches
+DT::datatable(testdat4_subset)
+
+# going forward use testdat4's TADA_with_ATTAINS df
+testdat5 <- testdat4$TADA_with_ATTAINS
+
+```
+
+
+# Tab 4: Create New AUs (optional)
+
+This option currently exists for creating new point AUs. This feature was developed
+with ATTAINS tribes in mind as many of them use the monitoring location coordinates
+as point geometry to create assessment units.
+
+This tab should include a TADA_ViewATTAINS map at the top and below it an editable
+data table which contains any monitoring locations that have not been assigned an
+assesment unit match in the previous tab. 
+
+Runs:
+1) TADA_CreatePointAUs(create_geo = TRUE) on filtered df
+2) TADA_ViewATTAINS
+
+Should the TADA_ViewATTAINS map only show the new AUs? Or should it show or have
+the option to show all assigned AUs?
+
+The map should be able to be updated if the user edits any fields in the table.
+
+```{r point.aus}
+
+testdat5_noau <- testdat5 |>
+  dplyr::filter(is.na(ATTAINS.AssessmentUnitIdentifier)) |>
+  sf::st_drop_geometry()
+  
+testdat5_pointau <- TADA_CreatePointAUs(testdat5_noau, create_geo = TRUE)
+
+# need to wrk on TADA_ViewATTAINS so that it will display output from creating point AUs
+TADA_ViewATTAINS(testdat5_pointau$geometry)
+
+DT::datatable(testdat5)
+
+```
+
+
+# Tab 5: Join and Review Existing Uses
+
+This tab includes a drop down menu with all ATTAINS organizations. It should automatically
+be set to match the organization selected in the previous tab.
+
+Users can supply an optional crosswalk of AUs to Uses and/or an optional crosswalk
+of Uses to Water Type.
+
+CST uses added optionally here
+
+```{r join.uses}
+testdat_uses <- TADA_AssignUsesToAU(testdat5)
+```
+
+
+# Tab 6: Assign New Uses
+
+On this tab, users can assign any new or missing uses to AUs. They will first need
+to select either "All" to view all allowable Uses in ATTAINS or can select an 
+Organization to view only Uses used by that org (does not have to be their own org).
+
+Once that selection is made, they need to be able to select a UseGroup and view the Uses
+within it.
+
+There will be a table showing all AUs along with their Water Types and existing Use
+matches. I am not sure the best way to facilitate users adding additional rows to
+add new Uses. The table is set up so that there is one row per unique AU/Water Type/Use
+combination so adding any new Uses will require appending additional rows.
+
+CST uses added optionally here
+
+```{r new.uses}
+
+# selected org id (or can be "all")
+org_id <- "REDLAKE_WQX"
+
+
+# get allowable domain values for uses
+ATTAINS_uses <- rExpertQuery::EQ_DomainValues(domain = "use_name",
+                                              api_key = EPATADA:::.setEQKey())
+
+# set up df for use selection
+if(org_id != "all") {
+  
+  ATTAINS_uses <- ATTAINS_uses |>
+    dplyr::filter(context == "REDLAKE")
+}
+
+ATTAINS_uses <- ATTAINS_uses |>
+  dplyr::select(name, context2) |>
+  dplyr::distinct() |>
+  dplyr::rename(Use = name,
+                UseGroup = context2)
+
+#
+
+```
+
+
+# Tab 7: Assign Unique Spatial Criteria
+
+Users may need to assign additional unique spatial criteria.
+
+There is an EPATADA function, TADA_SaltFreshIndicator that determines whether a
+location is saltwater or freshwater. Users decide whether this assignment should
+be made based on the ATTAINS Water Type or the WQP monitoring location type (param)
+
+```{r unique.spatial}
+
+# salt/fresh indicator
+TADA_SaltFreshIndicator()
+
+```
+
+
+# Tab 8: Select Parameters
+
+# Tab 9: Assign Parameter to Uses
+
+# Tab 10: Create and Review ML Summary Ref
+
+# Overview and Setup
+
+
+# Step D: Assign Uses to AUs
+
+After mapping the WQP monitoring locations (MLs) to ATTAINS assessment
+units (AUs), we will use the `TADA_AssignUsesToAU` function to assign
+specific uses to these assessment units. Additionally, we will
+demonstrate how to automatically assign uses to the new assessment unit,
+`NEW:EX_MDEQ_WQ_WQX` with the water type "LAKE, FRESHWATER," that was
+created in step A, which is not yet present in ATTAINS.
+
+```{r get.MLAURef}
+# extract ATTAINS_crosswalk data frame from the list
+Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk
+
+# this is the same final output we got above from TADA_CreateAUMLCrosswalk
+TADA_TableExport(Final.MT.AUMLRef)
+```
+
+Now, we will assign uses to each unique assessment unit (AU) in our
+finalized monitoring location to assessment unit crosswalk (e.g.,
+`Final.MT.AUMLRef`). The process of assigning uses to AUs follows these
+prioritized steps:
+
+1.  User-Supplied Crosswalk (Optional): Utilize a crosswalk provided by
+    the user that maps specific uses to assessment units.
+
+2.  Existing Uses from ATTAINS: Import existing uses for assessment
+    units as defined by ATTAINS organizations.
+
+```{r assign.use.to.AU, include = F, eval = T}
+# use example data, this should be the same as MT.UseAURef
+utils::data("Data_MT_AU_UsesRef", package = "EPATADA")
+MT.UseAURef <- Data_MT_AU_UsesRef
+rm(Data_MT_AU_UsesRef)
+```
+
+```{r TADA_AssignUsesToAU, eval = F}
+MT.UseAURef <- TADA_AssignUsesToAU(
+  MT.AUMLRef$TADA_with_ATTAINS,
+  AUMLRef = Final.MT.AUMLRef,
+  org_id = "MTDEQ",
+  api_key = api_key
+)
+```
+
+```{r TADA_AssignUsesToAU_table}
+TADA_TableExport(MT.UseAURef)
+```
+
+#### **Advanced: Assigning Uses to New AUs**
+
+For any new assessment unit (AU), users must determine how to assign the
+appropriate uses. The **`TADA_AssignUsesToWaterType`** function is
+designed to assist with this process. It imports combinations of water
+types and use names associated with the specified organization from
+ATTAINS. By doing so, it automatically assigns uses to new assessment
+units based on their water type, thereby streamlining the integration of
+new AUs into existing frameworks.
+
+For more information on how to customize this function to suit your
+needs, enter **`?TADA_AssignUsesToWaterType`** into the R console.
+
+```{r assign.use.to.new.AU.with.waterUseRef_dev, include = F, eval = T}
+# use example data, this should be the same as MT.UseAURef_with_WaterUseRef
+utils::data("Data_MT_AU_UsesRef_Water", package = "EPATADA")
+MT.UseAURef_with_WaterUseRef <- Data_MT_AU_UsesRef_Water
+rm(Data_MT_AU_UsesRef_Water)
+```
+
+```{r assign.use.to.new.AU.with.waterUseRef_user, eval = FALSE}
+MT.UseAURef_with_WaterUseRef <-
+  TADA_AssignUsesToAU(
+    MT.AUMLRef$TADA_with_ATTAINS,
+    waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
+    AUMLRef = Final.MT.AUMLRef,
+    org_id = "MTDEQ",
+    api_key = api_key
+  )
+```
+
+```{r watertypetable}
+TADA_TableExport(MT.UseAURef_with_WaterUseRef)
+```
+
+Users also have the option to manually assign use names to new AUs if
+they prefer not to use the TADA_AssignUsesToWaterType function. This
+approach allows for greater flexibility and customization when
+integrating new AUs into existing frameworks.
+
+```{r assign.use.to.new.AU.manual}
+MT.UseAURef_manual <- MT.UseAURef |>
+  dplyr::left_join(
+    data.frame(
+      ATTAINS.UseName = c("Aquatic Life", "Drinking Water"),
+      ATTAINS.AssessmentUnitIdentifier = c("NEW:EX_MDEQ_WQ_WQX", "NEW:EX_MDEQ_WQ_WQX")
+    ),
+    by = ("ATTAINS.AssessmentUnitIdentifier")
+  ) |>
+  dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) |>
+  dplyr::select(-ATTAINS.UseName.x, -ATTAINS.UseName.y)
+
+TADA_TableExport(MT.UseAURef_manual)
+```
+
+# Summary
+
+In conclusion, this example TADA Module 2 workflow significantly
+enhances the ability to maintain up-to-date information on WQP
+Monitoring Locations and the uses being assessed at various ATTAINS
+Assessment Units. By systematically guiding users through the creation
+of crosswalks, map reviews, data submission, and use assignments, this
+workflow supports efficient data management and improves
+reproducibility.

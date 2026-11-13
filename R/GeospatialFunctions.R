@@ -348,6 +348,14 @@ fetchATTAINS <- function(
     "https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/ATTAINS_Assessment/FeatureServer/2"
   )
 
+  # # temporary switch back to old endpoints for dev purposes
+  #   baseurls <- c(
+  #    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
+  #    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
+  #    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
+  #    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
+  #  )
+
   points_sf <- .data
 
   catchment_features <- fetch_bbox(baseurls[1], points_sf) |>
@@ -923,7 +931,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
   )
 
   # Retrieve ATTAINS column names for validation
-  attains_names <- renameATTAINSCols(return_list = TRUE)
+  attains_names <- .renameATTAINSCols(return_list = TRUE)
 
   # Check if ATTAINS data is already present in `.data`
   if (any(attains_names %in% colnames(.data))) {
@@ -1225,7 +1233,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
 
   # create final list for output
   final_list <- list(
-    "TADA_with_ATTAINS" = TADA_with_ATTAINS |> renameATTAINSCols(),
+    "TADA_with_ATTAINS" = TADA_with_ATTAINS |> .renameATTAINSCols(),
     "ATTAINS_catchments" = ATTAINS_catchments,
     "ATTAINS_points" = ATTAINS_points,
     "ATTAINS_lines" = ATTAINS_lines,
@@ -1331,7 +1339,7 @@ TADA_GetATTAINSByAUID <- function(
     add = TRUE
   )
 
-  attains_names <- renameATTAINSCols(return_list = TRUE)
+  attains_names <- .renameATTAINSCols(return_list = TRUE)
 
   # should ATTAINS prefixed cols already present stop this function?
   if (any(attains_names %in% colnames(.data))) {
@@ -1545,7 +1553,7 @@ TADA_GetATTAINSByAUID <- function(
   tada.cols <- colnames(TADA_with_ATTAINS)
 
   # create list of attains prefix cols
-  attains.cols <- renameATTAINSCols(return_list = TRUE, format = "attains")
+  attains.cols <- .renameATTAINSCols(return_list = TRUE, format = "attains")
 
   # create a combined list of tada and attains prefix cols
   comb.cols <- append(tada.cols, attains.cols) |> unique()
@@ -1684,7 +1692,7 @@ TADA_GetATTAINSByAUID <- function(
     TADA_CorrectColType() |>
     dplyr::filter(!is.na(ResultIdentifier)) |>
     dplyr::full_join(.data, by = names(.data)) |>
-    renameATTAINSCols() |>
+    .renameATTAINSCols() |>
     dplyr::mutate(
       ATTAINS.WaterType = ifelse(
         is.na(ATTAINS.WaterType),
@@ -2678,7 +2686,7 @@ TADA_CreateAUMLCrosswalk <- function(
     )
 
     # Retrieve ATTAINS column names for validation
-    attains_names <- renameATTAINSCols(return_list = TRUE)
+    attains_names <- .renameATTAINSCols(return_list = TRUE)
 
     # Check if ATTAINS data is already present in `.data`
     if (any(attains_names %in% colnames(.data))) {
