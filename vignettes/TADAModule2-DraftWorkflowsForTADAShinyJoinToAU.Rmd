@@ -40,8 +40,8 @@ knitr::opts_chunk$set(
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA).
 TADA is an open-source tool set built in the R programming language.
-This [RMarkdown](https://yihui.org/rmarkdown/) document walks
-users through how to download the TADA R package from GitHub, access and
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks users
+through how to download the TADA R package from GitHub, access and
 parameterize several important functions, and create basic
 visualizations with a sample data set.
 
@@ -61,15 +61,17 @@ We welcome collaboration with external partners.
 
 This vignette focuses on the following TADA module 2 use cases:
 
-1) New ATTAINS Tribe
+1)  New ATTAINS Tribe
 
-2) State/Existing ATTAINS Tribe
+2)  State/Existing ATTAINS Tribe
 
-3) State With Existing AU/ML/Use Crosswalks - formatting help only
+3)  State With Existing AU/ML/Use Crosswalks - formatting help only
 
 ## 1) New ATTAINS Tribe
 
-1.	Load TADA File – loads Mod 1 output file containing all data for assessments .
+1.  Load TADA File – loads Mod 1 output file containing all data for
+    assessments .
+2.  ![](images/clipboard-2599910671.png)
 
 ```{r load.tribal}
 
@@ -78,19 +80,42 @@ mod1.tribal <- Data_TribalNations_Harmonized |>
 
 ```
 
-2.	Flag and Review Sites
+2.  Flag and Review Sites
+3.  ![](images/clipboard-1183685911.png)
+
 ```{r}
 
 ```
 
+3.  Join and Review AUs
 
-3.	Join AUs
-4.	Review AUs
-5.	Create New AUs (optional)
-6.	Join and Review Existing Uses
-7.	Assign New Uses to Existing or New AUs
-8.	Assign Unique Spatial Criteria
+    ![](images/clipboard-1528829675.png)
 
+4.  Create New Point AUs (optional)
+
+    ![](images/clipboard-1537750327.png)
+
+5.  Join and Review Existing Uses
+
+    ![](images/clipboard-3279287661.png)
+
+6.  Assign New Uses to Existing or New AUs
+
+    ![](images/clipboard-1350381507.png)
+
+7.  Assign Unique Spatial Criteria
+
+    ![](images/clipboard-3899132439.png)
+
+8.  Select Parameters
+
+    ![](images/clipboard-4267043838.png)
+
+9.  Assign Parameters to Uses
+
+    ![](images/clipboard-81744933.png)
+
+10. Create and Review ML SummaryRef
 
 ## Install and Load the EPATADA R Package
 
@@ -675,3 +700,4 @@ Assessment Units. By systematically guiding users through the creation
 of crosswalks, map reviews, data submission, and use assignments, this
 workflow supports efficient data management and improves
 reproducibility.
+
