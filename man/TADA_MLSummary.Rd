@@ -7,11 +7,10 @@
 TADA_MLSummary(
   .data,
   org_id = NULL,
-  usesRef = NULL,
+  paramUseRef = NULL,
   AUMLRef = NULL,
   AU_UsesRef = NULL,
   MLSummaryRef = NULL,
-  displayNA = FALSE,
   excel = FALSE,
   overwrite = FALSE
 )
@@ -37,7 +36,7 @@ Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 Organization identifiers are listed in the "code" column of the "OrgName" tab.}
 
-\item{usesRef}{A data frame which contains a completed crosswalk of
+\item{paramUseRef}{A data frame which contains a completed crosswalk of
 ATTAINS.ParameterName(s) that will be analyzed for each ATTAINS.UseName.
 Users will need to ensure this crosswalk contains the appropriate column
 names in order to  run the function. Users who have previously completed
@@ -67,12 +66,6 @@ these columns:
 "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
 "LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".}
 
-\item{displayNA}{A boolean value. If TRUE, this allows user to view MLSummaryRef
-for all uses and parameter assigned to a ML or AU regardless if that site contains
-WQP data for that parameter. This is useful if a user is interested in an explicit
-list of parameters and uses for assessment and show NAs for sites without data.
-Default is FALSE.}
-
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 If you have any trouble locating the file, please type the following into
@@ -96,7 +89,7 @@ A data frame with any unique spatial descriptions defined with columns:
 \description{
 This function will pull in all unique MonitoringLocationName, MonitoringLocationType,
 and MonitoringLocationIdentifier from the TADA dataframe and join it to
-TADA_UsesForAnalysis. Users are not required to provide a crosswalk between
+TADA_CreateParamUseRef. Users are not required to provide a crosswalk between
 WQP Monitoring locations and Assessment units if they are only interested in
 summarizing assessments on a monitoring location level.
 }
@@ -116,21 +109,21 @@ site specific criteria as needed.
 }
 \examples{
 \dontrun{
-# First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
-paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+# First, generate and fill out a parameter crosswalk (see TADA_CrosswalkCSTWQPATTAINSParam()):
+paramRef_UT <- TADA_CrosswalkCSTWQPATTAINSParam(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
   grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 ))
-paramRef_UT3 <- TADA_ParametersForAnalysis(
+paramRef_UT3 <- TADA_CrosswalkCSTWQPATTAINSParam(
   Data_Nutrients_UT,
   paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
 )
 
 # Next, enter the crosswalk generated above as the paramRef function input
-# for TADA_UsesForAnalysis():
-usesRef_UT <- TADA_UsesForAnalysis(
+# for TADA_CreateParamUseRef():
+paramUseRef_UT <- TADA_CreateParamUseRef(
   Data_Nutrients_UT,
   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 )
@@ -140,14 +133,14 @@ MLSummaryRef_UT <- TADA_MLSummary(
   Data_Nutrients_UT,
   org_id = c("UTAHDWQ"),
   AU_UsesRef = NULL, AUMLRef = NULL,
-  usesRef = usesRef_UT,
+  paramUseRef = paramUseRef_UT,
   excel = FALSE
 )
 }
 
 }
 \seealso{
-\code{\link[=TADA_UsesForAnalysis]{TADA_UsesForAnalysis()}}
+\code{\link[=TADA_CreateParamUseRef]{TADA_CreateParamUseRef()}}
 
 \code{\link[=TADA_AssignUsesToAU]{TADA_AssignUsesToAU()}}
 

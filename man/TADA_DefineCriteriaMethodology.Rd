@@ -13,182 +13,103 @@ TADA_DefineCriteriaMethodology(
   AUMLRef = NULL,
   AU_UsesRef = NULL,
   displayUniqueId = FALSE,
+  harmonizeSynonyms = FALSE,
   excel = FALSE,
   overwrite = FALSE
 )
 }
 \arguments{
-\item{.data}{A TADA data frame. The user should run all desired data cleaning,
-processing, harmonization, filtering, and handling of censored data functions
-prior to running this function.}
+\item{.data}{A TADA data frame. Run all desired cleaning, processing, harmonization,
+filtering, and censored-data handling before using this function.}
 
-\item{org_id}{The ATTAINS organization identifier must be supplied by the
-user. "USEPA" may be included as an org_id which will populate the EPA 304(a)
-recommended criteria for any TADA.CharacteristicName if one is found. "All" or
-"NULL" are also allowable values and may be helpful for new ATTAINS users or
-those performing assessments for multiple states and tribes. If "All" is
-selected, this will return all prior ATTAINS information from all ATTAINS
-organizations in prior ATTAINS assessment cycles as individual rows for each
-organization. If "NULL" is selected all unique prior ATTAINS information from
-any ATTAINS organizations are returned but are not labeled and can be manually
-edited. Enter \code{rExpertQuery::EQ_DomainValues("org_id", api_key = .setEQKey())}
-into the console to get a list of valid organization identifiers. A list of
-organization identifiers can also be found by downloading the ATTAINS Domains
-Excel file:
-https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-Organization identifiers are listed in the "code" column of the "OrgName" tab.}
+\item{org_id}{ATTAINS organization identifier. \code{"USEPA"} may be used to populate EPA 304(a)
+recommended criteria for matching \code{TADA.CharacteristicName} values. \code{"All"} returns all
+prior ATTAINS information across organizations as separate rows. \code{"NULL"} returns all unique
+prior ATTAINS information without organization labels for manual editing.}
 
-\item{MLSummaryRef}{An optional data frame which contains the completed spatial
-crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
-or monitoring site/assessment unit. If provided the data frame must contain
-these columns:
-"ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier",
-"MonitoringLocationIdentifier", "MonitoringLocationTypeName",
-"TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
-"ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
-"LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".
-When MLSummaryRef is provided and displayUniqueId is not specified, IDs are
-retained by default to support MLSummary-based filtering.}
+\item{MLSummaryRef}{Optional spatial crosswalk used to assign unique spatial criteria to a
+parameter, use, waterbody, or monitoring site/assessment unit. If supplied, it must contain:
+\code{"ATTAINS.OrganizationIdentifier"}, \code{"ATTAINS.AssessmentUnitIdentifier"},
+\code{"MonitoringLocationIdentifier"}, \code{"MonitoringLocationTypeName"},
+\code{"TADA.ComparableDataIdentifier"}, \code{"ATTAINS.ParameterName"}, \code{"ATTAINS.UseName"},
+\code{"ATTAINS.WaterType"}, \code{"SaltFresh"}, \code{"DepthCategory"}, \code{"LongitudeMeasure"},
+\code{"LatitudeMeasure"}, \code{"IncludeOrExclude"}, and \code{"UniqueSpatialCriteria"}.
+When supplied and \code{displayUniqueId} is not specified, IDs are retained by default.}
 
-\item{criteriaMethods}{An optional data frame which contains the completed
-criteria and methodology table. This will be a user supplied table and any
-inputs in this table will be prioritized. Additional rows for any parameter(s)
-that are not found in the user supplied table will be included in the output.
-These rows will need to have the ATTAINS.ParameterName, ATTAINS.UseName,
-and the criteria and methodology inputs filled out manually if you would like
-analysis to be done for it.}
+\item{criteriaMethods}{Optional user-supplied criteria and methodology table. Supplied values
+take priority. Any missing parameter/use combinations from the input data will be added and
+must be completed manually if analysis is desired.}
 
-\item{auto_assign}{Boolean argument with two possible values: TRUE and FALSE.
-The default value is FALSE. If TRUE, a draft criteria and methods table is
-generated using default function inputs for \code{\link[=TADA_ParametersForAnalysis]{TADA_ParametersForAnalysis()}},
-\link{TADA_UsesForAnalysis}, and \link{TADA_MLSummary}. .data and org_id are
-required inputs for this function if auto_assign = TRUE. It is also
-recommended to set excel = TRUE when auto_assign = TRUE. The criteria
-and methodology template should be reviewed carefully and edits can be
-made manually in Excel. When your review is complete, read the file back into
-R and re-run this function, TADA_DefineCriteriaMethodology, again. This time,
-use the criteriaMethods function input to specify the criteria and methodology
-table that has already been filled out.}
+\item{auto_assign}{Logical; default \code{FALSE}. If \code{TRUE}, a draft criteria/methods table is
+generated using default assignment through
+\code{\link[=TADA_CrosswalkWQPATTAINSParam]{TADA_CrosswalkWQPATTAINSParam()}}, \code{\link[=TADA_CrosswalkCSTATTAINSUses]{TADA_CrosswalkCSTATTAINSUses()}},
+\code{\link[=TADA_CreateParamUseRef]{TADA_CreateParamUseRef()}}, and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}. Requires \code{.data} and \code{org_id}.}
 
-\item{AUMLRef}{An optional data frame input containing a completed crosswalk
-of monitoring location sites associated with an assessment unit. If provided,
-each Monitoring location site will get assigned to an ATTAINS.AssessmentUnitIdentifier
-to allow users to analyze by either assessment units or by monitoring location.
-This data frame must contain the following column names which can be generated
-from the output of TADA_CreateAUMLCrosswalk:
-ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
-ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.}
+\item{displayUniqueId}{Logical. If \code{TRUE}, unique \code{TADA.ComparableDataIdentifier} values
+are shown in the output to define criteria and methodology.}
 
-\item{AU_UsesRef}{An optional data frame input. If provided, the ATTAINS.UseName
-will be filtered by the ATTAINS.UseName found in this data frame. It will also
-assign the uses to each assessment unit defined in this table if an AUMLRef
-is also provided. This data frame must contain the following column names
-which can be generated from the output of TADA_AssignUsesToAU:
-ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
-and ATTAINS.WaterType.}
+\item{excel}{Logical; if \code{TRUE}, writes an Excel workbook to the user's Downloads folder.
+The file is named \code{CriteriaMethodology.xlsx} unless \code{overwrite = FALSE}, in which case a
+timestamped copy is created. The workbook includes highlighted input cells.}
 
-\item{displayUniqueId}{A Boolean value. If TRUE, this will print all unique
-TADA.ComparableDataIdentifier in the criteria and methods table output. If your
-analysis needs are dependent on differing fractions or speciations, displaying
-the unique TADA.ComparableDataIdentifier will ensure you specify the correct
-crosswalk between ATTAINS.ParameterName that each individual
-TADA.ComparableDataIdentifier groups to in your TADA data frame. This is
-useful in the alternative options to generate the criteria and methods table
-without the reference tables.}
-
-\item{excel}{A Boolean value that returns an excel spreadsheet if
-excel = TRUE. This spreadsheet is created in the user's downloads folder path.
-If you have any trouble locating the file, please type the following into
-your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-The file will be named "CriteriaMethodology.xlsx". The excel spreadsheet will highlight
-the cells in which users should input information.}
-
-\item{overwrite}{A Boolean value. If overwrite = TRUE, the excel file will be
-replaced (overwritten) by the new file you create if you re-run this function.
-Users should only specify overwrite = TRUE once they are ready to re-run this
-function if they have already ran it once.}
+\item{overwrite}{Logical. If \code{TRUE}, overwrite the Excel file if it already exists.}
 }
 \value{
-A list containing three data frames with the (1) criteria and methodology table in TADA format,
+A list containing: (1) the criteria and methodology table in TADA format,
 (2) the Data Dictionary table, and (3) the Allowable Values table.
 }
 \description{
-Assessment criteria and methodologies used to evaluate water quality vary
-across the country. TADA users can fill out this template to define the specific
-criteria and methodologies for each parameter and use combination they are
-interested in analyzing. This table can be filled out manually, auto-populated
-with uses and parameters from ATTAINS and the input WQP dataframe, or
-developed with TADA helper functions (recommended). It is recommended to run
-these three TADA helper functions, \code{\link[=TADA_ParametersForAnalysis]{TADA_ParametersForAnalysis()}},
-\link{TADA_UsesForAnalysis}, and \link{TADA_MLSummary}, in that order to
-generate the Criteria and Methodology table specific for your organization.
+Assessment criteria and methodologies used to evaluate water quality vary across the nation.
+TADA users can use this template to define the criteria and methodologies for each
+parameter-use combination of interest for their organization.
 }
 \details{
-This criteria and methodology table will be in a TADA compatible format and
-contain a list of allowable values within each column. For each ATTAINS parameter
-name and use name, users may choose to define the full criteria and methodologies
-information or magnitude values only. For example, if there are separate criteria
-and methods for acute versus chronic, rivers versus estuaries, different seasons,
-etc., then a user will need to create additional rows to reflect this.
-Additional columns are included in this output
-to capture data sufficiency information such as minimum sample sizes,
-assessment period dates, and seasonality.
+The table can be created manually, auto-populated from ATTAINS and the Criteria Search Tool (CST)
+using the input WQP data frame, or built from a pre-filled user-supplied criteria table template
+or MLSummaryRef generated through the recommended Module 2 workflow using, in order:
+\code{\link[=TADA_CrosswalkWQPATTAINSParam]{TADA_CrosswalkWQPATTAINSParam()}}, \code{\link[=TADA_CrosswalkCSTATTAINSUses]{TADA_CrosswalkCSTATTAINSUses()}},
+\code{\link[=TADA_CreateParamUseRef]{TADA_CreateParamUseRef()}}, and \code{\link[=TADA_MLSummary]{TADA_MLSummary()}}.
 
-Allowable values for ATTAINS.UseName, ATTAINS.ParameterName, and
-ATTAINS.OrganizationIdentifier:
-ATTAINS.uses = rExpertQuery::EQ_DomainValues("use_name", api_key = .setEQKey())
+The output is in a TADA compatible format and includes allowable values for each column.
+Users may provide full criteria/methodology information or only magnitude values.
+If criteria differ by acute vs. chronic condition, waterbody type, season, or other factors,
+additional rows should be created for each unique case. Additional columns capture data
+sufficiency information such as minimum sample size, assessment period dates, and seasonality.
+
+Allowable values for \code{ATTAINS.UseName}, \code{ATTAINS.ParameterName}, and
+\code{ATTAINS.OrganizationIdentifier} can be retrieved with:
+\preformatted{
+ATTAINS.uses <- rExpertQuery::EQ_DomainValues("use_name", api_key = .setEQKey())
 ATTAINS.parameters <- rExpertQuery::EQ_DomainValues("param_name", api_key = .setEQKey())
 ATTAINS.organizations <- rExpertQuery::EQ_DomainValues("org_id", api_key = .setEQKey())
 }
+}
 \examples{
-# Example 1
-# First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
-paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
-paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
-  grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
-  grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
-  grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
-))
-paramRef_UT3 <- TADA_ParametersForAnalysis(
-  Data_Nutrients_UT,
-  paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
-)
+# empty dataframe with colnames
+blank_criteria <- TADA_DefineCriteriaMethodology()
 
-# Next, enter the crosswalk generated above as the paramRef function input
-# for TADA_UsesForAnalysis():
-usesRef_UT <- TADA_UsesForAnalysis(
+# criteria table with all unique TADA.ComparableDataIdentifier from WQP data
+UT_criteria_comparables <- TADA_DefineCriteriaMethodology(
   Data_Nutrients_UT,
-  paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
-)
+  org_id = "UTAHDWQ", excel = TRUE
+ )[[1]]
 
-# Now, run TADA_MLSummary()
-MLSummaryRef_UT <- TADA_MLSummary(
-  Data_Nutrients_UT,
-  org_id = c("UTAHDWQ"),
-  AU_UsesRef = NULL, AUMLRef = NULL,
-  usesRef = usesRef_UT,
-  excel = FALSE
-)
-
-DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
-  Data_Nutrients_UT,
-  MLSummaryRef = MLSummaryRef_UT,
-  org_id = "UTAHDWQ",
-  displayUniqueId = TRUE,
-  excel = FALSE
-)
-
-# Example 2: fill template with EPA304(a) criteria
-epa_only <- TADA_DefineCriteriaMethodology(
+# auto assign param and uses crosswalk method
+UT_criteria_auto <- TADA_DefineCriteriaMethodology(
   Data_MT_MissoulaCounty,
-  org_id = "USEPA",
+  org_id = "MTDEQ",
   auto_assign = TRUE
-)
+ )[[1]]
 
-# Example 3: fill template with EPA304(a)
-# and ATTAINS parameters and uses for MTDEQ:
-epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty,
-  org_id = c("USEPA", "MTDEQ"), auto_assign = TRUE
-)
+# retrieve criteria table from the TADACommunityHub
+UT_criteria_CommunityHub <- TADA_GetCriteriaFile(org_id = "UTAHDWQ")
+
+# provide and filters a user supplied criteria table using TADACommunityHub file
+# to only relevant param/characteristics in their dataframe
+UT_criteria_user <- TADA_DefineCriteriaMethodology(
+  Data_MT_MissoulaCounty,
+  org_id = "UTAHDWQ",
+  criteriaMethods = UT_criteria_CommunityHub
+ )[[1]]
 
 }

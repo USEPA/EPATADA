@@ -2,8 +2,8 @@
 test_dat <- TADA_RandomTestingData()
 
 # Test: Check for potential duplicates during criteria methods table generation
-testthat::test_that("TADA_ParametersForAnalysis ", {
-  param_ref_none <- TADA_ParametersForAnalysis(
+testthat::test_that("TADA_CrosswalkWQPATTAINSParam ", {
+  param_ref_none <- TADA_CrosswalkWQPATTAINSParam(
     test_dat,
     org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
     auto_assign = "None",
@@ -11,7 +11,7 @@ testthat::test_that("TADA_ParametersForAnalysis ", {
   )
 
   suppressWarnings(
-    use_param_ref_none <- TADA_UsesForAnalysis(
+    use_param_ref_none <- TADA_CreateParamUseRef(
       test_dat,
       paramRef = param_ref_none,
       org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
@@ -19,7 +19,7 @@ testthat::test_that("TADA_ParametersForAnalysis ", {
       excel = FALSE
     )
   )
-  # a user supplied table for a param_use will not populate TADA_UsesForAnalysis if paramRef crosswalk is left blank.
+  # a user supplied table for a param_use will not populate TADA_CreateParamUseRef  if paramRef crosswalk is left blank.
   user.supplied.uses.param <- data.frame(
     ATTAINS.OrganizationIdentifier = rep(
       "MTDEQ",
@@ -33,7 +33,7 @@ testthat::test_that("TADA_ParametersForAnalysis ", {
   )
 
   suppressWarnings(
-    use_param_ref_none2 <- TADA_UsesForAnalysis(
+    use_param_ref_none2 <- TADA_CreateParamUseRef(
       test_dat,
       paramRef = param_ref_none,
       usesRef = user.supplied.uses.param,
@@ -52,7 +52,7 @@ testthat::test_that("TADA_ParametersForAnalysis ", {
       dim(use_param_ref_none2)[2] == 7
   )
   #################
-  param_ref_all <- TADA_ParametersForAnalysis(
+  param_ref_all <- TADA_CrosswalkWQPATTAINSParam(
     test_dat,
     org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
     auto_assign = "All",
@@ -60,7 +60,7 @@ testthat::test_that("TADA_ParametersForAnalysis ", {
   )
 
   suppressWarnings(
-    use_param_ref_all <- TADA_UsesForAnalysis(
+    use_param_ref_all <- TADA_CreateParamUseRef(
       test_dat,
       paramRef = param_ref_all,
       org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
@@ -69,7 +69,7 @@ testthat::test_that("TADA_ParametersForAnalysis ", {
     )
   )
 
-  # a user supplied table for a param_use will not populate TADA_UsesForAnalysis if paramRef crosswalk is left blank.
+  # a user supplied table for a param_use will not populate TADA_CreateParamUseRef  if paramRef crosswalk is left blank.
   user.supplied.uses.param <- data.frame(
     ATTAINS.OrganizationIdentifier = rep(
       "MTDEQ",
@@ -83,7 +83,7 @@ testthat::test_that("TADA_ParametersForAnalysis ", {
   )
 
   suppressWarnings(
-    use_param_ref_all2 <- TADA_UsesForAnalysis(
+    use_param_ref_all2 <- TADA_CreateParamUseRef(
       test_dat,
       paramRef = param_ref_all,
       usesRef = user.supplied.uses.param,
@@ -105,7 +105,7 @@ testthat::test_that("TADA_ParametersForAnalysis ", {
       dim(use_param_ref_all2)[2] == 7
   )
   #################
-  param_ref_org <- TADA_ParametersForAnalysis(
+  param_ref_org <- TADA_CrosswalkWQPATTAINSParam(
     test_dat,
     org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
     auto_assign = "Org",
@@ -155,7 +155,7 @@ testthat::test_that("TADA_DefineCriteriaMethodology auto_assign table contains a
   )
 })
 
-testthat::test_that("Excel file generation works correctly with overwrite = F in TADA_UsesForAnalysis when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
+testthat::test_that("Excel file generation works correctly with overwrite = F in TADA_CreateParamUseRef  when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
   # specify downloads path
   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
@@ -165,12 +165,12 @@ testthat::test_that("Excel file generation works correctly with overwrite = F in
   }
 
   # 2. Run the function being tested
-  paramTest <- TADA_ParametersForAnalysis(
+  paramTest <- TADA_CrosswalkWQPATTAINSParam(
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ"
   )
   msg <- utils::capture.output(
-    usesTest <- TADA_UsesForAnalysis(
+    usesTest <- TADA_CreateParamUseRef(
       Data_MT_MissoulaCounty,
       org_id = "MTDEQ",
       paramRef = paramTest,
@@ -197,7 +197,7 @@ testthat::test_that("Excel file generation works correctly with overwrite = F in
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-testthat::test_that("Excel file generation works correctly with overwrite = T in TADA_UsesForAnalysis when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
+testthat::test_that("Excel file generation works correctly with overwrite = T in TADA_CreateParamUseRef  when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
   # specify downloads path
   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
@@ -207,11 +207,11 @@ testthat::test_that("Excel file generation works correctly with overwrite = T in
   }
 
   # 2. Run the function being tested
-  paramTest <- TADA_ParametersForAnalysis(
+  paramTest <- TADA_CrosswalkWQPATTAINSParam(
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ"
   )
-  usesTest <- TADA_UsesForAnalysis(
+  usesTest <- TADA_CreateParamUseRef(
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ",
     paramRef = paramTest,
@@ -235,11 +235,11 @@ testthat::test_that("Excel file generation works correctly with overwrite = F in
   }
 
   # 2. Run the function being tested
-  paramTest <- TADA_ParametersForAnalysis(
+  paramTest <- TADA_CrosswalkWQPATTAINSParam(
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ"
   )
-  usesTest <- TADA_UsesForAnalysis(
+  usesTest <- TADA_CreateParamUseRef(
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ",
     paramRef = paramTest
@@ -282,11 +282,11 @@ testthat::test_that("Excel file generation works correctly with overwrite = T in
   }
 
   # 2. Run the function being tested
-  paramTest <- TADA_ParametersForAnalysis(
+  paramTest <- TADA_CrosswalkWQPATTAINSParam(
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ"
   )
-  usesTest <- TADA_UsesForAnalysis(
+  usesTest <- TADA_CreateParamUseRef(
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ",
     paramRef = paramTest
@@ -305,7 +305,7 @@ testthat::test_that("Excel file generation works correctly with overwrite = T in
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-testthat::test_that("Excel file generation works with blank inputs in TADA_ParametersForAnalysis even when excel file does not exist yet.", {
+testthat::test_that("Excel file generation works with blank inputs in TADA_CrosswalkWQPATTAINSParam even when excel file does not exist yet.", {
   # specify downloads path
   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
@@ -315,7 +315,7 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_Param
   }
 
   # 2. Run the function being tested
-  paramTest <- TADA_ParametersForAnalysis(excel = T, overwrite = T)
+  paramTest <- TADA_CrosswalkWQPATTAINSParam(excel = T, overwrite = T)
   # Reload the updated workbook so wb now includes those tabs
   wb <- openxlsx::loadWorkbook(downloads_path)
   nsheets <- length(names(wb))
@@ -331,7 +331,7 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_Param
   }
   # Run the function with overwrite = F now
   msg <- utils::capture.output(
-    paramTest2 <- TADA_ParametersForAnalysis(excel = T, overwrite = F),
+    paramTest2 <- TADA_CrosswalkWQPATTAINSParam(excel = T, overwrite = F),
     type = "message"
   )
   # Reload the updated workbook so wb now includes those tabs
@@ -355,7 +355,7 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_Param
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-testthat::test_that("Excel file generation works with blank inputs in TADA_UsesForAnalysis even when excel file does not exist yet.", {
+testthat::test_that("Excel file generation works with blank inputs in TADA_CreateParamUseRef  even when excel file does not exist yet.", {
   # specify downloads path
   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
@@ -365,7 +365,7 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_UsesF
   }
 
   # Run the function being tested
-  usesTest <- TADA_UsesForAnalysis(excel = T, overwrite = T)
+  usesTest <- TADA_CreateParamUseRef(excel = T, overwrite = T)
   # Reload the updated workbook so wb now includes those tabs
   wb <- openxlsx::loadWorkbook(downloads_path)
   nsheets <- length(names(wb))
@@ -381,7 +381,7 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_UsesF
   }
   # Run the function with overwrite = F now
   msg <- utils::capture.output(
-    usesTest2 <- TADA_UsesForAnalysis(excel = T, overwrite = F),
+    usesTest2 <- TADA_CreateParamUseRef(excel = T, overwrite = F),
     type = "message"
   )
   # Reload the updated workbook so wb now includes those tabs
