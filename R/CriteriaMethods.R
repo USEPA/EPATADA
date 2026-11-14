@@ -177,12 +177,12 @@ TADA_DefineCriteriaMethodology <- function(
     message(
       "All arguments are blank, returning an empty dataframe with column names only."
     )
-    
+
     # create tempfile
     tmp_xlsx <- tempfile(fileext = ".xlsx")
     on.exit(unlink(tmp_xlsx), add = TRUE)
     .TADA_CriteriaDataDictionary(tmp_xlsx)
-    
+
     return(list(
       DefineCriteriaMethodology = blank_criteria,
       DataDictionary = openxlsx::read.xlsx(
@@ -205,13 +205,17 @@ TADA_DefineCriteriaMethodology <- function(
   if (is.null(org_id)) {
     org_id <- character(0)
   }
-  
+
   if (!is.null(criteriaMethods) && !is.null(MLSummaryRef)) {
-    stop("TADA_DefineCriteriaMethodology: only one of MLSummaryRef or criteriaMethods is allowed as an input.")
+    stop(
+      "TADA_DefineCriteriaMethodology: only one of MLSummaryRef or criteriaMethods is allowed as an input."
+    )
   }
-  
+
   if (!is.null(criteriaMethods) && isTRUE(auto_assign)) {
-    stop("TADA_DefineCriteriaMethodology: criteriaMethods and auto_assign = TRUE are not valid together.")
+    stop(
+      "TADA_DefineCriteriaMethodology: criteriaMethods and auto_assign = TRUE are not valid together."
+    )
   }
 
   # ------------------------------------------------------------
@@ -431,10 +435,10 @@ TADA_DefineCriteriaMethodology <- function(
         MLSummaryRef[[col]] <- NA_character_
       }
     }
-    
+
     # retrieve ML_SummaryRef col names
     # ML_colnames <- names(suppressMessages(TADA_MLSummary()))
-    # 
+    #
     # MLSummaryRef <- dplyr::select(MLSummaryRef, dplyr::all_of(ML_colnames))
 
     DefineCriteriaMethodology <- MLSummaryRef |>
