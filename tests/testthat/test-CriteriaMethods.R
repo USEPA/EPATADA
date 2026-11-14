@@ -282,12 +282,12 @@ test_that("criteriaMethods path fills missing columns and handles missing TADA.C
 #   )
 #   epa_tbl <- utils::read.csv(epa_file, fileEncoding = "UTF-8-BOM")
 #   skip_if(nrow(epa_tbl) == 0, "EPA304a table empty")
-# 
+#
 #   # Choose one characteristic present in EPA304a
 #   char_candidates <- unique(epa_tbl$TADA.CharacteristicName)
 #   skip_if(length(char_candidates) == 0, "No characteristic names in EPA304a")
 #   char_pick <- char_candidates[1]
-# 
+#
 #   df <- data.frame(
 #     TADA.ComparableDataIdentifier = "C_EPA",
 #     TADA.CharacteristicName = char_pick,
@@ -306,7 +306,7 @@ test_that("criteriaMethods path fills missing columns and handles missing TADA.C
 #     DepthCategory = NA_character_,
 #     stringsAsFactors = FALSE
 #   )
-# 
+#
 #   res <- TADA_DefineCriteriaMethodology(
 #     .data = df,
 #     MLSummaryRef = ml,
@@ -315,7 +315,7 @@ test_that("criteriaMethods path fills missing columns and handles missing TADA.C
 #     excel = FALSE
 #   )
 #   res <- res$DefineCriteriaMethodology
-# 
+#
 #   # Expect at least some rows for USEPA if overlap exists
 #   expect_true(any(res$ATTAINS.OrganizationIdentifier == "USEPA"))
 #   # EPA rows should include the picked characteristic
@@ -348,7 +348,7 @@ test_that("displayUniqueId = TRUE retains ComparableDataIdentifier", {
     TADA.ResultMeasure.MeasureUnitCode = c("mg/L"),
     stringsAsFactors = FALSE
   )
-  
+
   ml <- data.frame(
     TADA.MonitoringLocationIdentifier = "ML1",
     TADA.MonitoringLocationTypeName = "River",
@@ -367,7 +367,7 @@ test_that("displayUniqueId = TRUE retains ComparableDataIdentifier", {
     DepthCategory = NA_character_,
     stringsAsFactors = FALSE
   )
-  
+
   res <- TADA_DefineCriteriaMethodology(
     .data = df,
     MLSummaryRef = ml,
@@ -375,9 +375,9 @@ test_that("displayUniqueId = TRUE retains ComparableDataIdentifier", {
     displayUniqueId = TRUE,
     excel = FALSE
   )
-  
+
   res <- res$DefineCriteriaMethodology
-  
+
   expect_true("TADA.ComparableDataIdentifier" %in% names(res))
   expect_true(any(res$TADA.ComparableDataIdentifier == "C1", na.rm = TRUE))
 })
@@ -414,7 +414,7 @@ test_that("Date columns have Date class after MLSummaryRef path", {
     TADA.ResultMeasure.MeasureUnitCode = "mg/L",
     stringsAsFactors = FALSE
   )
-  
+
   ml <- data.frame(
     TADA.MonitoringLocationIdentifier = "ML1",
     TADA.MonitoringLocationTypeName = "River",
@@ -433,16 +433,16 @@ test_that("Date columns have Date class after MLSummaryRef path", {
     DepthCategory = NA_character_,
     stringsAsFactors = FALSE
   )
-  
+
   res <- TADA_DefineCriteriaMethodology(
     .data = df,
     MLSummaryRef = ml,
     org_id = "ORGX",
     excel = FALSE
   )
-  
+
   res <- res$DefineCriteriaMethodology
-  
+
   expect_s3_class(res$AssessPeriodStartDate, "Date")
   expect_s3_class(res$AssessPeriodEndDate, "Date")
 })
@@ -456,7 +456,7 @@ test_that("displayUniqueId = TRUE retains ComparableDataIdentifier", {
     TADA.ResultMeasure.MeasureUnitCode = "mg/L",
     stringsAsFactors = FALSE
   )
-  
+
   ml <- data.frame(
     TADA.MonitoringLocationIdentifier = "ML1",
     TADA.MonitoringLocationTypeName = "River",
@@ -475,7 +475,7 @@ test_that("displayUniqueId = TRUE retains ComparableDataIdentifier", {
     DepthCategory = NA_character_,
     stringsAsFactors = FALSE
   )
-  
+
   res <- TADA_DefineCriteriaMethodology(
     .data = df,
     MLSummaryRef = ml,
@@ -483,9 +483,9 @@ test_that("displayUniqueId = TRUE retains ComparableDataIdentifier", {
     displayUniqueId = TRUE,
     excel = FALSE
   )
-  
+
   res <- res$DefineCriteriaMethodology
-  
+
   expect_true("TADA.ComparableDataIdentifier" %in% names(res))
   expect_true(any(res$TADA.ComparableDataIdentifier == "C1", na.rm = TRUE))
 })
@@ -565,7 +565,7 @@ test_that("MLSummaryRef numeric (non-data.frame, non-character) errors clearly",
 #     TADA.ResultMeasure.MeasureUnitCode = c("mg/L", "mg/L"),
 #     stringsAsFactors = FALSE
 #   )
-#   
+#
 #   cm <- data.frame(
 #     ATTAINS.OrganizationIdentifier = NA_character_,
 #     ATTAINS.ParameterName = "PARAM_X",
@@ -599,15 +599,15 @@ test_that("MLSummaryRef numeric (non-data.frame, non-character) errors clearly",
 #     Links = NA_character_,
 #     stringsAsFactors = FALSE
 #   )
-#   
+#
 #   res <- TADA_DefineCriteriaMethodology(
 #     .data = df,
 #     criteriaMethods = cm,
 #     excel = FALSE
 #   )
-#   
+#
 #   res <- res$DefineCriteriaMethodology
-#   
+#
 #   expect_true(is.data.frame(res))
 #   expect_true(any(res$ATTAINS.OrganizationIdentifier == "", na.rm = TRUE))
 #   expect_true(any(res$TADA.CharacteristicName == "CHAR_A", na.rm = TRUE))
