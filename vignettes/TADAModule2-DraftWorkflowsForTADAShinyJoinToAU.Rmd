@@ -95,7 +95,7 @@ mod1.tribal <- Data_TribalNations_Harmonized
 
     -   Should there be separate tables for (1) flagged coordinates and
         (2) nearby sites or should it be a combined table? (Whichever is
-        most user friendly)
+            most user friendly)
 
 -   If users select to exclude any monitoring locations from further
     analysis in this tab, they need to be filtered out of the working
@@ -232,7 +232,7 @@ mod1.flagsites <- mod1.flagsites |>
     For more information on how to customize this function to suit your
     needs, enter **`?TADA_AssignUsesToWaterType`** into the R console.
 
-    ```{}
+    ```         
     ```
 
     ```{r}
