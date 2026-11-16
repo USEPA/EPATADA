@@ -38,13 +38,15 @@ knitr::opts_chunk$set(
 
 This vignette focuses on the following TADA module 2 use cases:
 
-1)  New ATTAINS Tribe
+1)  State/Existing ATTAINS Tribe
 
-2)  State/Existing ATTAINS Tribe
+2)  New ATTAINS Tribe
 
 3)  State With Existing AU/ML/Use Crosswalks - formatting help only
 
-## 1) New ATTAINS Tribe
+## 
+
+## 1) State/Existing ATTAINS Tribe
 
 1.  Load TADA File – loads Mod 1 output file containing all data for
     assessments .
@@ -58,7 +60,13 @@ This vignette focuses on the following TADA module 2 use cases:
 ```{r load.tribal}
 
 # load TADA dataset (cleaned/harmonized/filtered TADA df from TADAShiny)
-mod1.tribal <- Data_TribalNations_Harmonized
+# modified a couple of rows so that they will show up as flagged coordinates
+mod1.tribal <- Data_TribalNations_Harmonized |>
+  dplyr::filter(OrganizationFormalName == "Fond du Lac Band of Chippewa (MN)") |>
+  dplyr::mutate(TADA.LatitudeMeasure =
+                  dplyr::case_when(MonitoringLocationIdentifier == "FONDULAC_WQX-101" ~ 50.00,
+                                   MonitoringLocationIdentifier == "FONDULAC_WQX-119" ~ 46.6,
+                                   .default = TADA.LatitudeMeasure))
 
 ```
 
@@ -163,6 +171,9 @@ mod1.flagsites <- mod1.flagsites |>
     version of TADAShinyJoinToAU is correct.
 
     Any changes made by the user should be carried over to the next tab.
+    If the user has chosen to exclude a monitoring location it should be
+    filter out of the Final Dataset and TADA.Remove and
+    TADA.RemovalReason should be updated in the Working Dataset.
 
     ![](images/clipboard-1528829675.png)
 
@@ -171,8 +182,12 @@ mod1.flagsites <- mod1.flagsites |>
 
     TADA_ViewATTAINS(tribal.aus)
 
-    # from this point forward the TADA_with_ATTAINS df is the one to continue moving forward with
+    # from this point on the TADA_with_ATTAINS df is the one to continue moving forward with
     tribal.au.matches <- tribal.aus$TADA_with_ATTAINS
+
+    # df that should be downloaded for ATTAINS batch upload
+
+    # df that should be downloaded for Mod 3 crosswalk
     ```
 
 4.  Create New Point AUs (optional) - for tribal use cases, users may
@@ -222,29 +237,46 @@ mod1.flagsites <- mod1.flagsites |>
 6.  Assign New Uses to Existing or New AUs - HAVE NOT ADDED DETAILS YET
     FROM THIS POINT FORWARD
 
-    ![](images/clipboard-1350381507.png)
+    Need to add a button so users have the option of assigning new uses
+    by water type. The **`TADA_AssignUsesToWaterType`** function imports
+    combinations of water types and use names associated with the
+    specified organization from ATTAINS. It automatically assigns uses
+    to new assessment units based on their water type.
 
-    **Advanced: Assigning Uses to New AUs**
-
-    For any new assessment unit (AU), users must determine how to assign
-    the appropriate uses. The **`TADA_AssignUsesToWaterType`** function
-    is designed to assist with this process. It imports combinations of
-    water types and use names associated with the specified organization
-    from ATTAINS. By doing so, it automatically assigns uses to new
-    assessment units based on their water type, thereby streamlining the
-    integration of new AUs into existing frameworks.
-
-    For more information on how to customize this function to suit your
-    needs, enter **`?TADA_AssignUsesToWaterType`** into the R console.
-
-    ```         
-    ```
+    Users should also be able to add new rows manually to assign
+    additional uses. The ATTAINS.AssessmentUnitIdentifier column should,
+    if possible, have a dropdown menu that allows users to select from
+    the existing ATTAINS.AssessmentUnitIdentifier in their data set.
+    ATTAINS.OrganizationIdentifier should autofill. The ATTAINS.UseName
+    choices can be limited to a selected organization or include all use
+    names allowable in ATTAINS.
 
     ```{r}
 
+    MT.UseAURef_with_WaterUseRef <-
+      TADA_AssignUsesToAU(
+        MT.AUMLRef$TADA_with_ATTAINS,
+        waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
+        AUMLRef = Final.MT.AUMLRef,
+        org_id = "MTDEQ",
+        api_key = api_key
+      )
     ```
 
 7.  Assign Unique Spatial Criteria
+
+    There are two components to this tab. The first is to (optionally)
+    run **TADA_SaltFreshIndicator** to populate the SaltFreshIndicator
+    column. Users should be able to skip this as non-coastal states or
+    tribes may not need this functionality. They can edit the values in
+    the SaltFreshIndicator column.
+
+    The second is to allow users to manually edit the
+    UniqueSpatialCriteria column. They can enter character strings of
+    their choice here. It might be helpful to include a section where
+    they enter the values they wish to use in the UniqueSpatialCriteria
+    column which would then populate a dropdown menu to prevent data
+    entry errors.
 
     ![](images/clipboard-3899132439.png)
 
@@ -253,6 +285,16 @@ mod1.flagsites <- mod1.flagsites |>
     ```
 
 8.  Select Parameters
+
+    First users are review Parameters pulled from ATTAINS based on the
+    selected organization and remove any they don't wish to include.
+    Next, they can select additional organization(s) or the entirety of
+    the ATTAINS parameter domain values and add additional parameters
+    that they want to include in their analysis.
+
+    The **rExpertQuery** function **rExpertQuery::EQ_DomainValues()**
+    can be used to assist with this. An example is included in the code
+    chunk below.
 
     ![](images/clipboard-4267043838.png)
 
@@ -267,24 +309,6 @@ mod1.flagsites <- mod1.flagsites |>
 10. Create and Review ML SummaryRef
 
     ![](images/clipboard-940563435.png)
-
-```{r assign.use.to.new.AU.with.waterUseRef_dev, include = F, eval = T}
-# use example data, this should be the same as MT.UseAURef_with_WaterUseRef
-utils::data("Data_MT_AU_UsesRef_Water", package = "EPATADA")
-MT.UseAURef_with_WaterUseRef <- Data_MT_AU_UsesRef_Water
-rm(Data_MT_AU_UsesRef_Water)
-```
-
-```{r assign.use.to.new.AU.with.waterUseRef_user, eval = FALSE}
-MT.UseAURef_with_WaterUseRef <-
-  TADA_AssignUsesToAU(
-    MT.AUMLRef$TADA_with_ATTAINS,
-    waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
-    AUMLRef = Final.MT.AUMLRef,
-    org_id = "MTDEQ",
-    api_key = api_key
-  )
-```
 
 ```{r watertypetable}
 TADA_TableExport(MT.UseAURef_with_WaterUseRef)
