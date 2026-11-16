@@ -2733,7 +2733,7 @@ TADA_CreateParamUseRef <- function(
 
   if (isTRUE(excel)) {
     downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
-    
+
     if (!file.exists(downloads_path)) {
       message(
         "TADA_CreateParamUseRef:\n  ParamUseMLCrosswalks.xlsx does not exist yet. Generating the excel file."
@@ -2743,7 +2743,7 @@ TADA_CreateParamUseRef <- function(
           "TADA_CreateParamUseRef:\n  overwrite = F selected, creating original version as well as a copy with timestamp."
         )
       }
-      
+
       if (missing(paramRef)) {
         TADA_CrosswalkWQPATTAINSParam(excel = TRUE, overwrite = TRUE)
       } else {
@@ -2757,9 +2757,9 @@ TADA_CreateParamUseRef <- function(
         )
       }
     }
-    
+
     wb <- openxlsx::loadWorkbook(downloads_path)
-    
+
     if ("UsesCrosswalk" %in% openxlsx::sheets(wb)) {
       openxlsx::removeWorksheet(wb, "UsesCrosswalk")
     }
@@ -2769,10 +2769,10 @@ TADA_CreateParamUseRef <- function(
     if (!"Index" %in% openxlsx::sheets(wb)) {
       openxlsx::addWorksheet(wb, "Index")
     }
-    
+
     openxlsx::addWorksheet(wb, "UsesCrosswalk")
     openxlsx::addWorksheet(wb, "CSTLookup", visible = FALSE)
-    
+
     sv <- openxlsx::sheetVisibility(wb)
     sn <- names(wb)
     if (which(sn == "UsesCrosswalk") == 1) {
@@ -2785,14 +2785,14 @@ TADA_CreateParamUseRef <- function(
       sv[which(sn == "CSTLookup")] <- "hidden"
     }
     openxlsx::sheetVisibility(wb) <- sv
-    
+
     load(system.file(
       "extdata",
       "ATTAINSParamUseOrgRef.rda",
       package = "EPATADA"
     ))
     org_filter <- if (is.null(org_id)) "" else org_id
-    
+
     ATTAINS_param <- if (length(org_filter) == 1 && org_filter == "") {
       ATTAINSParamUseOrgRef
     } else {
@@ -2810,41 +2810,35 @@ TADA_CreateParamUseRef <- function(
           ATTAINS.UseName
         )
     }
-    
+
     # Safe CST lookup table for Excel validation
     cst <- if ("CST.PollutantName" %in% names(UsesCrosswalk)) {
       data.frame(
-        CST.PollutantName = sort(unique(stats::na.omit(UsesCrosswalk$CST.PollutantName))),
+        CST.PollutantName = sort(unique(stats::na.omit(
+          UsesCrosswalk$CST.PollutantName
+        ))),
         stringsAsFactors = FALSE
       )
     } else {
-      data.frame(
-        CST.PollutantName = character(0),
-        stringsAsFactors = FALSE
-      )
+      data.frame(CST.PollutantName = character(0), stringsAsFactors = FALSE)
     }
-    
+
     openxlsx::writeData(
       wb,
       "ATTAINS.PriorOrgParamUseRef",
       x = ATTAINS_param,
       startCol = 1
     )
-    
-    openxlsx::writeData(
-      wb,
-      "CSTLookup",
-      x = cst,
-      startCol = 1
-    )
-    
+
+    openxlsx::writeData(wb, "CSTLookup", x = cst, startCol = 1)
+
     openxlsx::writeData(
       wb,
       "Index",
       x = data.frame(IncludeOrExclude = c("Include", "Exclude")),
       startCol = 9
     )
-    
+
     UsesCrosswalk <- UsesCrosswalk |>
       dplyr::select(dplyr::any_of(c(
         "TADA.ComparableDataIdentifier",
@@ -2857,7 +2851,7 @@ TADA_CreateParamUseRef <- function(
         "ATTAINS.FlagUseName",
         "Flag.UseInput"
       )))
-    
+
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
     openxlsx::writeData(
       wb,
@@ -2866,7 +2860,7 @@ TADA_CreateParamUseRef <- function(
       startCol = 1,
       headerStyle = header_st
     )
-    
+
     openxlsx::dataValidation(
       wb,
       "UsesCrosswalk",
@@ -2875,7 +2869,7 @@ TADA_CreateParamUseRef <- function(
       type = "list",
       value = "'ATTAINS.PriorOrgParamUseRef'!$C$2:$C$50000"
     )
-    
+
     if (nrow(cst) > 0) {
       openxlsx::dataValidation(
         wb,
@@ -2886,7 +2880,7 @@ TADA_CreateParamUseRef <- function(
         value = "'CSTLookup'!$A$2:$A$50000"
       )
     }
-    
+
     openxlsx::dataValidation(
       wb,
       "UsesCrosswalk",
@@ -2895,7 +2889,7 @@ TADA_CreateParamUseRef <- function(
       type = "list",
       value = "'Index'!$I$2:$I$3"
     )
-    
+
     max_loops <- min(nrow(UsesCrosswalk), 100L)
     for (i in seq_len(max_loops)) {
       openxlsx::writeFormula(
@@ -2928,7 +2922,7 @@ TADA_CreateParamUseRef <- function(
           '"Use name has been assessed in prior cycles by this organization."))))'
         )
       )
-      
+
       openxlsx::writeFormula(
         wb,
         "UsesCrosswalk",
@@ -2942,26 +2936,21 @@ TADA_CreateParamUseRef <- function(
         )
       )
     }
-    
+
     openxlsx::setColWidths(
       wb,
       "UsesCrosswalk",
       cols = 1:ncol(UsesCrosswalk),
       widths = "auto"
     )
-    openxlsx::setColWidths(
-      wb,
-      "CSTLookup",
-      cols = 1:ncol(cst),
-      widths = "auto"
-    )
+    openxlsx::setColWidths(wb, "CSTLookup", cols = 1:ncol(cst), widths = "auto")
     openxlsx::setColWidths(
       wb,
       "ATTAINS.PriorOrgParamUseRef",
       cols = 1:ncol(ATTAINS_param),
       widths = "auto"
     )
-    
+
     save_path <- downloads_path
     if (!isTRUE(overwrite)) {
       base <- tools::file_path_sans_ext(downloads_path)
@@ -2969,7 +2958,7 @@ TADA_CreateParamUseRef <- function(
       ts <- format(Sys.time(), "%Y%m%d_%H%M%S")
       save_path <- sprintf("%s_%s.%s", base, ts, ext)
     }
-    
+
     openxlsx::saveWorkbook(wb, save_path, overwrite = TRUE)
     message("Saved as: ", normalizePath(save_path))
   }
