@@ -10,8 +10,6 @@ TADA_CreateParamUseRef(
   paramRef = NULL,
   paramUseRef = NULL,
   usesRef = NULL,
-  AU_UsesRef = NULL,
-  AUMLRef = NULL,
   auto_assign = FALSE,
   excel = FALSE,
   overwrite = FALSE
@@ -53,20 +51,6 @@ this crosswalk table can re-use it and review this output for accuracy.}
 \item{usesRef}{An optional data frame containing a crosswalk between
 ATTAINS use names and CST use names. If supplied, this table is used to map
 ATTAINS.UseName to CST.UseName.}
-
-\item{AU_UsesRef}{An optional data frame input. If provided, the ATTAINS.UseName
-will be populated from the ATTAINS.UseName found in this data frame rather
-than the ATTAINS assessment profile. This data frame must contain the following
-column names which can be generated from the output of TADA_AssignUsesToAU:
-ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
-and ATTAINS.WaterType.}
-
-\item{AUMLRef}{An optional data frame input. If provided, this data frame
-should contain a completed crosswalk of monitoring location sites associated
-with an assessment unit. This data frame must contain the following
-column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
-ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
-ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.}
 
 \item{auto_assign}{A boolean value. If TRUE, this will assign all unique
 ATTAINS.UseName to an ATTAINS.ParameterName if that parameter has not been
