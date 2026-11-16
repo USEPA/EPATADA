@@ -34,29 +34,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Overview and Setup
-
-**Welcome!**
-
-Thank you for your interest in Tools for Automated Data Analysis (TADA).
-TADA is an open-source tool set built in the R programming language.
-This [RMarkdown](https://yihui.org/rmarkdown/) document walks users
-through how to download the TADA R package from GitHub, access and
-parameterize several important functions, and create basic
-visualizations with a sample data set.
-
-**Note:** TADA is still under development. New functionality is added
-weekly, and sometimes we need to make bug fixes in response to tester
-and user feedback. We appreciate your feedback, patience, and interest
-in these helpful tools.
-
-If you are interested in contributing to TADA development, more
-information is available at:
-
-[Contributing](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
-
-We welcome collaboration with external partners.
-
 ## TADA Module 2 Use Cases
 
 This vignette focuses on the following TADA module 2 use cases:
@@ -76,10 +53,11 @@ This vignette focuses on the following TADA module 2 use cases:
 
 -   No other crosswalks/tables are imported at this stages
 
-1.  ![](images/clipboard-2599910671.png)
+![](images/clipboard-2599910671.png)
 
 ```{r load.tribal}
 
+# load TADA dataset (cleaned/harmonized/filtered TADA df from TADAShiny)
 mod1.tribal <- Data_TribalNations_Harmonized
 
 ```
@@ -94,12 +72,31 @@ mod1.tribal <- Data_TribalNations_Harmonized
     include/exclude a monitoring location.
 
     -   Should there be separate tables for (1) flagged coordinates and
+
         (2) nearby sites or should it be a combined table? (Whichever is
-            most user friendly)
+        most user friendly)
 
 -   If users select to exclude any monitoring locations from further
     analysis in this tab, they need to be filtered out of the working
     data set before moving to the next tab
+
+-   Similar to TADAShiny, two versions of the TADA df need to be
+    maintained throughout the app. One reflects the users choices to
+    exclude/filter and is what is passed to the next tab ("Final
+    Dataset"). The other either adds (or edits the existing) TADA.Remove
+    and TADA.RemovalReason columns ("Working Dataset").
+
+    -   TADA.Remove should be set to TRUE if a user opts to exclude the
+        MonitoringLocation on any tab, otherwise it remains FALSE.
+
+    -   TADA.RemovalReason should add a flag/comment as reflecting the
+        tab it was removed on. For this tab it should be something like
+        "
+
+        \*\*\* There are currently some issues with the Hi resolution
+        NHD web services. Our recommendation is to set the catchment
+        param to FALSE for both TADA_FindNearbySites and
+        TADA_SitesToggleMap for testing during Shiny development. \*\*\*
 
 ![](images/clipboard-1183685911.png)
 
@@ -113,6 +110,7 @@ tribal.review.sites <- TADA_SitesToggleMap(mod1.flagsites, catchment = FALSE)
 tribal.review.sites
 
 # combined review table (this could be split into two tables, one for flagged coordinates, one for nearby sites)
+# if a combined table - should the table filter to include only the results from the layer selected?
 DT::datatable(mod1.flagsites |>
                 dplyr::select(TADA.MonitoringLocationName,
                               TADA.MonitoringLocationIdentifier,
@@ -130,11 +128,17 @@ DT::datatable(mod1.flagsites |>
 
 # this should be set up similar to TADA_RemovalReason in TADAShiny, where a copy of the original df with all rows is maintained with an appended removal reason column.
 
-# for example, here are a few excluded sites added to the df
+# for example, here a few excluded sites are added to the "Final Dataset" df
+# I have not mocked up the "Working Dataset" which needs the removal reason added
 mod1.flagsites <- mod1.flagsites |>
   dplyr::mutate(IncludeForAnalysis = "Include") |>
   dplyr::mutate(IncludeForAnalysis = ifelse(MonitoringLocationIdentifier %in% c("FONDULAC_WQX-122", "FONDULAC_WQX-122I", "FONDULAC_WQX-122F", "FONDULAC_WQX-122M", "FONDULAC_WQX-122J"), "Exclude", IncludeForAnalysis)) |>
   dplyr::filter(IncludeForAnalysis != "Exclude")
+
+# if sites/monitoring locations are excluded, but other sites are maintained in the nearby site group, the TADA.MonitoringLocationIdentifier should be updated to contained only the retained MonitoringLocationIdentifiers
+
+# if the user wants to maintain a nearby grouped site as its own unique location, they will need to edit TADA.MonitoringLocationIdentifier so it has its own unique identifer (ideally, this would its own origianl MonitoringLocationIdentifier - maybe there is a way to help facilitate this easily?)
+
 ```
 
 3.  Join and Review AUs - join WQP monitoring locations with ATTAINS
@@ -215,7 +219,8 @@ mod1.flagsites <- mod1.flagsites |>
 
     ```
 
-6.  Assign New Uses to Existing or New AUs
+6.  Assign New Uses to Existing or New AUs - HAVE NOT ADDED DETAILS YET
+    FROM THIS POINT FORWARD
 
     ![](images/clipboard-1350381507.png)
 
