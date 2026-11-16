@@ -404,7 +404,7 @@ all_counts
     ## 4                                                  ActivityIdentifier  18301
     ## 5                                 ResultDetectionQuantitationLimitUrl  12228
     ## 6                                               ActivityStartDateTime  11138
-    ## 7                                                         LastUpdated   3528
+    ## 7                                                         LastUpdated   3529
     ## 8                               ResultDepthHeightMeasure.MeasureValue   3006
     ## 9                          TADA.ResultDepthHeightMeasure.MeasureValue   3006
     ## 10                                                ActivityCommentText   1922

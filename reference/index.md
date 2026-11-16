@@ -366,6 +366,9 @@
 - [`TADA_SimpleCensoredMethods()`](https://usepa.github.io/EPATADA/reference/TADA_SimpleCensoredMethods.md)
   : Simple Tools for Censored Data Handling
 
+- [`TADA_SitesToggleMap()`](https://usepa.github.io/EPATADA/reference/TADA_SitesToggleMap.md)
+  : Create Toggleable Nearby and Flagged Sites Map
+
 - [`TADA_Stats()`](https://usepa.github.io/EPATADA/reference/TADA_Stats.md)
   : Generate Statistics Table
 
@@ -482,6 +485,9 @@
 - [`.TADA_UpdateRefFiles()`](https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateRefFiles.md)
   : Update All TADA Reference Files (Internal)
 
+- [`.checkATTAINS()`](https://usepa.github.io/EPATADA/reference/dot-checkATTAINS.md)
+  : checkATTAINS
+
 - [`.checkNHD()`](https://usepa.github.io/EPATADA/reference/dot-checkNHD.md)
   : .checkNHD
 
@@ -491,14 +497,35 @@
 - [`.nhd_arc_select()`](https://usepa.github.io/EPATADA/reference/dot-nhd_arc_select.md)
   : .nhd_arc_select
 
+- [`.nhd_get_hr_catchments()`](https://usepa.github.io/EPATADA/reference/dot-nhd_get_hr_catchments.md)
+  : nhd_get_hr_catchments
+
+- [`.nhd_get_hr_flowlines()`](https://usepa.github.io/EPATADA/reference/dot-nhd_get_hr_flowlines.md)
+  : nhd_get_hr_flowlines
+
+- [`.nhd_get_hr_waterbodies()`](https://usepa.github.io/EPATADA/reference/dot-nhd_get_hr_waterbodies.md)
+  : nhd_get_hr_waterbodies
+
 - [`.nhd_get_layer()`](https://usepa.github.io/EPATADA/reference/dot-nhd_get_layer.md)
   : .nhd_get_layer
+
+- [`.nhd_get_med_catchments()`](https://usepa.github.io/EPATADA/reference/dot-nhd_get_med_catchments.md)
+  : nhd_get_med_catchments
+
+- [`.nhd_get_med_flowlines()`](https://usepa.github.io/EPATADA/reference/dot-nhd_get_med_flowlines.md)
+  : nhd_get_med_flowlines
+
+- [`.nhd_get_med_waterbodies()`](https://usepa.github.io/EPATADA/reference/dot-nhd_get_med_waterbodies.md)
+  : nhd_get_med_waterbodies
 
 - [`.nhd_get_nhdplus()`](https://usepa.github.io/EPATADA/reference/dot-nhd_get_nhdplus.md)
   : .nhd_get_nhdplus
 
 - [`.nhd_get_waterbodies()`](https://usepa.github.io/EPATADA/reference/dot-nhd_get_waterbodies.md)
   : nhd_get_waterbodies
+
+- [`.renameATTAINSCols()`](https://usepa.github.io/EPATADA/reference/dot-renameATTAINSCols.md)
+  : .renameATTAINSCols
 
 - [`.safe_fetchNHD()`](https://usepa.github.io/EPATADA/reference/dot-safe_fetchNHD.md)
   : .safe_fetchNHD
@@ -556,9 +583,6 @@
   : Read a spatial file from a local folder, optionally crop it by a
   bounding box, and return it as a sf object readLayer is used within
   TADA_addPolys and TADA_addPoints
-
-- [`renameATTAINSCols()`](https://usepa.github.io/EPATADA/reference/renameATTAINSCols.md)
-  : renameATTAINSCols
 
 - [`showMissingATTAINSAUs()`](https://usepa.github.io/EPATADA/reference/showMissingATTAINSAUs.md)
   : showMissingATTAINSAUs Internal function to apply a dashed circle
