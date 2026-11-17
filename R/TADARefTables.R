@@ -1629,7 +1629,7 @@ TADA_GetTADAUsesAliasRef <- function(
 #'
 #' # Get ATTAINS water types to test data
 #' testdat2 <- TADA_UpdateATTAINSWaterTypes(testdat, org_id = "OREGONDEQ")
-#' 
+#'
 #' # Retrieve saltfresh ref table based on testdat by ATTAINS.WaterType,
 #' # using TADA.MonitoringLocationIdentifier as location grouping
 #' ATTAINS.SaltFreshRef <- TADA_GetSaltFreshRef(testdat2,
