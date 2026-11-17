@@ -978,7 +978,7 @@ testthat::test_that("TADA_AssignSaltFreshIndicator does not duplicate output row
   testthat::expect_true("TADA.SaltFreshIndicator" %in% names(out))
 })
 
-testthat::test_that("produces a useful error message listing each missing column once", {
+testthat::test_that("TADA_AssignSaltFreshIndicator produces a useful error message listing each missing column once", {
   df <- data.frame(x = 1:3)
 
   err <- testthat::expect_error(
