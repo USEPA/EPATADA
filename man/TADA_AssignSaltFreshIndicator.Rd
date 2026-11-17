@@ -62,10 +62,13 @@ testdat <- TADA_DataRetrieval(statecode = "OR",
                                                     type_col = "TADA",
                                                     ref = TADA.SaltFreshRef)
 
-# Assign saltfresh indicator based on ATTAINS.WaterType with default ref values,
-# using ATTAINS.AssessmentUnitIdentifier as location grouping
-ATTAINS.example <- TADA_AssignSaltFreshIndicator(Data_MT_AUMLRef$TADA_with_ATTAINS,
-                                                 location_col = "AU",
+# Get ATTAINS water types to test data
+testdat2 <- TADA_UpdateATTAINSWaterTypes(testdat, org_id = "OREGONDEQ")
+
+# Assign saltfresh indicator based on ATTAINS.WaterType with DEFAULT ref values,
+# using TADA.MonitoringLocationIdentifier as location grouping
+ATTAINS.example <- TADA_AssignSaltFreshIndicator(testdat2,
+                                                 location_col = "ML",
                                                  type_col = "ATTAINS")
 }
 

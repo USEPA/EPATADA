@@ -49,9 +49,13 @@ testdat <- TADA_DataRetrieval(statecode = "OR",
                                       type_col = "TADA")
 
 # Get ATTAINS water types to test data
-ATTAINS.SaltFreshRef <- TADA_GetSaltFreshRef(Data_MT_AUMLRef$TADA_with_ATTAINS,
-                                           location_col = "AU",
-                                           type_col = "ATTAINS")
+testdat2 <- TADA_UpdateATTAINSWaterTypes(testdat, org_id = "OREGONDEQ")
+
+# Retrieve saltfresh ref table based on testdat by ATTAINS.WaterType,
+# using TADA.MonitoringLocationIdentifier as location grouping
+ATTAINS.SaltFreshRef <- TADA_GetSaltFreshRef(testdat2,
+                                             location_col = "ML",
+                                             type_col = "ATTAINS")
 }
 
 }
