@@ -745,7 +745,6 @@ prepATTAINSMapper <- function(
 
   # prep polygon data
   if (geo_type == "polygons") {
-
     area_col <- dplyr::case_when(
       "Shape_Area" %in% names(.data) ~ "Shape_Area",
       "Shape__Area" %in% names(.data) ~ "Shape__Area",
@@ -763,13 +762,13 @@ prepATTAINSMapper <- function(
         dplyr::arrange(dplyr::desc(.data[[area_col]]))
     }
 
-  if (!is.null(auid_list) & NROW(mapper) > 0) {
-    mapper <- mapper |> dplyr::filter(assessmentunitidentifier %in% auid_list)
+    if (!is.null(auid_list) & NROW(mapper) > 0) {
+      mapper <- mapper |> dplyr::filter(assessmentunitidentifier %in% auid_list)
 
-    if (NROW(mapper) == 0) {
-      mapper <- NULL
+      if (NROW(mapper) == 0) {
+        mapper <- NULL
+      }
     }
-  }
   }
   return(mapper)
 }
