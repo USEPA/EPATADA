@@ -961,7 +961,7 @@ testthat::test_that("TADA_AssignSaltFreshIndicator returns data with TADA.SaltFr
   testthat::expect_equal(nrow(out), nrow(df))
 })
 
-testthat::test_that("does not duplicate output rows when input has duplicate pairs", {
+testthat::test_that("TADA_AssignSaltFreshIndicator does not duplicate output rows when input has duplicate pairs", {
   df <- data.frame(
     ATTAINS.AssessmentUnitIdentifier = c("AU1", "AU1", "AU2"),
     ATTAINS.WaterType = c("STREAM/CREEK/RIVER", "STREAM/CREEK/RIVER", "BEACH"),
