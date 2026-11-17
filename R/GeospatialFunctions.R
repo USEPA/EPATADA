@@ -3333,11 +3333,16 @@ TADA_CreateAUMLCrosswalk <- function(
 #' geometry is not the same as the target_crs, it is transformed to the target_crs.
 #' Default is 4269. If the input CRS and target_crs match, no CRS transformation
 #' occurs.
-#' @param download_geo Logical. If `TRUE`, write a shapefile to the user's
-#'   Downloads folder.
+#' @param download_geo Logical. If `TRUE`, write geometry to the user's
+#'   Downloads folder in the format selected by `geo_format`.
 #' @param auid_prefix Character or `NULL`. If provided and non-empty, this
 #'   prefix is applied only to newly created
 #'   `ATTAINS.AssessmentUnitIdentifier` values when missing or blank.
+#' @param geo_format Character. Export format: `"shp"` (the default) writes a
+#'   zipped shapefile; `"gpkg"` writes a GeoPackage with a layer named
+#'   `TADAPointAUGeometry`, preserving full attribute names. Used only when
+#'   `download_geo = TRUE`. An existing GeoPackage layer is replaced only if
+#'   changed; other layers are retained.
 #'
 #' @return An `sf` containing:
 #'    - `ATTAINS.AssessmentUnitIdentifier`
@@ -3345,7 +3350,8 @@ TADA_CreateAUMLCrosswalk <- function(
 #'    - `epsg`
 #'    - `geometry`
 #'
-#'   If `download_geo = TRUE`, a shapefile is written to the Downloads folder.
+#'   If `download_geo = TRUE`, a dated ZIP or GeoPackage file is also written
+#'   to the Downloads folder. The returned `sf` object is unchanged by export.
 #'
 #' @details
 #' - Missing or blank `ATTAINS.AssessmentUnitIdentifier` values are replaced
@@ -3383,14 +3389,22 @@ TADA_CreateAUMLCrosswalk <- function(
 #'
 #' au_geoms <- TADA_CreatePointAUGeometry(df2)
 #' unique(sf::st_geometry_type(au_geoms))
+#'
+#' # Export to a GeoPackage instead of a zipped shapefile
+#' au_geoms <- TADA_CreatePointAUGeometry(
+#'   df2, download_geo = TRUE, geo_format = "gpkg"
+#' )
 #' }
 #'
 TADA_CreatePointAUGeometry <- function(
   .data,
   target_crs = 4269,
   download_geo = FALSE,
-  auid_prefix = NULL
+  auid_prefix = NULL,
+  geo_format = c("shp", "gpkg")
 ) {
+  geo_format <- match.arg(geo_format)
+
   # Required geospatial cols
   coord_req <- c(
     "TADA.LongitudeMeasure",
@@ -3445,7 +3459,7 @@ TADA_CreatePointAUGeometry <- function(
     TADA_MakeSpatial(crs = target_crs) |>
     dplyr::select(-TADA.LatitudeMeasure, -TADA.LongitudeMeasure)
 
-  # Save as shp file if required
+  # Export without changing the returned geometry.
   if (isTRUE(download_geo)) {
     today <- format(Sys.Date(), "%m_%d_%Y")
     file.name <- paste0("TADAPointAUGeometry_", today)
@@ -3460,7 +3474,15 @@ TADA_CreatePointAUGeometry <- function(
     }
 
     point.path <- .get_downloads_path(file.name)
-    save_sf_as_zip(sf_out, point.path)
+    if (geo_format == "gpkg") {
+      .write_sf_layer_if_changed(
+        sf_out,
+        paste0(point.path, ".gpkg"),
+        "TADAPointAUGeometry"
+      )
+    } else {
+      save_sf_as_zip(sf_out, point.path)
+    }
   }
 
   return(sf_out)

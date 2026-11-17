@@ -1556,9 +1556,10 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' writeLayerIfChanged(OKTribeUrl, tribal_gpkg,"OKTribe")
 #' }
 writeLayerIfChanged <- function(url, layerfilepath, layername) {
-  # Build the new feature layer in memory
-  new_feature <- getFeatureLayer(url)
+  .write_sf_layer_if_changed(getFeatureLayer(url), layerfilepath, layername)
+}
 
+.write_sf_layer_if_changed <- function(new_feature, layerfilepath, layername) {
   # If the gpkg or layer doesn't exist yet, write it
   layer_exists <- FALSE
   if (file.exists(layerfilepath)) {
@@ -1580,7 +1581,10 @@ writeLayerIfChanged <- function(url, layerfilepath, layername) {
   old_feature <- sf::st_read(layerfilepath, layer = layername, quiet = TRUE)
 
   # Compare conservatively
-  if (.sf_layer_equal(old_feature, new_feature)) {
+  if (
+    isTRUE(sf::st_crs(old_feature) == sf::st_crs(new_feature)) &&
+      .sf_layer_equal(old_feature, new_feature)
+  ) {
     return(invisible(FALSE))
   }
 
