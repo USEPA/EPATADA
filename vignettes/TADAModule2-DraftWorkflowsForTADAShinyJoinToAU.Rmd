@@ -82,7 +82,7 @@ mod1.tribal <- Data_TribalNations_Harmonized |>
     -   Should there be separate tables for (1) flagged coordinates and
 
         (2) nearby sites or should it be a combined table? (Whichever is
-        most user friendly)
+            most user friendly)
 
 -   If users select to exclude any monitoring locations from further
     analysis in this tab, they need to be filtered out of the working
@@ -142,8 +142,8 @@ DT::datatable(mod1.flagsites |>
 # I have not mocked up the "Working Dataset" which needs the removal reason added
 mod1.flagsites <- mod1.flagsites |>
   dplyr::mutate(IncludeForAnalysis = "Include") |>
-  dplyr::mutate(IncludeForAnalysis = ifelse(MonitoringLocationIdentifier %in% c("FONDULAC_WQX-122", "FONDULAC_WQX-122I", "FONDULAC_WQX-122F", "FONDULAC_WQX-122M", "FONDULAC_WQX-122J"), "Exclude", IncludeForAnalysis)) |>
-  dplyr::filter(IncludeForAnalysis != "Exclude")
+  dplyr::mutate(IncludeForAnalysis = ifelse(MonitoringLocationIdentifier %in% c("FONDULAC_WQX-122", "FONDULAC_WQX-122I", "FONDULAC_WQX-122F", "FONDULAC_WQX-122M", "FONDULAC_WQX-122J"), "Exclude", IncludeOrExclude)) |>
+  dplyr::filter(IncludeOrExclude != "Exclude")
 
 # if sites/monitoring locations are excluded, but other sites are maintained in the nearby site group, the TADA.MonitoringLocationIdentifier should be updated to contained only the retained MonitoringLocationIdentifiers
 

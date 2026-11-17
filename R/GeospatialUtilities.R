@@ -745,13 +745,23 @@ prepATTAINSMapper <- function(
 
   # prep polygon data
   if (geo_type == "polygons") {
-    # add colors to polygon features
-    mapper <- .data |>
-      dplyr::left_join(color_ref, by = "overallstatus") |>
-      dplyr::mutate(type = "Polygon Feature") |>
-      # sort df so smaller assessment units will map on top of larger ones if they overlap
-      dplyr::arrange(dplyr::desc(Shape_Area))
-  }
+
+    area_col <- dplyr::case_when(
+      "Shape_Area" %in% names(.data) ~ "Shape_Area",
+      "Shape__Area" %in% names(.data) ~ "Shape__Area",
+      TRUE ~ NA_character_
+    )
+
+    if (is.na(area_col)) {
+      mapper <- .data |>
+        dplyr::left_join(color_ref, by = "overallstatus") |>
+        dplyr::mutate(type = "Polygon Feature")
+    } else {
+      mapper <- .data |>
+        dplyr::left_join(color_ref, by = "overallstatus") |>
+        dplyr::mutate(type = "Polygon Feature") |>
+        dplyr::arrange(dplyr::desc(.data[[area_col]]))
+    }
 
   if (!is.null(auid_list) & NROW(mapper) > 0) {
     mapper <- mapper |> dplyr::filter(assessmentunitidentifier %in% auid_list)
@@ -759,6 +769,7 @@ prepATTAINSMapper <- function(
     if (NROW(mapper) == 0) {
       mapper <- NULL
     }
+  }
   }
   return(mapper)
 }
