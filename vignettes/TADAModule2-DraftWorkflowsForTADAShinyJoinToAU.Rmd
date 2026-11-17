@@ -115,6 +115,8 @@ mod1.flagsites <- mod1.tribal |>
 
 tribal.review.sites <- TADA_SitesToggleMap(mod1.flagsites, catchment = FALSE)
 
+TADA_FlaggedSitesMap(mod1.flagsites)
+
 tribal.review.sites
 
 # combined review table (this could be split into two tables, one for flagged coordinates, one for nearby sites)
