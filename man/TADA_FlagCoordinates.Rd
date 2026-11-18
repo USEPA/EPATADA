@@ -30,6 +30,9 @@ default is flaggedonly = FALSE.}
 
 \item{check_location_metadata}{Boolean argument; Flags coordinates if location metadata
 does not match with coordinate location; default is check_location_metadata = FALSE.}
+
+\item{usa_boundary}{Sf object. Sf object providing boundary for USA. When equal to
+NULL, the default boundary is used when check_location_metadata equals TRUE.}
 }
 \value{
 Returns input TADA dataset with the added "TADA.SuspectCoordinates.Flag" column.

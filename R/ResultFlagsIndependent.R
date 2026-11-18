@@ -1306,6 +1306,8 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' default is flaggedonly = FALSE.
 #' @param check_location_metadata Boolean argument; Flags coordinates if location metadata
 #' does not match with coordinate location; default is check_location_metadata = FALSE.
+#' @param usa_boundary Sf object. Sf object providing boundary for USA. When equal to
+#' NULL, the default boundary is used when check_location_metadata equals TRUE.
 #'
 #' @return Returns input TADA dataset with the added "TADA.SuspectCoordinates.Flag" column.
 #' When clean_outsideUSA is "no", "change sign", or clean_imprecise argument is FALSE,
@@ -1421,7 +1423,8 @@ TADA_FlagCoordinates <- function(
   check_location_metadata = FALSE,
   usa_boundary = NULL
 ) {
-  # ---- checks ----
+
+  # checks
   TADA_CheckColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
   TADA_CheckType(clean_outsideUSA, "character")
   TADA_CheckType(clean_imprecise, "logical")
@@ -1447,12 +1450,12 @@ TADA_FlagCoordinates <- function(
     stop("Package 'stringr' is required.")
   }
 
-  # ---- data vectors ----
+  # data vectors
   lat <- .data$TADA.LatitudeMeasure
   lon <- .data$TADA.LongitudeMeasure
   n <- length(lat)
 
-  # ---- vectorized territory exemptions ----
+  # territory exemptions
   exempt <- (!is.na(lat) &
     !is.na(lon) &
     lat < -11.046934 &
@@ -1472,7 +1475,7 @@ TADA_FlagCoordinates <- function(
       lon < 144.956712 &
       lon > 144.618068)
 
-  # ---- imprecision flag (vectorized) ----
+  # imprecise flag
   dp_lat <- suppressWarnings(vapply(
     lat,
     function(x) if (is.na(x)) NA_real_ else as.numeric(TADA_DecimalPlaces(x)),
@@ -1486,8 +1489,7 @@ TADA_FlagCoordinates <- function(
   ))
   imprecise <- !is.na(dp_lat) & !is.na(dp_lon) & (dp_lat < 3 | dp_lon < 3)
 
-  # ---- outside-USA prefilter ----
-  # Broad bbox to reduce sf work
+  # Broad bbox to reduce sf work for outside USA filter
   maybe_in_usa <- !is.na(lat) &
     !is.na(lon) &
     !exempt &
@@ -1498,7 +1500,7 @@ TADA_FlagCoordinates <- function(
 
   outside <- rep(FALSE, n)
 
-  # Candidate rows only
+  # Candidate rows only to check against USA boundary
   candidate_idx <- which(maybe_in_usa)
 
   if (length(candidate_idx) > 0) {
@@ -1525,7 +1527,7 @@ TADA_FlagCoordinates <- function(
   # Everything outside the bbox but not exempt is outside USA
   outside[!is.na(lat) & !is.na(lon) & !exempt & !maybe_in_usa] <- TRUE
 
-  # ---- build flag strings ----
+  # build flag strings
   flags <- rep("Pass", n)
 
   # Outside USA
@@ -1553,7 +1555,7 @@ TADA_FlagCoordinates <- function(
 
   .data$TADA.SuspectCoordinates.Flag <- flags
 
-  # ---- optional StateCode / CountyCode consistency check ----
+  #  optional StateCode / CountyCode checks
   if (check_location_metadata == TRUE) {
     TADA_CheckColumns(
       .data,
@@ -1627,7 +1629,7 @@ TADA_FlagCoordinates <- function(
       dplyr::select(-.row_id, -CoordinateStateCode, -CoordinateCountyCode)
   }
 
-  # ---- cleaning options ----
+  # cleaning options
   if (clean_imprecise == TRUE) {
     .data <- dplyr::filter(
       .data,
