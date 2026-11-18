@@ -1424,7 +1424,7 @@ TADA_FlagCoordinates <- function(
   usa_boundary = NULL
 ) {
 
-  # checks
+  # checks before running flag function
   TADA_CheckColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
   TADA_CheckType(clean_outsideUSA, "character")
   TADA_CheckType(clean_imprecise, "logical")
