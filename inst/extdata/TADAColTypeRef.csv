@@ -20,8 +20,8 @@ MonitoringLocationName,character
 MonitoringLocationTypeName,character
 TADA.MonitoringLocationTypeName,character
 MonitoringLocationDescriptionText,character
-LatitudeMeasure,character
-LongitudeMeasure,character
+LatitudeMeasure,numeric
+LongitudeMeasure,numeric
 HUCEightDigitCode,character
 MonitoringLocationIdentifier,character
 TADA.NearbySites.Flag,character
