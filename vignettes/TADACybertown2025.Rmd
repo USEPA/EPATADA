@@ -324,7 +324,7 @@ WQP_clean <- TADA_SimpleCensoredMethods(
 )
 ```
 
-`TADA_FindQCActivities` removes results with QA/QC ActivityTypeCode's.
+`TADA_FindQCActivities` removes results with QA/QC ActivityTypeCodes.
 
 ```{r QCdata}
 WQP_clean <- TADA_FindQCActivities(WQP_clean, clean = TRUE)
@@ -335,7 +335,7 @@ numeric to prepare a dataframe for quantitative analyses. Specifically,
 this function removes rows with "Text" and "NA - Not Available" in the
 TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 TADA.ResultMeasureValue column. In addition, this function removes
-results with QA/QC ActivityTypeCode's. This function also removes any
+results with QA/QC ActivityTypeCodes. This function also removes any
 columns not required for TADA workflow where all values are equal to NA.
 
 ```{r SpecialChars}
@@ -401,7 +401,7 @@ Let's give it a try.
 WQP_clean <- TADA_HarmonizeSynonyms(WQP_clean)
 ```
 
-How many unique TADA.ComparableDataIdentifier's do we have now? In this
+How many unique TADA.ComparableDataIdentifiers do we have now? In this
 example, there were no synonyms.
 
 ```{r}
@@ -510,7 +510,7 @@ WQP_clean_subset <- TADA_RetainRequired(WQP_clean_subset)
 
 ## Exploratory analysis
 
-Review unique TADA.ComparableDataIdentifier's
+Review unique TADA.ComparableDataIdentifiers
 
 ```{r}
 unique(WQP_clean_subset$TADA.ComparableDataIdentifier)

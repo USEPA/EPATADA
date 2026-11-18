@@ -97,6 +97,7 @@ Suggests:
     htmltools,
     htmlwidgets,
     tigris,
+    rnaturalearth,
     yaml,
     rvest,
     remotes,
