@@ -9,7 +9,8 @@ TADA_FlagCoordinates(
   clean_outsideUSA = c("no", "remove", "change sign"),
   clean_imprecise = FALSE,
   flaggedonly = FALSE,
-  check_location_metadata = FALSE
+  check_location_metadata = FALSE,
+  usa_boundary = NULL
 )
 }
 \arguments{

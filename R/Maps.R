@@ -675,11 +675,12 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 #' TADA_SitesToggleMap(Data_TribalNations_Harmonized, catchment = FALSE)
 #' }
 TADA_SitesToggleMap <- function(
-  .data,
-  dist_buffer = 100,
-  catchment = TRUE,
-  nhd_res = "Hi"
+    .data,
+    dist_buffer = 100,
+    catchment = TRUE,
+    nhd_res = "Hi"
 ) {
+  # prep nearby sites data for mapping
   nearby_data <- .TADA_prepareNearbySites(
     .data,
     dist_buffer = dist_buffer,
@@ -688,17 +689,23 @@ TADA_SitesToggleMap <- function(
   ) |>
     TADA_CorrectColType()
 
+  # prep flagged sites data for mapping
   invalid <- .TADA_prepareFlaggedSites(.data) |> TADA_CorrectColType()
 
-  # Optional: use combined coordinates for basemap extent
+  # set map extent
   map_extent <- nearby_data |> dplyr::bind_rows(invalid)
 
+  # create basemap
   map <- createTADABasemap(map_extent)
 
+  # add nearby layer
   map <- .TADA_addNearbyLayer(map, nearby_data, dist_buffer = dist_buffer)
-  map <- .TADA_addFlaggedLayer(map, invalid)
+  # add flagged coordinates layer
+  map <- .TADA_addFlaggedLayer(map, invalid, marker_shape = "square")
+  # add legend for flagged coordinates
   map <- .TADA_addFlaggedLegend(map)
 
+  # add layer controls for nearby and flagged site groups
   map <- map |>
     leaflet::addLayersControl(
       overlayGroups = c("Nearby sites", "Flagged sites"),
@@ -708,8 +715,42 @@ TADA_SitesToggleMap <- function(
       )
     )
 
-  # Optional: start with one hidden
-  # map <- leaflet::hideGroup(map, "Nearby sites")
+  # set up flagged legend so it is hidden when that layer is not selected
+  map <- htmlwidgets::onRender(
+    map,
+    "
+    function(el, x) {
+      var map = this;
+
+      function getFlaggedLegend() {
+        var legends = document.getElementsByClassName('info legend');
+        for (var i = 0; i < legends.length; i++) {
+          if (legends[i].innerText && legends[i].innerText.indexOf('Coordinate Flag Category') !== -1) {
+            return legends[i];
+          }
+        }
+        return null;
+      }
+
+      var legend = getFlaggedLegend();
+      if (!legend) return;
+
+      legend.style.display = 'block';
+
+      map.on('overlayadd', function(e) {
+        if (e.name === 'Flagged sites') {
+          legend.style.display = 'block';
+        }
+      });
+
+      map.on('overlayremove', function(e) {
+        if (e.name === 'Flagged sites') {
+          legend.style.display = 'none';
+        }
+      });
+    }
+    "
+  )
 
   return(map)
 }

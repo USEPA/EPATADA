@@ -4,12 +4,15 @@
 \alias{.TADA_addFlaggedLayer}
 \title{Add Flagged Sites Layer to Leaflet Map}
 \usage{
-.TADA_addFlaggedLayer(map, invalid)
+.TADA_addFlaggedLayer(map, invalid, marker_shape = c("circle", "square"))
 }
 \arguments{
 \item{map}{A leaflet map object.}
 
 \item{invalid}{A data frame of prepared flagged sites.}
+
+\item{marker_shape}{The shape of the site markers added to the map. Options are
+"circle" or "square". Default is "circle".}
 }
 \value{
 A leaflet map with the flagged sites layer added.
