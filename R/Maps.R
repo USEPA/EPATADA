@@ -675,10 +675,10 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 #' TADA_SitesToggleMap(Data_TribalNations_Harmonized, catchment = FALSE)
 #' }
 TADA_SitesToggleMap <- function(
-    .data,
-    dist_buffer = 100,
-    catchment = TRUE,
-    nhd_res = "Hi"
+  .data,
+  dist_buffer = 100,
+  catchment = TRUE,
+  nhd_res = "Hi"
 ) {
   # prep nearby sites data for mapping
   nearby_data <- .TADA_prepareNearbySites(

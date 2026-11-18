@@ -2646,39 +2646,45 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
 #' @return A leaflet map with the flagged sites layer added.
 #'
 #' @keywords internal
-.TADA_addFlaggedLayer <- function(map,
-                                  invalid,
-                                  marker_shape = c("circle", "square")) {
+.TADA_addFlaggedLayer <- function(
+  map,
+  invalid,
+  marker_shape = c("circle", "square")
+) {
   marker_shape <- match.arg(marker_shape)
 
   # set up popup text
   popup_text <- ~ paste0(
-    "Site ID: ", TADA.MonitoringLocationIdentifier,
-    "<br> Site Name: ", TADA.MonitoringLocationName,
-    "<br> Organization Name: ", OrganizationFormalName,
-    "<br> Latitude: ", TADA.LatitudeMeasure,
-    "<br> Longitude: ", TADA.LongitudeMeasure,
-    "<br> Reason Flagged: ", TADA.SuspectCoordinates.Flag
+    "Site ID: ",
+    TADA.MonitoringLocationIdentifier,
+    "<br> Site Name: ",
+    TADA.MonitoringLocationName,
+    "<br> Organization Name: ",
+    OrganizationFormalName,
+    "<br> Latitude: ",
+    TADA.LatitudeMeasure,
+    "<br> Longitude: ",
+    TADA.LongitudeMeasure,
+    "<br> Reason Flagged: ",
+    TADA.SuspectCoordinates.Flag
   )
 
   # circle marker path (default)
   if (marker_shape == "circle") {
-    return(
-      leaflet::addCircleMarkers(
-        map,
-        data = invalid,
-        lng = ~TADA.LongitudeMeasure,
-        lat = ~TADA.LatitudeMeasure,
-        group = "Flagged sites",
-        color = ~FlaggedColor,
-        fillColor = ~FlaggedColor,
-        fillOpacity = 0.7,
-        stroke = TRUE,
-        weight = 1.5,
-        radius = 10,
-        popup = popup_text
-      )
-    )
+    return(leaflet::addCircleMarkers(
+      map,
+      data = invalid,
+      lng = ~TADA.LongitudeMeasure,
+      lat = ~TADA.LatitudeMeasure,
+      group = "Flagged sites",
+      color = ~FlaggedColor,
+      fillColor = ~FlaggedColor,
+      fillOpacity = 0.7,
+      stroke = TRUE,
+      weight = 1.5,
+      radius = 10,
+      popup = popup_text
+    ))
   }
 
   # square icons as SVG data URIs
