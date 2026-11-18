@@ -17,6 +17,15 @@ test_that("TADA_FlaggedSitesMap return leaflet map", {
   expect_true(all(c("leaflet", "htmlwidget") %in% class(testmap)))
 })
 
+testthat::test_that("TADA_FlaggedSitesMap handles all Pass data", {
+  clean_data <- Data_Nutrients_UT
+  clean_data$TADA.SuspectCoordinates.Flag <- "Pass"
+
+  testmap <- TADA_FlaggedSitesMap(clean_data)
+
+  testthat::expect_true(all(c("leaflet", "htmlwidget") %in% class(testmap)))
+})
+
 testthat::test_that("TADA_NearbySitesMap returns a leaflet map with expected marker layers", {
   fake_nearby <- Data_Nutrients_UT |> dplyr::mutate(TADA.NearbySiteGroup = 1L)
 
