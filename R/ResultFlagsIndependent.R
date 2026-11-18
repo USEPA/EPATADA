@@ -1423,7 +1423,6 @@ TADA_FlagCoordinates <- function(
   check_location_metadata = FALSE,
   usa_boundary = NULL
 ) {
-
   # checks before running flag function
   TADA_CheckColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
   TADA_CheckType(clean_outsideUSA, "character")
