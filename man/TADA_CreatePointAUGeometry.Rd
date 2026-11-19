@@ -8,7 +8,8 @@ TADA_CreatePointAUGeometry(
   .data,
   target_crs = 4269,
   download_geo = FALSE,
-  auid_prefix = NULL
+  auid_prefix = NULL,
+  geo_format = c("shp", "gpkg")
 )
 }
 \arguments{
@@ -30,12 +31,18 @@ geometry is not the same as the target_crs, it is transformed to the target_crs.
 Default is 4269. If the input CRS and target_crs match, no CRS transformation
 occurs.}
 
-\item{download_geo}{Logical. If \code{TRUE}, write a shapefile to the user's
-Downloads folder.}
+\item{download_geo}{Logical. If \code{TRUE}, write geometry to the user's
+Downloads folder in the format selected by \code{geo_format}.}
 
 \item{auid_prefix}{Character or \code{NULL}. If provided and non-empty, this
 prefix is applied only to newly created
 \code{ATTAINS.AssessmentUnitIdentifier} values when missing or blank.}
+
+\item{geo_format}{Character. Export format: \code{"shp"} (the default) writes a
+zipped shapefile; \code{"gpkg"} writes a GeoPackage with a layer named
+\code{TADAPointAUGeometry}, preserving full attribute names. Used only when
+\code{download_geo = TRUE}. An existing GeoPackage layer is replaced only if
+changed; other layers are retained.}
 }
 \value{
 An \code{sf} containing:
@@ -46,7 +53,8 @@ An \code{sf} containing:
 \item \code{geometry}
 }
 
-If \code{download_geo = TRUE}, a shapefile is written to the Downloads folder.
+If \code{download_geo = TRUE}, a dated ZIP or GeoPackage file is also written
+to the Downloads folder. The returned \code{sf} object is unchanged by export.
 }
 \description{
 Creates point or multipoint geometry for ATTAINS Assessment Units using
@@ -87,6 +95,11 @@ df2 <- data.frame(
 
 au_geoms <- TADA_CreatePointAUGeometry(df2)
 unique(sf::st_geometry_type(au_geoms))
+
+# Export to a GeoPackage instead of a zipped shapefile
+au_geoms <- TADA_CreatePointAUGeometry(
+  df2, download_geo = TRUE, geo_format = "gpkg"
+)
 }
 
 }
