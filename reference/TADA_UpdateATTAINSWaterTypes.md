@@ -3,19 +3,9 @@
 Adds or updates ATTAINS.WaterType using TADA.MonitoringLocationTypeName.
 By default, only missing ATTAINS.WaterType values are populated.
 
-Adds or updates ATTAINS.WaterType using TADA.MonitoringLocationTypeName.
-By default, only missing ATTAINS.WaterType values are populated.
-
 ## Usage
 
 ``` r
-TADA_UpdateATTAINSWaterTypes(
-  .data,
-  org_id = NULL,
-  org_only = FALSE,
-  replace_all = FALSE
-)
-
 TADA_UpdateATTAINSWaterTypes(
   .data,
   org_id = NULL,
@@ -49,8 +39,6 @@ TADA_UpdateATTAINSWaterTypes(
 
 A TADA data frame with ATTAINS.WaterType populated.
 
-A TADA data frame with ATTAINS.WaterType populated.
-
 ## Examples
 
 ``` r
@@ -60,14 +48,6 @@ if (FALSE) { # \dontrun{
 # example for MT data
 testdat <- Data_MT_MissoulaCounty
 
-crosswalk <- TADA_UpdateATTAINSWaterTypes(testat, org_Id = "MTDEQ")
-} # }
-
-if (FALSE) { # \dontrun{
-
-# example for MT data
-testdat <- Data_MT_MissoulaCounty
-
-crosswalk <- TADA_UpdateATTAINSWaterTypes(testdat, org_Id = "MTDEQ")
+crosswalk <- TADA_UpdateATTAINSWaterTypes(testdat, org_id = "MTDEQ")
 } # }
 ```

@@ -42,6 +42,9 @@
   : Join WQP data to criteria and spatial MLSummaryRef (UNDER ACTIVE
   DEVELOPMENT)
 
+- [`TADA_AssignSaltFreshIndicator()`](https://usepa.github.io/EPATADA/reference/TADA_AssignSaltFreshIndicator.md)
+  : Assign Salt or Freshwater Indicator
+
 - [`TADA_AssignUsesToAU()`](https://usepa.github.io/EPATADA/reference/TADA_AssignUsesToAU.md)
   : ATTAINS Assessment Unit and Use Name Crosswalk
 
@@ -251,6 +254,9 @@
 - [`TADA_GetNutrientSummationRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetNutrientSummationRef.md)
   : Get Nutrient Summation Reference Key
 
+- [`TADA_GetSaltFreshRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetSaltFreshRef.md)
+  : Get Salt or Freshwater Reference Table
+
 - [`TADA_GetSynonymRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetSynonymRef.md)
   : Get Unique Synonym Reference Table
 
@@ -356,9 +362,6 @@
 
 - [`TADA_RunKeyFlagFunctions()`](https://usepa.github.io/EPATADA/reference/TADA_RunKeyFlagFunctions.md)
   : Run key flagging functions
-
-- [`TADA_SaltFreshIndicator()`](https://usepa.github.io/EPATADA/reference/TADA_SaltFreshIndicator.md)
-  : Assign Salt or Freshwater Indicator
 
 - [`TADA_Scatterplot()`](https://usepa.github.io/EPATADA/reference/TADA_Scatterplot.md)
   : Create Scatterplot(s)

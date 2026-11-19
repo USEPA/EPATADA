@@ -32,6 +32,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/Data_TribalNations_Harmonized.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_Analysis_Join_WQP_Criteria.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_AssignSaltFreshIndicator.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_AssignUsesToAU.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_AssignUsesToWaterType.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_AutoClean.html</loc></url>
@@ -99,6 +100,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetMeasureUnitRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetMonLocTypeRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetNutrientSummationRef.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetSaltFreshRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetSynonymRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetTADACharAliasRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetTADAUsesAliasRef.html</loc></url>
@@ -132,7 +134,6 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_RetainRequired.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_ReviewATTAINSWaterTypes.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_RunKeyFlagFunctions.html</loc></url>
-<url><loc>https://usepa.github.io/EPATADA/reference/TADA_SaltFreshIndicator.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_Scatterplot.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_SimpleCensoredMethods.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_SitesToggleMap.html</loc></url>
