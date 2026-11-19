@@ -73,7 +73,8 @@ TADA.MonitoringLocationIdentifier."></head><body>
 <span>  <span class="va">.data</span>,</span>
 <span>  target_crs <span class="op">=</span> <span class="fl">4269</span>,</span>
 <span>  download_geo <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  auid_prefix <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  auid_prefix <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  geo_format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"shp"</span>, <span class="st">"gpkg"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -98,14 +99,22 @@ occurs.</p></dd>
 
 
 <dt id="arg-download-geo">download_geo<a class="anchor" aria-label="anchor" href="#arg-download-geo"></a></dt>
-<dd><p>Logical. If <code>TRUE</code>, write a shapefile to the user's
-Downloads folder.</p></dd>
+<dd><p>Logical. If <code>TRUE</code>, write geometry to the user's
+Downloads folder in the format selected by <code>geo_format</code>.</p></dd>
 
 
 <dt id="arg-auid-prefix">auid_prefix<a class="anchor" aria-label="anchor" href="#arg-auid-prefix"></a></dt>
 <dd><p>Character or <code>NULL</code>. If provided and non-empty, this
 prefix is applied only to newly created
 <code>ATTAINS.AssessmentUnitIdentifier</code> values when missing or blank.</p></dd>
+
+
+<dt id="arg-geo-format">geo_format<a class="anchor" aria-label="anchor" href="#arg-geo-format"></a></dt>
+<dd><p>Character. Export format: <code>"shp"</code> (the default) writes a
+zipped shapefile; <code>"gpkg"</code> writes a GeoPackage with a layer named
+<code>TADAPointAUGeometry</code>, preserving full attribute names. Used only when
+<code>download_geo = TRUE</code>. An existing GeoPackage layer is replaced only if
+changed; other layers are retained.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -114,7 +123,8 @@ prefix is applied only to newly created
 <li><p><code>HorizontalCoordinateReferenceSystemDatumName</code></p></li>
 <li><p><code>epsg</code></p></li>
 <li><p><code>geometry</code></p></li>
-</ul><p>If <code>download_geo = TRUE</code>, a shapefile is written to the Downloads folder.</p>
+</ul><p>If <code>download_geo = TRUE</code>, a dated ZIP or GeoPackage file is also written
+to the Downloads folder. The returned <code>sf</code> object is unchanged by export.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -156,6 +166,11 @@ with <code>TADA.MonitoringLocationIdentifier</code>.</p></li>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">au_geoms</span> <span class="op">&lt;-</span> <span class="fu">TADA_CreatePointAUGeometry</span><span class="op">(</span><span class="va">df2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry_type.html" class="external-link">st_geometry_type</a></span><span class="op">(</span><span class="va">au_geoms</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Export to a GeoPackage instead of a zipped shapefile</span></span></span>
+<span class="r-in"><span><span class="va">au_geoms</span> <span class="op">&lt;-</span> <span class="fu">TADA_CreatePointAUGeometry</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">df2</span>, download_geo <span class="op">=</span> <span class="cn">TRUE</span>, geo_format <span class="op">=</span> <span class="st">"gpkg"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

@@ -11,7 +11,8 @@ TADA_CreatePointAUGeometry(
   .data,
   target_crs = 4269,
   download_geo = FALSE,
-  auid_prefix = NULL
+  auid_prefix = NULL,
+  geo_format = c("shp", "gpkg")
 )
 ```
 
@@ -42,13 +43,22 @@ TADA_CreatePointAUGeometry(
 
 - download_geo:
 
-  Logical. If `TRUE`, write a shapefile to the user's Downloads folder.
+  Logical. If `TRUE`, write geometry to the user's Downloads folder in
+  the format selected by `geo_format`.
 
 - auid_prefix:
 
   Character or `NULL`. If provided and non-empty, this prefix is applied
   only to newly created `ATTAINS.AssessmentUnitIdentifier` values when
   missing or blank.
+
+- geo_format:
+
+  Character. Export format: `"shp"` (the default) writes a zipped
+  shapefile; `"gpkg"` writes a GeoPackage with a layer named
+  `TADAPointAUGeometry`, preserving full attribute names. Used only when
+  `download_geo = TRUE`. An existing GeoPackage layer is replaced only
+  if changed; other layers are retained.
 
 ## Value
 
@@ -62,8 +72,9 @@ An `sf` containing:
 
 - `geometry`
 
-If `download_geo = TRUE`, a shapefile is written to the Downloads
-folder.
+If `download_geo = TRUE`, a dated ZIP or GeoPackage file is also written
+to the Downloads folder. The returned `sf` object is unchanged by
+export.
 
 ## Details
 
@@ -109,5 +120,10 @@ df2 <- data.frame(
 
 au_geoms <- TADA_CreatePointAUGeometry(df2)
 unique(sf::st_geometry_type(au_geoms))
+
+# Export to a GeoPackage instead of a zipped shapefile
+au_geoms <- TADA_CreatePointAUGeometry(
+  df2, download_geo = TRUE, geo_format = "gpkg"
+)
 } # }
 ```
