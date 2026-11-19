@@ -3449,15 +3449,44 @@ TADA_CreatePointAUGeometry <- function(
   crs_target <- sf::st_crs(target_crs)
 
   # Create geospatial df
-  sf_out <- .data |>
+  sf_pts <- .data |>
     dplyr::select(rlang::sym(id.col), dplyr::all_of(coord_req)) |>
     dplyr::filter(
       !is.na(TADA.LatitudeMeasure),
       !is.na(TADA.LongitudeMeasure)
     ) |>
     dplyr::distinct() |>
-    TADA_MakeSpatial(crs = target_crs) |>
-    dplyr::select(-TADA.LatitudeMeasure, -TADA.LongitudeMeasure)
+    TADA_MakeSpatial(crs = target_crs)
+
+  # Group into POINT or MULTIPOINT by AU
+  groups <- dplyr::group_split(
+    dplyr::group_by(sf_pts, dplyr::across(dplyr::all_of(id.col)))
+  )
+  keys <- dplyr::group_keys(
+    dplyr::group_by(sf_pts, dplyr::across(dplyr::all_of(id.col)))
+  )
+
+  sf_out <- purrr::map2_dfr(groups, seq_along(groups), function(g, i) {
+    geom <- sf::st_geometry(g)
+
+    geom_out <- if (length(geom) == 1) {
+      geom[[1]]
+    } else {
+      coords <- sf::st_coordinates(sf::st_combine(geom))
+      sf::st_multipoint(coords[, 1:2, drop = FALSE])
+    }
+
+    sf::st_sf(
+      ATTAINS.AssessmentUnitIdentifier = keys[[i, 1]],
+      HorizontalCoordinateReferenceSystemDatumName =
+        g$HorizontalCoordinateReferenceSystemDatumName[1],
+      epsg = sf::st_crs(geom)$epsg,
+      geometry = sf::st_sfc(geom_out, crs = target_crs)
+    )
+  })
+
+  # remove intermediate object
+  rm(sf_pts)
 
   # Export without changing the returned geometry.
   if (isTRUE(download_geo)) {
