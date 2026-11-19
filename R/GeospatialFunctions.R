@@ -3459,12 +3459,14 @@ TADA_CreatePointAUGeometry <- function(
     TADA_MakeSpatial(crs = target_crs)
 
   # Group into POINT or MULTIPOINT by AU
-  groups <- dplyr::group_split(
-    dplyr::group_by(sf_pts, dplyr::across(dplyr::all_of(id.col)))
-  )
-  keys <- dplyr::group_keys(
-    dplyr::group_by(sf_pts, dplyr::across(dplyr::all_of(id.col)))
-  )
+  groups <- dplyr::group_split(dplyr::group_by(
+    sf_pts,
+    dplyr::across(dplyr::all_of(id.col))
+  ))
+  keys <- dplyr::group_keys(dplyr::group_by(
+    sf_pts,
+    dplyr::across(dplyr::all_of(id.col))
+  ))
 
   sf_out <- purrr::map2_dfr(groups, seq_along(groups), function(g, i) {
     geom <- sf::st_geometry(g)
@@ -3478,8 +3480,9 @@ TADA_CreatePointAUGeometry <- function(
 
     sf::st_sf(
       ATTAINS.AssessmentUnitIdentifier = keys[[i, 1]],
-      HorizontalCoordinateReferenceSystemDatumName =
-        g$HorizontalCoordinateReferenceSystemDatumName[1],
+      HorizontalCoordinateReferenceSystemDatumName = g$HorizontalCoordinateReferenceSystemDatumName[
+        1
+      ],
       epsg = sf::st_crs(geom)$epsg,
       geometry = sf::st_sfc(geom_out, crs = target_crs)
     )
