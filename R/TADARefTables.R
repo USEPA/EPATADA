@@ -1198,7 +1198,8 @@ TADA_GetTADAUsesAliasRef <- function(
       ATTAINS.UseClass,
       use_class_words,
       .keep_all = TRUE
-    )
+    ) |>
+    TADA_CorrectColType()
 
   rm(ATTAINS.raw, ATTAINS.use_class.raw)
 
