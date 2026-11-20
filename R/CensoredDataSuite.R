@@ -178,8 +178,9 @@ TADA_IDCensoredData <- function(.data) {
   rv_chr <- toupper(trimws(as.character(data_mq_flag$ResultMeasureValue)))
   idx_censor_text <- !is.na(rv_chr) & rv_chr %in% nd_texts
 
-  # Keep censor-text result values unchanged; only flag them
+  # Set censor-text result values to NA; do not copy detection-limit values
   if (any(idx_censor_text, na.rm = TRUE)) {
+    data_mq_flag$ResultMeasureValue[idx_censor_text] <- NA_character_
     data_mq_flag$TADA.ResultMeasureValueDataTypes.Flag[idx_censor_text] <-
       "Result Value/Unit Cannot Be Estimated From Detection Limit"
   }
