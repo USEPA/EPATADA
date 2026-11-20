@@ -63,6 +63,9 @@ getMapIconLabels <- function(icons = TRUE, labels = TRUE) {
   #   na.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
   #                                 color = tada.pal[7],
   #                                 name = "na.point.circle")
+  #   new.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
+  #                                 color = tada.pal[7],
+  #                                 name = "new.point.circle")
 
   # if only icons = TRUE, return list of paths to icon images
   if (icons == TRUE) {
@@ -100,7 +103,8 @@ getMapIconLabels <- function(icons = TRUE, labels = TRUE) {
       system.file("extdata/icons", "square-catchment.png", package = "EPATADA"), # 10
       system.file("extdata/icons", "ns.point.circle.png", package = "EPATADA"), # 11
       system.file("extdata/icons", "s.point.circle.png", package = "EPATADA"), # 12
-      system.file("extdata/icons", "na.point.circle.png", package = "EPATADA") # 13
+      system.file("extdata/icons", "na.point.circle.png", package = "EPATADA"), # 13
+      system.file("extdata/icons", "new.point.circle.png", package = "EPATADA") # 14
     )
 
     # return only images if labels are not required
@@ -124,7 +128,8 @@ getMapIconLabels <- function(icons = TRUE, labels = TRUE) {
       "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines.", # 10
       "ATTAINS: Not Supporting Point", # 11
       "ATTAINS: Supporting Point", # 12
-      "ATTAINS: Not Assessed Point" # 13
+      "ATTAINS: Not Assessed Point", # 13
+      "New Assessment Unit (not yet in ATTAINS)" #14
     )
 
     # return only labels if images are not required
@@ -1340,13 +1345,14 @@ addWQPSites <- function(
 
     wqp.urls <- images[8]
   } else {
-    wqp.imgs <- images[5:7]
-    wqp.labels <- img.labels[5:7]
+    wqp.imgs <- images[5:8]
+    wqp.labels <- img.labels[5:8]
 
     wqp.urls <- dplyr::case_when(
       .data$TADA.AURefSource == "ATTAINS Crosswalk" ~ images[6],
       .data$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ images[7],
-      .data$TADA.AURefSource == "User-supplied Ref" ~ images[5]
+      .data$TADA.AURefSource == "User-supplied Ref" ~ images[5],
+      .data$TADA.AURefSource == "TADA_CreatePointAUs" ~ images[8]
     )
   }
 
@@ -1424,6 +1430,10 @@ addWQPSites <- function(
 #' ATTAINS assessment unit overall status are shown in the legend. Default is
 #' attains_au = TRUE.
 #'
+#' @param attains_new Boolean argument. Determines whether the color for new AUs
+#' is shown in the legend. When attains_new = TRUE, the color indicating
+#' new AUs is shown in the legend. Default is attains_new = FALSE.
+#'
 #' @param attains_missing Boolean argument. Determines whether the dashed circle
 #' indicating whether WQP sites with assessment units assigned by the user are
 #' missing corresponding geometry in ATTAINS is shown in the legend. The dashed
@@ -1446,6 +1456,7 @@ addTADAMapLegend <- function(
   wqp = TRUE,
   ref_icons = TRUE,
   attains_au = TRUE,
+  attains_new = FALSE,
   attains_missing = TRUE,
   nhd_attains = TRUE
 ) {
@@ -1483,6 +1494,13 @@ addTADAMapLegend <- function(
     images.ref <- append(images.ref, images[1:3])
 
     leg.labels <- append(leg.labels, img.labels[1:3])
+  }
+
+  # ATTAINS new point geometry
+  if (attains_new == TRUE) {
+    images.ref <- append(images.ref, images[14])
+
+    leg.labels <- append(leg.labels, img.labels[14])
   }
 
   # ATTAINS missing geometry
@@ -1891,4 +1909,848 @@ fetchWaterType <- function(au_list, api_key = NULL) {
     )
 
   return(results)
+}
+
+#' Save an sf object as a shapefile
+#'
+#' @keywords internal
+#' @noRd
+save_sf_as_zip <- function(sf_out, zip_path) {
+  if (!inherits(sf_out, "sf")) {
+    stop("'sf_out' must be an sf object.")
+  }
+
+  if (is.null(zip_path) || !nzchar(zip_path)) {
+    stop("'zip_path' must be a valid file path.")
+  }
+
+  if (!grepl("\\.zip$", zip_path, ignore.case = TRUE)) {
+    zip_path <- paste0(zip_path, ".zip")
+  }
+
+  out_dir <- dirname(zip_path)
+  if (!dir.exists(out_dir)) {
+    dir.create(out_dir, recursive = TRUE)
+  }
+
+  temp_dir <- tempfile("shp_export_")
+  dir.create(temp_dir)
+
+  layer_name <- tools::file_path_sans_ext(basename(zip_path))
+
+  # Write shapefile into the temp directory
+  sf::st_write(
+    sf_out,
+    dsn = temp_dir,
+    layer = layer_name,
+    driver = "ESRI Shapefile",
+    delete_dsn = TRUE,
+    quiet = TRUE
+  )
+
+  # List all files created for that layer
+  shp_files <- list.files(
+    temp_dir,
+    pattern = paste0("^", layer_name, "\\."),
+    full.names = FALSE
+  )
+
+  old_wd <- getwd()
+  on.exit(setwd(old_wd), add = TRUE)
+  setwd(temp_dir)
+
+  utils::zip(zipfile = zip_path, files = shp_files)
+
+  invisible(zip_path)
+}
+
+#' Fill missing ATTAINS Assessment Unit Identifiers
+#'
+#' @keywords internal
+#' @noRd
+fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
+  has_mloc <- "TADA.MonitoringLocationIdentifier" %in% names(.data)
+  has_auid <- "ATTAINS.AssessmentUnitIdentifier" %in% names(.data)
+
+  if (!has_mloc && !has_auid) {
+    stop(
+      "At least one of 'TADA.MonitoringLocationIdentifier' or ",
+      "'ATTAINS.AssessmentUnitIdentifier' must be present."
+    )
+  }
+
+  # If target column doesn't exist, create it
+  if (!has_auid) {
+    .data$ATTAINS.AssessmentUnitIdentifier <- NA_character_
+  }
+
+  # If source column doesn't exist, we can still return .data unchanged
+  # unless you want to error when filling is impossible.
+  if (!has_mloc) {
+    return(.data)
+  }
+
+  created_AUID <- is.na(.data$ATTAINS.AssessmentUnitIdentifier) |
+    trimws(as.character(.data$ATTAINS.AssessmentUnitIdentifier)) == ""
+
+  if (any(created_AUID)) {
+    .data$ATTAINS.AssessmentUnitIdentifier[
+      created_AUID
+    ] <- .data$TADA.MonitoringLocationIdentifier[created_AUID]
+  }
+
+  if (!is.null(auid_prefix) && nzchar(auid_prefix)) {
+    .data$ATTAINS.AssessmentUnitIdentifier[created_AUID] <- paste0(
+      auid_prefix,
+      .data$ATTAINS.AssessmentUnitIdentifier[created_AUID]
+    )
+  }
+
+  .data
+}
+
+#' .checkNHD
+#'
+#' Check NHD web services. For use in functions that rely on fetchNHD. This
+#' helper function will stop the function if web service is not available.
+#'
+#' @param resolution Character argument. Options are "Hi" or "Med" resolution. Default is resolution = "Hi".
+#' @param timeout_sec Numeric argument. The number of seconds allowed before timeout.
+
+.checkNHD <- function(resolution = c("Hi", "Med"), timeout_sec = 10) {
+  resolution <- match.arg(resolution)
+
+  old_timeout <- getOption("timeout")
+  options(timeout = timeout_sec)
+  on.exit(options(timeout = old_timeout), add = TRUE)
+
+  if (resolution == "Hi") {
+    nhd_plus_hr_url <- "https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer"
+
+    tryCatch(
+      {
+        arcgislayers::arc_open(nhd_plus_hr_url)
+        TRUE
+      },
+      error = function(e) {
+        message(
+          "The NHD High Resolution web service is currently unavailable. ",
+          "Please try again later."
+        )
+        FALSE
+      }
+    )
+  } else if (resolution == "Med") {
+    dummy_aoi <- sf::st_as_sf(
+      data.frame(x = -90, y = 40),
+      coords = c("x", "y"),
+      crs = 4326
+    )
+
+    tryCatch(
+      {
+        suppressMessages(hydrogeofetch::get_nhdplus(
+          AOI = dummy_aoi,
+          realization = "catchment"
+        ))
+        TRUE
+      },
+      error = function(e) {
+        message(
+          "The NHDPlus V2 service is currently unavailable. ",
+          "Please try again later.\n",
+          "Reason: ",
+          conditionMessage(e)
+        )
+        FALSE
+      }
+    )
+  }
+}
+
+#' .safe_fetchNHD
+#'
+#' Helper for use with `purrr::map()` when calling `fetchNHD()`. Adds a pause
+#' between requests, retries on server-side failures, and stops after the
+#' maximum number of retries is reached.
+#'
+#' @param .data Object passed to `fetchNHD()`.
+#' @param nhd_res Character. NHD resolution to use, either `"Hi"` or `"Med"`.
+#' @param pause_sec Numeric. Number of seconds to pause between queries.
+#' @param max_tries Integer. Number of attempts to make before stopping.
+#'
+#' @return The result of `fetchNHD()` if successful.
+#'
+#' @examples
+#' \dontrun{
+#' .safe_fetchNHD(.data, nhd_res = "Hi")
+#' }
+.safe_fetchNHD <- function(.data, nhd_res, pause_sec = 1, max_tries = 3) {
+  for (i in seq_len(max_tries)) {
+    result <- tryCatch(
+      fetchNHD(.data, resolution = nhd_res),
+      error = function(e) e
+    )
+
+    if (!inherits(result, "error")) {
+      Sys.sleep(pause_sec)
+      return(result)
+    }
+
+    msg <- conditionMessage(result)
+
+    # Retry only for server-side errors
+    if (
+      !grepl("500|internal server|server", msg, ignore.case = TRUE) ||
+        i == max_tries
+    ) {
+      stop("fetchNHD failed after ", i, " attempt(s): ", msg, call. = FALSE)
+    }
+
+    message("fetchNHD failed (attempt ", i, "), retrying after delay: ", msg)
+    Sys.sleep(pause_sec * i)
+  }
+}
+
+#' .nhd_arc_open
+#'
+#' Helper function for fetchNHD to facilitate test mocks for NHD hi res.
+#'
+#' @param url Character argument. Web service url for the map sever,
+#'
+.nhd_arc_open <- function(url) {
+  arcgislayers::arc_open(url)
+}
+
+#' .nhd_get_layer
+#'
+#' Helper function for fetchNHD to get a layer from the opened map service for
+#' NHD hi res.
+#'
+#' @param nhd The opened map service object returned by .nhd_arc_open(url).
+#' @param id Integer argument. The layer ID inside the HR map server.
+#'
+.nhd_get_layer <- function(nhd, id) {
+  arcgislayers::get_layer(nhd, id)
+}
+
+#' .nhd_arc_select
+#'
+#' Select features from a layer using geometry for NHD hi res.
+#'
+#' @param layer The already-selected map layer object.
+#' @param filter_geom The geometry used to spatially filter features, usually an sf geometry or sfc object.
+#' @param crs The coordinate reference system for the geometry used in the query, usually from sf::st_crs(...).
+#'
+.nhd_arc_select <- function(layer, filter_geom, crs) {
+  arcgislayers::arc_select(layer, filter_geom = filter_geom, crs = crs)
+}
+
+#' .nhd_get_nhdplus
+#'
+#' Sends an area of interest (AOI) to hydrogeofetch and asks for a specific
+#' NHDPlus V2 feature type using realization. For NHD Med resolution.
+#'
+#' @param AOI Area of interest. This is usually an sf object representing the site or
+#' catchment used as input to hydrogeofetch.
+#' @param realization Character argument. What kind of NHD feature to retrieve with
+#' hydrogeofetch, such as: "catchment" or "flowline".
+#'
+.nhd_get_nhdplus <- function(AOI, realization) {
+  hydrogeofetch::get_nhdplus(AOI = AOI, realization = realization)
+}
+
+#' nhd_get_waterbodies
+#'
+#' Sends an area of interest (AOI) and returns nearby waterbody features. For NHD
+#' Med resolution.
+#'
+#' @param AOI Area of interest. This is usually an sf object representing the site or
+#' catchment used as input to hydrogeofetch.
+.nhd_get_waterbodies <- function(AOI) {
+  hydrogeofetch::get_waterbodies(AOI = AOI)
+}
+
+#' nhd_get_hr_catchments
+#'
+#' Sends a set of bounding boxes or AOIs to the NHD HR catchment service and
+#' returns matching high-resolution catchment features.
+#'
+#' @param nhd_hr_catchments An ArcGIS layer or object representing the NHD HR
+#' catchments dataset.
+#' @param wqp_bboxes A list or vector of spatial features representing bounding
+#' boxes or AOIs to query.
+#'
+.nhd_get_hr_catchments <- function(nhd_hr_catchments, wqp_bboxes) {
+  fill_USGS_catchments_stored <- vector("list", length = length(wqp_bboxes))
+
+  for (i in 1:length(wqp_bboxes)) {
+    try(
+      fill_USGS_catchments_stored[[i]] <- .nhd_arc_select(
+        layer = nhd_hr_catchments,
+        filter_geom = wqp_bboxes[i],
+        crs = sf::st_crs(wqp_bboxes[i])
+      ) |>
+        sf::st_make_valid(),
+      silent = TRUE
+    )
+  }
+
+  fill_USGS_catchments_stored <- fill_USGS_catchments_stored |>
+    purrr::keep(~ !is.null(.)) |>
+    dplyr::bind_rows() |>
+    dplyr::distinct()
+
+  fill_USGS_catchments_stored <- fill_USGS_catchments_stored |>
+    dplyr::select(nhdplusid, catchmentareasqkm = areasqkm) |>
+    dplyr::mutate(
+      NHD.nhdplusid = as.character(nhdplusid),
+      NHD.resolution = "HR",
+      NHD.catchmentareasqkm = as.numeric(catchmentareasqkm)
+    ) |>
+    dplyr::select(
+      NHD.nhdplusid,
+      NHD.resolution,
+      NHD.catchmentareasqkm,
+      geometry
+    )
+
+  fill_USGS_catchments_stored
+}
+
+#' nhd_get_hr_flowlines
+#'
+#' Sends a set of AOIs to the NHD HR flowline service and returns matching
+#' high-resolution flowline features.
+#'
+#' @param nhd_hr_flowlines An ArcGIS layer or object representing the NHD HR
+#' flowlines dataset.
+#' @param geospatial_aoi A list or vector of spatial features representing AOIs
+#' to query.
+#'
+.nhd_get_hr_flowlines <- function(nhd_hr_flowlines, geospatial_aoi) {
+  nhd_flowlines_stored <- vector("list", length = length(geospatial_aoi))
+
+  for (i in seq_along(geospatial_aoi)) {
+    try(
+      nhd_flowlines_stored[[i]] <- .nhd_arc_select(
+        layer = nhd_hr_flowlines,
+        filter_geom = geospatial_aoi[i],
+        crs = sf::st_crs(geospatial_aoi[i])
+      ) |>
+        sf::st_make_valid(),
+      silent = TRUE
+    )
+
+    try(
+      geometry_col <- sf::st_geometry(nhd_flowlines_stored[[i]]),
+      silent = TRUE
+    )
+
+    try(
+      nhd_flowlines_stored[[i]] <- nhd_flowlines_stored[[i]] |>
+        dplyr::mutate(dplyr::across(
+          dplyr::where(~ !identical(., geometry_col)),
+          ~ as.character(.)
+        )),
+      silent = TRUE
+    )
+  }
+
+  nhd_flowlines_stored <- nhd_flowlines_stored |>
+    purrr::keep(~ !is.null(.)) |>
+    purrr::keep(~ !is.character(.)) |>
+    dplyr::bind_rows() |>
+    dplyr::distinct()
+
+  nhd_flowlines_stored
+}
+
+#' nhd_get_hr_waterbodies
+#'
+#' Sends a set of AOIs to the NHD HR waterbody service and returns matching
+#' high-resolution waterbody features.
+#'
+#' @param nhd_hr_waterbodies An ArcGIS layer or object representing the NHD HR
+#' waterbodies dataset.
+#' @param geospatial_aoi A list or vector of spatial features representing AOIs
+#' to query.
+#'
+.nhd_get_hr_waterbodies <- function(nhd_hr_waterbodies, geospatial_aoi) {
+  nhd_waterbodies_stored <- vector("list", length = length(geospatial_aoi))
+
+  for (i in seq_along(geospatial_aoi)) {
+    try(
+      nhd_waterbodies_stored[[i]] <- .nhd_arc_select(
+        layer = nhd_hr_waterbodies,
+        filter_geom = geospatial_aoi[i],
+        crs = sf::st_crs(geospatial_aoi[i])
+      ) |>
+        sf::st_make_valid(),
+      silent = TRUE
+    )
+
+    try(
+      geometry_col <- sf::st_geometry(nhd_waterbodies_stored[[i]]),
+      silent = TRUE
+    )
+
+    try(
+      nhd_waterbodies_stored[[i]] <- nhd_waterbodies_stored[[i]] |>
+        dplyr::mutate(dplyr::across(
+          dplyr::where(~ !identical(., geometry_col)),
+          ~ as.character(.)
+        )),
+      silent = TRUE
+    )
+  }
+
+  nhd_waterbodies_stored <- nhd_waterbodies_stored |>
+    purrr::keep(~ !is.null(.)) |>
+    purrr::keep(~ !is.character(.)) |>
+    dplyr::bind_rows() |>
+    dplyr::distinct()
+
+  nhd_waterbodies_stored
+}
+
+#' nhd_get_med_flowlines
+#'
+#' Sends a set of sites to the NHD Medium resolution flowline service and
+#' returns matching flowline features.
+#'
+#' @param unique_sites A spatial data frame or sf object containing unique site
+#' geometries used as query inputs.
+#' @param geospatial_data Optional geospatial data used in the query pipeline.
+#'
+.nhd_get_med_flowlines <- function(unique_sites, geospatial_data) {
+  nhd_flowlines <- vector("list", length = nrow(unique_sites))
+
+  for (i in seq_len(nrow(unique_sites))) {
+    try(
+      nhd_flowlines[[i]] <- .nhd_get_nhdplus(
+        AOI = unique_sites[i, ],
+        realization = "flowline"
+      ) |>
+        sf::st_make_valid(),
+      silent = TRUE
+    )
+
+    try(geometry_col <- sf::st_geometry(nhd_flowlines[[i]]), silent = TRUE)
+
+    try(
+      nhd_flowlines[[i]] <- nhd_flowlines[[i]] |>
+        dplyr::mutate(dplyr::across(
+          dplyr::where(~ !identical(., geometry_col)),
+          ~ as.character(.)
+        )),
+      silent = TRUE
+    )
+  }
+
+  nhd_flowlines <- nhd_flowlines |>
+    purrr::keep(~ !is.null(.)) |>
+    dplyr::bind_rows() |>
+    dplyr::distinct()
+
+  nhd_flowlines
+}
+
+#' nhd_get_med_waterbodies
+#'
+#' Sends a set of sites to the NHD Medium resolution waterbody service and
+#' returns matching waterbody features.
+#'
+#' @param unique_sites A spatial data frame or sf object containing unique site
+#' geometries used as query inputs.
+#' @param geospatial_data Optional geospatial data used in the query pipeline.
+#'
+.nhd_get_med_waterbodies <- function(unique_sites, geospatial_data) {
+  nhd_waterbodies <- vector("list", length = nrow(unique_sites))
+
+  for (i in seq_len(nrow(unique_sites))) {
+    try(
+      nhd_waterbodies[[i]] <- .nhd_get_waterbodies(AOI = unique_sites[i, ]) |>
+        sf::st_make_valid(),
+      silent = TRUE
+    )
+
+    try(geometry_col <- sf::st_geometry(nhd_waterbodies[[i]]), silent = TRUE)
+
+    try(
+      nhd_waterbodies[[i]] <- nhd_waterbodies[[i]] |>
+        dplyr::mutate(dplyr::across(
+          dplyr::where(~ !identical(., geometry_col)),
+          ~ as.character(.)
+        )),
+      silent = TRUE
+    )
+  }
+
+  nhd_waterbodies <- nhd_waterbodies |>
+    purrr::keep(~ !is.null(.)) |>
+    dplyr::bind_rows() |>
+    dplyr::distinct()
+
+  nhd_waterbodies
+}
+
+#' nhd_get_med_catchments
+#'
+#' Sends a set of sites to the NHD Medium resolution catchment service and
+#' returns matching catchment features.
+#'
+#' @param unique_sites A spatial data frame or sf object containing unique site
+#' geometries used as query inputs.
+#'
+.nhd_get_med_catchments <- function(unique_sites) {
+  fill_USGS_catchments <- vector("list", length = nrow(unique_sites))
+
+  for (i in seq_len(nrow(unique_sites))) {
+    try(
+      fill_USGS_catchments[[i]] <- .nhd_get_nhdplus(
+        AOI = unique_sites[i, ],
+        realization = "catchment"
+      ) |>
+        sf::st_make_valid() |>
+        dplyr::select(comid = featureid, catchmentareasqkm = areasqkm) |>
+        dplyr::mutate(
+          NHD.comid = as.character(comid),
+          NHD.resolution = "nhdplusV2",
+          NHD.catchmentareasqkm = as.numeric(catchmentareasqkm)
+        ) |>
+        dplyr::select(
+          NHD.comid,
+          NHD.resolution,
+          NHD.catchmentareasqkm,
+          geometry
+        ),
+      silent = TRUE
+    )
+  }
+
+  fill_USGS_catchments <- fill_USGS_catchments |>
+    purrr::keep(~ !is.null(.)) |>
+    dplyr::bind_rows() |>
+    dplyr::distinct()
+
+  fill_USGS_catchments
+}
+
+#' checkATTAINS
+#'
+#' Checks whether the ATTAINS web service is currently available.
+#'
+#' @param timeout_sec Number of seconds to use as the temporary timeout while
+#' attempting to connect to the service.
+#'
+.checkATTAINS <- function(timeout_sec = 10) {
+  old_timeout <- getOption("timeout")
+  options(timeout = timeout_sec)
+  on.exit(options(timeout = old_timeout), add = TRUE)
+
+  url <- "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer"
+
+  tryCatch(
+    {
+      arcgislayers::arc_open(url)
+      TRUE
+    },
+    error = function(e) {
+      message(
+        "The ATTAINS web service is currently unavailable. ",
+        "Please try again later."
+      )
+      FALSE
+    }
+  )
+}
+
+#' Prepare Nearby Sites Data for Mapping
+#'
+#' @description
+#' Internal helper that prepares a TADA data frame for nearby-sites mapping.
+#' If `TADA.NearbySiteGroup` is not already present, it calls
+#' `TADA_FindNearbySites()` to generate nearby site groups. It then filters to
+#' grouped nearby sites, converts coordinate columns to numeric, selects the
+#' columns needed for mapping, and removes duplicate rows.
+#'
+#' @param .data A TADA data frame to prepare for nearby sites mapping.
+#'
+#' @param catchment Logical. Passed to `TADA_FindNearbySites()` to determine
+#' whether nearby sites must also be in the same catchment. Default is `TRUE`.
+#'
+#' @param dist_buffer Numeric. Distance buffer in meters used to identify nearby
+#' sites if `TADA.FindNearbySites()` has not already been run. Default is `100`.
+#'
+#' @param nhd_res Character. NHD resolution passed to `TADA_FindNearbySites()`
+#' when catchment-based nearby site grouping is requested. Default is `"Hi"`.
+#'
+#' @return A filtered TADA data frame containing only grouped nearby sites and
+#' columns required for nearby site mapping.
+#'
+#' @keywords internal
+.TADA_prepareNearbySites <- function(
+  .data,
+  catchment = TRUE,
+  dist_buffer = 100,
+  nhd_res = "Hi"
+) {
+  TADA_table <- .data
+
+  if (!"TADA.NearbySiteGroup" %in% colnames(TADA_table)) {
+    TADA_table <- TADA_FindNearbySites(
+      TADA_table,
+      dist_buffer = dist_buffer,
+      catchment = catchment,
+      nhd_res = nhd_res
+    )
+  }
+
+  TADA_nearby <- TADA_table |>
+    dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
+    dplyr::mutate(
+      LatitudeMeasure = as.numeric(LatitudeMeasure),
+      LongitudeMeasure = as.numeric(LongitudeMeasure)
+    ) |>
+    dplyr::select(
+      TADA.MonitoringLocationIdentifier,
+      MonitoringLocationIdentifier,
+      TADA.NearbySiteGroup,
+      TADA.MonitoringLocationName,
+      MonitoringLocationName,
+      OrganizationIdentifier,
+      OrganizationFormalName,
+      TADA.LongitudeMeasure,
+      TADA.LatitudeMeasure,
+      LongitudeMeasure,
+      LatitudeMeasure
+    ) |>
+    dplyr::distinct()
+
+  if (nrow(TADA_nearby) == 0) {
+    stop("There are no grouped nearby sites in the data frame.")
+  }
+
+  TADA_nearby
+}
+
+#' Prepare Flagged Sites Data for Mapping
+#'
+#' @description
+#' Internal helper that prepares a TADA data frame for flagged-sites mapping.
+#' It calls `TADA_FlagCoordinates(flaggedonly = TRUE)` to retain only flagged
+#' sites and assigns a map color to each site based on its suspect coordinates
+#' flag.
+#'
+#' @param .data A TADA data frame to prepare for flagged sites mapping.
+#'
+#' @return A flagged-site TADA data frame with an added `FlaggedColor` column.
+#'
+#' @keywords internal
+.TADA_prepareFlaggedSites <- function(.data) {
+  invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
+
+  if (nrow(invalid) == 0) {
+    stop("There are no flagged sites in the data frame.")
+  }
+
+  tada.pal <- TADA_ColorPalette()
+
+  invalid |>
+    dplyr::mutate(
+      FlaggedColor = dplyr::case_when(
+        TADA.SuspectCoordinates.Flag ==
+          "Imprecise_lessthan3decimaldigits" ~ tada.pal[13],
+        TADA.SuspectCoordinates.Flag == "Coordinate_StateMismatch" ~ tada.pal[
+          7
+        ],
+        TADA.SuspectCoordinates.Flag == "Coordinate_CountyMismatch" ~ tada.pal[
+          8
+        ],
+        grepl(
+          "^((LAT_OutsideUSA|LONG_OutsideUSA)(;\\s*)?)+$",
+          TADA.SuspectCoordinates.Flag
+        ) ~ tada.pal[12],
+        TRUE ~ tada.pal[3]
+      )
+    )
+}
+
+#' Create Nearby Sites Color Palette
+#'
+#' @description
+#' Internal helper that creates a leaflet color factor palette for nearby site
+#' groups.
+#'
+#' @param nearby_data A data frame containing `TADA.NearbySiteGroup`.
+#'
+#' @return A leaflet `colorFactor` palette function.
+#'
+#' @keywords internal
+.TADA_makeNearbyPalette <- function(nearby_data) {
+  tada.pal <- TADA_ColorPalette()
+
+  n.colors <- length(unique(nearby_data$TADA.NearbySiteGroup))
+
+  nearby.pal <- Polychrome::createPalette(
+    n.colors,
+    seedcolors = c(
+      tada.pal[1],
+      tada.pal[3],
+      tada.pal[4],
+      tada.pal[7],
+      tada.pal[15]
+    ),
+    M = 5000
+  )
+
+  leaflet::colorFactor(
+    palette = nearby.pal,
+    domain = nearby_data$TADA.NearbySiteGroup
+  )
+}
+
+#' Add Nearby Sites Layer to Leaflet Map
+#'
+#' @description
+#' Internal helper that adds the nearby sites layer to an existing leaflet map.
+#' It draws nearby site markers and radius circles using a group-based color
+#' palette.
+#'
+#' @param map A leaflet map object.
+#'
+#' @param nearby_data A data frame of prepared nearby sites.
+#'
+#' @param dist_buffer Numeric. Radius in meters used for the nearby-site
+#' circles. Default is `100`.
+#'
+#' @return A leaflet map with the nearby sites layer added.
+#'
+#' @keywords internal
+.TADA_addNearbyLayer <- function(map, nearby_data, dist_buffer = 100) {
+  pal <- .TADA_makeNearbyPalette(nearby_data)
+
+  map |>
+    leaflet::addCircleMarkers(
+      data = nearby_data,
+      lng = ~LongitudeMeasure,
+      lat = ~LatitudeMeasure,
+      group = "Nearby sites",
+      color = ~ pal(TADA.NearbySiteGroup),
+      opacity = 1,
+      fillColor = ~ pal(TADA.NearbySiteGroup),
+      fillOpacity = 1,
+      radius = ifelse(dist_buffer > 200, dist_buffer / 10, 20),
+      weight = 1,
+      popup = ~ paste0(
+        "Nearby Group Name: ",
+        TADA.MonitoringLocationIdentifier,
+        "<br> Nearby Site Group: ",
+        TADA.NearbySiteGroup,
+        "<br> Site ID: ",
+        MonitoringLocationIdentifier,
+        "<br> Site Name: ",
+        MonitoringLocationName,
+        "<br> Organization Name: ",
+        OrganizationFormalName,
+        "<br> Latitude: ",
+        LatitudeMeasure,
+        "<br> Longitude: ",
+        LongitudeMeasure
+      ),
+      clusterOptions = leaflet::markerClusterOptions()
+    ) |>
+    leaflet::addCircles(
+      data = nearby_data,
+      lng = ~LongitudeMeasure,
+      lat = ~LatitudeMeasure,
+      group = "Nearby sites",
+      color = ~ pal(TADA.NearbySiteGroup),
+      opacity = 0.1,
+      fillColor = ~ pal(TADA.NearbySiteGroup),
+      fillOpacity = 0.1,
+      radius = dist_buffer,
+      weight = 1
+    )
+}
+
+#' Add Flagged Sites Layer to Leaflet Map
+#'
+#' @description
+#' Internal helper that adds the flagged sites layer to an existing leaflet map.
+#' Points are colored according to their suspect coordinates flag.
+#'
+#' @param map A leaflet map object.
+#'
+#' @param invalid A data frame of prepared flagged sites.
+#'
+#' @return A leaflet map with the flagged sites layer added.
+#'
+#' @keywords internal
+.TADA_addFlaggedLayer <- function(map, invalid) {
+  map |>
+    leaflet::addCircleMarkers(
+      data = invalid,
+      lng = ~TADA.LongitudeMeasure,
+      lat = ~TADA.LatitudeMeasure,
+      group = "Flagged sites",
+      color = ~FlaggedColor,
+      fillColor = ~FlaggedColor,
+      fillOpacity = 0.7,
+      stroke = TRUE,
+      weight = 1.5,
+      radius = 10,
+      popup = ~ paste0(
+        "Site ID: ",
+        TADA.MonitoringLocationIdentifier,
+        "<br> Site Name: ",
+        TADA.MonitoringLocationName,
+        "<br> Organization Name: ",
+        OrganizationFormalName,
+        "<br> Latitude: ",
+        TADA.LatitudeMeasure,
+        "<br> Longitude: ",
+        TADA.LongitudeMeasure,
+        "<br> Reason Flagged: ",
+        TADA.SuspectCoordinates.Flag
+      )
+    )
+}
+
+#' Add Flagged Sites Legend to Leaflet Map
+#'
+#' @description
+#' Internal helper that adds the legend for flagged sites to an existing leaflet
+#' map.
+#'
+#' @param map A leaflet map object.
+#'
+#' @return A leaflet map with the flagged-sites legend added.
+#'
+#' @keywords internal
+.TADA_addFlaggedLegend <- function(map) {
+  tada.pal <- TADA_ColorPalette()
+
+  map |>
+    leaflet::addLegend(
+      position = "bottomright",
+      colors = c(
+        tada.pal[13],
+        tada.pal[12],
+        tada.pal[7],
+        tada.pal[8],
+        tada.pal[3]
+      ),
+      opacity = 1,
+      labels = c(
+        "Imprecise coordinates",
+        "Outside of US",
+        "Coordinate State Mismatch",
+        "Coordinate County Mismatch",
+        "Multiple Flags"
+      ),
+      title = "Coordinate Flag Category"
+    ) |>
+    addLegendToggle()
 }

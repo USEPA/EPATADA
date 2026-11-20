@@ -62,6 +62,7 @@
       .TADA_UpdateMonLocTypeRef()
       .TADA_UpdateWQPOrganizationRef()
       .TADA_UpdateWQXCharAliasRef()
+      .TADA_UpdateWQP3SchemaRef()
     },
     error = function(e) {
       message("Error updating WQPWQX reference tables: ", e$message)
@@ -262,6 +263,7 @@
         startDate = "2019-05-01",
         endDate = "2019-05-07",
         statecode = c("IL", "IN", "MI", "MN", "OH", "WI"),
+        applyautoclean = FALSE,
         ask = FALSE
       )
       message("Data_R5_TADAPackageDemo")

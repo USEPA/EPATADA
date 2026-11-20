@@ -21,15 +21,15 @@ testthat::test_that("TADA_Analysis_Join_WQP_Criteria joins by ComparableDataIden
     `TADA.CharacteristicName` = c("Lead", "Mercury"),
     `TADA.ResultSampleFractionText` = c("Total", "Dissolved"),
     `TADA.MethodSpeciationName` = c("Met1", "Met2"),
-    `TADA.ResultMeasure.MeasureUnitCode` = c("ug/L", "ug/L"),
-    crit_value = c(10, 20)
+    MagnitudeUnit = c("ug/L", "ug/L"),
+    MagnitudeValueLower = c(10, 20)
   )
 
   out <- TADA_Analysis_Join_WQP_Criteria(.data, criteria)
 
-  expect_true(any(out$row_id == 1 & out$crit_value == 10))
-  expect_true(any(out$row_id == 2 & out$crit_value == 20))
-  expect_true("crit_value" %in% names(out))
+  expect_true(any(out$row_id == 1 & out$MagnitudeValueLower == 10))
+  expect_true(any(out$row_id == 2 & out$MagnitudeValueLower == 20))
+  expect_true("MagnitudeValueLower" %in% names(out))
 })
 
 testthat::test_that("TADA_Analysis_Join_WQP_Criteria falls back when ComparableDataIdentifier is missing from criteria", {
@@ -47,14 +47,13 @@ testthat::test_that("TADA_Analysis_Join_WQP_Criteria falls back when ComparableD
     `TADA.CharacteristicName` = "Copper",
     `TADA.ResultSampleFractionText` = "Dissolved",
     `TADA.MethodSpeciationName` = NA_character_,
-    `TADA.ResultMeasure.MeasureUnitCode` = "ug/L",
-    crit_value = 30
+    MagnitudeValueLower = 30
   )
 
   out <- TADA_Analysis_Join_WQP_Criteria(data, criteria)
 
   testthat::expect_equal(nrow(out), 1)
-  testthat::expect_equal(out$crit_value, 30)
+  testthat::expect_equal(out$MagnitudeValueLower, 30)
 })
 
 testthat::test_that("TADA_Analysis_Join_WQP_Criteria left-join semantics are preserved", {
@@ -75,8 +74,8 @@ testthat::test_that("TADA_Analysis_Join_WQP_Criteria left-join semantics are pre
     `TADA.CharacteristicName` = "Lead",
     `TADA.ResultSampleFractionText` = "Total",
     `TADA.MethodSpeciationName` = "Met1",
-    `TADA.ResultMeasure.MeasureUnitCode` = "ug/L",
-    crit_value = 10
+    MagnitudeUnit = "ug/L",
+    MagnitudeValueLower = 10
   )
 
   out <- TADA_Analysis_Join_WQP_Criteria(.data, criteria)
@@ -108,15 +107,15 @@ testthat::test_that("TADA_Analysis_Join_WQP_Criteria byChar = TRUE joins on char
     `TADA.CharacteristicName` = c("Lead", "Lead", "Mercury"),
     `TADA.ResultSampleFractionText` = c("Total", "Dissolved", "Total"),
     `TADA.MethodSpeciationName` = c("MetX", "MetY", "MetZ"),
-    `TADA.ResultMeasure.MeasureUnitCode` = c("ug/L", "ug/L", "ug/L"),
-    crit_value = c(11, 22, 33)
+    MagnitudeUnit = c("ug/L", "ug/L", "ug/L"),
+    MagnitudeValueLower = c(11, 22, 33)
   )
 
   out <- TADA_Analysis_Join_WQP_Criteria(.data, criteria, byChar = TRUE)
 
   testthat::expect_equal(sum(out$`TADA.CharacteristicName` == "LEAD"), 4)
   expect_true(any(
-    out$`TADA.CharacteristicName` == "MERCURY" & out$crit_value == 33
+    out$`TADA.CharacteristicName` == "MERCURY" & out$MagnitudeValueLower == 33
   ))
 })
 
@@ -135,8 +134,9 @@ testthat::test_that("TADA_Analysis_Join_WQP_Criteria returns original data when 
     `TADA.CharacteristicName` = "Lead",
     `TADA.ResultSampleFractionText` = "Total",
     `TADA.MethodSpeciationName` = "Met1",
-    `TADA.ResultMeasure.MeasureUnitCode` = "ug/L",
-    crit_value = 1
+    MagnitudeUnit = "ug/L",
+    `ATTAINS.ParameterName` = NA_character_,
+    MagnitudeValueLower = 1
   )
 
   out <- TADA_Analysis_Join_WQP_Criteria(.data, criteria)

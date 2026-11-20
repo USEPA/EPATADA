@@ -416,11 +416,22 @@ testthat::test_that("TADA_DataRetrieval", {
   ))
 })
 
-# testing that NWIS USGS only domain value "meters" is successfully replaced with "m". This feature is part of the TADA_AutoClean function
+# testing that NWIS USGS only domain value "meters" is successfully
+# replaced with "m". This feature is part of the TADA_AutoClean function
 # which runs automatically when TADA_DataRetrieval runs
+# real WQP call with issue
+# TADA_DataRetrieval(
+#   statecode = "UT",
+#   characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
+#   startDate = "2021-01-01",
+#   endDate = "2022-01-01",
+#   ask = FALSE
+# )
 testthat::test_that("TADA_DataRetrieval meters to m works", {
   testthat::skip_on_cran()
   testthat::skip_if_offline("www.waterqualitydata.us")
+  testthat::skip_on_os("mac")
+  testthat::skip_if_not_installed("gdtools")
   check_autoclean_meters_works <- TADA_DataRetrieval(
     statecode = "UT",
     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),

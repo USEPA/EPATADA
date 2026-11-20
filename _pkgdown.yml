@@ -12,9 +12,6 @@ articles:
   - TADAModule1
   - TADAModule1_AdvancedTraining
   - TADAModule2
-  - ExampleMod3Workflow
-  - TADAModule3a
-  - ExampleMod3CriteriaMethodsAltOptions
 - title: Workshops and Demos
   navbar: Workshops
   contents:

@@ -2,7 +2,7 @@
 % Please edit documentation in R/GeospatialFunctions.R
 \name{TADA_FindNearbySites}
 \alias{TADA_FindNearbySites}
-\title{Identify and group nearby monitoring locations (UNDER ACTIVE DEVELOPMENT)}
+\title{Identify and group nearby monitoring locations}
 \usage{
 TADA_FindNearbySites(
   .data,

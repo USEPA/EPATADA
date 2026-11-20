@@ -4,7 +4,13 @@
 \alias{TADA_IDDepthProfiles}
 \title{TADA_IDDepthProfiles}
 \usage{
-TADA_IDDepthProfiles(.data, nresults = TRUE, nvalue = 2, aggregates = FALSE)
+TADA_IDDepthProfiles(
+  .data,
+  nresults = TRUE,
+  nvalue = 2,
+  aggregates = FALSE,
+  remove_na = TRUE
+)
 }
 \arguments{
 \item{.data}{TADA dataframe which must include the columns ActivityStartDate,
@@ -32,6 +38,11 @@ values that were selected from the existing data set (max and min) remain.
 Only columns created/add by TADA_FlagDepthCategory are removed when aggregates =
 FALSE. When aggregates = TRUE, all aggregate values are included when identifying
 depth profile data.}
+
+\item{remove_na}{Boolean argument with options "TRUE" or "FALSE". The default is
+remove_na = TRUE, which means that any results with a value of NA are excluded
+from the summary counts by TADA.ComparableDataIdentifier. When remove_na = FALSE,
+NA results are included in the summary counts.}
 }
 \value{
 A dataframe with the columns TADA.MonitoringLocationIdentifier,

@@ -517,6 +517,7 @@ utils::globalVariables(c(
   "TADA.ATTAINS.WaterType",
   "TADA.Rank",
   "TADA.ResultValueAggregation.Flag",
+  "n_pts",
   "ATTAINS.UseClass",
   "Flag.MatchByColumnIndicator",
   "Flag.MatchByPercentMatchUseClass",
@@ -531,7 +532,13 @@ utils::globalVariables(c(
   "percent_match_ATTAINS_use_class_in_CST",
   "percent_match_CST_in_ATTAINS",
   "percent_match_CST_in_ATTAINS_use_class",
-  "use_class_words"
+  "use_class_words",
+  "ATTAINS.UseGroup",
+  "temp_tag_attains",
+  "temp_tag_cst",
+  "ATTAINS.AssessmentUnitIdentifier.cw",
+  "ATTAINS.WaterType.cw",
+  "ref_icons"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -602,11 +609,13 @@ TADA_CheckColumns <- function(.data, expected_cols) {
   missing_cols <- setdiff(expected_cols, colnames(.data))
 
   if (length(missing_cols) > 0) {
-    stop(paste(
-      "The dataframe does not contain the required field(s):",
+    stop(
+      "The dataframe does not contain the required field(s): ",
       paste(missing_cols, collapse = ", "),
-      ". Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
-    ))
+      ". This function expects the full WQP physical/chemical results profile or ",
+      "a TADA-prepared dataframe. If TADA-prefixed fields are required, run ",
+      "TADA_AutoClean() before calling this function."
+    )
   }
 
   invisible(NULL)
@@ -617,9 +626,16 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #'
 #' This function will screen a column of the user's choice for special
 #' characters. It creates a NEW column that describes the content of the column
-#' prior to conversion to numeric (named "TADA.COLUMN NAME DataTypes.Flag"). It
-#' also creates a NEW column to hold the new, numeric format (named "TADA.COLUMN
-#' NAME"). This function will successfully convert some special character
+#' prior to conversion to numeric (named `"TADA.COLUMN NAME DataTypes.Flag"`).
+#' It also creates a NEW column to hold the new, numeric format (named
+#' `"TADA.COLUMN NAME"`). If a column name is supplied when the
+#' `"TADA.COLUMN NAME"` prefix already exists, the function will not run.
+#' To re-run the function, users should supply the newly created
+#' `"TADA.COLUMN NAME"` column. In that case, no additional columns are created,
+#' and the existing `"TADA.COLUMN NAME"` and `"TADA.COLUMN NAME DataTypes.Flag"`
+#' columns are updated with the new conversion.
+#'
+#' This function will successfully convert some special character
 #' formats to numeric: whitespace, >, <, ~, %, and commas are removed before
 #' converting a result value to numeric. Result values in the format # - # are
 #' converted to an average of the two numbers. Result values
@@ -654,14 +670,14 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #'
 #' @examples
 #' HandleSpecialChars_ResultMeasureValue <-
-#'   TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
+#'   TADA_ConvertSpecialChars(Data_R5_TADAPackageDemo, "ResultMeasureValue")
 #' unique(HandleSpecialChars_ResultMeasureValue$
 #'   TADA.ResultMeasureValueDataTypes.Flag)
 #'
 #' HandleSpecialChars_DetLimMeasureValue <-
 #'   TADA_ConvertSpecialChars(
-#'     Data_Nutrients_UT,
-#'     "TADA.DetectionQuantitationLimitMeasure.MeasureValue"
+#'     Data_R5_TADAPackageDemo,
+#'     "DetectionQuantitationLimitMeasure.MeasureValue"
 #'   )
 #' unique(HandleSpecialChars_DetLimMeasureValue$
 #'   TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
@@ -679,6 +695,16 @@ TADA_ConvertSpecialChars <- function(
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
+  }
+
+  # Stop if any TADA. prefixed columns already exist
+  if (paste0("TADA.", col) %in% names(.data)) {
+    stop(paste0(
+      "Column TADA.",
+      col,
+      " already exists.",
+      " Please remove or rename these columns before running TADA_ConvertSpecialChars()."
+    ))
   }
 
   if (!col %in% names(.data)) {
@@ -723,7 +749,6 @@ TADA_ConvertSpecialChars <- function(
         chars.data$ResultMeasure.MeasureUnitCode
       )
 
-      # TADA.ResultMeasure.MeasureUnitCode to uppercase
       chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(
         chars.data$TADA.ResultMeasure.MeasureUnitCode
       )
@@ -891,6 +916,29 @@ TADA_ConvertSpecialChars <- function(
     clean.data <- TADA_OrderCols(clean.data)
   }
 
+  # Determine the associated unit column, if applicable
+  unitcol <- dplyr::case_when(
+    col == "ResultMeasureValue" ~ "TADA.ResultMeasure.MeasureUnitCode",
+    col ==
+      "DetectionQuantitationLimitMeasureValue" ~ "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    col == "TADA.ResultMeasureValue" ~ "TADA.ResultMeasure.MeasureUnitCode",
+    col ==
+      "TADA.DetectionQuantitationLimitMeasureValue" ~ "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    TRUE ~ NA_character_
+  )
+
+  # Flag result values that do not have an associated result unit
+  if (!is.na(unitcol) && unitcol %in% names(clean.data)) {
+    clean.data[[flagcol]] <- ifelse(
+      !is.na(clean.data[[numcol]]) &
+        (is.na(clean.data[[unitcol]]) |
+          trimws(clean.data[[unitcol]]) == "" |
+          toupper(trimws(clean.data[[unitcol]])) == "NONE"),
+      "No unit associated with numeric measure value",
+      clean.data[[flagcol]]
+    )
+  }
+
   if (flaggedonly == FALSE) {
     if (clean == TRUE) {
       clean.data <- clean.data |>
@@ -904,6 +952,15 @@ TADA_ConvertSpecialChars <- function(
               "Coerced to NA"
             )
         )
+
+      # Remove records with missing result units when cleaning result values
+      if (!is.na(unitcol) && unitcol %in% names(clean.data)) {
+        clean.data <- clean.data |>
+          dplyr::filter(
+            !is.na(.data[[unitcol]]),
+            trimws(.data[[unitcol]]) != ""
+          )
+      }
 
       return(clean.data)
     }
@@ -922,9 +979,11 @@ TADA_ConvertSpecialChars <- function(
             "Text",
             "Non-ASCII Character(s)",
             "Result Value/Unit Cannot Be Estimated From Detection Limit",
+            # "No unit associated with numeric measure value", # KW 9/30/26 determined this to be an allowed numeric option
             "Coerced to NA"
           )
       )
+    return(clean.data)
   }
 }
 
@@ -1497,9 +1556,10 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' writeLayerIfChanged(OKTribeUrl, tribal_gpkg,"OKTribe")
 #' }
 writeLayerIfChanged <- function(url, layerfilepath, layername) {
-  # Build the new feature layer in memory
-  new_feature <- getFeatureLayer(url)
+  .write_sf_layer_if_changed(getFeatureLayer(url), layerfilepath, layername)
+}
 
+.write_sf_layer_if_changed <- function(new_feature, layerfilepath, layername) {
   # If the gpkg or layer doesn't exist yet, write it
   layer_exists <- FALSE
   if (file.exists(layerfilepath)) {
@@ -1521,7 +1581,10 @@ writeLayerIfChanged <- function(url, layerfilepath, layername) {
   old_feature <- sf::st_read(layerfilepath, layer = layername, quiet = TRUE)
 
   # Compare conservatively
-  if (.sf_layer_equal(old_feature, new_feature)) {
+  if (
+    isTRUE(sf::st_crs(old_feature) == sf::st_crs(new_feature)) &&
+      .sf_layer_equal(old_feature, new_feature)
+  ) {
     return(invisible(FALSE))
   }
 
@@ -2263,6 +2326,7 @@ TADA_CreateCSV <- function(.data) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' DeWitt_wqx3 <- dataRetrieval::readWQPdata(
 #'   statecode = "Illinois",
 #'   countycode = "DeWitt", characteristicName = "Nitrogen",
@@ -2271,14 +2335,12 @@ TADA_CreateCSV <- function(.data) {
 #' )
 #'
 #' DeWitt_wqx3_withlegacynames <- EPATADA::TADA_RenametoLegacy(DeWitt_wqx3)
+#' }
 #'
 TADA_RenametoLegacy <- function(.data) {
   ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide
   # https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide
-  wqxnames <- readr::read_csv(
-    "https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv",
-    show_col_types = FALSE
-  )
+  wqxnames <- TADA_GetWQP3SchemaRef()
 
   # Process schema crosswalk table to better suit TADA elements and reduce duplicate legacy elements
   wqxnames_mod <- wqxnames |>
@@ -2401,7 +2463,7 @@ checkColName <- function(.data, partial.string = NULL) {
   return(col.lab)
 }
 
-#' renameATTAINSCols
+#' .renameATTAINSCols
 #'
 #' This function adds the ATTAINS prefix and changes column name capitalization to
 #' match the TADA format.
@@ -2422,7 +2484,7 @@ checkColName <- function(.data, partial.string = NULL) {
 #' to match the TADA format. Or when return_list = TRUE, a list of all TADA
 #' formatted ATTAINS column names.
 #'
-renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
+.renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
   # List of TADA formatted column names
   attains.tada <- c(
     "ATTAINS.OrganizationIdentifier",
@@ -2633,7 +2695,7 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
 
 #' TADA_CorrectColType
 #'
-#' Correct column data types for TADA, ATTAINS, and user reference data using the
+#' Correct column data types for TADA, ATTAINS, WQP, and user reference data using the
 #' TADA column-type reference file bundled with EPATADA. This ensures downstream
 #' TADA functions operate with expected classes.
 #'
