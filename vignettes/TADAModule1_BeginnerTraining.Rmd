@@ -47,8 +47,8 @@ pre[class] {
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA).
 TADA is an open-source tool set built in the R programming language.
-This [RMarkdown](https://yihui.org/rmarkdown/) document walks
-users through how to download the TADA R package from GitHub, access and
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks users
+through how to download the TADA R package from GitHub, access and
 parameterize several important functions, and create basic
 visualizations with a sample data set. The sample data set contains data
 from one week from all EPA Region 5 states.
@@ -266,22 +266,20 @@ n_not_water <- FieldValues_ActMedia |>
 ## Filter for Surface Water Data
 
 Some TADA users are interested in using WQP data for surface water only
-or including some non-water data. The **TADA_MediaFilter**
-identifies surface water, groundwater, and sediment results. Multiple
-columns are used to identify groundwater results as organizations may
-populate different combinations of fields in order to identify
-groundwater results.
+or including some non-water data. The **TADA_MediaFilter** identifies
+surface water, groundwater, and sediment results. Multiple columns are
+used to identify groundwater results as organizations may populate
+different combinations of fields in order to identify groundwater
+results.
 
 Users can specify whether all results should be returned with a new
-column, *TADA.Media.Flag*, providing information about the
-result's media type and identifying if the result should be included in
-further analysis, or if only results that should be included are
-returned.
+column, *TADA.Media.Flag*, providing information about the result's
+media type and identifying if the result should be included in further
+analysis, or if only results that should be included are returned.
 
 The defaults are to include surface water, exclude groundwater and
-sediment, and to return all results with the added
-*TADA.Media.Flag* column (clean = FALSE). This is shown in the
-example below.
+sediment, and to return all results with the added *TADA.Media.Flag*
+column (clean = FALSE). This is shown in the example below.
 
 We can use **TADA_FieldValuesTable** and **TADA_FieldValuesPie** again
 to review this more specific breakdown of results by media type.

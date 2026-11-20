@@ -1,5 +1,6 @@
 ANDs
 AOI
+AOIs
 AUIDs
 AUMLRef
 AURefSource
@@ -127,6 +128,7 @@ FractionAssumptions
 FreqMethod
 FreqValue
 FullPhysChem
+GeoPackage
 Geospatial
 GetATTAINSAUMLCrosswalk
 GetATTAINSByAUID
@@ -360,6 +362,7 @@ TargetUnit
 Tesuque
 Thawley
 TimePeriodForSummary
+Toggleable
 TribalNations
 TribalOptions
 UG
@@ -432,6 +435,7 @@ characteristicGroup
 characteristicName
 characteristicNames
 characteristicType
+checkATTAINS
 checkColNames
 checkForATTAINSGeo
 checkForWQPData
@@ -589,6 +593,7 @@ th
 tibble
 tigris
 tmap
+toggleable
 un
 uncomment
 uncommenting
