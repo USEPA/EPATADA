@@ -75,6 +75,7 @@ testthat::test_that("df_equal ignores row order and factor levels", {
 
 testthat::test_that("Is TADA_GetDetCondRef up to date?", {
   skip_on_cran()
+  skip_if_no_live_tests()
 
   file_path <- system.file(
     "extdata",
@@ -102,6 +103,7 @@ testthat::test_that("Is TADA_GetDetCondRef up to date?", {
 
 testthat::test_that("Is TADA_GetDetLimitRef up to date?", {
   skip_on_cran()
+  skip_if_no_live_tests()
 
   file_path <- system.file(
     "extdata",
@@ -130,6 +132,7 @@ testthat::test_that("Is TADA_GetDetLimitRef up to date?", {
 
 testthat::test_that("Is TADA_GetActivityTypeRef up to date?", {
   skip_on_cran()
+  skip_if_no_live_tests()
 
   file_path <- system.file(
     "extdata",
@@ -158,6 +161,7 @@ testthat::test_that("Is TADA_GetActivityTypeRef up to date?", {
 
 testthat::test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
   skip_on_cran()
+  skip_if_no_live_tests()
 
   file_path <- system.file(
     "extdata",
@@ -189,6 +193,7 @@ testthat::test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
 
 testthat::test_that("Is TADA_GetWQXCharAliasRef more than 1 month old?", {
   testthat::skip_on_cran()
+  skip_if_no_live_tests()
 
   file_path <- system.file(
     "extdata",
