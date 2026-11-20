@@ -112,102 +112,102 @@ testthat::test_that("TADA_MakeSpatial fails with appropriate errors", {
 })
 
 
-# Commented out fetchATTAINS tests due to consistent check failures in GitHub actions (HM 11/10/26)
-# Need to explore better options for these tests (mocks? skip under certain conditions?)
-# testthat::test_that("fetchATTAINS fails with appropriate errors", {
-#   if (!.checkATTAINS()) {
-#     testthat::skip("ATTAINS web service not available, skipping test.")
-#   }
-#
-#   # Test with NULL data
-#   testthat::expect_error(
-#     EPATADA:::fetchATTAINS(.data = NULL),
-#     "The dataframe does not"
-#   )
-# })
-#
-# testthat::test_that("fetchATTAINS handles small areas", {
-#   if (!.checkATTAINS()) {
-#     testthat::skip("ATTAINS web service not available, skipping test.")
-#   }
-#
-#   # small_bbox_data is subset of large_bbox_data fixture (testdata/Hill_MT_pH.Rd)
-#   testthat::expect_no_error(
-#     result_all_features <- EPATADA:::fetchATTAINS(.data = small_bbox_data)
-#   )
-#   testthat::expect_null(result_all_features$ATTAINS_points)
-#   testthat::expect_equal(nrow(result_all_features$ATTAINS_lines), 2)
-#   testthat::expect_null(result_all_features$ATTAINS_polygons)
-#   testthat::expect_equal(
-#     NROW(result_all_features$ATTAINS_catchments),
-#     expect_cat_n_small
-#   )
-# })
-#
-# testthat::test_that("fetchATTAINS handles large areas", {
-#   if (!.checkATTAINS()) {
-#     testthat::skip("ATTAINS web service not available, skipping test.")
-#   }
-#
-#   # large_bbox_data from fixtures (testdata/Hill_MT_pH.Rd)
-#   testthat::expect_no_error(
-#     result_all_features <- EPATADA:::fetchATTAINS(.data = large_bbox_data)
-#   )
-#   testthat::expect_null(result_all_features$ATTAINS_points)
-#   testthat::expect_equal(nrow(result_all_features$ATTAINS_lines), 10)
-#   testthat::expect_equal(nrow(result_all_features$ATTAINS_polygons), 1)
-#   testthat::expect_equal(nrow(result_all_features$ATTAINS_catchments), 43)
-# })
-#
-# testthat::test_that("fetchATTAINS catchments_only parameter", {
-#   if (!.checkATTAINS()) {
-#     testthat::skip("ATTAINS web service not available, skipping test.")
-#   }
-#
-#   testthat::expect_no_error(
-#     result_catchments_only <- EPATADA:::fetchATTAINS(
-#       .data = small_bbox_data,
-#       catchments_only = TRUE
-#     )
-#   )
-#   testthat::expect_null(nrow(result_catchments_only$ATTAINS_points))
-#   testthat::expect_null(nrow(result_catchments_only$ATTAINS_lines))
-#   testthat::expect_null(nrow(result_catchments_only$ATTAINS_polygons))
-#   # Compare against catchments_only = FALSE (default)
-#   testthat::expect_equal(
-#     nrow(result_catchments_only$ATTAINS_catchments),
-#     expect_cat_n_small
-#   )
-# })
-#
-# testthat::test_that("fetchATTAINS org_id parameter", {
-#   if (!.checkATTAINS()) {
-#     testthat::skip("ATTAINS web service not available, skipping test.")
-#   }
-#
-#   # Test when non-default (default is 'all')
-#   org <- "RIDEM"
-#   testthat::expect_no_error(
-#     org_results <- EPATADA:::fetchATTAINS(
-#       .data = RI_CT_secchi,
-#       catchments_only = TRUE,
-#       org_id = org
-#     )
-#   )
-#   # Test against normal result when filtered on org_id
-#   all_org_results <- EPATADA:::fetchATTAINS(
-#     .data = RI_CT_secchi,
-#     catchments_only = TRUE
-#   )
-#   all_orgs_filtered <- all_org_results$ATTAINS_catchments[
-#     "organizationid" == org
-#   ]
-#   # Compare the two sets of results (should be same)
-#   testthat::expect_equal(
-#     NROW(org_results$ATTAINS_catchments),
-#     NROW(all_orgs_filtered)
-#   )
-# })
+# Uncommenting fetchATTAINS tests to check function after ATTAINS server updates (HRM 11/19/26)
+# Do we still need to explore better options for these tests (mocks? skip under certain conditions?)?
+testthat::test_that("fetchATTAINS fails with appropriate errors", {
+  if (!.checkATTAINS()) {
+    testthat::skip("ATTAINS web service not available, skipping test.")
+  }
+
+  #   # Test with NULL data
+  testthat::expect_error(
+    EPATADA:::fetchATTAINS(.data = NULL),
+    "The dataframe does not"
+  )
+})
+
+testthat::test_that("fetchATTAINS handles small areas", {
+  if (!.checkATTAINS()) {
+    testthat::skip("ATTAINS web service not available, skipping test.")
+  }
+
+  #   # small_bbox_data is subset of large_bbox_data fixture (testdata/Hill_MT_pH.Rd)
+  testthat::expect_no_error(
+    result_all_features <- EPATADA:::fetchATTAINS(.data = small_bbox_data)
+  )
+  testthat::expect_null(result_all_features$ATTAINS_points)
+  testthat::expect_equal(nrow(result_all_features$ATTAINS_lines), 2)
+  testthat::expect_null(result_all_features$ATTAINS_polygons)
+  testthat::expect_equal(
+    NROW(result_all_features$ATTAINS_catchments),
+    expect_cat_n_small
+  )
+})
+
+testthat::test_that("fetchATTAINS handles large areas", {
+  if (!.checkATTAINS()) {
+    testthat::skip("ATTAINS web service not available, skipping test.")
+  }
+
+  # large_bbox_data from fixtures (testdata/Hill_MT_pH.Rd)
+  testthat::expect_no_error(
+    result_all_features <- EPATADA:::fetchATTAINS(.data = large_bbox_data)
+  )
+  testthat::expect_null(result_all_features$ATTAINS_points)
+  testthat::expect_equal(nrow(result_all_features$ATTAINS_lines), 10)
+  testthat::expect_equal(nrow(result_all_features$ATTAINS_polygons), 1)
+  testthat::expect_equal(nrow(result_all_features$ATTAINS_catchments), 43)
+})
+
+testthat::test_that("fetchATTAINS catchments_only parameter", {
+  if (!.checkATTAINS()) {
+    testthat::skip("ATTAINS web service not available, skipping test.")
+  }
+
+  testthat::expect_no_error(
+    result_catchments_only <- EPATADA:::fetchATTAINS(
+      .data = small_bbox_data,
+      catchments_only = TRUE
+    )
+  )
+  testthat::expect_null(nrow(result_catchments_only$ATTAINS_points))
+  testthat::expect_null(nrow(result_catchments_only$ATTAINS_lines))
+  testthat::expect_null(nrow(result_catchments_only$ATTAINS_polygons))
+  # Compare against catchments_only = FALSE (default)
+  testthat::expect_equal(
+    nrow(result_catchments_only$ATTAINS_catchments),
+    expect_cat_n_small
+  )
+})
+
+testthat::test_that("fetchATTAINS org_id parameter", {
+  if (!.checkATTAINS()) {
+    testthat::skip("ATTAINS web service not available, skipping test.")
+  }
+
+  #   # Test when non-default (default is 'all')
+  org <- "RIDEM"
+  testthat::expect_no_error(
+    org_results <- EPATADA:::fetchATTAINS(
+      .data = RI_CT_secchi,
+      catchments_only = TRUE,
+      org_id = org
+    )
+  )
+  # Test against normal result when filtered on org_id
+  all_org_results <- EPATADA:::fetchATTAINS(
+    .data = RI_CT_secchi,
+    catchments_only = TRUE
+  )
+  all_orgs_filtered <- all_org_results$ATTAINS_catchments[
+    "organizationid" == org
+  ]
+  # Compare the two sets of results (should be same)
+  testthat::expect_equal(
+    NROW(org_results$ATTAINS_catchments),
+    NROW(all_orgs_filtered)
+  )
+})
 
 # make mock data sets for fetchNHD tests
 make_fake_hi_nhd <- function() {
@@ -1004,4 +1004,104 @@ testthat::test_that("TADA_CreatePointAUGeometry works with only TADA.MonitoringL
   result <- TADA_CreatePointAUGeometry(df)
 
   testthat::expect_s3_class(result, "sf")
+})
+
+testthat::test_that("TADA_CreatePointAUGeometry exports and updates a GeoPackage layer", {
+  out_dir <- withr::local_tempdir(
+    tmpdir = Sys.getenv("PA_SCRATCH_DIR", unset = tempdir())
+  )
+  testthat::local_mocked_bindings(
+    .get_downloads_path = function(filename) file.path(out_dir, filename),
+    .package = "EPATADA"
+  )
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = c("ML1", "ML2"),
+    TADA.LongitudeMeasure = c(-90, -91),
+    TADA.LatitudeMeasure = c(40, 41),
+    HorizontalCoordinateReferenceSystemDatumName = "NAD83"
+  )
+  expected <- TADA_CreatePointAUGeometry(df, auid_prefix = "TEST")
+  result <- TADA_CreatePointAUGeometry(
+    df,
+    download_geo = TRUE,
+    auid_prefix = "TEST",
+    geo_format = "gpkg"
+  )
+  path <- file.path(
+    out_dir,
+    paste0("TEST_TADAPointAUGeometry_", format(Sys.Date(), "%m_%d_%Y"), ".gpkg")
+  )
+  testthat::expect_equal(result, expected)
+  testthat::expect_equal(file.exists(path), TRUE)
+  saved <- sf::read_sf(path, layer = "TADAPointAUGeometry")
+  testthat::expect_named(
+    sf::st_drop_geometry(saved),
+    names(sf::st_drop_geometry(result))
+  )
+  testthat::expect_equal(sf::st_crs(saved) == sf::st_crs(result), TRUE)
+  testthat::expect_equal(.sf_layer_equal(saved, result), TRUE)
+  testthat::expect_equal(
+    .write_sf_layer_if_changed(result, path, "TADAPointAUGeometry"),
+    FALSE
+  )
+
+  sf::write_sf(result, path, layer = "unrelated")
+  df$TADA.LongitudeMeasure[1] <- -92
+  updated <- TADA_CreatePointAUGeometry(
+    df,
+    download_geo = TRUE,
+    auid_prefix = "TEST",
+    geo_format = "gpkg"
+  )
+  testthat::expect_setequal(
+    sf::st_layers(path)$name,
+    c("TADAPointAUGeometry", "unrelated")
+  )
+  testthat::expect_equal(
+    .sf_layer_equal(sf::read_sf(path, layer = "TADAPointAUGeometry"), updated),
+    TRUE
+  )
+  testthat::expect_equal(
+    .sf_layer_equal(sf::read_sf(path, layer = "unrelated"), result),
+    TRUE
+  )
+  testthat::local_mocked_bindings(
+    getFeatureLayer = function(url) updated,
+    .package = "EPATADA"
+  )
+  testthat::expect_equal(
+    writeLayerIfChanged("unused", path, "TADAPointAUGeometry"),
+    FALSE
+  )
+  testthat::expect_equal(
+    writeLayerIfChanged("unused", path, "from_service"),
+    TRUE
+  )
+})
+
+testthat::test_that("TADA_CreatePointAUGeometry exports only when requested and defaults to ZIP", {
+  zip_calls <- list()
+  testthat::local_mocked_bindings(
+    .get_downloads_path = function(filename) filename,
+    save_sf_as_zip = function(sf_out, zip_path) {
+      zip_calls[[length(zip_calls) + 1L]] <<- list(
+        data = sf_out,
+        path = zip_path
+      )
+    },
+    .write_sf_layer_if_changed = function(...) stop("Unexpected export"),
+    .package = "EPATADA"
+  )
+  df <- data.frame(
+    TADA.MonitoringLocationIdentifier = "ML1",
+    TADA.LongitudeMeasure = -90,
+    TADA.LatitudeMeasure = 40,
+    HorizontalCoordinateReferenceSystemDatumName = "NAD83"
+  )
+  expected <- TADA_CreatePointAUGeometry(df, geo_format = "gpkg")
+  testthat::expect_length(zip_calls, 0L)
+  result <- TADA_CreatePointAUGeometry(df, download_geo = TRUE)
+  testthat::expect_length(zip_calls, 1L)
+  testthat::expect_equal(zip_calls[[1]]$data, expected)
+  testthat::expect_equal(result, expected)
 })

@@ -73,7 +73,6 @@ CreateATTAINSAUMLCrosswalk
 CreateAUMLCrosswalk
 CreateComparableID
 CreatePairRef
-CreatePointAUs
 CreateUnitRef
 CriteriaMethodology
 Cybertown
@@ -130,6 +129,7 @@ FractionAssumptions
 FreqMethod
 FreqValue
 FullPhysChem
+GeoPackage
 Geospatial
 GetATTAINSAUMLCrosswalk
 GetATTAINSByAUID
