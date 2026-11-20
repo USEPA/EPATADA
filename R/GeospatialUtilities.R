@@ -2126,6 +2126,16 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   hydrogeofetch::get_waterbodies(AOI = AOI)
 }
 
+#' nhd_get_hr_catchments
+#'
+#' Sends a set of bounding boxes or AOIs to the NHD HR catchment service and
+#' returns matching high-resolution catchment features.
+#'
+#' @param nhd_hr_catchments An ArcGIS layer or object representing the NHD HR
+#' catchments dataset.
+#' @param wqp_bboxes A list or vector of spatial features representing bounding
+#' boxes or AOIs to query.
+#'
 .nhd_get_hr_catchments <- function(nhd_hr_catchments, wqp_bboxes) {
   fill_USGS_catchments_stored <- vector("list", length = length(wqp_bboxes))
 
@@ -2163,6 +2173,16 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   fill_USGS_catchments_stored
 }
 
+#' nhd_get_hr_flowlines
+#'
+#' Sends a set of AOIs to the NHD HR flowline service and returns matching
+#' high-resolution flowline features.
+#'
+#' @param nhd_hr_flowlines An ArcGIS layer or object representing the NHD HR
+#' flowlines dataset.
+#' @param geospatial_aoi A list or vector of spatial features representing AOIs
+#' to query.
+#'
 .nhd_get_hr_flowlines <- function(nhd_hr_flowlines, geospatial_aoi) {
   nhd_flowlines_stored <- vector("list", length = length(geospatial_aoi))
 
@@ -2201,6 +2221,16 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   nhd_flowlines_stored
 }
 
+#' nhd_get_hr_waterbodies
+#'
+#' Sends a set of AOIs to the NHD HR waterbody service and returns matching
+#' high-resolution waterbody features.
+#'
+#' @param nhd_hr_waterbodies An ArcGIS layer or object representing the NHD HR
+#' waterbodies dataset.
+#' @param geospatial_aoi A list or vector of spatial features representing AOIs
+#' to query.
+#'
 .nhd_get_hr_waterbodies <- function(nhd_hr_waterbodies, geospatial_aoi) {
   nhd_waterbodies_stored <- vector("list", length = length(geospatial_aoi))
 
@@ -2239,6 +2269,15 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   nhd_waterbodies_stored
 }
 
+#' nhd_get_med_flowlines
+#'
+#' Sends a set of sites to the NHD Medium resolution flowline service and
+#' returns matching flowline features.
+#'
+#' @param unique_sites A spatial data frame or sf object containing unique site
+#' geometries used as query inputs.
+#' @param geospatial_data Optional geospatial data used in the query pipeline.
+#'
 .nhd_get_med_flowlines <- function(unique_sites, geospatial_data) {
   nhd_flowlines <- vector("list", length = nrow(unique_sites))
 
@@ -2272,6 +2311,15 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   nhd_flowlines
 }
 
+#' nhd_get_med_waterbodies
+#'
+#' Sends a set of sites to the NHD Medium resolution waterbody service and
+#' returns matching waterbody features.
+#'
+#' @param unique_sites A spatial data frame or sf object containing unique site
+#' geometries used as query inputs.
+#' @param geospatial_data Optional geospatial data used in the query pipeline.
+#'
 .nhd_get_med_waterbodies <- function(unique_sites, geospatial_data) {
   nhd_waterbodies <- vector("list", length = nrow(unique_sites))
 
@@ -2302,6 +2350,14 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   nhd_waterbodies
 }
 
+#' nhd_get_med_catchments
+#'
+#' Sends a set of sites to the NHD Medium resolution catchment service and
+#' returns matching catchment features.
+#'
+#' @param unique_sites A spatial data frame or sf object containing unique site
+#' geometries used as query inputs.
+#'
 .nhd_get_med_catchments <- function(unique_sites) {
   fill_USGS_catchments <- vector("list", length = nrow(unique_sites))
 
@@ -2336,6 +2392,13 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
   fill_USGS_catchments
 }
 
+#' checkATTAINS
+#'
+#' Checks whether the ATTAINS web service is currently available.
+#'
+#' @param timeout_sec Number of seconds to use as the temporary timeout while
+#' attempting to connect to the service.
+#'
 .checkATTAINS <- function(timeout_sec = 10) {
   old_timeout <- getOption("timeout")
   options(timeout = timeout_sec)
@@ -2356,4 +2419,293 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
       FALSE
     }
   )
+}
+
+#' Prepare Nearby Sites Data for Mapping
+#'
+#' @description
+#' Internal helper that prepares a TADA data frame for nearby-sites mapping.
+#' If `TADA.NearbySiteGroup` is not already present, it calls
+#' `TADA_FindNearbySites()` to generate nearby site groups. It then filters to
+#' grouped nearby sites, converts coordinate columns to numeric, selects the
+#' columns needed for mapping, and removes duplicate rows.
+#'
+#' @param .data A TADA data frame to prepare for nearby sites mapping.
+#'
+#' @param catchment Logical. Passed to `TADA_FindNearbySites()` to determine
+#' whether nearby sites must also be in the same catchment. Default is `TRUE`.
+#'
+#' @param dist_buffer Numeric. Distance buffer in meters used to identify nearby
+#' sites if `TADA.FindNearbySites()` has not already been run. Default is `100`.
+#'
+#' @param nhd_res Character. NHD resolution passed to `TADA_FindNearbySites()`
+#' when catchment-based nearby site grouping is requested. Default is `"Hi"`.
+#'
+#' @return A filtered TADA data frame containing only grouped nearby sites and
+#' columns required for nearby site mapping.
+#'
+#' @keywords internal
+.TADA_prepareNearbySites <- function(
+  .data,
+  catchment = TRUE,
+  dist_buffer = 100,
+  nhd_res = "Hi"
+) {
+  TADA_table <- .data
+
+  if (!"TADA.NearbySiteGroup" %in% colnames(TADA_table)) {
+    TADA_table <- TADA_FindNearbySites(
+      TADA_table,
+      dist_buffer = dist_buffer,
+      catchment = catchment,
+      nhd_res = nhd_res
+    )
+  }
+
+  TADA_nearby <- TADA_table |>
+    dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
+    dplyr::mutate(
+      LatitudeMeasure = as.numeric(LatitudeMeasure),
+      LongitudeMeasure = as.numeric(LongitudeMeasure)
+    ) |>
+    dplyr::select(
+      TADA.MonitoringLocationIdentifier,
+      MonitoringLocationIdentifier,
+      TADA.NearbySiteGroup,
+      TADA.MonitoringLocationName,
+      MonitoringLocationName,
+      OrganizationIdentifier,
+      OrganizationFormalName,
+      TADA.LongitudeMeasure,
+      TADA.LatitudeMeasure,
+      LongitudeMeasure,
+      LatitudeMeasure
+    ) |>
+    dplyr::distinct()
+
+  if (nrow(TADA_nearby) == 0) {
+    stop("There are no grouped nearby sites in the data frame.")
+  }
+
+  TADA_nearby
+}
+
+#' Prepare Flagged Sites Data for Mapping
+#'
+#' @description
+#' Internal helper that prepares a TADA data frame for flagged-sites mapping.
+#' It calls `TADA_FlagCoordinates(flaggedonly = TRUE)` to retain only flagged
+#' sites and assigns a map color to each site based on its suspect coordinates
+#' flag.
+#'
+#' @param .data A TADA data frame to prepare for flagged sites mapping.
+#'
+#' @return A flagged-site TADA data frame with an added `FlaggedColor` column.
+#'
+#' @keywords internal
+.TADA_prepareFlaggedSites <- function(.data) {
+  invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
+
+  if (nrow(invalid) == 0) {
+    stop("There are no flagged sites in the data frame.")
+  }
+
+  tada.pal <- TADA_ColorPalette()
+
+  invalid |>
+    dplyr::mutate(
+      FlaggedColor = dplyr::case_when(
+        TADA.SuspectCoordinates.Flag ==
+          "Imprecise_lessthan3decimaldigits" ~ tada.pal[13],
+        TADA.SuspectCoordinates.Flag == "Coordinate_StateMismatch" ~ tada.pal[
+          7
+        ],
+        TADA.SuspectCoordinates.Flag == "Coordinate_CountyMismatch" ~ tada.pal[
+          8
+        ],
+        grepl(
+          "^((LAT_OutsideUSA|LONG_OutsideUSA)(;\\s*)?)+$",
+          TADA.SuspectCoordinates.Flag
+        ) ~ tada.pal[12],
+        TRUE ~ tada.pal[3]
+      )
+    )
+}
+
+#' Create Nearby Sites Color Palette
+#'
+#' @description
+#' Internal helper that creates a leaflet color factor palette for nearby site
+#' groups.
+#'
+#' @param nearby_data A data frame containing `TADA.NearbySiteGroup`.
+#'
+#' @return A leaflet `colorFactor` palette function.
+#'
+#' @keywords internal
+.TADA_makeNearbyPalette <- function(nearby_data) {
+  tada.pal <- TADA_ColorPalette()
+
+  n.colors <- length(unique(nearby_data$TADA.NearbySiteGroup))
+
+  nearby.pal <- Polychrome::createPalette(
+    n.colors,
+    seedcolors = c(
+      tada.pal[1],
+      tada.pal[3],
+      tada.pal[4],
+      tada.pal[7],
+      tada.pal[15]
+    ),
+    M = 5000
+  )
+
+  leaflet::colorFactor(
+    palette = nearby.pal,
+    domain = nearby_data$TADA.NearbySiteGroup
+  )
+}
+
+#' Add Nearby Sites Layer to Leaflet Map
+#'
+#' @description
+#' Internal helper that adds the nearby sites layer to an existing leaflet map.
+#' It draws nearby site markers and radius circles using a group-based color
+#' palette.
+#'
+#' @param map A leaflet map object.
+#'
+#' @param nearby_data A data frame of prepared nearby sites.
+#'
+#' @param dist_buffer Numeric. Radius in meters used for the nearby-site
+#' circles. Default is `100`.
+#'
+#' @return A leaflet map with the nearby sites layer added.
+#'
+#' @keywords internal
+.TADA_addNearbyLayer <- function(map, nearby_data, dist_buffer = 100) {
+  pal <- .TADA_makeNearbyPalette(nearby_data)
+
+  map |>
+    leaflet::addCircleMarkers(
+      data = nearby_data,
+      lng = ~LongitudeMeasure,
+      lat = ~LatitudeMeasure,
+      group = "Nearby sites",
+      color = ~ pal(TADA.NearbySiteGroup),
+      opacity = 1,
+      fillColor = ~ pal(TADA.NearbySiteGroup),
+      fillOpacity = 1,
+      radius = ifelse(dist_buffer > 200, dist_buffer / 10, 20),
+      weight = 1,
+      popup = ~ paste0(
+        "Nearby Group Name: ",
+        TADA.MonitoringLocationIdentifier,
+        "<br> Nearby Site Group: ",
+        TADA.NearbySiteGroup,
+        "<br> Site ID: ",
+        MonitoringLocationIdentifier,
+        "<br> Site Name: ",
+        MonitoringLocationName,
+        "<br> Organization Name: ",
+        OrganizationFormalName,
+        "<br> Latitude: ",
+        LatitudeMeasure,
+        "<br> Longitude: ",
+        LongitudeMeasure
+      ),
+      clusterOptions = leaflet::markerClusterOptions()
+    ) |>
+    leaflet::addCircles(
+      data = nearby_data,
+      lng = ~LongitudeMeasure,
+      lat = ~LatitudeMeasure,
+      group = "Nearby sites",
+      color = ~ pal(TADA.NearbySiteGroup),
+      opacity = 0.1,
+      fillColor = ~ pal(TADA.NearbySiteGroup),
+      fillOpacity = 0.1,
+      radius = dist_buffer,
+      weight = 1
+    )
+}
+
+#' Add Flagged Sites Layer to Leaflet Map
+#'
+#' @description
+#' Internal helper that adds the flagged sites layer to an existing leaflet map.
+#' Points are colored according to their suspect coordinates flag.
+#'
+#' @param map A leaflet map object.
+#'
+#' @param invalid A data frame of prepared flagged sites.
+#'
+#' @return A leaflet map with the flagged sites layer added.
+#'
+#' @keywords internal
+.TADA_addFlaggedLayer <- function(map, invalid) {
+  map |>
+    leaflet::addCircleMarkers(
+      data = invalid,
+      lng = ~TADA.LongitudeMeasure,
+      lat = ~TADA.LatitudeMeasure,
+      group = "Flagged sites",
+      color = ~FlaggedColor,
+      fillColor = ~FlaggedColor,
+      fillOpacity = 0.7,
+      stroke = TRUE,
+      weight = 1.5,
+      radius = 10,
+      popup = ~ paste0(
+        "Site ID: ",
+        TADA.MonitoringLocationIdentifier,
+        "<br> Site Name: ",
+        TADA.MonitoringLocationName,
+        "<br> Organization Name: ",
+        OrganizationFormalName,
+        "<br> Latitude: ",
+        TADA.LatitudeMeasure,
+        "<br> Longitude: ",
+        TADA.LongitudeMeasure,
+        "<br> Reason Flagged: ",
+        TADA.SuspectCoordinates.Flag
+      )
+    )
+}
+
+#' Add Flagged Sites Legend to Leaflet Map
+#'
+#' @description
+#' Internal helper that adds the legend for flagged sites to an existing leaflet
+#' map.
+#'
+#' @param map A leaflet map object.
+#'
+#' @return A leaflet map with the flagged-sites legend added.
+#'
+#' @keywords internal
+.TADA_addFlaggedLegend <- function(map) {
+  tada.pal <- TADA_ColorPalette()
+
+  map |>
+    leaflet::addLegend(
+      position = "bottomright",
+      colors = c(
+        tada.pal[13],
+        tada.pal[12],
+        tada.pal[7],
+        tada.pal[8],
+        tada.pal[3]
+      ),
+      opacity = 1,
+      labels = c(
+        "Imprecise coordinates",
+        "Outside of US",
+        "Coordinate State Mismatch",
+        "Coordinate County Mismatch",
+        "Multiple Flags"
+      ),
+      title = "Coordinate Flag Category"
+    ) |>
+    addLegendToggle()
 }
