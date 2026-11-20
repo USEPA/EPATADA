@@ -60,7 +60,8 @@ TADA_ListCacheKeys <- function() {
 )
 
 .WQP_URLS <- list(
-  Organization = "https://www.waterqualitydata.us/data/Organization/search?mimeType=csv&zip=no"
+  Organization = "https://www.waterqualitydata.us/data/Organization/search?mimeType=csv&zip=no",
+  wqxnames = "https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv"
 )
 
 # Cache keys
@@ -74,6 +75,7 @@ TADA_ListCacheKeys <- function() {
 .WQPProviderRef_cache_key <- "WQPProviderRef"
 .WQXMeasureQualifierCodeRef_cache_key <- "WQXMeasureQualifierCodeRef"
 .WQXCharAliasRef_cache_key <- "WQXCharAliasRef"
+.WQP3SchemaRef_cache_key <- "WQP3SchemaRef"
 .ATTAINSOrgIDsRef_cache_key <- "ATTAINSOrgIDsRef"
 .ATTAINSParamUseOrgRef_cache_key <- "ATTAINSParamUseOrgRef"
 
@@ -2441,6 +2443,76 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
     obj_name = "WQXCharAliasRef",
     pkg = "EPATADA",
     filename = "WQXCharAliasRef.rda",
+    compress = "xz",
+    version = 2
+  )
+  invisible(df)
+}
+
+#' Get WQP 3.0 Schema Reference Table
+#'
+#' Retrieves the WQP 3.0 column-name schema mapping WQP Quick Reference Guide.
+#'
+#' @return data.frame containing the WQP 3.0 to legacy column-name mapping
+#' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
+#'   attempts to download the latest schema reference table directly, returning it
+#'   without updating the cache. Errors if the download fails. If FALSE (default),
+#'   uses a cached copy when available and updates the cache; on download failure,
+#'   falls back to the package’s internal file.
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
+#'   cached copy and attempt to retrieve a fresh table (download, falling back to the
+#'   package’s internal file on failure), then update the cache. If FALSE (default),
+#'   return the cached table when available. Ignored when download_only = TRUE.
+#' @export
+TADA_GetWQP3SchemaRef <- function(download_only = FALSE, refresh = FALSE) {
+  if (!download_only) {
+    cached <- .tada_cache_get(.WQP3SchemaRef_cache_key)
+    if (!is.null(cached) && !isTRUE(refresh)) {
+      return(cached)
+    }
+  }
+
+  if (download_only) {
+    # warning message using .tada_read_csv_url
+    # df <- .tada_read_csv_url(
+    #   .WQX_URLS$ResultMeasureQualifier,
+    #   stringsAsFactors = FALSE
+    # )
+    df <- readr::read_csv(
+      .WQP_URLS$wqxnames,
+      show_col_types = FALSE,
+      progress = FALSE
+    )
+
+    if (is.null(df)) {
+      stop("TADA_GetWQP3SchemaRef(download_only=TRUE): download failed.")
+    }
+
+    df <- as.data.frame(df, stringsAsFactors = FALSE)
+  } else {
+    df <- .tada_load_extdata_rda(
+      pkg = "EPATADA",
+      filename = "WQP3SchemaRef.rda",
+      object_name = "WQP3SchemaRef",
+      trim = FALSE # had to set equal to FALSE
+    )
+  }
+
+  if (!download_only) {
+    .tada_cache_set(.WQP3SchemaRef_cache_key, df)
+  }
+  df
+}
+
+#' Update WQP 3.0 Schema Reference Table (DEV-TIME ONLY)
+#' @keywords internal
+.TADA_UpdateWQP3SchemaRef <- function() {
+  df <- TADA_GetWQP3SchemaRef(download_only = TRUE)
+  .tada_save_ext_rda(
+    obj = df,
+    obj_name = "WQP3SchemaRef",
+    pkg = "EPATADA",
+    filename = "WQP3SchemaRef.rda",
     compress = "xz",
     version = 2
   )

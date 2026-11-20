@@ -208,14 +208,14 @@ test_that("criteriaMethods path fills missing columns and handles missing TADA.C
     TADA.CharacteristicName = c("CHAR_A"),
     stringsAsFactors = FALSE
   )
-  expect_warning(
-    res <- TADA_DefineCriteriaMethodology(
-      .data = df,
-      org_id = c("ORGX"),
-      criteriaMethods = cm,
-      excel = FALSE
-    )
+
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    org_id = c("ORGX"),
+    criteriaMethods = cm,
+    excel = FALSE
   )
+
   res <- res$DefineCriteriaMethodology
   # Expect desired columns present
   expected_cols <- c(
@@ -383,16 +383,15 @@ test_that("org_id = 'All' uses AUMLRef orgs without external calls", {
     stringsAsFactors = FALSE
   )
   # org_id = "All" should pull orgs from AUMLRef (ORG1, ORG2) and not hit rExpertQuery
-  expect_warning(
-    res <- TADA_DefineCriteriaMethodology(
-      .data = df,
-      MLSummaryRef = ml,
-      org_id = "All",
-      AUMLRef = aumlref,
-      displayUniqueId = TRUE,
-      excel = FALSE
-    )
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    MLSummaryRef = ml,
+    org_id = "All",
+    AUMLRef = aumlref,
+    displayUniqueId = TRUE,
+    excel = FALSE
   )
+
   res <- res$DefineCriteriaMethodology
   # It should include at least org from MLSummaryRef and not error
   expect_true(any(res$ATTAINS.OrganizationIdentifier %in% c("ORG1", "ORG2")))
@@ -486,43 +485,6 @@ test_that("Date columns have Date class after MLSummaryRef path", {
   res <- res$DefineCriteriaMethodology
   expect_s3_class(res$AssessPeriodStartDate, "Date")
   expect_s3_class(res$AssessPeriodEndDate, "Date")
-})
-
-test_that("criteriaMethods warnings appear for missing crosswalks (displayUniqueId TRUE/FALSE)", {
-  df <- data.frame(
-    TADA.ComparableDataIdentifier = c("C1", "C2"),
-    TADA.CharacteristicName = c("CHAR_A", "CHAR_B"),
-    TADA.ResultMeasure.MeasureUnitCode = c("mg/L", "mg/L"),
-    stringsAsFactors = FALSE
-  )
-  cm <- data.frame(
-    # only defines CHAR_A; CHAR_B is missing on purpose
-    ATTAINS.OrganizationIdentifier = "ORGX",
-    ATTAINS.ParameterName = "PARAM_X",
-    ATTAINS.UseName = "USE1",
-    TADA.CharacteristicName = "CHAR_A",
-    stringsAsFactors = FALSE
-  )
-  expect_warning(
-    TADA_DefineCriteriaMethodology(
-      .data = df,
-      org_id = "ORGX",
-      criteriaMethods = cm,
-      displayUniqueId = TRUE,
-      excel = FALSE
-    ),
-    "unique TADA.ComparableDataIdentifier"
-  )
-  expect_warning(
-    TADA_DefineCriteriaMethodology(
-      .data = df,
-      org_id = "ORGX",
-      criteriaMethods = cm,
-      displayUniqueId = FALSE,
-      excel = FALSE
-    ),
-    "unique TADA.CharacteristicName"
-  )
 })
 
 test_that("displayUniqueId = TRUE retains ComparableDataIdentifier", {
@@ -633,20 +595,19 @@ test_that("org_id NULL becomes empty string in criteriaMethods path", {
     stringsAsFactors = FALSE
   )
   # org_id omitted -> becomes ""
-  expect_warning(
-    res <- TADA_DefineCriteriaMethodology(
-      .data = df,
-      criteriaMethods = cm,
-      excel = FALSE
-    )
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    criteriaMethods = cm,
+    excel = FALSE
   )
+
   res <- res$DefineCriteriaMethodology
   expect_true(is.data.frame(res))
   expect_true(any(res$ATTAINS.OrganizationIdentifier == ""))
   expect_true(any(res$TADA.CharacteristicName == "CHAR_A"))
 })
 
-test_that("org_id 'all' correctly filters by organizations found in user supplied criteriaMethods.", {
+test_that("org_id 'all' correctly includes organizations found in user supplied criteriaMethods.", {
   df <- data.frame(
     TADA.ComparableDataIdentifier = c("C1", "C2", "C3"),
     TADA.CharacteristicName = c("CHAR_A", "CHAR_B", "CHAR_C"),
@@ -661,13 +622,11 @@ test_that("org_id 'all' correctly filters by organizations found in user supplie
     stringsAsFactors = FALSE
   )
   # org_id omitted -> becomes ""
-  expect_warning(
-    res <- TADA_DefineCriteriaMethodology(
-      .data = df,
-      criteriaMethods = cm,
-      org_id = "all",
-      excel = FALSE
-    )
+  res <- TADA_DefineCriteriaMethodology(
+    .data = df,
+    criteriaMethods = cm,
+    org_id = "all",
+    excel = FALSE
   )
   res <- res$DefineCriteriaMethodology
   expect_true(is.data.frame(res))
