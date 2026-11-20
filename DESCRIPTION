@@ -60,6 +60,7 @@ Imports:
     ggplot2,
     sf,
     leaflet,
+       rnaturalearth,
     plotly,
     tibble,
     rlang (>= 0.4.7),

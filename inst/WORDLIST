@@ -20,7 +20,6 @@ ActivityStartDates
 ActivityTopDepthHeightMeasure
 ActivityType
 ActivityTypeCode
-ActivityTypeCode's
 ActivityTypeCodes
 AllowableValues
 AnalyticalMethod
@@ -60,7 +59,6 @@ Coli
 ColumnName
 ColumnType
 ComparableDataIdentifier
-ComparableDataIdentifier's
 ComparableDataIdentifiers
 ConsolidatedDepth
 ContinuousData
@@ -554,6 +552,7 @@ recomputation
 renameATTAINSCols
 reportingCycle
 resultCount
+rnaturalearth
 sampleMedia
 sd
 secchi

@@ -1429,7 +1429,7 @@ TADA_FieldValuesTable(TADAProfileClean6, field = "SampleCollectionMethod.MethodN
 TADA_FieldValuesPie(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)")
 ```
 
-Review unique TADA.ComparableDataIdentifier's.
+Review unique TADA.ComparableDataIdentifiers.
 
 ```{r, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 unique(TADAProfileClean6$TADA.ComparableDataIdentifier)

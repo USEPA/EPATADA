@@ -2640,12 +2640,39 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
 #'
 #' @param invalid A data frame of prepared flagged sites.
 #'
+#' @param marker_shape The shape of the site markers added to the map. Options are
+#' "circle" or "square". Default is "circle".
+#'
 #' @return A leaflet map with the flagged sites layer added.
 #'
 #' @keywords internal
-.TADA_addFlaggedLayer <- function(map, invalid) {
-  map |>
-    leaflet::addCircleMarkers(
+.TADA_addFlaggedLayer <- function(
+  map,
+  invalid,
+  marker_shape = c("circle", "square")
+) {
+  marker_shape <- match.arg(marker_shape)
+
+  # set up popup text
+  popup_text <- ~ paste0(
+    "Site ID: ",
+    TADA.MonitoringLocationIdentifier,
+    "<br> Site Name: ",
+    TADA.MonitoringLocationName,
+    "<br> Organization Name: ",
+    OrganizationFormalName,
+    "<br> Latitude: ",
+    TADA.LatitudeMeasure,
+    "<br> Longitude: ",
+    TADA.LongitudeMeasure,
+    "<br> Reason Flagged: ",
+    TADA.SuspectCoordinates.Flag
+  )
+
+  # circle marker path (default)
+  if (marker_shape == "circle") {
+    return(leaflet::addCircleMarkers(
+      map,
       data = invalid,
       lng = ~TADA.LongitudeMeasure,
       lat = ~TADA.LatitudeMeasure,
@@ -2656,21 +2683,43 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
       stroke = TRUE,
       weight = 1.5,
       radius = 10,
-      popup = ~ paste0(
-        "Site ID: ",
-        TADA.MonitoringLocationIdentifier,
-        "<br> Site Name: ",
-        TADA.MonitoringLocationName,
-        "<br> Organization Name: ",
-        OrganizationFormalName,
-        "<br> Latitude: ",
-        TADA.LatitudeMeasure,
-        "<br> Longitude: ",
-        TADA.LongitudeMeasure,
-        "<br> Reason Flagged: ",
-        TADA.SuspectCoordinates.Flag
+      popup = popup_text
+    ))
+  }
+
+  # square icons as SVG data URIs
+  invalid$iconUrl <- vapply(
+    invalid$FlaggedColor,
+    function(fill) {
+      svg <- sprintf(
+        "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>
+           <rect x='2' y='2' width='20' height='20' fill='%s'/>
+         </svg>",
+        fill
       )
-    )
+
+      paste0(
+        "data:image/svg+xml;charset=UTF-8,",
+        utils::URLencode(svg, reserved = TRUE)
+      )
+    },
+    character(1)
+  )
+
+  # square marker path
+  leaflet::addMarkers(
+    map,
+    data = invalid,
+    lng = ~TADA.LongitudeMeasure,
+    lat = ~TADA.LatitudeMeasure,
+    group = "Flagged sites",
+    icon = leaflet::icons(
+      iconUrl = invalid$iconUrl,
+      iconWidth = 24,
+      iconHeight = 24
+    ),
+    popup = popup_text
+  )
 }
 
 #' Add Flagged Sites Legend to Leaflet Map
@@ -2709,3 +2758,31 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
     ) |>
     addLegendToggle()
 }
+
+#' Cached polygon for the United States of America
+#'
+#' Internal helper that returns a cached `sf` polygon for the United States of
+#' America from **rnaturalearth**.
+#'
+#' The geometry is retrieved once, validated with `sf::st_make_valid()`, and
+#' transformed to WGS 84 (`EPSG:4326`) before being stored in memory for reuse.
+#'
+#' @return An `sf` object containing the United States of America polygon in
+#'   `EPSG:4326`.
+#' @keywords internal
+#'
+.TADA_USAPolygon <- local({
+  cache <- NULL
+  function() {
+    if (is.null(cache)) {
+      cache <<- rnaturalearth::ne_countries(
+        scale = "medium",
+        country = "United States of America",
+        returnclass = "sf"
+      ) |>
+        sf::st_make_valid() |>
+        sf::st_transform(4326)
+    }
+    cache
+  }
+})
