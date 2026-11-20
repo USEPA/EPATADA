@@ -178,9 +178,8 @@ TADA_IDCensoredData <- function(.data) {
   rv_chr <- toupper(trimws(as.character(data_mq_flag$ResultMeasureValue)))
   idx_censor_text <- !is.na(rv_chr) & rv_chr %in% nd_texts
 
-  # Set censor-text result values to NA
+  # Keep censor-text result values unchanged; only flag them
   if (any(idx_censor_text, na.rm = TRUE)) {
-    data_mq_flag$ResultMeasureValue[idx_censor_text] <- NA_character_
     data_mq_flag$TADA.ResultMeasureValueDataTypes.Flag[idx_censor_text] <-
       "Result Value/Unit Cannot Be Estimated From Detection Limit"
   }
@@ -254,17 +253,10 @@ TADA_IDCensoredData <- function(.data) {
       cens$TADA.Detection_Type != cens$TADA.Limit_Type
     cens$TADA.CensoredData.Flag[idx_conf] <- "Conflict between Condition and Limit"
 
-    # If conflict, null out result value/unit and mark cannot estimate
+    # If conflict, keep value/unit unchanged and only mark the flag
     if (any(idx_conf, na.rm = TRUE)) {
-      cens$TADA.ResultMeasureValue[idx_conf] <- NA
-      cens$TADA.ResultMeasure.MeasureUnitCode[idx_conf] <- NA
       cens$TADA.ResultMeasureValueDataTypes.Flag[idx_conf] <-
         "Result Value/Unit Cannot Be Estimated From Detection Limit"
-    }
-
-    # If censored text was present, keep result value NA
-    if (any(idx_censor_text[idx_cens], na.rm = TRUE)) {
-      cens$ResultMeasureValue[idx_censor_text[idx_cens]] <- NA
     }
 
     # Any remaining NA flags that are truly uncategorized
