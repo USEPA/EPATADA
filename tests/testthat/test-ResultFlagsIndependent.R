@@ -1,4 +1,4 @@
-test_that("SuspectCoordinates works", {
+test_that("TADA_FlagCoordinates works", {
   # Flag suspect coordinates
   SuspectCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
 
@@ -47,7 +47,7 @@ test_that("SuspectCoordinates works", {
 })
 
 
-test_that("Imprecise_lessthan3decimaldigits works", {
+test_that("TADA_FlagCoordinates identifies Imprecise_lessthan3decimaldigits", {
   # flagonly
   FLAGSONLY <- TADA_FlagCoordinates(Data_Nutrients_UT)
   FLAGSONLY <- FLAGSONLY |>
@@ -71,7 +71,7 @@ test_that("Imprecise_lessthan3decimaldigits works", {
   ))
 })
 
-test_that("Imprecise_lessthan3decimaldigits works again", {
+testthat::test_that("TADA_FlagCoordinates identifying Imprecise_lessthan3decimaldigits works again", {
   # flagonly
   FLAGSONLY <- TADA_FlagCoordinates(Data_Nutrients_UT)
   FLAGSONLY <- FLAGSONLY |>
@@ -90,9 +90,66 @@ test_that("Imprecise_lessthan3decimaldigits works again", {
   ) |>
     dplyr::distinct()
 
-  expect_true(all(
+  testthat::expect_true(all(
     sapply(FLAGSONLY$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 4
   ))
+})
+
+testthat::test_that("TADA_FlagCoordinates check_location_metadata adds Coordinate_StateMismatch when StateCode is wrong", {
+  # Example point in Utah
+  df <- data.frame(
+    TADA.LatitudeMeasure = 40.7608,
+    TADA.LongitudeMeasure = -111.8910,
+    StateCode = "06", # intentionally wrong (California)
+    CountyCode = "035" # placeholder, may or may not match
+  )
+
+  res <- TADA_FlagCoordinates(df, check_location_metadata = TRUE)
+
+  testthat::expect_true("TADA.SuspectCoordinates.Flag" %in% names(res))
+  testthat::expect_true(any(grepl(
+    "Coordinate_StateMismatch",
+    res$TADA.SuspectCoordinates.Flag
+  )))
+})
+
+testthat::test_that("TADA_FlagCoordinates check_location_metadata adds Coordinate_CountyMismatch when CountyCode is wrong", {
+  # Example point in Utah
+  df <- data.frame(
+    TADA.LatitudeMeasure = 40.7608,
+    TADA.LongitudeMeasure = -111.8910,
+    StateCode = "49",
+    CountyCode = "001" # intentionally wrong
+  )
+
+  res <- TADA_FlagCoordinates(df, check_location_metadata = TRUE)
+
+  testthat::expect_true("TADA.SuspectCoordinates.Flag" %in% names(res))
+  testthat::expect_true(any(grepl(
+    "Coordinate_CountyMismatch",
+    res$TADA.SuspectCoordinates.Flag
+  )))
+})
+
+testthat::test_that("TADA_FlagCoordinates check_location_metadata does not flag when StateCode and CountyCode match", {
+  # correct state and county code in UT
+  df <- data.frame(
+    TADA.LatitudeMeasure = 41.22086,
+    TADA.LongitudeMeasure = 112.7664,
+    StateCode = "49",
+    CountyCode = "003"
+  )
+
+  res <- TADA_FlagCoordinates(df, check_location_metadata = TRUE)
+
+  testthat::expect_false(any(grepl(
+    "Coordinate_StateMismatch",
+    res$TADA.SuspectCoordinates.Flag
+  )))
+  testthat::expect_false(any(grepl(
+    "Coordinate_CountyMismatch",
+    res$TADA.SuspectCoordinates.Flag
+  )))
 })
 
 test_that("No NAs in independent flag columns", {
