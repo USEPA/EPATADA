@@ -2524,7 +2524,7 @@ fill_missing_assessment_unit_id <- function(.data, auid_prefix = NULL) {
           8
         ],
         grepl(
-          "^((LAT_OutsideUSA|LONG_OutsideUSA)(;\\s*)?)+$",
+          "^((LAT_OutsideUSA|LONG_OutsideUSA|Coordinate_OutsideUSA)(;\\s*)?)+$",
           TADA.SuspectCoordinates.Flag
         ) ~ tada.pal[12],
         TRUE ~ tada.pal[3]
