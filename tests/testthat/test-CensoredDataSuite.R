@@ -121,15 +121,15 @@ test_that("TADA_IDCensoredData handles NA/blanks and classifies censored data co
   test_df <- data.frame(
     ResultIdentifier = paste0("r", 1:9),
     ResultMeasureValue = c(
-      "ND", # r1 -> censored text
-      "ND", # r2 -> censored text but missing limit info
-      "ND", # r3 -> censored text with blank unit in detection limit fields
-      NA, # r4 -> over-detect via qualifier flag
-      "ND", # r5 -> conflict (ND cond vs Over-Detect limit type)
-      "ND", # r6 -> missing detection condition (blank -> NA)
-      "ND", # r7 -> unknown detection condition, ND override => conflict with OD limit
-      2, # r8 -> uncensored
-      NA # r9 -> NA result, but qualifier flag indicates Non-Detect
+      "ND",  # r1 -> censored text
+      "ND",  # r2 -> censored text but missing limit info
+      "ND",  # r3 -> censored text with blank unit in detection limit fields
+      NA,    # r4 -> over-detect via qualifier flag
+      "ND",  # r5 -> conflict (ND cond vs OD limit type)
+      "ND",  # r6 -> missing detection condition (blank -> NA)
+      "ND",  # r7 -> unknown detection condition, ND flag + OD limit
+      2,     # r8 -> uncensored
+      NA     # r9 -> NA result, but qualifier flag indicates Non-Detect
     ),
     ResultDetectionConditionText = c(
       cond_nd,
@@ -213,14 +213,13 @@ test_that("TADA_IDCensoredData handles NA/blanks and classifies censored data co
   )
 
   res <- TADA_IDCensoredData(test_df)
-
   get <- function(id, col) res[res$ResultIdentifier == id, col, drop = TRUE]
 
   # r1: ND text should be identified as Non-Detect; result value should be NA
   expect_true(is.na(get("r1", "ResultMeasureValue")))
   expect_identical(get("r1", "TADA.CensoredData.Flag"), "Non-Detect")
 
-  # r2: ND text but missing detection limit info -> still censored, but not categorized cleanly
+  # r2: ND text but missing limit info -> still censored, but not categorized cleanly
   expect_true(is.na(get("r2", "ResultMeasureValue")))
   expect_identical(
     get("r2", "TADA.CensoredData.Flag"),
@@ -231,17 +230,22 @@ test_that("TADA_IDCensoredData handles NA/blanks and classifies censored data co
   expect_true(is.na(get("r3", "ResultMeasureValue")))
   expect_identical(get("r3", "TADA.CensoredData.Flag"), "Non-Detect")
 
-  # r4: Over-Detect via qualifier flag; keep uncensored result value as-is
+  # r4: Over-Detect via qualifier flag; keep result value/unit as-is
   expect_identical(get("r4", "TADA.CensoredData.Flag"), "Over-Detect")
   expect_identical(get("r4", "ResultMeasureValue"), 10)
+  expect_identical(get("r4", "TADA.ResultMeasureValue"), 10)
   expect_identical(get("r4", "ResultMeasure.MeasureUnitCode"), "mg/L")
+  expect_identical(get("r4", "TADA.ResultMeasure.MeasureUnitCode"), "mg/L")
 
-  # r5: Conflict between ND condition and OD limit type -> result nulled
+  # r5: conflict between ND condition and OD limit type
   expect_identical(
     get("r5", "TADA.CensoredData.Flag"),
     "Conflict between Condition and Limit"
   )
+  # New intended behavior: keep original result/unit fields unchanged
+  expect_true(is.na(get("r5", "ResultMeasureValue")))
   expect_true(is.na(get("r5", "TADA.ResultMeasureValue")))
+  expect_true(is.na(get("r5", "ResultMeasure.MeasureUnitCode")))
   expect_true(is.na(get("r5", "TADA.ResultMeasure.MeasureUnitCode")))
   expect_identical(
     get("r5", "TADA.ResultMeasureValueDataTypes.Flag"),
@@ -254,12 +258,15 @@ test_that("TADA_IDCensoredData handles NA/blanks and classifies censored data co
     "Detection condition is missing and required for censored data ID."
   )
 
-  # r7: Unknown detection condition text + ND flag + OD limit => conflict and revert
+  # r7: Unknown detection condition text + ND flag + OD limit => conflict / uncategorized
   expect_identical(
     get("r7", "TADA.CensoredData.Flag"),
     "Conflict between Condition and Limit"
   )
+  # New intended behavior: keep original result/unit fields unchanged
+  expect_true(is.na(get("r7", "ResultMeasureValue")))
   expect_true(is.na(get("r7", "TADA.ResultMeasureValue")))
+  expect_true(is.na(get("r7", "ResultMeasure.MeasureUnitCode")))
   expect_true(is.na(get("r7", "TADA.ResultMeasure.MeasureUnitCode")))
   expect_identical(
     get("r7", "TADA.ResultMeasureValueDataTypes.Flag"),
@@ -268,10 +275,13 @@ test_that("TADA_IDCensoredData handles NA/blanks and classifies censored data co
 
   # r8: Uncensored
   expect_identical(get("r8", "TADA.CensoredData.Flag"), "Uncensored")
+  expect_identical(get("r8", "ResultMeasureValue"), 2)
+  expect_identical(get("r8", "TADA.ResultMeasureValue"), 2)
 
   # r9: NA result with Non-Detect qualifier flag should be classified as Non-Detect
   expect_identical(get("r9", "TADA.CensoredData.Flag"), "Non-Detect")
   expect_true(is.na(get("r9", "ResultMeasureValue")))
+  expect_true(is.na(get("r9", "TADA.ResultMeasureValue")))
 
   # No blank strings remain in key character fields
   no_blanks <- function(x) {
