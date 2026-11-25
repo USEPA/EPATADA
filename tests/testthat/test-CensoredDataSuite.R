@@ -121,15 +121,15 @@ test_that("TADA_IDCensoredData handles NA/blanks and classifies censored data co
   test_df <- data.frame(
     ResultIdentifier = paste0("r", 1:9),
     ResultMeasureValue = c(
-      "ND",  # r1 -> censored text
-      "ND",  # r2 -> censored text but missing limit info
-      "ND",  # r3 -> censored text with blank unit in detection limit fields
-      NA,    # r4 -> over-detect via qualifier flag
-      "ND",  # r5 -> conflict (ND cond vs OD limit type)
-      "ND",  # r6 -> missing detection condition (blank -> NA)
-      "ND",  # r7 -> unknown detection condition, ND flag + OD limit
-      2,     # r8 -> uncensored
-      NA     # r9 -> NA result, but qualifier flag indicates Non-Detect
+      "ND", # r1 -> censored text
+      "ND", # r2 -> censored text but missing limit info
+      "ND", # r3 -> censored text with blank unit in detection limit fields
+      NA, # r4 -> over-detect via qualifier flag
+      "ND", # r5 -> conflict (ND cond vs OD limit type)
+      "ND", # r6 -> missing detection condition (blank -> NA)
+      "ND", # r7 -> unknown detection condition, ND flag + OD limit
+      2, # r8 -> uncensored
+      NA # r9 -> NA result, but qualifier flag indicates Non-Detect
     ),
     ResultDetectionConditionText = c(
       cond_nd,
