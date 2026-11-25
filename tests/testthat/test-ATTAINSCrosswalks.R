@@ -225,6 +225,32 @@ testthat::test_that("Excel file generation works correctly with overwrite = T in
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
+test_that("TADA_MLSummary writes the workbook when paramUseRef is provided", {
+  downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
+  if (file.exists(downloads_path)) file.remove(downloads_path)
+  
+  paramTest <- TADA_CrosswalkWQPATTAINSParam(
+    Data_MT_MissoulaCounty,
+    org_id = "MTDEQ"
+  )
+  
+  usesTest <- TADA_CreateParamUseRef(
+    Data_MT_MissoulaCounty,
+    org_id = "MTDEQ",
+    paramRef = paramTest
+  )
+  
+  TADA_MLSummary(
+    Data_MT_MissoulaCounty,
+    org_id = "MTDEQ",
+    paramUseRef = usesTest,
+    excel = TRUE,
+    overwrite = FALSE
+  )
+  
+  expect_true(file.exists(downloads_path))
+})
+
 testthat::test_that("Excel file generation works correctly with overwrite = F in TADA_MLSummaryRef when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
   # specify downloads path
   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")

@@ -659,6 +659,8 @@ test_that("MLSummaryRef numeric errors clearly", {
   df <- data.frame(
     TADA.ComparableDataIdentifier = "C1",
     TADA.CharacteristicName = "CHAR_A",
+    TADA.ResultSampleFractionText = NA_character_,
+    TADA.MethodSpeciationName = NA_character_,
     TADA.ResultMeasure.MeasureUnitCode = "mg/L",
     stringsAsFactors = FALSE
   )

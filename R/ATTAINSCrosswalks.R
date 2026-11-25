@@ -4111,7 +4111,7 @@ TADA_MLSummary <- function(
     "ATTAINS.UseName",
     "ATTAINS.WaterType",
     "IncludeOrExclude",
-    "TADA.SaltFreshIndicator" = "SaltFresh", # optional
+    "SaltFresh", # optional
     "UniqueSpatialCriteria", # optional
     "Flag.UseInput",
     "CST.PollutantName", # optional
@@ -4195,6 +4195,14 @@ TADA_MLSummary <- function(
       }
     }
 
+    # if still missing, fail clearly
+    if (!file.exists(downloads_path)) {
+      stop(
+        "TADA_MLSummary: expected workbook was not created at ",
+        downloads_path
+      )
+    }
+    
     wb <- openxlsx::loadWorkbook(downloads_path)
     if ("MLSummaryRef" %in% openxlsx::sheets(wb)) {
       openxlsx::removeWorksheet(wb, "MLSummaryRef")
@@ -4217,8 +4225,23 @@ TADA_MLSummary <- function(
       cols = 1:ncol(out),
       widths = "auto"
     )
+    
+    # save base file
     openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
-    message("Saved as: ", normalizePath(downloads_path))
+    
+    # create timestamped copy when overwrite = FALSE
+    save_path <- downloads_path
+    if (!isTRUE(overwrite)) {
+      save_path <- sprintf(
+        "%s_%s.%s",
+        tools::file_path_sans_ext(downloads_path),
+        format(Sys.time(), "%Y%m%d_%H%M%S"),
+        tools::file_ext(downloads_path)
+      )
+      file.copy(downloads_path, save_path, overwrite = TRUE)
+    }
+    
+    message("Saved as: ", normalizePath(save_path))
   }
 
   out <- out |> dplyr::select(dplyr::any_of(key_cols)) |> dplyr::distinct()
