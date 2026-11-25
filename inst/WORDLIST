@@ -73,8 +73,11 @@ CreateATTAINSAUMLCrosswalk
 CreateAUMLCrosswalk
 CreateComparableID
 CreatePairRef
+CreateParamUseRef
 CreateUnitRef
 CriteriaMethodology
+CrosswalkCSTWQPATTAINSParam
+CrosswalkWQPATTAINSParam
 Cybertown
 DEV
 DataDictionary
@@ -168,7 +171,6 @@ LongitudeMeasure
 LowerFence
 Lvls
 MEDEP
-MLSummary
 MLSummaryRef
 MLs
 MPN
@@ -243,8 +245,6 @@ PairingGroupRank
 Param
 ParamUseMLCrosswalks
 ParameterName
-ParameterNames
-ParametersForAnalysis
 Penobscot
 PenobscotNationWorkflow
 PhysChem
@@ -343,7 +343,6 @@ TADADataRetrieval
 TADAGeospatialRefLayers
 TADAModule
 TADAPackageDemo
-TADAPriorityChar
 TADAPriorityCharConvertRef
 TADAPriorityCharUnitRef
 TADAProfile
@@ -373,8 +372,6 @@ UpdateATTAINSAUMLCrosswalk
 UpdateTribalLayers
 UpperFence
 UseName
-UseNames
-UsesForAnalysis
 UsesRef
 VCS
 ViewATTAINS
@@ -442,12 +439,10 @@ countycode
 createBBox
 createTADABasemap
 cristinamullin
-criteriaMethods
 crosswalked
 crs
 cst
 csv
-cwa
 dailyagg
 dataRetrieval
 dateTime
@@ -457,7 +452,6 @@ depthcat
 devtools
 df
 dfs
-displayUniqueId
 dplyr
 du
 eXchange
@@ -534,6 +528,7 @@ overdetects
 owapps
 param
 paramRef
+paramUseRef
 params
 pch
 pchIcons
@@ -590,7 +585,6 @@ uncommenting
 unprefixed
 useR
 usepa
-usesRef
 waterbodies
 waterbody
 waterdata
@@ -599,7 +593,6 @@ webservices
 webserviceurl
 wo
 wqp
-wqs
 wqx
 writeLayerIfChanged
 www
