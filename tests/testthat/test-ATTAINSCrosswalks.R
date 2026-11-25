@@ -197,34 +197,6 @@ testthat::test_that("Excel file generation works correctly with overwrite = F in
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-testthat::test_that("Excel file generation works correctly with overwrite = T in TADA_CreateParamUseRef  when the ParamUseMLCrosswalks.xlsx does not exist yet.", {
-  # specify downloads path
-  downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
-
-  # 1. Remove the file if it already exists
-  if (file.exists(downloads_path)) {
-    file.remove(downloads_path)
-  }
-
-  # 2. Run the function being tested
-  paramTest <- TADA_CrosswalkWQPATTAINSParam(
-    Data_MT_MissoulaCounty,
-    org_id = "MTDEQ"
-  )
-  usesTest <- TADA_CreateParamUseRef(
-    Data_MT_MissoulaCounty,
-    org_id = "MTDEQ",
-    paramRef = paramTest,
-    excel = T,
-    overwrite = T
-  )
-  # 3. Assertions
-  expect_true(file.exists(downloads_path))
-
-  # Optional: Clean up after test completes
-  on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
-})
-
 test_that("TADA_MLSummary writes the workbook when paramUseRef is provided", {
   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
   if (file.exists(downloads_path)) file.remove(downloads_path)
@@ -274,7 +246,7 @@ testthat::test_that("Excel file generation works correctly with overwrite = F in
     final <- TADA_MLSummary(
       Data_MT_MissoulaCounty,
       org_id = "MTDEQ",
-      usesRef = usesTest,
+      paramUseRef = usesTest,
       excel = T,
       overwrite = F
     ),
@@ -320,7 +292,7 @@ testthat::test_that("Excel file generation works correctly with overwrite = T in
   final <- TADA_MLSummary(
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ",
-    usesRef = usesTest,
+    paramUseRef = usesTest,
     excel = T,
     overwrite = T
   )
@@ -381,7 +353,7 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_Cross
   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 })
 
-testthat::test_that("Excel file generation works with blank inputs in TADA_CreateParamUseRef  even when excel file does not exist yet.", {
+testthat::test_that("Excel file generation works with blank inputs in TADA_CreateParamUseRef even when excel file does not exist yet.", {
   # specify downloads path
   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
 
