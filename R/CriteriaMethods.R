@@ -206,7 +206,7 @@ TADA_DefineCriteriaMethodology <- function(
     "TADA.MethodSpeciationName",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
-  
+
   missing_data_cols <- setdiff(required_data_cols, names(.data))
   if (length(missing_data_cols) > 0) {
     stop(
@@ -214,7 +214,7 @@ TADA_DefineCriteriaMethodology <- function(
       paste(missing_data_cols, collapse = ", ")
     )
   }
-  
+
   # validation arg inputs
   if (!is.logical(auto_assign)) {
     stop("TADA_DefineCriteriaMethodology: auto_assign must be TRUE/FALSE.")

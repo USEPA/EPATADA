@@ -499,7 +499,7 @@ test_that("final formatting preserves a single NA UseName summary row", {
     TADA.ResultMeasure.MeasureUnitCode = "mg/L",
     stringsAsFactors = FALSE
   )
-  
+
   # Create MLSummaryRef that will lead to both a specific use row and a NA-UseName row
   ml <- data.frame(
     TADA.MonitoringLocationIdentifier = "ML1",
@@ -670,26 +670,25 @@ test_that("MLSummaryRef numeric errors clearly", {
 
 test_that("retrieve TADA community hub criteria table as an example user supplied table works.", {
   df <- TADA_GetCriteriaFile(org_id = "MTDEQ")
-  
+
   MT_test <- TADA_DefineCriteriaMethodology(
     Data_MT_MissoulaCounty,
     org_id = "MTDEQ",
     criteriaMethods = df
   )[[1]]
-  
+
   # subset to ESCHERICHIA COLI rows in both tables
-  df_ecoli <- df |>
-    dplyr::filter(TADA.CharacteristicName == "ESCHERICHIA COLI")
-  
+  df_ecoli <- df |> dplyr::filter(TADA.CharacteristicName == "ESCHERICHIA COLI")
+
   mt_ecoli <- MT_test |>
     dplyr::filter(TADA.CharacteristicName == "ESCHERICHIA COLI")
-  
+
   # check rows exist in source
   expect_gt(nrow(df_ecoli), 0)
-  
+
   # check the number of E. coli rows is the same in both
   expect_equal(nrow(mt_ecoli), nrow(df_ecoli))
-  
+
   # make sure MT_test contains the flag column
   expect_true("Flag.UserSuppliedCriteriaMatch" %in% names(MT_test))
 })
