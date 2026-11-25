@@ -201,7 +201,7 @@ testthat::test_that("returns rows from MLSummaryRef path and hides ComparableDat
   expect_true(any(res$ATTAINS.ParameterName == "PARAM_X"))
 })
 
-test_that("criteriaMethods path fills missing columns and handles missing TADA.ComparableDataIdentifier safely", {
+test_that("criteriaMethods path fills missing columns and handles missing TADA.ComparableDataIdentifier in criteria table safely", {
   df <- data.frame(
     TADA.ComparableDataIdentifier = c("C1", "C2"),
     TADA.CharacteristicName = c("CHAR_A", "CHAR_B"),
@@ -494,14 +494,23 @@ test_that("final formatting preserves a single NA UseName summary row", {
   df <- data.frame(
     TADA.ComparableDataIdentifier = "C1",
     TADA.CharacteristicName = "CHAR_A",
+    TADA.ResultSampleFractionText = NA_character_,
+    TADA.MethodSpeciationName = NA_character_,
     TADA.ResultMeasure.MeasureUnitCode = "mg/L",
     stringsAsFactors = FALSE
   )
+  
   # Create MLSummaryRef that will lead to both a specific use row and a NA-UseName row
   ml <- data.frame(
+    TADA.MonitoringLocationIdentifier = "ML1",
+    TADA.MonitoringLocationTypeName = "River",
+    TADA.LongitudeMeasure = -122.5,
+    TADA.LatitudeMeasure = 47.6,
     ATTAINS.ParameterName = "PARAM_X",
     ATTAINS.UseName = "USE1",
     ATTAINS.OrganizationIdentifier = "ORGX",
+    IncludeOrExclude = "Include",
+    Flag.UseInput = TRUE,
     UniqueSpatialCriteria = NA_character_,
     ATTAINS.WaterType = "RIVER",
     ATTAINS.AssessmentUnitIdentifier = "AU1",
@@ -544,6 +553,8 @@ test_that("MLSummaryRef numeric (non-data.frame, non-character) errors clearly",
   df <- data.frame(
     TADA.ComparableDataIdentifier = "C1",
     TADA.CharacteristicName = "CHAR_A",
+    TADA.ResultSampleFractionText = NA_character_,
+    TADA.MethodSpeciationName = NA_character_,
     TADA.ResultMeasure.MeasureUnitCode = "mg/L",
     stringsAsFactors = FALSE
   )
@@ -655,4 +666,30 @@ test_that("MLSummaryRef numeric errors clearly", {
     TADA_DefineCriteriaMethodology(.data = df, MLSummaryRef = 123),
     "MLSummaryRef must be a data frame"
   )
+})
+
+test_that("retrieve TADA community hub criteria table as an example user supplied table works.", {
+  df <- TADA_GetCriteriaFile(org_id = "MTDEQ")
+  
+  MT_test <- TADA_DefineCriteriaMethodology(
+    Data_MT_MissoulaCounty,
+    org_id = "MTDEQ",
+    criteriaMethods = df
+  )[[1]]
+  
+  # subset to ESCHERICHIA COLI rows in both tables
+  df_ecoli <- df |>
+    dplyr::filter(TADA.CharacteristicName == "ESCHERICHIA COLI")
+  
+  mt_ecoli <- MT_test |>
+    dplyr::filter(TADA.CharacteristicName == "ESCHERICHIA COLI")
+  
+  # check rows exist in source
+  expect_gt(nrow(df_ecoli), 0)
+  
+  # check the number of E. coli rows is the same in both
+  expect_equal(nrow(mt_ecoli), nrow(df_ecoli))
+  
+  # make sure MT_test contains the flag column
+  expect_true("Flag.UserSuppliedCriteriaMatch" %in% names(MT_test))
 })

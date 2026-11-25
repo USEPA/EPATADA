@@ -198,6 +198,24 @@ TADA_DefineCriteriaMethodology <- function(
     ))
   }
 
+  # validation columns in .data
+  required_data_cols <- c(
+    "TADA.ComparableDataIdentifier",
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  )
+  
+  missing_data_cols <- setdiff(required_data_cols, names(.data))
+  if (length(missing_data_cols) > 0) {
+    stop(
+      "TADA_DefineCriteriaMethodology: .data is missing required columns: ",
+      paste(missing_data_cols, collapse = ", ")
+    )
+  }
+  
+  # validation arg inputs
   if (!is.logical(auto_assign)) {
     stop("TADA_DefineCriteriaMethodology: auto_assign must be TRUE/FALSE.")
   }
@@ -436,10 +454,15 @@ TADA_DefineCriteriaMethodology <- function(
       }
     }
 
-    # retrieve ML_SummaryRef col names
-    # ML_colnames <- names(suppressMessages(TADA_MLSummary()))
-    #
-    # MLSummaryRef <- dplyr::select(MLSummaryRef, dplyr::all_of(ML_colnames))
+    # correct column types for any empty columns and add on all unique TADA.CharacteristicName
+    MLSummaryRef <- TADA_CorrectColType(MLSummaryRef) |>
+      dplyr::right_join(
+        unique_chars,
+        by = c(
+          "ATTAINS.OrganizationIdentifier",
+          "TADA.ComparableDataIdentifier"
+        )
+      )
 
     DefineCriteriaMethodology <- MLSummaryRef |>
       TADA_CorrectColType() |>
@@ -447,7 +470,8 @@ TADA_DefineCriteriaMethodology <- function(
         unique_chars,
         by = c(
           "ATTAINS.OrganizationIdentifier",
-          "TADA.ComparableDataIdentifier"
+          "TADA.ComparableDataIdentifier",
+          "TADA.CharacteristicName"
         )
       ) |>
       dplyr::bind_rows(blank_criteria) |>
@@ -482,52 +506,6 @@ TADA_DefineCriteriaMethodology <- function(
         "CST.SourceLink"
       ))) |>
       dplyr::distinct()
-
-    if (harmonizeSynonyms) {
-      message(
-        "harmonizeSynonyms = TRUE: harmonizing your user supplied criteria table with characteristic, fraction and speciation name",
-        "to match those from your WQP data."
-      )
-      # create the synonym table with values from the WQP .data (these should all have the correct targets)
-      criteria_synonym <- TADA_GetSynonymRef(.data)
-
-      # extract unique char, frac, speciation and units from WQP data
-      unique_combos <- dplyr::select(
-        .data,
-        "TADA.CharacteristicName",
-        "TADA.ResultSampleFractionText",
-        "TADA.MethodSpeciationName",
-        "TADA.ResultMeasure.MeasureUnitCode"
-      ) |>
-        dplyr::mutate(TADA.ResultMeasureValue = NA) |>
-        dplyr::distinct()
-
-      # join criteria table with unique combos, identifying the target char, frac and speciation
-      criteria_harmonized_w_units <- criteriaMethods |>
-        TADA_CorrectColType() |>
-        dplyr::left_join(
-          unique_combos,
-          by = c(
-            "TADA.CharacteristicName",
-            "TADA.ResultSampleFractionText",
-            "TADA.MethodSpeciationName"
-          )
-        )
-
-      # harmonize the criteria table with the desired target char, frac and speciation
-      criteria_harmonized <- TADA_HarmonizeSynonyms(
-        .data = criteria_harmonized_w_units,
-        ref = criteria_synonym
-      )
-
-      # reformat, filter by only chars found in .data
-      criteriaMethods <- criteria_harmonized |>
-        dplyr::filter(
-          TADA.CharacteristicName %in% .data$TADA.CharacteristicName
-        ) |>
-        dplyr::select(dplyr::any_of(c(desired_cols))) |>
-        dplyr::distinct()
-    }
 
     criteriaMethods2 <- criteriaMethods |>
       dplyr::right_join(
