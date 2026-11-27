@@ -207,7 +207,7 @@ criteria table
 
 4)  (Recommended) Go through the step-by-step review process with the 3
     TADA crosswalk reference file generation for
-    TADA_ParametersForAnalysis, TADA_UsesForAnalysis, and
+    TADA_CrosswalkWQPATTAINSParam, TADA_CreateParamUseRef, and
     TADA_MLSummaryRef. This vignette does not go through this
     recommended workflow. Please see ExampleMod3Workflow.Rmd for this
     guided workflow.
@@ -295,7 +295,7 @@ organization. Users should be aware that this will only return rows for
 any matching values from a WQP characteristic to ATTAINS parameter alias
 table. It is likely that these value(s) will require a thorough review
 process during each step of the process with the recommended workflow of
-TADA_ParametersForAnalysis, TADA_UsesForAnalysis and TADA_MLSummaryRef.
+TADA_CrosswalkWQPATTAINSParam, TADA_CreateParamUseRef and TADA_MLSummaryRef.
 
 ```{r auto-fill-output}
 MT.Criteria.auto <- TADA_DefineCriteriaMethodology(
