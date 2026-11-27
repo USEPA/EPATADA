@@ -366,7 +366,7 @@ TADA_DefineCriteriaMethodology <- function(
       )
 
     cst_updated <- CriteriaSearchToolRef |>
-      dplyr::left_join(ATTAINSOrgToCSTEntityRef) |>
+      dplyr::left_join(ATTAINSOrgToCSTEntityRef, by = "ENTITY_ABBR") |>
       dplyr::left_join(
         CriteriaSearchToolRef_Sources,
         by = c("CRIT_SOURCE_ID"),
@@ -409,6 +409,23 @@ TADA_DefineCriteriaMethodology <- function(
   if (!is.null(MLSummaryRef)) {
     if (!is.data.frame(MLSummaryRef)) {
       stop("TADA_DefineCriteriaMethodology: MLSummaryRef must be a data frame.")
+    }
+    
+    required_mlsummary_cols <- c(
+      "TADA.ComparableDataIdentifier",
+      "ATTAINS.OrganizationIdentifier",
+      "ATTAINS.ParameterName",
+      "ATTAINS.UseName",
+      "IncludeOrExclude",
+      "Flag.UseInput"
+    )
+    
+    missing_mlsummary_cols <- setdiff(required_mlsummary_cols, names(MLSummaryRef))
+    if (length(missing_mlsummary_cols) > 0) {
+      stop(
+        "TADA_DefineCriteriaMethodology: MLSummaryRef is missing required columns: ",
+        paste(missing_mlsummary_cols, collapse = ", ")
+      )
     }
 
     required_cols <- c(
@@ -457,7 +474,8 @@ TADA_DefineCriteriaMethodology <- function(
           "ATTAINS.OrganizationIdentifier",
           "TADA.ComparableDataIdentifier",
           "TADA.CharacteristicName"
-        )
+        ),
+        relationship = "many-to-many"
       )
     } else {
       MLSummaryRef <- dplyr::right_join(
@@ -466,7 +484,8 @@ TADA_DefineCriteriaMethodology <- function(
         by = c(
           "ATTAINS.OrganizationIdentifier",
           "TADA.ComparableDataIdentifier"
-        )
+        ),
+        relationship = "many-to-many"
       )
     }
 
@@ -613,6 +632,7 @@ TADA_DefineCriteriaMethodology <- function(
       "CST.SourceLink",
       "Flag.UserSuppliedCriteriaMatch"
     ))) |>
+    dplyr::distinct() |>
     TADA_CorrectColType()
 
   # if displayUniqueID = FALSE, convert TADA.ComparableDataIdentifier to NA. Only TADA.CharacteristicName is shown now
