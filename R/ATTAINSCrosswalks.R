@@ -4222,7 +4222,7 @@ TADA_MLSummary <- function(
         downloads_path
       )
     }
-    
+
     wb <- openxlsx::loadWorkbook(downloads_path)
     if ("MLSummaryRef" %in% openxlsx::sheets(wb)) {
       openxlsx::removeWorksheet(wb, "MLSummaryRef")
@@ -4245,10 +4245,10 @@ TADA_MLSummary <- function(
       cols = 1:ncol(out),
       widths = "auto"
     )
-    
+
     # save base file
     openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
-    
+
     # create timestamped copy when overwrite = FALSE
     save_path <- downloads_path
     if (!isTRUE(overwrite)) {
@@ -4260,7 +4260,7 @@ TADA_MLSummary <- function(
       )
       file.copy(downloads_path, save_path, overwrite = TRUE)
     }
-    
+
     message("Saved as: ", normalizePath(save_path))
   }
 
