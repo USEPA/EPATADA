@@ -410,7 +410,7 @@ TADA_DefineCriteriaMethodology <- function(
     if (!is.data.frame(MLSummaryRef)) {
       stop("TADA_DefineCriteriaMethodology: MLSummaryRef must be a data frame.")
     }
-    
+
     required_mlsummary_cols <- c(
       "TADA.ComparableDataIdentifier",
       "ATTAINS.OrganizationIdentifier",
@@ -419,8 +419,11 @@ TADA_DefineCriteriaMethodology <- function(
       "IncludeOrExclude",
       "Flag.UseInput"
     )
-    
-    missing_mlsummary_cols <- setdiff(required_mlsummary_cols, names(MLSummaryRef))
+
+    missing_mlsummary_cols <- setdiff(
+      required_mlsummary_cols,
+      names(MLSummaryRef)
+    )
     if (length(missing_mlsummary_cols) > 0) {
       stop(
         "TADA_DefineCriteriaMethodology: MLSummaryRef is missing required columns: ",

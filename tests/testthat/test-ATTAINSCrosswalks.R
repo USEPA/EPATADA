@@ -36,8 +36,7 @@ testthat::test_that("TADA_CrosswalkCSTWQPATTAINSParam with no parameter crosswal
   # A user supplied table when paramRef has no crosswalk should return 0 rows (empty data frame).
   # Check to make sure there are 7 columns, 0 rows
   testthat::expect_true(
-    dim(use_param_ref_none)[1] == 0 &&
-      dim(use_param_ref_none)[2] == 9
+    dim(use_param_ref_none)[1] == 0 && dim(use_param_ref_none)[2] == 9
   )
 })
 
@@ -351,12 +350,12 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_Cross
 # testthat::test_that("Excel file generation works with blank inputs in TADA_CreateParamUseRef even when excel file does not exist yet.", {
 #   # specify downloads path
 #   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
-# 
+#
 #   # Remove the file if it already exists
 #   if (file.exists(downloads_path)) {
 #     file.remove(downloads_path)
 #   }
-# 
+#
 #   # Run the function being tested
 #   usesTest <- TADA_CreateParamUseRef(excel = T, overwrite = T)
 #   # Reload the updated workbook so wb now includes those tabs
@@ -365,9 +364,9 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_Cross
 #   expect_true(nsheets == 4)
 #   # now continue any remaining edits if needed, then final save
 #   openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
-# 
+#
 #   expect_true(file.exists(downloads_path))
-# 
+#
 #   # Remove the file and test with overwrite = F
 #   if (file.exists(downloads_path)) {
 #     file.remove(downloads_path)
@@ -384,50 +383,50 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_Cross
 #   expect_true(nsheets2 == 3)
 #   # now save again
 #   openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
-# 
+#
 #   # find the timestamped copy index
 #   idx_pat <- which(grepl("ParamUseMLCrosswalks_", msg, fixed = TRUE))
-# 
+#
 #   # find timestamped path
 #   timestamp_path <- gsub("Saved as: ", "", msg[idx_pat])
-# 
+#
 #   # remove time stamped path
 #   if (file.exists(timestamp_path)) {
 #     file.remove(timestamp_path)
 #   }
-# 
+#
 #   expect_true(file.exists(downloads_path))
-# 
+#
 #   # Clean up after test completes
 #   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 # })
-# 
+#
 # testthat::test_that("Excel file generation works with blank inputs in TADA_MLSummary even when excel file does not exist yet.", {
 #   # specify downloads path
 #   downloads_path <- .get_downloads_path("ParamUseMLCrosswalks.xlsx")
-# 
+#
 #   # Remove the file if it already exists
 #   if (file.exists(downloads_path)) {
 #     file.remove(downloads_path)
 #   }
-# 
+#
 #   # Run test
 #   ML_Test <- TADA_MLSummary(excel = T, overwrite = T)
 #   # Reload the updated workbook so wb now includes those tabs
 #   wb <- openxlsx::loadWorkbook(downloads_path)
-# 
+#
 #   nsheets <- length(names(wb))
 #   expect_true(nsheets == 5)
 #   # now save again
 #   openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
 #   # file should exist
 #   expect_true(file.exists(downloads_path))
-# 
+#
 #   # Remove the file
 #   if (file.exists(downloads_path)) {
 #     file.remove(downloads_path)
 #   }
-# 
+#
 #   # Run the function with overwrite = F now
 #   msg <- utils::capture.output(
 #     ML_Test2 <- TADA_MLSummary(excel = T, overwrite = F),
@@ -440,21 +439,21 @@ testthat::test_that("Excel file generation works with blank inputs in TADA_Cross
 #   expect_true(nsheets2 == 4)
 #   # now save again
 #   openxlsx::saveWorkbook(wb, downloads_path, overwrite = TRUE)
-# 
+#
 #   # find the timestamped copy index name
 #   idx_pat <- which(grepl("ParamUseMLCrosswalks_", msg, fixed = TRUE))
-# 
+#
 #   # find timestamped path
 #   timestamp_path <- gsub("Saved as: ", "", msg[idx_pat])
-# 
+#
 #   # remove time stamped path
 #   if (file.exists(timestamp_path)) {
 #     file.remove(timestamp_path)
 #   }
-# 
+#
 #   # orginal copy still exists check
 #   expect_true(file.exists(downloads_path))
-# 
+#
 #   # Clean up after test completes
 #   on.exit(if (file.exists(downloads_path)) file.remove(downloads_path))
 # })
