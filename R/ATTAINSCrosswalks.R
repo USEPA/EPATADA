@@ -1505,33 +1505,35 @@ TADA_CrosswalkCSTWQPATTAINSParam <- function(
   )
 
   if (toupper(auto_assign) == "NONE") {
-    out <- attains_crosswalk |>
-      dplyr::mutate(CST.PollutantName = NA_character_)
-    
-    } else {
+    out <- attains_crosswalk |> dplyr::mutate(CST.PollutantName = NA_character_)
+  } else {
     # rejoin .data to retrieve TADA.CharacteristicName
     data_char <- dplyr::distinct(.data[,
       c("TADA.ComparableDataIdentifier", "TADA.CharacteristicName"),
       drop = FALSE
     ])
-  
+
     attains_plus_char <- attains_crosswalk |>
       dplyr::left_join(
         data_char,
         by = "TADA.ComparableDataIdentifier",
         relationship = "many-to-many"
       )
-  
+
     # load CST reference data
     TADACharAliasRef <- utils::read.csv(
       system.file("extdata", "TADACharAliasRef.csv", package = "EPATADA"),
       stringsAsFactors = FALSE
     )
     orgs <- utils::read.csv(
-      system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"),
+      system.file(
+        "extdata",
+        "ATTAINSOrgToCSTEntityRef.csv",
+        package = "EPATADA"
+      ),
       stringsAsFactors = FALSE
     )
-  
+
     cst_ref <- TADA_CST_GetCriteria() |>
       dplyr::mutate(
         POLLUTANT_NAME = toupper(POLLUTANT_NAME),
@@ -1549,7 +1551,7 @@ TADA_CrosswalkCSTWQPATTAINSParam <- function(
         CST.PollutantName = POLLUTANT_NAME
       ) |>
       dplyr::distinct()
-  
+
     out <- attains_plus_char |>
       dplyr::left_join(
         cst_ref,
@@ -1565,7 +1567,7 @@ TADA_CrosswalkCSTWQPATTAINSParam <- function(
         Flag.ParameterInput
       ) |>
       dplyr::distinct()
-    }
+  }
   if (isTRUE(excel)) {
     save_path <- .TADA_ExcelParameterCrosswalk(
       ParametersCrosswalk = out,
@@ -2684,7 +2686,7 @@ TADA_CreateParamUseRef <- function(
     UsesCrosswalk_User_supplied <- paramUseRef |>
       dplyr::mutate(Flag.UseInput = "User Supplied") |>
       TADA_CorrectColType()
-    
+
     UsesCrosswalk <- UsesCrosswalk |>
       dplyr::select(dplyr::any_of(c(
         "TADA.ComparableDataIdentifier",
@@ -2696,7 +2698,7 @@ TADA_CreateParamUseRef <- function(
         "Flag.UseInput"
       ))) |>
       dplyr::mutate(IncludeOrExclude = "Include")
-    
+
     UsesCrosswalk <- dplyr::bind_rows(
       UsesCrosswalk_User_supplied,
       UsesCrosswalk

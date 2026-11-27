@@ -9,7 +9,7 @@ testthat::test_that("TADA_CrosswalkCSTWQPATTAINSParam returns all NA chars for c
     auto_assign = "None",
     excel = FALSE
   )
-  
+
   testthat::expect_true(all(is.na(param_ref_none$ATTAINS.ParameterName)))
   testthat::expect_true(all(is.na(param_ref_none$CST.PollutantName)))
 })
@@ -113,7 +113,10 @@ testthat::test_that("TADA_CrosswalkCSTWQPATTAINSParam returns all values from a 
   testthat::expect_true(
     all(
       unique(use_param_ref_all2$ATTAINS.UseName) %in%
-        unique(c(user.supplied.uses.param$ATTAINS.UseName, use_param_ref_all$ATTAINS.UseName))
+        unique(c(
+          user.supplied.uses.param$ATTAINS.UseName,
+          use_param_ref_all$ATTAINS.UseName
+        ))
     ) &&
       dim(use_param_ref_all)[2] == 9 &&
       dim(use_param_ref_all2)[2] == 9
@@ -125,7 +128,7 @@ testthat::test_that("TADA_CrosswalkCSTWQPATTAINSParam returns all values from a 
   #   auto_assign = "Org",
   #   excel = FALSE
   # )
-  # 
+  #
   # # check to make sure all rows contain all unique ComparableDataIdentifiers in the TADA data frame
   # testthat::expect_true(
   #   length(unique(test_dat$TADA.ComparableDataIdentifier)) ==
