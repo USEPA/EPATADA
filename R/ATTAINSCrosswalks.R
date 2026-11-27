@@ -1504,63 +1504,68 @@ TADA_CrosswalkCSTWQPATTAINSParam <- function(
     auto_assign = auto_assign
   )
 
-  # rejoin .data to retrieve TADA.CharacteristicName
-  data_char <- dplyr::distinct(.data[,
-    c("TADA.ComparableDataIdentifier", "TADA.CharacteristicName"),
-    drop = FALSE
-  ])
-
-  attains_plus_char <- attains_crosswalk |>
-    dplyr::left_join(
-      data_char,
-      by = "TADA.ComparableDataIdentifier",
-      relationship = "many-to-many"
+  if (toupper(auto_assign) == "NONE") {
+    out <- attains_crosswalk |>
+      dplyr::mutate(CST.PollutantName = NA_character_)
+    
+    } else {
+    # rejoin .data to retrieve TADA.CharacteristicName
+    data_char <- dplyr::distinct(.data[,
+      c("TADA.ComparableDataIdentifier", "TADA.CharacteristicName"),
+      drop = FALSE
+    ])
+  
+    attains_plus_char <- attains_crosswalk |>
+      dplyr::left_join(
+        data_char,
+        by = "TADA.ComparableDataIdentifier",
+        relationship = "many-to-many"
+      )
+  
+    # load CST reference data
+    TADACharAliasRef <- utils::read.csv(
+      system.file("extdata", "TADACharAliasRef.csv", package = "EPATADA"),
+      stringsAsFactors = FALSE
     )
-
-  # load CST reference data
-  TADACharAliasRef <- utils::read.csv(
-    system.file("extdata", "TADACharAliasRef.csv", package = "EPATADA"),
-    stringsAsFactors = FALSE
-  )
-  orgs <- utils::read.csv(
-    system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"),
-    stringsAsFactors = FALSE
-  )
-
-  cst_ref <- TADA_CST_GetCriteria() |>
-    dplyr::mutate(
-      POLLUTANT_NAME = toupper(POLLUTANT_NAME),
-      STD_POLLUTANT_NAME = toupper(STD_POLLUTANT_NAME)
-    ) |>
-    dplyr::left_join(orgs, by = "ENTITY_ABBR") |>
-    dplyr::left_join(
-      TADACharAliasRef,
-      by = c("POLLUTANT_NAME", "STD_POLLUTANT_NAME"),
-      relationship = "many-to-many"
-    ) |>
-    dplyr::select(
-      TADA.CharacteristicName = CharacteristicName,
-      ATTAINS.OrganizationIdentifier,
-      CST.PollutantName = POLLUTANT_NAME
-    ) |>
-    dplyr::distinct()
-
-  out <- attains_plus_char |>
-    dplyr::left_join(
-      cst_ref,
-      by = c("TADA.CharacteristicName", "ATTAINS.OrganizationIdentifier"),
-      relationship = "many-to-many"
-    ) |>
-    dplyr::select(
-      TADA.ComparableDataIdentifier,
-      CST.PollutantName,
-      ATTAINS.ParameterName,
-      ATTAINS.OrganizationIdentifier,
-      ATTAINS.FlagParameterName,
-      Flag.ParameterInput
-    ) |>
-    dplyr::distinct()
-
+    orgs <- utils::read.csv(
+      system.file("extdata", "ATTAINSOrgToCSTEntityRef.csv", package = "EPATADA"),
+      stringsAsFactors = FALSE
+    )
+  
+    cst_ref <- TADA_CST_GetCriteria() |>
+      dplyr::mutate(
+        POLLUTANT_NAME = toupper(POLLUTANT_NAME),
+        STD_POLLUTANT_NAME = toupper(STD_POLLUTANT_NAME)
+      ) |>
+      dplyr::left_join(orgs, by = "ENTITY_ABBR") |>
+      dplyr::left_join(
+        TADACharAliasRef,
+        by = c("POLLUTANT_NAME", "STD_POLLUTANT_NAME"),
+        relationship = "many-to-many"
+      ) |>
+      dplyr::select(
+        TADA.CharacteristicName = CharacteristicName,
+        ATTAINS.OrganizationIdentifier,
+        CST.PollutantName = POLLUTANT_NAME
+      ) |>
+      dplyr::distinct()
+  
+    out <- attains_plus_char |>
+      dplyr::left_join(
+        cst_ref,
+        by = c("TADA.CharacteristicName", "ATTAINS.OrganizationIdentifier"),
+        relationship = "many-to-many"
+      ) |>
+      dplyr::select(
+        TADA.ComparableDataIdentifier,
+        CST.PollutantName,
+        ATTAINS.ParameterName,
+        ATTAINS.OrganizationIdentifier,
+        ATTAINS.FlagParameterName,
+        Flag.ParameterInput
+      ) |>
+      dplyr::distinct()
+    }
   if (isTRUE(excel)) {
     save_path <- .TADA_ExcelParameterCrosswalk(
       ParametersCrosswalk = out,
@@ -1568,8 +1573,7 @@ TADA_CrosswalkCSTWQPATTAINSParam <- function(
       overwrite = overwrite
     )
   }
-
-  out
+  return(out)
 }
 
 
@@ -2678,12 +2682,28 @@ TADA_CreateParamUseRef <- function(
   # user supplied paramUsesRef - prioritize this list.
   if (!is.null(paramUseRef)) {
     UsesCrosswalk_User_supplied <- paramUseRef |>
-      dplyr::mutate(Flag.UseInput = "User Supplied")
-
+      dplyr::mutate(Flag.UseInput = "User Supplied") |>
+      TADA_CorrectColType()
+    
+    UsesCrosswalk <- UsesCrosswalk |>
+      dplyr::select(dplyr::any_of(c(
+        "TADA.ComparableDataIdentifier",
+        "ATTAINS.OrganizationIdentifier",
+        "ATTAINS.ParameterName",
+        "ATTAINS.UseName",
+        "CST.PollutantName",
+        "CST.UseName",
+        "Flag.UseInput"
+      ))) |>
+      dplyr::mutate(IncludeOrExclude = "Include")
+    
     UsesCrosswalk <- dplyr::bind_rows(
       UsesCrosswalk_User_supplied,
       UsesCrosswalk
     ) |>
+      dplyr::mutate(
+        IncludeOrExclude = tidyr::replace_na(IncludeOrExclude, "Include")
+      ) |>
       dplyr::distinct()
   } else {
     UsesCrosswalk <- UsesCrosswalk |>

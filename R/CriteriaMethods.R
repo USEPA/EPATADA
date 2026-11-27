@@ -303,16 +303,6 @@ TADA_DefineCriteriaMethodology <- function(
           overwrite = FALSE # Changed to FALSE when auto_assign = T KW 4/17/26
         )
       )
-
-      # correct column types for any empty columns and add on all unique TADA.CharacteristicName
-      MLSummaryRef <- TADA_CorrectColType(MLSummaryRef) |>
-        dplyr::right_join(
-          unique_chars,
-          by = c(
-            "ATTAINS.OrganizationIdentifier",
-            "TADA.ComparableDataIdentifier"
-          )
-        )
     }
   }
   # ------------------------------------------------------------
@@ -448,6 +438,7 @@ TADA_DefineCriteriaMethodology <- function(
       "DepthCategory",
       "UniqueSpatialCriteria"
     )
+    
     for (col in optional_cols) {
       if (!col %in% names(MLSummaryRef)) {
         MLSummaryRef[[col]] <- NA_character_
@@ -455,14 +446,29 @@ TADA_DefineCriteriaMethodology <- function(
     }
 
     # correct column types for any empty columns and add on all unique TADA.CharacteristicName
-    MLSummaryRef <- TADA_CorrectColType(MLSummaryRef) |>
-      dplyr::right_join(
+    MLSummaryRef <- TADA_CorrectColType(MLSummaryRef)
+    
+    # if cst pollutant and use is provided in MLSummaryRef, then TADA.CharacteristicName will be included in that table
+    if ("TADA.CharacteristicName" %in% names(MLSummaryRef)) {
+      MLSummaryRef <- dplyr::right_join(
+        MLSummaryRef,
+        unique_chars,
+        by = c(
+          "ATTAINS.OrganizationIdentifier",
+          "TADA.ComparableDataIdentifier",
+          "TADA.CharacteristicName"
+        )
+      )
+    } else {
+      MLSummaryRef <- dplyr::right_join(
+        MLSummaryRef,
         unique_chars,
         by = c(
           "ATTAINS.OrganizationIdentifier",
           "TADA.ComparableDataIdentifier"
         )
       )
+    }
 
     DefineCriteriaMethodology <- MLSummaryRef |>
       TADA_CorrectColType() |>
